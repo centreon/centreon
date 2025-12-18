@@ -48,7 +48,7 @@ const useSearch = <TFilters>({
     ['name']
   );
 
-  return { onChange, areAdvancedFiltersVisible, filters };
+  return { areAdvancedFiltersVisible, filters, onChange };
 };
 
 export default useSearch;

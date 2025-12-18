@@ -76,7 +76,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
 
   const header = (
     <div className={classes.resourcesHeader}>
-      <Avatar compact className={avatarClasses.widgetAvatar}>
+      <Avatar className={avatarClasses.widgetAvatar} compact>
         3
       </Avatar>
       <Typography className={classes.resourceTitle}>{title}</Typography>
@@ -90,24 +90,23 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
         {widgetProperties?.singleMetricSelection &&
         widgetProperties?.singleResourceSelection ? (
           <SingleAutocompleteField
-            forceInputRenderValue
             className={classes.resources}
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
+            forceInputRenderValue
             getOptionItemLabel={getOptionLabel}
             getOptionLabel={getOptionLabel}
             isOptionEqualToValue={(option, selectedValue) =>
               equals(option?.id, selectedValue?.id)
             }
             label={t(labelSelectMetric)}
+            onChange={changeMetric}
             options={metrics}
             value={head(selectedMetrics || []) || null}
-            onChange={changeMetric}
           />
         ) : (
           <MultiAutocompleteField
-            disableSortedOptions
             autocompleteSlotsAndSlotProps={{
               slotProps: {
                 listbox: {
@@ -123,10 +122,15 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
+            disableSortedOptions
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
             getTagLabel={getTagLabel}
             label={t(labelSelectMetric)}
+            onChange={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
             options={metrics}
             renderOption={
               widgetProperties?.singleMetricSelection
@@ -134,10 +138,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
                 : renderOptionsForMultipleMetricsAndResources
             }
             value={selectedMetrics || []}
-            onChange={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
           />
         )}
       </div>

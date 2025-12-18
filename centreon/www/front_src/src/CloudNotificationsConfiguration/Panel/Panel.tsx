@@ -38,10 +38,10 @@ const Panel = ({ marginBottom = 20 }: Props): JSX.Element => {
     <Box className={classes.panelContainer}>
       <PanelComponent
         className={classes.panel}
-        selectedTab={<Form />}
-        width={panelWidth}
         onClose={handleClose}
         onResize={setPanelWidth}
+        selectedTab={<Form />}
+        width={panelWidth}
       />
     </Box>
   );

@@ -122,10 +122,10 @@ const PanelHeader = ({
                 (displayShrinkRefresh && isLastRefreshMoreThanADay) ? (
                   <IconButton
                     disabled={!!isFetching}
+                    onClick={refresh}
                     size="small"
                     title={labelRefresh}
                     tooltipPlacement="top"
-                    onClick={refresh}
                   >
                     {isFetching ? (
                       <CircularProgress size={22} />
@@ -137,6 +137,7 @@ const PanelHeader = ({
                   <Button
                     className={classes.panelHeaderRefreshButton}
                     disabled={!!isFetching}
+                    onClick={refresh}
                     size="small"
                     startIcon={
                       isFetching ? (
@@ -145,7 +146,6 @@ const PanelHeader = ({
                         <UpdateIcon sx={{ height: 22, width: 22 }} />
                       )
                     }
-                    onClick={refresh}
                   >
                     {labelRefresh}
                   </Button>
@@ -162,8 +162,8 @@ const PanelHeader = ({
               >
                 <IconButton
                   ariaLabel={t(labelSeeMore, { page })}
-                  title={t(labelSeeMore, { page })}
                   onClick={changeViewMode}
+                  title={t(labelSeeMore, { page })}
                 >
                   <DvrIcon fontSize="small" />
                 </IconButton>
@@ -172,10 +172,10 @@ const PanelHeader = ({
 
             {isWebPageWidget && (
               <IconButton
+                onClick={refresWebpageWidget}
                 size="small"
                 title={'Refresh the page'}
                 tooltipPlacement="top"
-                onClick={refresWebpageWidget}
               >
                 <UpdateIcon sx={{ height: 22, width: 22 }} />
               </IconButton>
@@ -184,8 +184,8 @@ const PanelHeader = ({
             {!expandableData || !expandableData?.isExpanded ? (
               <IconButton
                 ariaLabel={t(labelMoreActions) as string}
-                title={t(labelMoreActions) as string}
                 onClick={openMoreActions}
+                title={t(labelMoreActions) as string}
               >
                 <MoreHorizIcon fontSize="small" />
               </IconButton>
@@ -196,20 +196,20 @@ const PanelHeader = ({
               anchor={moreActionsOpen}
               close={closeMoreActions}
               duplicate={duplicate}
-              id={id}
               expandableData={expandableData}
+              id={id}
             />
           </div>
         ) : (
           <ExpandableButton expandableData={expandableData} />
         )
       }
-      className={classes.panelHeader}
       classes={{
         content: displayShrinkRefresh
           ? classes.panelHeaderContentWithShrink
           : classes.panelHeaderContent
       }}
+      className={classes.panelHeader}
       title={
         <Tooltip
           followCursor={false}

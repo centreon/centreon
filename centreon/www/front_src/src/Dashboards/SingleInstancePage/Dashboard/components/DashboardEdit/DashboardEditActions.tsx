@@ -118,9 +118,9 @@ const DashboardEditActions = ({
         disabled={!!isFetchingDashboard}
         icon={<EditOutlinedIcon />}
         iconVariant="start"
+        onClick={startEditing}
         size="small"
         variant="ghost"
-        onClick={startEditing}
       >
         {t(labelEditDashboard)}
       </Button>
@@ -132,9 +132,9 @@ const DashboardEditActions = ({
       <Button
         aria-label={t(labelCancel) as string}
         data-testid="cancel_dashboard"
+        onClick={cancel}
         size="small"
         variant="ghost"
-        onClick={cancel}
       >
         {t(labelCancel)}
       </Button>
@@ -142,9 +142,9 @@ const DashboardEditActions = ({
         aria-label={t(labelSave) as string}
         data-testid="save_dashboard"
         disabled={!dirty}
+        onClick={saveAndProceed}
         size="small"
         variant="primary"
-        onClick={saveAndProceed}
       >
         {t(labelSave)}
       </Button>

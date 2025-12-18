@@ -125,12 +125,12 @@ const render = ({ options, data, isPublic = false }: Props): void => {
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
                 <ResourcesTable
-                  hasDescription={false}
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
                     type: 'manual'
                   }}
+                  hasDescription={false}
                   id="1"
                   panelData={data}
                   panelOptions={options}
@@ -839,8 +839,8 @@ describe('Open tickets', () => {
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
       expect(request.body).to.deep.equal({
         data: {
-          selection: '14;19',
-          rule_id: '1'
+          rule_id: '1',
+          selection: '14;19'
         }
       });
     });
@@ -882,8 +882,8 @@ describe('Open tickets', () => {
     cy.waitForRequest('@postTicketClose').then(({ request }) => {
       expect(request.body).to.deep.equal({
         data: {
-          selection: '6',
-          rule_id: '1'
+          rule_id: '1',
+          selection: '6'
         }
       });
     });

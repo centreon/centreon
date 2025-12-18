@@ -53,20 +53,20 @@ const DeleteModal = (): JSX.Element => {
   const agent = itemToDeleteRef.current?.agent?.name;
 
   return (
-    <Modal open={isOpen} onClose={close} size="large">
+    <Modal onClose={close} open={isOpen} size="large">
       <Modal.Header>
         {t(hasPoller ? labelDeletePoller : labelDeleteAgent)}
       </Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
+            components={{ bold: <strong /> }}
             defaults={
               hasPoller
                 ? labelDeletePollerConfirmation
                 : labelDeleteAgentConfirmation
             }
-            values={hasPoller ? { poller, agent } : { agent }}
-            components={{ bold: <strong /> }}
+            values={hasPoller ? { agent, poller } : { agent }}
           />
         </Typography>
       </Modal.Body>
@@ -79,10 +79,10 @@ const DeleteModal = (): JSX.Element => {
         }}
       >
         {isMutating && <CircularProgress size={20} />}
-        <Button variant="ghost" onClick={close} disabled={isMutating}>
+        <Button disabled={isMutating} onClick={close} variant="ghost">
           {t(labelCancel)}
         </Button>
-        <Button isDanger onClick={confirm} disabled={isMutating}>
+        <Button disabled={isMutating} isDanger onClick={confirm}>
           {t(labelDelete)}
         </Button>
       </Box>

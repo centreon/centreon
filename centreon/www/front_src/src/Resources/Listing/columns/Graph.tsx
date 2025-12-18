@@ -77,27 +77,27 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
       <FederatedComponent
+        getShapeLines={getShapeLines}
         path="/anomaly-detection/enableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
         type={row?.type}
-        getShapeLines={getShapeLines}
       />
       <LineChart
-        loading={isFetching || isLoading || !data}
         data={data}
-        end={end}
-        height={200}
-        legend={{ mode: 'grid', placement: 'bottom' }}
-        lineStyle={{ lineWidth: 1 }}
-        start={start}
-        tooltip={{ mode: 'hidden' }}
         displayAnchor={{
           displayGuidingLines: false,
           displayTooltipsGuidingLines: false
         }}
+        end={end}
+        height={200}
+        legend={{ mode: 'grid', placement: 'bottom' }}
+        lineStyle={{ lineWidth: 1 }}
+        loading={isFetching || isLoading || !data}
+        start={start}
         timeShiftZones={{
           enable: false
         }}
+        tooltip={{ mode: 'hidden' }}
         {...rest}
       />
     </Suspense>
@@ -110,9 +110,9 @@ const renderChip =
     <IconButton
       ariaLabel={label}
       className={className}
+      onClick={onClick}
       size="small"
       title={label}
-      onClick={onClick}
     >
       <IconGraph fontSize="small" />
     </IconButton>

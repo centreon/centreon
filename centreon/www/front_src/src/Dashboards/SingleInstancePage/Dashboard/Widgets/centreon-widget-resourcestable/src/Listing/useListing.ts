@@ -141,6 +141,8 @@ const useListing = ({
     hostSeverities,
     id,
     isDownHostHidden,
+    isOpenTicketEnabled:
+      isOpenTicketInstalled && hasProvider && isOpenTicketEnabled,
     isUnreachableHostHidden,
     limit,
     page,
@@ -153,11 +155,9 @@ const useListing = ({
     sortField,
     sortOrder,
     states,
-    statusTypes,
     statuses,
-    widgetPrefixQuery,
-    isOpenTicketEnabled:
-      isOpenTicketInstalled && hasProvider && isOpenTicketEnabled
+    statusTypes,
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (row): void => {

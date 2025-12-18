@@ -81,9 +81,6 @@ const useValidationSchema = (): UseValidationSchemaState => {
       array(
         object({
           allOfResourceType: boolean(),
-          resourceType: string().matches(
-            /(host|service)(group|_category)?|meta_service|business_view|image_folder|all/
-          ),
           resources: array().when(
             ['allOfResourceType', 'resourceType'],
             ([allOfResourceType, resourceType], schema) => {
@@ -105,6 +102,9 @@ const useValidationSchema = (): UseValidationSchemaState => {
 
               return schema.min(1);
             }
+          ),
+          resourceType: string().matches(
+            /(host|service)(group|_category)?|meta_service|business_view|image_folder|all/
           )
         })
       ).min(1)

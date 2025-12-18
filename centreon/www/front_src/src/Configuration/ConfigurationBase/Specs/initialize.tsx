@@ -28,21 +28,21 @@ export const mockActionsRequests = (resourceType): void => {
     alias: 'deleteOne',
     method: Method.DELETE,
     path: `**${getEndpoints(resourceType).deleteOne({ id: 1 })}`,
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'delete',
     method: Method.POST,
     path: `**${getEndpoints(resourceType).delete}`,
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'duplicate',
     method: Method.POST,
     path: `**${getEndpoints(resourceType).duplicate}`,
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
@@ -50,7 +50,7 @@ export const mockActionsRequests = (resourceType): void => {
     method: Method.POST,
     path: `**${getEndpoints(resourceType).enable}`,
     response: {
-      results: [{ status: 204, message: null, href: '/resources/1' }]
+      results: [{ href: '/resources/1', message: null, status: 204 }]
     }
   });
 
@@ -59,7 +59,7 @@ export const mockActionsRequests = (resourceType): void => {
     method: Method.POST,
     path: `**${getEndpoints(resourceType).disable}`,
     response: {
-      results: [{ status: 204, message: null, href: '/resources/1' }]
+      results: [{ href: '/resources/1', message: null, status: 204 }]
     }
   });
 };
@@ -75,9 +75,9 @@ const mockListingRequests = (resourceType): void => {
 
 export const mockModalRequests = (resourceType): void => {
   const response = {
-    name: `${resourceType} 1`,
     alias: `${resourceType} 1 alias`,
-    coordinates: '-20.40,13,12'
+    coordinates: '-20.40,13,12',
+    name: `${resourceType} 1`
   };
 
   cy.interceptAPIRequest({
@@ -132,52 +132,52 @@ const initialize = ({
             <Provider store={store}>
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
-                  isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
-                  selectedColumnIdsAtom={selectedColumnIdsAtom}
-                  filtersAtom={filtersAtom}
-                  filtersAtomKey={filtersAtomKey}
-                  columnsAtomKey={columnsAtomKey}
-                  resourceType={resourceType}
-                  columns={columns}
-                  form={{
-                    groups,
-                    inputs,
-                    defaultValues: {
-                      name: '',
-                      alias: '',
-                      coordinates: ''
-                    }
+                  actions={{
+                    delete: true,
+                    duplicate: true,
+                    edit: true,
+                    enableDisable: true,
+                    massive: true,
+                    viewDetails: true
                   }}
                   api={{
-                    endpoints: getEndpoints(resource),
+                    adapter: (data) => data,
                     decoders: { getAll: resourceDecoderListDecoder },
-                    adapter: (data) => data
+                    endpoints: getEndpoints(resource)
                   }}
-                  filtersConfiguration={filters}
-                  filtersInitialValues={filtersInitialValues}
+                  columns={columns}
+                  columnsAtomKey={columnsAtomKey}
                   defaultSelectedColumnIds={[
                     'name',
                     'alias',
                     'actions',
                     'is_activated'
                   ]}
-                  actions={{
-                    massive: true,
-                    enableDisable: true,
-                    delete: true,
-                    duplicate: true,
-                    edit: true,
-                    viewDetails: true
+                  filtersAtom={filtersAtom}
+                  filtersAtomKey={filtersAtomKey}
+                  filtersConfiguration={filters}
+                  filtersInitialValues={filtersInitialValues}
+                  form={{
+                    defaultValues: {
+                      alias: '',
+                      coordinates: '',
+                      name: ''
+                    },
+                    groups,
+                    inputs
                   }}
+                  isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
                   labels={{
                     title: `${capitalize(resourceType)}s`,
                     welcomePage: {
-                      title: 'Welcome to configuration base',
                       actions: {
                         create: 'Add configuration base'
-                      }
+                      },
+                      title: 'Welcome to configuration base'
                     }
                   }}
+                  resourceType={resourceType}
+                  selectedColumnIdsAtom={selectedColumnIdsAtom}
                 />
               </div>
             </Provider>

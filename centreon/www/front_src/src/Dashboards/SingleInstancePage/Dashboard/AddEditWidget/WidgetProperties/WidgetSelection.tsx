@@ -47,13 +47,13 @@ const WidgetSelection = (): JSX.Element => {
 
   const renderGroup = ({ group, key, ...rest }): JSX.Element => (
     <CollapsibleItem
+      classes={{ root: classes.groupContainer }}
       dataTestId={group}
       defaultExpanded
+      expandIcon={<ExpandMoreIcon htmlColor={theme.palette.common.white} />}
       key={key}
       title={t(getWidgetGroupTitle(group))}
-      classes={{ root: classes.groupContainer }}
-      titleProps={{ variant: 'body1', color: theme.palette.common.white }}
-      expandIcon={<ExpandMoreIcon htmlColor={theme.palette.common.white} />}
+      titleProps={{ color: theme.palette.common.white, variant: 'body1' }}
     >
       {rest?.children}
     </CollapsibleItem>
@@ -94,20 +94,20 @@ const WidgetSelection = (): JSX.Element => {
 
   return (
     <Box className={classes.widgetSelection}>
-      <Avatar compact className={avatarClasses.widgetAvatar}>
+      <Avatar className={avatarClasses.widgetAvatar} compact>
         1
       </Avatar>
       <SingleAutocompleteField
         className={classes.selectField}
         disabled={!canEditField}
+        groupBy={(option) => option.widgetType}
         label={t(labelWidgetType)}
-        options={options}
-        renderOption={renderOption}
-        value={selectedWidget || null}
         onChange={(_, newValue) => selectWidget(newValue)}
         onTextChange={searchWidgets}
-        groupBy={(option) => option.widgetType}
+        options={options}
         renderGroup={renderGroup}
+        renderOption={renderOption}
+        value={selectedWidget || null}
       />
     </Box>
   );

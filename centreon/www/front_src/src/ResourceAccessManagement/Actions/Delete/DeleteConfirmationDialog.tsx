@@ -44,17 +44,17 @@ const DeleteConfirmationDialog = (): JSX.Element => {
     <ConfirmDialog
       confirmDisabled={isLoading}
       dialogConfirmButtonClassName={classes.confimButton}
+      dialogContentTextProps={{ component: 'div' }}
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
       labelMessage={dialogMessage}
       labelSecondMessage={dialogSecondMessage}
       labelTitle={dialogTitle}
-      open={isDialogOpen}
-      submitting={isLoading}
       onCancel={closeDialog}
       onConfirm={submit}
-      dialogContentTextProps={{ component: 'div' }}
+      open={isDialogOpen}
+      submitting={isLoading}
     />
   );
 };

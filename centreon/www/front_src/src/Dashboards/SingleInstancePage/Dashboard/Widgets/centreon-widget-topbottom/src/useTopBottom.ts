@@ -81,16 +81,6 @@ const useTopBottom = ({
           parameters: {
             limit: topBottomSettings.numberOfValues,
             search: {
-              lists: resources
-                .filter((resource) => !isResourceString(resource.resources))
-                .map((resource) => ({
-                  field: equals(resource.resourceType, 'hostgroup')
-                    ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                    : resourceTypeQueryParameter[resource.resourceType],
-                  values: equals(resource.resourceType, 'service')
-                    ? pluck('name', resource.resources)
-                    : pluck('id', resource.resources)
-                })),
               conditions: isEmpty(
                 resources.filter((resource) =>
                   isResourceString(resource.resources)
@@ -106,7 +96,17 @@ const useTopBottom = ({
                       values: {
                         $rg: resource.resources
                       }
-                    }))
+                    })),
+              lists: resources
+                .filter((resource) => !isResourceString(resource.resources))
+                .map((resource) => ({
+                  field: equals(resource.resourceType, 'hostgroup')
+                    ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                    : resourceTypeQueryParameter[resource.resourceType],
+                  values: equals(resource.resourceType, 'service')
+                    ? pluck('name', resource.resources)
+                    : pluck('id', resource.resources)
+                }))
             },
             sort: {
               current_value: equals(topBottomSettings.order, 'bottom')

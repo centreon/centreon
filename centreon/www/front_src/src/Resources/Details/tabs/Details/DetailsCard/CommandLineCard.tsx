@@ -40,15 +40,15 @@ const CommandLineCard = ({ details }: Props): JSX.Element => {
   return (
     <Card className={classes.commandLineCard} elevation={0}>
       <Typography
-        gutterBottom
         color="textSecondary"
         component="div"
+        gutterBottom
         variant="body1"
       >
-        <Grid container alignItems="center" spacing={1}>
+        <Grid alignItems="center" container spacing={1}>
           <Grid item>{t(labelCommand)}</Grid>
           <Grid item>
-            <Tooltip title={labelCopy} onClick={copyCommandLine}>
+            <Tooltip onClick={copyCommandLine} title={labelCopy}>
               <IconButton data-testid={labelCopy} size="small">
                 <IconCopyFile color="primary" fontSize="small" />
               </IconButton>

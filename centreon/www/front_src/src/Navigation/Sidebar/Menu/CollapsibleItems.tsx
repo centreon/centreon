@@ -212,7 +212,6 @@ const CollapsibleItems = ({
   return useMemoComponent({
     Component: (
       <Collapse
-        unmountOnExit
         className={cx(classes.root, classes.toggled)}
         data-cy="collapse"
         enter={false}
@@ -220,6 +219,7 @@ const CollapsibleItems = ({
         in={isCollapsed}
         ref={collapsRef}
         timeout={0}
+        unmountOnExit
       >
         {data?.map((item, index) => {
           const hover =
@@ -247,9 +247,9 @@ const CollapsibleItems = ({
               subheader={
                 isSubHeader && (
                   <ListSubheader
+                    className={classes.subHeader}
                     disableGutters
                     disableSticky
-                    className={classes.subHeader}
                   >
                     {item.label}
                   </ListSubheader>
@@ -299,7 +299,6 @@ const CollapsibleItems = ({
 
               {isCollapseWithSubheader ? (
                 <CollapsibleItems
-                  isSubHeader
                   collapseMenu={collapseMenu}
                   collapseScrollMaxHeight={nestedScrollCollapsMaxHeight}
                   collapseScrollMaxWidth={nestedScrollCollapsMaxWidth}
@@ -307,6 +306,7 @@ const CollapsibleItems = ({
                   currentWidth={itemWidth}
                   data={item.groups}
                   isCollapsed={index === hoveredIndex}
+                  isSubHeader
                   level={level + 1}
                   setCollapseScrollMaxHeight={setNestedScrollCollapsMaxHeight}
                   setCollapseScrollMaxWidth={setNestedScrollCollapsMaxWidth}

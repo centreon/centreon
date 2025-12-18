@@ -188,8 +188,8 @@ const Events = ({ timeline, infiniteScrollTriggerRef }: Props): JSX.Element => {
                         {isNotLastEvent && (
                           <div className={classes.dividerContainer}>
                             <Divider
-                              flexItem
                               className={classes.divider}
+                              flexItem
                               orientation="vertical"
                             />
                           </div>

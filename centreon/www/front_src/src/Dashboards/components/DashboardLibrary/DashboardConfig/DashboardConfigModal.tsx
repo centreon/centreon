@@ -86,21 +86,21 @@ const DashboardConfigModal = ({
 
   return (
     <Modal
-      open={isDialogOpen}
-      onClose={closeDialog}
       closeAfterTransition={false}
+      onClose={closeDialog}
+      open={isDialogOpen}
     >
       <Modal.Header>{labels.modalTitle[variant]}</Modal.Header>
       <Modal.Body>
         <DashboardForm
           labels={labels.form}
+          onCancel={closeDialog}
+          onSubmit={submit}
           resource={(dashboard as DashboardResource) ?? undefined}
           showRefreshIntervalFields={
             showRefreshIntervalFields && equals(variant, 'update')
           }
           variant={variant}
-          onCancel={closeDialog}
-          onSubmit={submit}
         />
       </Modal.Body>
     </Modal>

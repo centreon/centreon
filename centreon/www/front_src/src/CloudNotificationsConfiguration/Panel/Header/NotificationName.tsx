@@ -44,21 +44,21 @@ const NotificationName = (): JSX.Element => {
     <Box className={classes.title}>
       {nameChange || equals(panelMode, PanelMode.Create) ? (
         <TextField
-          required
           ariaLabel={labelNotificationName}
           dataTestId={labelNotificationName}
           error={error as string | undefined}
           label={t(labelName) as string}
-          value={notificationName}
           onBlur={handleBlur('name')}
           onChange={handleChange}
+          required
+          value={notificationName}
         />
       ) : (
         <>
           <IconButton
             data-testid={t(labelChangeName)}
-            title={t(labelChangeName) as string}
             onClick={(): void => setNameChange(true)}
+            title={t(labelChangeName) as string}
           >
             <EditIcon />
           </IconButton>

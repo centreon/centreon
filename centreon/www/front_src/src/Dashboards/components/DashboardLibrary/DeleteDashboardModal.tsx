@@ -75,7 +75,7 @@ const DeleteDashboardModal = (): JSX.Element => {
   );
 
   return (
-    <Modal open={hasDashbordToDelete} size="large" onClose={close}>
+    <Modal onClose={close} open={hasDashbordToDelete} size="large">
       <Modal.Header>{t(labelDeleteDashboard)}</Modal.Header>
       <Modal.Body>
         {isFetching ? (
@@ -92,8 +92,8 @@ const DeleteDashboardModal = (): JSX.Element => {
         )}
       </Modal.Body>
       <Modal.Actions
-        isDanger
         disabled={isFetching}
+        isDanger
         labels={{
           cancel: t(labelCancel),
           confirm: t(labelDelete)

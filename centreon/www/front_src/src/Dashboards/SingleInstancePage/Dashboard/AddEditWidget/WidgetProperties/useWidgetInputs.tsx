@@ -118,10 +118,10 @@ export const useWidgetInputs = (
     () =>
       selectedWidgetProperties
         ? handleHiddenConditions({
-            modules,
             featureFlags,
-            widgetProperties: selectedWidgetProperties,
-            values
+            modules,
+            values,
+            widgetProperties: selectedWidgetProperties
           }).map(([key, value]) => {
             const Component =
               propertiesInputType[value.type] || DefaultComponent;

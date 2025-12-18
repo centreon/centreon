@@ -25,26 +25,26 @@ const MultiConnectedAutocomplete = <TFilters,>({
 
   const { isOptionEqualToValue, deleteItem, change, value } =
     useMultiConnectedAutocomplete<TFilters>({
+      filters,
       name,
-      setFilters,
-      filters
+      setFilters
     });
 
   return (
     <MultiConnectedAutocompleteField
-      disableClearable={false}
-      disableSortedOptions
       chipProps={{
         color: 'primary',
         onDelete: deleteItem(name)
       }}
       dataTestId={label}
+      disableClearable={false}
+      disableSortedOptions
       field="name"
       getEndpoint={getEndpoint}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(label)}
-      value={value}
       onChange={change}
+      value={value}
     />
   );
 };

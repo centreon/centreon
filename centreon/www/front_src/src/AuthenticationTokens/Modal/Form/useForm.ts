@@ -72,8 +72,8 @@ const useForm = (): UseFormState => {
       payload: {
         expiration_date: getExpirationDateForApi(),
         name,
-        user_id: equals(type.id, TokenType.API) ? user.id : currentUser.id,
-        type: type.id
+        type: type.id,
+        user_id: equals(type.id, TokenType.API) ? user.id : currentUser.id
       }
     }).finally(() => {
       setSubmitting(false);

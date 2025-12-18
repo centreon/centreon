@@ -23,8 +23,8 @@ const useListingColumns = (): Array<Column> => {
       getFormattedString: ({ name }): string => name,
       id: 'name',
       label: t(labelName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.string
     },
     {
@@ -32,8 +32,8 @@ const useListingColumns = (): Array<Column> => {
       getFormattedString: ({ userCount }): string => `${userCount} users`,
       id: 'userCount',
       label: t(labelUsers),
-      sortField: 'users',
       sortable: true,
+      sortField: 'users',
       type: ColumnType.string
     },
     {
@@ -42,8 +42,8 @@ const useListingColumns = (): Array<Column> => {
         formatResourcesForListing(resources),
       id: 'resources',
       label: t(labelResources),
-      sortField: 'resources',
       sortable: true,
+      sortField: 'resources',
       type: ColumnType.string
     },
     {
@@ -74,8 +74,8 @@ const useListingColumns = (): Array<Column> => {
       disablePadding: false,
       id: 'isActivated',
       label: t(labelStatus),
-      sortField: 'is_activated',
       sortable: true,
+      sortField: 'is_activated',
       type: ColumnType.component
     }
   ];

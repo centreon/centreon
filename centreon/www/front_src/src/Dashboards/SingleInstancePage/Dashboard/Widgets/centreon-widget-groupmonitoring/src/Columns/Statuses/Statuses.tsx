@@ -37,8 +37,8 @@ const Statuses = ({
   const resources = getResources({ resourceType, row });
 
   const displayableStatuses = getStatusesCountFromResources({
-    resourceType,
     resources,
+    resourceType,
     statuses
   });
 

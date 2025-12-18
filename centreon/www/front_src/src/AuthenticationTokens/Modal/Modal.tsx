@@ -16,7 +16,7 @@ const FormModal = (): JSX.Element => {
   const { close, isOpen } = useModal();
 
   return (
-    <Modal data-testid="Modal" open={isOpen} size="medium" onClose={close}>
+    <Modal data-testid="Modal" onClose={close} open={isOpen} size="medium">
       <Modal.Header data-testid="Modal-header">
         <Typography className={classes.modalHeader}>
           {t(labelCreateAuthenticationToken)}

@@ -63,8 +63,8 @@ const ServicesTab = (): JSX.Element => {
         return (
           <ServiceList
             infiniteScrollTriggerRef={infiniteScrollTriggerRef}
-            services={entities}
             onSelectService={selectResource}
+            services={entities}
           />
         );
       }}

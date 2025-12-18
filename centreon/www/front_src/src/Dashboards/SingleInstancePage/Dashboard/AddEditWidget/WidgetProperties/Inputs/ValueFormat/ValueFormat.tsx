@@ -45,7 +45,7 @@ const WidgetValueFormat = ({
   return (
     <Box>
       <Label>{t(labelValueFormat)}</Label>
-      <RadioGroup value={value} onChange={changeType}>
+      <RadioGroup onChange={changeType} value={value}>
         {options.map(({ optionValue, label }) => (
           <FormControlLabel
             control={<Radio data-testid={optionValue} />}

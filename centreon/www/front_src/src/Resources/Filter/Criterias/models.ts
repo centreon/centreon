@@ -67,23 +67,23 @@ export enum SearchType {
 }
 
 const criteriaValueNameById = {
+  acknowledged: labelAcknowledged,
   CRITICAL: labelCritical,
   DOWN: labelDown,
-  OK: labelOk,
-  PENDING: labelPending,
-  UNKNOWN: labelUnknown,
-  UNREACHABLE: labelUnreachable,
-  UP: labelUp,
-  WARNING: labelWarning,
-  acknowledged: labelAcknowledged,
   hard: labelHard,
   host: labelHost,
   in_downtime: labelInDowntime,
   in_flapping: labelFlapping,
   metaservice: labelMetaService,
+  OK: labelOk,
+  PENDING: labelPending,
   service: labelService,
   soft: labelSoft,
-  unhandled_problems: labelUnhandled
+  UNKNOWN: labelUnknown,
+  UNREACHABLE: labelUnreachable,
+  UP: labelUp,
+  unhandled_problems: labelUnhandled,
+  WARNING: labelWarning
 };
 
 const unhandledStateId = 'unhandled_problems';

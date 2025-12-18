@@ -45,10 +45,10 @@ const SaveActions = ({ dataCreateFilter }: Props): JSX.Element => {
       {isCreatingFilter && (
         <CreateFilterDialog
           callbackSuccess={createFilterCallback}
+          onCancel={cancelCreateFilter}
           open={isCreatingFilter}
           payloadAction={{ criterias: currentFilter?.criterias }}
           request={createFilter}
-          onCancel={cancelCreateFilter}
         />
       )}
     </div>

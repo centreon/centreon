@@ -88,10 +88,10 @@ const useDelete = (): UseDeleteState => {
 
     handleBulkResponse({
       data: results,
-      labelWarning: t(labelFailedToDeleteSomeResources),
+      items: resourcesToDelete,
       labelFailed: t(labelFailedToDeleteResources(labelResourceType)),
       labelSuccess: t(labelResourceDeleted(capitalize(labelResourceType))),
-      items: resourcesToDelete
+      labelWarning: t(labelFailedToDeleteSomeResources)
     });
 
     resetSelections();
@@ -116,12 +116,12 @@ const useDelete = (): UseDeleteState => {
   );
 
   return {
-    confirm,
+    bodyContent,
     close: resetSelections,
-    isMutating: isMutating || isMutatingOne,
-    isOpened,
+    confirm,
     headerContent,
-    bodyContent
+    isMutating: isMutating || isMutatingOne,
+    isOpened
   };
 };
 

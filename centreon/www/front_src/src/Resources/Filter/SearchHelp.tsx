@@ -58,14 +58,14 @@ const SearchHelp = (): JSX.Element => {
         <Typography className={classes.title} variant="body2">
           {t(labelNeedHelpWithSearchBarUsage)}
         </Typography>
-        <Typography variant="body2" className={classes.title}>
+        <Typography className={classes.title} variant="body2">
           {t(labelFindExplanationsAndExamples)}&nbsp;
           <Link
             className={classes.link}
             href={docsURL}
+            onClick={() => setOpenTooltip(false)}
             rel="noreferrer"
             target="_blank"
-            onClick={() => setOpenTooltip(false)}
           >
             {t(labelHere)}
           </Link>

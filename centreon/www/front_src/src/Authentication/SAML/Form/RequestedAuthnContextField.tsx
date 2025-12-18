@@ -43,18 +43,18 @@ const RequestedAuthnContextComparisonField = (): React.JSX.Element => {
 
   return (
     <SelectField
-      fullWidth
-      required
       aria-label={labelRequestedAuthnContextComparison}
       dataTestId={labelRequestedAuthnContextComparison}
       error={error as string}
+      fullWidth
       label={labelRequestedAuthnContextComparison}
       name="requestedAuthnContextComparison"
+      onChange={changeValue}
       options={options}
+      required
       selectedOptionId={
         selectedOption?.id || RequestedAuthnContextComparisonValue.Minimum
       }
-      onChange={changeValue}
     />
   );
 };

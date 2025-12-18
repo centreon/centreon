@@ -57,13 +57,13 @@ const Options = (): JSX.Element => {
               <Switch
                 checked={value}
                 color="primary"
-                size="small"
                 onChange={(): void =>
                   changeGraphOptions({
                     changeTabGraphOptions,
                     graphOptionId: id
                   })
                 }
+                size="small"
               />
             }
             data-testid={label}

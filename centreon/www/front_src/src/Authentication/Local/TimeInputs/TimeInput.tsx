@@ -159,17 +159,17 @@ const TimeInput = ({
       <div className={classes.timeInput}>
         <SelectField
           dataTestId={`${inputLabel} ${name}`}
+          name={name}
+          onChange={changeInput}
+          options={getTimeOptions[unit]({ max: maxOption, min: minOption })}
+          required={required}
+          selectedOptionId={inputValue}
           slotProps={{
             input: {
               'aria-label': `${t(inputLabel)} ${t(label)}`,
               'data-testid': dataTestId
             }
           }}
-          name={name}
-          options={getTimeOptions[unit]({ max: maxOption, min: minOption })}
-          required={required}
-          selectedOptionId={inputValue}
-          onChange={changeInput}
         />
         <Typography>{t(label)}</Typography>
       </div>

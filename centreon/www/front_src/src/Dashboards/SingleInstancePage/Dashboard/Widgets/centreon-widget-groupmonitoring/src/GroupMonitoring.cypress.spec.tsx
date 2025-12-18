@@ -28,8 +28,8 @@ const getPanelDataGroups = ({
 }): Pick<Data, 'resources'> => ({
   resources: [
     {
-      resourceType: `${type}-group`,
-      resources: withResource ? [{ id: 1, name: 'Group 1' }] : []
+      resources: withResource ? [{ id: 1, name: 'Group 1' }] : [],
+      resourceType: `${type}-group`
     }
   ]
 });
@@ -37,8 +37,8 @@ const getPanelDataGroups = ({
 const widgetDataRegex: Pick<Data, 'resources'> = {
   resources: [
     {
-      resourceType: 'host-group',
-      resources: '^Loa'
+      resources: '^Loa',
+      resourceType: 'host-group'
     }
   ]
 };

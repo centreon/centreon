@@ -46,9 +46,9 @@ const WidgetRadio = ({
     <div>
       <Stack alignItems="center" direction="row" gap={1.5}>
         <Label>{t(label)}</Label>
-        <Tooltip secondaryLabel={secondaryLabel} propertyName={propertyName} />
+        <Tooltip propertyName={propertyName} secondaryLabel={secondaryLabel} />
       </Stack>
-      <RadioGroup value={value} onChange={change}>
+      <RadioGroup onChange={change} value={value}>
         {(options || []).map(({ id, name }) => (
           <FormControlLabel
             aria-label={t(name)}

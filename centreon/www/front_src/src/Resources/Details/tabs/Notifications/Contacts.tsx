@@ -51,10 +51,10 @@ const Contacts = ({
         <Tooltip title={tooltipTitle}>
           <IconButton
             color={iconColor}
+            onClick={goToConfiguration}
             size="small"
             sx={{ justifySelf: 'flex-end', marginRight: 1 }}
             title={t(tooltipTitle)}
-            onClick={goToConfiguration}
           >
             <SettingsIcon fontSize="small" />
           </IconButton>

@@ -33,18 +33,18 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   const certificateFileValidation = (isFile?: boolean) =>
     string()
       .test({
-        name: 'invalid-path',
         message: t(labelInvalidPath),
+        name: 'invalid-path',
         test: (value) => !value || invalidPath.test(value)
       })
       .test({
-        name: 'is-not-relative-path',
         message: t(labelRelativePathAreNotAllowed),
+        name: 'is-not-relative-path',
         test: (value) => !value || !relativePathRegex.test(value)
       })
       .test({
-        name: 'has-valid-extension',
         message: t(labelInvalidExtension),
+        name: 'has-valid-extension',
         test: (value) =>
           !value ||
           (isFile
@@ -56,9 +56,9 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     string().when('$connectionMode.id', {
       is: (value: string) =>
         equals(value, 'secure') || equals(value, 'insecure'),
+      otherwise: () => string().nullable(),
       // biome-ignore lint/suspicious/noThenProperty: <explanation>
-      then: () => certificateFileValidation(isFile).nullable(),
-      otherwise: () => string().nullable()
+      then: () => certificateFileValidation(isFile).nullable()
     });
 
   const portValidation = number()
@@ -67,80 +67,94 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
     .required(t(labelRequired));
 
   const telegrafConfigurationSchema = {
+    confCertificate: certificateValidation(),
+    confPrivateKey: certificateValidation(true),
     confServerPort: portValidation,
-    otelPublicCertificate: certificateValidation(),
     otelCaCertificate: certificateValidation(),
     otelPrivateKey: certificateValidation(true),
-    confCertificate: certificateValidation(),
-    confPrivateKey: certificateValidation(true)
+    otelPublicCertificate: certificateValidation()
   };
 
   const CMAConfigurationSchema = {
     agentInitiated: boolean(),
-    pollerInitiated: boolean(),
-    tokens: array().when(['$type', 'agentInitiated'], {
-      is: (type, agentInitiated) =>
-        agentInitiated && equals(type?.id, AgentType.CMA),
-      // biome-ignore lint/suspicious/noThenProperty: <explanation>
-      then: (schema) =>
-        schema
-          .of(
-            object({
-              id: string(),
-              name: string(),
-              creatorId: number()
-            })
-          )
-          .min(1, t(labelRequired))
-          .required(),
-      otherwise: (schema) => schema.nullable()
-    }),
-    otelPublicCertificate: certificateValidation(),
-    otelCaCertificate: certificateValidation(),
-    otelPrivateKey: certificateValidation(true),
     hosts: array()
       .of(
         object({
           address: string()
             .test({
-              name: 'is-dns-ip-valid',
               exclusive: true,
               message: t(labelAddressInvalid),
+              name: 'is-dns-ip-valid',
               test: (address) =>
                 address?.match(ipAddressRegex) || address?.match(urlRegex)
             })
             .required(t(labelRequired)),
-          port: portValidation,
           pollerCaCertificate: certificateValidation(),
           pollerCaName: string().nullable(),
+          port: portValidation,
           token: object().when(['$type', '$configuration'], {
             is: (type, configuration) =>
               configuration?.pollerInitiated && equals(type?.id, AgentType.CMA),
+            otherwise: (schema) => schema.nullable(),
             // biome-ignore lint/suspicious/noThenProperty: <explanation>
             then: (schema) =>
               schema
                 .shape({
+                  creatorId: number(),
                   id: string(),
                   name: string(),
-                  creatorId: number(),
                   token_name: string()
                 })
-                .required(t(labelRequired)),
-            otherwise: (schema) => schema.nullable()
+                .required(t(labelRequired))
           })
         })
       )
       .when('pollerInitiated', {
         is: true,
+        otherwise: (schema) => schema.min(0),
         // biome-ignore lint/suspicious/noThenProperty: <explanation>
-        then: (schema) => schema.min(1),
-        otherwise: (schema) => schema.min(0)
-      })
+        then: (schema) => schema.min(1)
+      }),
+    otelCaCertificate: certificateValidation(),
+    otelPrivateKey: certificateValidation(true),
+    otelPublicCertificate: certificateValidation(),
+    pollerInitiated: boolean(),
+    tokens: array().when(['$type', 'agentInitiated'], {
+      is: (type, agentInitiated) =>
+        agentInitiated && equals(type?.id, AgentType.CMA),
+      otherwise: (schema) => schema.nullable(),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: (schema) =>
+        schema
+          .of(
+            object({
+              creatorId: number(),
+              id: string(),
+              name: string()
+            })
+          )
+          .min(1, t(labelRequired))
+          .required()
+    })
   };
 
   return object<AgentConfigurationForm>({
+    configuration: object().when('type', {
+      is: (type) => equals(type?.id, AgentType.Telegraf),
+      otherwise: (schema) =>
+        schema.shape(CMAConfigurationSchema).test({
+          message: t(labelAtLeastOneConnexionMode),
+          name: 'at-least-one-initiated',
+          test: (config) => config?.agentInitiated || config?.pollerInitiated
+        }),
+      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      then: (schema) => schema.shape(telegrafConfigurationSchema)
+    }),
+    connectionMode: object({
+      id: string(),
+      name: string()
+    }).nullable(),
     name: requiredString,
-    type: mixed().required(t(labelRequired)),
     pollers: array()
       .of(
         object({
@@ -149,20 +163,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
         })
       )
       .min(1, t(labelRequired)),
-    connectionMode: object({
-      id: string(),
-      name: string()
-    }).nullable(),
-    configuration: object().when('type', {
-      is: (type) => equals(type?.id, AgentType.Telegraf),
-      // biome-ignore lint/suspicious/noThenProperty: <explanation>
-      then: (schema) => schema.shape(telegrafConfigurationSchema),
-      otherwise: (schema) =>
-        schema.shape(CMAConfigurationSchema).test({
-          name: 'at-least-one-initiated',
-          message: t(labelAtLeastOneConnexionMode),
-          test: (config) => config?.agentInitiated || config?.pollerInitiated
-        })
-    })
+    type: mixed().required(t(labelRequired))
   });
 };

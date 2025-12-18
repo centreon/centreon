@@ -52,7 +52,7 @@ const AddEditResourceAccessRuleModal = (): ReactElement => {
 
   return (
     <>
-      <Modal open={isModalOpen} size="xlarge" onClose={askBeforeClose}>
+      <Modal onClose={askBeforeClose} open={isModalOpen} size="xlarge">
         <Modal.Header>
           <Typography className={classes.modalTitle}>
             {labels.modalTitle[mode]}

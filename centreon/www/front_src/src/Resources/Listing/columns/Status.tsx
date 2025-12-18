@@ -105,12 +105,12 @@ const StatusColumnOnHover = ({
         color="primary"
         data-testid={`${labelAcknowledge} ${row.name}`}
         disabled={disableAcknowledge}
+        onClick={(): void => actions.onAcknowledge(row)}
         size="large"
         title={getActionTitle({
           isActionPermitted: isAcknowledePermitted,
           labelAction: labelAcknowledge
         })}
-        onClick={(): void => actions.onAcknowledge(row)}
         tooltipPlacement="left"
       >
         <IconAcknowledge fontSize="small" />
@@ -119,12 +119,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelSetDowntimeOn)} ${row.name}`}
         data-testid={`${labelSetDowntimeOn} ${row.name}`}
         disabled={disableDowntime}
+        onClick={(): void => actions.onDowntime(row)}
         size="large"
         title={getActionTitle({
           isActionPermitted: isDowntimePermitted,
           labelAction: labelSetDowntime
         })}
-        onClick={(): void => actions.onDowntime(row)}
         tooltipPlacement="left"
       >
         <DowntimeIcon fontSize="small" />
@@ -134,11 +134,6 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelForcedCheck)} ${row.name}`}
         data-testid={`${labelForcedCheck} ${row.name}`}
         disabled={disableForcedCheck}
-        size="large"
-        title={getActionTitle({
-          isActionPermitted: isForcedCheckPermitted,
-          labelAction: labelForcedCheck
-        })}
         onClick={(): void => {
           const forcedCheckEndpoint = path(
             ['links', 'endpoints', 'forced_check'],
@@ -148,6 +143,11 @@ const StatusColumnOnHover = ({
 
           actions.onCheck(row);
         }}
+        size="large"
+        title={getActionTitle({
+          isActionPermitted: isForcedCheckPermitted,
+          labelAction: labelForcedCheck
+        })}
         tooltipPlacement="right"
       >
         <IconForcedCheck fontSize="small" />

@@ -81,19 +81,19 @@ const AgentConfigurationPage = (): JSX.Element => {
             <WelcomePage
               dataTestId="create-agent-configuration"
               labels={{
-                title: t(labelWelcomeToTheAgentsConfigurationPage),
-                description: t(labelWelcomeDescription),
                 actions: {
                   create: t(labelAddAgentConfiguration)
-                }
+                },
+                description: t(labelWelcomeDescription),
+                title: t(labelWelcomeToTheAgentsConfigurationPage)
               }}
               onCreate={openCreatetModal}
             />
           ) : (
             <ACListing
+              isLoading={isLoading}
               rows={data?.result}
               total={data?.meta.total}
-              isLoading={isLoading}
             />
           )}
         </DataTable>

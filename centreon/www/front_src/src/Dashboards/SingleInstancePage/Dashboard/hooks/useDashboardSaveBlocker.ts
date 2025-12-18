@@ -60,8 +60,8 @@ const useDashboardSaveBlocker = (
   }, [blocker.state]);
 
   return {
-    blockNavigation: blocker.reset,
     blocked: equals(blocker.state, 'blocked'),
+    blockNavigation: blocker.reset,
     proceedNavigation: blocker.proceed
   };
 };

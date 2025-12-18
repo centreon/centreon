@@ -46,7 +46,7 @@ const TabContent = ({ label, tooltipLabel, name }: TabContentProps) => {
       <div>{t(label)}</div>
       {tooltipLabel && (
         <Tooltip label={t(tooltipLabel)}>
-          <InfoOutlinedIcon color="primary" className={classes.InfoIcon} />
+          <InfoOutlinedIcon className={classes.InfoIcon} color="primary" />
         </Tooltip>
       )}
     </div>
@@ -58,8 +58,8 @@ const tabs = [
     label: (
       <TabContent
         label={labelByAgent}
-        tooltipLabel={labelByAgentTooltip}
         name="agentInitiated"
+        tooltipLabel={labelByAgentTooltip}
       />
     ),
     value: 'agent'
@@ -68,8 +68,8 @@ const tabs = [
     label: (
       <TabContent
         label={labelByPoller}
-        tooltipLabel={labelByPollerTooltip}
         name="pollerInitiated"
+        tooltipLabel={labelByPollerTooltip}
       />
     ),
     value: 'poller'
@@ -92,9 +92,9 @@ const ConnectionInitiated = (): JSX.Element => {
         setFieldValue('configuration.hosts', [
           {
             address: '',
-            port: '',
             pollerCaCertificate: '',
             pollerCaName: '',
+            port: '',
             token: null
           }
         ]);
@@ -112,49 +112,49 @@ const ConnectionInitiated = (): JSX.Element => {
     };
 
   return (
-    <Tabs tabs={tabs} defaultTab="agent">
-      <TabPanel value="agent" className={classes.tabPanel}>
+    <Tabs defaultTab="agent" tabs={tabs}>
+      <TabPanel className={classes.tabPanel} value="agent">
         <FormControlLabel
           control={
             <Switch
-              size="small"
-              color="success"
               checked={values.configuration.agentInitiated}
-              onChange={handleChange('agentInitiated')}
+              color="success"
               data-testid="enable_agent"
+              onChange={handleChange('agentInitiated')}
+              size="small"
             />
           }
           label={t(labelEnable)}
           labelPlacement="start"
           sx={{
-            marginLeft: 0,
-            marginBottom: 2,
             '& .MuiFormControlLabel-label': {
               marginRight: 2
-            }
+            },
+            marginBottom: 2,
+            marginLeft: 0
           }}
         />
         {values.configuration.agentInitiated && <AgentInitiated />}
       </TabPanel>
-      <TabPanel value="poller" className={classes.tabPanel}>
+      <TabPanel className={classes.tabPanel} value="poller">
         <FormControlLabel
           control={
             <Switch
-              size="small"
-              color="success"
               checked={values.configuration.pollerInitiated}
-              onChange={handleChange('pollerInitiated')}
+              color="success"
               data-testid="enable_poller"
+              onChange={handleChange('pollerInitiated')}
+              size="small"
             />
           }
           label={t(labelEnable)}
           labelPlacement="start"
           sx={{
-            marginLeft: 0,
-            marginBottom: 2,
             '& .MuiFormControlLabel-label': {
               marginRight: 2
-            }
+            },
+            marginBottom: 2,
+            marginLeft: 0
           }}
         />
         {values.configuration.pollerInitiated && <HostConfigurations />}

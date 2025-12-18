@@ -56,6 +56,9 @@ const TimeShiftZone = ({
             : 'transparent'
         }
         height={graphHeight}
+        onClick={getNewInterval}
+        onMouseLeave={onDirectionHover(null)}
+        onMouseOver={onDirectionHover(direction)}
         width={timeShiftZoneWidth}
         x={
           (equals(direction, TimeShiftDirection.backward)
@@ -63,9 +66,6 @@ const TimeShiftZone = ({
             : graphWidth) + marginLeft
         }
         y={marginTop}
-        onClick={getNewInterval}
-        onMouseLeave={onDirectionHover(null)}
-        onMouseOver={onDirectionHover(direction)}
       />
     ),
     memoProps: [

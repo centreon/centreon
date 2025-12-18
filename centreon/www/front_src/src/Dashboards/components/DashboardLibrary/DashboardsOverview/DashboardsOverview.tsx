@@ -96,23 +96,23 @@ const DashboardsOverview = (): ReactElement => {
         {dashboards.map((dashboard) => (
           <div className={classes.dashboardItemContainer} key={dashboard.id}>
             <DataTable.Item
-              hasCardAction
               Actions={
                 <DashboardCardActions
                   dashboard={dashboard}
-                  refetch={refetch}
                   isFetchingListing={isLoading}
+                  refetch={refetch}
                 />
               }
               description={dashboard.description ?? undefined}
               hasActions={hasEditPermission(dashboard)}
+              hasCardAction
+              onClick={navigateToDashboard(dashboard)}
               thumbnail={
                 dashboard.thumbnail
                   ? getThumbnailSrc(dashboard)
                   : fallbackThumbnail
               }
               title={dashboard.name}
-              onClick={navigateToDashboard(dashboard)}
             />
             {!dashboard.thumbnail && (
               <Box className={classes.thumbnailFallbackIcon}>
@@ -141,8 +141,8 @@ const DashboardsOverview = (): ReactElement => {
       <DataTable isEmpty={isEmptyList} variant="grid">
         <DataTable.EmptyState
           aria-label="create"
-          canCreate={canCreateOrManageDashboards}
           buttonCreateTestId="create-dashboard"
+          canCreate={canCreateOrManageDashboards}
           labels={emptyStateLabels}
           onCreate={createDashboard}
         />

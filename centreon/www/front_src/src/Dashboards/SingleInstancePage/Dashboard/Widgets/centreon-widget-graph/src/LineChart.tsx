@@ -98,9 +98,9 @@ const WidgetLineChart = ({
 
   const formattedThresholds = useThresholds({
     data: graphData,
+    isMetaServiceSelected,
     metricName: head(metricNames),
-    thresholds: panelOptions.threshold,
-    isMetaServiceSelected
+    thresholds: panelOptions.threshold
   });
 
   if (!areResourcesOk || (!isMetaServiceSelected && isMetricsEmpty)) {
@@ -134,9 +134,10 @@ const WidgetLineChart = ({
       placement: panelOptions.legendPlacement
     },
     loading: isGraphLoading,
+    skipIntersectionObserver: isFromPreview,
     start,
-    thresholdUnit: panelData.metrics[0]?.unit,
     thresholds: formattedThresholds,
+    thresholdUnit: panelData.metrics[0]?.unit,
     timeShiftZones: {
       enable: false
     },
@@ -146,8 +147,7 @@ const WidgetLineChart = ({
     },
     zoomPreview: {
       enable: false
-    },
-    skipIntersectionObserver: isFromPreview
+    }
   };
 
   if (isLineChart) {

@@ -354,10 +354,10 @@ const LegendContent = ({
         </div>
         {hasMoreLines && (
           <Button
-            fullWidth
             color="primary"
-            size="small"
+            fullWidth
             onClick={displayCompleteGraph}
+            size="small"
           >
             <BarChartIcon fontSize="small" />
             {t(labelDisplayCompleteGraph)}

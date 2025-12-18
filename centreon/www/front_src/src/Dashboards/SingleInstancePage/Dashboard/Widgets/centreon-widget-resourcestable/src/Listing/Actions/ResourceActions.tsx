@@ -155,9 +155,9 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableAcknowledge}
               icon={<IconAcknowledge />}
               label={t(labelAcknowledge)}
+              onClick={prepareToAcknowledge}
               permitted={isAcknowledgePermitted}
               testId="mainAcknowledge"
-              onClick={prepareToAcknowledge}
             />
           </div>
         )}
@@ -168,9 +168,9 @@ const ResourceActions = (): JSX.Element => {
               disabled={disableDowntime}
               icon={<IconDowntime />}
               label={t(labelSetDowntime)}
+              onClick={prepareToSetDowntime}
               permitted={isDowntimePermitted}
               testId="mainSetDowntime"
-              onClick={prepareToSetDowntime}
             />
           </div>
         )}

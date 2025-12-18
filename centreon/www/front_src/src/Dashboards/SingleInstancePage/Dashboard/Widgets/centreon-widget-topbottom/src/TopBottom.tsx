@@ -91,14 +91,14 @@ const TopBottom = ({
   }
 
   return (
-    <div ref={containerRef} className={classes.topBottomContainer}>
+    <div className={classes.topBottomContainer} ref={containerRef}>
       <div className={classes.labelContainer}>
         {(metricsTop?.resources || []).map((metricTop, index) => (
           <Label
-            ref={labelRef}
+            index={index}
             key={`label_${metricTop.name}_${metricTop.id}`}
             metricTop={metricTop}
-            index={index}
+            ref={labelRef}
           />
         ))}
       </div>

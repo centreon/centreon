@@ -51,9 +51,9 @@ const TimePeriod = ({
       <SelectField
         dataTestId={labelTimePeriod}
         disabled={!canEditField}
+        onChange={setTimePeriod}
         options={translatedOptions}
         selectedOptionId={value.timePeriodType || ''}
-        onChange={setTimePeriod}
       />
       {isCustomizeTimePeriod && (
         <div className={classes.customTimePeriod}>

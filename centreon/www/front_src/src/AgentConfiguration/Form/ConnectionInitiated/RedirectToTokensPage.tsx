@@ -17,19 +17,19 @@ const RedirectToTokensPage = (): JSX.Element => {
   return (
     <Box>
       <Button
+        aria-label={t(labelCreateNewCMAToken)}
         icon={<AddIcon />}
         iconVariant="start"
-        aria-label={t(labelCreateNewCMAToken)}
-        variant="ghost"
         size="small"
+        variant="ghost"
       >
         <Link
+          component={RouterLink}
           sx={{
             all: 'unset'
           }}
-          component={RouterLink}
-          to={tokensPageURL}
           target="_blank"
+          to={tokensPageURL}
         >
           {t(labelCreateNewCMAToken)}
         </Link>

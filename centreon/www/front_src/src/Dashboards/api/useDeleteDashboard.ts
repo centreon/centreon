@@ -42,9 +42,9 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     method: Method.DELETE,
     optimisticListing: {
       enabled: true,
+      limit: limit || 10,
       queryKey: resource.dashboards,
-      total,
-      limit: limit || 10
+      total
     }
   });
 

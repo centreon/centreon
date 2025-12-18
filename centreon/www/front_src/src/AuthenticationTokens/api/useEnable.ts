@@ -29,7 +29,7 @@ const useEnable = (): UseEnableeProps => {
     name: string;
   }) => {
     return mutateAsync(
-      { _meta: { userId, name }, payload: { is_revoked: false } },
+      { _meta: { name, userId }, payload: { is_revoked: false } },
       {}
     );
   };

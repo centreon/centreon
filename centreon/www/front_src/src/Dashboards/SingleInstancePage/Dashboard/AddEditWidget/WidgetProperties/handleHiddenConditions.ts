@@ -100,8 +100,8 @@ export const handleHiddenConditions = ({
       return (value.hiddenCondition as Array<WidgetHiddenCondition>).some(
         (hiddenCondition) =>
           checkHiddenCondition({
-            hasModule,
             featureFlags,
+            hasModule,
             hiddenCondition,
             values
           })
@@ -109,8 +109,8 @@ export const handleHiddenConditions = ({
     }
 
     return checkHiddenCondition({
-      hasModule,
       featureFlags,
+      hasModule,
       hiddenCondition: value.hiddenCondition as WidgetHiddenCondition,
       values
     });

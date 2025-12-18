@@ -37,13 +37,13 @@ const Status = ({
   const url = getResourcesUrl({
     allResources: [
       {
-        resourceType: groupType,
         resources: [
           {
             id: groupName,
             name: groupName
           }
-        ]
+        ],
+        resourceType: groupType
       }
     ],
     isForOneResource: false,
@@ -85,10 +85,10 @@ const Status = ({
       data-count={count}
       data-group={groupName}
       data-status={label}
+      onClick={goToUrl(url)}
       rel="noopener noreferrer"
       target="_blank"
       to={url}
-      onClick={goToUrl(url)}
     >
       {content}
     </Link>

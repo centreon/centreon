@@ -66,12 +66,12 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   };
 
   const openEditModal = (row) => {
-    setSearchParams({ mode: 'edit', id: row.id });
+    setSearchParams({ id: row.id, mode: 'edit' });
 
     setModalState({
+      id: row.id,
       isOpen: true,
-      mode: 'edit',
-      id: row.id
+      mode: 'edit'
     });
   };
 
@@ -81,15 +81,15 @@ const useListing = ({ selectedColumnIdsAtom }): UseListing => {
   return {
     changePage,
     changeSort,
+    disableRowCondition,
+    openEditModal,
     page,
     resetColumns,
     selectColumns,
     selectedColumnIds,
     setLimit,
     sortf,
-    sorto,
-    openEditModal,
-    disableRowCondition
+    sorto
   };
 };
 

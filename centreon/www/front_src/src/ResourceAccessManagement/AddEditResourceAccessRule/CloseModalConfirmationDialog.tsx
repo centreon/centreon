@@ -32,9 +32,9 @@ const CloseModalConfirmationDialog = (): React.JSX.Element => {
     <ConfirmDialog
       labelMessage={t(labelDoYouWantToQuitWithoutSaving)}
       labelTitle={t(labelYourFormHasUnsavedChanges)}
-      open={isDialogOpen}
       onCancel={onCancel}
       onConfirm={onConfirm}
+      open={isDialogOpen}
     />
   );
 };

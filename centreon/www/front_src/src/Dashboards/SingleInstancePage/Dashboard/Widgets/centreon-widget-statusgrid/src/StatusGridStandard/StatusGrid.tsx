@@ -185,8 +185,8 @@ const StatusGrid = ({
               id,
               information,
               is_acknowledged,
-              is_in_flapping,
               is_in_downtime,
+              is_in_flapping,
               metricsEndpoint: links?.endpoints.metrics,
               name: name || resource_name,
               parentId: parent?.id || resource?.parent_id,
@@ -233,13 +233,13 @@ const StatusGrid = ({
         <Tile
           data={resourceData}
           isBAResourceType={isBVResourceType || isBAResourceType}
+          isMediumSize={isMediumSize}
+          isSeeMoreTile={id === seeMoreTileId}
           isSmallestSize={isSmallestSize}
           resources={resources}
           statuses={statuses}
-          type={resourceData?.type}
           tileSize={tileSize}
-          isMediumSize={isMediumSize}
-          isSeeMoreTile={id === seeMoreTileId}
+          type={resourceData?.type}
         />
       )}
     </HeatMap>

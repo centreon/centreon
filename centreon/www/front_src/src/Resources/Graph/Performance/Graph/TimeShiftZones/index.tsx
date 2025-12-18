@@ -48,17 +48,17 @@ const TimeShifts = (): JSX.Element | null => {
   return (
     <>
       <TimeShiftIcon
-        Icon={ArrowBackIosIcon}
         ariaLabel={labelBackward}
         direction={TimeShiftDirection.backward}
         directionHovered={directionHovered}
+        Icon={ArrowBackIosIcon}
         xIcon={0}
       />
       <TimeShiftIcon
-        Icon={ArrowForwardIosIcon}
         ariaLabel={labelForward}
         direction={TimeShiftDirection.forward}
         directionHovered={directionHovered}
+        Icon={ArrowForwardIosIcon}
         xIcon={graphWidth + timeShiftZoneWidth + timeShiftIconSize}
       />
       <TimeShiftZone

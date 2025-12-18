@@ -87,9 +87,9 @@ const Graph = ({
   const baseEndpoint = getWidgetEndpoint({
     dashboardId,
     defaultEndpoint: selectEndpoint({
-      isMetaServiceSelected,
-      idForService: getServiceId(),
       hostId,
+      idForService: getServiceId(),
+      isMetaServiceSelected,
       metricName
     }),
     displayType,
@@ -102,12 +102,12 @@ const Graph = ({
     baseEndpoint,
     bypassMetricsExclusion: true,
     bypassQueryParams: true,
+    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected)),
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
-    resources,
-    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected))
+    resources
   });
 
   const displayAsRaw = equals('raw')(valueFormat);
@@ -125,9 +125,9 @@ const Graph = ({
   const formattedThresholds = useThresholds({
     data: formattedGraphData,
     displayAsRaw,
+    isMetaServiceSelected,
     metricName,
-    thresholds: threshold,
-    isMetaServiceSelected
+    thresholds: threshold
   });
 
   const areResourcesOk = areResourcesFullfilled(resources);

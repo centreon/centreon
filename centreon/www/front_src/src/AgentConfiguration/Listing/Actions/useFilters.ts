@@ -95,15 +95,15 @@ export const useFilters = (): UseFiltersState => {
   }, [filters, isClearClicked]);
 
   return {
-    isClearDisabled,
     changeName,
-    changeTypes,
     changerPollers,
+    changeTypes,
     deletePoller,
     deleteType,
+    filters,
+    isClearDisabled,
     isOptionEqualToValue,
     reload,
-    reset,
-    filters
+    reset
   };
 };

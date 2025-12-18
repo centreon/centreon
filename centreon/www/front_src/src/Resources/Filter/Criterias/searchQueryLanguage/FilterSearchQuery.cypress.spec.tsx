@@ -45,7 +45,7 @@ const parsedSearch = [
     name: 'host_groups',
     object_type: 'host_groups',
     type: 'multi_select',
-    value: [{ id: 0, name: 'Linux-Servers', formattedName: 'Linux-Servers' }]
+    value: [{ formattedName: 'Linux-Servers', id: 0, name: 'Linux-Servers' }]
   },
   {
     name: 'service_groups',
@@ -57,13 +57,13 @@ const parsedSearch = [
     name: 'monitoring_servers',
     object_type: 'monitoring_servers',
     type: 'multi_select',
-    value: [{ id: 0, name: 'Central', formattedName: 'Central' }]
+    value: [{ formattedName: 'Central', id: 0, name: 'Central' }]
   },
   {
     name: 'host_categories',
     object_type: 'host_categories',
     type: 'multi_select',
-    value: [{ id: 0, name: 'Linux', formattedName: 'Linux' }]
+    value: [{ formattedName: 'Linux', id: 0, name: 'Linux' }]
   },
   {
     name: 'service_categories',
@@ -101,9 +101,9 @@ const parsedSearch = [
     type: 'multi_select',
     value: [
       {
+        formattedName: 'Centreon',
         id: 0,
-        name: 'Centreon',
-        formattedName: 'Centreon'
+        name: 'Centreon'
       }
     ]
   },
@@ -113,9 +113,9 @@ const parsedSearch = [
     type: 'multi_select',
     value: [
       {
+        formattedName: 'Service',
         id: 0,
-        name: 'Service',
-        formattedName: 'Service'
+        name: 'Service'
       }
     ]
   },

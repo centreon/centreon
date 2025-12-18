@@ -19,8 +19,8 @@ const useListingColumns = (): Array<Column> => {
       getFormattedString: ({ name }): string => name,
       id: 'name',
       label: t(labelName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.string
     },
     {
@@ -28,8 +28,8 @@ const useListingColumns = (): Array<Column> => {
       getFormattedString: ({ description }): string => description,
       id: 'description',
       label: t(labelDescription),
-      sortField: 'description',
       sortable: true,
+      sortField: 'description',
       type: ColumnType.string
     },
     {

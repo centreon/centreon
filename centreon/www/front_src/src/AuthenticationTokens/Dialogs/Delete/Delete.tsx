@@ -18,20 +18,20 @@ const DeleteDialog = (): JSX.Element => {
   const { close, confirm, isMutating, isOpened, name } = useDelete();
 
   return (
-    <Modal open={isOpened} size="large" onClose={close}>
+    <Modal onClose={close} open={isOpened} size="large">
       <Modal.Header>{t(labelDeleteToken)}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
+            components={{ bold: <strong /> }}
             defaults={labelMsgConfirmationDeletionToken}
             values={{ tokenName: name }}
-            components={{ bold: <strong /> }}
           />
         </Typography>
       </Modal.Body>
       <Modal.Actions
-        isDanger
         disabled={isMutating}
+        isDanger
         labels={{
           cancel: t(labelCancel),
           confirm: t(labelDelete)

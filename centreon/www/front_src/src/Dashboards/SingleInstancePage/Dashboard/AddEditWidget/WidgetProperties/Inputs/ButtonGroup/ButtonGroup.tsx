@@ -46,8 +46,8 @@ const ButtonGroup = ({
               data-selected={isButtonSelected(id)}
               data-testid={id}
               key={id}
-              variant={isButtonSelected(id) ? 'contained' : 'outlined'}
               onClick={selectOption(id)}
+              variant={isButtonSelected(id) ? 'contained' : 'outlined'}
             >
               {t(name)}
             </Button>

@@ -43,9 +43,9 @@ const useMultiAutocomplete = <TFilters>({
   };
 
   return {
-    isOptionEqualToValue,
-    deleteItem,
     change,
+    deleteItem,
+    isOptionEqualToValue,
     value: filters?.[name]
   };
 };

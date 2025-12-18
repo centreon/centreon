@@ -63,17 +63,17 @@ const ClosePanelAction = (): JSX.Element => {
       <IconButton
         ariaLabel={t(labelClosePanel) as string}
         className={classes.button}
-        title={t(labelClosePanel) as string}
         onClick={askBeforeClosePanelEdit}
+        title={t(labelClosePanel) as string}
       >
         <CloseIcon className={classes.icon} />
       </IconButton>
       <ConfirmDialog
         labelMessage={t(labelDoYouWantToQuitWithoutSaving)}
         labelTitle={t(labelYourFormHasUnsavedChanges)}
-        open={dialogOpen}
         onCancel={onCancel}
         onConfirm={onConfirm}
+        open={dialogOpen}
       />
     </>
   );

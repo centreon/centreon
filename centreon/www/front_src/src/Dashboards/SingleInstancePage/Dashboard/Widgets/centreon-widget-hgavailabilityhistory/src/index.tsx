@@ -21,16 +21,16 @@ const Widget = ({
 
   return (
     <FederatedComponent
-      path="/bi/widget/hgavailabilityhistory"
+      dashboardId={dashboardId}
+      globalRefreshInterval={globalRefreshInterval}
+      id={id}
+      isFromPreview={isFromPreview}
       panelData={panelData}
       panelOptions={panelOptions}
-      globalRefreshInterval={globalRefreshInterval}
-      refreshCount={refreshCount}
-      isFromPreview={isFromPreview}
-      id={id}
+      path="/bi/widget/hgavailabilityhistory"
       playlistHash={playlistHash}
-      dashboardId={dashboardId}
       queryClient={queryClient}
+      refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
     />
   );

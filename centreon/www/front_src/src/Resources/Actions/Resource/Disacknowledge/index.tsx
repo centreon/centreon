@@ -70,16 +70,16 @@ const DisacknowledgeForm = ({
 
   return (
     <Dialog
-      open
       confirmDisabled={sendingDisacknowledgeResources}
       data-testid="modalDisacknowledge"
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDisacknowledge)}
       labelTitle={t(labelDisacknowledge)}
-      submitting={sendingDisacknowledgeResources}
       onCancel={onClose}
       onClose={onClose}
       onConfirm={submitDisacknowledge}
+      open
+      submitting={sendingDisacknowledgeResources}
     >
       <Grid container direction="column" spacing={1}>
         {deniedTypeAlert && (
@@ -99,8 +99,8 @@ const DisacknowledgeForm = ({
                   color="primary"
                   disabled={!canDisacknowledgeServices()}
                   inputProps={{ 'aria-label': t(labelDisacknowledgeServices) }}
-                  size="small"
                   onChange={changeDisacknowledgeAttachedRessources}
+                  size="small"
                 />
               }
               label={t(labelDisacknowledgeServices) as string}

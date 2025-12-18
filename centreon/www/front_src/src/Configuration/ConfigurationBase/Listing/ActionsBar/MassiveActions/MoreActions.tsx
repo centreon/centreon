@@ -33,41 +33,41 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
     useMassiveActions();
 
   return (
-    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
+    <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
       <ActionsList
-        className={classes.ActionsList}
         actions={[
           {
+            disable: isMutating,
             Icon: DuplicateIcon,
             label: t(labelDuplicate),
-            onClick: pipe(openDuplicateModal, close),
-            disable: isMutating
+            onClick: pipe(openDuplicateModal, close)
           },
           ActionsListActionDivider.divider,
           {
+            disable: isMutating,
             Icon: EnableIcon,
             label: t(labelEnable),
             onClick: pipe(enable, close),
-            disable: isMutating,
             variant: 'success'
           },
           ActionsListActionDivider.divider,
           {
+            disable: isMutating,
             Icon: DisableIcon,
             label: t(labelDisable),
             onClick: pipe(disable, close),
-            disable: isMutating,
             variant: 'error'
           },
           ActionsListActionDivider.divider,
           {
+            disable: isMutating,
             Icon: DeleteIcon,
             label: t(labelDelete),
             onClick: pipe(openDeleteModal, close),
-            variant: 'error',
-            disable: isMutating
+            variant: 'error'
           }
         ]}
+        className={classes.ActionsList}
       />
     </Menu>
   );

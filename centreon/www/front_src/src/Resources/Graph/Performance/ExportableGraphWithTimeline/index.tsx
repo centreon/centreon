@@ -177,7 +177,6 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
       >
         <PerformanceGraph<T>
           canAdjustTimePeriod
-          toggableLegend
           displayEventAnnotations={displayEventAnnotations}
           end={end}
           endpoint={graphEndpoint}
@@ -199,13 +198,14 @@ const ExportablePerformanceGraphWithTimeline = <T,>({
           interactWithGraph={interactWithGraph}
           isInViewport={isInViewport}
           limitLegendRows={limitLegendRows}
+          onAddComment={addCommentToTimeline}
           renderAdditionalLines={renderAdditionalLines}
           resource={resource as Resource}
           resourceDetailsUpdated={resourceDetailsUpdated}
           start={start}
           timeline={timeline}
+          toggableLegend
           xAxisTickFormat={xAxisTickFormat}
-          onAddComment={addCommentToTimeline}
         />
       </div>
     </Paper>

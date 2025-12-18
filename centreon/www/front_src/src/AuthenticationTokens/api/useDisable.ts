@@ -29,7 +29,7 @@ const useDisable = (): UseDisableProps => {
     name: string;
   }) => {
     return mutateAsync(
-      { _meta: { userId, name }, payload: { is_revoked: true } },
+      { _meta: { name, userId }, payload: { is_revoked: true } },
       {}
     );
   };

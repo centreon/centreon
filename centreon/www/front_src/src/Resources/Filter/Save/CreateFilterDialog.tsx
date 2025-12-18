@@ -78,21 +78,21 @@ const CreateFilterDialog = ({
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelSave)}
       labelTitle={t(isUpdatingFilter ? labelUpdateFilter : labelNewFilter)}
-      open={open}
-      submitting={sending}
       onCancel={onCancel}
       onConfirm={form.submitForm}
+      open={open}
+      submitting={sending}
     >
       <TextField
-        autoFocus
         ariaLabel={t(labelName) as string}
+        autoFocus
         dataTestId={labelName}
         disabled={isUpdatingFilter}
         error={form.touched.name ? form.errors.name : undefined}
         label={t(labelName)}
-        value={form.values.name}
         onChange={form.handleChange('name') as InputChangeEvent}
         onKeyDown={submitFormOnEnterKey}
+        value={form.values.name}
       />
     </Dialog>
   );

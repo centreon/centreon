@@ -15,15 +15,15 @@ const initialize = ({ name, reject }): unknown => {
   cy.mount({
     Component: (
       <CreateFilterDialog
-        open
         callbackSuccess={success}
+        onCancel={cancel}
+        open
         payloadAction={{
           filter: {
             name
           }
         }}
         request={request}
-        onCancel={cancel}
       />
     )
   });

@@ -30,13 +30,13 @@ const serviceMetrics: Data = {
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
     }
   ]
 };
@@ -56,13 +56,13 @@ const metaServiceData: Data = {
   ],
   resources: [
     {
-      resourceType: 'meta-service',
       resources: [
         {
           id: 1,
           name: 'M1'
         }
-      ]
+      ],
+      resourceType: 'meta-service'
     }
   ]
 };
@@ -118,17 +118,18 @@ const legendProperties = [
 
 const legendData = [
   {
-    resourcesType: 'host',
-    graphDataPath: 'Widgets/Graph/legend/lineChartWithRedundantHostName.json'
+    graphDataPath: 'Widgets/Graph/legend/lineChartWithRedundantHostName.json',
+    resourcesType: 'host'
   },
   {
-    resourcesType: 'service',
-    graphDataPath: 'Widgets/Graph/legend/lineChartWithRedundantServiceName.json'
-  },
-  {
-    resourcesType: 'host and service',
     graphDataPath:
-      'Widgets/Graph/legend/lineChartWithRedundantHostAndServiceName.json'
+      'Widgets/Graph/legend/lineChartWithRedundantServiceName.json',
+    resourcesType: 'service'
+  },
+  {
+    graphDataPath:
+      'Widgets/Graph/legend/lineChartWithRedundantHostAndServiceName.json',
+    resourcesType: 'host and service'
   }
 ];
 
@@ -458,12 +459,12 @@ describe('Graph Widget', () => {
           'Widgets/Graph/legend/serviceMetricsForScrollableLegend.json'
         ).then((data) => {
           initializeComponent({
-            showLegend: true,
-            legendDisplayMode: mode,
-            legendPlacement: position,
             data,
             graphDataPath:
-              'Widgets/Graph/legend/lineChartForScrollableLegend.json'
+              'Widgets/Graph/legend/lineChartForScrollableLegend.json',
+            legendDisplayMode: mode,
+            legendPlacement: position,
+            showLegend: true
           });
         });
         cy.waitForRequest('@getLineChart');
@@ -489,8 +490,8 @@ describe('Graph Widget', () => {
   legendData.forEach(({ resourcesType, graphDataPath }) => {
     it(`do not display the ${resourcesType} name from the legend and tooltip when it's redundant`, () => {
       initializeComponent({
-        showLegend: true,
-        graphDataPath
+        graphDataPath,
+        showLegend: true
       });
       cy.waitForRequest('@getLineChart');
 

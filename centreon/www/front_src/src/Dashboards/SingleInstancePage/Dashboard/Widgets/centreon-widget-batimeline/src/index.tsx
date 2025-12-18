@@ -42,11 +42,11 @@ const Widget = ({
       id={id}
       panelData={panelData}
       panelOptions={panelOptions}
+      path="/bam/widget/batimeline"
       playlistHash={playlistHash}
+      queryClient={queryClient}
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
-      path="/bam/widget/batimeline"
-      queryClient={queryClient}
     />
   );
 };

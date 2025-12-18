@@ -1,19 +1,19 @@
 {
-  "title": "Generic data for single metric (example)",
-  "description": "This is the description of the data widget",
-  "options": {},
   "data": {
-    "resources": {
-      "type": "resources",
-      "defaultValue": [],
-      "required": true
-    },
     "metrics": {
-      "type": "metrics",
-      "defaultValue": []
+      "defaultValue": [],
+      "type": "metrics"
+    },
+    "resources": {
+      "defaultValue": [],
+      "required": true,
+      "type": "resources"
     }
   },
-  "singleMetricSelection": true,
+  "description": "This is the description of the data widget",
   "moduleName": "centreon-widget-singledata",
+  "options": {},
+  "singleMetricSelection": true,
+  "title": "Generic data for single metric (example)",
   "widgetType": "realtime"
 }

@@ -74,24 +74,27 @@ const LoginForm = (): JSX.Element => {
   return (
     <form className={classes.form} onSubmit={handleSubmit}>
       <TextField
-        fullWidth
-        required
-        StartAdornment={PersonIcon}
         ariaLabel={labelAlias}
         error={aliasError}
+        fullWidth
         label={t(labelAlias)}
-        value={aliasValue || ''}
         onBlur={handleBlur(aliasFieldName)}
         onChange={handleChange(aliasFieldName)}
+        required
+        StartAdornment={PersonIcon}
+        value={aliasValue || ''}
       />
       <TextField
-        fullWidth
-        required
-        forceUncontrolled
-        EndAdornment={passwordEndAdornment}
-        StartAdornment={LockIcon}
         ariaLabel={labelPassword}
+        EndAdornment={passwordEndAdornment}
         error={passwordError}
+        forceUncontrolled
+        fullWidth
+        label={t(labelPassword)}
+        onBlur={handleBlur(passwordFieldName)}
+        onChange={handleChange(passwordFieldName)}
+        required
+        StartAdornment={LockIcon}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -100,17 +103,14 @@ const LoginForm = (): JSX.Element => {
             }
           }
         }}
-        label={t(labelPassword)}
         type={isVisible ? 'text' : 'password'}
-        onBlur={handleBlur(passwordFieldName)}
-        onChange={handleChange(passwordFieldName)}
       />
       <Button
-        fullWidth
         aria-label={labelConnect}
         color="primary"
         disabled={isDisabled}
         endIcon={isSubmitting && <CircularProgress color="inherit" size={20} />}
+        fullWidth
         type="submit"
         variant="contained"
       >

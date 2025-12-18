@@ -32,12 +32,12 @@ const getRowTextColor = ({
 const useNameStyles = makeStyles<StyleProps>()(
   (theme, { isHovered, isRowDisabled }) => ({
     container: {
-      display: 'flex',
       alignItems: 'center',
+      display: 'flex',
       gap: theme.spacing(0.5)
     },
     resourceNameText: {
-      color: getRowTextColor({ theme, isHovered, isRowDisabled })
+      color: getRowTextColor({ isHovered, isRowDisabled, theme })
     }
   })
 );

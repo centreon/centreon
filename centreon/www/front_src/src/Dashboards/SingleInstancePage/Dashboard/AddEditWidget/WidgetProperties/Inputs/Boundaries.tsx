@@ -72,28 +72,28 @@ const Boundaries = ({ propertyName, text }: WidgetPropertyProps) => {
     if (boundaryMin && boundaryMax) {
       return;
     }
-    setFieldValue(`options.${propertyName}`, { min: 0, max: 100 });
+    setFieldValue(`options.${propertyName}`, { max: 100, min: 0 });
   }, []);
 
   return (
     <div>
-      <Stack direction="row" gap={1.5} alignItems="center">
+      <Stack alignItems="center" direction="row" gap={1.5}>
         <WidgetTextField
           ignoreError
-          propertyName={`${propertyName}.min`}
-          label={labelMinValue}
-          text={{ type: 'number', ...text }}
           isInGroup={false}
           isSingleAutocomplete={false}
+          label={labelMinValue}
+          propertyName={`${propertyName}.min`}
+          text={{ type: 'number', ...text }}
         />
         <div>-</div>
         <WidgetTextField
           ignoreError
-          propertyName={`${propertyName}.max`}
-          label={labelMaxValue}
-          text={{ type: 'number', ...text }}
           isInGroup={false}
           isSingleAutocomplete={false}
+          label={labelMaxValue}
+          propertyName={`${propertyName}.max`}
+          text={{ type: 'number', ...text }}
         />
       </Stack>
       {isTouched && error && <FormHelperText error>{t(error)}</FormHelperText>}

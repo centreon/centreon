@@ -45,6 +45,8 @@ const WidgetTiles = ({
         defaultValue={value}
         disabled={!canEditField}
         fallbackValue={100}
+        onChange={change}
+        size="compact"
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -53,9 +55,7 @@ const WidgetTiles = ({
             }
           }
         }}
-        size="compact"
         type="number"
-        onChange={change}
       />
       <Typography>{t(labelTiles)}</Typography>
     </div>

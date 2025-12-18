@@ -32,7 +32,7 @@ const WizardButtons = ({
 
   return (
     <div className={classes.formButton}>
-      <Button size="small" onClick={goToPreviousStep}>
+      <Button onClick={goToPreviousStep} size="small">
         {t(labelPrevious)}
       </Button>
       <Button

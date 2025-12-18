@@ -26,8 +26,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         <IconButton
           ariaLabel={t(labelDuplicate)}
           dataTestid={`${labelDuplicate}_${row.id}`}
-          title={t(labelDuplicate)}
           onClick={openDuplicateModal}
+          title={t(labelDuplicate)}
         >
           <ContentCopyIcon className={classes.duplicateIcon} />
         </IconButton>
@@ -35,10 +35,10 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       {canDelete && (
         <IconButton
           ariaLabel={t(labelDelete)}
-          dataTestid={`${labelDelete}_${row.id}`}
-          title={t(labelDelete)}
-          onClick={openDeleteModal}
           className={classes.removeButton}
+          dataTestid={`${labelDelete}_${row.id}`}
+          onClick={openDeleteModal}
+          title={t(labelDelete)}
         >
           <DeleteIcon className={classes.removeIcon} />
         </IconButton>

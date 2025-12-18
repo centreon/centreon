@@ -120,8 +120,8 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         : Object.values(ExtendedCriteria);
 
     return buildDataByCategoryFilter({
-      CriteriaType: criteriaType,
       builtCriteria,
+      CriteriaType: criteriaType,
       selectableCriteria
     });
   };
@@ -148,9 +148,9 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         <Button
           icon={open ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
           iconVariant="end"
+          onClick={controlFilterInterface}
           size="small"
           variant="ghost"
-          onClick={controlFilterInterface}
         >
           <Typography variant="body1">
             {t(open ? labelShowFewerFilters : labelShowMoreFilters)}
@@ -191,8 +191,8 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
           <>
             <div className={classes.containerDivider}>
               <Divider
-                flexItem
                 className={classes.bridge}
+                flexItem
                 orientation="vertical"
                 variant="middle"
               />

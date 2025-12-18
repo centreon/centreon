@@ -8,9 +8,9 @@ export const useLegendStyles = makeStyles<{ direction: 'row' | 'column' }>()(
       display: 'flex',
       flexDirection: direction,
       gap: theme.spacing(1),
+      height: 'fit-content',
       padding: theme.spacing(1),
-      width: 'fit-content',
-      height: 'fit-content'
+      width: 'fit-content'
     },
     legendItem: {
       borderRadius: theme.shape.borderRadius,
@@ -25,10 +25,10 @@ export const useLegendStyles = makeStyles<{ direction: 'row' | 'column' }>()(
     },
     tooltip: {
       backgroundColor: theme.palette.background.paper,
+      boxShadow: theme.shadows[3],
       color: theme.palette.text.primary,
       padding: 0,
-      position: 'relative',
-      boxShadow: theme.shadows[3]
+      position: 'relative'
     }
   })
 );

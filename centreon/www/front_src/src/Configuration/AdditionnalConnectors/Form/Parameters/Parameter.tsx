@@ -35,21 +35,21 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
         {keys(parameter).map((name) => (
           <div className={classes.parameterCompositionItem} key={name}>
             <ItemComposition.Item
-              deleteButtonHidden
               className={classes.parameterItem}
+              deleteButtonHidden
               key={name}
             >
               <TextField
-                fullWidth
                 dataTestId={`${name}_value`}
                 error={getError?.(name)}
+                fullWidth
                 label={t(name)}
                 name={name}
+                onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
+                onChange={changeParameterValue}
                 required={getIsFieldRequired(name)}
                 type={getFieldType(name)}
                 value={parameter[name]}
-                onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
-                onChange={changeParameterValue}
               />
             </ItemComposition.Item>
           </div>

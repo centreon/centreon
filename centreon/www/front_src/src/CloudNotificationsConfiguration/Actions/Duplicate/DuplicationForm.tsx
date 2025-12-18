@@ -10,8 +10,8 @@ const DuplicationForm = (): JSX.Element => {
   return (
     <Formik
       initialValues={{ name: '' }}
-      validationSchema={validationSchema}
       onSubmit={submit}
+      validationSchema={validationSchema}
     >
       <DuplicateConfirmationDialog />
     </Formik>

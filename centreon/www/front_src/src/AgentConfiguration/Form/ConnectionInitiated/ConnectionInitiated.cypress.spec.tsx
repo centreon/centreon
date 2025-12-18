@@ -27,21 +27,21 @@ interface TestValues {
       inputValue?: string;
       testId?: string;
     }>;
-    hosts: Host[];
+    hosts: Array<Host>;
   };
 }
 
 const initialValues: TestValues = {
-  connectionMode: { id: ConnectionMode.secure },
   configuration: {
     agentInitiated: false,
-    pollerInitiated: false,
-    otelPublicCertificate: '',
+    hosts: [],
     otelCaCertificate: '',
     otelPrivateKey: '',
-    tokens: [],
-    hosts: []
-  }
+    otelPublicCertificate: '',
+    pollerInitiated: false,
+    tokens: []
+  },
+  connectionMode: { id: ConnectionMode.secure }
 };
 
 const initialValuesWithAgentEnabled: TestValues = {
@@ -53,24 +53,24 @@ const initialValuesWithAgentEnabled: TestValues = {
 };
 
 const initialValuesWithPollerEnabled: TestValues = {
-  connectionMode: { id: ConnectionMode.secure },
   configuration: {
     agentInitiated: false,
-    pollerInitiated: true,
-    otelPublicCertificate: '',
-    otelCaCertificate: '',
-    otelPrivateKey: '',
-    tokens: [],
     hosts: [
       {
         address: '',
-        port: '',
         pollerCaCertificate: '',
         pollerCaName: '',
+        port: '',
         token: null
       }
-    ]
-  }
+    ],
+    otelCaCertificate: '',
+    otelPrivateKey: '',
+    otelPublicCertificate: '',
+    pollerInitiated: true,
+    tokens: []
+  },
+  connectionMode: { id: ConnectionMode.secure }
 };
 
 const initialize = (values: TestValues = initialValues): void => {
@@ -198,16 +198,16 @@ describe('ConnectionInitiated', () => {
 
   it('should not render AgentInitiated when connection mode is not secure or insecure', () => {
     const valuesWithDifferentMode: TestValues = {
-      connectionMode: { id: ConnectionMode.none }, // Assuming 'none' exists in ConnectionMode enum
       configuration: {
         agentInitiated: true,
-        pollerInitiated: false,
-        otelPublicCertificate: '',
+        hosts: [],
         otelCaCertificate: '',
         otelPrivateKey: '',
-        tokens: [],
-        hosts: []
-      }
+        otelPublicCertificate: '',
+        pollerInitiated: false,
+        tokens: []
+      },
+      connectionMode: { id: ConnectionMode.none } // Assuming 'none' exists in ConnectionMode enum
     };
 
     initialize(valuesWithDifferentMode);
@@ -219,16 +219,16 @@ describe('ConnectionInitiated', () => {
 
   it('should render AgentInitiated when connection mode is secure', () => {
     const valuesWithSecureMode: TestValues = {
-      connectionMode: { id: ConnectionMode.secure },
       configuration: {
         agentInitiated: true,
-        pollerInitiated: false,
-        otelPublicCertificate: '',
+        hosts: [],
         otelCaCertificate: '',
         otelPrivateKey: '',
-        tokens: [],
-        hosts: []
-      }
+        otelPublicCertificate: '',
+        pollerInitiated: false,
+        tokens: []
+      },
+      connectionMode: { id: ConnectionMode.secure }
     };
 
     initialize(valuesWithSecureMode);

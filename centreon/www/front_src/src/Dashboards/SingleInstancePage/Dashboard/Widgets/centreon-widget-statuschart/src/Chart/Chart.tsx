@@ -51,8 +51,8 @@ const Chart = ({
     playlistHash,
     refreshCount,
     refreshIntervalToUse,
-    resourceType,
     resources,
+    resourceType,
     widgetPrefixQuery
   });
 
@@ -91,26 +91,26 @@ const Chart = ({
       {isPieCharts ? (
         <div className={classes.pieChart}>
           <PieChart
-            opacity={1}
-            Legend={(props) => (
-              <Legend
-                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
-                resourceType={resourceType}
-                resources={resources}
-                {...props}
-              />
-            )}
-            TooltipContent={isOnPublicPage ? undefined : TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            Legend={(props) => (
+              <Legend
+                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+                resources={resources}
+                resourceType={resourceType}
+                {...props}
+              />
+            )}
+            onArcClick={({ label: status }) => {
+              goToResourceStatusPage(status);
+            }}
+            opacity={1}
+            TooltipContent={isOnPublicPage ? undefined : TooltipContent}
             title={title}
             tooltipProps={{ resources, resourceType }}
             unit={unit}
             variant={displayType as 'pie' | 'donut'}
-            onArcClick={({ label: status }) => {
-              goToResourceStatusPage(status);
-            }}
           />
         </div>
       ) : (
@@ -121,26 +121,26 @@ const Chart = ({
           })}
         >
           <BarStack
-            Legend={(props) => (
-              <Legend
-                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
-                resourceType={resourceType}
-                resources={resources}
-                {...props}
-              />
-            )}
-            TooltipContent={TooltipContent}
             data={data}
             displayLegend={displayLegend}
             displayValues={displayValues}
+            Legend={(props) => (
+              <Legend
+                getLinkToResourceStatusPage={getLinkToResourceStatusPage}
+                resources={resources}
+                resourceType={resourceType}
+                {...props}
+              />
+            )}
             legendDirection={isHorizontalBar ? 'row' : 'column'}
+            onSingleBarClick={({ key: status }) => {
+              goToResourceStatusPage(status);
+            }}
+            TooltipContent={TooltipContent}
             title={title}
             tooltipProps={{ resources, resourceType }}
             unit={unit}
             variant={displayType as 'horizontal' | 'vertical'}
-            onSingleBarClick={({ key: status }) => {
-              goToResourceStatusPage(status);
-            }}
           />
         </div>
       )}

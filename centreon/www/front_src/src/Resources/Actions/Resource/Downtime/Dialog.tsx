@@ -82,11 +82,11 @@ const DialogDowntime = ({
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelSetDowntime)}
       labelTitle={t(labelDowntime)}
-      open={open}
-      submitting={submitting}
       onCancel={onCancel}
       onClose={onCancel}
       onConfirm={onConfirm}
+      open={open}
+      submitting={submitting}
     >
       {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
       <Stack spacing={2}>
@@ -126,25 +126,26 @@ const DialogDowntime = ({
 
           <Stack alignItems="center" direction="row" spacing={0.5}>
             <TextField
+              ariaLabel={t(labelDuration) as string}
               autoSize
               autoSizeDefaultWidth={168}
-              ariaLabel={t(labelDuration) as string}
               dataTestId={labelDuration}
               disabled={values.fixed}
               error={errors?.duration?.value}
+              onChange={handleChange('duration.value')}
               type="number"
               value={values.duration.value}
-              onChange={handleChange('duration.value')}
             />
             <Stack
               direction="row"
-              width="100%"
               justifyContent="flex-end"
               spacing={1}
+              width="100%"
             >
               <SelectField
                 dataTestId={labelUnit}
                 disabled={values.fixed}
+                onChange={handleChange('duration.unit')}
                 options={[
                   {
                     id: 'seconds',
@@ -160,7 +161,6 @@ const DialogDowntime = ({
                   }
                 ]}
                 selectedOptionId={values.duration.unit}
-                onChange={handleChange('duration.unit')}
               />
               <FormControlLabel
                 control={
@@ -168,8 +168,8 @@ const DialogDowntime = ({
                     checked={values.fixed}
                     color="primary"
                     inputProps={{ 'aria-label': t(labelFixed) as string }}
-                    size="small"
                     onChange={handleChange('fixed')}
+                    size="small"
                   />
                 }
                 label={t(labelFixed) as string}
@@ -178,14 +178,14 @@ const DialogDowntime = ({
           </Stack>
         </Stack>
         <TextField
-          fullWidth
-          multiline
           dataTestId={labelComment}
           error={errors?.comment}
+          fullWidth
           label={t(labelComment)}
+          multiline
+          onChange={handleChange('comment')}
           rows={3}
           value={values.comment}
-          onChange={handleChange('comment')}
         />
         {hasHosts && (
           <FormControlLabel
@@ -195,8 +195,8 @@ const DialogDowntime = ({
                 color="primary"
                 disabled={!canDowntimeServices()}
                 inputProps={{ 'aria-label': labelSetDowntimeOnServices }}
-                size="small"
                 onChange={handleChange('isDowntimeWithServices')}
+                size="small"
               />
             }
             label={t(labelSetDowntimeOnServices) as string}

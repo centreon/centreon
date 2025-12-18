@@ -45,8 +45,8 @@ const SortableContent = ({
 
   return (
     <Paper
-      square
       className={classes.filterCard}
+      square
       {...attributes}
       ref={itemRef}
       style={style}

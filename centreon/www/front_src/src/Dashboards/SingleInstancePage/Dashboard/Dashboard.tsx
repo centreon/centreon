@@ -99,16 +99,16 @@ const Dashboard = (): ReactElement => {
               <DashboardsQuickAccessMenu dashboard={dashboard} />
             </PageHeader.Menu>
             <PageHeader.Title
-              description={dashboard?.description || ''}
-              title={dashboard?.name || ''}
               actions={
                 <FavoriteAction
                   dashboardId={dashboard?.id as number}
                   isFavorite={dashboard?.isFavorite as boolean}
-                  refetch={updateFavorites}
                   isFetching={isFetchingListing > 0}
+                  refetch={updateFavorites}
                 />
               }
+              description={dashboard?.description || ''}
+              title={dashboard?.name || ''}
             />
           </PageHeader.Main>
           <DashboardNavbar />
@@ -123,25 +123,25 @@ const Dashboard = (): ReactElement => {
                   aria-label="edit"
                   data-testid="edit"
                   icon={<SettingsIcon />}
+                  onClick={editDashboard(dashboard as DashboardType)}
                   size="small"
                   variant="primary"
-                  onClick={editDashboard(dashboard as DashboardType)}
                 />
                 <IconButton
                   aria-label="share"
                   data-testid="share"
                   icon={<ShareIcon />}
+                  onClick={openAccessRights}
                   size="small"
                   variant="primary"
-                  onClick={openAccessRights}
                 />
                 <IconButton
                   aria-label="refresh"
                   data-testid="refresh"
                   icon={<RefreshIcon />}
+                  onClick={refreshAllWidgets}
                   size="small"
                   variant="primary"
-                  onClick={refreshAllWidgets}
                 />
               </span>
             )}

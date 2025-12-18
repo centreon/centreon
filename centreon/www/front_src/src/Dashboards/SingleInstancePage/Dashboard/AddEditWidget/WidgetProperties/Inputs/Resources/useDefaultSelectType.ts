@@ -14,7 +14,7 @@ import {
 
 interface UseDefaultSelectTypeData {
   selectType?: SelectType;
-  value?: WidgetDataResource[];
+  value?: Array<WidgetDataResource>;
 }
 
 const useDefaultSelectTypeData = ({
@@ -67,7 +67,7 @@ const useDefaultSelectTypeData = ({
               item?.requied &&
               isEmpty(resources)
             ) {
-              return { resourceType, resources: labelPleaseSelectAResource };
+              return { resources: labelPleaseSelectAResource, resourceType };
             }
             return null;
           });
@@ -103,8 +103,8 @@ const useDefaultSelectTypeData = ({
   validateDefaultSelectTypeData();
 
   return {
-    getDefaultRequiredSelectType,
-    getDefaultDisabledSelectType
+    getDefaultDisabledSelectType,
+    getDefaultRequiredSelectType
   };
 };
 

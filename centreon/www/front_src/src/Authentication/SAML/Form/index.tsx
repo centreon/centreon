@@ -56,11 +56,11 @@ const SAMLForm = ({
 
   return (
     <Form<SAMLConfiguration>
-      isCollapsible
       Buttons={FormButtons}
       groups={groups}
       initialValues={initialValues}
       inputs={inputs}
+      isCollapsible
       isLoading={isLoading}
       submit={submit}
       validationSchema={validationSchema}

@@ -32,21 +32,21 @@ const HostConfigurations = () => {
               width: 'calc(100% - 15px)'
             }}
           >
-            <HostConfiguration index={index} host={host} />
+            <HostConfiguration host={host} index={index} />
             <Box className={classes.deleteContainer}>
               <IconButton
-                color="default"
-                size="small"
-                icon={
-                  <DeleteOutline
-                    fontSize="small"
-                    className={classes.deleteIcon}
-                  />
-                }
                 className={classes.deleteButton}
-                onClick={deleteHostConfiguration(index)}
+                color="default"
                 data-testid={`delete-host-configuration-${index}`}
                 disabled={equals(1, hosts.length)}
+                icon={
+                  <DeleteOutline
+                    className={classes.deleteIcon}
+                    fontSize="small"
+                  />
+                }
+                onClick={deleteHostConfiguration(index)}
+                size="small"
               />
             </Box>
           </Box>

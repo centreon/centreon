@@ -102,6 +102,8 @@ const Details = (): JSX.Element | null => {
       header={<Header details={details} onSelectParent={selectResource} />}
       headerBackgroundColor={getHeaderBackgroundColor()}
       memoProps={[openDetailsTabId, details, panelWidth]}
+      onClose={clearSelectedResource}
+      onResize={setPanelWidth}
       ref={panelRef as RefObject<HTMLDivElement>}
       selectedTab={<TabById details={details} id={openDetailsTabId} />}
       selectedTabId={getTabIndex(openDetailsTabId)}
@@ -116,8 +118,6 @@ const Details = (): JSX.Element | null => {
         />
       ))}
       width={panelWidth}
-      onClose={clearSelectedResource}
-      onResize={setPanelWidth}
     />
   );
 };

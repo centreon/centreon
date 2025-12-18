@@ -61,13 +61,13 @@ const Annotation = ({
       >
         <svg
           height={iconSize}
-          width={iconSize}
-          x={xIcon}
-          y={yMargin}
           onMouseEnter={(): void =>
             setAnnotationHovered(() => ({ event, resourceId }))
           }
           onMouseLeave={(): void => setAnnotationHovered(() => undefined)}
+          width={iconSize}
+          x={xIcon}
+          y={yMargin}
         >
           <rect fill="transparent" height={iconSize} width={iconSize} />
           {icon}

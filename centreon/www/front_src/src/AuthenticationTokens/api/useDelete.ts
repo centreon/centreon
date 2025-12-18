@@ -28,7 +28,7 @@ const useDelete = (): UseDeleteProps => {
     userId: number;
     name: string;
   }) => {
-    return mutateAsync({ _meta: { userId, name } }, {});
+    return mutateAsync({ _meta: { name, userId } }, {});
   };
 
   return {

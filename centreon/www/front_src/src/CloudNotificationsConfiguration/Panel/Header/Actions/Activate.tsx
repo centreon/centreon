@@ -38,8 +38,8 @@ const ActivateAction = (): JSX.Element => {
         checked={values?.isActivated}
         color="success"
         name="isActivated"
-        size="small"
         onChange={handleChange}
+        size="small"
       />
     </Tooltip>
   );

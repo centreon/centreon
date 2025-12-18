@@ -28,10 +28,10 @@ const DashboardLayout = ({
 
   return (
     <PanelsLayout
-      isStatic
       canEdit={false}
       dashboardId={displayedDashboardId}
       displayMoreActions={false}
+      isStatic
       panels={dashboard.layout}
       playlistHash={playlistHash}
     />

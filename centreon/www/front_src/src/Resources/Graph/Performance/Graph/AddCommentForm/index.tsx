@@ -80,14 +80,14 @@ const AddCommentForm = ({
 
   return (
     <Dialog
-      open
       confirmDisabled={!canConfirm}
       labelConfirm={t(labelAdd)}
       labelTitle={t(labelAddComment)}
-      submitting={sending}
       onCancel={onClose}
       onClose={onClose}
       onConfirm={confirm}
+      open
+      submitting={sending}
     >
       <Grid container direction="column" spacing={2}>
         <Grid item>
@@ -95,16 +95,16 @@ const AddCommentForm = ({
         </Grid>
         <Grid item>
           <TextField
-            autoFocus
-            multiline
-            required
             ariaLabel={t(labelComment)}
+            autoFocus
             error={getError()}
             label={t(labelComment)}
+            multiline
+            onChange={changeComment}
+            required
             rows={3}
             style={{ width: 300 }}
             value={comment}
-            onChange={changeComment}
           />
         </Grid>
       </Grid>

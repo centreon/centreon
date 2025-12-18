@@ -83,14 +83,14 @@ const useLoadData = (): LoadDataState => {
   ];
 
   const { data, isLoading } = useGetAll({
-    sortField,
-    sortOrder,
-    page,
-    limit,
-    searchConditions,
-    queryKey: ['listTokens', sortField, sortOrder, limit, page],
     baseEndpoint: listTokensEndpoint,
-    decoder: listTokensDecoder
+    decoder: listTokensDecoder,
+    limit,
+    page,
+    queryKey: ['listTokens', sortField, sortOrder, limit, page],
+    searchConditions,
+    sortField,
+    sortOrder
   });
 
   return { data, isLoading };

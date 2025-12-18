@@ -137,8 +137,8 @@ const useColumns = ({
       id: 'status',
       label: t(labelStatus),
       rowMemoProps: ['status', 'severity_code', 'type'],
-      sortField: 'status_severity_code',
       sortable: true,
+      sortField: 'status_severity_code',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -148,8 +148,8 @@ const useColumns = ({
       id: 'resource',
       label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -161,8 +161,8 @@ const useColumns = ({
       getRenderComponentOnRowUpdateCondition: T,
       id: 'parent_resource',
       label: t(parentLabel),
-      sortField: 'parent_name',
       sortable: true,
+      sortField: 'parent_name',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -180,11 +180,11 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            id: 'ticket_id',
+            Component: TicketLink,
             clickable: true,
+            id: 'ticket_id',
             label: t(labelTicketID),
-            type: ColumnType.component,
-            Component: TicketLink
+            type: ColumnType.component
           },
           {
             getFormattedString: (row): string =>
@@ -211,8 +211,8 @@ const useColumns = ({
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
       label: t(labelDuration),
-      sortField: 'last_status_change',
       sortable: true,
+      sortField: 'last_status_change',
       type: ColumnType.string
     },
     {
@@ -249,8 +249,8 @@ const useColumns = ({
       id: 'severity',
       label: t(labelSeverity),
       rowMemoProps: ['severity_level'],
-      sortField: 'severity_level',
       sortable: true,
+      sortField: 'severity_level',
       type: ColumnType.component,
       width: 'minmax(50px, auto)'
     },
@@ -276,8 +276,8 @@ const useColumns = ({
       id: 'parent_alias',
       label: t(labelParentAlias),
       rowMemoProps: ['parent'],
-      sortField: 'parent_alias',
       sortable: true,
+      sortField: 'parent_alias',
       type: ColumnType.string,
       width: 'max-content'
     },
@@ -302,11 +302,11 @@ const useColumns = ({
       ? [
           {
             Component: CloseTicket,
+            clickable: true,
             getRenderComponentOnRowUpdateCondition: T,
             id: 'action',
             label: t(labelAction),
-            type: ColumnType.component,
-            clickable: true
+            type: ColumnType.component
           }
         ]
       : [])

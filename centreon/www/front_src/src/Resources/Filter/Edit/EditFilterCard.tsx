@@ -168,31 +168,31 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
       >
         <IconButton
           aria-label={t(labelDelete)}
+          onClick={askDelete}
           size="large"
           title={t(labelDelete)}
-          onClick={askDelete}
         >
           <DeleteIcon fontSize="small" />
         </IconButton>
       </ContentWithCircularLoading>
       <TextField
-        transparent
         ariaLabel={`${t(labelFilter)}-${id}-${t(labelName)}`}
         error={form.errors.name}
-        value={form.values.name}
         onBlur={rename}
         onChange={form.handleChange('name') as (event) => void}
         onKeyDown={renameOnEnterKey}
+        transparent
+        value={form.values.name}
       />
 
       {deleting && (
         <ConfirmDialog
-          open
           labelCancel={t(labelCancel)}
           labelConfirm={t(labelDelete)}
           labelTitle={t(labelAskDelete)}
           onCancel={cancelDelete}
           onConfirm={confirmDelete}
+          open
         />
       )}
     </div>

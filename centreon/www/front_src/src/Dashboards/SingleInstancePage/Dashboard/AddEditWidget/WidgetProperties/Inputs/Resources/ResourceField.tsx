@@ -59,12 +59,12 @@ const ResourceField = ({
   if (allowRegex && isRegexField) {
     return (
       <RegexField
+        changeRegexField={changeRegexField(index)}
         changeRegexFieldOnResourceType={changeRegexFieldOnResourceType({
-          resourceType: resource.resourceType,
-          index
+          index,
+          resourceType: resource.resourceType
         })}
         resourceType={resource.resourceType}
-        changeRegexField={changeRegexField(index)}
         value={resource.resources}
       />
     );
@@ -75,12 +75,12 @@ const ResourceField = ({
       <IconButton
         className={classes.regexIcon}
         data-testid={`${labelActivateRegex}-${resource.resourceType}`}
+        icon={<RegexIcon />}
         onClick={changeRegexFieldOnResourceType({
-          resourceType: resource.resourceType,
-          index
+          index,
+          resourceType: resource.resourceType
         })}
         size="small"
-        icon={<RegexIcon />}
       />
     </Tooltip>
   ) : undefined;
@@ -88,11 +88,12 @@ const ResourceField = ({
   if (singleResourceSelection) {
     return (
       <SingleConnectedAutocompleteField
-        exclusionOptionProperty="name"
         changeIdValue={changeIdValue(resource.resourceType)}
         className={classes.resources}
         disableClearable={singleResourceSelection}
         disabled={disabled}
+        endAdornment={endAdornment}
+        exclusionOptionProperty="name"
         field={getSearchField(resource.resourceType)}
         getEndpoint={getResourceResourceBaseEndpoint({
           index,
@@ -100,17 +101,15 @@ const ResourceField = ({
         })}
         label={t(labelSelectAResource)}
         limitTags={2}
+        onChange={changeResource(index)}
         queryKey={`${resource.resourceType}-${index}`}
         value={resource.resources[0] || null}
-        onChange={changeResource(index)}
-        endAdornment={endAdornment}
       />
     );
   }
 
   return (
     <MultiConnectedAutocompleteField
-      exclusionOptionProperty="name"
       changeIdValue={changeIdValue(resource.resourceType)}
       chipProps={{
         color: 'primary',
@@ -123,6 +122,8 @@ const ResourceField = ({
       }}
       className={classes.resources}
       disabled={disabled}
+      endAdornment={endAdornment}
+      exclusionOptionProperty="name"
       field={getSearchField(resource.resourceType)}
       getEndpoint={getResourceResourceBaseEndpoint({
         index,
@@ -130,11 +131,10 @@ const ResourceField = ({
       })}
       label={t(labelSelectAResource)}
       limitTags={2}
+      onChange={changeResources(index)}
       placeholder=""
       queryKey={`${resource.resourceType}-${index}`}
       value={resource.resources || []}
-      onChange={changeResources(index)}
-      endAdornment={endAdornment}
     />
   );
 };

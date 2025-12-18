@@ -82,7 +82,7 @@ const SubInputs = ({
       alignItems={hasRowDirection ? 'flex-end' : undefined}
       direction={hasRowDirection ? 'row' : 'column'}
       gap={hasSubInputs ? 1.5 : 0}
-      sx={{ pr: 1, justifyContent: 'space-between', flexWrap: 'wrap' }}
+      sx={{ flexWrap: 'wrap', justifyContent: 'space-between', pr: 1 }}
     >
       <Box sx={{ pr: 2 }}>{children}</Box>
       {hasSubInputs && (

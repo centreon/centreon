@@ -105,9 +105,9 @@ export const CheckBoxWrapper = ({
         direction="horizontal"
         formGroupProps={formGroupProps}
         labelProps={labelProps}
+        onChange={(event) => handleChangeStatus(event)}
         options={transformData(translatedOptions)}
         values={transformData(translatedValues)}
-        onChange={(event) => handleChangeStatus(event)}
       />
     </>
   );

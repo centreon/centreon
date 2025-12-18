@@ -60,8 +60,8 @@ import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 global.fetch = jest.fn(() =>
   Promise.resolve({
-    status: 200,
-    json: () => Promise.resolve({ success: true })
+    json: () => Promise.resolve({ success: true }),
+    status: 200
   })
 );
 
@@ -540,8 +540,8 @@ describe(Actions, () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.stringContaining(checkEndpoint),
         expect.objectContaining({
-          method: 'POST',
-          body: expect.stringContaining(JSON.stringify(payload))
+          body: expect.stringContaining(JSON.stringify(payload)),
+          method: 'POST'
         })
       );
     });

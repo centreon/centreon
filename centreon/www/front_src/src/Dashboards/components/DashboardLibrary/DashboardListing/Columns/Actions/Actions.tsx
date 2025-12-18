@@ -46,7 +46,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   if (isNestedRow) {
     return (
       <div className={classes.spacing}>
-        <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
+        <IconButton onClick={openAskBeforeRevoke} title={t(labelUnshare)}>
           <UnShareIcon className={classes.icon} />
         </IconButton>
       </div>
@@ -59,8 +59,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         <FavoriteAction
           dashboardId={row.id}
           isFavorite={row?.isFavorite}
-          refetch={refetch}
           isFetching={isFetchingListing > 0}
+          refetch={refetch}
         />
         <Box className={classes.line}>-</Box>
       </div>
@@ -72,20 +72,20 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       <FavoriteAction
         dashboardId={row.id}
         isFavorite={row?.isFavorite}
-        refetch={refetch}
         isFetching={isFetchingListing > 0}
+        refetch={refetch}
       />
       <IconButton
         ariaLabel={t(labelShareWithContacts)}
-        title={t(labelShareWithContacts)}
         onClick={editAccessRights}
+        title={t(labelShareWithContacts)}
       >
         <ShareIcon className={classes.icon} />
       </IconButton>
       <IconButton
         ariaLabel={t(labelMoreActions)}
-        title={t(labelMoreActions)}
         onClick={openMoreActions}
+        title={t(labelMoreActions)}
       >
         <MoreIcon />
       </IconButton>

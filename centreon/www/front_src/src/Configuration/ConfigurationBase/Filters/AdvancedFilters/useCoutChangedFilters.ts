@@ -23,8 +23,8 @@ const useCoutChangedFilters = ({ filtersAtom }): Props => {
   const changedFiltersCount = countDifferences(initialValues, filters);
 
   return {
-    isClear: equals(changedFiltersCount, 0),
-    changedFiltersCount
+    changedFiltersCount,
+    isClear: equals(changedFiltersCount, 0)
   };
 };
 

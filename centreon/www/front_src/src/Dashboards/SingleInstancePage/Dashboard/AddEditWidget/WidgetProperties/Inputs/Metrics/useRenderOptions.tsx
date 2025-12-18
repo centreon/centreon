@@ -301,8 +301,8 @@ export const useRenderOptions = ({
                   getSelectedMetricByMetricName(option.name)
                 )}
                 data-testid={option.name}
-                size="small"
                 onChange={selectMetric(option)}
+                size="small"
               />
               <Typography>{formatMetricName(option)}</Typography>
             </div>
@@ -358,8 +358,8 @@ export const useRenderOptions = ({
                 data-testid={option.name}
                 disabled={props['aria-disabled']}
                 indeterminate={isMetricIndeterminate}
-                size="small"
                 onChange={selectMetricsWithAllResources(option)}
+                size="small"
               />
               <Typography
                 color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}
@@ -396,8 +396,8 @@ export const useRenderOptions = ({
                   }
                   data-testid={`${option.name}_${parentName}:${name}`}
                   disabled={props['aria-disabled']}
-                  size="small"
                   onChange={resourceChange({ metric: option, metricId })}
+                  size="small"
                 />
                 <Typography
                   color={props['aria-disabled'] ? 'text.disabled' : 'inherit'}

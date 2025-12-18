@@ -123,9 +123,9 @@ const RemoteServerWizardStepTwo = ({
         <MultiAutocompleteField
           fullWidth
           label={t(labelRemoteServers)}
+          onChange={changeValue}
           options={pollersOptions || []}
           value={linkedPollers}
-          onChange={changeValue}
         />
         <WizardButtons
           disabled={loading}

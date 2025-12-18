@@ -85,8 +85,8 @@ const Preview = (): JSX.Element | null => {
         {displayDescription && (
           <DescriptionWrapper>
             <RichTextEditor
-              disabled
               contentClassName={classes.previewHeading}
+              disabled
               editable={false}
               editorState={
                 values.options?.description?.enabled
@@ -105,34 +105,34 @@ const Preview = (): JSX.Element | null => {
         >
           {!isEmpty(remoteEntry) || isNil(Component) ? (
             <FederatedComponent
+              globalRefreshInterval={refreshInterval}
+              hasDescription={displayDescription}
+              id={values.id}
               isFederatedWidget
               isFromPreview
-              globalRefreshInterval={refreshInterval}
-              id={values.id}
               panelData={values.data}
               panelOptions={values.options}
               path={values.panelConfiguration?.path || ''}
               setPanelOptions={changePanelOptions}
-              hasDescription={displayDescription}
             />
           ) : (
             <Suspense
               fallback={
                 <LoadingSkeleton
+                  height="100%"
                   variant="rectangular"
                   width="100%"
-                  height="100%"
                 />
               }
             >
               <Component
-                isFromPreview
                 globalRefreshInterval={refreshInterval}
+                hasDescription={displayDescription}
+                isFromPreview
                 panelData={values.data}
                 panelOptions={values.options}
                 path={values.panelConfiguration?.path || ''}
                 setPanelOptions={changePanelOptions}
-                hasDescription={displayDescription}
               />
             </Suspense>
           )}

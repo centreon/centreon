@@ -37,9 +37,9 @@ const PopoverFilter = <TFilters,>({
       fallback={<LoadingSkeleton height={24} variant="circular" width={24} />}
     >
       <Badge
-        color="primary"
         badgeContent={changedFiltersCount}
         className={classes.badge}
+        color="primary"
       >
         <PopoverMenu
           dataTestId={labelFilters}

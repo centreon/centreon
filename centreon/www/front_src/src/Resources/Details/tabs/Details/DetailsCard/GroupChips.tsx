@@ -28,7 +28,7 @@ const GroupChips = ({ groups = [], title, getType }: Props): JSX.Element => {
   const type = getType();
 
   return (
-    <Grid container className={classes.groups} spacing={1}>
+    <Grid className={classes.groups} container spacing={1}>
       <Grid item xs={12}>
         <Typography color="textSecondary" variant="body1">
           {t(title)}

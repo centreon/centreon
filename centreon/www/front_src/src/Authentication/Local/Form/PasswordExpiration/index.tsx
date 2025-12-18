@@ -88,9 +88,9 @@ const PasswordExpiration = (): JSX.Element => {
           baseName={passwordExpirationFieldName}
           inputLabel={labelPasswordExpiresAfter}
           maxDuration={twelveMonths}
+          onChange={change}
           timeInputConfigurations={timeInputConfiguration}
           timeValue={passwordExpirationValue}
-          onChange={change}
         />
         {passwordExpirationError && (
           <FormHelperText error>{passwordExpirationError}</FormHelperText>

@@ -56,9 +56,9 @@ const WidgetCheckboxes = ({
       {!keepOneOptionSelected && (isNotNil(options) || isEmpty(options)) && (
         <Button
           disabled={!canEditField}
+          onClick={areAllOptionsSelected ? unselectAll : selectAll}
           size="small"
           variant="ghost"
-          onClick={areAllOptionsSelected ? unselectAll : selectAll}
         >
           {areAllOptionsSelected ? t(labelUnselectAll) : t(labelSelectAll)}
         </Button>

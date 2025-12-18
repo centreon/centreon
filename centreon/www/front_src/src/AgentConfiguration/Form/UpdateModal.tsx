@@ -29,7 +29,7 @@ const UpdateModal = () => {
   );
 
   return (
-    <Modal open={isModalOpen} onClose={openAskBeforeClose} size="xlarge">
+    <Modal onClose={openAskBeforeClose} open={isModalOpen} size="xlarge">
       <Modal.Header>{t(labelUpdateAgentConfiguration)}</Modal.Header>
       <Modal.Body>
         <AgentConfigurationForm

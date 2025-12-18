@@ -16,20 +16,6 @@ export const useFilterStyles = makeStyles()((theme) => ({
     justifyContent: 'space-between',
     marginTop: theme.spacing(2)
   },
-  filters: {
-    maxWidth: theme.spacing(60),
-    minWidth: theme.spacing(20),
-    width: '100%'
-  },
-  statusFilter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingInlineStart: theme.spacing(1)
-  },
-  statusFilterName: {
-    fontWeight: theme.typography.fontWeightMedium
-  },
   badge: {
     '& .MuiBadge-badge': {
       fontSize: theme.typography.caption.fontSize,
@@ -37,5 +23,19 @@ export const useFilterStyles = makeStyles()((theme) => ({
       minWidth: theme.spacing(1.75),
       padding: theme.spacing(0, 0.5)
     }
+  },
+  filters: {
+    maxWidth: theme.spacing(60),
+    minWidth: theme.spacing(20),
+    width: '100%'
+  },
+  statusFilter: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingInlineStart: theme.spacing(1)
+  },
+  statusFilterName: {
+    fontWeight: theme.typography.fontWeightMedium
   }
 }));

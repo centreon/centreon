@@ -67,7 +67,6 @@ interface GetYupValidatorTypeProps {
 
 export const boundariesValidationSchema = object()
   .shape({
-    min: number(),
     max: number().test(
       'isMinAboveMax',
       labelMinMustLowerThanMax,
@@ -77,7 +76,8 @@ export const boundariesValidationSchema = object()
         }
         return Number(value || 0) > context.parent.min;
       }
-    )
+    ),
+    min: number()
   })
   .optional();
 
@@ -125,11 +125,11 @@ const getYupValidatorType = ({
           .of(
             object()
               .shape({
+                resources: getResourcesValidation(properties),
                 resourceType:
                   properties.required || properties.requireResourceType
                     ? string().required(t(labelRequired) as string)
-                    : string(),
-                resources: getResourcesValidation(properties)
+                    : string()
               })
               .test(
                 'resource-selection-validation',

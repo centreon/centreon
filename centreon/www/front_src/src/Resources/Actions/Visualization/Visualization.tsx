@@ -52,8 +52,8 @@ const VisualizationActions = ({
 
   return (
     <Grid
-      container
       className={classes.visualizationContainer}
+      container
       data-testid="tree view"
       size={12}
     >

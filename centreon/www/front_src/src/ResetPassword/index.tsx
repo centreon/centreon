@@ -90,8 +90,8 @@ const ResetPassword = (): JSX.Element | null => {
           <div className={classes.form}>
             <Formik<ResetPasswordValues>
               initialValues={initialValues}
-              validationSchema={validationSchema}
               onSubmit={submitResetPassword}
+              validationSchema={validationSchema}
             >
               <Form />
             </Formik>

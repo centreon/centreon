@@ -45,10 +45,10 @@ const DeleteConfirmationDialog = (): JSX.Element => {
       }
       labelSecondMessage={t(labelDeleteNotificationWarning)}
       labelTitle={t(labelDeleteNotification)}
-      open={isDialogOpen}
-      submitting={isLoading}
       onCancel={closeDialog}
       onConfirm={submit}
+      open={isDialogOpen}
+      submitting={isLoading}
     />
   );
 };

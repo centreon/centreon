@@ -29,9 +29,9 @@ const Listing = ({
     <>
       <IconButton
         ariaLabel={t(switchButtonLabel)}
+        onClick={onSwitchButtonClick}
         size="large"
         title={t(switchButtonLabel)}
-        onClick={onSwitchButtonClick}
       >
         {switchButtonIcon}
       </IconButton>

@@ -64,8 +64,8 @@ const FederatedModules = ({
               (component) => {
                 return (
                   <Remote
-                    isFederatedComponent
                     component={component}
+                    isFederatedComponent
                     isFederatedWidget={isFederatedWidget}
                     key={component}
                     moduleFederationName={moduleFederationName}

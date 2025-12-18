@@ -391,15 +391,15 @@ const PerformanceGraph = <T,>({
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
               loading={sendingGetGraphDataRequest}
+              onAddComment={onAddComment}
               performanceGraphData={performanceGraphData}
               renderAdditionalLines={renderAdditionalLines}
               resource={resource}
               start={start}
-              timeSeries={timeSeries}
               timeline={timeline}
+              timeSeries={timeSeries}
               width={width}
               xAxisTickFormat={xAxisTickFormat}
-              onAddComment={onAddComment}
             />
           )}
         </ParentSize>
@@ -411,12 +411,12 @@ const PerformanceGraph = <T,>({
         displayTimeValues={displayTimeValues}
         limitLegendRows={limitLegendRows}
         lines={sortedLines}
-        timeSeries={timeSeries}
-        toggable={toggableLegend}
         onClearHighlight={clearHighlight}
         onHighlight={highlightLine}
         onSelect={selectMetricLine}
         onToggle={toggleMetricLine}
+        timeSeries={timeSeries}
+        toggable={toggableLegend}
       />
     </div>
   );

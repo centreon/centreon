@@ -26,11 +26,11 @@ const Option = ({
       ariaLabel={title}
       className={classes.iconButton}
       disabled={disabled}
+      onClick={changeDisplayType}
       title={title}
       tooltipClassName={classes.tooltipClassName}
-      onClick={changeDisplayType}
     >
-      <Icon displayType={option} isActive={isActive} disabled={disabled} />
+      <Icon disabled={disabled} displayType={option} isActive={isActive} />
     </IconButton>
   );
 };

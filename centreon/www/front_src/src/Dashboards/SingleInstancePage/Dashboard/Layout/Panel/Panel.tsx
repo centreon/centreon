@@ -107,8 +107,8 @@ const Panel = ({
         {displayDescription && (
           <DescriptionWrapper>
             <RichTextEditor
-              disabled
               contentClassName={cx(isGenericTextPanel && classes.description)}
+              disabled
               editable={false}
               editorState={
                 panelOptionsAndData.options?.description?.content || undefined
@@ -126,7 +126,6 @@ const Panel = ({
         >
           {!isEmpty(remoteEntry) || isNil(Component) ? (
             <FederatedComponent
-              isFederatedWidget
               canEdit={canEditField}
               changeViewMode={changeViewMode}
               dashboardId={dashboardId}
@@ -134,6 +133,7 @@ const Panel = ({
               hasDescription={displayDescription}
               id={id}
               isEditingDashboard={isEditing}
+              isFederatedWidget
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
@@ -148,9 +148,9 @@ const Panel = ({
             <Suspense
               fallback={
                 <LoadingSkeleton
+                  height="100%"
                   variant="rectangular"
                   width="100%"
-                  height="100%"
                 />
               }
             >
@@ -160,11 +160,11 @@ const Panel = ({
                 dashboardId={dashboardId}
                 globalRefreshInterval={refreshInterval}
                 hasDescription={displayDescription}
+                id={id}
                 isEditingDashboard={isEditing}
                 panelData={panelOptionsAndData?.data}
                 panelOptions={panelOptionsAndData?.options}
                 path={panelConfigurations.path}
-                id={id}
                 playlistHash={playlistHash}
                 queryClient={client}
                 refreshCount={refreshCount}

@@ -31,8 +31,8 @@ const ActivateSwitch = (): JSX.Element => {
             className={classes.switch}
             color="success"
             name="isActivated"
-            size="medium"
             onChange={handleChange}
+            size="medium"
           />
         </Tooltip>
       }

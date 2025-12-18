@@ -97,6 +97,8 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
               defaultValue={customInterval}
               disabled={!equals(RadioOptions.custom, value)}
               fallbackValue={defaultInterval}
+              onChange={changeCustomRefreshInterval}
+              size="compact"
               textFieldSlotsAndSlotProps={{
                 slotProps: {
                   htmlInput: {
@@ -105,9 +107,7 @@ const useRefreshInterval = ({ propertyName }): UseRefreshIntervalState => {
                   }
                 }
               }}
-              size="compact"
               type="number"
-              onChange={changeCustomRefreshInterval}
             />
           </div>
           <Typography>{pluralize(t(labelSecond), customInterval)}</Typography>

@@ -63,19 +63,19 @@ const EditFilterButton = (): JSX.Element => {
         aria-label={t(labelManageFilters) as string}
         data-testid="Filter Manage filters"
         disabled={isEmpty(customFilters)}
+        onClick={openEditPanel}
         size="large"
         title={t(labelManageFilters) as string}
-        onClick={openEditPanel}
       >
         <SettingsIcon />
       </IconButton>
       {createFilterDialogOpen && (
         <CreateFilterDialog
-          open
           callbackSuccess={confirmCreateFilter}
+          onCancel={closeCreateFilterDialog}
+          open
           payloadAction={{ criterias: currentFilter.criterias }}
           request={createFilter}
-          onCancel={closeCreateFilterDialog}
         />
       )}
     </>

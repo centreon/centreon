@@ -51,8 +51,8 @@ const ActionButtons = (): ReactElement => {
       <Button
         aria-label={labelExit}
         data-testid={exitDataTestId as string}
-        variant="text"
         onClick={askBeforeClose}
+        variant="text"
       >
         {t(labelExit)}
       </Button>
@@ -63,8 +63,8 @@ const ActionButtons = (): ReactElement => {
           aria-label={labelSave}
           data-testid={submitDataTestId as string}
           disabled={or(!isValid, !dirty) as boolean}
-          variant="contained"
           onClick={submitForm}
+          variant="contained"
         >
           {t(labelSave)}
         </Button>

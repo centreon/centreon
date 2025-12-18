@@ -35,13 +35,13 @@ const Form = (): JSX.Element => {
   return (
     <FormComponent
       areGroupsOpen
-      isCollapsible
       Buttons={Box}
       className={classes.form}
       groups={basicFormGroups}
       groupsClassName={classes.groups}
       initialValues={initialValues}
       inputs={inputs}
+      isCollapsible
       isLoading={isLoading}
       submit={submit}
       validationSchema={validationSchema}

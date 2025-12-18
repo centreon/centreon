@@ -122,9 +122,7 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
     Component: (
       <Box>
         <SortableItems<CardsLayout>
-          updateSortableItemsOnItemsChange
           Content={Content}
-          RootComponent={RootComponent}
           collisionDetection={rectIntersection}
           itemProps={[
             'shouldBeDisplayed',
@@ -135,8 +133,10 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
             'title'
           ]}
           items={displayedCards}
-          sortingStrategy={rectSortingStrategy}
           onDragEnd={dragEnd}
+          RootComponent={RootComponent}
+          sortingStrategy={rectSortingStrategy}
+          updateSortableItemsOnItemsChange
         />
       </Box>
     ),

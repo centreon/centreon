@@ -61,7 +61,7 @@ const Activate = ({ row }: ComponentColumnProps): JSX.Element => {
   };
 
   return (
-    <Switch checked={checked} color="success" size="small" onClick={onClick} />
+    <Switch checked={checked} color="success" onClick={onClick} size="small" />
   );
 };
 

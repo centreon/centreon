@@ -111,14 +111,14 @@ const EditFiltersPanel = (): JSX.Element => {
             id: string;
             name: string;
           }>
-            updateSortableItemsOnItemsChange
             Content={SortableContent}
-            RootComponent={RootComponent}
             collisionDetection={rectIntersection}
             itemProps={['criterias', 'id', 'name']}
             items={displayedFilters}
-            sortingStrategy={rectSortingStrategy}
             onDragEnd={dragEnd}
+            RootComponent={RootComponent}
+            sortingStrategy={rectSortingStrategy}
+            updateSortableItemsOnItemsChange
           />
         </div>
       )
@@ -137,8 +137,8 @@ const EditFiltersPanel = (): JSX.Element => {
     <SectionPanel
       header={header}
       memoProps={[customFilters]}
-      sections={sections}
       onClose={closeEditPanel}
+      sections={sections}
     />
   );
 };

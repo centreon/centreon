@@ -140,19 +140,19 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
           <Paper className={classes.filterHeader}>
             <TimePeriodButtonGroup disableGraphOptions disablePaper />
             <MultiAutocompleteField
+              chipProps={{ onDelete }}
               label={t(labelEvent)}
               limitTags={3}
+              onChange={changeSelectedTypes}
               options={translatedTypes}
               value={selectedTypes}
-              onChange={changeSelectedTypes}
-              chipProps={{ onDelete }}
             />
           </Paper>
           <div className={classes.containerActions}>
             {details && (
               <AddCommentButton
-                resources={[details]}
                 onClick={prepareToAddComment}
+                resources={[details]}
               />
             )}
             {displayCsvExport && (

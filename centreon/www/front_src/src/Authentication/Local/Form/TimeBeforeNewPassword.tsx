@@ -67,9 +67,9 @@ const TimeBeforeNewPassword = (): JSX.Element => {
           baseName={delayBeforeNewPasswordFieldName}
           inputLabel={labelMinimumTimeBetweenPasswordChanges}
           maxDuration={sevenDays}
+          onChange={change}
           timeInputConfigurations={timeInputConfigurations}
           timeValue={delayBeforeNewPasswordValue}
-          onChange={change}
         />
         {delayBeforeNewPasswordError && (
           <FormHelperText error>{delayBeforeNewPasswordError}</FormHelperText>

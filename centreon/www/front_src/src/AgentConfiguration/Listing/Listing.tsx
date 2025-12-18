@@ -38,31 +38,31 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
     <>
       <Listing
         actions={<Actions />}
-        columns={columns}
         columnConfiguration={{
           selectedColumnIds,
           sortable: true
         }}
+        columns={columns}
+        currentPage={page}
+        limit={limit}
+        loading={isLoading}
+        onLimitChange={setLimit}
+        onPaginate={setPage}
+        onResetColumns={resetColumns}
+        onRowClick={updateAgentConfiguration}
+        onSelectColumns={selectColumns}
+        onSort={changeSort}
+        rows={rows}
+        sortField={sortField}
+        sortOrder={sortOrder}
         subItems={{
           canCheckSubItems: false,
           enable: true,
           getRowProperty: () => 'pollers',
-          labelExpand: t(labelExpand),
-          labelCollapse: t(labelCollapse)
+          labelCollapse: t(labelCollapse),
+          labelExpand: t(labelExpand)
         }}
-        loading={isLoading}
-        onRowClick={updateAgentConfiguration}
-        rows={rows}
-        currentPage={page}
-        onPaginate={setPage}
-        limit={limit}
-        onLimitChange={setLimit}
         totalRows={total}
-        sortField={sortField}
-        sortOrder={sortOrder}
-        onSort={changeSort}
-        onResetColumns={resetColumns}
-        onSelectColumns={selectColumns}
       />
       <DeleteModal />
     </>

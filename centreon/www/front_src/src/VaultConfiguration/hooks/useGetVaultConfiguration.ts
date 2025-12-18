@@ -26,8 +26,8 @@ export const useGetVaultConfiguration = () => {
     setCanMigrate(
       validationSchema.isValidSync({
         ...data,
-        secretId: 'secret',
-        roleId: 'role'
+        roleId: 'role',
+        secretId: 'secret'
       })
     );
   }

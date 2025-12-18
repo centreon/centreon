@@ -27,11 +27,11 @@ const Hosts =
 
     return (
       <Tooltip
+        arrow
         classes={{
           tooltip: classes.tooltipContainer
         }}
         title={<TooltipContent enabled={enabled} hostGroupName={row.name} />}
-        arrow
       >
         <div className={classes.content}>{formattedHostCount}</div>
       </Tooltip>

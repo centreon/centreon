@@ -33,9 +33,9 @@ export const adaptFormToApiPayload = (
       vcenters: formData.parameters.vcenters.map((vcenter) => ({
         name: vcenter[ParameterKeys.name],
         password: vcenter[ParameterKeys.password],
+        scheme: splitURL(vcenter[ParameterKeys.url]).scheme,
         url: splitURL(vcenter[ParameterKeys.url]).mainURL,
-        username: vcenter[ParameterKeys.username],
-        scheme: splitURL(vcenter[ParameterKeys.url]).scheme
+        username: vcenter[ParameterKeys.username]
       }))
     },
     pollers: pluck('id', formData.pollers),
@@ -48,18 +48,18 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
 
   const api: APIType = useMemo(
     () => ({
-      endpoints: {
-        getAll: additionalConnectorsEndpoint,
-        getOne: getAdditionalConnectorEndpoint,
-        deleteOne: getAdditionalConnectorEndpoint,
-        create: additionalConnectorsEndpoint,
-        update: getAdditionalConnectorEndpoint
-      },
+      adapter: adaptFormToApiPayload,
       decoders: {
         getAll: additionalConnectorsListDecoder,
         getOne: additionalConnectorDecoder
       },
-      adapter: adaptFormToApiPayload
+      endpoints: {
+        create: additionalConnectorsEndpoint,
+        deleteOne: getAdditionalConnectorEndpoint,
+        getAll: additionalConnectorsEndpoint,
+        getOne: getAdditionalConnectorEndpoint,
+        update: getAdditionalConnectorEndpoint
+      }
     }),
     []
   );
@@ -67,21 +67,21 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
       {
-        name: t(labelName),
         fieldName: 'name',
-        fieldType: FieldType.Text
+        fieldType: FieldType.Text,
+        name: t(labelName)
       },
       {
-        name: t(labelType),
+        fieldName: 'type',
         fieldType: FieldType.MultiAutocomplete,
-        options: [{ id: 'vmware_v6', name: 'VMWare 6/7' }],
-        fieldName: 'type'
+        name: t(labelType),
+        options: [{ id: 'vmware_v6', name: 'VMWare 6/7' }]
       },
       {
-        name: t(labelPoller),
+        fieldName: 'poller.id',
         fieldType: FieldType.MultiConnectedAutocomplete,
         getEndpoint: getPollersEndpoint,
-        fieldName: 'poller.id'
+        name: t(labelPoller)
       }
     ],
     []

@@ -52,13 +52,13 @@ const ColorSelector = ({
           horizontal: 'left',
           vertical: 'bottom'
         }}
+        onClose={toggle}
         open={Boolean(isOpen)}
         slotProps={{
           paper: {
             className: classes.popover
           }
         }}
-        onClose={toggle}
       >
         <div className={classes.colors}>
           {colors.map((color) => (
@@ -68,8 +68,8 @@ const ColorSelector = ({
               }
               icon={<ColorChip color={color} />}
               key={color}
-              size="small"
               onClick={selectColor(color)}
+              size="small"
             />
           ))}
         </div>

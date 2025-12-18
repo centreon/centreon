@@ -21,10 +21,10 @@ export const useDeletePollerAgent = (): UseDeletePollerAgent => {
   });
 
   const deleteItem = ({ pollerId, agentId }): Promise<void> =>
-    mutateAsync({ _meta: { pollerId, agentId } });
+    mutateAsync({ _meta: { agentId, pollerId } });
 
   return {
-    isMutating,
-    deleteItem
+    deleteItem,
+    isMutating
   };
 };

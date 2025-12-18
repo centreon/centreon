@@ -29,11 +29,11 @@ const TooManyElementsCard = ({
       height={outerHeight}
     >
       <Header
-        title={title}
         header={{
           displayTitle: true,
           extraComponent: actions
         }}
+        title={title}
       />
       <Box
         className={

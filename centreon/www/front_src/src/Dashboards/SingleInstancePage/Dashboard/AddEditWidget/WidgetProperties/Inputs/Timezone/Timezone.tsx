@@ -22,9 +22,9 @@ const Timezone = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     <SingleAutocompleteField
       disabled={!canEditField}
       label={t(labelSelectTimezone)}
+      onChange={changeValue}
       options={timezones}
       value={value ?? { id: timezone, name: timezone }}
-      onChange={changeValue}
     />
   );
 };

@@ -190,8 +190,8 @@ const useLoadResources = (): LoadResources => {
       resourceTypes: getCriteriaIds('resource_types'),
       search: mergeRight(
         getSearch({
-          searchCriteria: getCriteriaValue('search'),
-          isResourceStatusFullSearchEnabled
+          isResourceStatusFullSearchEnabled,
+          searchCriteria: getCriteriaValue('search')
         }) || {},
         {
           conditions: [
@@ -216,8 +216,8 @@ const useLoadResources = (): LoadResources => {
       serviceSeverityLevels: getCriteriaLevels('service_severity_levels'),
       sort: getSort(),
       states: getCriteriaIds('states'),
-      statusTypes: getCriteriaIds('status_types'),
-      statuses: getCriteriaIds('statuses')
+      statuses: getCriteriaIds('statuses'),
+      statusTypes: getCriteriaIds('status_types')
     }).then((response) => {
       if (!equals(visualization, Visualization.Host)) {
         setListing(response);

@@ -43,8 +43,8 @@ const Status = <TFilters,>({
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelEnabled}
               checked={valueEnable}
+              data-testid={labelEnabled}
               name={t(labelEnabled)}
               onChange={change('enabled')}
             />
@@ -54,8 +54,8 @@ const Status = <TFilters,>({
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelDisabled}
               checked={valueDisable}
+              data-testid={labelDisabled}
               name={t(labelDisabled)}
               onChange={change('disabled')}
             />

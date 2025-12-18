@@ -311,8 +311,8 @@ const useDatasetFilter = (
       ...(datasetFilter || []),
       {
         allOfResourceType: false,
-        resourceType: ResourceTypeEnum.Empty,
-        resources: []
+        resources: [],
+        resourceType: ResourceTypeEnum.Empty
       }
     ]);
 
@@ -402,8 +402,8 @@ const useDatasetFilter = (
             if (equals(i, index)) {
               return {
                 allOfResourceType: false,
-                resourceType: e.target.value,
-                resources: []
+                resources: [],
+                resourceType: e.target.value
               };
             }
 
@@ -540,8 +540,8 @@ const useDatasetFilter = (
   return {
     addResource,
     changeResource,
-    changeResourceType,
     changeResources,
+    changeResourceType,
     deleteButtonHidden,
     deleteResource,
     deleteResourceItem,

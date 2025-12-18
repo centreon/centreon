@@ -51,60 +51,60 @@ const Filters = (): JSX.Element => {
   return (
     <div className={classes.container} data-testid="FilterContainer">
       <TextField
-        fullWidth
         dataTestId={labelName}
+        fullWidth
         label={t(labelName)}
-        value={filters.name}
         onChange={changeName}
+        value={filters.name}
       />
 
       <MultiAutocompleteField
         chipProps={{
-          onDelete: deleteType,
-          color: 'primary'
+          color: 'primary',
+          onDelete: deleteType
         }}
         dataTestId={labelType}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelType)}
+        onChange={changeTypes}
         options={tokenTypes}
         value={filters.types}
-        onChange={changeTypes}
       />
 
       <CreationDate />
       <ExpirationDate />
 
       <MultiConnectedAutocompleteField
-        optionProperty="alias"
-        disableClearable={false}
         chipProps={{
-          onDelete: deleteUser,
-          color: 'primary'
+          color: 'primary',
+          onDelete: deleteUser
         }}
         dataTestId={labelUser}
+        disableClearable={false}
         field="alias"
         getEndpoint={getEndpointConfiguredUser}
-        label={t(labelUser)}
-        value={filters.users}
-        onChange={changeUser}
         getRenderedOptionText={(option): string => option?.alias?.toString()}
+        label={t(labelUser)}
+        onChange={changeUser}
+        optionProperty="alias"
+        value={filters.users}
       />
 
       <MultiConnectedAutocompleteField
-        disableClearable={false}
-        disableSortedOptions
         chipProps={{
-          onDelete: deleteCreator,
-          color: 'primary'
+          color: 'primary',
+          onDelete: deleteCreator
         }}
         dataTestId={labelCreator}
+        disableClearable={false}
+        disableSortedOptions
         field="creator.name"
         filterOptions={filterCreators}
         getEndpoint={getEndpointCreatorsToken}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelCreator)}
-        value={filters.creators}
         onChange={changeCreator}
+        value={filters.creators}
       />
       <Status />
 
@@ -112,17 +112,17 @@ const Filters = (): JSX.Element => {
         <Button
           data-testid={labelClear}
           disabled={isClearDisabled}
+          onClick={reset}
           size="small"
           variant="ghost"
-          onClick={reset}
         >
           {t(labelClear)}
         </Button>
         <Button
           data-testid={labelSearch}
           disabled={isLoading}
-          size="small"
           onClick={reload}
+          size="small"
         >
           {t(labelSearch)}
         </Button>

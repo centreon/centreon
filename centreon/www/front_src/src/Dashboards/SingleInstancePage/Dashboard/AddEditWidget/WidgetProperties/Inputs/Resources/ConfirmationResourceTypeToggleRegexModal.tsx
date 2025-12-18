@@ -41,9 +41,9 @@ const ConfirmationResourceTypeToggleRegexModal = ({
 
   const confirm = ({ resourceType, index }: ResourceTypeToToggleRegexAtom) => {
     changeRegexFieldOnResourceType({
-      resourceType,
+      bypassResourcesCheck: true,
       index,
-      bypassResourcesCheck: true
+      resourceType
     })();
   };
 

@@ -36,12 +36,12 @@ const CloseModal = (): JSX.Element => {
 
   return (
     <UnsavedChangesDialog
+      closeDialog={closeDialog}
+      dialogOpened={isDialogOpen && dirty}
+      discardChanges={discard}
       isSubmitting={isSubmitting}
       isValidForm={isValid}
       saveChanges={submitAndClose}
-      closeDialog={closeDialog}
-      discardChanges={discard}
-      dialogOpened={isDialogOpen && dirty}
     />
   );
 };

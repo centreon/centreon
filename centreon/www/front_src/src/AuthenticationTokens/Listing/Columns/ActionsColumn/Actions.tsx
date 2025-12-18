@@ -42,9 +42,9 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
           <IconButton
             ariaLabel={t(labelCopy)}
             dataTestid={`${labelCopy}_${row.id}`}
-            title={t(labelCopy)}
-            onClick={copyToken}
             disabled={isLoading}
+            onClick={copyToken}
+            title={t(labelCopy)}
           >
             <ContentCopyIcon className={classes.copyIcon} />
           </IconButton>
@@ -52,10 +52,10 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       </div>
       <IconButton
         ariaLabel={t(labelDelete)}
-        dataTestid={`${labelDelete}_${row.id}`}
-        title={t(labelDelete)}
-        onClick={openDeleteModal}
         className={classes.removeButton}
+        dataTestid={`${labelDelete}_${row.id}`}
+        onClick={openDeleteModal}
+        title={t(labelDelete)}
       >
         <DeleteIcon className={classes.removeIcon} />
       </IconButton>

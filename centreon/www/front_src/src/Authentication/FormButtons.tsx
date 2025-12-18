@@ -104,8 +104,8 @@ const FormButtons = (): JSX.Element => {
         <Button
           aria-label={t(labelReset)}
           disabled={not(canReset)}
-          size="small"
           onClick={askBeforeReset}
+          size="small"
         >
           {t(labelReset)}
         </Button>
@@ -115,19 +115,19 @@ const FormButtons = (): JSX.Element => {
           labelSave={labelSave}
           labelSucceeded={labelSaved}
           loading={isSubmitting}
+          onClick={submit}
           size="small"
           succeeded={submitted}
-          onClick={submit}
         />
         <ConfirmDialog
           labelCancel={t(labelCancel)}
           labelConfirm={t(labelReset)}
           labelMessage={t(labelDoYouWantToResetTheForm)}
           labelTitle={t(labelResetTheForm)}
-          open={askingBeforeReset}
           onCancel={closeAskingBeforeReset}
           onClose={closeAskingBeforeReset}
           onConfirm={reset}
+          open={askingBeforeReset}
         />
         <UnsavedChangesDialog
           closeDialog={closeUnsavedDialog}

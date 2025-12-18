@@ -38,14 +38,14 @@ const TokenField = (): JSX.Element => {
   return (
     <div className={classes.container}>
       <TextField
-        fullWidth
-        EndAdornment={endAdornment({ isVisible, onClick: handleVisibility })}
         dataTestId="token"
+        EndAdornment={endAdornment({ isVisible, onClick: handleVisibility })}
+        fullWidth
         id="token"
+        label={t(labelToken)}
         textFieldSlotsAndSlotProps={{
           slotProps: { htmlInput: { 'data-testid': 'tokenInput' } }
         }}
-        label={t(labelToken)}
         type={isVisible ? 'text' : 'password'}
         value={token}
       />

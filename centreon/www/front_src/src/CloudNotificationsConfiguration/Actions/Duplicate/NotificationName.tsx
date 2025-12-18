@@ -26,15 +26,15 @@ const NotificationName = (): JSX.Element => {
 
   return (
     <TextField
-      required
       ariaLabel={labelNotificationName}
       dataTestId="New notification name"
       error={error as string | undefined}
       label={t(labelName) as string}
       name="name"
-      value={notificationName}
       onBlur={handleBlur('name')}
       onChange={handleChange}
+      required
+      value={notificationName}
     />
   );
 };

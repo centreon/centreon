@@ -83,16 +83,16 @@ export const useListing = (): UseListing => {
   };
 
   return {
-    setPage,
     changeSort,
-    page,
     limit,
-    updateAgentConfiguration,
+    page,
     resetColumns,
     selectColumns,
     selectedColumnIds,
     setLimit,
+    setPage,
     sortField,
-    sortOrder
+    sortOrder,
+    updateAgentConfiguration
   };
 };

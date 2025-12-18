@@ -15,10 +15,10 @@ const CloseTicket = (): JSX.Element => {
   const { classes } = useOpenTicketStyles();
   return (
     <Badge
-      overlap="circular"
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       badgeContent={<CloseIcon color="error" sx={{ fontSize: '14px' }} />}
       classes={{ badge: classes.iconWithBadge }}
+      overlap="circular"
     >
       <SvgIcon color="primary">{icon}</SvgIcon>
     </Badge>

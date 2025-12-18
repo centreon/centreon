@@ -6,41 +6,41 @@ import { AgentConfigurationForm, ConnectionMode } from '../../../models';
 import HostConfiguration from './HostConfiguration';
 
 const mockHost = {
+  address: '192.168.1.1',
   id: 1,
   name: 'test-host',
-  address: '192.168.1.1',
-  port: 8080,
   pollerCaCertificate: '',
   pollerCaName: '',
+  port: 8080,
   token: null
 };
 
 const mockFormValues: AgentConfigurationForm = {
-  connectionMode: { id: ConnectionMode.secure, name: 'Secure' },
   configuration: {
-    hosts: [mockHost],
     agentInitiated: true,
-    pollerInitiated: false,
-    otelPublicCertificate: '',
+    hosts: [mockHost],
     otelCaCertificate: '',
-    otelPrivateKey: ''
+    otelPrivateKey: '',
+    otelPublicCertificate: '',
+    pollerInitiated: false
   },
-  type: null,
+  connectionMode: { id: ConnectionMode.secure, name: 'Secure' },
   name: '',
-  pollers: []
+  pollers: [],
+  type: null
 };
 
 const TestWrapper = ({ children, initialValues = mockFormValues }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: {
-        retry: false,
-        refetchOnWindowFocus: false,
-        staleTime: 0,
-        gcTime: 0
-      },
       mutations: {
         retry: false
+      },
+      queries: {
+        gcTime: 0,
+        refetchOnWindowFocus: false,
+        retry: false,
+        staleTime: 0
       }
     }
   });
@@ -65,7 +65,7 @@ describe('HostConfiguration', () => {
     cy.mount({
       Component: (
         <TestWrapper>
-          <HostConfiguration index={0} host={mockHost} />
+          <HostConfiguration host={mockHost} index={0} />
         </TestWrapper>
       )
     });
@@ -99,7 +99,7 @@ describe('HostConfiguration', () => {
     cy.mount({
       Component: (
         <TestWrapper initialValues={insecureFormValues}>
-          <HostConfiguration index={0} host={mockHost} />
+          <HostConfiguration host={mockHost} index={0} />
         </TestWrapper>
       )
     });

@@ -42,24 +42,24 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
 
   const groups = [
     {
+      isDividerHidden: true,
       name: t(labelGeneralInformation),
       order: 1,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     {
+      isDividerHidden: true,
       name: t(labelGroupMembers),
       order: 2,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     ...(isCloudPlatform
       ? [
           {
+            isDividerHidden: true,
             name: t(labelResourceAccessRule),
             order: 3,
-            titleAttributes,
-            isDividerHidden: true
+            titleAttributes
           }
         ]
       : []),
@@ -68,84 +68,84 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
 
   const inputs = [
     {
-      type: InputType.Grid,
-      group: t(labelGeneralInformation),
       grid: {
         columns: [
           {
             dataTestId: labelName,
             fieldName: 'name',
+            getDisabled: () => !canEdit,
             group: t(labelGeneralInformation),
             label: t(labelName),
             required: canEdit,
-            type: InputType.Text,
-            getDisabled: () => !canEdit
+            type: InputType.Text
           },
           {
             fieldName: 'alias',
+            getDisabled: () => !canEdit,
             group: t(labelGeneralInformation),
             label: t(labelAlias),
-            type: InputType.Text,
-            getDisabled: () => !canEdit
+            type: InputType.Text
           }
         ]
-      }
+      },
+      group: t(labelGeneralInformation),
+      type: InputType.Grid
     },
     {
       connectedAutocomplete: {
-        chipColor: 'primary',
         additionalConditionParameters: [],
+        chipColor: 'primary',
+        disableSelectAll: false,
         endpoint: hostListEndpoint,
         filterKey: 'name',
-        disableSelectAll: false,
         limitTags: 15
       },
       fieldName: 'hosts',
+      getDisabled: () => !canEdit,
       group: t(labelGroupMembers),
       label: t(labelSelectHosts),
-      getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
       connectedAutocomplete: {
-        chipColor: 'primary',
         additionalConditionParameters: [],
+        chipColor: 'primary',
+        disableSelectAll: false,
         endpoint: resourceAccessRulesEndpoint,
         filterKey: 'name',
-        disableSelectAll: false,
         limitTags: 15
       },
       fieldName: 'resourceAccessRules',
+      getDisabled: () => !canEdit,
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
       required: canEdit,
-      getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
-      type: InputType.Grid,
-      group: t(labelAdditionalInformation),
       grid: {
         columns: [
           {
             fieldName: 'geoCoords',
-            label: t(labelGeographicCoordinates),
             getDisabled: () => !canEdit,
+            label: t(labelGeographicCoordinates),
             type: InputType.Text
           },
           {
             custom: { Component: IconFiled },
-            type: InputType.Custom,
-            disabled: !canEdit
+            disabled: !canEdit,
+            type: InputType.Custom
           }
         ]
-      }
+      },
+      group: t(labelAdditionalInformation),
+      type: InputType.Grid
     },
     {
       fieldName: 'comment',
+      getDisabled: () => !canEdit,
       group: t(labelAdditionalInformation),
       label: t(labelComments),
-      getDisabled: () => !canEdit,
       text: {
         multilineRows: 3
       },
@@ -153,7 +153,7 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
     }
   ];
 
-  return { inputs, groups };
+  return { groups, inputs };
 };
 
 export default useFormInputs;

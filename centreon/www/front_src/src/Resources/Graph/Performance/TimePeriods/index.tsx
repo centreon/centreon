@@ -104,12 +104,12 @@ const TimePeriodButtonGroup = ({
                         className={classes.button}
                         component="span"
                         data-testid={id}
+                        onClick={(): void => changeSelectedTimePeriod(id)}
                         variant={
                           selectedTimePeriod?.id === id
                             ? 'contained'
                             : 'outlined'
                         }
-                        onClick={(): void => changeSelectedTimePeriod(id)}
                       >
                         {cond<number, string>([
                           [lte(theme.breakpoints.values.md), always(largeName)],

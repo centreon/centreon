@@ -32,21 +32,21 @@ const Listing = ({ data, isLoading }: Props): JSX.Element => {
         selectedColumnIds,
         sortable: true
       }}
-      disableRowCondition={disableRowCondition}
       columns={columns}
       currentPage={(page || 1) - 1}
+      disableRowCondition={disableRowCondition}
       limit={data?.meta.limit}
       loading={isLoading}
       memoProps={[columns, page, sorto, sortf]}
-      rows={data?.result}
-      sortField={sortf}
-      sortOrder={sorto}
-      totalRows={data?.meta.total}
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
       onSelectColumns={selectColumns}
       onSort={changeSort}
+      rows={data?.result}
+      sortField={sortf}
+      sortOrder={sorto}
+      totalRows={data?.meta.total}
     />
   );
 };

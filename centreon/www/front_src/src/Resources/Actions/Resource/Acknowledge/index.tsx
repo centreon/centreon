@@ -87,11 +87,11 @@ const AcknowledgeForm = ({
       canConfirm={form.isValid}
       errors={form.errors}
       handleChange={form.handleChange}
+      onCancel={onClose}
+      onConfirm={form.submitForm}
       resources={resources}
       submitting={sendingAcknowledgeResources}
       values={form.values}
-      onCancel={onClose}
-      onConfirm={form.submitForm}
     />
   );
 };

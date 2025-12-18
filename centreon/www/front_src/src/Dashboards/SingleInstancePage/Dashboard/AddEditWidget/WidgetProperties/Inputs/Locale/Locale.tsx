@@ -24,9 +24,9 @@ const Locale = ({ propertyName }: WidgetPropertyProps): JSX.Element => {
     <SingleAutocompleteField
       disabled={!canEditField}
       label={t(labelSelectTimeFormat)}
+      onChange={changeValue}
       options={locales}
       value={value ?? locales.find(({ id }) => equals(id, formattedUserLocale))}
-      onChange={changeValue}
     />
   );
 };

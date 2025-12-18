@@ -28,12 +28,12 @@ const Base = <TFilters,>({
 
   useEffect(() => {
     setConfiguration({
-      resourceType,
+      actions,
       api,
+      defaultSelectedColumnIds,
       filtersConfiguration,
       filtersInitialValues,
-      defaultSelectedColumnIds,
-      actions
+      resourceType
     });
 
     if (isNil(localStorage.getItem(filtersAtomKey))) {
@@ -69,15 +69,15 @@ const Base = <TFilters,>({
 
   return (
     <Page<TFilters>
-      columns={columns}
-      resourceType={resourceType}
-      form={form}
       actions={actions}
-      labels={labels}
-      selectedColumnIdsAtom={selectedColumnIdsAtom}
+      columns={columns}
       filtersAtom={filtersAtom}
       filtersAtomKey={filtersAtomKey}
+      form={form}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+      labels={labels}
+      resourceType={resourceType}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

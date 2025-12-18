@@ -168,18 +168,18 @@ const initialize = ({
             onSubmit={cy.stub()}
           >
             <Resources
+              allowRegexOnResourceTypes={allowRegexOnResourceTypes}
+              defaultResourceTypes={defaultResourceTypes}
               excludedResourceTypes={excludedResourceTypes}
+              forcedResourceType={forcedResourceType}
+              forceSingleAutocompleteConditions={
+                forceSingleAutocompleteConditions
+              }
               label=""
               propertyName="resources"
               restrictedResourceTypes={restrictedResourceTypes}
               singleResourceType={singleResourceType}
-              allowRegexOnResourceTypes={allowRegexOnResourceTypes}
               type=""
-              defaultResourceTypes={defaultResourceTypes}
-              forceSingleAutocompleteConditions={
-                forceSingleAutocompleteConditions
-              }
-              forcedResourceType={forcedResourceType}
             />
           </Formik>
         </Provider>
@@ -191,8 +191,8 @@ const initialize = ({
 describe('Resources', () => {
   it('displays host and service type when the corresponding atom is set to true', () => {
     initialize({
-      forcedResourceType: 'service',
       defaultResourceTypes: ['host', 'service'],
+      forcedResourceType: 'service',
       singleResourceSelection: true
     });
 
@@ -476,10 +476,10 @@ describe('Resources tree', () => {
 
   it('allows to select a meta-service or host as resource type when corresponding props and restricted resoource types are set', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'meta-service'],
-      singleResourceSelection: true,
+      defaultResourceTypes: ['host', 'service'],
       forcedResourceType: 'service',
-      defaultResourceTypes: ['host', 'service']
+      restrictedResourceTypes: ['host', 'meta-service'],
+      singleResourceSelection: true
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -498,10 +498,10 @@ describe('Resources tree', () => {
 
   it('unselects a service when a meta-service is choosen and the host type is selected back', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'meta-service'],
-      singleResourceSelection: true,
+      defaultResourceTypes: ['host', 'service'],
       forcedResourceType: 'service',
-      defaultResourceTypes: ['host', 'service']
+      restrictedResourceTypes: ['host', 'meta-service'],
+      singleResourceSelection: true
     });
 
     cy.findAllByTestId(labelSelectAResource).eq(0).click();
@@ -527,8 +527,8 @@ describe('Resources tree', () => {
 
     it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
       initialize({
-        restrictedResourceTypes: ['host', 'service'],
-        allowRegexOnResourceTypes: [WidgetResourceType.host]
+        allowRegexOnResourceTypes: [WidgetResourceType.host],
+        restrictedResourceTypes: ['host', 'service']
       });
 
       cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -551,8 +551,8 @@ describe('Resources tree', () => {
 
     it('displays a confirmation modal when a host is selected and the input mode is changed', () => {
       initialize({
-        restrictedResourceTypes: ['host', 'service'],
-        allowRegexOnResourceTypes: [WidgetResourceType.host]
+        allowRegexOnResourceTypes: [WidgetResourceType.host],
+        restrictedResourceTypes: ['host', 'service']
       });
 
       cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -571,8 +571,8 @@ describe('Resources tree', () => {
 
     it('displays a confirmation modal when the regex field is filled and the input mode is swtched', () => {
       initialize({
-        restrictedResourceTypes: ['host', 'service'],
-        allowRegexOnResourceTypes: [WidgetResourceType.host]
+        allowRegexOnResourceTypes: [WidgetResourceType.host],
+        restrictedResourceTypes: ['host', 'service']
       });
 
       cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -591,8 +591,8 @@ describe('Resources tree', () => {
 
     it('does not switch the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
       initialize({
-        restrictedResourceTypes: ['host', 'service'],
-        allowRegexOnResourceTypes: [WidgetResourceType.host]
+        allowRegexOnResourceTypes: [WidgetResourceType.host],
+        restrictedResourceTypes: ['host', 'service']
       });
 
       cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -614,8 +614,8 @@ describe('Resources tree', () => {
 
     it('switches the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
       initialize({
-        restrictedResourceTypes: ['host', 'service'],
-        allowRegexOnResourceTypes: [WidgetResourceType.host]
+        allowRegexOnResourceTypes: [WidgetResourceType.host],
+        restrictedResourceTypes: ['host', 'service']
       });
 
       cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -638,8 +638,8 @@ describe('Resources tree', () => {
 
   it('handles regex resources when the regex resource type is filled and the sub resource type field is clicked', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      allowRegexOnResourceTypes: [WidgetResourceType.host],
+      restrictedResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -662,8 +662,8 @@ describe('Resources tree', () => {
 
   it('displays a confirmation modal when a host is selected and the input mode is changed', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      allowRegexOnResourceTypes: [WidgetResourceType.host],
+      restrictedResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -682,8 +682,8 @@ describe('Resources tree', () => {
 
   it('displays a confirmation modal when the regex field is filled and the input mode is swtched', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      allowRegexOnResourceTypes: [WidgetResourceType.host],
+      restrictedResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -702,8 +702,8 @@ describe('Resources tree', () => {
 
   it('does not switch the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      allowRegexOnResourceTypes: [WidgetResourceType.host],
+      restrictedResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -725,8 +725,8 @@ describe('Resources tree', () => {
 
   it('switches the input mode when a resource is selected, the input mode button is clicked and the corresponding button is clicked', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'service'],
-      allowRegexOnResourceTypes: [WidgetResourceType.host]
+      allowRegexOnResourceTypes: [WidgetResourceType.host],
+      restrictedResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();
@@ -748,18 +748,18 @@ describe('Resources tree', () => {
 
   it('displays a resource type autocomplete as single autocomplete when the corresponding property conditions are met', () => {
     initialize({
-      restrictedResourceTypes: ['host', 'service'],
       forceSingleAutocompleteConditions: {
-        resourceType: 'host',
         conditions: [
           {
-            target: 'options',
-            when: 'options.property',
+            matches: 'value',
             method: 'equals',
-            matches: 'value'
+            target: 'options',
+            when: 'options.property'
           }
-        ]
-      }
+        ],
+        resourceType: 'host'
+      },
+      restrictedResourceTypes: ['host', 'service']
     });
 
     cy.findAllByTestId(labelResourceType).eq(0).parent().click();

@@ -36,9 +36,9 @@ const ResourceActionButton = ({
         ariaLabel={t(label) as string}
         data-testid={testId}
         disabled={disabled}
+        onClick={onClick}
         size="large"
         title={title}
-        onClick={onClick}
       >
         {icon}
       </IconButton>
@@ -52,9 +52,9 @@ const ResourceActionButton = ({
           aria-label={t(label) as string}
           data-testid={testId}
           disabled={disabled}
+          onClick={onClick}
           startIcon={icon}
           variant="contained"
-          onClick={onClick}
         >
           {label}
         </ActionButton>

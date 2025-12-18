@@ -36,8 +36,8 @@ const AllOfResourceTypeCheckbox = ({
         <Checkbox
           checked={checked}
           className={classes.checkbox}
-          size="small"
           onChange={onChange}
+          size="small"
         />
       }
       label={t(checkboxLabel)}

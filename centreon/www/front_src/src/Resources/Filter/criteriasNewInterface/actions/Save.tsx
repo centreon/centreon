@@ -79,17 +79,17 @@ const Save = ({ getIsCreateFilter, closePopover }: Save): JSX.Element => {
     <>
       <Button
         disabled={saveButtonDisabled || !canSaveFilterAsNew}
+        onClick={saveAsNew}
         startIcon={<SaveIcon fontSize="small" />}
         variant="outlined"
-        onClick={saveAsNew}
       >
         {t(labelSaveAs)}
       </Button>
       <Button
         disabled={saveButtonDisabled || !canSaveFilter}
+        onClick={saveAs}
         startIcon={<EditIcon fontSize="small" />}
         variant="outlined"
-        onClick={saveAs}
       >
         {t(labelUpdate)}
       </Button>

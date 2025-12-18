@@ -35,32 +35,32 @@ const AdditionnalConnectors = () => {
 
   return (
     <ConfigurationBase<Filters>
-      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
-      columnsAtomKey={columnsAtomKey}
-      filtersAtomKey={filtersAtomKey}
-      filtersAtom={filtersAtom}
-      selectedColumnIdsAtom={selectedColumnIdsAtom}
-      columns={columns}
-      resourceType={ResourceType.AdditionalConfigurations}
-      form={{ inputs, groups, validationSchema, defaultValues }}
-      api={api}
-      filtersConfiguration={filtersConfiguration}
-      filtersInitialValues={filtersInitialValues}
-      defaultSelectedColumnIds={defaultSelectedColumnIds}
       actions={{
         delete: true,
         edit: true
       }}
+      api={api}
+      columns={columns}
+      columnsAtomKey={columnsAtomKey}
+      defaultSelectedColumnIds={defaultSelectedColumnIds}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
+      filtersConfiguration={filtersConfiguration}
+      filtersInitialValues={filtersInitialValues}
+      form={{ defaultValues, groups, inputs, validationSchema }}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         title: t(labelAdditionalConnectorConfiguration),
         welcomePage: {
-          title: t(labelWelcomeToAdditionalConfigurations),
-          description: t(labelPageDescription),
           actions: {
             create: t(labelAddAdditionalConfigurations)
-          }
+          },
+          description: t(labelPageDescription),
+          title: t(labelWelcomeToAdditionalConfigurations)
         }
       }}
+      resourceType={ResourceType.AdditionalConfigurations}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

@@ -44,9 +44,8 @@ const DashboardSaveBlockerModal = ({ panels }: Props): JSX.Element => {
 
   return (
     <ConfirmationModal
-      size="medium"
-      hasCloseButton
       atom={isRedirectionBlockedAtom}
+      hasCloseButton
       labels={{
         cancel: t(labelDiscard),
         confirm: t(labelSave),
@@ -56,6 +55,7 @@ const DashboardSaveBlockerModal = ({ panels }: Props): JSX.Element => {
       onCancel={cancel}
       onClose={close}
       onConfirm={confirm}
+      size="medium"
     />
   );
 };

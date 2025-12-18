@@ -57,8 +57,8 @@ const getDefaultCriterias = (
     serviceSeverities: [],
     serviceSeverityLevels: [],
     states: [],
-    statusTypes: [],
-    statuses: []
+    statuses: [],
+    statusTypes: []
   }
 ): Array<Criteria> => {
   return [

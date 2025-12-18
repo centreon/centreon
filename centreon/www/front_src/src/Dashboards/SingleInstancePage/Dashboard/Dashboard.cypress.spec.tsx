@@ -290,20 +290,20 @@ const initializeAndMount = ({
   cy.viewport('macbook-13');
 
   interceptDetailsDashboard({
+    own_role: ownRole,
     path:
       customDetailsPath ??
-      `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`,
-    own_role: ownRole
+      `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
   });
 
   cy.interceptAPIRequest({
     alias: 'updateDashboard',
     method: Method.POST,
     path: getDashboardEndpoint('1'),
-    statusCode: 201,
     response: {
       id: 1
-    }
+    },
+    statusCode: 201
   });
 
   cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
@@ -542,10 +542,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/graph.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
-            response: data,
+            alias: 'centreon-widget-graph',
             method: Method.GET,
-            alias: 'centreon-widget-graph'
+            path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
+            response: data
           });
         }
       );
@@ -553,10 +553,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/topbottom.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/dashboard/metrics/top?**',
-            response: data,
+            alias: 'centreon-widget-topbottom',
             method: Method.GET,
-            alias: 'centreon-widget-topbottom'
+            path: './api/latest/monitoring/dashboard/metrics/top?**',
+            response: data
           });
         }
       );
@@ -564,10 +564,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/resourcestable.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/resources?**',
-            response: data,
+            alias: 'centreon-widget-resourcestable',
             method: Method.GET,
-            alias: 'centreon-widget-resourcestable'
+            path: './api/latest/monitoring/resources?**',
+            response: data
           });
         }
       );
@@ -576,10 +576,10 @@ describe('Dashboard', () => {
         'Dashboards/Dashboard/ExpandReduce/statuschartServices.json'
       ).then((data) => {
         cy.interceptAPIRequest({
-          path: './api/latest/monitoring/services/status?**',
-          response: data,
+          alias: 'centreon-widget-statuschartServices',
           method: Method.GET,
-          alias: 'centreon-widget-statuschartServices'
+          path: './api/latest/monitoring/services/status?**',
+          response: data
         });
       });
 
@@ -587,20 +587,20 @@ describe('Dashboard', () => {
         'Dashboards/Dashboard/ExpandReduce/statuschartHosts.json'
       ).then((data) => {
         cy.interceptAPIRequest({
-          path: './api/latest/monitoring/hosts/status?**',
-          response: data,
+          alias: 'centreon-widget-statuschartHosts',
           method: Method.GET,
-          alias: 'centreon-widget-statuschartHosts'
+          path: './api/latest/monitoring/hosts/status?**',
+          response: data
         });
       });
 
       cy.fixture('Dashboards/Dashboard/ExpandReduce/statusgrid.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/resources?**',
-            response: data,
+            alias: 'centreon-widget-statusgrid',
             method: Method.GET,
-            alias: 'centreon-widget-statusgrid'
+            path: './api/latest/monitoring/resources?**',
+            response: data
           });
         }
       );
@@ -608,10 +608,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/groupmonitoring.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/hostgroups?**',
-            response: data,
+            alias: 'centreon-widget-groupmonitoring',
             method: Method.GET,
-            alias: 'centreon-widget-groupmonitoring'
+            path: './api/latest/monitoring/hostgroups?**',
+            response: data
           });
         }
       );
@@ -635,7 +635,7 @@ describe('Dashboard', () => {
           .last()
           .as('header')
           .scrollIntoView();
-        waitWidgetData({ widgetName, isExpanded: false });
+        waitWidgetData({ isExpanded: false, widgetName });
         cy.get('@header').findByLabelText(labelMoreActions).click();
 
         takeSnapshot({
@@ -647,14 +647,14 @@ describe('Dashboard', () => {
         cy.findByRole('dialog').as('modal');
         cy.get('@modal').should('be.visible');
 
-        waitWidgetData({ widgetName, isExpanded: true });
+        waitWidgetData({ isExpanded: true, widgetName });
         takeSnapshot({
           titleSnapshot: `${widgetName} in mode expanded`,
           widgetName: widgetName
         });
 
         cy.get('@modal').findByLabelText(labelReduce).click();
-        waitWidgetData({ widgetName, isExpanded: false });
+        waitWidgetData({ isExpanded: false, widgetName });
       });
     });
   });
@@ -887,10 +887,10 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@updateDashboard').then(({ request }) => {
         expect(request.body).to.deep.equal({
-          name: 'My Dashboard',
           description: 'my description',
-          'refresh[type]': 'manual',
-          'refresh[interval]': '1515'
+          name: 'My Dashboard',
+          'refresh[interval]': '1515',
+          'refresh[type]': 'manual'
         });
       });
 

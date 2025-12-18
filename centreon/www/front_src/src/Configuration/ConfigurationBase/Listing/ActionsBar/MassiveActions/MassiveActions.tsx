@@ -29,12 +29,12 @@ const MassiveActions = (): JSX.Element => {
       <Button
         aria-label={t(labelMoreActions)}
         data-testid={labelMoreActions}
+        disabled={isEmpty(selectedRowsIds)}
         icon={<MoreIcon />}
         iconVariant="start"
+        onClick={openMoreActions}
         size="small"
         variant="ghost"
-        onClick={openMoreActions}
-        disabled={isEmpty(selectedRowsIds)}
       >
         <div className={classes.moreActions}>{t(labelMoreActions)}</div>
       </Button>

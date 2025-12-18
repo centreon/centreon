@@ -62,8 +62,8 @@ const ChartGraph = ({
   });
 
   const timeLineData = useRetrieveTimeLine({
-    timelineEndpoint,
-    graphTimeParameters
+    graphTimeParameters,
+    timelineEndpoint
   });
 
   const getInterval = (interval: Interval): void => {
@@ -104,22 +104,24 @@ const ChartGraph = ({
   return (
     <>
       <FederatedComponent
+        getShapeLines={getShapeLines}
         path="/anomaly-detection/enableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
         type={resource?.type}
-        getShapeLines={getShapeLines}
       />
       <LineChart
-        loading={isFetching || isLoading || !data}
         annotationEvent={{ data: timeLineData }}
         containerStyle={classes.container}
-        getRef={getRef}
         data={data}
         end={graphTimeParameters?.end}
+        getRef={getRef}
+        header={{ extraComponent: graphActions }}
         height={280}
         legend={{ mode: 'grid', placement: 'bottom' }}
         lineStyle={{ lineWidth: 1 }}
-        header={{ extraComponent: graphActions }}
+        loading={isFetching || isLoading || !data}
+        start={graphTimeParameters?.start}
+        timeShiftZones={{ enable: true, getInterval }}
         tooltip={{
           renderComponent: ({
             data,
@@ -132,8 +134,6 @@ const ChartGraph = ({
             />
           )
         }}
-        start={graphTimeParameters?.start}
-        timeShiftZones={{ enable: true, getInterval }}
         zoomPreview={{ enable: true, getInterval }}
         {...rest}
       />

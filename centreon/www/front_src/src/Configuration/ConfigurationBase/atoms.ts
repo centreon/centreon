@@ -4,10 +4,10 @@ import { Configuration } from '../models';
 import { ModalState } from './models';
 
 export const configurationAtom = atom<Configuration | null>({
-  resourceType: null,
-  api: { endpoints: null, adapter: null },
+  api: { adapter: null, endpoints: null },
+  defaultSelectedColumnIds: [],
   filtersInitialValues: { name: '' },
-  defaultSelectedColumnIds: []
+  resourceType: null
 });
 
 export const modalStateAtom = atom<ModalState>({

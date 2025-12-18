@@ -19,9 +19,9 @@ const AddDashboard = ({
       data-testid="create-dashboard"
       icon={<AddIcon />}
       iconVariant="start"
+      onClick={openConfig}
       size="small"
       variant="primary"
-      onClick={openConfig}
     >
       {t(labelAdd)}
     </Button>

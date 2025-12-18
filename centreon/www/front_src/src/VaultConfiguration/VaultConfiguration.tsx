@@ -11,13 +11,13 @@ const VaultConfiguration = (): JSX.Element => {
   return (
     <Box
       sx={{
+        alignItems: 'center',
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
-        alignItems: 'center'
+        gap: 2
       }}
     >
-      <Typography variant="h5" sx={{ textAlign: 'center' }}>
+      <Typography sx={{ textAlign: 'center' }} variant="h5">
         {t(labelVaultConfiguration)}
       </Typography>
       <VaultForm />

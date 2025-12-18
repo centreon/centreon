@@ -34,10 +34,10 @@ const ExportToCsv = ({
     <Stack direction="row" justifyContent="flex-end">
       <Button
         data-testid={labelExportToCSV}
+        onClick={exportToCsv}
         size="small"
         startIcon={<SaveIcon />}
         variant="contained"
-        onClick={exportToCsv}
       >
         <Typography variant="body2"> {t(labelExportToCSV)} </Typography>
       </Button>

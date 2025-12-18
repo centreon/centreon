@@ -136,7 +136,7 @@ const MorePanelActions = ({
     : [...defaultViewActions, ...expandableAction];
 
   return (
-    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
+    <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
       <ActionsList actions={displayEditButtons ? editActions : viewActions} />
     </Menu>
   );

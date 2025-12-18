@@ -15,8 +15,8 @@ const FavoriteFilter = () => {
 
   const labelProps = {
     classes: { root: classes.label },
-    variant: 'body2' as const,
-    noWrap: true
+    noWrap: true,
+    variant: 'body2' as const
   };
   const onChange = (event) => {
     setChecked(event?.target?.checked);
@@ -24,11 +24,11 @@ const FavoriteFilter = () => {
 
   return (
     <Checkbox
-      label={t(labelFavoriteFilter)}
-      onChange={onChange}
-      labelProps={labelProps}
       checked={checked}
       className={classes.container}
+      label={t(labelFavoriteFilter)}
+      labelProps={labelProps}
+      onChange={onChange}
     />
   );
 };

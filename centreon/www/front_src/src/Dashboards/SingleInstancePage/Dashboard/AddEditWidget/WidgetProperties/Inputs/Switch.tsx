@@ -41,12 +41,12 @@ const WidgetSwitch = ({
         control={
           <Switch
             checked={value}
+            onChange={changeSwitchValue}
             slotProps={{
               input: {
                 'aria-label': t(label) || ''
               }
             }}
-            onChange={changeSwitchValue}
           />
         }
         disabled={!canEditField}

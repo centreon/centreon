@@ -27,9 +27,9 @@ const AddCommentButton = ({ resources, onClick }: Props): JSX.Element => {
       aria-label={t(labelAddComment) as string}
       data-testid="addComment"
       disabled={disableAddComment}
+      onClick={onClick}
       startIcon={<IconComment />}
       variant="contained"
-      onClick={onClick}
     >
       <Typography variant="body2"> {t(labelAddComment)} </Typography>
     </ActionButton>

@@ -77,10 +77,10 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
         getEndpoint={getEndpoint}
         isOptionEqualToValue={isOptionEqualToValue}
         labelKey={displayedColumn}
-        value={value}
         onChange={(_, updatedValue): void => {
           changeCriteria(updatedValue);
         }}
+        value={value}
       />
     );
   }
@@ -92,11 +92,11 @@ const CriteriaContent = ({ name, value }: Props): JSX.Element => {
     <PopoverMultiAutocompleteField
       {...commonProps}
       hideInput
-      options={translatedOptions}
-      value={translatedValues}
       onChange={(_, updatedValue): void => {
         changeCriteria(getUntranslated(updatedValue));
       }}
+      options={translatedOptions}
+      value={translatedValues}
     />
   );
 };

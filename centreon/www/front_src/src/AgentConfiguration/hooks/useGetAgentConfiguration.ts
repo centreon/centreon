@@ -18,21 +18,9 @@ const adaptAgentConfigurationToForm = (
   agentConfiguration: AgentConfiguration
 ): AgentConfigurationForm => ({
   ...agentConfiguration,
-  type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type)),
-  connectionMode: connectionModes.find(({ id }) =>
-    equals(id, agentConfiguration.connectionMode)
-  ),
   configuration: {
     ...agentConfiguration.configuration,
     ...(equals(AgentType.CMA, agentConfiguration.type) && {
-      tokens: map(
-        ({ name, creatorId }) => ({
-          id: `${name}_${creatorId}`,
-          name,
-          creatorId
-        }),
-        agentConfiguration.configuration?.tokens || []
-      ),
       hosts: map(
         (host) => ({
           ...host,
@@ -44,9 +32,21 @@ const adaptAgentConfigurationToForm = (
               }
         }),
         agentConfiguration.configuration?.hosts || []
+      ),
+      tokens: map(
+        ({ name, creatorId }) => ({
+          creatorId,
+          id: `${name}_${creatorId}`,
+          name
+        }),
+        agentConfiguration.configuration?.tokens || []
       )
     })
-  }
+  },
+  connectionMode: connectionModes.find(({ id }) =>
+    equals(id, agentConfiguration.connectionMode)
+  ),
+  type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type))
 });
 
 interface UseGetAgentConfigurationState {
@@ -62,9 +62,9 @@ export const useGetAgentConfiguration = (
   const enabled = isNotNil(id) && !equals('add', id);
 
   const { data, isLoading } = useFetchQuery({
+    decoder: agentConfigurationDecoder,
     getEndpoint: () => getAgentConfigurationEndpoint(id),
     getQueryKey: () => ['agent-configuration', id],
-    decoder: agentConfigurationDecoder,
     queryOptions: {
       enabled,
       suspense: false

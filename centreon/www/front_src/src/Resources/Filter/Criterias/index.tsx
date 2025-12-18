@@ -141,10 +141,10 @@ const CriteriasContent = ({
         dataTestId={labelSearchOptions}
         getPopoverData={getPopoverData}
         icon={<TuneIcon fontSize="small" />}
-        popperPlacement="bottom-end"
-        title={t(labelSearchOptions) as string}
         onClose={onClose}
         onOpen={open}
+        popperPlacement="bottom-end"
+        title={t(labelSearchOptions) as string}
       >
         {({ close }): JSX.Element => {
           const closePopover = (): void => {
@@ -154,23 +154,23 @@ const CriteriasContent = ({
 
           return (
             <Grid
-              container
               alignItems="stretch"
               className={classes.container}
+              container
               direction="column"
               spacing={1}
             >
               <CriteriasNewInterface
                 actions={
                   <Actions
+                    onClear={clearFilters}
+                    onSearch={applyCurrentFilter}
                     save={
                       <Save
                         closePopover={closePopover}
                         getIsCreateFilter={getIsCreateFilter}
                       />
                     }
-                    onClear={clearFilters}
-                    onSearch={applyCurrentFilter}
                   />
                 }
                 data={{

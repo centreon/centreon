@@ -28,10 +28,10 @@ const useActions = (row): UseActionsState => {
   const canDuplicate = !!actions?.duplicate;
 
   return {
-    openDeleteModal,
-    openDuplicateModal,
     canDelete,
-    canDuplicate
+    canDuplicate,
+    openDeleteModal,
+    openDuplicateModal
   };
 };
 

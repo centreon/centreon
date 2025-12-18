@@ -21,7 +21,7 @@ const useFilters = ({ filters, setFilters }): UseFilters => {
   const configuration = useAtomValue(configurationAtom);
 
   const filtersConfiguration =
-    configuration?.filtersConfiguration as FilterConfiguration[];
+    configuration?.filtersConfiguration as Array<FilterConfiguration>;
 
   const initialValues = configuration?.filtersInitialValues as Filters;
 
@@ -44,10 +44,10 @@ const useFilters = ({ filters, setFilters }): UseFilters => {
   }, [filters, isClearClicked]);
 
   return {
-    reset,
+    filtersConfiguration,
     isClearDisabled,
     reload,
-    filtersConfiguration
+    reset
   };
 };
 

@@ -303,9 +303,9 @@ const NavigationMenu = ({
     Component: (
       <List
         className={classes.list}
-        ref={menuRef}
         onMouseEnter={discardTimeout}
         onMouseLeave={handleLeave}
+        ref={menuRef}
       >
         {navigationData?.map((item, index) => {
           const MenuIcon = !isNil(item?.icon) && icons[item.icon];
@@ -319,13 +319,13 @@ const NavigationMenu = ({
           return (
             <ListItem disablePadding key={item.label}>
               <MenuItems
-                isRoot
                 data={item}
                 hover={hover}
                 icon={<MenuIcon className={classes.icon} />}
                 isDoubleClickedFromRoot={isDoubleClickedFromRoot}
                 isDrawerOpen={isDrawerOpen}
                 isOpen={index === hoveredIndex}
+                isRoot
                 onClick={(): void => handleClickItem(item)}
                 onLeaveMenuItem={leaveMenuItem}
                 onMouseEnter={(e: MouseEvent<HTMLElement>): void =>
