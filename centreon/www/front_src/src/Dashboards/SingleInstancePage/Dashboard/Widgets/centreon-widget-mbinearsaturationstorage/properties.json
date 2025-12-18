@@ -74,18 +74,6 @@
       "defaultValue": true,
       "label": "Show value label"
     },
-     "threshold": {
-      "type": "threshold",
-      "defaultValue": {
-        "enabled": true,
-        "customCritical": null,
-        "criticalType": "default",
-        "customWarning": null,
-        "warningType": "default"
-      },
-      "label": "threshold",
-      "tooltipLabel": "Thresholds can be hidden if the custom min and max values of the Y axis are below/above the thresholds."
-    },
     "refreshInterval": {
       "type": "refresh-interval",
       "defaultValue": "custom",
