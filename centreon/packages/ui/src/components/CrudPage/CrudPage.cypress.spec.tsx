@@ -533,7 +533,7 @@ describe('CrudPage', () => {
     cy.contains('Update item').should('be.visible');
     cy.contains('This is a placeholder for the form').should('be.visible');
     cy.contains(
-      'Initial values: {"id":0,"name":"Item 0","description":"Description 0","subItems":[{"id":1,"name":"SubItem"}]}'
+      'Initial values: {"description":"Description 0","id":0,"name":"Item 0","subItems":[{"id":1,"name":"SubItem"}]}'
     ).should('be.visible');
 
     cy.makeSnapshot();
@@ -549,7 +549,7 @@ describe('CrudPage', () => {
     cy.contains('Update item').should('be.visible');
     cy.contains('This is a placeholder for the form').should('be.visible');
     cy.contains(
-      'Initial values: {"id":0,"name":"Item 0","description":"Description 0","subItems":[{"id":1,"name":"SubItem"}]}'
+      'Initial values: {"description":"Description 0","id":0,"name":"Item 0","subItems":[{"id":1,"name":"SubItem"}]}'
     ).should('be.visible');
 
     cy.findByLabelText('close').click();

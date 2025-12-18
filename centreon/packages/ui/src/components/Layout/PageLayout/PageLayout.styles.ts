@@ -21,7 +21,7 @@ export const useStyles = makeStyles()((theme) => ({
   },
   pageLayoutBody: {
     '&[data-has-actions="true"]': {
-      gridTemplateRows: 'min-content auto'
+      gridTemplateRows: 'auto'
     },
     '&[data-has-background="true"]': {
       backgroundColor: theme.palette.layout.body.background

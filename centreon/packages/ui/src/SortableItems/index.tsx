@@ -172,7 +172,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
       return;
     }
     setSortableItemsIds(getItemsIds());
-  }, [getItemsIds, updateSortableItemsOnItemsChange]);
+  }, [updateSortableItemsOnItemsChange]);
 
   return (
     <DndContext
