@@ -104,7 +104,7 @@ class IvantiProvider extends AbstractProvider
     curl_setopt($curl, CURLOPT_URL, $apiAddress);
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
 
     $curlResult = curl_exec($curl);
     $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -130,7 +130,7 @@ class IvantiProvider extends AbstractProvider
             foreach ($tickets as $k => $v) {
                 try {
                     $ticketId = $v['ticket_id'];
-                    $this->closeTicketIvanti($k);
+                    $this->closeTicketIvanti($ticketId);
                     $tickets[$k]['status'] = 2;
                 } catch (Exception $e) {
                     $tickets[$k]['status'] = -1;
@@ -313,10 +313,10 @@ class IvantiProvider extends AbstractProvider
             . $this->getFormValue('api_path') . '" />';
         $protocol_html = '<input size="50" name="protocol" type="text" value="'
             . $this->getFormValue('protocol') . '" />';
-        $apiKey_html = '<input size="50" name="apiKey" type="text" value="'
+        $apiKey_html = '<input size="50" name="apiKey" type="password" value="'
             . $this->getFormValue('apiKey') . '" autocomplete="off" />';
         $timeout_html = '<input size="50" name="timeout" type="text" value="'
-            . $this->getFormValue('timeout') . '" :>';
+            . $this->getFormValue('timeout') . '" />';
 
         // this array is here to link a label with the html code that we've wrote above
         $array_form = [
@@ -479,7 +479,7 @@ class IvantiProvider extends AbstractProvider
                $this->setCache($entry['Id'], $listTeams, 8 * 3600); // Cache pour 8 heures
            }
        } catch (Exception $e) {
-           $groups[$entry['Id']]['code'] == -1;
+           $groups[$entry['Id']]['code'] = -1;
            $groups[$entry['Id']]['msg_error'] = $e->getMessage();
            return;
        }
@@ -585,7 +585,7 @@ class IvantiProvider extends AbstractProvider
                 $tpl->assign('string', $value['Value']);
                 $resultString = $tpl->fetch('eval.ihtml');
                 if ($resultString == '') {
-                    $resultstring = null;
+                    $resultString = null;
                 }
 
                 $ticketArguments[$this->internal_arg_name[$value['Arg']]] = $resultString;
@@ -619,7 +619,7 @@ class IvantiProvider extends AbstractProvider
     * throw \Exception if we can't get a session token
     * throw \Exception 11 if glpi api fails
      */
-    protected function curlQuery($info, ?int $offset = null) {
+    protected function curlQuery($info) {
     if (!extension_loaded('curl')) {
         throw new Exception("L'extension PHP curl est requise.", 10);
     }
@@ -646,6 +646,7 @@ class IvantiProvider extends AbstractProvider
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($curl, CURLOPT_TIMEOUT, (int) $this->getFormValue('timeout', false));
 
     if ($info['method']) {
         curl_setopt($curl, CURLOPT_POST, true);
@@ -682,13 +683,10 @@ class IvantiProvider extends AbstractProvider
     {
         $info['query_endpoint'] = '/Categorys';
         $info['method'] = 0;
-
-        // set headers
-        $info['headers'] = ['Authorization: ' . $this->getFormValue('apikey'), 'Content-Type: application/json'];
                 // try to get itil categories from Ivanti
         try {
             // the variable is going to be used outside of this method.
-            $this->ivantiCallResult['response'] = $this->curlQuery($info, 0);
+            $this->ivantiCallResult['response'] = $this->curlQuery($info);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), $e->getCode());
         }
@@ -714,7 +712,7 @@ class IvantiProvider extends AbstractProvider
         // try to get users from Ivanti
         try {
             // the variable is going to be used outside of this method.
-            $this->ivantiCallResult['response'] = $this->curlQuery($info, 0);
+            $this->ivantiCallResult['response'] = $this->curlQuery($info);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
@@ -740,7 +738,7 @@ class IvantiProvider extends AbstractProvider
         // try to get teams from Ivanti
         try {
             // the variable is going to be used outside of this method.
-            $this->ivantiCallResult['response'] = $this->curlQuery($info, 0);
+            $this->ivantiCallResult['response'] = $this->curlQuery($info);
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode());
         }
@@ -766,13 +764,13 @@ class IvantiProvider extends AbstractProvider
        $endpoint = "/incidents";
 
        $data = [
-           "Service" => $ticketArguments['service'] ?? "Poste de travail et équipements",
+           "Service" => $ticketArguments['service'],
            "Category" => $ticketArguments['category'] ?? "Functionality Loss",
            "Impact" => $ticketArguments['impact'] ?? "Low",
            "Urgency" => $ticketArguments['urgency'] ?? "High",
            "Source" => "Supervision",
            "Status" => "Logged",
-           "OwnerTeam" => $ticketArguments['team'] ?? "MCO Unix",
+           "OwnerTeam" => $ticketArguments['team'],
            "Subject" => $ticketArguments['title'],
            "Symptom" => $ticketArguments['symptom'],
            "ProfileLink" => $ticketArguments['profile_link'] ?? "5ECF36C0AB57473C83DBB03470A28254",
