@@ -77,7 +77,7 @@
       'address',
       'api_path',
       'protocol',
-      'appkey',
+      'apikey',
     ];
 
     let i;
