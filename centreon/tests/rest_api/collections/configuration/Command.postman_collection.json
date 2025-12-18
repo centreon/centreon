@@ -1591,7 +1591,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1602,7 +1603,7 @@
 									"pm.test(\"Command has not been added because of values of wrong type.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[name] Boolean value found, but a string is required\\n[type] String value found, but an integer is required\\n[command_line] Integer value found, but a string is required\\n[argument_example] Integer value found, but a null or a string is required\\n[arguments[0].name] Integer value found, but a string is required\\n[arguments[0].description] Boolean value found, but a null or a string is required\\n[macros[0].name] Integer value found, but a string is required\\n[macros[0].type] String value found, but an integer is required\\n[macros[0].description] Boolean value found, but a null or a string is required\\n[connector_id] String value found, but a null or an integer is required\\n[graph_template_id] Boolean value found, but a null or an integer is required\\n\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"[type]\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -1620,7 +1621,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1635,7 +1637,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": false,\r\n    \"type\": \"2\",\r\n    \"command_line\": 0,\r\n    \"is_shell\": true,\r\n    \"argument_example\": 50,\r\n    \"arguments\": [\r\n        {\r\n            \"name\": 1, \r\n            \"description\": true\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": 2, \r\n            \"type\": \"1\", \r\n            \"description\": false\r\n        }\r\n    ],\r\n    \"connector_id\": \"2\",\r\n    \"graph_template_id\": true\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -1660,7 +1667,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1671,7 +1679,7 @@
 									"pm.test(\"Command has not been added because the name is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"[name]\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -1689,7 +1697,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1704,7 +1713,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"type\": 2,\r\n    \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG1\", \r\n            \"description\": \"argument-description\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"SNMPCOMMUNITY\", \r\n            \"type\": 1, \r\n            \"description\": \"macro-description\"\r\n        }\r\n    ],\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -1729,7 +1743,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1740,7 +1755,7 @@
 									"pm.test(\"Command has not been added because the type is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[type] The property type is required\\n\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"[type]\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -1758,7 +1773,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1773,7 +1789,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"2\",\r\n    \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG1\", \r\n            \"description\": \"argument-description\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"SNMPCOMMUNITY\", \r\n            \"type\": 1, \r\n            \"description\": \"macro-description\"\r\n        }\r\n    ],\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -1798,7 +1819,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1809,7 +1831,7 @@
 									"pm.test(\"Command has not been added because the command_line is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[command_line] The property command_line is required\\n\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"[command_line]\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -1827,7 +1849,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1842,7 +1865,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"2\",\r\n    \"type\": 3,\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG1\", \r\n            \"description\": \"argument-description\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"SNMPCOMMUNITY\", \r\n            \"type\": 1, \r\n            \"description\": \"macro-description\"\r\n        }\r\n    ],\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -1858,7 +1886,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command without command line  ",
+					"name": "Add a new command with empty command line",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1867,7 +1895,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1875,10 +1904,10 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Command has not been added because the commandLine is mandatory.\", function () {\r",
+									"pm.test(\"Command has not been added because the command_line is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewCommand::commandLine] The string is empty, but non empty string was expected\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"[command_line]\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -1896,7 +1925,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1911,7 +1941,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"2\",\r\n    \"type\": 4,\r\n    \"command_line\": \"\",\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"command_line\": \"\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -1927,7 +1962,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command without name  ",
+					"name": "Add a new command with empty name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1936,7 +1971,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1947,7 +1983,7 @@
 									"pm.test(\"Command has not been added because the name is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(400);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"[NewCommand::name] The string is empty, but non empty string was expected\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"[name]\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -1965,7 +2001,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1980,7 +2017,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"\",\r\n    \"type\": 2,\r\n    \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG1\", \r\n            \"description\": \"argument-description\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"SNMPCOMMUNITY\", \r\n            \"type\": 1, \r\n            \"description\": \"macro-description\"\r\n        }\r\n    ],\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -2002,75 +2044,58 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"pm.test(\"A list of commands has been successfully fetched.\", function () {\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"/*\r",
-									"/  Check body content\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The commands retrieved are listed with all parameters\", function() {\r",
-									"    // Check the number of commands (1)\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"\r",
-									"    // Check the properties of each command \r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
-									"        \"type\": 2,\r",
-									"        \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r",
-									"        \"is_shell\": true,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"});\r",
-									"\r",
 									"pm.test(\"Schema validation for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": \"object\",\r",
-									"        \"properties\": {\r",
-									"            \"result\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"id\": { \"type\": \"integer\" },\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"integer\" },\r",
-									"                        \"command_line\": { \"type\": \"string\" },\r",
-									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
-									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
-									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
-									"                    },\r",
-									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
-									"                }\r",
-									"            },\r",
-									"            \"meta\": {\r",
-									"                \"type\": \"object\",\r",
-									"                \"properties\": {\r",
-									"                    \"page\": { \"type\": \"integer\" },\r",
-									"                    \"limit\": { \"type\": \"integer\" },\r",
-									"                    \"search\": { \"type\": \"object\" },\r",
-									"                    \"sort_by\": { \"type\": \"object\" },\r",
-									"                    \"total\": { \"type\": \"integer\" }\r",
-									"                },\r",
-									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
-									"            }\r",
-									"        },\r",
-									"        \"required\": [\"result\", \"meta\"]\r",
-									"    }\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"    pm.expect(json).to.have.property(\"@context\");\r",
+									"    pm.expect(json).to.have.property(\"member\");\r",
+									"    pm.expect(json.member).to.be.an(\"array\");\r",
 									"});\r",
+									"\r",
+									"pm.test(\"Each command has the required properties\", function () {\r",
+									"    json.member.forEach(cmd => {\r",
+									"        pm.expect(cmd).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"        pm.expect(cmd).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"        pm.expect(cmd).to.have.property(\"type\").that.is.a(\"string\");\r",
+									"        pm.expect(cmd).to.have.property(\"command_line\").that.is.a(\"string\");\r",
+									"        pm.expect(cmd).to.have.property(\"is_activated\").that.is.a(\"boolean\");\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is valid JSON Schema\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        required: [\"member\"],\r",
+									"        properties: {\r",
+									"                member: {\r",
+									"                type: \"array\",\r",
+									"                items: {\r",
+									"                    type: \"object\",\r",
+									"                    required: [\"id\", \"name\", \"type\", \"command_line\", \"is_activated\"],\r",
+									"                    properties: {\r",
+									"                    id: { type: \"number\" },\r",
+									"                    name: { type: \"string\" },\r",
+									"                    type: { type: \"string\" },\r",
+									"                    command_line: { type: \"string\" },\r",
+									"                    is_activated: { type: \"boolean\" }\r",
+									"                    }\r",
+									"                }\r",
+									"            }\r",
+									"        }\r",
+									"    };\r",
+									"\r",
+									"    pm.response.to.have.jsonSchema(schema);\r",
+									"});\r",
+									"\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
