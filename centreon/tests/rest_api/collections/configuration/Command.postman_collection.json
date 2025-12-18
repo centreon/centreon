@@ -1590,7 +1590,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r\n    \"is_shell\": true,\r\n    \"argument_example\": \"!80!90\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG1\", \r\n            \"description\": \"argument-description\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"SNMPCOMMUNITY\", \r\n            \"type\": 1, \r\n            \"description\": \"macro-description\"\r\n        }\r\n    ],\r\n    \"connector_id\": 2,\r\n    \"graph_template_id\": 1\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": \"Check\",\r\n    \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r\n    \"is_shell\": true,\r\n    \"connector\": \"/centreon/api/latest/configuration/connectors/1\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
