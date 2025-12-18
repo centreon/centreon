@@ -31,8 +31,8 @@ const Story = ({ isValidForm, isSubmitting }: Props): JSX.Element => {
   return (
     <SnackbarProvider>
       <UnsavedChangesDialog
-        dialogOpened
         closeDialog={closeDialog}
+        dialogOpened
         discardChanges={discardChanges}
         isSubmitting={isSubmitting}
         isValidForm={isValidForm}
@@ -51,7 +51,7 @@ export const PlaygroundUnsavedChangesDialog = TemplateUnsavedChangesDialog.bind(
 );
 
 export const normal = (): JSX.Element => (
-  <Story isValidForm isSubmitting={false} />
+  <Story isSubmitting={false} isValidForm />
 );
 
 export const withNotValidForm = (): JSX.Element => (

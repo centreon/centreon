@@ -84,7 +84,7 @@ const useRequest = <TResult>({
       });
   };
 
-  return { sendRequest, sending };
+  return { sending, sendRequest };
 };
 
 export default useRequest;

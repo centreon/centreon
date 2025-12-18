@@ -32,7 +32,7 @@ const File = ({
 
   const changeFiles = (newFiles: FileList | null): void => {
     if (change) {
-      change({ setFieldValue, setFieldTouched, value: newFiles });
+      change({ setFieldTouched, setFieldValue, value: newFiles });
 
       return;
     }
@@ -41,22 +41,22 @@ const File = ({
   };
 
   return (
-    <Box data-testid={dataTestId} aria-label={t(label)}>
+    <Box aria-label={t(label)} data-testid={dataTestId}>
       <Typography variant="h6">{t(label)}</Typography>
-      <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <FileDropZone
           {...file}
           accept={file?.accept || '*'}
-          files={files || null}
           changeFiles={changeFiles}
-          resetFilesStatusAndUploadData={() => undefined}
+          files={files || null}
           label={label}
+          resetFilesStatusAndUploadData={() => undefined}
         />
-        <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
           {filesArray.map((file) => (
             <Box
               key={file.name}
-              sx={{ display: 'flex', gap: 1, flexDirection: 'row' }}
+              sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}
             >
               <DescriptionOutlinedIcon color="success" fontSize="small" />
               <Typography>{file.name}</Typography>

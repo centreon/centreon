@@ -28,8 +28,8 @@ const PasswordEndAdornment = ({
     <InputAdornment position="end">
       <IconButton
         ariaLabel={t(label) || ''}
-        size="small"
         onClick={changeVisibility}
+        size="small"
       >
         {icon}
       </IconButton>

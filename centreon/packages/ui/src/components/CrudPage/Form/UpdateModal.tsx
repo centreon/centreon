@@ -25,11 +25,11 @@ const UpdateModal = <TItem extends { id: number; name: string }, TItemForm>({
   const openFormModal = useAtomValue(openFormModalAtom);
 
   const { initialValues, isLoading } = useGetItem({
-    id: openFormModal,
-    decoder,
+    adapter,
     baseEndpoint,
-    itemQueryKey,
-    adapter
+    decoder,
+    id: openFormModal,
+    itemQueryKey
   });
 
   const isModalOpen = useMemo(
@@ -43,12 +43,12 @@ const UpdateModal = <TItem extends { id: number; name: string }, TItemForm>({
   );
 
   return (
-    <Modal open={isModalOpen} onClose={openAskBeforeClose} size={modalSize}>
+    <Modal onClose={openAskBeforeClose} open={isModalOpen} size={modalSize}>
       <Modal.Header>{title}</Modal.Header>
       <Modal.Body>
         <Form
-          initialValues={initialValues}
           Buttons={Buttons}
+          initialValues={initialValues}
           isLoading={isLoading}
         />
       </Modal.Body>

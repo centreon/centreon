@@ -78,8 +78,8 @@ export const useGraphAndLegend = ({
 
   return {
     barStackData,
+    keys,
     xScale,
-    yScale,
-    keys
+    yScale
   };
 };

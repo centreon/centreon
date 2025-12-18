@@ -40,10 +40,10 @@ export const PageQuickAccess = ({
       <Menu.Items>
         {elements?.map((element) => (
           <Menu.Item
-            key={`${element.id}`}
-            onClick={navigateToElement(element.id)}
             isActive={isActive(element.id)}
             isDisabled={isDisabled?.(element.id)}
+            key={`${element.id}`}
+            onClick={navigateToElement(element.id)}
           >
             {element.name}
           </Menu.Item>
@@ -53,8 +53,8 @@ export const PageQuickAccess = ({
           <Button
             icon={<ArrowBackIcon />}
             iconVariant="start"
-            variant="ghost"
             onClick={goBack}
+            variant="ghost"
           >
             {t(labels.goBack)}
           </Button>
@@ -62,8 +62,8 @@ export const PageQuickAccess = ({
             <Button
               icon={<AddIcon />}
               iconVariant="start"
-              variant="secondary"
               onClick={create}
+              variant="secondary"
             >
               {t(labels.create)}
             </Button>

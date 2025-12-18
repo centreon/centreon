@@ -65,8 +65,8 @@ const ChartSvgWrapper = ({
       <title>chart</title>
       <Group.Group
         left={computeGElementMarginLeft({
-          maxCharacters: maxAxisCharacters,
-          hasSecondUnit
+          hasSecondUnit,
+          maxCharacters: maxAxisCharacters
         })}
         top={marginTop}
       >

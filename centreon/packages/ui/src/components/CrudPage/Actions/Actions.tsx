@@ -19,7 +19,7 @@ const Actions = ({ labels, filters }: Props): JSX.Element => {
     <Box className={classes.actions}>
       <AddButton label={labels.add} />
       <div className={classes.filters}>
-        <Search label={labels.search} filters={filters} />
+        <Search filters={filters} label={labels.search} />
       </div>
     </Box>
   );

@@ -64,10 +64,10 @@ const Button = ({
       data-size={size}
       data-variant={variant}
       disabled={disabled}
+      onClick={(e) => onClick?.(e)}
       size={size}
       type={type}
       variant={muiVariantMap[variant]}
-      onClick={(e) => onClick?.(e)}
       {...MuiOverrideProps}
       {...attr}
     >

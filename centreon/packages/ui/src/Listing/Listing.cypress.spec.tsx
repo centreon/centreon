@@ -113,9 +113,9 @@ const mountListingResponsive = (listingVariant: ListingVariant): void => {
     Component: (
       <div style={{ height: '100vh' }}>
         <Listing
-          isResponsive
           columns={defaultColumn}
           currentPage={1}
+          isResponsive
           limit={10}
           listingVariant={listingVariant}
           rows={listingWithSubItems}
@@ -143,6 +143,7 @@ const TestComponent = ({
       columns={columnsWithSubItems}
       currentPage={1}
       limit={10}
+      onSelectRows={setSelectedRows}
       rows={isSmallListing ? listingWithSubItems3Rows : listingWithSubItems}
       selectedRows={selectedRows}
       subItems={{
@@ -153,7 +154,6 @@ const TestComponent = ({
         labelExpand: 'Expand'
       }}
       totalRows={10}
-      onSelectRows={setSelectedRows}
     />
   );
 };

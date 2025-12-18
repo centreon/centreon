@@ -133,8 +133,8 @@ const FloatingLinkEditor = ({
 
   return (
     <Popper
-      open
       anchorEl={rootElement}
+      open
       placement="top-start"
       sx={{ zIndex: 'tooltip' }}
     >
@@ -150,8 +150,6 @@ const FloatingLinkEditor = ({
             autoFocus
             dataTestId="InputLinkField"
             label={t(labelInputLink)}
-            size="small"
-            value={editedUrl}
             onBlur={(event): void => {
               const { value } = event.target;
 
@@ -164,6 +162,8 @@ const FloatingLinkEditor = ({
             }}
             onChange={changeValue}
             onKeyUp={acceptOrCancelNewLinkValue}
+            size="small"
+            value={editedUrl}
           />
         ) : (
           <Box component="span" sx={{ margin: '10px' }}>
@@ -178,9 +178,9 @@ const FloatingLinkEditor = ({
             </Link>
             <IconButton
               aria-label={labelEditLink}
+              onClick={enterInEditMode}
               size="small"
               sx={{ marginLeft: '5px' }}
-              onClick={enterInEditMode}
             >
               <EditIcon fontSize="small" />
             </IconButton>

@@ -84,7 +84,7 @@ const BaseChart = ({
   return (
     <>
       <div ref={titleRef}>
-        <Header header={header} title={title} ref={titleRef} />
+        <Header header={header} ref={titleRef} title={title} />
       </div>
       <div className={classes.container}>
         <Stack
@@ -104,19 +104,19 @@ const BaseChart = ({
               >
                 <Legend
                   base={base}
+                  graphHeight={graphHeight}
                   height={height}
                   limitLegend={limitLegend}
                   lines={lines}
                   mode={legend?.mode}
                   placement="left"
                   renderExtraComponent={legend?.renderExtraComponent}
+                  secondaryClick={legend?.secondaryClick}
                   setLinesGraph={setLines}
                   shouldDisplayLegendInCompactMode={
                     shouldDisplayLegendInCompactMode
                   }
                   showCalculations={legend?.showCalculations}
-                  secondaryClick={legend?.secondaryClick}
-                  graphHeight={graphHeight}
                 />
               </div>
             )}
@@ -130,17 +130,17 @@ const BaseChart = ({
         >
           <Legend
             base={base}
+            graphHeight={graphHeight}
             height={height}
             limitLegend={limitLegend}
             lines={lines}
             mode={legend.mode}
             placement="bottom"
             renderExtraComponent={legend.renderExtraComponent}
+            secondaryClick={legend?.secondaryClick}
             setLinesGraph={setLines}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
-            secondaryClick={legend?.secondaryClick}
             showCalculations={legend?.showCalculations}
-            graphHeight={graphHeight}
           />
         </div>
       )}

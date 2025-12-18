@@ -177,11 +177,11 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   return (
     <DndContext
       collisionDetection={collisionDetection}
-      sensors={sensors}
       onDragCancel={dragCancel}
       onDragEnd={dragEnd}
       onDragOver={dragOver}
       onDragStart={dragStart}
+      sensors={sensors}
     >
       <SortableContext items={sortableItemsIds} strategy={sortingStrategy}>
         <RootComponent>
@@ -215,9 +215,9 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
         <RootComponent isInDragOverlay>
           {activeId ? (
             <Item
+              Content={Content}
               isDragging
               isInDragOverlay
-              Content={Content}
               title={activeId}
               {...pick(itemProps, activeItem)}
               {...additionalProps}

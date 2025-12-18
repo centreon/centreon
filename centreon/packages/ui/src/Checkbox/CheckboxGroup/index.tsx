@@ -63,12 +63,12 @@ const CheckboxGroup = ({
             checked={includes(value, values)}
             className={cx(classes.checkbox, className)}
             disabled={disabled}
+            id={value}
             key={value}
             label={t(value)}
             labelPlacement={labelPlacement}
             labelProps={labelProps}
             onChange={onChange}
-            id={value}
           />
         );
       })}

@@ -91,8 +91,16 @@ const MultiAutocompleteField = ({
     <Autocomplete
       disableCloseOnSelect
       displayOptionThumbnail
-      multiple
       getLimitTagsText={getLimitTagsText}
+      ListboxComponent={ListboxComponent({
+        disableSelectAll,
+        isOptionSelected,
+        onChange,
+        options,
+        total
+      })}
+      multiple
+      onChange={onChange}
       options={autocompleteOptions}
       renderOption={(renderProps, option, { selected }): JSX.Element => (
         <li
@@ -102,20 +110,12 @@ const MultiAutocompleteField = ({
           <Option checkboxSelected={selected}>{getOptionLabel(option)}</Option>
         </li>
       )}
-      value={values}
       renderTags={(renderedValue, getTagProps): React.ReactNode =>
         customRenderTags
           ? customRenderTags(renderTags(renderedValue, getTagProps))
           : renderTags(renderedValue, getTagProps)
       }
-      ListboxComponent={ListboxComponent({
-        total,
-        onChange,
-        isOptionSelected,
-        disableSelectAll,
-        options
-      })}
-      onChange={onChange}
+      value={values}
       {...props}
     />
   );

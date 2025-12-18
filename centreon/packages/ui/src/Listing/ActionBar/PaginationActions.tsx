@@ -48,32 +48,32 @@ const PaginationActions = ({
       <IconButton
         aria-label={t(labelFirstPage) || ''}
         disabled={isFirstPage}
-        size="large"
         onClick={changeToFirstPage}
+        size="large"
       >
         <FirstPageIcon />
       </IconButton>
       <IconButton
         aria-label={t(labelPreviousPage) || ''}
         disabled={isFirstPage}
-        size="large"
         onClick={changeToPreviousPage}
+        size="large"
       >
         <KeyboardArrowLeft />
       </IconButton>
       <IconButton
         aria-label={t(labelNextPage) || ''}
         disabled={isLastPage}
-        size="large"
         onClick={changeToNextPage}
+        size="large"
       >
         <KeyboardArrowRight />
       </IconButton>
       <IconButton
         aria-label={t(labelLastPage) || ''}
         disabled={isLastPage}
-        size="large"
         onClick={changeToLastPage}
+        size="large"
       >
         <LastPageIcon />
       </IconButton>

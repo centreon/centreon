@@ -217,8 +217,8 @@ const useGraphQuery = ({
       return metrics?.map((line) => {
         const formattedLegend = formatLegend({
           host: line?.host_name,
-          service: line?.service_name,
-          metric: line?.metric
+          metric: line?.metric,
+          service: line?.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -241,8 +241,8 @@ const useGraphQuery = ({
 
       if (areHostNameRedundant) {
         const formattedLegend = formatLegend({
-          service: line.service_name,
-          metric: line.metric
+          metric: line.metric,
+          service: line.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -259,8 +259,8 @@ const useGraphQuery = ({
 
       const formattedLegend = formatLegend({
         host: line.host_name,
-        service: line.service_name,
-        metric: line.metric
+        metric: line.metric,
+        service: line.service_name
       });
 
       return { ...line, legend: formattedLegend };

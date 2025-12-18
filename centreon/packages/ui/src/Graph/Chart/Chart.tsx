@@ -148,12 +148,12 @@ const Chart = ({
 
   const { maxLeftAxisCharacters, maxRightAxisCharacters } =
     useComputeYAxisMaxCharacters({
-      graphData,
-      thresholds,
-      thresholdUnit,
       axis,
       firstUnit,
-      secondUnit
+      graphData,
+      secondUnit,
+      thresholds,
+      thresholdUnit
     });
 
   const allUnits = getUnits(linesGraph);
@@ -165,10 +165,10 @@ const Chart = ({
       legendDisplay: legend?.display,
       legendHeight: legend?.height,
       legendPlacement: legend?.placement,
-      width,
       maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
       title,
-      units: allUnits
+      units: allUnits,
+      width
     });
 
   const xScale = useMemo(
@@ -192,18 +192,18 @@ const Chart = ({
   const yScalesPerUnit = useMemo(
     () =>
       getYScalePerUnit({
+        boundariesUnit,
         dataLines: linesGraph,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
+        isFilled: lineStyle?.showArea,
+        max,
+        min,
         scale: axis?.scale,
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
-        thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
-        valueGraphHeight: graphHeight - margin.bottom,
-        min,
-        max,
-        boundariesUnit,
-        isFilled: lineStyle?.showArea
+        thresholdUnit,
+        valueGraphHeight: graphHeight - margin.bottom
       }),
     [
       linesGraph,
@@ -281,6 +281,7 @@ const Chart = ({
       <div className={classes.baseWrapper}>
         <BaseChart
           base={baseAxis}
+          graphHeight={graphHeight}
           graphWidth={graphWidth}
           header={header}
           height={height}
@@ -291,8 +292,8 @@ const Chart = ({
             mode: legend?.mode,
             placement: legend?.placement,
             renderExtraComponent: legend?.renderExtraComponent,
-            showCalculations: legend?.showCalculations,
-            secondaryClick: legend?.secondaryClick
+            secondaryClick: legend?.secondaryClick,
+            showCalculations: legend?.showCalculations
           }}
           legendRef={legendRef}
           limitLegend={limitLegend}
@@ -300,7 +301,6 @@ const Chart = ({
           setLines={setLinesGraph}
           title={title}
           titleRef={titleRef}
-          graphHeight={graphHeight}
         >
           <GraphValueTooltip
             baseAxis={baseAxis}
@@ -316,14 +316,14 @@ const Chart = ({
                 graphHeight={graphHeight}
                 graphWidth={graphWidth}
                 gridLinesType={axis?.gridLinesType}
+                hasSecondUnit={hasSecondUnit}
                 leftScale={leftScale}
+                maxAxisCharacters={maxLeftAxisCharacters}
                 rightScale={rightScale}
                 showGridLines={showGridLines}
                 svgRef={graphSvgRef}
                 timeSeries={timeSeries}
                 xScale={xScale}
-                maxAxisCharacters={maxLeftAxisCharacters}
-                hasSecondUnit={hasSecondUnit}
               >
                 {!isEmpty(linesDisplayedAsBar) && (
                   <BarGroup
@@ -339,19 +339,19 @@ const Chart = ({
                 )}
                 {!isEmpty(linesDisplayedAsLine) && (
                   <Lines
-                    lineStyle={lineStyle}
                     displayAnchor={displayAnchor}
                     displayedLines={linesDisplayedAsLine}
                     graphSvgRef={graphSvgRef}
+                    hasSecondUnit={hasSecondUnit}
                     height={graphHeight - marginTop}
+                    lineStyle={lineStyle}
+                    maxLeftAxisCharacters={maxLeftAxisCharacters}
                     scale={axis?.scale}
                     scaleLogarithmicBase={axis?.scaleLogarithmicBase}
                     timeSeries={timeSeries}
                     width={graphWidth}
                     xScale={xScale}
                     yScalesPerUnit={yScalesPerUnit}
-                    hasSecondUnit={hasSecondUnit}
-                    maxLeftAxisCharacters={maxLeftAxisCharacters}
                     {...shapeLines}
                   />
                 )}
@@ -374,14 +374,14 @@ const Chart = ({
                     xScale,
                     yScalesPerUnit
                   }}
+                  hasSecondUnit={hasSecondUnit}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                   timeShiftZonesData={{
                     ...timeShiftZones,
                     graphInterval
                   }}
-                  zoomData={{ ...zoomPreview }}
                   transformMatrix={transformMatrix}
-                  hasSecondUnit={hasSecondUnit}
-                  maxLeftAxisCharacters={maxLeftAxisCharacters}
+                  zoomData={{ ...zoomPreview }}
                 />
                 {thresholds?.enabled && (
                   <Thresholds
@@ -392,8 +392,8 @@ const Chart = ({
                         thresholdLabel
                       })
                     }
-                    thresholdUnit={thresholdUnit}
                     thresholds={thresholds as ThresholdsModel}
+                    thresholdUnit={thresholdUnit}
                     width={graphWidth}
                     yScalesPerUnit={yScalesPerUnit}
                   />

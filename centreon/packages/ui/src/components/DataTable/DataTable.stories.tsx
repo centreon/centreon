@@ -56,8 +56,8 @@ export const AsEmptyStateWithDescription: Story = {
           actions: {
             create: 'Create item'
           },
-          title: 'No items found',
-          description: 'Description'
+          description: 'Description',
+          title: 'No items found'
         }}
       />
     ),

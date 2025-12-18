@@ -57,9 +57,9 @@ const PopoverCustomTimePeriod = ({
       anchorPosition={anchorPosition}
       anchorReference={anchorReference}
       className={classes.paper}
+      onClose={onClose}
       open={open}
       transformOrigin={transformOrigin ?? defaultTransformOrigin}
-      onClose={onClose}
     >
       <PickersStartEndDate
         changeDate={changeDate}

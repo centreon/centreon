@@ -37,11 +37,11 @@ export const CollapsibleItem = ({
 
   return (
     <Accordion
-      disableGutters
       className={classes.accordion}
       data-compact={compact}
       data-testid={`${dataTestId}-accordion`}
       defaultExpanded={defaultExpanded}
+      disableGutters
     >
       <div className={classes.summaryContainer}>
         <div className={classes.customTitle}>{!isStringTitle && title}</div>

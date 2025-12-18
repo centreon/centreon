@@ -47,13 +47,13 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 
     return (
       <MuiIconButton
-        ref={ref}
         className={classes.iconButton}
         data-size={size}
         data-variant={variant}
         disabled={disabled}
-        size={size}
         onClick={(e) => onClick?.(e)}
+        ref={ref}
+        size={size}
         {...attr}
         // Mui overrides
         color={muiColorMap[variant]}

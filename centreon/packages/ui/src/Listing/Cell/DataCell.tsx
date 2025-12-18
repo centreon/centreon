@@ -72,8 +72,8 @@ const DataCell = ({
           dataStyle={dataStyle}
           disableRowCondition={disableRowCondition(row)}
           formattedString={formattedString}
-          isRowHovered={isRowHovered}
           isRowHighlighted={isRowHighlighted}
+          isRowHovered={isRowHovered}
         />
       );
 
@@ -126,15 +126,15 @@ const DataCell = ({
           className={`flex align-items h-full overflow-hidden whitespace-nowrap ${clickable && 'cursor-default'}`}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
-          style={{
-            alignItems: align
-          }}
           onClick={(e): void => {
             if (!clickable) {
               return;
             }
             e.preventDefault();
             e.stopPropagation();
+          }}
+          style={{
+            alignItems: align
           }}
           {...commonCellProps}
         >
@@ -151,8 +151,8 @@ const DataCell = ({
                   dataStyle={dataStyle}
                   disableRowCondition={disableRowCondition(row)}
                   formattedString={formattedString}
-                  isRowHovered={isRowHovered}
                   isRowHighlighted={isRowHighlighted}
+                  isRowHovered={isRowHovered}
                 />
               );
             }}

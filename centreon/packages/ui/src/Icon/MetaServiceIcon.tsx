@@ -5,8 +5,8 @@ import BaseIcon from './BaseIcon';
 
 export const MetaServiceIcon = (props: SvgIconProps): JSX.Element => (
   <BaseIcon
-    Icon={SettingsInputSvideoIcon}
     dataTestId="MetaServiceIcon"
+    Icon={SettingsInputSvideoIcon}
     {...props}
   />
 );

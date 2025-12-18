@@ -81,10 +81,10 @@ const ListingHeaderCell = ({
           <TableSortLabel
             active={sortField === columnSortField}
             aria-label={`Column ${column.label}`}
-            className="text-white"
             classes={{
               icon: 'text-white'
             }}
+            className="text-white"
             direction={sortOrder || 'desc'}
             onClick={sort}
           >

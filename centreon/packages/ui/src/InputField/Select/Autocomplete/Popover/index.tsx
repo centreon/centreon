@@ -62,8 +62,8 @@ const PopoverAutocomplete = (
         className={classes.chip}
         color={isEmpty(value) ? undefined : 'primary'}
         label={label}
-        size="small"
         onDelete={(e): void => onChange?.(e, [], 'clear')}
+        size="small"
       />
     );
 
@@ -81,14 +81,14 @@ const PopoverAutocomplete = (
           <AutocompleteField
             autoFocus
             disableCloseOnSelect
-            multiple
             displayPopupIcon={false}
             hideInput={hideInput}
+            multiple
+            onChange={onChange}
             open={optionsOpen}
             renderTags={(): null => null}
             style={{ minWidth: theme.spacing(20) }}
             value={value}
-            onChange={onChange}
             {...props}
           />
         )}

@@ -39,8 +39,8 @@ const CompactCustomTimePeriod = ({
       color="primary"
       data-testid={labelCompactTimePeriod}
       disabled={disabled}
-      variant="outlined"
       onClick={onClick}
+      variant="outlined"
     >
       <div className={classes.buttonContent}>
         <AccessTimeIcon />

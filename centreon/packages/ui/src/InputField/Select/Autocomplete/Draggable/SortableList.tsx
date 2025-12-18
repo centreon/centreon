@@ -54,7 +54,6 @@ const SortableList = ({
 
   return (
     <SortableItems
-      updateSortableItemsOnItemsChange
       Content={SortableListContent({
         classes,
         deleteValue,
@@ -65,8 +64,9 @@ const SortableList = ({
       collisionDetection={rectIntersection}
       itemProps={['id', 'name', 'createOption']}
       items={items}
-      sortingStrategy={rectSortingStrategy}
       onDragEnd={dragEnd}
+      sortingStrategy={rectSortingStrategy}
+      updateSortableItemsOnItemsChange
     />
   );
 };

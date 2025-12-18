@@ -8,6 +8,8 @@
   "assist": {
     "actions": {
       "source": {
+        "useSortedKeys": "on",
+        "useSortedAttributes": "on",
         "organizeImports": {
           "level": "on",
           "options": {
@@ -44,9 +46,24 @@
       },
       "complexity": {
         "noBannedTypes": "off",
-        "noForEach": "off"
+        "noForEach": "off",
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 29
+          }
+        }
+      },
+      "security": {
+        "noSecrets": {
+          "level": "error",
+          "options": {
+            "entropyThreshold": 70
+          }
+        }
       },
       "correctness": {
+        "noReactPropAssignments": "error",
         "noUnusedImports": "error",
         "noUnusedVariables": "error",
         "useExhaustiveDependencies": "off",
@@ -65,6 +82,12 @@
         "noNamespaceImport": "error"
       },
       "style": {
+        "useConsistentArrayType": {
+          "level": "error",
+          "options": {
+            "syntax": "generic"
+          }
+        },
         "useLiteralEnumMembers": "off",
         "useImportType": "off",
         "noNamespace": "error",

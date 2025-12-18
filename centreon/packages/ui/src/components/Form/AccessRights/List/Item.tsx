@@ -55,10 +55,10 @@ const Item = ({
           {state && <StateChip {...state} />}
           <RoleSelectField
             disabled={isRemoved}
+            onChange={changeRole}
             roles={roles}
             testId={`role-${name}`}
             value={role}
-            onChange={changeRole}
           />
           <RemoveAccessRight index={index} isRemoved={isRemoved} name={name} />
         </>

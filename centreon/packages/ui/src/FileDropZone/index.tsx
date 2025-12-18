@@ -35,8 +35,8 @@ const useStyles = makeStyles<StylesProps>()(
         cursor: 'pointer'
       },
       border: `${theme.spacing(0.3)} dashed ${theme.palette.primary.main}`,
-      boxShadow: isDraggingOver ? theme.shadows[3] : theme.shadows[0],
       borderRadius: `${theme.shape.borderRadius}px`,
+      boxShadow: isDraggingOver ? theme.shadows[3] : theme.shadows[0],
       padding: theme.spacing(0.5, 1),
       width: hasCustomDropZoneContent ? '100%' : theme.spacing(50)
     },
@@ -146,12 +146,12 @@ const Dropzone = ({
           <div className={classes.dropzoneInfo}>
             {hasCustomDropZoneContent ? (
               <CustomDropZoneContent
-                openFileExplorer={openFileExplorer}
                 files={files}
                 label={label}
+                openFileExplorer={openFileExplorer}
               />
             ) : (
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <Box sx={{ alignItems: 'center', display: 'flex', gap: 2 }}>
                 <PostAddIcon color="primary" fontSize="large" />
                 <Typography>
                   {t(labelDropOr)} {t(labelSelectAFile)}
@@ -163,9 +163,9 @@ const Dropzone = ({
               aria-label={t(labelSelectAFile)}
               className={classes.input}
               multiple={multiple}
+              onChange={handleChangeFiles}
               ref={fileInputRef}
               type="file"
-              onChange={handleChangeFiles}
             />
           </div>
         </Box>

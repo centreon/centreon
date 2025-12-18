@@ -90,13 +90,13 @@ const ResponsiveHeatMap = <TData,>({
           sx={{ backgroundColor }}
         >
           <Tooltip
-            hasCaret
             classes={{
               arrow: cx(classes.heatMapTooltipArrow, arrowClassName),
               tooltip: classes.heatMapTooltip
             }}
             data-testid={`tooltip-${data?.id}`}
             followCursor={false}
+            hasCaret
             label={
               displayTooltipCondition?.(data) &&
               tooltipContent?.({
@@ -113,9 +113,9 @@ const ResponsiveHeatMap = <TData,>({
                 backgroundColor,
                 data,
                 id,
+                isMediumSize,
                 isSmallestSize,
-                tileSize,
-                isMediumSize
+                tileSize
               })}
             </div>
           </Tooltip>

@@ -43,7 +43,7 @@ const DeleteModal = <TData extends { id: number; name: string }>({
   }
 
   return (
-    <Modal open={isOpen} onClose={close} size={modalSize}>
+    <Modal onClose={close} open={isOpen} size={modalSize}>
       <Modal.Header>
         {isAFunction(labels.title)
           ? labels.title(itemToDeleteRef.current as TData)
@@ -65,10 +65,10 @@ const DeleteModal = <TData extends { id: number; name: string }>({
         }}
       >
         {isMutating && <CircularProgress size={20} />}
-        <Button variant="ghost" onClick={close} disabled={isMutating}>
+        <Button disabled={isMutating} onClick={close} variant="ghost">
           {labels.cancel}
         </Button>
-        <Button isDanger onClick={confirm} disabled={isMutating}>
+        <Button disabled={isMutating} isDanger onClick={confirm}>
           {labels.confirm}
         </Button>
       </Box>

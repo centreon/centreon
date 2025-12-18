@@ -152,17 +152,24 @@ const AutocompleteField = forwardRef(
           error={error}
           externalValueForAutoSize={autocompleteProps?.value?.name}
           label={label}
+          onChange={onTextChange}
           placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
           required={required}
-          value={
-            inputValue ||
-            (forceInputRenderValue
-              ? getOptionItemLabel(autocompleteProps?.value || undefined)
-              : undefined) ||
-            undefined
-          }
-          onChange={onTextChange}
           slotProps={{
+            htmlInput: {
+              ...params.inputProps,
+              'aria-label': label,
+              'data-testid': dataTestId || label,
+              id: getNormalizedId(label || ''),
+              ...(forceInputRenderValue
+                ? {
+                    value: getOptionItemLabel(
+                      autocompleteProps?.value || undefined
+                    )
+                  }
+                : {}),
+              ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+            },
             input: {
               ...params.InputProps,
               endAdornment: (
@@ -191,29 +198,21 @@ const AutocompleteField = forwardRef(
                 marginDense: classes.inputLabel,
                 shrink: classes.inputLabelShrink
               }
-            },
-            htmlInput: {
-              ...params.inputProps,
-              'aria-label': label,
-              'data-testid': dataTestId || label,
-              id: getNormalizedId(label || ''),
-              ...(forceInputRenderValue
-                ? {
-                    value: getOptionItemLabel(
-                      autocompleteProps?.value || undefined
-                    )
-                  }
-                : {}),
-              ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
             }
           }}
+          value={
+            inputValue ||
+            (forceInputRenderValue
+              ? getOptionItemLabel(autocompleteProps?.value || undefined)
+              : undefined) ||
+            undefined
+          }
         />
       );
     };
 
     return (
       <Autocomplete
-        disableClearable
         classes={{
           groupLabel: classes.inputLabel,
           inputRoot: cx([
@@ -223,6 +222,7 @@ const AutocompleteField = forwardRef(
           popper: classes.popper,
           root: classes.textfield
         }}
+        disableClearable
         forcePopupIcon={displayPopupIcon}
         getOptionLabel={(option): string =>
           (option as SelectEntry)?.name?.toString() || ''

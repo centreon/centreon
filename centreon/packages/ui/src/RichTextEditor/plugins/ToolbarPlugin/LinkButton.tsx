@@ -91,10 +91,10 @@ const LinkButton = ({ disabled }: Props): JSX.Element => {
       className={cx(classes.button, { [classes.buttonSelected]: isLink })}
       disabled={disabled}
       key="link"
+      onClick={insertLink}
       size="medium"
       title="link"
       tooltipPlacement="top"
-      onClick={insertLink}
     >
       <LinkIcon />
     </IconButton>

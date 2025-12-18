@@ -82,13 +82,13 @@ const useTickGraph = ({
     const pixelToShift = computPixelsToShiftMouse(xScale);
     const mousePositionTimeTick = mousePosition
       ? getTimeValue({
+          marginLeft: computeGElementMarginLeft({
+            hasSecondUnit,
+            maxCharacters: maxLeftAxisCharacters
+          }),
           timeSeries,
           x: mousePosition[0] - pixelToShift,
-          xScale,
-          marginLeft: computeGElementMarginLeft({
-            maxCharacters: maxLeftAxisCharacters,
-            hasSecondUnit
-          })
+          xScale
         })?.timeTick
       : 0;
     const timeTickValue = mousePosition
@@ -125,12 +125,12 @@ const useTickGraph = ({
   ]);
 
   return {
+    guidingLinesRef,
     positionX,
     positionY,
     tickAxisBottom,
     tickAxisLeft,
-    tickAxisRight,
-    guidingLinesRef
+    tickAxisRight
   };
 };
 export default useTickGraph;

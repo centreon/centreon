@@ -9,7 +9,7 @@ import { useNavigateToSection } from './navigateToSection';
 import { groupToTab } from './PanelTabs';
 
 export interface FormSectionProps extends TabsProps {
-  groups?: Group[];
+  groups?: Array<Group>;
 }
 
 const FormSection = ({ groups }: FormSectionProps) => {
@@ -23,11 +23,11 @@ const FormSection = ({ groups }: FormSectionProps) => {
   return (
     <Box className="sticky top-0 bg-background-paper z-100">
       <Tabs
-        variant="scrollable"
-        scrollButtons={false}
-        tabs={tabMemo}
         defaultTab={tabMemo[0].value}
         onChange={navigateToSection}
+        scrollButtons={false}
+        tabs={tabMemo}
+        variant="scrollable"
       />
     </Box>
   );

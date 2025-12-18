@@ -60,18 +60,18 @@ const NumberField = ({
 
   return (
     <TextField
+      onChange={changeValue}
       type="number"
       value={actualValue}
-      onChange={changeValue}
       {...props}
+      placeholder={
+        placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
+      }
       textFieldSlotsAndSlotProps={{
         slotProps: {
           htmlInput: { ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput }
         }
       }}
-      placeholder={
-        placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
-      }
     />
   );
 };

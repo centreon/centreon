@@ -233,7 +233,7 @@ const ContentWithGrid = ({
   const { classes } = useContentStyles({ isDragging });
 
   return (
-    <Grid item style={style} size={xs} {...listeners} {...attributes}>
+    <Grid item size={xs} style={style} {...listeners} {...attributes}>
       <Paper className={classes.content} ref={itemRef}>
         <Typography>{name as string}</Typography>
       </Paper>
@@ -262,10 +262,10 @@ const StoryWithRootComponent = (): JSX.Element => {
     <div className={classes.verticalContainer}>
       <SortableItems
         Content={ContentWithGrid}
-        RootComponent={RootComponent}
         collisionDetection={rectIntersection}
         itemProps={['name', 'xs']}
         items={items}
+        RootComponent={RootComponent}
         sortingStrategy={rectSortingStrategy}
       />
     </div>
@@ -278,8 +278,8 @@ export const gridWithRootComponent = (): JSX.Element => (
 
 export const gridWithHandlers = (): JSX.Element => (
   <Story
-    handler
     direction="gridContainer"
+    handler
     sortingStrategy={rectSortingStrategy}
   />
 );

@@ -50,10 +50,10 @@ const Zoom = ({
               height={height}
               id={id}
               minimapPosition={minimapPosition}
+              ref={contentRef}
               showMinimap={showMinimap}
               width={width}
               zoom={zoom}
-              ref={contentRef}
             >
               {children}
             </ZoomContent>

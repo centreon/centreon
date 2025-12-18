@@ -180,24 +180,24 @@ const DraggableAutocomplete = (
         {...renderProps}
         error={error}
         helperText={error}
+        label={label}
+        onBlur={blurInput}
+        onChange={changeInput}
+        required={required}
         textFieldSlotsAndSlotProps={{
           slotProps: {
+            htmlInput: {
+              ...renderProps.inputProps,
+              value: inputText || ''
+            },
             input: {
               ...renderProps?.InputProps
             },
             inputLabel: {
               ...renderProps?.inputLabel
-            },
-            htmlInput: {
-              ...renderProps.inputProps,
-              value: inputText || ''
             }
           }
         }}
-        label={label}
-        required={required}
-        onBlur={blurInput}
-        onChange={changeInput}
       />
     );
 
@@ -220,17 +220,17 @@ const DraggableAutocomplete = (
 
     return (
       <MultiAutocomplete
+        disableCloseOnSelect={false}
         disableSortedOptions
         freeSolo
         handleHomeEndKeys
-        selectOnFocus
-        disableCloseOnSelect={false}
         isOptionEqualToValue={F}
+        onChange={onChange}
         renderInput={renderInput}
         renderOption={renderOption}
         renderTags={renderTags}
+        selectOnFocus
         value={selectedValues}
-        onChange={onChange}
         {...props}
       />
     );

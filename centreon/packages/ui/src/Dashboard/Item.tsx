@@ -108,15 +108,15 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
               const childrenHeader = equals(type(header), 'Function')
                 ? (header as (params: Parameters) => ReactElement)({
                     isExpanded,
+                    key,
                     label,
                     ref,
-                    key,
                     ...rest
                   })
                 : header;
 
               return (
-                <div key={key} className={classes.widgetSubContainer}>
+                <div className={classes.widgetSubContainer} key={key}>
                   <Card
                     className={classes.widgetContainer}
                     data-padding={!disablePadding}

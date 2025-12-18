@@ -61,9 +61,9 @@ const CheckboxGroup = ({
           direction={checkbox?.direction}
           disabled={disabled}
           labelPlacement={checkbox?.labelPlacement || 'end'}
+          onChange={handleChange}
           options={checkbox?.options as Array<string>}
           values={value}
-          onChange={handleChange}
         />
       </Box>
     ),

@@ -16,6 +16,8 @@ const SnackbarProvider = ({
 }: Props): JSX.Element => {
   return (
     <NotistackSnackbarProvider
+      anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+      maxSnack={maxSnackbars}
       TransitionComponent={
         Transition as JSXElementConstructor<
           TransitionProps & {
@@ -23,8 +25,6 @@ const SnackbarProvider = ({
           }
         >
       }
-      anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
-      maxSnack={maxSnackbars}
     >
       {children}
     </NotistackSnackbarProvider>

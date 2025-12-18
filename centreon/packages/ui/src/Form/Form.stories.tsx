@@ -33,7 +33,7 @@ export const basicFormWithGroups = (): JSX.Element => (
 );
 
 export const basicFormWithCollapsibleGroups = (): JSX.Element => (
-  <Form<BasicForm> {...mandatoryProps} isCollapsible groups={basicFormGroups} />
+  <Form<BasicForm> {...mandatoryProps} groups={basicFormGroups} isCollapsible />
 );
 
 export const basicFormWithCustomButton = (): JSX.Element => (
@@ -45,7 +45,7 @@ export const loadingForm = (): JSX.Element => (
 );
 
 export const loadingFormWithGroups = (): JSX.Element => (
-  <Form<BasicForm> {...mandatoryProps} isLoading groups={basicFormGroups} />
+  <Form<BasicForm> {...mandatoryProps} groups={basicFormGroups} isLoading />
 );
 
 export const basicFormWithHorizontalGroups = (): JSX.Element => (

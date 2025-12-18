@@ -25,10 +25,10 @@ const initialize = (props: CopyCommandProps & { theme?: ThemeMode }): void => {
 describe('CopyCommand', () => {
   it('displays bash code when props are set', () => {
     initialize({
-      text: `# a simple command
-echo "hello" | grep "hel"`,
+      commandToCopy: 'echo "hello" | grep "hel"',
       language: 'bash',
-      commandToCopy: 'echo "hello" | grep "hel"'
+      text: `# a simple command
+echo "hello" | grep "hel"`
     });
 
     cy.contains('# a simple command').should('be.visible');
@@ -41,11 +41,11 @@ echo "hello" | grep "hel"`,
 
   it('displays yaml code when props are set', () => {
     initialize({
+      commandToCopy: 'echo "hello" | grep "hel"',
+      language: 'yaml',
       text: `key:
   with:
-    input: "input"`,
-      language: 'yaml',
-      commandToCopy: 'echo "hello" | grep "hel"'
+    input: "input"`
     });
 
     cy.contains('key').should('be.visible');
@@ -57,11 +57,11 @@ echo "hello" | grep "hel"`,
 
   it('displays php code when props are set', () => {
     initialize({
+      commandToCopy: 'echo "hello" | grep "hel"',
+      language: 'php',
       text: `<?php
 echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
-?>`,
-      language: 'php',
-      commandToCopy: 'echo "hello" | grep "hel"'
+?>`
     });
 
     cy.contains('echo').should('be.visible');
@@ -73,6 +73,8 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
 
   it('displays json code when props are set', () => {
     initialize({
+      commandToCopy: 'echo "hello" | grep "hel"',
+      language: 'json',
       text: `{
   "number": 1,
   "boolean": true,
@@ -81,9 +83,7 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
       "string": "text"
     }
   ]
-}`,
-      language: 'json',
-      commandToCopy: 'echo "hello" | grep "hel"'
+}`
     });
 
     cy.contains('"number"').should('be.visible');
@@ -95,6 +95,7 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
 
   it('does not display the copy button when the corresponding prop is not passed', () => {
     initialize({
+      language: 'json',
       text: `{
   "number": 1,
   "boolean": true,
@@ -103,8 +104,7 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
       "string": "text"
     }
   ]
-}`,
-      language: 'json'
+}`
     });
 
     cy.findByTestId('Copy command').should('not.exist');
@@ -114,6 +114,7 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
 
   it('displays the highlighted code in dark mode when the theme is changed', () => {
     initialize({
+      language: 'json',
       text: `{
   "number": 1,
   "boolean": true,
@@ -123,7 +124,6 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
     }
   ]
 }`,
-      language: 'json',
       theme: ThemeMode.dark
     });
 
@@ -134,10 +134,10 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
 
   it('copies the command to the clipboard when the button is clicked', () => {
     initialize({
-      text: `# a simple command
-echo "hello" | grep "hel"`,
+      commandToCopy: 'echo "hello" | grep "hel"',
       language: 'bash',
-      commandToCopy: 'echo "hello" | grep "hel"'
+      text: `# a simple command
+echo "hello" | grep "hel"`
     });
 
     cy.window()

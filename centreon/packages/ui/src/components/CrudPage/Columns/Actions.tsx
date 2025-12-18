@@ -56,34 +56,34 @@ const Actions = <TData extends { id: number; name: string }>({
         display: 'flex',
         flexDirection: 'row',
         gap: 1,
-        width: '100%',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
+        width: '100%'
       }}
     >
       {isNil(row.internalListingParentRow) && (
         <IconButton
-          size="small"
-          icon={<EditOutlined fontSize="small" color="primary" />}
-          onClick={updateRow}
-          title={t(labelUpdate)}
           data-testid={
             row.internalListingParentRow
               ? `edit-${row.internalListingParentRow.id}-${row.id}`
               : `edit-${row.id}`
           }
+          icon={<EditOutlined color="primary" fontSize="small" />}
+          onClick={updateRow}
+          size="small"
+          title={t(labelUpdate)}
         />
       )}
       {(canDeleteSubItems || isNil(row.internalListingParentRow)) && (
         <IconButton
-          size="small"
-          icon={<DeleteOutline fontSize="small" color="error" />}
-          onClick={askBeforeDelete}
-          title={t(labelDelete)}
           data-testid={
             row.internalListingParentRow
               ? `delete-${row.internalListingParentRow.id}-${row.id}`
               : `delete-${row.id}`
           }
+          icon={<DeleteOutline color="error" fontSize="small" />}
+          onClick={askBeforeDelete}
+          size="small"
+          title={t(labelDelete)}
         />
       )}
     </Box>

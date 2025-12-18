@@ -22,7 +22,7 @@ const AddModal = ({ title, Form, modalSize = 'medium' }): JSX.Element => {
   );
 
   return (
-    <Modal open={isModalOpen} onClose={openAskBeforeClose} size={modalSize}>
+    <Modal onClose={openAskBeforeClose} open={isModalOpen} size={modalSize}>
       <Modal.Header>{title}</Modal.Header>
       <Modal.Body>
         <Form Buttons={Buttons} />

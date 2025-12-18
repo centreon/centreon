@@ -30,9 +30,9 @@ export const Item = ({
           aria-label={labelDelete}
           data-testid={labelDelete}
           icon={<CloseIcon />}
+          onClick={onDeleteItem}
           size="small"
           variant="ghost"
-          onClick={onDeleteItem}
         />
       </div>
     </div>

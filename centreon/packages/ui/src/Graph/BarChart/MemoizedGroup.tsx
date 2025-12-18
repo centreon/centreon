@@ -71,32 +71,32 @@ const MemoizedGroup = ({
 
         return isStackedBar ? (
           <BarStack
-            isStacked
-            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             barIndex={barGroup.index}
             barPadding={isHorizontal ? bar.x : bar.y}
             barStyle={barStyle}
             barWidth={isHorizontal ? bar.width : bar.height}
             isHorizontal={isHorizontal}
+            isStacked
             isTooltipHidden={isTooltipHidden}
+            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             lines={linesBar as Array<Line>}
+            neutralValue={neutralValue}
             timeSeries={timeSeriesBar}
             yScale={yScalesPerUnit[bar.key.split('-')[1] ?? undefined]}
-            neutralValue={neutralValue}
           />
         ) : (
           <BarStack
-            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             barIndex={barGroup.index}
             barPadding={isHorizontal ? bar.x : bar.y}
             barStyle={barStyle}
             barWidth={isHorizontal ? bar.width : bar.height}
             isHorizontal={isHorizontal}
             isTooltipHidden={isTooltipHidden}
+            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             lines={[linesBar as Line]}
+            neutralValue={neutralValue}
             timeSeries={timeSeriesBar}
             yScale={yScalesPerUnit[(linesBar as Line).unit ?? undefined]}
-            neutralValue={neutralValue}
           />
         );
       })}

@@ -50,9 +50,9 @@ const UnsavedChangesDialog = ({
   return (
     <Modal
       hasCloseButton
+      onClose={closeDialog}
       open={dialogOpened}
       size="medium"
-      onClose={closeDialog}
     >
       <Modal.Header>{t(labelTitle)}</Modal.Header>
       <Modal.Body>{t(labelMessage)}</Modal.Body>

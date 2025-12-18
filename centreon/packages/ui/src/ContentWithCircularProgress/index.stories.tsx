@@ -51,7 +51,7 @@ export const loaded = (): JSX.Element => (
 );
 
 export const loadingNotCentered = (): JSX.Element => (
-  <ContentWithCircularLoading loading alignCenter={false}>
+  <ContentWithCircularLoading alignCenter={false} loading>
     <Content />
   </ContentWithCircularLoading>
 );
@@ -67,8 +67,8 @@ const CustomLoading = (): JSX.Element => {
 
   return (
     <ContentWithCircularLoading
-      loading
       className={classes.root}
+      loading
       loadingContainerClassname={classes.container}
       loadingIndicatorSize={50}
     >

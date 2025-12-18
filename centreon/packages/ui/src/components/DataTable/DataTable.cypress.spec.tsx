@@ -15,7 +15,7 @@ const data = Array(5)
 
 const CardActions = (): JSX.Element => {
   return (
-    <IconButton ariaLabel="Delete" title="Delete" onClick={cy.stub()}>
+    <IconButton ariaLabel="Delete" onClick={cy.stub()} title="Delete">
       <Delete fontSize="small" />
     </IconButton>
   );
@@ -52,8 +52,8 @@ const initializeDataTableEmpty = (canCreate = false): void => {
             actions: {
               create: 'Create'
             },
-            title: 'Welcome',
-            description: 'Description'
+            description: 'Description',
+            title: 'Welcome'
           }}
           onCreate={cy.stub()}
         />

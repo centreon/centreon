@@ -18,7 +18,7 @@ type Props = {
   tabList?: TabsProps;
   variant?: 'standard' | 'scrollable' | 'fullWidth';
   scrollButtons?: boolean | 'auto';
-  tabs: TabI[];
+  tabs: Array<TabI>;
   onChange?: (newValue: string) => void;
 };
 
@@ -50,24 +50,24 @@ export const Tabs = ({
   return (
     <TabContext value={selectedTab}>
       <MuiTabs
-        scrollButtons={scrollButtons}
-        variant={variant}
         classes={{
           indicator: classes.indicator,
           root: classes.tabs
         }}
         onChange={changeTab}
+        scrollButtons={scrollButtons}
         value={selectedTab}
+        variant={variant}
         {...tabList}
       >
         {tabs.map(({ value, label }) => (
           <Tab
             aria-label={label}
             className={`${classes.tab} ${selectedTab === value ? selectedTabStyle : defaultTabStyle}`}
+            data-testid={`tab-${value}`}
             key={value}
             label={label}
             value={value}
-            data-testid={`tab-${value}`}
           />
         ))}
       </MuiTabs>

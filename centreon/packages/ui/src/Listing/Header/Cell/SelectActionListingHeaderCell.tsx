@@ -37,8 +37,8 @@ const SelectActionListingHeaderCell = ({
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
-        slotProps={{ input: { 'aria-label': 'Select all' } }}
         onChange={onSelectAllClick}
+        slotProps={{ input: { 'aria-label': 'Select all' } }}
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
@@ -49,8 +49,8 @@ const SelectActionListingHeaderCell = ({
           {({ close }): JSX.Element => (
             <PredefinedSelectionList
               close={close}
-              predefinedRowsSelection={predefinedRowsSelection}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
+              predefinedRowsSelection={predefinedRowsSelection}
             />
           )}
         </PopoverMenu>

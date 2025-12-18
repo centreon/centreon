@@ -52,9 +52,12 @@ const Duplicate = ({
     >
       <TextField
         autoFocus
-        fullWidth
         className={classes.container}
         color="primary"
+        fullWidth
+        label={labelInput}
+        margin="dense"
+        onChange={handleChange}
         slotProps={{
           htmlInput: {
             'aria-label': 'Duplications',
@@ -62,11 +65,8 @@ const Duplicate = ({
             min: 1
           }
         }}
-        label={labelInput}
-        margin="dense"
         type="number"
         value={value}
-        onChange={handleChange}
       />
     </Dialog>
   );

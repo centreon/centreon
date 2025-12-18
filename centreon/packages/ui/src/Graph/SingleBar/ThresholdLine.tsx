@@ -78,6 +78,8 @@ export const ThresholdLine = ({
         // biome-ignore lint/a11y/noStaticElementInteractions: need it
         <line
           data-testid={`${thresholdType}-line-${value}-tooltip`}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={hideTooltip}
           stroke="transparent"
           strokeWidth={5}
           x1={scaledValue}
@@ -92,8 +94,6 @@ export const ThresholdLine = ({
               ? barHeight + groupMargin - lineMargin + margins.top - 6
               : barHeight + groupMargin + lineMargin + 2 * margins.top
           }
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={hideTooltip}
         />
       }
     </>

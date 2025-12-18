@@ -32,12 +32,12 @@ const EventAnnotations = ({
     <>
       {events.map((event) => {
         const props = {
-          Icon,
           annotationHoveredId,
           ariaLabel,
           color,
           event,
           graphHeight,
+          Icon,
           xScale
         };
 

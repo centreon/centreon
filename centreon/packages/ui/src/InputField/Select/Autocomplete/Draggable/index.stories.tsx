@@ -122,10 +122,10 @@ export const draggableWithError = (): JSX.Element => <MultiDraggableError />;
 
 const MultiDraggableRequired = (): JSX.Element => (
   <MultiDraggableAutocompleteField
-    required
     label="Draggable Autocomplete"
     options={options}
     placeholder="Type here..."
+    required
   />
 );
 
@@ -153,10 +153,10 @@ const MultiDraggableClickAndHoverItem = (): JSX.Element => {
   return (
     <div>
       <Tooltip
+        open={not(isNil(hoveredItem?.anchorElement))}
         PopperProps={{
           anchorEl: hoveredItem?.anchorElement
         }}
-        open={not(isNil(hoveredItem?.anchorElement))}
         title={hoveredItem?.item.name || ''}
       >
         <MultiDraggableAutocompleteField

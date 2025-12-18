@@ -28,14 +28,14 @@ const RoleSelectField = ({
   return (
     <div className={classes.roleContainer}>
       <SelectField
-        fullWidth
         dataTestId={testId}
         disabled={disabled}
+        fullWidth
         label={label}
+        onChange={change}
         options={roles}
         selectedOptionId={value}
         size="small"
-        onChange={change}
       />
     </div>
   );

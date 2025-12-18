@@ -81,12 +81,12 @@ export const threeStepsWithMediumSize = (): JSX.Element => (
 
 export const threeStepsWithCustomActionsBarLabels = (): JSX.Element => (
   <Wizard
-    open
     actionsBarLabels={{
       labelFinish: 'Finish wizard',
       labelNext: 'Next step',
       labelPrevious: 'Previous step'
     }}
+    open
     steps={[
       {
         Component: (): JSX.Element => (
@@ -159,13 +159,13 @@ export const threeStepsWithFullHeight = (): JSX.Element => (
 
 export const threeStepsWithCustomConfirmDialogLabels = (): JSX.Element => (
   <Wizard
-    open
     confirmDialogLabels={{
       labelCancel: 'Cancel',
       labelConfirm: 'Exit',
       labelMessage: "Wizard's progress will not be saved",
       labelTitle: 'Exit wizard ?'
     }}
+    open
     steps={[
       {
         Component: (): JSX.Element => (
@@ -240,10 +240,10 @@ const FirstStepWithTextField = (): JSX.Element => {
       helperText={touched.email ? errors.email : ''}
       label="email"
       name="email"
-      type="email"
-      value={values.email}
       onBlur={handleBlur('email')}
       onChange={handleChange('email')}
+      type="email"
+      value={values.email}
     />
   );
 };
@@ -269,10 +269,10 @@ const SecondStep = ({
       helperText={touched.password ? errors.password : ''}
       label="password"
       name="password"
-      type="password"
-      value={values.password}
       onBlur={handleBlur('password')}
       onChange={handleChange('password')}
+      type="password"
+      value={values.password}
     />
   );
 };
@@ -296,11 +296,17 @@ const Form = (): JSX.Element => {
 
   return (
     <Wizard
-      open
       initialValues={{
         email: '',
         password: ''
       }}
+      onSubmit={(_, { setSubmitting }): void => {
+        setTimeout(() => {
+          setSubmitting(false);
+          setSubmitted(true);
+        }, 500);
+      }}
+      open
       steps={[
         {
           Component: FirstStepWithTextField,
@@ -334,12 +340,6 @@ const Form = (): JSX.Element => {
           stepName: 'Third Step'
         }
       ]}
-      onSubmit={(_, { setSubmitting }): void => {
-        setTimeout(() => {
-          setSubmitting(false);
-          setSubmitted(true);
-        }, 500);
-      }}
     />
   );
 };

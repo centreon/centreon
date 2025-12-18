@@ -18,5 +18,5 @@ const icon = (
 );
 
 export const RegexIcon = (props: SvgIconProps): ReactElement => (
-  <BaseIcon {...props} Icon={icon} dataTestId="RegexIcon" />
+  <BaseIcon {...props} dataTestId="RegexIcon" Icon={icon} />
 );

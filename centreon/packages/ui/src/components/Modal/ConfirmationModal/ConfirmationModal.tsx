@@ -71,8 +71,8 @@ export const ConfirmationModal = <TAtom,>({
   return (
     <Modal
       hasCloseButton={hasCloseButton}
-      open={Boolean(atomData)}
       onClose={closeModal}
+      open={Boolean(atomData)}
       size={size}
     >
       <Modal.Header>{formattedLabels.title}</Modal.Header>

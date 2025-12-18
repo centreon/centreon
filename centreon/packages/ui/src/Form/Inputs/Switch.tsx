@@ -26,12 +26,12 @@ const Switch = ({
   const changeSwitchValue = (event: ChangeEvent<HTMLInputElement>): void => {
     if (change) {
       change({
-        setFieldValue,
-        value: event.target.checked,
-        values,
         setFieldTouched,
+        setFieldValue,
+        setTouched,
         setValues,
-        setTouched
+        value: event.target.checked,
+        values
       });
 
       return;
@@ -56,12 +56,12 @@ const Switch = ({
             data-testid={dataTestId}
             disabled={disabled}
             id={getNormalizedId(dataTestId || '')}
+            onChange={changeSwitchValue}
             slotProps={{
               input: {
                 'aria-label': t(label) || ''
               }
             }}
-            onChange={changeSwitchValue}
           />
         }
         label={t(label) as string}

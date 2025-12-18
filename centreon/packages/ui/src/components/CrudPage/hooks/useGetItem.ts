@@ -21,9 +21,9 @@ export const useGetItem = <
   id: number | 'add' | null;
 }): UseGetItem<TItemForm> => {
   const { data, isLoading } = useFetchQuery<TItem>({
+    decoder,
     getEndpoint: () => baseEndpoint(id),
     getQueryKey: () => [itemQueryKey, id],
-    decoder,
     queryOptions: {
       enabled: isNotNil(id) && !equals('add', id),
       suspense: false

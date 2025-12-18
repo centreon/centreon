@@ -51,10 +51,10 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeaderMenu: {
     alignItems: 'flex-start',
+    alignSelf: 'center',
     display: 'flex',
     position: 'relative',
-    transform: `translateY(-${theme.spacing(0.25)})`,
-    alignSelf: 'center'
+    transform: `translateY(-${theme.spacing(0.25)})`
   },
   pageHeaderMessage: {
     alignItems: 'center',
@@ -86,19 +86,19 @@ const useStyles = makeStyles()((theme) => ({
       display: 'grid'
     },
     '& > span': {
+      alignItems: 'center',
       display: 'flex',
       flexDirection: 'row',
-      gap: theme.spacing(2),
-      alignItems: 'center'
+      gap: theme.spacing(2)
     },
+    alignSelf: 'flex-start',
     display: 'flex',
     flexDirection: 'column',
-    alignSelf: 'flex-start',
     h1: {
       ...theme.typography.h5,
       fontWeight: theme.typography.fontWeightBold,
-      margin: theme.spacing(0),
-      lineHeight: '1'
+      lineHeight: '1',
+      margin: theme.spacing(0)
     }
   },
   pageHeaderTitleActions: {
@@ -113,11 +113,11 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeaderTitleDescription: {
     color: theme.palette.header.page.description,
+    lineHeight: '1.8',
     maxWidth: '560px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    lineHeight: '1.8'
+    whiteSpace: 'nowrap'
   }
 }));
 

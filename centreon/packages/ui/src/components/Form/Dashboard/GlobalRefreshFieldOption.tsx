@@ -40,6 +40,8 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
       <TextField
         autoSize
         dataTestId={labelInterval}
+        onChange={changeInput}
+        size="compact"
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -48,10 +50,8 @@ const GlobalRefreshFieldOption = (): JSX.Element => {
             }
           }
         }}
-        size="compact"
         type="number"
         value={value || platformRefreshInterval}
-        onChange={changeInput}
       />
       <Typography>{pluralize(t(labelSeconds), value)}</Typography>
     </div>

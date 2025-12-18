@@ -23,8 +23,8 @@ const MenuItem = ({
       data-is-active={isActive}
       data-is-disabled={isDisabled}
       disabled={isDisabled}
-      selected={isActive}
       onClick={() => onClick?.()}
+      selected={isActive}
     >
       {children}
     </MuiMenuItem>

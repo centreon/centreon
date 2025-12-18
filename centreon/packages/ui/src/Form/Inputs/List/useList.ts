@@ -74,7 +74,7 @@ export const useList = ({ fieldName }): UseListState => {
   return {
     addItem,
     deleteItem,
-    sortList,
-    sortedList
+    sortedList,
+    sortList
   };
 };

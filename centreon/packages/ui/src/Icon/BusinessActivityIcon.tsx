@@ -5,8 +5,8 @@ import BaseIcon from './BaseIcon';
 
 export const BusinessActivityIcon = (props: SvgIconProps): JSX.Element => (
   <BaseIcon
-    Icon={AccountTreeIcon}
     dataTestId="BusinessActivityIcon"
+    Icon={AccountTreeIcon}
     {...props}
   />
 );

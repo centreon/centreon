@@ -19,13 +19,13 @@ const Component = () => {
     <TestQueryProvider>
       <div style={{ paddingTop: 20 }}>
         <MultiConnectedAutocompleteField
+          disableSelectAll={false}
           field="host.name"
           getEndpoint={getEndpoint}
           label={label}
+          onChange={(_, item) => setValues(item)}
           placeholder={placeholder}
           value={values}
-          onChange={(_, item) => setValues(item)}
-          disableSelectAll={false}
         />
       </div>
     </TestQueryProvider>

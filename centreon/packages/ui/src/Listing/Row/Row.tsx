@@ -70,10 +70,10 @@ const Row = memo<RowProps>(
       <TableRow
         className="cursor-pointer contents w-full"
         component="div"
-        tabIndex={tabIndex}
         onClick={onClick}
         onFocus={onFocus}
         onMouseOver={onMouseOver}
+        tabIndex={tabIndex}
       >
         {children}
       </TableRow>

@@ -99,6 +99,10 @@ export const WithMinimapPosition: Story = {
 };
 
 export const Playground: Story = {
+  args: {
+    children: Content,
+    showMinimap: true
+  },
   argTypes: {
     redCircleXPosition: {
       control: { max: 2600, min: 400, step: 10, type: 'range' }
@@ -106,10 +110,6 @@ export const Playground: Story = {
     redCircleYPosition: {
       control: { max: 2600, min: 400, step: 10, type: 'range' }
     }
-  },
-  args: {
-    children: Content,
-    showMinimap: true
   },
   render: TemplateResponsive
 };

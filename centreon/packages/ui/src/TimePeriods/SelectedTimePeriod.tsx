@@ -72,16 +72,16 @@ const SelectedTimePeriod = ({
             <Button
               className={classes.button}
               data-testid={id}
-              variant={
-                equals(selectedTimePeriodData?.id, id)
-                  ? 'contained'
-                  : 'outlined'
-              }
               onClick={(): void =>
                 changeSelectedTimePeriod({
                   id,
                   timePeriods: currentTimePeriods
                 })
+              }
+              variant={
+                equals(selectedTimePeriodData?.id, id)
+                  ? 'contained'
+                  : 'outlined'
               }
             >
               {

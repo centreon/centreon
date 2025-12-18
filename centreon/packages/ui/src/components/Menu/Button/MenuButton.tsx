@@ -50,9 +50,9 @@ const MenuButton = ({
       aria-label={ariaLabel}
       className={`${isMenuOpen ? 'bg-primary-main/8 text-text-primary-main' : 'text-text-secondary'} ${className}`}
       data-is-active={isMenuOpen}
+      onClick={onToggle}
       size={size}
       variant={variant}
-      onClick={onToggle}
     >
       {children || <MenuIcon />}
       {hasArrow && (

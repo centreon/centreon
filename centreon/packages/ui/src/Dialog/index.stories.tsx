@@ -32,9 +32,9 @@ interface Props {
 }
 const Story = ({ children, ...props }: Props): JSX.Element => (
   <Dialog
-    open
     onCancel={(): void => undefined}
     onConfirm={(): void => undefined}
+    open
     {...props}
   >
     {children}
@@ -64,7 +64,6 @@ const CustomDialog = (): JSX.Element => {
 
   return (
     <Dialog
-      open
       className={classes.root}
       dialogActionsClassName={classes.actions}
       dialogContentClassName={classes.content}
@@ -72,6 +71,7 @@ const CustomDialog = (): JSX.Element => {
       dialogTitleClassName={classes.title}
       onCancel={(): void => undefined}
       onConfirm={(): void => undefined}
+      open
     >
       Custom dialog
     </Dialog>

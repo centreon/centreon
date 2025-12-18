@@ -276,7 +276,7 @@ const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
   }, [themeMode, overrideTheme]);
 
   return (
-    <StyledEngineProvider injectFirst enableCssLayer>
+    <StyledEngineProvider enableCssLayer injectFirst>
       <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
       <MuiThemeProvider theme={theme}>
         <CssBaseline />

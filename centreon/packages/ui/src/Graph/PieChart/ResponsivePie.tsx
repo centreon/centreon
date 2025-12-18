@@ -160,11 +160,11 @@ const ResponsivePie = ({
 
                     return (
                       <Tooltip
-                        hasCaret
                         classes={{
                           tooltip: classes.pieChartTooltip
                         }}
                         followCursor={false}
+                        hasCaret
                         key={arc.data.label}
                         label={
                           TooltipContent && (

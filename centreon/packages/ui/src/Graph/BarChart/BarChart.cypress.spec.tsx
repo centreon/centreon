@@ -57,10 +57,10 @@ const initialize = ({
           barStyle={barStyle}
           data={data}
           legend={legend}
+          max={max}
+          min={min}
           orientation={orientation ?? 'horizontal'}
           tooltip={tooltip}
-          min={min}
-          max={max}
           {...defaultArgs}
         />
       </div>
@@ -277,8 +277,8 @@ describe('Bar chart', () => {
   it('displays the bar chart according to min and max boundaries', () => {
     initialize({
       data: dataLastWeek,
-      min: -0.05,
-      max: 1
+      max: 1,
+      min: -0.05
     });
 
     cy.contains('05/31/2023').should('be.visible');
@@ -307,16 +307,16 @@ describe('Bar chart', () => {
   it('does not displays corresponding calculations when props are set', () => {
     initialize({
       data: dataLastWeek,
-      orientation: 'horizontal',
       legend: {
-        placement: 'bottom',
         mode: 'grid',
+        placement: 'bottom',
         showCalculations: {
-          min: true,
+          avg: false,
           max: false,
-          avg: false
+          min: true
         }
-      }
+      },
+      orientation: 'horizontal'
     });
 
     cy.contains(labelMin).should('be.visible');

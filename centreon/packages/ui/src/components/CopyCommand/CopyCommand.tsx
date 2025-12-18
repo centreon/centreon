@@ -48,8 +48,8 @@ const CopyCommand = ({ text, commandToCopy, language }: CopyCommandProps) => {
   const { classes, cx } = useCopyCommandStyle();
 
   const { copy } = useCopyToClipboard({
-    successMessage: t(labelCommandCopied),
-    errorMessage: t(labelFailedToCopyCommand)
+    errorMessage: t(labelFailedToCopyCommand),
+    successMessage: t(labelCommandCopied)
   });
 
   const copyCommand = (): Promise<void> | undefined | '' =>
@@ -65,12 +65,12 @@ const CopyCommand = ({ text, commandToCopy, language }: CopyCommandProps) => {
       <div className={classes.languageChip}>{language}</div>
       {commandToCopy && (
         <IconButton
-          data-testid="Copy command"
-          variant="ghost"
           className={classes.copyButton}
+          data-testid="Copy command"
           icon={<ContentCopy fontSize="small" />}
-          size="small"
           onClick={copyCommand}
+          size="small"
+          variant="ghost"
         />
       )}
     </div>

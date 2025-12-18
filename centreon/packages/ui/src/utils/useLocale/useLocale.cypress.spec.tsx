@@ -27,7 +27,7 @@ const initialize = ({ userLocale, browserLocale }) => {
 
 describe('useLocale', () => {
   it('displays the user locale when the corresponding atom is set', () => {
-    initialize({ userLocale: 'fi', browserLocale: 'en' });
+    initialize({ browserLocale: 'en', userLocale: 'fi' });
 
     cy.contains('fi').should('be.visible');
   });

@@ -149,19 +149,19 @@ const BarGroup = ({
         barGroups.map((barGroup, index) => {
           return (
             <MemoizedGroup
-              key={`bar-group-${barGroup.index}-${barGroup.x0}`}
               barGroup={barGroup}
+              barIndex={index}
               barStyle={barStyle}
+              isHorizontal={isHorizontal}
+              isTooltipHidden={isTooltipHidden}
+              key={`bar-group-${barGroup.index}-${barGroup.x0}`}
+              neutralValue={neutralValue}
+              notStackedLines={notStackedLines}
+              notStackedTimeSeries={notStackedTimeSeries}
               stackedLinesTimeSeriesPerStackKeyAndUnit={
                 stackedLinesTimeSeriesPerStackKeyAndUnit
               }
-              notStackedTimeSeries={notStackedTimeSeries}
-              notStackedLines={notStackedLines}
-              isTooltipHidden={isTooltipHidden}
-              isHorizontal={isHorizontal}
-              neutralValue={neutralValue}
               yScalesPerUnit={yScalesPerUnit}
-              barIndex={index}
             />
           );
         })

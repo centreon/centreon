@@ -17,15 +17,15 @@ const Search = ({ label, filters }: Props): JSX.Element => {
   return (
     <div className={classes.search}>
       <SearchField
+        dataTestId={label}
         debounced
         fullWidth
-        dataTestId={label}
-        placeholder={label}
         onChange={change}
+        placeholder={label}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             input: {
-              endAdornment: <Filters label="filters" filters={filters} />
+              endAdornment: <Filters filters={filters} label="filters" />
             }
           }
         }}

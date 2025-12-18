@@ -41,8 +41,8 @@ const CustomIconButton = (): JSX.Element => {
   return (
     <IconButton
       className={classes.root}
-      title="custom Button"
       onClick={(): void => undefined}
+      title="custom Button"
     >
       <AccessibilityIcon />
     </IconButton>

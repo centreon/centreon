@@ -15,8 +15,8 @@ const Filters: React.FC<Props> = ({ label, filters }: Props): JSX.Element => {
 
   return (
     <PopoverMenu
-      title={label}
       icon={<Tune />}
+      title={label}
       tooltipClassName={classes.tooltipFilters}
     >
       {isValidElement(filters) ? filters : <div />}

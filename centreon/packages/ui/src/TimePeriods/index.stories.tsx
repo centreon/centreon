@@ -97,8 +97,8 @@ export const BasicTimePeriod: Story = {
 
 export const WithExtraTimePeriods: Story = {
   ...Template,
-  argTypes,
-  args
+  args,
+  argTypes
 };
 
 export const WithExternalComponent: Story = {

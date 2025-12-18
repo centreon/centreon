@@ -38,7 +38,7 @@ export const ItemComposition = ({
       <div className={classes.itemCompositionItemsAndLink}>
         <div className={classes.itemCompositionItems}>{children}</div>
         {displayItemsAsLinked && hasMoreThanOneChildren && (
-          <div data-linked className={classes.linkedItems}>
+          <div className={classes.linkedItems} data-linked>
             <LinkIcon className={classes.linkIcon} viewBox="0 0 24 24" />
           </div>
         )}
@@ -51,9 +51,9 @@ export const ItemComposition = ({
             disabled={addbuttonDisabled}
             icon={IconAdd || <AddIcon />}
             iconVariant="start"
+            onClick={onAddItem}
             size="small"
             variant="ghost"
-            onClick={onAddItem}
           >
             {labelAdd}
           </Button>

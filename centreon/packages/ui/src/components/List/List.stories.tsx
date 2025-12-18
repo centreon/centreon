@@ -15,8 +15,8 @@ type Story = StoryObj<typeof List>;
 const sampleData = Array(50)
   .fill(0)
   .map((_, index) => ({
-    index,
     icon: <DeleteIcon />,
+    index,
     primary: 'Primary text',
     secondary: 'Secondary text'
   }));

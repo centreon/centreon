@@ -58,6 +58,7 @@ export const basicFormValidationSchema = object().shape({
   class: selectEntryValidationSchema.nullable().required('Required'),
   custom: string().required('Custom is required'),
   email: string().email('Invalid email').required('Email is required'),
+  file: mixed(),
   group: selectEntryValidationSchema.nullable().required('Required'),
   inviteUsers: array().of(
     object({
@@ -77,8 +78,7 @@ export const basicFormValidationSchema = object().shape({
     })
   ),
   scopes: array().of(string().min(3, '3 characters min').required('Required')),
-  sports: array().of(selectEntryValidationSchema.required('Required')),
-  file: mixed()
+  sports: array().of(selectEntryValidationSchema.required('Required'))
 });
 
 const roleEntries: Array<SelectEntry> = [
@@ -104,6 +104,7 @@ export const basicFormInitialValues = {
   class: { id: 0, name: 'Class 0' },
   custom: '',
   email: '',
+  file: null,
   group: null,
   inviteUsers: [],
   inviteUsers2: [],
@@ -111,7 +112,7 @@ export const basicFormInitialValues = {
   language: 'French',
   name: '',
   notifications: {
-    channels: { Icon: MailIcon, checked: true, label: 'mail' },
+    channels: { checked: true, Icon: MailIcon, label: 'mail' },
     hostevents: ['ok', 'warning'],
     includeServices: { checked: true, label: 'Include services for this host' }
   },
@@ -134,8 +135,7 @@ export const basicFormInitialValues = {
     }
   ],
   scopes: [],
-  sports: [],
-  file: null
+  sports: []
 };
 
 export const classOptions = [...Array(10).keys()].map((idx) => ({
@@ -155,9 +155,9 @@ export const basicFormGroups: Array<Group> = [
   },
   {
     EndIcon: () => <HelpOutlineIcon />,
-    TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Third group',
-    order: 3
+    order: 3,
+    TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>
   },
   {
     name: 'Second group',
@@ -458,13 +458,13 @@ export const basicFormInputs: Array<InputProps> = [
   },
   {
     fieldName: 'file',
-    group: 'First group',
-    label: 'File',
-    type: InputType.File,
     file: {
       accept: 'image/*',
       multiple: true
-    }
+    },
+    group: 'First group',
+    label: 'File',
+    type: InputType.File
   }
 ];
 

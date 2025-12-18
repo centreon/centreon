@@ -100,6 +100,11 @@ const SelectField = ({
       <Select
         displayEmpty
         fullWidth={fullWidth}
+        label={label}
+        onChange={changeOption}
+        renderValue={(id): string => {
+          return getOption(id)?.name;
+        }}
         slotProps={{
           input: {
             'aria-label': ariaLabel,
@@ -112,12 +117,7 @@ const SelectField = ({
             ...inputProps
           }
         }}
-        label={label}
-        renderValue={(id): string => {
-          return getOption(id)?.name;
-        }}
         value={selectedOptionId}
-        onChange={changeOption}
         {...props}
       >
         {options

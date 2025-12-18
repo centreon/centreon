@@ -57,8 +57,8 @@ export default ({ counters }: CounterProps): JSX.Element => {
               <Link
                 aria-label={ariaLabel}
                 className={classes.link}
-                to={to}
                 onClick={onClick}
+                to={to}
               >
                 <StatusCounter count={count} severityCode={severityCode} />
               </Link>

@@ -61,9 +61,9 @@ const WrapperChart = ({
     mode: 'grid',
     placement: 'bottom',
     showCalculations: {
-      min: true,
+      avg: true,
       max: true,
-      avg: true
+      min: true
     }
   },
   header,
@@ -108,16 +108,18 @@ const WrapperChart = ({
 
   return (
     <div
-      ref={ref}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
+      ref={ref}
     >
       {!responsiveHeight ? (
         <Loading height={height || '100%'} width={width} />
       ) : (
         <Chart
+          additionalLines={additionalLines}
           annotationEvent={annotationEvent}
           axis={axis}
           barStyle={barStyle}
+          boundariesUnit={boundariesUnit}
           displayAnchor={displayAnchor}
           graphData={adjustedData}
           graphInterval={{ end, start }}
@@ -127,19 +129,17 @@ const WrapperChart = ({
           legend={legend}
           limitLegend={limitLegend}
           lineStyle={lineStyle}
+          max={max}
+          min={min}
           shapeLines={shapeLines}
-          thresholdUnit={thresholdUnit}
+          skipIntersectionObserver={rest.skipIntersectionObserver}
           thresholds={thresholds}
+          thresholdUnit={thresholdUnit}
           timeShiftZones={timeShiftZones}
           tooltip={tooltip}
+          transformMatrix={transformMatrix}
           width={width || responsiveWidth || 0}
           zoomPreview={zoomPreview}
-          skipIntersectionObserver={rest.skipIntersectionObserver}
-          additionalLines={additionalLines}
-          transformMatrix={transformMatrix}
-          min={min}
-          max={max}
-          boundariesUnit={boundariesUnit}
         />
       )}
     </div>

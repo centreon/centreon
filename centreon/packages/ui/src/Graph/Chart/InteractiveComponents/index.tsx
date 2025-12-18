@@ -171,8 +171,8 @@ const InteractionWithGraph = ({
   const graphMarginLeft = useMemo(
     () =>
       computeGElementMarginLeft({
-        maxCharacters: maxLeftAxisCharacters,
-        hasSecondUnit
+        hasSecondUnit,
+        maxCharacters: maxLeftAxisCharacters
       }) + additionalZoomMargin,
     [additionalZoomMargin, maxLeftAxisCharacters, hasSecondUnit]
   );
@@ -188,10 +188,10 @@ const InteractionWithGraph = ({
     }
     const pixelToShift = computPixelsToShiftMouse(xScale);
     const timeValue = getTimeValue({
+      marginLeft: graphMarginLeft,
       timeSeries,
       x: pointPosition[0] - pixelToShift,
-      xScale,
-      marginLeft: graphMarginLeft
+      xScale
     });
 
     if (isNil(timeValue)) {
@@ -316,10 +316,10 @@ const InteractionWithGraph = ({
         <ZoomPreview
           {...zoomData}
           graphHeight={graphHeight}
+          graphMarginLeft={graphMarginLeft}
+          graphSvgRef={graphSvgRef}
           graphWidth={graphWidth}
           xScale={xScale}
-          graphSvgRef={graphSvgRef}
-          graphMarginLeft={graphMarginLeft}
         />
       )}
       {displayEventAnnotations && (
@@ -343,14 +343,14 @@ const InteractionWithGraph = ({
         data-testid="graph-interaction-zone"
         fill="transparent"
         height={graphHeight - margin.bottom}
-        width={graphWidth}
-        x={0}
-        y={0}
         onMouseDown={mouseDown}
+        onMouseEnter={mouseEnter}
         onMouseLeave={mouseLeave}
         onMouseMove={mouseMove}
         onMouseUp={mouseUp}
-        onMouseEnter={mouseEnter}
+        width={graphWidth}
+        x={0}
+        y={0}
       />
     </g>
   );

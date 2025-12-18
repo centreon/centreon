@@ -48,9 +48,9 @@ const Timeline = ({
   const theme = useTheme();
 
   const xScale = scaleTime({
+    clamp: true,
     domain: [new Date(startDate), new Date(endDate)],
-    range: [margins.left, width - margins.right],
-    clamp: true
+    range: [margins.left, width - margins.right]
   });
 
   const numTicks = Math.min(Math.ceil(width / 82), 12);
@@ -76,31 +76,31 @@ const Timeline = ({
   );
 
   return (
-    <svg width={width} height={height + axisPadding}>
+    <svg height={height + axisPadding} width={width}>
       <title>timeline</title>
       {data.map(({ start, end, color }, idx) => (
         <Tooltip
-          hasCaret
           classes={{
             tooltip: cx(classes.tooltip, tooltipClassName)
           }}
           followCursor={false}
+          hasCaret
           key={`rect-${start}--${end}`}
           label={
             TooltipContent ? (
               <TooltipContent
-                start={getFormattedStart(start)}
-                end={getFormattedEnd(end)}
                 color={color}
                 duration={getTimeDifference({
-                  start: dayjs(start),
-                  end: dayjs(end)
+                  end: dayjs(end),
+                  start: dayjs(start)
                 })}
+                end={getFormattedEnd(end)}
+                start={getFormattedStart(start)}
               />
             ) : (
               <div style={{ color }}>
                 <Typography variant="body2">
-                  {getTimeDifference({ start: dayjs(start), end: dayjs(end) })}
+                  {getTimeDifference({ end: dayjs(end), start: dayjs(start) })}
                 </Typography>
                 <Typography variant="body2">{`${format({ date: start, formatString: 'L LT' })} - ${format({ date: end, formatString: 'L LT' })}`}</Typography>
               </div>
@@ -110,26 +110,26 @@ const Timeline = ({
         >
           <g>
             <BarRounded
-              x={xScale(dayjs(start).tz(timezone))}
-              y={0}
+              fill={color}
+              height={height - margins.bottom}
+              left={equals(idx, 0)}
+              radius={4}
+              right={equals(idx, data.length - 1)}
               width={
                 xScale(dayjs(end).tz(timezone)) -
                 xScale(dayjs(start).tz(timezone))
               }
-              height={height - margins.bottom}
-              fill={color}
-              left={equals(idx, 0)}
-              radius={4}
-              right={equals(idx, data.length - 1)}
+              x={xScale(dayjs(start).tz(timezone))}
+              y={0}
             />
           </g>
         </Tooltip>
       ))}
 
       <Axis.AxisBottom
-        top={height - margins.bottom + axisPadding}
-        scale={xScale}
         numTicks={numTicks}
+        scale={xScale}
+        stroke={theme.palette.text.primary}
         tickFormat={(value) =>
           format({
             date: new Date(value),
@@ -139,13 +139,13 @@ const Timeline = ({
             })
           })
         }
-        stroke={theme.palette.text.primary}
-        tickStroke={theme.palette.text.primary}
         tickLabelProps={() => ({
           fill: theme.palette.text.primary,
           fontSize: theme.typography.caption.fontSize,
           textAnchor: 'middle'
         })}
+        tickStroke={theme.palette.text.primary}
+        top={height - margins.bottom + axisPadding}
       />
     </svg>
   );

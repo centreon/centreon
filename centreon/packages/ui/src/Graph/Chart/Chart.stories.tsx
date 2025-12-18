@@ -113,7 +113,7 @@ const ExternalComponent = (tooltipData): JSX.Element => {
       })}
       <br />
       <br />
-      <button type="button" onClick={(): void => hideTooltip()}>
+      <button onClick={(): void => hideTooltip()} type="button">
         hide tooltip
       </button>
     </>
@@ -337,19 +337,19 @@ const LineChartWithCLS: Story = {
 
 export const LineChart: Story = {
   ...Template,
-  argTypes,
-  args: argumentsData
+  args: argumentsData,
+  argTypes
 };
 
 export const LineChartWithStepCurve: Story = {
   ...Template,
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
       curve: 'step'
     }
-  }
+  },
+  argTypes
 };
 
 export const LineChartWithTimePeriod: Story = {
@@ -392,7 +392,6 @@ export const withCLS: Story = {
 };
 
 export const withThresholds: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     thresholds: {
@@ -411,16 +410,15 @@ export const withThresholds: Story = {
       ]
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const withThresholdsAndUnit: Story = {
-  argTypes,
   args: {
     ...argumentsData,
-    thresholdUnit: '%',
     thresholds: {
       critical: [
         {
@@ -435,18 +433,18 @@ export const withThresholdsAndUnit: Story = {
           value: 65
         }
       ]
-    }
+    },
+    thresholdUnit: '%'
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const thresholdsRange: Story = {
-  argTypes,
   args: {
     ...argumentsData,
-    thresholdUnit: '%',
     thresholds: {
       critical: [
         {
@@ -469,8 +467,10 @@ export const thresholdsRange: Story = {
           value: 30
         }
       ]
-    }
+    },
+    thresholdUnit: '%'
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
@@ -478,8 +478,8 @@ export const thresholdsRange: Story = {
 
 export const LineChartWithSameColorCurves: Story = {
   ...Template,
-  argTypes,
   args: argumentsData,
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -489,20 +489,19 @@ export const LineChartWithSameColorCurves: Story = {
 };
 
 export const zeroCentered: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
       isCenteredZero: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const customLines: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -514,13 +513,13 @@ export const customLines: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart {...args} data={dataLastDay as unknown as LineChartData} />
   )
 };
 
 export const customLinesAndBars: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     barStyle: {
@@ -533,6 +532,7 @@ export const customLinesAndBars: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -542,8 +542,8 @@ export const customLinesAndBars: Story = {
 };
 
 export const multipleUnits: Story = {
-  argTypes,
   args: argumentsData,
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -553,7 +553,6 @@ export const multipleUnits: Story = {
 };
 
 export const linesAndBars: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -562,6 +561,7 @@ export const linesAndBars: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -571,7 +571,6 @@ export const linesAndBars: Story = {
 };
 
 export const linesAndBarsStacked: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -580,6 +579,7 @@ export const linesAndBarsStacked: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -589,7 +589,6 @@ export const linesAndBarsStacked: Story = {
 };
 
 export const linesAndBarsMixed: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     lineStyle: {
@@ -598,6 +597,7 @@ export const linesAndBarsMixed: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -607,7 +607,6 @@ export const linesAndBarsMixed: Story = {
 };
 
 export const linesAndBarsCenteredZero: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
@@ -619,6 +618,7 @@ export const linesAndBarsCenteredZero: Story = {
       showPoints: true
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -628,7 +628,6 @@ export const linesAndBarsCenteredZero: Story = {
 };
 
 export const linesAndBarsStackedCenteredZero: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
@@ -640,6 +639,7 @@ export const linesAndBarsStackedCenteredZero: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -649,7 +649,6 @@ export const linesAndBarsStackedCenteredZero: Story = {
 };
 
 export const linesAndBarsMixedCenteredZero: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     axis: {
@@ -661,6 +660,7 @@ export const linesAndBarsMixedCenteredZero: Story = {
       showPoints: false
     }
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -691,24 +691,24 @@ const CustomYUnits = (props): JSX.Element => {
 };
 
 export const customYUnits: Story = {
-  argTypes,
   args: argumentsData,
+  argTypes,
   render: (args) => <CustomYUnits {...args} />
 };
 
 export const WithAdditionalLines: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     additionalLines: [
       {
-        yValue: 3,
-        text: 'my text',
         color: 'grey',
-        unit: '%'
+        text: 'my text',
+        unit: '%',
+        yValue: 3
       }
     ]
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -718,17 +718,17 @@ export const WithAdditionalLines: Story = {
 };
 
 export const linesAndBarsMinMax: Story = {
-  argTypes,
   args: {
     ...argumentsData,
-    min: 10,
-    max: 30,
     lineStyle: {
       curve: 'natural',
       lineWidth: 2,
       showPoints: true
-    }
+    },
+    max: 30,
+    min: 10
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -738,18 +738,18 @@ export const linesAndBarsMinMax: Story = {
 };
 
 export const linesAndBarsMinMaxForUnit: Story = {
-  argTypes,
   args: {
     ...argumentsData,
-    min: 10,
-    max: 30,
     boundariesUnit: '%',
     lineStyle: {
       curve: 'natural',
       lineWidth: 2,
       showPoints: true
-    }
+    },
+    max: 30,
+    min: 10
   },
+  argTypes,
   render: (args) => (
     <WrapperChart
       {...args}
@@ -771,8 +771,8 @@ const LegendSecondaryClick = (args) => {
       />
       <Menu
         anchorEl={anchor}
-        open={Boolean(anchor)}
         onClose={() => setAnchor(null)}
+        open={Boolean(anchor)}
       >
         menu
       </Menu>
@@ -781,8 +781,8 @@ const LegendSecondaryClick = (args) => {
 };
 
 export const withLegendSecondaryClick: Story = {
-  argTypes,
   args: argumentsData,
+  argTypes,
   render: (args) => (
     <LegendSecondaryClick
       {...args}
@@ -792,21 +792,17 @@ export const withLegendSecondaryClick: Story = {
 };
 
 export const stackedKey: Story = {
-  argTypes,
   args: {
     ...argumentsData,
     data: dataPingServiceLinesStackKeys
-  }
+  },
+  argTypes
 };
 
 export const WithControlledCalculations: Story = {
   ...Template,
-  argTypes,
   args: {
     ...argumentsData,
-    lineStyle: {
-      curve: 'step'
-    },
     legend: {
       mode: 'grid',
       placement: 'bottom',
@@ -815,6 +811,10 @@ export const WithControlledCalculations: Story = {
         max: true,
         min: false
       }
+    },
+    lineStyle: {
+      curve: 'step'
     }
-  }
+  },
+  argTypes
 };

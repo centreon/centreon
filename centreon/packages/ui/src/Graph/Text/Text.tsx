@@ -92,18 +92,18 @@ export const Text = ({
           <FluidTypography
             containerClassName={cx(classes.thresholdLabel, classes.warning)}
             max="30px"
+            min={minThresholds}
             pref={prefThresholds}
             text={`${warningLabel}${warningThresholdLabels.join(' - ')}`}
             variant="h5"
-            min={minThresholds}
           />
           <FluidTypography
             containerClassName={cx(classes.thresholdLabel, classes.critical)}
             max="30px"
+            min={minThresholds}
             pref={prefThresholds}
             text={`${criticalLabel}${criticalThresholdLabels.join(' - ')}`}
             variant="h5"
-            min={minThresholds}
           />
         </div>
       )}

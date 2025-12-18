@@ -190,9 +190,9 @@ const ContentEditable = ({
         )}
         contentEditable={isEditable}
         data-testid={namespace}
-        ref={ref}
         onBlur={handleBlur}
         onFocus={(): void => setFocused(true)}
+        ref={ref}
       />
     </div>
   );

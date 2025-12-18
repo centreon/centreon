@@ -53,7 +53,7 @@ const ComponentColumn = ({ row, isSelected }): JSX.Element => (
 );
 
 const ButtonColumn = ({ row }): JSX.Element => (
-  <Button size="small" onClick={() => alert(JSON.stringify(row))}>
+  <Button onClick={() => alert(JSON.stringify(row))} size="small">
     Click to reveal details about {row.name}
   </Button>
 );
@@ -161,13 +161,13 @@ const StoryTemplate = ({
         disableRowCheckCondition={(row): boolean => row.disableCheckbox}
         disableRowCondition={(row): boolean => row.disableRow}
         limit={listing.length}
+        onSelectRows={setSelected}
         predefinedRowsSelection={predefinedRowsSelection}
         rowColorConditions={rowColorConditions}
         rows={props.rows ?? listing}
         selectedRows={selected}
         totalRows={listing.length}
         viewerModeConfiguration={viewerModeConfiguration}
-        onSelectRows={setSelected}
         {...props}
       />
     </div>
@@ -290,12 +290,12 @@ const ListingWithEditableColumns = (): JSX.Element => {
         sortable: true
       }}
       columns={editableColumns}
-      rows={sortedRows}
-      sortField={sortParams.sortField}
-      sortOrder={sortParams.sortOrder as SortOrder}
       onResetColumns={resetColumns}
       onSelectColumns={setSelectedColumnIds}
       onSort={onSort}
+      rows={sortedRows}
+      sortField={sortParams.sortField}
+      sortOrder={sortParams.sortOrder as SortOrder}
     />
   );
 };

@@ -74,7 +74,7 @@ const DashboardLayout = <T extends Layout>({
     Component: (
       <Box
         ref={dashboardContainerRef}
-        sx={{ overflowY: 'auto', overflowX: 'hidden' }}
+        sx={{ overflowX: 'hidden', overflowY: 'auto' }}
       >
         <ParentSize>
           {({ width }): JSX.Element => (
@@ -83,13 +83,13 @@ const DashboardLayout = <T extends Layout>({
                 cols={columns}
                 layout={getLayout(layout)}
                 margin={[12, 12]}
-                resizeHandles={['s', 'e', 'se', 'sw', 'w']}
-                rowHeight={rowHeight}
-                width={width}
                 onLayoutChange={changeLayout}
                 onResizeStart={startResize}
                 onResizeStop={stopResize}
                 resizeHandle={Handle}
+                resizeHandles={['s', 'e', 'se', 'sw', 'w']}
+                rowHeight={rowHeight}
+                width={width}
               >
                 {children}
               </ReactGridLayout>

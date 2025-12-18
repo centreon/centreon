@@ -45,16 +45,16 @@ export const small: Story = {
 export const smallWithIcon: Story = {
   args: {
     ...Default.args,
-    size: 'small',
     icon: <AddIcon />,
-    iconVariant: 'start'
+    iconVariant: 'start',
+    size: 'small'
   }
 };
 
 export const smallDanger: Story = {
   args: {
     ...Default.args,
-    size: 'small',
-    isDanger: true
+    isDanger: true,
+    size: 'small'
   }
 };

@@ -61,8 +61,8 @@ const PersistentTooltip = ({
     <div style={{ position: 'relative' }}>
       <IconButton
         className={classes.buttonClose}
-        size="small"
         onClick={closeTooltip}
+        size="small"
       >
         <IconClose fontSize="small" />
       </IconButton>
@@ -78,8 +78,8 @@ const PersistentTooltip = ({
     >
       <IconButton
         aria-label={labelSearchHelp}
-        size="small"
         onClick={toggleTooltip}
+        size="small"
       >
         <IconHelp />
       </IconButton>

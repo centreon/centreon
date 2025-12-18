@@ -46,8 +46,8 @@ const StatusCounter = ({
 
   return (
     <Tooltip
-      followCursor
       disableHoverListener={shouldDisableTooltip}
+      followCursor
       title={count}
     >
       <Badge

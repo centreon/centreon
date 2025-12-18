@@ -42,11 +42,11 @@ export const CrudPageRoot = <
     TData,
     TFilters
   >({
-    queryKeyName,
-    filtersAtom,
+    baseEndpoint,
     decoder,
+    filtersAtom,
     getSearchParameters,
-    baseEndpoint
+    queryKeyName
   });
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
@@ -99,42 +99,42 @@ export const CrudPageRoot = <
               aria-label="create"
               buttonCreateTestId="create-crudpage"
               labels={{
-                title: labels.welcome.title,
+                actions: labels?.actions,
                 description: labels.welcome.description,
-                actions: labels?.actions
+                title: labels.welcome.title
               }}
               onCreate={add}
             />
           ) : (
             <Listing
-              total={total}
-              isLoading={isLoading}
-              rows={items}
               columns={columns}
-              subItems={subItems}
+              filters={filters}
+              isLoading={isLoading}
               labels={{
                 add: labels.actions.create,
                 search: labels.listing.search
               }}
-              filters={filters}
+              rows={items}
+              subItems={subItems}
+              total={total}
             />
           )}
         </DataTable>
         <DeleteModal<TData>
-          listingQueryKey={queryKeyName}
           deleteEndpoint={deleteItem.deleteEndpoint}
           labels={deleteItem.labels}
+          listingQueryKey={queryKeyName}
           modalSize={deleteItem.modalSize}
         />
         <AddModal
-          title={form.labels.add.title}
           Form={form.Form}
           modalSize={form.modalSize}
+          title={form.labels.add.title}
         />
         <UpdateModal<TItem, TItemForm>
-          title={form.labels.update.title}
           Form={form.Form}
           modalSize={form.modalSize}
+          title={form.labels.update.title}
           {...form.getItem}
         />
       </PageLayout.Body>

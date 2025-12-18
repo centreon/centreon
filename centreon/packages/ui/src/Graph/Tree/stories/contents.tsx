@@ -46,6 +46,9 @@ export const SimpleContent = ({
 
   return (
     <Paper
+      onClick={() => {
+        expandCollapseNode(node);
+      }}
       sx={{
         alignItems: 'center',
         backgroundColor: fillColor,
@@ -57,9 +60,6 @@ export const SimpleContent = ({
         p: 1,
         position: 'relative',
         width: nodeSize.width
-      }}
-      onClick={() => {
-        expandCollapseNode(node);
       }}
     >
       {!node.children && (
@@ -123,13 +123,13 @@ export const ComplexContent = ({
         }}
       >
         <Avatar
+          onMouseDown={onMouseDown}
+          onMouseUp={onMouseUp(() => expandCollapseNode(node))}
           sx={{
             backgroundColor: fillColor,
             color: theme.palette.text.primary,
             cursor: 'pointer'
           }}
-          onMouseDown={onMouseDown}
-          onMouseUp={onMouseUp(() => expandCollapseNode(node))}
         >
           {node.data.count}
         </Avatar>

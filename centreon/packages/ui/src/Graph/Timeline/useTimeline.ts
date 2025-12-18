@@ -37,30 +37,30 @@ export const useTimeline = (): UseTimelineState => {
 
       const timeUnits = [
         {
-          value: diffDuration.years(),
-          unit: pluralizedT({ label: labelYear, count: diffDuration.years() })
+          unit: pluralizedT({ count: diffDuration.years(), label: labelYear }),
+          value: diffDuration.years()
         },
         {
-          value: diffDuration.months(),
           unit: pluralizedT({
-            label: labelMonth,
-            count: diffDuration.months()
-          })
+            count: diffDuration.months(),
+            label: labelMonth
+          }),
+          value: diffDuration.months()
         },
         {
-          value: diffDuration.days(),
-          unit: pluralizedT({ label: labelDay, count: diffDuration.days() })
+          unit: pluralizedT({ count: diffDuration.days(), label: labelDay }),
+          value: diffDuration.days()
         },
         {
-          value: diffDuration.hours(),
-          unit: pluralizedT({ label: labelHour, count: diffDuration.hours() })
+          unit: pluralizedT({ count: diffDuration.hours(), label: labelHour }),
+          value: diffDuration.hours()
         },
         {
-          value: diffDuration.minutes(),
           unit: pluralizedT({
-            label: labelMinute,
-            count: diffDuration.minutes()
-          })
+            count: diffDuration.minutes(),
+            label: labelMinute
+          }),
+          value: diffDuration.minutes()
         }
       ];
 

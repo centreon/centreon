@@ -26,10 +26,10 @@ const ContactSwitch = ({ labels }: Props): JSX.Element => {
     <>
       <Subtitle>{t(labels.title)}</Subtitle>
       <RadioGroup
-        row
         className={classes.inputs}
-        value={contactType}
         onChange={change}
+        row
+        value={contactType}
       >
         <FormControlLabel
           control={<Radio />}

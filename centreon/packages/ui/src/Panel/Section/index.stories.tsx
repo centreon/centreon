@@ -33,9 +33,9 @@ const PanelWithHeader = ({
       header={<Typography>Header</Typography>}
       loading={loading}
       mainPanelWidth={mainPanelWidth}
+      onClose={(): undefined => undefined}
       secondaryPanel={secondaryPanel}
       sections={sections}
-      onClose={(): undefined => undefined}
     />
   </div>
 );

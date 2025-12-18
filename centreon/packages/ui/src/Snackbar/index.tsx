@@ -67,8 +67,8 @@ const Snackbar = forwardRef(
             <IconButton
               color="inherit"
               key="close"
-              size="large"
               onClick={close}
+              size="large"
             >
               <IconClose className={classes.closeIcon} />
             </IconButton>

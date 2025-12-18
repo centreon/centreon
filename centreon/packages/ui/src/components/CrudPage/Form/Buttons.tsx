@@ -74,25 +74,25 @@ const Buttons = (): JSX.Element => {
     <>
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
         {isSubmitting && <CircularProgress size={24} />}
-        <Button variant="ghost" onClick={close}>
+        <Button onClick={close} variant="ghost">
           {cancelLabel}
         </Button>
         <Button
           disabled={isSubmitDisabled}
-          iconVariant="start"
           icon={<SaveIcon />}
+          iconVariant="start"
           onClick={submitForm}
         >
           {confirmLabel}
         </Button>
       </Box>
       <UnsavedChangesDialog
+        closeDialog={closeAskBeforeCloseModal}
+        dialogOpened={askBeforeCloseForm && dirty}
+        discardChanges={discard}
         isSubmitting={isSubmitting}
         isValidForm={isValid}
         saveChanges={submitAndClose}
-        closeDialog={closeAskBeforeCloseModal}
-        discardChanges={discard}
-        dialogOpened={askBeforeCloseForm && dirty}
       />
     </>
   );

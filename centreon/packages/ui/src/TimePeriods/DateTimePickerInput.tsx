@@ -86,8 +86,8 @@ const DateTimePickerInput = ({
         maxDate={maxDate && formatDate(maxDate)}
         minDate={minDate && formatDate(minDate)}
         minDateTime={minDateTime && formatDate(minDateTime)}
-        value={formatDate(date)}
         onChange={changeTime}
+        value={formatDate(date)}
         {...rest}
       />
     </LocalizationProvider>

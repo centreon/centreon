@@ -37,9 +37,9 @@ const ModalActions = ({
           <Button
             aria-label={labels?.cancel}
             data-testid="cancel"
+            onClick={() => onCancel?.()}
             size="small"
             variant="secondary"
-            onClick={() => onCancel?.()}
           >
             {labels?.cancel}
           </Button>
@@ -48,10 +48,10 @@ const ModalActions = ({
             data-testid="confirm"
             disabled={disabled}
             isDanger={isDanger}
+            onClick={() => onConfirm?.()}
             size="small"
             type="submit"
             variant="primary"
-            onClick={() => onConfirm?.()}
           >
             {labels?.confirm}
           </Button>

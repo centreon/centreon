@@ -35,17 +35,17 @@ const Stepper = ({ steps, currentStep }: Props): JSX.Element | null => {
 
   return (
     <MUIStepper
-      alternativeLabel
       activeStep={currentStep}
+      alternativeLabel
       className={classes.stepper}
     >
       {steps.map(({ stepName }) => (
         <Step key={stepName}>
           <StepLabel
-            StepIconComponent={StepIcon}
             classes={{
               alternativeLabel: classes.label
             }}
+            StepIconComponent={StepIcon}
           >
             {stepName}
           </StepLabel>

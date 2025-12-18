@@ -6,19 +6,19 @@ import Timeline from './Timeline';
 
 const data = [
   {
-    start: '2024-09-25T21:00:42+01:00',
+    color: 'gray',
     end: '2024-09-25T21:15:00+01:00',
-    color: 'gray'
+    start: '2024-09-25T21:00:42+01:00'
   },
   {
-    start: '2024-09-25T21:15:00+01:00',
+    color: 'green',
     end: '2024-09-25T21:54:00+01:00',
-    color: 'green'
+    start: '2024-09-25T21:15:00+01:00'
   },
   {
-    start: '2024-09-25T21:54:00+01:00',
+    color: 'red',
     end: '2024-09-25T22:30:00+01:00',
-    color: 'red'
+    start: '2024-09-25T21:54:00+01:00'
   }
 ];
 
@@ -27,7 +27,7 @@ const endDate = '2024-09-25T22:30:00+01:00';
 
 const Template = (args): JSX.Element => {
   return (
-    <div style={{ width: '700px', height: '100px' }}>
+    <div style={{ height: '100px', width: '700px' }}>
       <Timeline {...args} />
     </div>
   );
@@ -49,40 +49,40 @@ type Story = StoryObj<typeof Timeline>;
 export const Normal: Story = {
   args: {
     data,
-    startDate,
-    endDate
+    endDate,
+    startDate
   }
 };
 
 export const WithoutData: Story = {
   args: {
     data: [],
-    startDate,
-    endDate
+    endDate,
+    startDate
   }
 };
 
 export const WithSmallerTimeRangeThanData: Story = {
   args: {
     data,
-    startDate,
-    endDate: '2024-09-25T22:00:00+01:00'
+    endDate: '2024-09-25T22:00:00+01:00',
+    startDate
   }
 };
 
 export const WithCustomTooltip: Story = {
   args: {
     data,
-    startDate,
     endDate,
+    startDate,
     TooltipContent: ({ duration, color }) => (
       <div style={{ display: 'flex', flexDirection: 'row', gap: '8px' }}>
         <div
           style={{
             backgroundColor: color,
-            width: '20px',
+            borderRadius: '4px',
             height: '20px',
-            borderRadius: '4px'
+            width: '20px'
           }}
         />
         <Typography>{duration}</Typography>

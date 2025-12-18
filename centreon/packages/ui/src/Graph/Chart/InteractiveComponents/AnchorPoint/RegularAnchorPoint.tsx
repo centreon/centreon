@@ -43,10 +43,10 @@ const RegularAnchorPoint = ({
   hasSecondUnit
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
-    timeSeries,
-    xScale,
+    hasSecondUnit,
     maxLeftAxisCharacters,
-    hasSecondUnit
+    timeSeries,
+    xScale
   });
 
   if (isNil(timeTick)) {

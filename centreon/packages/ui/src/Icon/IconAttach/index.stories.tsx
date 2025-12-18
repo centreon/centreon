@@ -21,8 +21,8 @@ export const normal = (): JSX.Element => (
   <Icon
     defaultImage=""
     imgSource=""
+    onClick={(): void => undefined}
     title="Attach"
     uploadedImage=""
-    onClick={(): void => undefined}
   />
 );

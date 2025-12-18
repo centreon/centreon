@@ -97,22 +97,22 @@ const PopoverMenu = ({
         ariaLabel={title}
         className={cx(classes.popoverIconButton, className)}
         data-testid={dataTestId}
+        onClick={toggle}
         size="large"
         title={title}
-        onClick={toggle}
       >
         {icon}
       </IconButton>
       {isOpen && (
         <ClickAwayListener onClickAway={close}>
           <Popper
-            open
             anchorEl={anchorEl}
             className={classes.popover}
             nonce={undefined}
-            placement={popperPlacement}
             onResize={(): undefined => undefined}
             onResizeCapture={(): undefined => undefined}
+            open
+            placement={popperPlacement}
             {...popperProps}
           >
             <Paper className={tooltipClassName}>

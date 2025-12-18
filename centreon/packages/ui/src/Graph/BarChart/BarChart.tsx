@@ -66,9 +66,9 @@ const BarChart = ({
     mode: 'grid',
     placement: 'bottom',
     showCalculations: {
-      min: true,
+      avg: true,
       max: true,
-      avg: true
+      min: true
     }
   },
   loading,
@@ -89,7 +89,7 @@ const BarChart = ({
   timeShiftZones,
   annotationEvent
 }: BarChartProps): ReactElement => {
-  const { adjustedData } = useChartData({ data, end, start, min, max });
+  const { adjustedData } = useChartData({ data, end, max, min, start });
   const { ref, width, height: responsiveHeight } = useResizeObserver();
 
   if (loading && !adjustedData) {
@@ -112,28 +112,28 @@ const BarChart = ({
           <Loading height={height || '100%'} width={width} />
         ) : (
           <ResponsiveBarChart
+            annotationEvent={annotationEvent}
             axis={axis}
             barStyle={barStyle}
+            boundariesUnit={boundariesUnit}
+            end={end}
             graphData={adjustedData}
             graphRef={ref}
             header={header}
             height={height || responsiveHeight || 0}
             legend={legend}
             limitLegend={limitLegend}
+            max={max}
+            min={min}
             orientation={orientation}
-            thresholdUnit={thresholdUnit}
+            skipIntersectionObserver={skipIntersectionObserver}
+            start={start}
             thresholds={thresholds}
+            thresholdUnit={thresholdUnit}
+            timeShiftZones={timeShiftZones}
             tooltip={tooltip}
             width={width || 0}
-            skipIntersectionObserver={skipIntersectionObserver}
-            min={min}
-            max={max}
-            boundariesUnit={boundariesUnit}
             zoomPreview={zoomPreview}
-            timeShiftZones={timeShiftZones}
-            annotationEvent={annotationEvent}
-            start={start}
-            end={end}
           />
         )}
       </Box>

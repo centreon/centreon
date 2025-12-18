@@ -89,9 +89,9 @@ const Checkbox = ({
             color="primary"
             disabled={disabled}
             id={id}
+            onChange={onChange}
             size="small"
             sx={{ padding: 0 }}
-            onChange={onChange}
           />
         }
         data-testid={dataTestId || ''}

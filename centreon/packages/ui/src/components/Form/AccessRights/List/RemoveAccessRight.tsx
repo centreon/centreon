@@ -29,8 +29,8 @@ const RemoveAccessRight = ({ index, isRemoved, name }: Props): JSX.Element => {
       data-removed={isRemoved}
       data-testid={`remove-${name}`}
       icon={icon}
-      size="small"
       onClick={isRemoved ? recover : remove}
+      size="small"
     />
   );
 };

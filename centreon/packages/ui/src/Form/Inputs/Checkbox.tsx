@@ -40,10 +40,10 @@ const Checkbox = ({
       <Box />
     ) : (
       <CheckboxComponent
-        Icon={value?.Icon}
         checked={value?.checked}
         dataTestId={dataTestId || ''}
         disabled={disabled}
+        Icon={value?.Icon}
         label={label}
         labelPlacement={checkbox?.labelPlacement || 'end'}
         onChange={handleChange}

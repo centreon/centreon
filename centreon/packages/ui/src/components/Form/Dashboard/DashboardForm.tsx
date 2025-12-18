@@ -118,8 +118,8 @@ const DashboardForm = ({
     () => (
       <FormActions<DashboardResource>
         labels={labels?.actions}
-        variant={variant}
         onCancel={onCancel}
+        variant={variant}
       />
     ),
     [labels, onCancel, variant]

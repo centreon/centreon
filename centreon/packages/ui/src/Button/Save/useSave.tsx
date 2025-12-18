@@ -55,10 +55,10 @@ export const useSave = ({
   const hasLabel = hasValue([labelLoading, labelSave, labelSucceeded]);
 
   const startIconConfig = {
+    enabled: startIcon,
     hasLabel,
     loading,
-    succeeded,
-    enabled: startIcon
+    succeeded
   } as StartIconConfigProps;
 
   const content = useMemo(() => {
@@ -85,7 +85,7 @@ export const useSave = ({
 
   return {
     content,
-    startIconToDisplay,
-    hasLabel
+    hasLabel,
+    startIconToDisplay
   };
 };

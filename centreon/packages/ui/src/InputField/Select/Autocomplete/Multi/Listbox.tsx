@@ -24,7 +24,7 @@ const CustomListbox = ({
       <ListSubheader sx={{ padding: 0 }}>
         <div className={classes.lisSubHeader}>
           <Typography variant="body2">{labelTotal}</Typography>
-          <Button variant="ghost" size="small" onClick={handleSelectAllToggle}>
+          <Button onClick={handleSelectAllToggle} size="small" variant="ghost">
             {label}
           </Button>
         </div>
@@ -66,8 +66,8 @@ const ListboxComponent = ({
     return (
       <CustomListbox
         {...listboxProps}
-        label={t(allSelected ? labelUnSelectAll : labelSelectAll)}
         handleSelectAllToggle={handleSelectAllToggle}
+        label={t(allSelected ? labelUnSelectAll : labelSelectAll)}
         labelTotal={t(labelElementsFound, {
           total: total || options.length
         })}

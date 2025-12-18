@@ -19,15 +19,15 @@ const MenuItems = ({ children, className }: MenuItemsProps): ReactElement => {
   return (
     <MuiMenu
       anchorEl={anchorEl}
-      className={className}
       classes={{
         paper:
           'rounded-sm shadow-lg min-w-[240px] bg-background-paper border-1 border-divider'
       }}
-      open={isMenuOpen}
-      variant="menu"
+      className={className}
       onClick={onCloseMenu}
       onClose={onCloseMenu}
+      open={isMenuOpen}
+      variant="menu"
     >
       {children}
     </MuiMenu>

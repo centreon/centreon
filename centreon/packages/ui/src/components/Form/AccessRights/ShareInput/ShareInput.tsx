@@ -43,36 +43,36 @@ const ShareInput = ({ labels, endpoints, roles }: Props): ReactElement => {
       <ContactSwitch labels={labels} />
       <div className={classes.inputs}>
         <SingleConnectedAutocompleteField
-          clearable
-          fullWidth
           changeIdValue={changeIdValue}
+          clearable
           disableClearable={false}
           field="name"
+          fullWidth
           getEndpoint={getEndpoint}
-          getRenderedOptionText={getRenderedOptionText}
           getOptionDisabled={getOptionDisabled}
+          getRenderedOptionText={getRenderedOptionText}
           label={t(
             isContactGroup
               ? t(labels.autocompleteContactGroup)
               : t(labels.autocompleteContact)
           )}
+          onChange={selectContact}
           queryKey={isContactGroup ? labels.contactGroup : labels.contact}
           value={selectedContact}
-          onChange={selectContact}
         />
         <RoleSelectField
           disabled={isNil(selectedContact)}
+          onChange={setSelectedRole}
           roles={roles}
           testId="add_role"
           value={selectedRole}
-          onChange={setSelectedRole}
         />
         <IconButton
           data-testid="add"
           disabled={isNil(selectedContact)}
           icon={<AddCircleIcon />}
-          size="small"
           onClick={add}
+          size="small"
         />
       </div>
     </div>

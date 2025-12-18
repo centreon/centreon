@@ -33,10 +33,10 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
+  title: {},
   tooltip: {
     maxWidth: theme.spacing(60)
-  },
-  title: {}
+  }
 }));
 
 const CollapsibleGroup = ({
@@ -65,11 +65,11 @@ const CollapsibleGroup = ({
     }: Pick<Props, 'children'>): JSX.Element =>
       isCollapsible ? (
         <ListItemButton
+          aria-label={group?.name}
+          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
           dense
           disableGutters
           disableRipple
-          aria-label={group?.name}
-          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
           onClick={toggle}
         >
           {containerComponentChildren}
@@ -94,10 +94,10 @@ const CollapsibleGroup = ({
       {hasGroupTitle && (
         <ContainerComponent>
           <div
-            data-testid={`${group?.name}-header`}
             className={
               'snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white items-center'
             }
+            data-testid={`${group?.name}-header`}
           >
             <Typography
               className="groupText scroll-m-12 snap-start"

@@ -89,30 +89,30 @@ const IconPopoverMultiAutocomplete = ({
       <div>
         <IconButton
           ariaLabel={title}
+          onClick={toggle}
           size="large"
           title={title}
-          onClick={toggle}
         >
           {icon}
         </IconButton>
         <Popper
           anchorEl={anchorEl}
           nonce={undefined}
+          onResize={(): undefined => undefined}
+          onResizeCapture={(): undefined => undefined}
           open={isOpen}
           placement={popperPlacement}
           style={{ zIndex: theme.zIndex.tooltip }}
-          onResize={(): undefined => undefined}
-          onResizeCapture={(): undefined => undefined}
         >
           <Paper>
             {!isNil(onReset) && (
               <Button
-                fullWidth
                 className={classes.button}
                 color="primary"
+                fullWidth
+                onClick={onReset}
                 size="small"
                 startIcon={<IconReset />}
-                onClick={onReset}
               >
                 {t(labelReset)}
               </Button>
@@ -124,8 +124,8 @@ const IconPopoverMultiAutocomplete = ({
                 <MenuItem
                   disabled={option.disabled || false}
                   key={id}
-                  value={name}
                   onClick={(): void => unSelect(option)}
+                  value={name}
                 >
                   <Option checkboxSelected={isSelected(id)}>{name}</Option>
                 </MenuItem>

@@ -98,8 +98,8 @@ const ConnectedAutocompleteField = (
     const { fetchQuery, isFetching, prefetchNextPage, data } = useFetchQuery<
       ListingModel<TData> | ListingMapModel<TData>
     >({
-      decoder,
       baseEndpoint,
+      decoder,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
         return getEndpoint({
@@ -114,8 +114,8 @@ const ConnectedAutocompleteField = (
       ],
       isPaginated: true,
       queryOptions: {
-        gcTime: 0,
         enabled: false,
+        gcTime: 0,
         staleTime: 0,
         suspense: false
       }
@@ -127,21 +127,21 @@ const ConnectedAutocompleteField = (
       ): OptionResult<TData> => {
         if ('result' in newOptions)
           return {
+            limit: newOptions.meta.limit || 1,
             result: newOptions.result || [],
-            total: newOptions.meta.total || 1,
-            limit: newOptions.meta.limit || 1
+            total: newOptions.meta.total || 1
           };
         if ('content' in newOptions)
           return {
+            limit: newOptions.size || 1,
             result: newOptions.content || [],
-            total: newOptions.totalElements || 1,
-            limit: newOptions.size || 1
+            total: newOptions.totalElements || 1
           };
 
         return {
+          limit: 1,
           result: [],
-          total: 1,
-          limit: 1
+          total: 1
         };
       },
       []
@@ -168,8 +168,8 @@ const ConnectedAutocompleteField = (
         : [selectedValue];
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $ni: map(
             prop(exclusionOptionProperty),
@@ -189,8 +189,8 @@ const ConnectedAutocompleteField = (
       }
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $lk: `%${searchedValue}%`
         }
@@ -363,19 +363,19 @@ const ConnectedAutocompleteField = (
 
     return (
       <AutocompleteField
-        total={data?.meta?.total || data?.totalElements || 1}
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
-        options={
-          allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
-        }
-        renderOption={renderOptions}
         onChange={(_, value) => {
           setAutocompleteChangedValue(value);
         }}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}
+        options={
+          allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
+        }
+        renderOption={renderOptions}
+        total={data?.meta?.total || data?.totalElements || 1}
         {...props}
       />
     );

@@ -179,8 +179,8 @@ const Panel = forwardRef(
 
     return (
       <Slide
-        in
         direction="left"
+        in
         timeout={{
           enter: 150,
           exit: 50
@@ -197,9 +197,9 @@ const Panel = forwardRef(
                 {onClose && (
                   <IconButton
                     ariaLabel={labelClose}
+                    onClick={onClose}
                     size="large"
                     title={labelClose}
-                    onClick={onClose}
                   >
                     <IconClose color="action" />
                   </IconButton>
@@ -218,10 +218,10 @@ const Panel = forwardRef(
                 <Tabs
                   className={classes.tabs}
                   indicatorColor="primary"
+                  onChange={onTabSelect}
                   textColor="primary"
                   value={selectedTabId}
                   variant="fullWidth"
-                  onChange={onTabSelect}
                 >
                   {tabs.map((tab) => tab)}
                 </Tabs>

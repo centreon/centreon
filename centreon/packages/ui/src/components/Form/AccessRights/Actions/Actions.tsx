@@ -40,8 +40,8 @@ const Actions = ({
       {cancel && (
         <Button
           aria-label={t(labels.cancel)}
-          variant="secondary"
           onClick={onCancel}
+          variant="secondary"
         >
           {t(labels.cancel)}
         </Button>
@@ -51,8 +51,8 @@ const Actions = ({
         disabled={isSubmitting || !dirty}
         icon={isSubmitting ? <CircularProgress size={24} /> : null}
         iconVariant={isSubmitting ? 'start' : 'none'}
-        variant="primary"
         onClick={save}
+        variant="primary"
       >
         {t(labels.save)}
       </Button>

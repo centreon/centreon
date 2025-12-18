@@ -147,8 +147,8 @@ const SortableRow = ({
         index={Number(id)}
         isLastElement={isLastElement}
         label={label}
-        tableFieldName={fieldName}
         onDeleteRow={deleteRow}
+        tableFieldName={fieldName}
       />
     </div>
   );
@@ -297,7 +297,6 @@ const FieldsTable = ({
         <div className={classes.table}>
           {isSortable ? (
             <SortableItems<Entity>
-              updateSortableItemsOnItemsChange
               Content={SortableRow}
               collisionDetection={rectIntersection}
               getDisableOverItemSortableCondition={
@@ -313,8 +312,9 @@ const FieldsTable = ({
                 'onDeleteRow'
               ]}
               items={sortableItems}
-              sortingStrategy={verticalListSortingStrategy}
               onDragEnd={dragEnd}
+              sortingStrategy={verticalListSortingStrategy}
+              updateSortableItemsOnItemsChange
             />
           ) : (
             keysToIterate.map((idx): JSX.Element => {
@@ -334,8 +334,8 @@ const FieldsTable = ({
                     index={idx}
                     isLastElement={isLastElement}
                     label={label}
-                    tableFieldName={fieldName}
                     onDeleteRow={getSortableDefined ? onDeleteRow : undefined}
+                    tableFieldName={fieldName}
                   />
                 </div>
               );

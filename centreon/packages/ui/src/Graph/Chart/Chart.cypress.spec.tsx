@@ -95,16 +95,16 @@ const initialize = ({
       <Provider store={store}>
         <WrapperChart
           {...argumentsData}
+          additionalLines={additionalLines}
           axis={axis}
+          barStyle={barStyle}
+          boundariesUnit={boundariesUnit}
           data={data as unknown as LineChartData}
           legend={legend}
           lineStyle={lineStyle}
-          barStyle={barStyle}
-          tooltip={tooltip}
-          additionalLines={additionalLines}
-          min={min}
           max={max}
-          boundariesUnit={boundariesUnit}
+          min={min}
+          tooltip={tooltip}
         />
       </Provider>
     )
@@ -485,7 +485,7 @@ describe('Line chart', () => {
     });
 
     it('displays the curve in a step style when the prop is set', () => {
-      initialize({ lineStyle: { curve: 'step' }, data: dataPingServiceLines });
+      initialize({ data: dataPingServiceLines, lineStyle: { curve: 'step' } });
 
       checkGraphWidth();
 
@@ -576,9 +576,9 @@ describe('Line chart', () => {
             dashLength: 5,
             dashOffset: 4,
             lineWidth: 1,
-            showPoints: true,
+            metricId: 13534,
             showArea: true,
-            metricId: 13534
+            showPoints: true
           }
         ]
       });
@@ -724,20 +724,20 @@ describe('Lines and bars', () => {
 
   it('displays stacked lines and bars when a line and a bar are customized', () => {
     initialize({
-      data: dataPingServiceLinesBarsStacked,
-      lineStyle: [
-        {
-          metricId: 1,
-          showArea: false,
-          dotOffset: 4,
-          lineWidth: 3
-        }
-      ],
       barStyle: [
         {
           metricId: 10,
           opacity: 0.5,
           radius: 0.3
+        }
+      ],
+      data: dataPingServiceLinesBarsStacked,
+      lineStyle: [
+        {
+          dotOffset: 4,
+          lineWidth: 3,
+          metricId: 1,
+          showArea: false
         }
       ]
     });
@@ -756,11 +756,11 @@ describe('Lines and bars', () => {
 
   it('displays additional lines when props are set', () => {
     initialize({
-      data: dataPingServiceLines,
       additionalLines: [
         { color: 'pink', unit: '%', yValue: 3 },
-        { color: 'red', unit: 'ms', yValue: 0.15, text: 'some text' }
-      ]
+        { color: 'red', text: 'some text', unit: 'ms', yValue: 0.15 }
+      ],
+      data: dataPingServiceLines
     });
 
     checkGraphWidth();
@@ -779,8 +779,8 @@ describe('Lines and bars', () => {
   it('displays graph according to min and max boundaries', () => {
     initialize({
       data: dataPingServiceLines,
-      min: 0.01,
-      max: 0.1
+      max: 0.1,
+      min: 0.01
     });
 
     checkGraphWidth();
@@ -797,10 +797,10 @@ describe('Lines and bars', () => {
 
   it('displays graph according to min and max boundaries for a unit', () => {
     initialize({
+      boundariesUnit: 'ms',
       data: dataPingServiceLines,
-      min: 0.01,
       max: 0.1,
-      boundariesUnit: 'ms'
+      min: 0.01
     });
 
     checkGraphWidth();
@@ -836,12 +836,12 @@ describe('Lines and bars', () => {
     initialize({
       data: dataPingServiceLines,
       legend: {
-        placement: 'bottom',
         mode: 'grid',
+        placement: 'bottom',
         showCalculations: {
-          min: true,
+          avg: false,
           max: false,
-          avg: false
+          min: true
         }
       }
     });

@@ -235,9 +235,9 @@ export const getFormattedAxisValues = ({
   const formattedData = metricIds.map((metricId) =>
     timeSeries.map((data) =>
       formatMetricValueWithUnit({
-        value: data[metricId],
+        base,
         unit: axisUnit,
-        base
+        value: data[metricId]
       })
     )
   );
@@ -247,9 +247,9 @@ export const getFormattedAxisValues = ({
   const formattedThresholdValues = equals(thresholdUnit, axisUnit)
     ? threshold.map(({ value }) =>
         formatMetricValueWithUnit({
-          value,
+          base,
           unit: axisUnit,
-          base
+          value
         })
       ) || []
     : [];

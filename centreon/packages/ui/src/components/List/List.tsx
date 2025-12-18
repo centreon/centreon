@@ -12,7 +12,7 @@ export const List = ({ children }: Props): ReactElement => {
   const { classes } = useStyles();
 
   return (
-    <MuiList dense className={classes.list}>
+    <MuiList className={classes.list} dense>
       {children}
     </MuiList>
   );

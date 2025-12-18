@@ -22,10 +22,10 @@ const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
 
   const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
     getInterval,
-    graphWidth,
-    xScale,
+    graphMarginLeft,
     graphSvgRef,
-    graphMarginLeft
+    graphWidth,
+    xScale
   });
 
   const restData = omit(['enable'], { ...rest });

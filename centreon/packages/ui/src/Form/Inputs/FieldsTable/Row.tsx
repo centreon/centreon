@@ -132,8 +132,8 @@ const Row = ({
           <IconButton
             ariaLabel={deleteLabel && (t(deleteLabel) || '')}
             className={classes.icon}
-            title={deleteLabel && (t(deleteLabel) || '')}
             onClick={deleteRow}
+            title={deleteLabel && (t(deleteLabel) || '')}
           >
             <DeleteIcon />
           </IconButton>

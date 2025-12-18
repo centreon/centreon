@@ -58,8 +58,8 @@ const FormButtons = (): JSX.Element => {
           data-testid={labelReset}
           disabled={not(canReset)}
           id={getNormalizedId(labelReset)}
-          size="small"
           onClick={reset}
+          size="small"
         >
           {t(labelReset)}
         </Button>
@@ -70,9 +70,9 @@ const FormButtons = (): JSX.Element => {
           labelSave={labelSave}
           labelSucceeded={labelSaved}
           loading={isSubmitting}
+          onClick={submit}
           size="small"
           succeeded={submitted}
-          onClick={submit}
         />
       </div>
     ),

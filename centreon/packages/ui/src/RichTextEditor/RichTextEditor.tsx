@@ -202,7 +202,6 @@ const RichTextEditor = ({
         </div>
         <div>
           <RichTextPlugin
-            ErrorBoundary={LexicalErrorBoundary}
             contentEditable={
               <ContentEditable
                 className={contentClassName || ''}
@@ -216,14 +215,15 @@ const RichTextEditor = ({
                 inputClassname={inputClassname}
                 minInputHeight={minInputHeight}
                 namespace={namespace}
+                onBlur={onBlur}
                 placeholder={placeholder}
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
                 setHtmlString={setHtmlString}
-                onBlur={onBlur}
               />
             }
+            ErrorBoundary={LexicalErrorBoundary}
             placeholder={null}
           />
           <HistoryPlugin />

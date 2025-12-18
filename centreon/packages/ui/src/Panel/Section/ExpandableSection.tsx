@@ -24,7 +24,7 @@ const Title = styled(Typography)(({ theme }) => ({
 }));
 
 const Section = styled((props: AccordionProps) => (
-  <Accordion disableGutters square elevation={0} {...props} />
+  <Accordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
   '&:before': {
     display: 'none'

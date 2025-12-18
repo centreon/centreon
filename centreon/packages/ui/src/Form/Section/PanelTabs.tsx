@@ -10,7 +10,7 @@ const groupToTab = (groups?: Array<Group>): Array<TabI> => {
   const sortedGroups = sortBy(prop('order'), groups);
 
   return sortedGroups.map((group) => {
-    return { value: group.name, label: group.name };
+    return { label: group.name, value: group.name };
   });
 };
 

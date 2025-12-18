@@ -68,29 +68,29 @@ const SortableListContent = ({
     return (
       <div ref={itemRef} style={style}>
         <Chip
-          clickable
-          className={clsx(classes.tag, createOption && classes.createdTag)}
           classes={{
             deleteIcon: classes.deleteIcon
           }}
+          className={clsx(classes.tag, createOption && classes.createdTag)}
+          clickable
           label={
             <Typography
+              onMouseUp={mouseUp}
               ref={labelItemRef}
               variant="body2"
-              onMouseUp={mouseUp}
               {...attributes}
               {...listeners}
             >
               {name}
             </Typography>
           }
+          onDelete={deleteItem}
+          onMouseEnter={mouseEnter}
+          onMouseLeave={mouseLeave}
           size="medium"
           style={{
             backgroundColor: isDragging ? theme.palette.grey[300] : undefined
           }}
-          onDelete={deleteItem}
-          onMouseEnter={mouseEnter}
-          onMouseLeave={mouseLeave}
         />
       </div>
     );

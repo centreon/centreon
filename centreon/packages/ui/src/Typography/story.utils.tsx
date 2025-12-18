@@ -56,8 +56,8 @@ const TypographyStory = (): JSX.Element => {
             spacing={10}
           >
             <Typography
-              gutterBottom
               display="block"
+              gutterBottom
               variant={typographyVariant}
             >
               {typographyVariant}

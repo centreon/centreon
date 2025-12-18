@@ -156,8 +156,8 @@ const TopCounterLayout = ({
             aria-label={title}
             className={classes.button}
             id={`${subMenuId}-button`}
-            type="button"
             onClick={(): void => setToggled(!toggled)}
+            type="button"
           >
             <span className={classes.iconWrapper}>
               <Badge

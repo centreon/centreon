@@ -91,10 +91,10 @@ const ListingHeader = ({
           isInDragOverlay={isInDragOverlay}
           itemRef={itemRef}
           listingVariant={listingVariant}
+          onSort={onSort}
           sortField={sortField}
           sortOrder={sortOrder}
           style={style}
-          onSort={onSort}
           {...listeners}
           {...attributes}
         />
@@ -116,25 +116,25 @@ const ListingHeader = ({
       <TableRow className="contents" component="div">
         {checkable && (
           <SelectActionListingHeaderCell
+            onSelectAllClick={onSelectAllClick}
+            onSelectRowsWithCondition={onSelectRowsWithCondition}
             predefinedRowsSelection={predefinedRowsSelection}
             rowCount={rowCount}
             selectedRowCount={selectedRowCount}
-            onSelectAllClick={onSelectAllClick}
-            onSelectRowsWithCondition={onSelectRowsWithCondition}
           />
         )}
         <SortableItems
-          updateSortableItemsOnItemsChange
-          Content={Content}
           additionalProps={[sortField, sortOrder]}
+          Content={Content}
           collisionDetection={closestCenter}
           itemProps={['id']}
           items={visibleColumns}
           memoProps={memoProps}
-          sortingStrategy={horizontalListSortingStrategy}
           onDragEnd={({ items }): void => {
             onSelectColumns?.(items);
           }}
+          sortingStrategy={horizontalListSortingStrategy}
+          updateSortableItemsOnItemsChange
         />
       </TableRow>
     </TableHead>

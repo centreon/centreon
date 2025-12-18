@@ -52,8 +52,8 @@ const useGraphData = ({ data }: Props): GraphDataResult => {
           ...item,
           ds_data: {
             ...item?.ds_data,
-            ds_invert: getBoolean(item?.ds_data?.ds_invert),
-            ds_filled: getBoolean(item?.ds_data?.ds_filled)
+            ds_filled: getBoolean(item?.ds_data?.ds_filled),
+            ds_invert: getBoolean(item?.ds_data?.ds_invert)
           }
         }));
 

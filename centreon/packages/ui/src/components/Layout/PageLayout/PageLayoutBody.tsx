@@ -18,8 +18,8 @@ export const PageLayoutBody = ({
   return (
     <section
       className={cx(classes.pageLayoutBody, className)}
-      data-has-background={hasBackground}
       data-has-actions={!!children?.length}
+      data-has-background={hasBackground}
       id="page-body"
     >
       {children}

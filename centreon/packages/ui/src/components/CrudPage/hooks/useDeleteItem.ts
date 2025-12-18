@@ -49,7 +49,7 @@ export const useDeleteItem = ({
     mutateAsync({ _meta: item });
 
   return {
-    isMutating,
-    deleteItem
+    deleteItem,
+    isMutating
   };
 };

@@ -88,13 +88,13 @@ const useResponsiveBarStack = ({
   }, [legendDirection, variant]);
 
   return {
-    total,
+    colorScale,
+    formattedLegendDirection,
     isSmall,
     isVerticalBar,
-    titleVariant,
     legendScale,
-    colorScale,
-    formattedLegendDirection
+    titleVariant,
+    total
   };
 };
 

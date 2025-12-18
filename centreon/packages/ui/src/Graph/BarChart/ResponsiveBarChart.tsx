@@ -113,12 +113,12 @@ const ResponsiveBarChart = ({
 
   const { maxLeftAxisCharacters, maxRightAxisCharacters } =
     useComputeYAxisMaxCharacters({
-      graphData,
-      thresholds,
-      thresholdUnit,
       axis,
       firstUnit,
-      secondUnit
+      graphData,
+      secondUnit,
+      thresholds,
+      thresholdUnit
     });
 
   const { legendRef, graphWidth, graphHeight, titleRef } =
@@ -127,10 +127,10 @@ const ResponsiveBarChart = ({
       height,
       legendDisplay: legend?.display,
       legendPlacement: legend?.placement,
-      width,
       maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
       title,
-      units: allUnits
+      units: allUnits,
+      width
     });
 
   const thresholdValues = flatten([
@@ -167,20 +167,20 @@ const ResponsiveBarChart = ({
   const yScalesPerUnit = useMemo(
     () =>
       getYScalePerUnit({
+        boundariesUnit,
         dataLines: displayedLines,
         dataTimeSeries: timeSeries,
+        isBarChart: true,
         isCenteredZero: axis?.isCenteredZero,
         isHorizontal,
+        max,
+        min,
         scale: axis?.scale,
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
-        thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
+        thresholdUnit,
         valueGraphHeight:
-          (isHorizontal ? graphHeight : graphWidth) - margin.bottom,
-        min,
-        max,
-        isBarChart: true,
-        boundariesUnit
+          (isHorizontal ? graphHeight : graphWidth) - margin.bottom
       }),
     [
       displayedLines,
@@ -235,6 +235,7 @@ const ResponsiveBarChart = ({
   return (
     <BaseChart
       base={baseAxis}
+      graphHeight={graphHeight}
       graphWidth={graphWidth}
       header={header}
       height={height}
@@ -253,7 +254,6 @@ const ResponsiveBarChart = ({
       setLines={setLinesGraph}
       title={title}
       titleRef={titleRef}
-      graphHeight={graphHeight}
     >
       <Tooltip
         classes={{
@@ -282,16 +282,16 @@ const ResponsiveBarChart = ({
             graphHeight={graphHeight}
             graphWidth={graphWidth - (isHorizontal ? 0 : margin.left - 15)}
             gridLinesType={axis?.gridLinesType}
+            hasSecondUnit={Boolean(secondUnit)}
             leftScale={leftScale}
+            maxAxisCharacters={maxLeftAxisCharacters}
             orientation={isHorizontal ? 'horizontal' : 'vertical'}
             rightScale={rightScale}
             showGridLines={showGridLines}
             svgRef={graphSvgRef}
             timeSeries={timeSeries}
-            xScale={xScale}
-            maxAxisCharacters={maxLeftAxisCharacters}
-            hasSecondUnit={Boolean(secondUnit)}
             title={title}
+            xScale={xScale}
           >
             {isApplyingZoom && (
               <>
@@ -300,11 +300,11 @@ const ResponsiveBarChart = ({
                   isTooltipHidden={isTooltipHidden}
                   lines={displayedLines}
                   orientation={isHorizontal ? 'horizontal' : 'vertical'}
+                  scaleType={axis?.scale}
                   size={isHorizontal ? graphHeight - marginTop - 5 : graphWidth}
                   timeSeries={timeSeries}
                   xScale={xScale}
                   yScalesPerUnit={yScalesPerUnit}
-                  scaleType={axis?.scale}
                 />
                 {thresholds?.enabled && (
                   <Thresholds
@@ -316,8 +316,8 @@ const ResponsiveBarChart = ({
                         thresholdLabel
                       })
                     }
-                    thresholdUnit={thresholdUnit}
                     thresholds={thresholds as ThresholdsModel}
+                    thresholdUnit={thresholdUnit}
                     width={isHorizontal ? graphWidth : graphHeight - marginTop}
                     yScalesPerUnit={yScalesPerUnit}
                   />
@@ -327,22 +327,22 @@ const ResponsiveBarChart = ({
             {isHorizontal && (
               <InteractionWithGraph
                 additionalZoomMargin={pixelsToShift}
-                maxLeftAxisCharacters={maxLeftAxisCharacters}
+                annotationData={{ ...annotationEvent }}
                 commonData={{
                   graphHeight,
                   graphSvgRef,
                   graphWidth,
                   lines,
-                  xScale: xScaleLinear,
                   timeSeries,
+                  xScale: xScaleLinear,
                   yScalesPerUnit
                 }}
-                annotationData={{ ...annotationEvent }}
-                zoomData={{ ...zoomPreview }}
+                maxLeftAxisCharacters={maxLeftAxisCharacters}
                 timeShiftZonesData={{
                   ...timeShiftZones,
-                  graphInterval: { start, end }
+                  graphInterval: { end, start }
                 }}
+                zoomData={{ ...zoomPreview }}
               />
             )}
             {!isApplyingZoom && (
@@ -352,11 +352,11 @@ const ResponsiveBarChart = ({
                   isTooltipHidden={isTooltipHidden}
                   lines={displayedLines}
                   orientation={isHorizontal ? 'horizontal' : 'vertical'}
+                  scaleType={axis?.scale}
                   size={isHorizontal ? graphHeight - marginTop - 5 : graphWidth}
                   timeSeries={timeSeries}
                   xScale={xScale}
                   yScalesPerUnit={yScalesPerUnit}
-                  scaleType={axis?.scale}
                 />
                 {thresholds?.enabled && (
                   <Thresholds
@@ -368,8 +368,8 @@ const ResponsiveBarChart = ({
                         thresholdLabel
                       })
                     }
-                    thresholdUnit={thresholdUnit}
                     thresholds={thresholds as ThresholdsModel}
+                    thresholdUnit={thresholdUnit}
                     width={isHorizontal ? graphWidth : graphHeight - marginTop}
                     yScalesPerUnit={yScalesPerUnit}
                   />

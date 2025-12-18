@@ -57,10 +57,10 @@ const StackedAnchorPoint = ({
   maxLeftAxisCharacters
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
-    timeSeries,
-    xScale,
     hasSecondUnit,
-    maxLeftAxisCharacters
+    maxLeftAxisCharacters,
+    timeSeries,
+    xScale
   });
 
   if (isNil(timeTick)) {

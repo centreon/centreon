@@ -18,11 +18,11 @@ const Timeline = ({
     {({ width, height }) => (
       <ResponsiveTimeline
         data={data}
-        startDate={startDate}
         endDate={endDate}
+        height={height}
+        startDate={startDate}
         TooltipContent={TooltipContent}
         tooltipClassName={tooltipClassName}
-        height={height}
         width={width}
       />
     )}

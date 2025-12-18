@@ -24,5 +24,5 @@ export const useSearch = (): UseSearchState => {
     [setSearch]
   );
 
-  return { search, change };
+  return { change, search };
 };

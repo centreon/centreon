@@ -51,13 +51,13 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
       <svg style={{ height, position: 'absolute', width }}>
         <VisxGrid.Grid
           columnTickValues={xTickValues}
-          rowTickValues={yTickValues}
           height={height}
-          yScale={yScale}
-          xScale={xScale}
+          left={-8}
+          rowTickValues={yTickValues}
           stroke={theme.palette.divider}
           width={width}
-          left={-8}
+          xScale={xScale}
+          yScale={yScale}
         />
       </svg>
     ),

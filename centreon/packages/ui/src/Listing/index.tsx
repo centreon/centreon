@@ -533,14 +533,14 @@ const Listing = <
               limit={limit}
               listingVariant={listingVariant}
               moveTablePagination={moveTablePagination}
-              paginated={paginated}
-              totalRows={totalRows}
-              viewerModeConfiguration={viewerModeConfiguration}
-              widthToMoveTablePagination={widthToMoveTablePagination}
               onLimitChange={changeLimit}
               onPaginate={onPaginate}
               onResetColumns={onResetColumns}
               onSelectColumns={onSelectColumns}
+              paginated={paginated}
+              totalRows={totalRows}
+              viewerModeConfiguration={viewerModeConfiguration}
+              widthToMoveTablePagination={widthToMoveTablePagination}
             />
           </div>
         )}
@@ -564,16 +564,16 @@ const Listing = <
                 customListingComponent
               ) : (
                 <Table
-                  stickyHeader
                   className="grid items-center relative"
+                  component="div"
+                  size="small"
+                  stickyHeader
                   style={{
                     gridTemplateColumns: gridTemplateColumn,
                     gridTemplateRows: `${dataStyle.header.height}px repeat(${
                       rowsToDisplay.length || 1
                     }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`
                   }}
-                  component="div"
-                  size="small"
                 >
                   <ListingHeader
                     areColumnsEditable={areColumnsEditable}
@@ -582,15 +582,15 @@ const Listing = <
                     columns={columns}
                     listingVariant={listingVariant}
                     memoProps={headerMemoProps}
+                    onSelectAllClick={selectAllRows}
+                    onSelectColumns={onSelectColumns}
+                    onSelectRowsWithCondition={onSelectRowsWithCondition}
+                    onSort={onSort}
                     predefinedRowsSelection={predefinedRowsSelection}
                     rowCount={rowsToDisplay.length}
                     selectedRowCount={selectedRows.length}
                     sortField={sortField}
                     sortOrder={sortOrder}
-                    onSelectAllClick={selectAllRows}
-                    onSelectColumns={onSelectColumns}
-                    onSelectRowsWithCondition={onSelectRowsWithCondition}
-                    onSort={onSort}
                   />
 
                   <TableBody
@@ -625,12 +625,6 @@ const Listing = <
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
                           listingVariant={listingVariant}
-                          row={row}
-                          rowColorConditions={rowColorConditions}
-                          shiftKeyDownRowPivot={shiftKeyDownRowPivot}
-                          subItemsPivots={subItemsPivots}
-                          tabIndex={-1}
-                          visibleColumns={visibleColumns}
                           onClick={
                             isSubItem
                               ? undefined
@@ -640,6 +634,12 @@ const Listing = <
                           }
                           onFocus={(): void => hoverRow(row)}
                           onMouseOver={(): void => hoverRow(row)}
+                          row={row}
+                          rowColorConditions={rowColorConditions}
+                          shiftKeyDownRowPivot={shiftKeyDownRowPivot}
+                          subItemsPivots={subItemsPivots}
+                          tabIndex={-1}
+                          visibleColumns={visibleColumns}
                         >
                           {checkable &&
                             (!isSubItem || subItems.canCheckSubItems ? (
@@ -648,12 +648,13 @@ const Listing = <
                                 className="justify-start"
                                 disableRowCondition={disableRowCondition}
                                 isRowHovered={isRowHovered}
+                                onClick={(event): void => selectRow(event, row)}
                                 row={row}
                                 rowColorConditions={rowColorConditions}
-                                onClick={(event): void => selectRow(event, row)}
                               >
                                 <Checkbox
                                   checked={isRowSelected}
+                                  className="pl-1"
                                   disabled={
                                     disableRowCheckCondition(row) ||
                                     disableRowCondition(row)
@@ -663,7 +664,6 @@ const Listing = <
                                       'aria-label': `Select row ${getId(row)}`
                                     }
                                   }}
-                                  className="pl-1"
                                 />
                               </Cell>
                             ) : (
@@ -757,6 +757,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         columns={columns}
         currentPage={currentPage}
         innerScrollDisabled={innerScrollDisabled}
+        labelNoResultFound={labelNoResultFound}
         limit={limit}
         listingVariant={listingVariant}
         loading={loading}
@@ -769,7 +770,6 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortOrder={sortOrder}
         totalRows={totalRows}
         widthToMoveTablePagination={widthToMoveTablePagination}
-        labelNoResultFound={labelNoResultFound}
         {...props}
       />
     ),

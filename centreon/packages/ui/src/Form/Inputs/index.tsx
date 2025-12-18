@@ -119,14 +119,14 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
       ? 'row'
       : 'column'
   },
-  inputWrapper: {
-    width: '100%'
-  },
   inputs: {
     display: 'flex',
     flexDirection: 'column',
     margin: theme.spacing(2, 0),
     rowGap: theme.spacing(2)
+  },
+  inputWrapper: {
+    width: '100%'
   }
 }));
 
@@ -265,8 +265,8 @@ const Inputs = ({
               hasGroupTitle &&
               not(equals(lastGroup, groupName as string)) && (
                 <Divider
-                  flexItem
                   className={classes.divider}
+                  flexItem
                   orientation={
                     equals(groupDirection, GroupDirection.Horizontal)
                       ? 'vertical'

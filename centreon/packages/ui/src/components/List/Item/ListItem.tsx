@@ -24,8 +24,8 @@ export const ListItem = forwardRef(
 
     return (
       <MuiListItem
-        disableGutters
         className={cx(classes.listItem, className)}
+        disableGutters
         ref={ref}
         secondaryAction={
           action && <div className={classes.secondary}>{action}</div>

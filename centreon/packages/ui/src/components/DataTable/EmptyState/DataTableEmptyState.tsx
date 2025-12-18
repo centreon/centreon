@@ -44,10 +44,10 @@ const DataTableEmptyState = ({
         {canCreate && (
           <Button
             aria-label="create"
+            data-testid={buttonCreateTestId}
             icon={<AddIcon />}
             iconVariant="start"
             onClick={() => onCreate?.()}
-            data-testid={buttonCreateTestId}
           >
             {t(labels.actions?.create || '')}
           </Button>

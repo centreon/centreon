@@ -131,9 +131,9 @@ const MultiSelectEntries = ({
         [classes.hovered]: (isHovered as boolean) || highlight,
         [classes.container]: true
       } as CxArg)}
-      ref={hoverRef as Ref<HTMLDivElement>}
       onClick={onClick}
       onKeyDown={onClick}
+      ref={hoverRef as Ref<HTMLDivElement>}
     >
       <Box display="flex">
         <Box flexGrow={1}>

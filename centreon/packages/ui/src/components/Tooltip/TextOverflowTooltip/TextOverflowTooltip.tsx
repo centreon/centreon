@@ -101,9 +101,9 @@ const TextOverflowTooltip = ({
       <div
         className={classes.textOverflowTooltip}
         data-has-overflow={state.hasOverflow}
-        ref={elRef}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
+        ref={elRef}
       >
         {children}
       </div>

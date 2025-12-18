@@ -86,13 +86,13 @@ const ZoomContent = forwardRef(
           data-is-grabbing={isDragging}
           data-testid="zoom-container"
           height={height}
-          width={width}
           onMouseDown={dragStart(zoom)}
           onMouseEnter={dragStart(zoom)}
           onMouseLeave={dragEnd}
           onMouseMove={move(zoom)}
           onMouseUp={dragEnd}
           onWheel={zoom.handleWheel}
+          width={width}
         >
           <RectClipPath
             height={Math.max(contentClientRect?.height || 0, height)}
@@ -150,20 +150,20 @@ const ZoomContent = forwardRef(
             <IconButton
               data-testid="zoom in"
               icon={<ZoomInIcon />}
-              size="small"
               onClick={() => zoom.scale({ scaleX: 1.2, scaleY: 1.2 })}
+              size="small"
             />
             <IconButton
               data-testid="zoom out"
               icon={<ZoomOutIcon />}
-              size="small"
               onClick={() => zoom.scale({ scaleX: 0.8, scaleY: 0.8 })}
+              size="small"
             />
             <IconButton
               data-testid="clear"
               icon={<ReplayIcon />}
-              size="small"
               onClick={zoom.reset}
+              size="small"
             />
           </div>
         </div>

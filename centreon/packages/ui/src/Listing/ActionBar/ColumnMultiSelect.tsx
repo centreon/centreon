@@ -41,12 +41,12 @@ const ColumnMultiSelect = ({
   return (
     <IconPopoverMultiSelect
       icon={<ColumnIcon />}
+      onChange={selectColumnIds}
+      onReset={onResetColumns}
       options={toSelectEntries(columns)}
       popperPlacement="bottom-end"
       title={t(labelAddColumns)}
       value={toSelectEntries(visibleColumns)}
-      onChange={selectColumnIds}
-      onReset={onResetColumns}
     />
   );
 };

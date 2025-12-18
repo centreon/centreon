@@ -137,9 +137,9 @@ const useMutationQuery = <T extends object, TMeta>({
       ? ({ payload, _meta }) => {
           const listingQueryKey = getListingQueryKey();
           const newListing = getOptimisticMutationItems({
+            _meta,
             method,
-            payload,
-            _meta
+            payload
           });
           const previousListing = getPreviousListing();
 

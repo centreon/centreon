@@ -55,10 +55,10 @@ export const AsMultiLine: Story = {
       <TextOverflowTooltip {...args} label={labelValue}>
         <p
           style={{
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: '2',
             display: '-webkit-box',
             overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: '2',
             width: '40vw'
           }}
         >

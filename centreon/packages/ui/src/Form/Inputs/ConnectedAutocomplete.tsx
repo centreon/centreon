@@ -45,6 +45,7 @@ const ConnectedAutocomplete = ({
   const getEndpoint = (parameters): string =>
     buildListingEndpoint({
       baseEndpoint: connectedAutocomplete?.endpoint,
+      customQueryParameters: connectedAutocomplete?.customQueryParameters || [],
       parameters: {
         ...parameters,
         search: {
@@ -55,8 +56,7 @@ const ConnectedAutocomplete = ({
           ...parameters.search
         },
         sort: { [filterKey]: 'ASC' }
-      },
-      customQueryParameters: connectedAutocomplete?.customQueryParameters || []
+      }
     });
 
   const fieldNamePath = split('.', fieldName);
@@ -65,12 +65,12 @@ const ConnectedAutocomplete = ({
     (_, value): void => {
       if (change) {
         change({
-          setFieldValue,
-          value,
           setFieldTouched,
+          setFieldValue,
+          setTouched,
           setValues,
-          values,
-          setTouched
+          value,
+          values
         });
 
         return;
@@ -135,27 +135,27 @@ const ConnectedAutocomplete = ({
       <AutocompleteField
         chipProps={chipProps}
         dataTestId={dataTestId}
+        decoder={connectedAutocomplete?.decoder}
         disableClearable={false}
-        disableSortedOptions={disableSortedOptions}
         disabled={disabled}
+        disableSelectAll={connectedAutocomplete?.disableSelectAll}
+        disableSortedOptions={disableSortedOptions}
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
-        decoder={connectedAutocomplete?.decoder}
-        getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         getOptionLabel={connectedAutocomplete?.getOptionLabel}
-        optionProperty={connectedAutocomplete?.optionProperty}
+        getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}
+        limitTags={connectedAutocomplete?.limitTags}
         name={fieldName}
-        required={isRequired}
-        value={value ?? null}
         onBlur={blur}
         onChange={changeAutocomplete}
-        disableSelectAll={connectedAutocomplete?.disableSelectAll}
-        limitTags={connectedAutocomplete?.limitTags}
+        optionProperty={connectedAutocomplete?.optionProperty}
+        required={isRequired}
         searchConditions={connectedAutocomplete?.additionalConditionParameters}
+        value={value ?? null}
       />
     ),
     memoProps: [

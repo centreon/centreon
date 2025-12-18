@@ -61,8 +61,8 @@ export const useResizeObserver = (): UseResizeObserverState => {
   }, [elementResolved, observeElement, unobserveElement]);
 
   return {
-    width: size[0],
     height: size[1],
-    ref: targetRef
+    ref: targetRef,
+    width: size[0]
   };
 };

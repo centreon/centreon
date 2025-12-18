@@ -51,12 +51,12 @@ const Text = ({
     const { value } = event.target;
     if (change) {
       change({
-        setFieldValue,
-        value,
         setFieldTouched,
+        setFieldValue,
+        setTouched,
         setValues,
-        values,
-        setTouched
+        value,
+        values
       });
 
       return;
@@ -120,32 +120,32 @@ const Text = ({
   return useMemoComponent({
     Component: (
       <TextField
-        fullWidth={text?.fullWidth ?? true}
-        EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}
-        dataTestId={dataTestId || label}
         data-testid-suffix={`test-${label}`}
+        dataTestId={dataTestId || label}
         disabled={disabled}
+        EndAdornment={EndAdornment}
         error={error as string | undefined}
+        fullWidth={text?.fullWidth ?? true}
         label={t(label)}
         multiline={isMultiline}
+        onBlur={handleBlur(fieldName)}
+        onChange={changeText}
         placeholder={text?.placeholder}
         required={isRequired}
         rows={rows}
-        type={getInputType()}
-        value={value || ''}
-        onBlur={handleBlur(fieldName)}
-        onChange={changeText}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
-              'data-testid': dataTestId || label,
               'aria-label': label,
+              'data-testid': dataTestId || label,
               min: text?.min
             }
           }
         }}
+        type={getInputType()}
+        value={value || ''}
       />
     ),
     memoProps: [

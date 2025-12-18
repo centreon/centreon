@@ -47,8 +47,8 @@ const Pagination = ({
         baseEndpoint: baseEndpoint,
         parameters: {
           ...parameters,
-          page,
           limit,
+          page,
           ...(searchConditions
             ? {
                 search: {
@@ -87,10 +87,10 @@ const Pagination = ({
         {arePaginationComponentsDisplayed && (
           <div className={classes.arrowContainer}>
             <IconButton
-              onClick={() => setPage(page - 1)}
-              disabled={equals(page, 1)}
-              dataTestid={labelPreviousPage}
               className={classes.icon}
+              dataTestid={labelPreviousPage}
+              disabled={equals(page, 1)}
+              onClick={() => setPage(page - 1)}
             >
               <ArrowBackIcon className={classes.arrow} />
             </IconButton>
@@ -103,13 +103,13 @@ const Pagination = ({
           ) : (
             data?.result.map(({ id, name }) => (
               <Link
-                key={id}
-                variant="body2"
                 className={cx({
                   [classes.item]: true,
                   [classes.link]: !!onItemClick
                 })}
+                key={id}
                 onClick={() => onItemClick?.({ id })}
+                variant="body2"
               >
                 {truncate({
                   content: name,
@@ -123,10 +123,10 @@ const Pagination = ({
         {arePaginationComponentsDisplayed && (
           <div className={classes.arrowContainer}>
             <IconButton
-              onClick={() => setPage(page + 1)}
-              disabled={equals(pagesCount, page)}
               className={classes.icon}
               dataTestid={labelNextPage}
+              disabled={equals(pagesCount, page)}
+              onClick={() => setPage(page + 1)}
             >
               <ArrowForwardIcon className={classes.arrow} />
             </IconButton>

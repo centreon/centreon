@@ -138,6 +138,10 @@ const Cell = ({
 
   return (
     <TableCell
+      classes={{
+        root: 'flex items-center h-full overflow-hidden border-b-1 border-divider px-2 whitespace-nowrap py-0'
+      }}
+      component={'div' as unknown as ElementType<TableCellBaseProps>}
       style={{
         backgroundColor: getBackgroundColor({
           disableRowCondition,
@@ -151,17 +155,13 @@ const Cell = ({
           theme
         }),
         ...getRowTextColor({
-          isRowHighlighted,
           disableRowCondition,
+          isRowHighlighted,
           row,
           theme
         }),
         ...style
       }}
-      classes={{
-        root: 'flex items-center h-full overflow-hidden border-b-1 border-divider px-2 whitespace-nowrap py-0'
-      }}
-      component={'div' as unknown as ElementType<TableCellBaseProps>}
       {...props}
     >
       {displaySubItemsCaret && hasSubItems && (
@@ -169,8 +169,8 @@ const Cell = ({
           ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
             row.id
           }`}
-          size="small"
           onClick={click}
+          size="small"
         >
           <ExpandMoreIcon
             className={`transition-transform ${isSubItemsExpanded ? 'rotate-z-180' : 'rotate-z-0'} transform-gpu`}

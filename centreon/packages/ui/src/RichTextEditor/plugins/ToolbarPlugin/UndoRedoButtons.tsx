@@ -72,9 +72,9 @@ const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
         ariaLabel={translatedUndo}
         className={classes.button}
         disabled={!canUndo || disabled}
+        onClick={undo}
         title={translatedUndo}
         tooltipPlacement="top"
-        onClick={undo}
       >
         <UndoIcon />
       </IconButton>
@@ -82,9 +82,9 @@ const UndoRedoButtons = ({ disabled }: Props): JSX.Element => {
         ariaLabel={translatedRedo}
         className={classes.button}
         disabled={!canRedo || disabled}
+        onClick={redo}
         title={translatedRedo}
         tooltipPlacement="top"
-        onClick={redo}
       >
         <RedoIcon />
       </IconButton>

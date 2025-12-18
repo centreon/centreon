@@ -30,15 +30,15 @@ export const Gauge = ({
   const metric = getMetricWithLatestData(data) as Metric;
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }} ref={ref}>
+    <Box ref={ref} sx={{ height: '100%', width: '100%' }}>
       <ResponsiveGauge
         baseColor={baseColor}
         displayAsRaw={displayAsRaw}
         height={height}
+        max={max}
         metric={metric}
         thresholds={thresholds}
         width={width}
-        max={max}
       />
     </Box>
   );

@@ -51,7 +51,7 @@ const ContainerDescription = ({
   return (
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4">{containerTitle}</Typography>
-      <Grid container columnSpacing={{ md: 3, sm: 2, xs: 1 }} rowSpacing={5}>
+      <Grid columnSpacing={{ md: 3, sm: 2, xs: 1 }} container rowSpacing={5}>
         {toPairs(palette[keyTheme]).map(
           ([key, value]) =>
             !includes(key, keysToRemove) && (
@@ -92,8 +92,8 @@ const GroupedColorStatus = (): JSX.Element => {
           />
           <Divider
             className={classes.divider}
-            variant="middle"
             key={`${status}-divider`}
+            variant="middle"
           />
         </>
       ))}

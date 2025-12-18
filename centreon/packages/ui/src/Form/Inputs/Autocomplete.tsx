@@ -75,12 +75,12 @@ const Autocomplete = ({
     if (change) {
       setFieldTouched(fieldName, true, false);
       change({
-        setFieldValue,
-        value: normalizedNewValues,
         setFieldTouched,
+        setFieldValue,
+        setTouched,
         setValues,
-        values,
-        setTouched
+        value: normalizedNewValues,
+        values
       });
 
       return;
@@ -179,16 +179,16 @@ const Autocomplete = ({
             equals(option, selectedValue)
           }
           label={`${t(label)}${additionalLabel}`}
+          onChange={changeValues}
+          onTextChange={textChange}
           open={isCreatable ? false : undefined}
           options={autocomplete?.options || []}
           popupIcon={isCreatable ? null : undefined}
           required={isRequired}
-          value={getValues() ?? null}
-          onChange={changeValues}
-          onTextChange={textChange}
           style={{
             width: (autocomplete?.fullWidth ?? true) ? 'auto' : '180px'
           }}
+          value={getValues() ?? null}
         />
         {inputErrors && (
           <Stack>

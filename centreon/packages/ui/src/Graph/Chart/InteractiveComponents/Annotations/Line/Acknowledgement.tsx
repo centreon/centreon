@@ -15,9 +15,9 @@ const AcknowledgementAnnotations = (props: Args): JSX.Element => {
 
   return (
     <EventAnnotations
-      Icon={IconAcknowledge}
       ariaLabel={t(labelAcknowledgement)}
       color={color}
+      Icon={IconAcknowledge}
       type="acknowledgement"
       {...props}
     />

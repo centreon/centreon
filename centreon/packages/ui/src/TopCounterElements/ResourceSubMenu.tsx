@@ -75,16 +75,16 @@ const SubMenu = ({ items, onClose }: SubMenuProps): JSX.Element => {
           to
         }) => (
           <ListItem
-            disableGutters
             className={classes.submenuItem}
+            disableGutters
             key={to}
             onClick={onClose}
           >
             <Link
               className={classes.link}
+              onClick={onClick}
               role="menuitem"
               to={to}
-              onClick={onClick}
             >
               <span className={classes.status}>
                 <span

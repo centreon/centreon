@@ -25,13 +25,13 @@ const UnitLabel = ({
         <SelectField
           className={classes.axisInput}
           dataTestId="unit-selector"
+          onChange={(e) => onUnitChange(e.target.value)}
           options={units.map((unitOption) => ({
             id: unitOption,
             name: unitOption
           }))}
           selectedOptionId={unit}
           size="small"
-          onChange={(e) => onUnitChange(e.target.value)}
         />
       </div>
     </foreignObject>

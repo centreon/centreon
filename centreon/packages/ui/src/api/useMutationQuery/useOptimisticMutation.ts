@@ -116,5 +116,5 @@ export const useOptimisticMutation = <T, TMeta>({
 
     return items;
   };
-  return { getOptimisticMutationItems, getListingQueryKey, getPreviousListing };
+  return { getListingQueryKey, getOptimisticMutationItems, getPreviousListing };
 };

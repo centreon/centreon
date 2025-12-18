@@ -55,6 +55,9 @@ const TimeShiftZone = ({
           : 'transparent'
       }
       height={graphHeight}
+      onClick={handleClick}
+      onMouseLeave={(): void => onDirectionHover(null)}
+      onMouseOver={(): void => onDirectionHover(direction)}
       width={timeShiftZoneWidth}
       x={
         equals(direction, TimeShiftDirection.backward)
@@ -62,9 +65,6 @@ const TimeShiftZone = ({
           : graphWidth
       }
       y={0}
-      onClick={handleClick}
-      onMouseLeave={(): void => onDirectionHover(null)}
-      onMouseOver={(): void => onDirectionHover(direction)}
     />
   );
 };

@@ -113,14 +113,14 @@ const Minimap = ({
         data-testid="minimap-interaction"
         fill="transparent"
         height={finalHeight}
-        rx={radius}
-        width={finalWidth}
         onMouseDown={dragStart}
         onMouseEnter={dragStart}
         onMouseLeave={dragEnd}
         onMouseMove={move}
         onMouseUp={dragEnd}
         onWheel={zoomInOut}
+        rx={radius}
+        width={finalWidth}
       />
     </g>
   );

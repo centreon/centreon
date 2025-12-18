@@ -57,12 +57,12 @@ const Form = <T extends object>({
   if (isLoading) {
     return (
       <Inputs
-        isLoading
         areGroupsOpen={areGroupsOpen}
         groups={groups}
         groupsClassName={groupsClassName}
         inputs={inputs}
         isCollapsible={isCollapsible}
+        isLoading
       />
     );
   }
@@ -71,9 +71,9 @@ const Form = <T extends object>({
     <Formik<T>
       enableReinitialize
       initialValues={initialValues}
+      onSubmit={submit}
       validate={validate}
       validationSchema={validationSchema}
-      onSubmit={submit}
       {...formikSharedConfig}
     >
       <div>

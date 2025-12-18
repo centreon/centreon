@@ -24,8 +24,8 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
       },
       '& .react-resizable-handle': {
         display: isStatic ? 'none' : 'flex',
-        position: 'absolute',
         opacity: 0,
+        position: 'absolute',
         transition: theme.transitions.create('opacity')
       },
       '& .react-resizable-handle-e': {
@@ -37,34 +37,16 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
           height: 'calc(100% / 3)',
           width: '100%'
         },
+        alignItems: 'center',
         cursor: 'ew-resize',
         height: `calc(100% - ${theme.spacing(3)})`,
         marginTop: 0,
         right: 0,
         top: 0,
-        width: theme.spacing(0.75),
-        alignItems: 'center'
-      },
-      '& .react-resizable-handle-w': {
-        '& .handle-content-w': {
-          backgroundColor: theme.palette.action.focus,
-          backgroundImage: 'none',
-          borderRadius: theme.shape.borderRadius,
-          display: isStatic ? 'none' : 'block',
-          height: 'calc(100% / 3)',
-          width: '100%'
-        },
-        cursor: 'ew-resize',
-        height: `calc(100% - ${theme.spacing(3)})`,
-        marginTop: 0,
-        left: 0,
-        top: 0,
-        width: theme.spacing(0.75),
-        alignItems: 'center'
+        width: theme.spacing(0.75)
       },
 
       '& .react-resizable-handle-s': {
-        justifyContent: 'center',
         '& .handle-content-s': {
           backgroundColor: theme.palette.action.focus,
           backgroundImage: 'none',
@@ -75,6 +57,7 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
         bottom: 4,
         cursor: 'ns-resize',
         height: theme.spacing(0.75),
+        justifyContent: 'center',
         left: 0,
         marginLeft: 0,
         width: `calc(100% - ${theme.spacing(1)})`
@@ -85,15 +68,15 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
           backgroundImage: 'none',
           borderRadius: theme.shape.borderRadius,
           display: isStatic ? 'none' : 'block',
-          width: '100%',
-          height: '100%'
+          height: '100%',
+          width: '100%'
         },
         bottom: 4,
         cursor: 'nwse-resize',
         height: theme.spacing(1.5),
+        opacity: 0.7,
         right: 0,
-        width: theme.spacing(1.5),
-        opacity: 0.7
+        width: theme.spacing(1.5)
       },
       '& .react-resizable-handle-sw': {
         '& .handle-content-sw': {
@@ -101,24 +84,41 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
           backgroundImage: 'none',
           borderRadius: theme.shape.borderRadius,
           display: isStatic ? 'none' : 'block',
-          width: '100%',
-          height: '100%'
+          height: '100%',
+          width: '100%'
         },
         bottom: 4,
         cursor: 'nesw-resize',
         height: theme.spacing(1.5),
         left: 0,
-        width: theme.spacing(1.5),
-        opacity: 0.7
+        opacity: 0.7,
+        width: theme.spacing(1.5)
       },
-      '& .react-resizable-handle:hover': {
-        opacity: 1
+      '& .react-resizable-handle-w': {
+        '& .handle-content-w': {
+          backgroundColor: theme.palette.action.focus,
+          backgroundImage: 'none',
+          borderRadius: theme.shape.borderRadius,
+          display: isStatic ? 'none' : 'block',
+          height: 'calc(100% / 3)',
+          width: '100%'
+        },
+        alignItems: 'center',
+        cursor: 'ew-resize',
+        height: `calc(100% - ${theme.spacing(3)})`,
+        left: 0,
+        marginTop: 0,
+        top: 0,
+        width: theme.spacing(0.75)
       },
       '& .react-resizable-handle::after': {
         content: 'none'
       },
-      position: 'relative',
-      height: '100%'
+      '& .react-resizable-handle:hover': {
+        opacity: 1
+      },
+      height: '100%',
+      position: 'relative'
     }
   })
 );
@@ -132,10 +132,6 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       background: theme.palette.background.widget,
       border: 'none',
       borderRadius: theme.spacing(1),
-      height: '100%',
-      width: '100%'
-    },
-    widgetSubContainer: {
       height: '100%',
       width: '100%'
     },
@@ -166,6 +162,10 @@ export const useDashboardItemStyles = makeStyles<{ hasHeader: boolean }>()(
       overflowX: 'auto',
       padding: theme.spacing(0.5, 1.5, 1.5),
       position: 'relative'
+    },
+    widgetSubContainer: {
+      height: '100%',
+      width: '100%'
     }
   })
 );

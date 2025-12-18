@@ -24,7 +24,7 @@ const StoryBookThemeProvider = ({
   const theme = useMemo(() => createTheme(getTheme(themeMode)), [themeMode]);
 
   return (
-    <StyledEngineProvider injectFirst enableCssLayer>
+    <StyledEngineProvider enableCssLayer injectFirst>
       <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
       <MuiThemeProvider theme={theme}>
         {children}

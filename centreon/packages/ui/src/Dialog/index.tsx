@@ -83,12 +83,12 @@ const Dialog = ({
 
   return (
     <MuiDialog
+      onClose={onClose}
+      open={open}
       PaperProps={{
         className: dialogPaperClassName
       }}
-      open={open}
       scroll="paper"
-      onClose={onClose}
       {...rest}
     >
       {labelTitle && (

@@ -45,9 +45,9 @@ const initialize = ({
               initialValues={initialValues}
               labels={labels}
               loading={loading}
+              onChange={change}
               roles={roles}
               submit={save}
-              onChange={change}
             />
           </Provider>
         </TestQueryProvider>

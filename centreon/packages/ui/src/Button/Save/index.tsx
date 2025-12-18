@@ -44,8 +44,8 @@ const SaveButton = ({
     labelSave,
     labelSucceeded,
     loading,
-    succeeded,
-    startIcon
+    startIcon,
+    succeeded
   });
 
   return (

@@ -32,12 +32,12 @@ const Radio = ({
     if (includes(value, ['true', 'false'])) {
       if (change) {
         change({
-          setFieldValue,
-          value: equals(value, 'true'),
-          values,
           setFieldTouched,
+          setFieldValue,
+          setTouched,
           setValues,
-          setTouched
+          value: equals(value, 'true'),
+          values
         });
 
         return;
@@ -49,7 +49,7 @@ const Radio = ({
     }
 
     if (change) {
-      change({ setFieldValue, value, values, setFieldTouched, setValues });
+      change({ setFieldTouched, setFieldValue, setValues, value, values });
 
       return;
     }
@@ -68,9 +68,9 @@ const Radio = ({
       <FormGroup>
         <FormLabel>{t(label)}</FormLabel>
         <RadioGroup
+          onChange={changeRadio}
           row={radio?.row || false}
           value={value}
-          onChange={changeRadio}
         >
           {radio?.options?.map(({ value: optionValue, label: optionLabel }) => (
             <FormControlLabel

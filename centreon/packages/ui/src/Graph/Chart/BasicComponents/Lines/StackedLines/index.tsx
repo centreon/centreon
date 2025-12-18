@@ -86,8 +86,8 @@ const StackLines = ({
             nth(index, lines) as Line;
 
           const style = getStyle({
-            style: lineStyle,
-            metricId: metric_id
+            metricId: metric_id,
+            style: lineStyle
           }) as LineStyle;
           const formattedLineWidth = style?.lineWidth ?? 2;
 
@@ -100,14 +100,14 @@ const StackLines = ({
               {displayAnchor && (
                 <StackedAnchorPoint
                   areaColor={style?.areaColor}
+                  hasSecondUnit={hasSecondUnit}
                   lineColor={lineColor}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                   stackValues={stack as unknown as Array<StackValue>}
                   timeSeries={timeSeries}
                   transparency={transparency}
                   xScale={xScale}
                   yScale={yScale}
-                  hasSecondUnit={hasSecondUnit}
-                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                 />
               )}
               {style?.showPoints &&

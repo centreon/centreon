@@ -50,8 +50,8 @@ const Content = ({
       <IconButton
         aria-label={`delete-${id}`}
         icon={<DeleteOutlineIcon color="error" fontSize="small" />}
-        size="small"
         onClick={deleteItem(id)}
+        size="small"
       />
     </div>
   );

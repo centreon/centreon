@@ -163,18 +163,18 @@ const TextField = forwardRef(
             helperText={displayErrorInTooltip ? undefined : error}
             id={getNormalizedId(dataTestId || '')}
             label={label}
+            onChange={changeInputValue}
             ref={ref}
             size={size || 'small'}
-            onChange={changeInputValue}
             {...getValueProps()}
             className={classes.textField}
             required={required}
-            sx={{
-              width: autoSize ? width : undefined,
-              ...rest?.sx
-            }}
-            type={type}
             slotProps={{
+              htmlInput: {
+                'aria-label': ariaLabel,
+                'data-testid': dataTestId,
+                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+              },
               input: {
                 className: cx(
                   classes.inputBase,
@@ -208,13 +208,13 @@ const TextField = forwardRef(
                     equals(size, 'compact') && classes.compactLabelShrink
                   )
                 }
-              },
-              htmlInput: {
-                'aria-label': ariaLabel,
-                'data-testid': dataTestId,
-                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
               }
             }}
+            sx={{
+              width: autoSize ? width : undefined,
+              ...rest?.sx
+            }}
+            type={type}
             {...rest}
           />
         </Tooltip>

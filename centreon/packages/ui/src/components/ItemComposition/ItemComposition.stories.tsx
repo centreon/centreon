@@ -61,16 +61,16 @@ export const WithSelectInputs: Story = {
         <SelectField
           dataTestId="select 1"
           label="select 1"
+          onChange={stub}
           options={options}
           selectedOptionId={1}
-          onChange={stub}
         />
         <SelectField
           dataTestId="select 2"
           label="select 2"
+          onChange={stub}
           options={options}
           selectedOptionId={2}
-          onChange={stub}
         />
       </ItemComposition.Item>
     )),

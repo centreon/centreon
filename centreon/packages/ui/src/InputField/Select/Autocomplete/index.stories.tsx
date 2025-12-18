@@ -22,8 +22,8 @@ const EndAdornment = (): JSX.Element => (
 export const openWithThreeOptions = (): JSX.Element => {
   return (
     <AutocompleteField
-      open
       label="Autocomplete"
+      open
       options={options}
       placeholder="Type here..."
       value={options[1]}
@@ -46,11 +46,11 @@ export const closeWithEndAdornment = (): JSX.Element => {
 export const required = (): JSX.Element => {
   return (
     <AutocompleteField
-      required
       endAdornment={<EndAdornment />}
       label="Autocomplete"
       options={options}
       placeholder="Type here..."
+      required
       value={options[1]}
     />
   );
@@ -59,9 +59,9 @@ export const required = (): JSX.Element => {
 export const closeWithError = (): JSX.Element => {
   return (
     <AutocompleteField
-      freeSolo
       endAdornment={<EndAdornment />}
       error="Error"
+      freeSolo
       label="Autocomplete"
       options={options}
       placeholder="Type here..."
@@ -97,10 +97,10 @@ const AutoSizeAutocompleteField = ({
       autoSizeCustomPadding={customPadding}
       endAdornment={endAdornment}
       label="Autocomplete"
+      onChange={change}
       options={autoSizeOptions}
       placeholder="Type here..."
       value={value}
-      onChange={change}
     />
   );
 };
