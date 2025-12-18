@@ -35,7 +35,7 @@
     {$form.apiKey.html}
   </td>
 </tr>
-<tr class="list_two">
+<tr class="list_one">
   <td class="FormRowField">
     {$form.timeout.label}
   </td>
@@ -43,7 +43,7 @@
     {$form.timeout.html}
   </td>
 </tr>
-<tr class="list_one">
+<tr class="list_two">
   <td class="FormRowField">
     {t}Test authentication{/t}
   </td>
@@ -54,7 +54,7 @@
   </td>
 </tr>
 
-<tr class="list_two">
+<tr class="list_one">
   <td class="FormRowField">
     {$form.mappingTicketLabel.label}
   </td>
