@@ -330,7 +330,7 @@ const LegendContent = ({
                   ) : (
                     <div className={classes.minMaxAvgContainer}>
                       {minMaxAvg.map(({ label, value }) => (
-                        <div aria-label={t(label)} key={label}>
+                        <div key={label}>
                           <Typography variant="caption">
                             {t(label)}:{' '}
                           </Typography>

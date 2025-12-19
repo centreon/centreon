@@ -143,11 +143,11 @@ describe('Resource Listing', () => {
     );
     cy.waitFiltersAndListingRequests();
 
-    resourcesWithMultipleLines.forEach(({ information }) =>
-      cy
-        .contains(pipe(split('\n'), head)(information as string) as string)
-        .should('exist')
-    );
+    resourcesWithMultipleLines.forEach(({ information }) => {
+      cy.contains(
+        pipe(split('\n'), head)(information as string) as string
+      ).should('exist');
+    });
     resourcesWithSingleLines.forEach(({ information }) => {
       cy.contains(information as string).should('exist');
     });
