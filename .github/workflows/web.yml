@@ -237,7 +237,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
 
@@ -261,7 +266,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     runs-on: ubuntu-24.04
 
     steps:
@@ -281,7 +291,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
 
@@ -313,7 +328,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
