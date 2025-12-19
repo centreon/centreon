@@ -101,6 +101,10 @@ const BarChart = ({
     );
   }
 
+  if (!adjustedData) {
+    return <div />;
+  }
+
   return (
     <Provider>
       <Box ref={ref} sx={{ height: '100%', overflow: 'hidden', width: '100%' }}>

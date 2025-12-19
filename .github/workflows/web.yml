@@ -51,9 +51,15 @@ jobs:
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
-          NIGHTLY_TARGETS=("dev-22.10.x" "dev-23.10.x" "dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
-          echo "[INFO] - Dispatching nightly run to ${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]} branch."
-          gh workflow run web.yml -r "${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}" -f nightly_manual_trigger=true
+          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          TARGET_BRANCH=${NIGHTLY_TARGETS[$(( $(date +%u) - 1 ))]}
+          if [[ -z "$TARGET_BRANCH" ]]; then
+            echo "[INFO] - The target branch was not properly defined for that day (out-of-bounds array)."
+            exit 0
+          else
+            gh workflow run web.yml -r "$TARGET_BRANCH" -f nightly_manual_trigger=true
+            echo "[INFO] - Dispatching nightly run to $TARGET_BRANCH branch."
+          fi
         shell: bash
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -139,6 +145,7 @@ jobs:
       upgrade_test_paths: |
         "centreon/www/install/**"
         "centreon/packaging/**"
+        "centreon/tests/e2e/features/Platform-upgrade-update/**"
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
       base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
       labels: ${{ needs.get-environment.outputs.labels }}
@@ -147,7 +154,11 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment]
     if: |
-      needs.get-environment.outputs.skip_workflow == 'false'
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      (
+        needs.get-environment.outputs.stability == 'testing' ||
+        (github.event_name == 'pull_request' && needs.get-environment.outputs.target_stability == 'testing')
+      )
     env:
       version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
       version_file: .version.centreon-web
@@ -232,7 +243,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
@@ -255,7 +271,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
@@ -290,7 +311,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
@@ -366,7 +392,7 @@ jobs:
 
       - name: Upload translations patch
         if: ${{ steps.build-translations.outputs.translations_patch_file != '' }}
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: translations-patch
           path: ${{ steps.build-translations.outputs.translations_patch_file }}
@@ -406,12 +432,12 @@ jobs:
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
           version: 10
           run_install: false
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: 20
           cache: pnpm
@@ -548,7 +574,7 @@ jobs:
 
       - name: Get changed PHP files
         id: changed-php
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
         with:
           files: |
             **/*.php
@@ -1160,7 +1186,7 @@ jobs:
   #         secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
   #     - name: Publish report
-  #       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+  #       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
   #       with:
   #         name: lighthouse-report
   #         path: centreon/lighthouse/report/lighthouseci-index.html
@@ -1213,34 +1239,33 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          version: 9
-          run_install: false
+          node-version: 24
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
-          node-version: 20
-
-      - name: Install redocly cli
-        run: pnpm add -g @redocly/cli@1.25.9
-        shell: bash
+          version: 10
+          run_install: |
+            cwd: "centreon/doc/API"
+            args: [--ignore-scripts, --frozen-lockfile]
 
       - name: Build openapi documentation
         run: |
-          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
-          elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
-          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
+          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon-cloud-api.yaml" ]]; then
+            OPENAPI_FILE="centreon-cloud-api.yaml"
+          elif [[ -f "centreon-api.yaml" ]]; then
+            OPENAPI_FILE="centreon-api.yaml"
+          elif [[ -f "centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
+            OPENAPI_FILE="centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
           else
             echo "::error::openapi file not found"
             exit 1
           fi
 
           echo "Building API doc from $OPENAPI_FILE"
-          redocly build-docs --theme.openapi.hideDownloadButton=true $OPENAPI_FILE -o index.html
+          pnpm run build $OPENAPI_FILE
+        working-directory: centreon/doc/API
         shell: bash
 
       - name: Setup awscli
@@ -1252,7 +1277,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 # v5.0.0
+      - uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
@@ -1268,7 +1293,7 @@ jobs:
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-environment.outputs.major_version }}"
           fi
 
-          aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
+          aws s3 cp "centreon/doc/API/index.html" "${BUCKET_PATH}/index.html"
           aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
         shell: bash
 
@@ -1277,12 +1302,12 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: openapi-doc
           path: |
-            index.html
-            centreon-logo.png
+            centreon/doc/API/index.html
+            centreon/doc/API/centreon-logo.png
           retention-days: 1
 
   deliver-rpm:

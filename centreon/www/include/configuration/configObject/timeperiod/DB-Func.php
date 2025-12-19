@@ -434,7 +434,7 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
 
     $headers = [
         'Content-Type' => 'application/json',
-        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+        'Cookie' => CentreonSession::resolveSessionCookie(),
     ];
     $response = $client->request(
         'POST',
@@ -517,7 +517,7 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
 
     $headers = [
         'Content-Type' => 'application/json',
-        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+        'Cookie' => CentreonSession::resolveSessionCookie(),
     ];
     $response = $client->request(
         'PUT',
@@ -577,7 +577,7 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
 
     $headers = [
         'Content-Type' => 'application/json',
-        'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'] . ';XDEBUG_SESSION=XDEBUG_KEY',
+        'Cookie' => CentreonSession::resolveSessionCookie(),
     ];
 
     foreach ($timePeriodIds as $id) {

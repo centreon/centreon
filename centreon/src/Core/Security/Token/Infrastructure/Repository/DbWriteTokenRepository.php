@@ -66,7 +66,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
             );
 
             $this->connection->delete(
-                $this->queryBuilder->delete('jwt_tokens')
+                $this->connection->createQueryBuilder()->delete('jwt_tokens')
                     ->where('token_name = :tokenName')
                     ->andWhere('creator_id = :userId')
                     ->getQuery(),
@@ -162,7 +162,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
     private function addJwtToken(NewJwtToken $token): void
     {
         $this->connection->insert(
-            $this->queryBuilder->insert('jwt_tokens')
+            $this->connection->createQueryBuilder()->insert('jwt_tokens')
                 ->values([
                     'token_string' => ':tokenString',
                     'token_name' => ':tokenName',
@@ -192,7 +192,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
     private function updateJwtToken(JwtToken $token): void
     {
         $this->connection->update(
-            $this->queryBuilder->update('jwt_tokens')
+            $this->connection->createQueryBuilder()->update('jwt_tokens')
                 ->set('is_revoked', ':isRevoked')
                 ->where('token_name = :tokenName')
                 ->getQuery(),
@@ -212,7 +212,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
     private function updateApiToken(ApiToken $token): void
     {
         $this->connection->update(
-            $this->queryBuilder->update('security_authentication_tokens')
+            $this->connection->createQueryBuilder()->update('security_authentication_tokens')
                 ->set('is_revoked', ':isRevoked')
                 ->where('token_name = :tokenName')
                 ->andWhere('user_id = :userId')
@@ -287,7 +287,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
     private function insertSecurityToken(NewToken $token): int
     {
         $this->connection->insert(
-            $this->queryBuilder->insert('security_token')
+            $this->connection->createQueryBuilder()->insert('security_token')
                 ->values([
                     'token' => ':token',
                     'creation_date' => ':createdAt',
@@ -315,7 +315,7 @@ class DbWriteTokenRepository extends DatabaseRepository implements WriteTokenRep
         int $securityTokenId,
     ): void {
         $this->connection->insert(
-            $this->queryBuilder->insert('security_authentication_tokens')
+            $this->connection->createQueryBuilder()->insert('security_authentication_tokens')
                 ->values([
                     'token' => ':token',
                     'provider_token_id' => ':tokenId',
