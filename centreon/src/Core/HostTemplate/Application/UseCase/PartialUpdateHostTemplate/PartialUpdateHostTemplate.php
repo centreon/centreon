@@ -91,7 +91,7 @@ final class PartialUpdateHostTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
-        private readonly ReadCommandRepositoryInterface $readCommandRepository
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -254,13 +254,15 @@ final class PartialUpdateHostTemplate
         if (! $request->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
             $hostTemplate->setCheckCommandId($request->checkCommandId);
-            $command = $this->readCommandRepository->findById($request->checkCommandId);
-            if ($command === null) {
-                throw CommandException::errorWhileRetrieving();
-            }
-            if ($command->isCentreonMonitoringAgentCommand()) {
-                $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
-                $hostTemplate->setFreshnessThreshold(120);
+            if ($request->checkCommandId !== null) {
+                $command = $this->readCommandRepository->findById($request->checkCommandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                    $hostTemplate->setFreshnessThreshold(120);
+                }
             }
         }
 

@@ -435,13 +435,15 @@ final class AddServiceTemplate
      */
     private function createServiceTemplate(AddServiceTemplateRequest $request): int
     {
-        $command = $this->readCommandRepository->findById($request->commandId);
-        if ($command === null) {
-            throw CommandException::errorWhileRetrieving();
-        }
-        if ($command->isCentreonMonitoringAgentCommand()) {
-            $request->checkFreshness = 1;
-            $request->freshnessThreshold = 120;
+        if ($request->commandId !== null) {
+            $command = $this->readCommandRepository->findById($request->commandId);
+            if ($command === null) {
+                throw CommandException::errorWhileRetrieving();
+            }
+            if ($command->isCentreonMonitoringAgentCommand()) {
+                $request->checkFreshness = 1;
+                $request->freshnessThreshold = 120;
+            }
         }
         $newServiceTemplate = $this->createNewServiceTemplate($request);
         $this->storageEngine->startTransaction();

@@ -32,6 +32,8 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -91,6 +93,7 @@ beforeEach(function (): void {
         writeVaultRepository: $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         readVaultRepository: $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         writeRealTimeHostRepository: $this->writeRealTimeHostRepository = $this->createMock(WriteRealTimeHostRepositoryInterface::class),
+        readCommandRepository: $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
     );
 
     $this->inheritanceModeOption = new Option();
@@ -256,6 +259,7 @@ beforeEach(function (): void {
 });
 
 it('should present an ErrorResponse when a generic exception is thrown', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -266,7 +270,6 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->willThrowException(new \Exception());
 
     ($this->useCase)($this->request, $this->presenter);
-
     expect($this->presenter->response)
         ->toBeInstanceOf(ErrorResponse::class)
         ->and($this->presenter->response->getMessage())
@@ -460,6 +463,7 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
 });
 
 it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -481,6 +485,7 @@ it('should present an InvalidArgumentResponse when a field assert failed', funct
 });
 
 it('should present a ConflictResponse when a host category ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -515,6 +520,7 @@ it('should present a ConflictResponse when a host category ID is not valid', fun
 });
 
 it('should present a ConflictResponse when a host group ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -549,6 +555,7 @@ it('should present a ConflictResponse when a host group ID is not valid', functi
 });
 
 it('should present a ConflictResponse when a parent template ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -580,6 +587,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
 });
 
 it('should present an ErrorResponse if the newly created host cannot be retrieved', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -621,6 +629,14 @@ it('should return created object on success (with admin user)', function (): voi
     $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
     $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
     $this->validation->expects($this->once())->method('assertIsValidIcon');
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->checkCommandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     $this->optionService
         ->expects($this->once())
         ->method('findSelectedOptions')
@@ -823,6 +839,14 @@ it('should return created object on success (with non-admin user)', function ():
     $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
     $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
     $this->validation->expects($this->once())->method('assertIsValidIcon');
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->checkCommandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     $this->optionService
         ->expects($this->once())
         ->method('findSelectedOptions')

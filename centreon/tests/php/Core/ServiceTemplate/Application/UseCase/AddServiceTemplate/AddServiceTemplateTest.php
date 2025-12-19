@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Domain\YesNoDefault;
 use Core\Macro\Domain\Model\Macro;
@@ -632,7 +633,7 @@ it('should present an InvalidArgumentResponse when data are not valid', function
     $request->severityId = 1;
     $request->graphTemplateId = 1;
     $request->serviceTemplateParentId = 1;
-    $request->commandId = 1;
+    $request->commandId = null;
     $request->eventHandlerId = 12;
     $request->checkTimePeriodId = 13;
     $request->notificationTimePeriodId = 14;
@@ -765,6 +766,15 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         firstNotificationDelay: 0,
         acknowledgementTimeout: 0,
     );
+
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $request->commandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
 
     Mock::setMock($this, [
         'user' => [[

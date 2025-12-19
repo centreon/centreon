@@ -244,13 +244,15 @@ final class AddService
      */
     private function createNewService(AddServiceRequest $request): NewService
     {
-        $command = $this->readCommandRepository->findById($request->commandId);
-        if ($command === null) {
-            throw CommandException::errorWhileRetrieving();
-        }
-        if ($command->isCentreonMonitoringAgentCommand()) {
-            $request->checkFreshness = 1;
-            $request->freshnessThreshold = 120;
+        if ($request->commandId !== null) {
+            $command = $this->readCommandRepository->findById($request->commandId);
+            if ($command === null) {
+                throw CommandException::errorWhileRetrieving();
+            }
+            if ($command->isCentreonMonitoringAgentCommand()) {
+                $request->checkFreshness = 1;
+                $request->freshnessThreshold = 120;
+            }
         }
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])

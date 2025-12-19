@@ -182,13 +182,15 @@ final class AddHost
         $this->validation->assertIsValidCommand($request->eventHandlerCommandId, null, 'eventHandlerCommandId');
         $this->validation->assertIsValidIcon($request->iconId);
 
-        $command = $this->readCommandRepository->findById($request->checkCommandId);
-        if ($command === null) {
-            throw CommandException::errorWhileRetrieving();
-        }
-        if ($command->isCentreonMonitoringAgentCommand()) {
-            $request->freshnessChecked = 1;
-            $request->freshnessThreshold = 120;
+        if ($request->checkCommandId !== null) {
+            $command = $this->readCommandRepository->findById($request->checkCommandId);
+            if ($command === null) {
+                throw CommandException::errorWhileRetrieving();
+            }
+            if ($command->isCentreonMonitoringAgentCommand()) {
+                $request->freshnessChecked = 1;
+                $request->freshnessThreshold = 120;
+            }
         }
 
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);

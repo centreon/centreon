@@ -307,13 +307,15 @@ final class PartialUpdateService
                 // No assertion on the check command for Saas platform as it will be inherited from the service template.
                 $this->validation->assertIsValidCommand($dto->commandId, $service->getServiceTemplateParentId());
             }
-            $command = $this->readCommandRepository->findById($dto->commandId);
-            if ($command === null) {
-                throw CommandException::errorWhileRetrieving();
-            }
-            if ($command->isCentreonMonitoringAgentCommand()) {
-                $service->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
-                $service->setFreshnessThreshold(120);
+            if ($dto->commandId !== null) {
+                $command = $this->readCommandRepository->findById($dto->commandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $service->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
+                    $service->setFreshnessThreshold(120);
+                }
             }
             $service->setCommandId($dto->commandId);
         }

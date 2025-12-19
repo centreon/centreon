@@ -528,13 +528,15 @@ final class PartialUpdateServiceTemplate
 
         if (! $request->commandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->commandId);
-            $command = $this->readCommandRepository->findById($request->commandId);
-            if ($command === null) {
-                throw CommandException::errorWhileRetrieving();
-            }
-            if ($command->isCentreonMonitoringAgentCommand()) {
-                $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
-                $serviceTemplate->setFreshnessThreshold(120);
+            if ($request->commandId !== null) {
+                $command = $this->readCommandRepository->findById($request->commandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
+                    $serviceTemplate->setFreshnessThreshold(120);
+                }
             }
 
             $serviceTemplate->setCommandId($request->commandId);
