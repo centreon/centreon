@@ -28,7 +28,6 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = '25.10.3';
 $errorMessage = '';
 
-
 $addIsEncryptionReadyAsBooleanColumn = function () use ($pearDB, $pearDBO, &$errorMessage, $version): void {
     $errorMessage = "Unable to update 'is_encryption_ready' column to boolean type";
     if (
