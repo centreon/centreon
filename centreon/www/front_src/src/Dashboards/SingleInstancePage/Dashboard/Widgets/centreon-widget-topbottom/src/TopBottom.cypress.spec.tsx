@@ -235,6 +235,7 @@ describe('TopBottom', () => {
 
     cy.waitForRequest('@getTop').then(({ request }) => {
       expect(request.url.searchParams.get('search')).to.equal(
+        // biome-ignore lint/security/noSecrets: false positive
         '{"$and":[{"$and":[{"host.id":{"$in":[1]}}]},{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]}]}]}'
       );
     });

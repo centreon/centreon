@@ -11,10 +11,10 @@ import {
   useSnackbar,
   useStyleTable
 } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { equals, isNil, path, pathEq } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -36,7 +36,7 @@ import { useStyles } from './Status.styles';
 
 const StatusColumnOnHover = ({
   row
-}: Pick<ComponentColumnProps, 'row'>): JSX.Element => {
+}: Pick<ComponentColumnProps, 'row'>): ReactElement => {
   const { dataStyle } = useStyleTable({});
   const { classes } = useStyles({ data: dataStyle.statusColumnChip });
   const { t } = useTranslation();
@@ -143,11 +143,8 @@ const StatusColumnOnHover = ({
   );
 };
 
-const StatusColumn =
-  ({ displayType, classes, t }) =>
-  ({ row, isHovered }: ComponentColumnProps): JSX.Element => {
-    const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
-
+const StatusColumn = ({ displayType, classes, t, isOnPublicPage }) => {
+  return ({ row, isHovered }: ComponentColumnProps): ReactElement => {
     const statusName = row.status.name;
 
     const isNestedRow =
@@ -175,5 +172,6 @@ const StatusColumn =
       </div>
     );
   };
+};
 
 export default StatusColumn;

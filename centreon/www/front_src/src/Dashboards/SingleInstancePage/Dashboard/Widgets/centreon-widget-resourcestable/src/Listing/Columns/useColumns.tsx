@@ -129,6 +129,7 @@ const useColumns = ({
       Component: StatusColumn({
         classes: statusClasses,
         displayType,
+        isOnPublicPage,
         t
       }),
       clickable: true,
