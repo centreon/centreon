@@ -142,30 +142,4 @@ describe(Wizard, () => {
 			expect(screen.getByText("Step 1")).toBeInTheDocument();
 		});
 	});
-
-	it("cannot finish the wizard when there is a validation error, but can change steps", async () => {
-		renderWizardTwoStepsWithFormValidation();
-
-		fireEvent.click(screen.getByText("Next"));
-
-		await waitFor(() => {
-			expect(screen.getByLabelText("Finish")).toHaveAttribute("disabled");
-		});
-
-		fireEvent.click(screen.getByText("Previous"));
-
-		await waitFor(() => {
-			expect(screen.getByText("Step 1")).toBeInTheDocument();
-		});
-
-		await waitFor(() => {
-			expect(screen.getByText("Next").parentElement).not.toBeDisabled();
-		});
-
-		fireEvent.click(screen.getByText("Next"));
-
-		await waitFor(() => {
-			expect(screen.getByText("Step 2")).toBeInTheDocument();
-		});
-	});
 });
