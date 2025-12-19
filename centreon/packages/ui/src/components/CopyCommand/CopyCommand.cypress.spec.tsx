@@ -133,6 +133,15 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
   });
 
   it('copies the command to the clipboard when the button is clicked', () => {
+    cy.wrap(
+      Cypress.automation('remote:debugger:protocol', {
+        command: 'Browser.grantPermissions',
+        params: {
+          origin: window.location.origin,
+          permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite']
+        }
+      })
+    );
     initialize({
       commandToCopy: 'echo "hello" | grep "hel"',
       language: 'bash',
