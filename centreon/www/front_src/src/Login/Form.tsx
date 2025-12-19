@@ -84,6 +84,7 @@ const LoginForm = (): JSX.Element => {
         value={aliasValue || ''}
         onBlur={handleBlur(aliasFieldName)}
         onChange={handleChange(aliasFieldName)}
+        dataTestId={labelAlias}
       />
       <TextField
         fullWidth
@@ -101,6 +102,7 @@ const LoginForm = (): JSX.Element => {
         value={passwordValue || ''}
         onBlur={handleBlur(passwordFieldName)}
         onChange={handleChange(passwordFieldName)}
+        dataTestId={labelPassword}
       />
       <Button
         fullWidth
