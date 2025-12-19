@@ -95,7 +95,7 @@ const useLegend = ({ lines, setLinesGraph }: Props): LegendActions => {
     }));
 
     setLinesGraph(newLines);
-  }, [lines, setLinesGraph]);
+  }, [JSON.stringify(lines), setLinesGraph]);
 
   return { clearHighlight, highlightLine, selectMetricLine, toggleMetricLine };
 };

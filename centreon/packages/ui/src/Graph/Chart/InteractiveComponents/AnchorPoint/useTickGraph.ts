@@ -110,19 +110,7 @@ const useTickGraph = ({
     const valueTickAxisRight = rightScale?.invert(positionY);
     const formattedTickAxisRight = axisRight?.tickFormat?.(valueTickAxisRight);
     setTickAxisRight(formattedTickAxisRight);
-  }, [
-    mousePosition,
-    axisLeft?.tickFormat,
-    axisRight.display,
-    axisRight?.tickFormat,
-    hasSecondUnit,
-    leftScale?.invert,
-    maxLeftAxisCharacters,
-    positionY,
-    rightScale?.invert,
-    timeSeries,
-    xScale
-  ]);
+  }, [mousePosition]);
 
   return {
     guidingLinesRef,
