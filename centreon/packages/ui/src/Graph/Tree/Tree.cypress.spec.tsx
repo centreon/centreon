@@ -16,7 +16,7 @@ const validateTree = (tree): void => {
     return;
   }
 
-  cy.contains(tree.data.name).should('be.visible');
+  cy.contains(new RegExp(`^${tree.data.name}$`)).should('be.visible');
   tree.children.forEach((child) => {
     validateTree(child);
   });
@@ -177,7 +177,7 @@ describe('Complex data tree', () => {
       }
     });
 
-    cy.contains('T').should('be.visible');
+    cy.contains(/^T$/).should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -189,7 +189,7 @@ describe('Complex data tree', () => {
       }
     });
 
-    cy.contains('T').should('be.visible');
+    cy.contains(/^T$/).should('be.visible');
 
     cy.makeSnapshot();
   });

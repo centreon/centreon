@@ -102,7 +102,7 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
 
   useEffect(() => {
     setSelectedContact(null);
-  }, []);
+  }, [contactType]);
 
   return {
     add,

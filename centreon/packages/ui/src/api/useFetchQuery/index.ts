@@ -185,7 +185,7 @@ const useFetchQuery = <T extends object>({
 
       queryClient.cancelQueries({ queryKey: getQueryKey() });
     };
-  }, [doNotCancelCallsOnUnmount, getQueryKey, queryClient.cancelQueries]);
+  }, [doNotCancelCallsOnUnmount]);
 
   useEffect(
     () => {

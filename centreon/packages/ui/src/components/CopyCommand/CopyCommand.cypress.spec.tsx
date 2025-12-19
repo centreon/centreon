@@ -146,7 +146,7 @@ echo "hello" | grep "hel"`
         cy.spy(clipboard, 'writeText').as('writeText');
       });
 
-    cy.findByTestId('Copy command').click();
+    cy.findByTestId('Copy command').focus().click();
 
     cy.get('@writeText').should(
       'have.been.calledOnceWith',

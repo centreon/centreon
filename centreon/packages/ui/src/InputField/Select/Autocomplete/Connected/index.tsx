@@ -336,7 +336,7 @@ const ConnectedAutocompleteField = (
             : undefined
         );
       }
-    }, [optionsOpen, initialPage, searchConditions]);
+    }, [optionsOpen, initialPage, JSON.stringify(searchConditions)]);
 
     useEffect(() => {
       setSearchParameter(
@@ -344,7 +344,7 @@ const ConnectedAutocompleteField = (
           ? { conditions: searchConditions }
           : undefined
       );
-    }, [...useDeepCompare([searchConditions]), searchConditions]);
+    }, [...useDeepCompare([searchConditions])]);
 
     useEffect(() => {
       if (!autocompleteChangedValue && !props?.value) {
@@ -359,7 +359,7 @@ const ConnectedAutocompleteField = (
       }
 
       fetchOptionsAndPrefetchNextOptions();
-    }, [optionsOpen, fetchOptionsAndPrefetchNextOptions]);
+    }, [optionsOpen, page, searchParameter]);
 
     return (
       <AutocompleteField
