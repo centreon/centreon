@@ -39,40 +39,38 @@ export type ConnectorFormLabels = {
   entity;
 };
 
-const Actions =
-  ({ onCancel, mode }) =>
-  (): JSX.Element => {
-    const { t } = useTranslation();
+const Actions = ({ onCancel, mode }): JSX.Element => {
+  const { t } = useTranslation();
 
-    const setIsDirty = useSetAtom(isFormDirtyAtom);
+  const setIsDirty = useSetAtom(isFormDirtyAtom);
 
-    const { dirty } = useFormikContext();
+  const { dirty } = useFormikContext();
 
-    useEffect(() => {
-      setIsDirty(dirty);
-    }, [dirty]);
+  useEffect(() => {
+    setIsDirty(dirty);
+  }, [dirty]);
 
-    const actionsLabels = {
-      cancel: t(labelCancel),
-      submit: {
-        create: t(labelSave),
-        update: t(labelSave)
-      }
-    };
-
-    const variant = equals(mode, 'add') ? 'create' : 'update';
-
-    return (
-      <>
-        <FormActions
-          labels={actionsLabels}
-          onCancel={onCancel}
-          variant={variant}
-        />
-        <CloseModalConfirmation />
-      </>
-    );
+  const actionsLabels = {
+    cancel: t(labelCancel),
+    submit: {
+      create: t(labelSave),
+      update: t(labelSave)
+    }
   };
+
+  const variant = equals(mode, 'add') ? 'create' : 'update';
+
+  return (
+    <>
+      <FormActions
+        labels={actionsLabels}
+        onCancel={onCancel}
+        variant={variant}
+      />
+      <CloseModalConfirmation />
+    </>
+  );
+};
 
 const HostGroupForm = ({
   mode,
@@ -90,7 +88,9 @@ const HostGroupForm = ({
   return (
     <Form
       areGroupsOpen
-      Buttons={hasWriteAccess ? Actions({ mode, onCancel }) : Box}
+      Buttons={
+        hasWriteAccess ? () => <Actions mode={mode} onCancel={onCancel} /> : Box
+      }
       groups={groups}
       groupsClassName={classes.groups}
       initialValues={initialValues}
