@@ -43,37 +43,37 @@ on:
     outputs:
       trigger_backend_testing:
         description: "if the backend testing job should be triggered"
-        value: ${{ github.event_name == 'workflow_dispatch' && jobs.get-dispatch-triggers.outputs.trigger_backend_testing || jobs.get-triggers.outputs.trigger_backend_testing }}
+        value: ${{ jobs.get-triggers.outputs.trigger_backend_testing }}
       trigger_frontend_testing:
         description: "if the frontend testing job should be triggered"
-        value: ${{ github.event_name == 'workflow_dispatch' && jobs.get-dispatch-triggers.outputs.trigger_frontend_testing || jobs.get-triggers.outputs.trigger_frontend_testing }}
+        value: ${{ jobs.get-triggers.outputs.trigger_frontend_testing }}
       trigger_packaging:
         description: "if the packaging job should be triggered"
-        value: ${{ github.event_name == 'workflow_dispatch' && jobs.get-dispatch-triggers.outputs.trigger_packaging || jobs.get-triggers.outputs.trigger_packaging }}
+        value: ${{ jobs.get-triggers.outputs.trigger_packaging }}
       trigger_api_testing:
         description: "if the API testing job should be triggered"
-        value: ${{ github.event_name == 'workflow_dispatch' && jobs.get-dispatch-triggers.outputs.trigger_api_testing || jobs.get-triggers.outputs.trigger_api_testing }}
+        value: ${{ jobs.get-triggers.outputs.trigger_api_testing }}
       trigger_e2e_testing:
         description: "if the E2E testing job should be triggered"
-        value: ${{ github.event_name == 'workflow_dispatch' && jobs.get-dispatch-triggers.outputs.trigger_e2e_testing || jobs.get-triggers.outputs.trigger_e2e_testing }}
+        value: ${{ jobs.get-triggers.outputs.trigger_e2e_testing }}
       trigger_upgrade_testing:
         description: "if the upgrade tests should be triggered"
-        value: ${{ github.event_name == 'workflow_dispatch' && jobs.get-dispatch-triggers.outputs.trigger_upgrade_testing || jobs.get-triggers.outputs.trigger_upgrade_testing }}
+        value: ${{ jobs.get-triggers.outputs.trigger_upgrade_testing }}
       trigger_delivery:
         description: "if the delivery job should be triggered"
-        value: ${{ github.event_name == 'workflow_dispatch' && jobs.get-dispatch-triggers.outputs.trigger_delivery || jobs.get-triggers.outputs.trigger_delivery }}
+        value: ${{ jobs.get-triggers.outputs.trigger_delivery }}
 
 jobs:
   get-triggers:
     runs-on: ubuntu-24.04
     outputs:
-      trigger_backend_testing: ${{ steps.get_triggers.outputs.trigger_backend_testing || 'true' }}
-      trigger_frontend_testing: ${{ steps.get_triggers.outputs.trigger_frontend_testing || 'true' }}
-      trigger_packaging: ${{ steps.get_triggers.outputs.trigger_packaging || 'true' }}
-      trigger_api_testing: ${{ steps.get_triggers.outputs.trigger_api_testing || 'true' }}
-      trigger_e2e_testing: ${{ steps.get_triggers.outputs.trigger_e2e_testing || 'true' }}
-      trigger_upgrade_testing: ${{ steps.get_triggers.outputs.trigger_upgrade_testing || 'true' }}
-      trigger_delivery: ${{ steps.get_triggers.outputs.trigger_delivery || 'true' }}
+      trigger_backend_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_backend_testing || steps.get_triggers.outputs.trigger_backend_testing || 'true' }}
+      trigger_frontend_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_frontend_testing || steps.get_triggers.outputs.trigger_frontend_testing || 'true' }}
+      trigger_packaging: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_packaging || steps.get_triggers.outputs.trigger_packaging || 'true' }}
+      trigger_api_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_api_testing || steps.get_triggers.outputs.trigger_api_testing || 'true' }}
+      trigger_e2e_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_e2e_testing || steps.get_triggers.outputs.trigger_e2e_testing || 'true' }}
+      trigger_upgrade_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_upgrade_testing || steps.get_triggers.outputs.trigger_upgrade_testing || 'true' }}
+      trigger_delivery: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_delivery || steps.get_triggers.outputs.trigger_delivery || 'true' }}
 
     steps:
       - name: Checkout sources
