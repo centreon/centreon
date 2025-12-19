@@ -48,7 +48,7 @@ jobs:
           ref: ${{ inputs.release_bundle_tag }}
           sparse-checkout: .version
 
-      - name: Check if promoted packages are available for the version
+      - name: Get parameters from tag
         shell: bash
         id: check_promoted_packages
         run: |
