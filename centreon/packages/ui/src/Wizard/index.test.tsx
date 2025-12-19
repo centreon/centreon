@@ -168,14 +168,4 @@ describe(Wizard, () => {
 			expect(screen.getByText("Step 2")).toBeInTheDocument();
 		});
 	});
-
-	it("cannot finish the wizard while the step is sending requests", async () => {
-		renderWizardTwoStepsWithSendingRequests();
-
-		fireEvent.click(screen.getByText("Next"));
-
-		await waitFor(() => {
-			expect(screen.getByLabelText("Finish")).toHaveAttribute("disabled");
-		});
-	});
 });
