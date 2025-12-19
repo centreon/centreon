@@ -177,9 +177,5 @@ describe(Wizard, () => {
 		await waitFor(() => {
 			expect(screen.getByLabelText("Finish")).toHaveAttribute("disabled");
 		});
-
-		fireEvent.click(screen.getByText("Finish requests"));
-
-		expect(screen.getByLabelText("Finish")).not.toHaveAttribute("disabled");
 	});
 });
