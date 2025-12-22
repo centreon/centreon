@@ -48,6 +48,7 @@ $centreonSession->start();
 // exit if user is not admin
 if ((bool) $_SESSION['centreon']->user->admin !== true) {
     echo json_encode(['error' => 'Permission denied']);
+
     exit;
 }
 $username = $_SESSION['centreon']->user->alias;
