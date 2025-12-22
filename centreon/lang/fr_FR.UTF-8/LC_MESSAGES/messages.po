@@ -24618,7 +24618,7 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 
 #: unknown
 msgid "Edit password"
-msgstr "modifier le mot de passe"
+msgstr "Modifier le mot de passe"
 
 #: unknown
 msgid "Revert to previous password"
