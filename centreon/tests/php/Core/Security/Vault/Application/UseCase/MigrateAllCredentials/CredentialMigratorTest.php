@@ -113,11 +113,11 @@ beforeEach(function (): void {
         new HostTemplate(2, 'HostTemplate1', 'HostTemplate1'),
     ];
 
-    $this->hostMacro = new Macro(1, '_MACRO_HOST1', 'value');
+    $this->hostMacro = new Macro(null, 1, '_MACRO_HOST1', 'value');
     $this->hostMacro->setIsPassword(true);
     $this->hostMacros = [$this->hostMacro];
 
-    $this->serviceMacro = new Macro(1, '_MACRO_SERVICE1', 'value');
+    $this->serviceMacro = new Macro(null, 1, '_MACRO_SERVICE1', 'value');
     $this->serviceMacro->setIsPassword(true);
     $this->serviceMacros = [$this->serviceMacro];
 
