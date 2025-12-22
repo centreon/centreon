@@ -50,6 +50,8 @@ $username = $_SESSION['centreon']->user->alias;
 $clapiConnector = new ClapiObject($dependencyInjector, ['username' => $username]);
 $importReturn = [];
 
+// Add check here to validate user right
+
 /**
  * Upload file
  */
