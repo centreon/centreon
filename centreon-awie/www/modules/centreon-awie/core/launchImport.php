@@ -26,6 +26,7 @@ require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/class/ClapiObject.cla
 require_once _CENTREON_PATH_ . '/www/class/centreon.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonUser.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
@@ -43,14 +44,47 @@ set_include_path(
 require_once _CLAPI_CLASS_ . '/centreonUtils.class.php';
 require_once _CLAPI_CLASS_ . '/centreonAPI.class.php';
 
+$pearDB = new CentreonDB();
+
 $centreonSession = new CentreonSession();
 $centreonSession->start();
-// exit if user is not admin
+
+// Exit if no session cookie
+if (!isset($_COOKIE['PHPSESSID']) || empty($_COOKIE['PHPSESSID'])) {
+    echo json_encode(['error' => 'Authentication required']);
+
+    exit;
+}
+
+// Exit if invalid session
+if (!isset($_SESSION['centreon']) || !isset($_SESSION['centreon']->user)) {
+    echo json_encode(['error' => 'Invalid or expired session']);
+
+    exit;
+}
+
+// Check CSRF token
+if (!isset($_POST['centreon_token']) || !isCSRFTokenValid()) {
+    echo json_encode(['error' => 'Invalid security token']);
+
+    exit;
+}
+purgeCSRFToken();
+
+// Exit if user is not admin
 if ((bool) $_SESSION['centreon']->user->admin !== true) {
     echo json_encode(['error' => 'Permission denied']);
 
     exit;
 }
+
+// Exit if user is a service account
+if (isServiceAccount($_SESSION['centreon']->user->user_id)) {
+    echo json_encode(['error' => 'Permission denied for service accounts']);
+
+    exit;
+}
+
 $username = $_SESSION['centreon']->user->alias;
 /** @var Pimple\Container $dependencyInjector */
 $clapiConnector = new ClapiObject($dependencyInjector, ['username' => $username]);
