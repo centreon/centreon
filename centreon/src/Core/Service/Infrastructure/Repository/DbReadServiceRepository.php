@@ -285,13 +285,15 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 FROM `:db`.host_service_relation hsr
                 INNER JOIN `:db`.host h
                     ON h.host_id = hsr.host_host_id
+                INNER JOIN (
+                    SELECT service_service_id
+                    FROM `:db`.host_service_relation
+                    GROUP BY service_service_id
+                    HAVING COUNT(*) = 1
+                ) uniq
+                    ON uniq.service_service_id = hsr.service_service_id
                 WHERE hsr.host_host_id = :host_id
                     AND h.host_register = '1'
-                    AND (
-                        SELECT COUNT(*)
-                        FROM `:db`.host_service_relation hsr2
-                        WHERE hsr2.service_service_id = hsr.service_service_id
-                    ) = 1
                 SQL
         );
 
