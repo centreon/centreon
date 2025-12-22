@@ -3,6 +3,8 @@ import { Method } from '@centreon/ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useUserPermissions } from './useUserPermissions';
+
 import {
   commandDecoder,
   commandsEndpoint,
@@ -25,25 +27,6 @@ import {
   labelType
 } from './translatedLabels';
 
-const typeOptions = [
-  {
-    id: 'Notification',
-    name: labelNotification
-  },
-  {
-    id: 'Check',
-    name: labelCheck
-  },
-  {
-    id: 'Miscellaneous',
-    name: labelMiscellaneous
-  },
-  {
-    id: 'Discovery',
-    name: labelDiscovery
-  }
-];
-
 interface UseCommandsState {
   api: APIType;
   filtersConfiguration: Array<FilterConfiguration>;
@@ -60,6 +43,40 @@ export const adaptFormToApiPayload = (formData: Command): Payload => ({
 
 const useCommands = (): UseCommandsState => {
   const { t } = useTranslation();
+
+  const {
+    canViewCheckCommands,
+    canViewNotificationCommands,
+    canViewDiscoveryCommands,
+    canViewMiscellaneousCommands
+  } = useUserPermissions();
+
+  const typeOptions = useMemo(
+    () => [
+      {
+        id: 'Notification',
+        name: labelNotification,
+        disabled: !canViewNotificationCommands
+      },
+      { id: 'Check', name: labelCheck, disabled: !canViewCheckCommands },
+      {
+        id: 'Miscellaneous',
+        name: labelMiscellaneous,
+        disabled: !canViewMiscellaneousCommands
+      },
+      {
+        id: 'Discovery',
+        name: labelDiscovery,
+        disabled: !canViewDiscoveryCommands
+      }
+    ],
+    [
+      canViewCheckCommands,
+      canViewNotificationCommands,
+      canViewDiscoveryCommands,
+      canViewMiscellaneousCommands
+    ]
+  );
 
   const api: APIType = useMemo(
     () => ({
@@ -109,8 +126,7 @@ const useCommands = (): UseCommandsState => {
       {
         name: t(labelLockedElements),
         fieldName: 'is_from_monitoring_connector',
-        fieldType: FieldType.Checkbox,
-        options: typeOptions
+        fieldType: FieldType.Checkbox
       }
     ],
     []

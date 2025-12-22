@@ -10,7 +10,7 @@ interface Props<TFilters> {
   label: string;
   filters: TFilters;
   setFilters: Dispatch<SetStateAction<TFilters>>;
-  options: Array<{ id: string; name: string }>;
+  options: Array<{ id: string; name: string; disabled?: boolean }>;
 }
 
 const Checkboxes = <TFilters,>({
@@ -32,7 +32,7 @@ const Checkboxes = <TFilters,>({
     <div className="flex flex-col justify-between items-start pl-2">
       <Typography className="font-medium">{t(label)}</Typography>
       <div className="grid grid-cols-2">
-        {options.map(({ id, name }) => (
+        {options.map(({ id, name, disabled }) => (
           <FormControlLabel
             control={
               <Checkbox
@@ -42,6 +42,7 @@ const Checkboxes = <TFilters,>({
                 onChange={change}
               />
             }
+            disabled={disabled}
             key={id}
             label={t(name)}
           />

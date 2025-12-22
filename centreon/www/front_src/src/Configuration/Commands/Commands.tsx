@@ -6,12 +6,7 @@ import useColumns from './Columns/useColumns';
 import useCommands from './useCommands';
 
 import { ResourceType } from '../models';
-import {
-  initialValues,
-  useCanManageCommand,
-  useInputs,
-  useValidationSchema
-} from './Form';
+import { initialValues, useInputs, useValidationSchema } from './Form';
 import {
   columnsAtomKey,
   defaultSelectedColumnIds,
@@ -25,6 +20,7 @@ import {
   selectedColumnIdsAtom
 } from './atoms';
 import { Filters } from './models';
+import { useUserPermissions } from './useUserPermissions';
 
 import {
   labelAddCommand,
@@ -43,7 +39,7 @@ const Commands = (): ReactElement => {
 
   const { api, filtersConfiguration } = useCommands();
 
-  const { canEdit } = useCanManageCommand();
+  const { canEdit } = useUserPermissions();
 
   return (
     <ConfigurationBase<Filters>

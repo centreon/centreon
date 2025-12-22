@@ -9,7 +9,7 @@ import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { Tooltip } from '@centreon/ui/components';
 import { Command } from '../../models';
 
-import { useCanManageCommand } from './useCanManageCommand';
+import { useUserPermissions } from '../../useUserPermissions';
 
 import {
   labelCheck,
@@ -32,7 +32,7 @@ const CommandType = (): ReactElement => {
     canEditNotificationCommands,
     canEditDiscoveryCommands,
     canEditMiscellaneousCommands
-  } = useCanManageCommand();
+  } = useUserPermissions();
 
   const options = useMemo(
     () => [
