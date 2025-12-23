@@ -29,7 +29,6 @@ function submitForm() {
     var csrfToken = jQuery('#centreon_token').val();
     data.push({name: 'centreon_token', value: csrfToken});
     jQuery(".loadingWrapper").css('display', 'block');
-    jQuery(".loadingWrapper").css('display', 'block');
     jQuery.ajax({
         type: "POST",
         url: "./modules/centreon-awie/core/generateExport.php",
