@@ -1835,13 +1835,12 @@ function isServiceAccount(int $userId): bool
 
     try {
         $stmt = $pearDB->prepare(
-            'SELECT is_service_account FROM contact WHERE contact_id = :contact_id LIMIT 1'
+            "SELECT 1 FROM contact WHERE contact_id = :contact_id AND contact_name IN ('centreon-gorgone', 'CBIS', 'centreon-map') LIMIT 1"
         );
         $stmt->bindValue(':contact_id', $userId, PDO::PARAM_INT);
         $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $result && isset($result['is_service_account']) && (bool) $result['is_service_account'] === true;
+        return (bool) $stmt->fetch();
     } catch (Exception $e) {
         return false;
     }
