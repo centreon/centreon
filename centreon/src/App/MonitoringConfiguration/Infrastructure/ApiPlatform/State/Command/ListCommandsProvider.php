@@ -89,6 +89,10 @@ final readonly class ListCommandsProvider implements ProviderInterface
             $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
         }
 
+        if (count($allowedTypes) === 0) {
+            return [];
+        }
+
         $criteria = new CommandCriteria();
         if ($this->pagination->isEnabled($operation, $context)) {
             $criteria = $criteria->withPagination(
