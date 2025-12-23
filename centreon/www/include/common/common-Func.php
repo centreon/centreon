@@ -1824,6 +1824,30 @@ function unvalidFormMessage()
 }
 
 /**
+ * Check if a user is a service account (e.g. centreon-gorgone)
+ *
+ * @param int $userId The user ID to check
+ * @return bool True if the user is a service account, false otherwise
+ */
+function isServiceAccount(int $userId): bool
+{
+    global $pearDB;
+
+    try {
+        $stmt = $pearDB->prepare(
+            'SELECT is_service_account FROM contact WHERE contact_id = :contact_id LIMIT 1'
+        );
+        $stmt->bindValue(':contact_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result && isset($result['is_service_account']) && (bool) $result['is_service_account'] === true;
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+/**
  * Return ids of hosts linked to hostgroups
  *
  * @param int[] $hostgroupIds
