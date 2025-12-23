@@ -50,21 +50,21 @@ $centreonSession = new CentreonSession();
 $centreonSession->start();
 
 // Exit if no session cookie
-if (!isset($_COOKIE['PHPSESSID']) || empty($_COOKIE['PHPSESSID'])) {
+if (! isset($_COOKIE['PHPSESSID']) || empty($_COOKIE['PHPSESSID'])) {
     echo json_encode(['error' => 'Authentication required']);
 
     exit;
 }
 
 // Exit if invalid session
-if (!isset($_SESSION['centreon']) || !isset($_SESSION['centreon']->user)) {
+if (! isset($_SESSION['centreon']) || ! isset($_SESSION['centreon']->user)) {
     echo json_encode(['error' => 'Invalid or expired session']);
 
     exit;
 }
 
 // Check CSRF token
-if (!isset($_POST['centreon_token']) || !isCSRFTokenValid()) {
+if (! isset($_POST['centreon_token']) || ! isCSRFTokenValid()) {
     echo json_encode(['error' => 'Invalid security token']);
 
     exit;
