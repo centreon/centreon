@@ -23,6 +23,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -127,6 +128,39 @@ $fixBrokerConfigTypo = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+$addDefaultPortToAgentInitiatedAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add default port to agent initiated agent configurations';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [agent_configuration] Adding default port to agent initiated agent configurations",
+    );
+    $agentConfigurations = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+                SELECT id, configuration FROM agent_configuration
+            SQL
+    );
+    foreach ($agentConfigurations as $configurationJson) {
+        $configuration = json_decode($configurationJson['configuration'], true, JSON_THROW_ON_ERROR);
+        if (! isset($configuration['port'])) {
+            $configuration['port'] = (bool) $configuration['agent_initiated'] === true
+                ? AgentConfiguration::DEFAULT_PORT
+                : null;
+        }
+        $updatedConfigurationJson = json_encode($configuration, JSON_THROW_ON_ERROR);
+        $pearDB->update(
+            <<<'SQL'
+                UPDATE agent_configuration
+                SET configuration = :configuration
+                WHERE id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string('configuration', $updatedConfigurationJson),
+                QueryParameter::int('id', (int) $configurationJson['id']),
+            ])
+        );
+    }
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -141,6 +175,7 @@ try {
 
     $fixBrokerConfigTypo();
     $updateSamlProviderConfiguration();
+    $addDefaultPortToAgentInitiatedAgentConfiguration();
 
     $pearDB->commitTransaction();
 

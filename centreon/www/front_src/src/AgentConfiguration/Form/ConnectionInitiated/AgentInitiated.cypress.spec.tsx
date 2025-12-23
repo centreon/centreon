@@ -7,7 +7,10 @@ import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
-  connectionMode: { id: ConnectionMode.secure, name: 'secure' },
+  connectionMode: {
+    id: ConnectionMode.secure,
+    name: 'TLS'
+  },
   configuration: {
     otelPublicCertificate: '',
     otelCaCertificate: '',
@@ -20,7 +23,10 @@ const initialValues = {
 };
 
 const valuesWithErrors = {
-  connectionMode: { id: 'secure', name: 'secure' },
+  connectionMode: {
+    id: ConnectionMode.secure,
+    name: 'TLS'
+  },
   configuration: {
     otelPublicCertificate: '',
     otelCaCertificate: '',
@@ -30,6 +36,10 @@ const valuesWithErrors = {
 };
 
 const mockErrors = {
+  connectionMode: {
+    id: ConnectionMode.secure,
+    name: 'TLS'
+  },
   configuration: {
     otelPublicCertificate: 'Public certificate is required',
     otelCaCertificate: 'CA certificate is required',
@@ -95,7 +105,10 @@ describe('AgentInitiated', () => {
 
   it('should render with pre-filled certificate values', () => {
     const prefilledValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
+      connectionMode: {
+        id: ConnectionMode.secure,
+        name: 'TLS'
+      },
       configuration: {
         otelPublicCertificate: 'existing-public.crt',
         otelCaCertificate: 'existing-ca.crt',
@@ -164,7 +177,10 @@ describe('AgentInitiated', () => {
 
   it('should handle null values for certificates', () => {
     const nullValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
+      connectionMode: {
+        id: ConnectionMode.secure,
+        name: 'TLS'
+      },
       configuration: {
         otelPublicCertificate: null,
         otelCaCertificate: null,
@@ -214,7 +230,10 @@ describe('AgentInitiated', () => {
 
   it('should clear certificate fields when empty string is entered', () => {
     const prefilledValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
+      connectionMode: {
+        id: ConnectionMode.secure,
+        name: 'TLS'
+      },
       configuration: {
         otelPublicCertificate: 'existing-public.crt',
         otelCaCertificate: 'existing-ca.crt',
