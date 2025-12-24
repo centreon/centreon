@@ -29,7 +29,7 @@ require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
 
 define('_CLAPI_LIB_', _CENTREON_PATH_ . '/lib');
 define('_CLAPI_CLASS_', _CENTREON_PATH_ . '/www/class/centreon-clapi');
-
+// test
 set_include_path(
     implode(
         PATH_SEPARATOR,
