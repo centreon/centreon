@@ -192,9 +192,9 @@ beforeEach(function (): void {
     $this->request->templates = $this->parentTemplates;
 
     // Settup macros
-    $this->macroA = new Macro($this->hostTemplateId, 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(null, $this->hostTemplateId, 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->hostTemplateId, 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(null, $this->hostTemplateId, 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
