@@ -19,8 +19,11 @@
  * limitations under the License.
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class GlpiRestApiProvider extends AbstractProvider
 {
+    use LoggerTrait;
     protected $close_advanced = 1;
     protected $proxy_enabled = 1;
     /** @var null|array */
@@ -68,6 +71,103 @@ class GlpiRestApiProvider extends AbstractProvider
     /*
     * Set default values for our rule form options
     */
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
+
+    /*
+    * test if we can reach Glpi webservice with the given Configuration
+    *
+    * @param {array} $info required information to reach the glpi api
+    *
+    * @return {bool}
+    *
+    * throw \Exception if there are some missing parameters
+    * throw \Exception if the connection failed
+    */
+    public static function test($info)
+    {
+        // this is called through our javascript code. Those parameters are already checked in JS code.
+        // but since this function is public, we check again because anyone could use this function
+        if (
+            ! isset($info['address'])
+            || ! isset($info['api_path'])
+            || ! isset($info['user_token'])
+            || ! isset($info['app_token'])
+            || ! isset($info['protocol'])
+        ) {
+            throw new Exception('missing arguments', 13);
+        }
+
+        // check if php curl is installed
+        if (! extension_loaded('curl')) {
+            throw new Exception("couldn't find php curl", 10);
+        }
+
+        $curl = curl_init();
+
+        $apiAddress = $info['protocol'] . '://' . $info['address'] . $info['api_path'] . '/initSession';
+        $info['method'] = 0;
+        // set headers
+        $info['headers'] = ['App-Token: ' . $info['app_token'], 'Authorization: user_token ' . $info['user_token'], 'Content-Type: application/json'];
+
+        // ssl peer verify
+        $peerVerify = (bool) ($info['peer_verify'] ?? true);
+        $caCertPath = $info['ca_cert_path'] ?? '';
+
+        // initiate our curl options
+        curl_setopt($curl, CURLOPT_URL, $apiAddress);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $peerVerify ? 2 : 0);
+        curl_setopt($curl, CURLOPT_POST, $info['method']);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+        }
+        // execute curl and get status information
+        $curlResult = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($httpCode > 301) {
+            throw new Exception('curl result: ' . $curlResult . '|| HTTP return code: ' . $httpCode, 11);
+        }
+
+        return true;
+    }
+
+    /*
+    * check if the close option is enabled, if so, try to close every selected ticket
+    *
+    * @param {array} $tickets
+    *
+    * @return void
+    */
+    public function closeTicket(&$tickets): void
+    {
+        if ($this->doCloseTicket()) {
+            foreach ($tickets as $k => $v) {
+                try {
+                    $this->closeTicketGlpi($k);
+                    $tickets[$k]['status'] = 2;
+                } catch (Exception $e) {
+                    $tickets[$k]['status'] = -1;
+                    $tickets[$k]['msg_error'] = $e->getMessage();
+                }
+            }
+        } else {
+            parent::closeTicket($tickets);
+        }
+    }
+
+    // Set default values for our rule form options
     protected function setDefaultValueExtra()
     {
         $this->default_data['address'] = '127.0.0.1';
@@ -1075,21 +1175,41 @@ class GlpiRestApiProvider extends AbstractProvider
             $apiAddress .= preg_match('/.+\?/', $apiAddress) ? '&' : '?';
             $apiAddress .= 'range=' . $offset . '-' . ($offset + self::PAGE_SIZE);
         }
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
 
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt($curl, CURLOPT_POST, $info['method']);
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
+        $optionsToLog = [
+            'apiAddress' => $apiAddress,
+            'method' => $info['method'],
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
         // add postData if needed
         if ($info['method']) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, $info['postFields']);
+            $optionsToLog['postFields'] = $info['postFields'];
         }
         // change curl method with a custom one (PUT, DELETE) if needed
         if (isset($info['custom_request'])) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $info['custom_request']);
+            $optionsToLog['custom_request'] = $info['custom_request'];
         }
 
         // if proxy is set, we add it to curl
@@ -1132,6 +1252,11 @@ class GlpiRestApiProvider extends AbstractProvider
                 return $length;
             });
         }
+
+        // log the curl options
+        $this->debug('GLPI API request options', [
+            'options' => $optionsToLog,
+        ]);
 
         // execute curl and get status information
         $curlResult = json_decode(curl_exec($curl), true);

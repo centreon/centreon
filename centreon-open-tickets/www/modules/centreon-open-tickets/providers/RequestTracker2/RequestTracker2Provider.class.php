@@ -19,8 +19,11 @@
  * limitations under the License.
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class RequestTracker2Provider extends AbstractProvider
 {
+    use LoggerTrait;
     protected $proxy_enabled = 1;
 
     public const RT_QUEUE_TYPE = 10;
@@ -581,11 +584,18 @@ class RequestTracker2Provider extends AbstractProvider
             $headers[] = 'Content-Length: ' . strlen($argument_json);
             $method = 'POST';
         }
+
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
 
         self::setProxy(
             $ch,
@@ -596,7 +606,27 @@ class RequestTracker2Provider extends AbstractProvider
                 'proxy_password' => $this->getFormValue('proxy_password', false),
             )
         );
+
+        $optionsToLog = [
+            'apiAddress' => $base_url,
+            'method' => $method,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        if ($peerVerify && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // log the curl options
+        $this->debug('Request tracker API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $result = curl_exec($ch);
         if ($result == false) {
             $this->setWsError(curl_error($ch));

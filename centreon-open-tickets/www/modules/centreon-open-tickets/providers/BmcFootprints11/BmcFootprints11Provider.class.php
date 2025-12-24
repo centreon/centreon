@@ -19,14 +19,17 @@
  * limitations under the License.
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class BmcFootprints11Provider extends AbstractProvider
 {
-    const ARG_TITLE = 1;
-    const ARG_DESCRIPTION = 2;
-    const ARG_STATUS = 3;
-    const ARG_PROJECTID = 4;
-    const ARG_PRIORITYNUMBER = 5;
-    const ARG_ASSIGNEE = 6;
+    use LoggerTrait;
+    public const ARG_TITLE = 1;
+    public const ARG_DESCRIPTION = 2;
+    public const ARG_STATUS = 3;
+    public const ARG_PROJECTID = 4;
+    public const ARG_PRIORITYNUMBER = 5;
+    public const ARG_ASSIGNEE = 6;
 
     protected $internal_arg_name = [
         self::ARG_TITLE => 'Title',
@@ -381,12 +384,18 @@ class BmcFootprints11Provider extends AbstractProvider
             return 1;
         }
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
@@ -396,6 +405,26 @@ class BmcFootprints11Provider extends AbstractProvider
                 'Content-Length: ' . strlen($data)
             )
         );
+
+        $optionsToLog = [
+            'apiAddress' => $endpoint,
+            'SOAPAction' => $url . '#MRWebServices__createIssue',
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        // log the curl options
+        $this->debug('BMC Footprints API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $result = curl_exec($ch);
         curl_close($ch);
 

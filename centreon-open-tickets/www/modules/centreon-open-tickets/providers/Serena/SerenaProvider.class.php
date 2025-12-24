@@ -19,8 +19,11 @@
  * limitations under the License.
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class SerenaProvider extends AbstractProvider
 {
+    use LoggerTrait;
     public const ARG_PROJECT_ID = 1;
     public const ARG_SUBJECT = 2;
     public const ARG_CONTENT = 3;
@@ -393,7 +396,7 @@ class SerenaProvider extends AbstractProvider
     }
 
     /**
-     * @param array $data
+     * @param array|string $data
      * @return int
      */
     protected function callSOAP($data)
@@ -407,21 +410,43 @@ class SerenaProvider extends AbstractProvider
             return 1;
         }
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
+        $payload = is_string($data) ? $data : json_encode($data);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type:  text/xml;charset=UTF-8',
-                'SOAPAction: ae:CreatePrimaryItem',
-                'Content-Length: ' . strlen($data)
-            )
+            ['Content-Type:  text/xml;charset=UTF-8', 'SOAPAction: ae:CreatePrimaryItem', 'Content-Length: ' . strlen($payload)]
         );
+        $optionsToLog = [
+            'apiAddress' => $base_url,
+            'method' => 'POST',
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        // log the curl options
+        $this->debug('Serena API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $result = curl_exec($ch);
         curl_close($ch);
 
