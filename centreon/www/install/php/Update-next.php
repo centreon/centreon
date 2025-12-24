@@ -105,6 +105,17 @@ $addNewCommandPage = function () use ($pearDB, &$errorMessage): void {
     );
 };
 
+$updateCommandsParentTopology = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to update parent commands topology';
+    $pearDB->executeStatement(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_url` = '/configuration/commands', `is_react` = '1'
+            WHERE `topology_page` = 608
+            SQL
+    );
+};
+
 $deleteCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to delete from table acl_topology_relations';
     $pearDB->executeStatement(
@@ -303,6 +314,7 @@ try {
     }
 
     $addNewCommandPage();
+    $updateCommandsParentTopology();
     $moveCommandACLTopologyIntoACLActions();
     $setBackupMysqlConfDefaultAsEmpty();
     $addDefaultPortToAgentInitiatedAgentConfiguration();
