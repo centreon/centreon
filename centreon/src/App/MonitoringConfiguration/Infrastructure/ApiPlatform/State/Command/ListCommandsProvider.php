@@ -89,7 +89,7 @@ final readonly class ListCommandsProvider implements ProviderInterface
             $allowedTypes = array_intersect($requestedTypes, $allowedTypes);
         }
 
-        if (count($allowedTypes) === 0) {
+        if ($allowedTypes === []) {
             return [];
         }
 
