@@ -21,9 +21,10 @@
 
 declare(strict_types=1);
 
-namespace Core\AdditionalConnectorConfiguration\Application\Validation;
+namespace Tests\Core\AgentConfiguration\Domain\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
 
 beforeEach(function (): void {
@@ -39,6 +40,7 @@ beforeEach(function (): void {
                 'creator_id' => 1,
             ],
         ],
+        'port' => AgentConfiguration::DEFAULT_PORT,
         'hosts' => [
             [
                 'id' => 1,
