@@ -574,8 +574,8 @@ it('should present an AddServiceResponse when everything has gone well', functio
         $categoryB = new ServiceCategory(13, 'cat-name-B', 'cat-alias-B'),
     ];
 
-    $macroA = new Macro($newServiceId, 'MACROA', 'A');
-    $macroB = new Macro($newServiceId, 'MACROB', 'B');
+    $macroA = new Macro(null, $newServiceId, 'MACROA', 'A');
+    $macroB = new Macro(null, $newServiceId, 'MACROB', 'B');
 
     $serviceGroup = new ServiceGroup(15, 'SG-name', 'SG-alias', null, '', true);
     $serviceGroupRelation = new ServiceGroupRelation(
