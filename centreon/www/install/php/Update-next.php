@@ -302,14 +302,8 @@ try {
         $pearDB->startTransaction();
     }
 
-    $alignCMAAgentConfigurationWithNewSchema();
-    $cleanGlobalMacrosName();
-    $fixTypoInStandardMacroName();
     $addNewCommandPage();
     $moveCommandACLTopologyIntoACLActions();
-    $fixBrokerConfigTypo();
-    $bbdoCfgUpdate();
-    $updateSamlProviderConfiguration();
     $setBackupMysqlConfDefaultAsEmpty();
     $addDefaultPortToAgentInitiatedAgentConfiguration();
 
