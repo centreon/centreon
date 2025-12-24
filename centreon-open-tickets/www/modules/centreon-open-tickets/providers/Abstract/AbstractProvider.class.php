@@ -461,6 +461,8 @@ Output: {$service.output|substr:0:1024}
         }
 
         $this->default_data['clones']['bodyList'] = [['Name' => 'Default', 'Value' => $default_body, 'Default' => '1']];
+        $this->default_data['peer_verify'] = 'yes';
+        $this->default_data['ca_cert_path'] = '';
     }
 
     /**
@@ -630,22 +632,24 @@ Output: {$service.output|substr:0:1024}
 
         // Form
         $url_html = '<input size="50" name="url" type="text" value="' . $this->getFormValue('url') . '" />';
-        $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">' .
-            $this->getFormValue('message_confirm') . '</textarea>';
-        $ack_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="ack" name="ack" value="yes" ' .
-            ($this->getFormValue('ack') === 'yes' ? 'checked' : '') .
-            '/><label class="empty-label" for="ack"></label></div>';
-        $scheduleCheckHtml = '<input type="checkbox" name="schedule_check" value="yes" ' .
-            ($this->getFormValue('schedule_check') === 'yes' ? 'checked' : '') . '/>';
-        $close_ticket_enable_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="close_ticket" name="close_ticket_enable" value="yes" ' .
-            ($this->getFormValue('close_ticket_enable') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="close_ticket"></label></div>';
-        $error_close_centreon_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="error_close_centreon" name="error_close_centreon" value="yes" ' .
-            ($this->getFormValue('error_close_centreon') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="error_close_centreon"></label></div>';
+        $message_confirm_html = '<textarea rows="8" cols="70" name="message_confirm">'
+            . $this->getFormValue('message_confirm') . '</textarea>';
+        $ack_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="ack" name="ack" value="yes" '
+            . ($this->getFormValue('ack') === 'yes' ? 'checked' : '')
+            . '/><label class="empty-label" for="ack"></label></div>';
+        $scheduleCheckHtml = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="schedule_check" name="schedule_check" value="yes" '
+            . ($this->getFormValue('schedule_check') === 'yes' ? 'checked' : '')
+            . '/><label class="empty-label" for="schedule_check"></label></div>';
+        $close_ticket_enable_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="close_ticket" name="close_ticket_enable" value="yes" '
+            . ($this->getFormValue('close_ticket_enable') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="close_ticket"></label></div>';
+        $error_close_centreon_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="error_close_centreon" name="error_close_centreon" value="yes" '
+            . ($this->getFormValue('error_close_centreon') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="error_close_centreon"></label></div>';
 
         $array_form = [
             'url' => ['label' => _("Url"), 'html' => $url_html],
@@ -735,8 +739,26 @@ Output: {$service.output|substr:0:1024}
             ['label' => _("Value"), 'html' => $bodyListValue_html],
             ['label' => _("Default"), 'html' => $bodyListDefault_html]
         ];
+        // SSL Peer verify
+        $peerVerifyHtml = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="peer_verify" name="peer_verify" value="yes" '
+            . ($this->getFormValue('peer_verify') === 'yes' ? 'checked' : '')
+            . '/><label class="empty-label" for="peer_verify"></label></div>';
+        $caCertPathHtml  = '<input size="50" name="ca_cert_path" type="text" value="' . $this->getFormValue('ca_cert_path') . '" />';
+
+        $array_form['peer_verify'] = ['label' => _('SSL Verify Peer'), 'html' => $peerVerifyHtml];
+        $array_form['ca_cert_path'] = ['label' => _('Certificate Authority Info'), 'html' => $caCertPathHtml];
 
         $tpl->assign('form', $array_form);
+
+        // prepare help texts
+        $helptext = '';
+        include_once __DIR__ . '/help.php';
+        foreach ($help as $key => $text) {
+            $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
+        }
+        $tpl->assign('helptext', $helptext);
+
         $this->config['container1_html'] .= $tpl->fetch('conf_container1main.ihtml');
 
         $this->config['clones']['groupList'] = $this->getCloneValue('groupList');
@@ -917,6 +939,10 @@ Output: {$service.output|substr:0:1024}
         $this->save_config['simple']['proxy_port'] = $this->submitted_config['proxy_port'] ?? '';
         $this->save_config['simple']['proxy_username'] = $this->submitted_config['proxy_username'] ?? '';
         $this->save_config['simple']['proxy_password'] = $this->submitted_config['proxy_password'] ?? '';
+        $this->save_config['simple']['peer_verify'] = (
+            isset($this->submitted_config['peer_verify']) && $this->submitted_config['peer_verify'] == 'yes'
+        ) ? $this->submitted_config['peer_verify'] : '';
+        $this->save_config['simple']['ca_cert_path'] = $this->submitted_config['ca_cert_path'] ?? '';
     }
 
     /**

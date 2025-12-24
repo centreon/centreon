@@ -1,25 +1,28 @@
 <?php
 /*
-* Copyright 2019 Centreon (http://www.centreon.com/)
-*
-* Centreon is a full-fledged industry-strength solution that meets
-* the needs in IT infrastructure and application monitoring for
-* service performance.
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,*
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+use Centreon\Domain\Log\LoggerTrait;
+
 class ItopProvider extends AbstractProvider
 {
+    use LoggerTrait;
     protected $proxy_enabled = 1;
     protected $close_advanced = 1;
 
@@ -444,15 +447,34 @@ class ItopProvider extends AbstractProvider
         $query = ['auth_user' => $this->getFormValue('username'), 'auth_pwd' => $this->getFormValue('password'), 'json_data' => json_encode($data)];
 
         $curl = curl_init();
-        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address') .
-        '/webservices/rest.php?version=' . $this->getFormValue('api_version');
+        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address')
+        . '/webservices/rest.php?version=' . $this->getFormValue('api_version');
+
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($query));
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
+        $optionsToLog = [
+            'apiAddress' => $apiAddress,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
 
         // if proxy is set, we add it to curl
         if (
@@ -464,6 +486,7 @@ class ItopProvider extends AbstractProvider
                 CURLOPT_PROXY,
                 $this->getFormValue('proxy_address') . ':' . $this->getFormValue('proxy_port')
             );
+
             // if proxy authentication configuration is set, we add it to curl
             if (
                 $this->getFormValue('proxy_username') != ''
@@ -476,6 +499,12 @@ class ItopProvider extends AbstractProvider
                 );
             }
         }
+
+        // log the curl options
+        $this->debug('Itop API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         // execute curl and get status information
         $curlResult = json_decode(curl_exec($curl), true);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
