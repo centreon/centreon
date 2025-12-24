@@ -533,13 +533,13 @@ final class PartialUpdateHost
      */
     private function updateMacros(PartialUpdateHostRequest $dto, Host $host): void
     {
-        $this->info(
+        $this->debug(
             'PartialUpdateHost: update macros',
             ['host_id' => $host->getId(), 'macros' => $dto->macros]
         );
 
         if ($dto->macros instanceof NoValue) {
-            $this->info('Macros not provided, nothing to update');
+            $this->debug('Macros not provided, nothing to update');
 
             return;
         }
@@ -650,7 +650,6 @@ final class PartialUpdateHost
                     $macro->isPassword() === true
                     && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
                 ) {
-
                     break;
                 }
             }
@@ -684,7 +683,7 @@ final class PartialUpdateHost
 
             $this->uuid ??= $this->getUuidFromPath($vaultPaths[$macroPrefixedName]);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -714,7 +713,7 @@ final class PartialUpdateHost
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
