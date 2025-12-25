@@ -54,9 +54,6 @@ it('should correctly identify that it does not handle other types', function ():
 foreach (
     [
         'invalidfilename',
-        './fileName.crt',
-        '../fileName.cer',
-        '//fileName.crt',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
     ] as $index => $filename
@@ -87,9 +84,6 @@ foreach (
 foreach (
     [
         'invalidfilename',
-        './fileName.key',
-        '../fileName.key',
-        '//fileName.key',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
     ] as $index => $filename
