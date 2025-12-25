@@ -50,12 +50,13 @@ class TelegrafValidator implements TypeValidatorInterface
         /** @var _TelegrafParameters $configuration */
         $configuration = $request->configuration;
         foreach ($configuration as $key => $value) {
+            // validate file extension
             if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
-                if (preg_match('/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt)$).+$/', (string) $value) === 1) {
+                if (preg_match('/^(?!.*\.(cer|crt)$).+$/', (string) $value) === 1) {
                     throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
                 }
             } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
-                if (preg_match('/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/', (string) $value) === 1) {
+                if (preg_match('/^(?!.*\.key$).+$/', (string) $value) === 1) {
                     throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
                 }
             }

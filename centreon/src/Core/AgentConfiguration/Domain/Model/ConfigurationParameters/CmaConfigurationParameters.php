@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 
@@ -56,6 +56,18 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     public const DEFAULT_EXPORT_PERIOD = 60;
     public const CERTIFICATE_BASE_PATH = '/etc/pki/';
 
+    /** @var array<string> Forbidden base directories for certificates */
+    private const FORBIDDEN_DIRECTORIES = [
+        '/tmp',
+        '/root',
+        '/proc',
+        '/mnt',
+        '/run',
+        '/snap',
+        '/sys',
+        '/boot',
+    ];
+
     /** @var _CmaParameters */
     private array $parameters;
 
@@ -63,7 +75,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      * @param array<string,mixed> $parameters
      * @param bool $fromReadRepository
      *
-     * @throws AssertionFailedException
+     * @throws AssertionException
      */
     public function __construct(array $parameters, bool $fromReadRepository = false)
     {
@@ -184,7 +196,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     }
 
     /**
-     * Prepends a prefix to a certificate path.
+     * Prepends a prefix to a certificate path if it's a relative path.
      *
      * @param ?string $path
      *
@@ -196,7 +208,8 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
             return $path;
         }
 
-        return str_starts_with($path, self::CERTIFICATE_BASE_PATH)
+        // Prepend the default certificate base path
+        return str_starts_with($path, '/')
             ? $path
             : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
     }
@@ -207,12 +220,62 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      * @param ?string $certificate
      * @param string $field Used for error reporting
      *
-     * @throws AssertionFailedException
+     * @throws AssertionException
      */
     private function validateOptionalCertificate(?string $certificate, string $field): void
     {
         if ($certificate !== null && $certificate !== '') {
             Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+            $this->validateCertificatePath($certificate, $field);
+        }
+    }
+
+    /**
+     * Validates that a certificate path is safe and not in a forbidden directory.
+     *
+     * @param string $path
+     * @param string $field Used for error reporting
+     *
+     * @throws AssertionException
+     */
+    private function validateCertificatePath(string $path, string $field): void
+    {
+        // Reject relative paths
+        if (
+            str_contains($path, '../')
+            || str_contains($path, '//')
+            || str_contains($path, './')
+            || $path === '.'
+            || $path === '..'
+        ) {
+            throw new AssertionException(
+                sprintf('[%s] The path "%s" contains invalid relative path patterns', $field, $path),
+            );
+        }
+
+        // Reject hidden directories
+        if (preg_match('#/\\.#', $path) || (str_starts_with($path, '.') && ! str_starts_with($path, './'))) {
+            throw new AssertionException(
+                sprintf('[%s] The path "%s" cannot be in a hidden directory', $field, $path),
+            );
+        }
+
+        // Reject forbidden directories
+        foreach (self::FORBIDDEN_DIRECTORIES as $forbiddenDirectory) {
+            if (str_starts_with($path, $forbiddenDirectory . '/') || $path === $forbiddenDirectory) {
+                throw new AssertionException(
+                    sprintf('[%s] The path "%s" cannot be in directory %s', $field, $path, $forbiddenDirectory),
+                );
+            }
+        }
+
+        // Reject forbidden directories : /etc but not /etc/pki
+        if (str_starts_with($path, '/etc/')) {
+            if (! str_starts_with($path, '/etc/pki/') && $path !== '/etc/pki') {
+                throw new AssertionException(
+                    sprintf('[%s] The path "%s" can only be in /etc/pki/ directory', $field, $path),
+                );
+            }
         }
     }
 }
