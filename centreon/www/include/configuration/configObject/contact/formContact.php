@@ -386,6 +386,8 @@ $tab[] = $form->createElement(
 );
 $form->addGroup($tab, 'contact_oreon', _('Reach Centreon Front-end'), '&nbsp;');
 
+$autologinEnabled = ($contactId == $centreon->user->user_id || $centreon->user->admin);
+
 if (
     $o !== MASSIVE_CHANGE
     && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_LOCAL
@@ -446,7 +448,7 @@ if (
 
     // Autologin Management
 
-    if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
+    if (($o === ADD_CONTACT || $o === MODIFY_CONTACT) && $autologinEnabled) {
         $form->addElement(
             'text',
             'contact_autologin_key',
@@ -1086,10 +1088,14 @@ if ($o != MASSIVE_CHANGE) {
     $form->addRule(['contact_passwd', 'contact_passwd2'], _('Passwords do not match'), 'compare');
     if ($o === ADD_CONTACT) {
         $form->addFormRule('validatePasswordCreation');
-        $form->addFormRule('validateAutologin');
+        if ($autologinEnabled) {
+            $form->addFormRule('validateAutologin');
+        }
     } elseif ($o === MODIFY_CONTACT) {
         $form->addFormRule('validatePasswordModification');
-        $form->addFormRule('validateAutologin');
+        if ($autologinEnabled) {
+            $form->addFormRule('validateAutologin');
+        }
     }
     $form->registerRule('exist', 'callback', 'testContactExistence');
     $form->addRule('contact_name', "<font style='color: red;'>*</font>&nbsp;" . _('Contact already exists'), 'exist');
@@ -1110,6 +1116,7 @@ if ($o != MASSIVE_CHANGE) {
 }
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
+$tpl->assign('autologinEnabled', $autologinEnabled);
 $tpl->assign(
     'helpattr',
     'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, '
