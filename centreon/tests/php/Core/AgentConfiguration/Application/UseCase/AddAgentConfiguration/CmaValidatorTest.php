@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
@@ -108,7 +109,7 @@ foreach (
     it("Invalid certificate filename #{$index}: should throw an exception because of the filename for certificate {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['agent_initiated'] = true;
         $this->request->configuration['otel_ca_certificate'] = $filename;
-        $this->expectException(AgentConfigurationException::class);
+        $this->expectException(AssertionException::class);
         $this->cmaValidator->validateParametersOrFail($this->request);
     });
 }
@@ -143,7 +144,7 @@ foreach (
     it("Invalid key filename #{$index}: should throw an exception because of the filename for key {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['agent_initiated'] = true;
         $this->request->configuration['otel_private_key'] = $filename;
-        $this->expectException(AgentConfigurationException::class);
+        $this->expectException(AssertionException::class);
         $this->cmaValidator->validateParametersOrFail($this->request);
     });
 }

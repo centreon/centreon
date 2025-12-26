@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Validation;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
@@ -137,7 +138,7 @@ class CmaValidator implements TypeValidatorInterface
      * @param ?string $value
      * @param bool $isCertificate (default true)
      *
-     * @throws AgentConfigurationException
+     * @throws AssertionException
      */
     private function validateFilename(string $name, ?string $value, bool $isCertificate = true): void
     {
@@ -146,7 +147,9 @@ class CmaValidator implements TypeValidatorInterface
             : '/^(?!.*\.key$).+$/';
 
         if ($value !== null && preg_match($pattern, $value)) {
-            throw AgentConfigurationException::invalidFilename($name, (string) $value);
+            throw new AssertionException(
+                sprintf("File path or format '%s' (%s) is invalid", $value, $name)
+            );
         }
     }
 

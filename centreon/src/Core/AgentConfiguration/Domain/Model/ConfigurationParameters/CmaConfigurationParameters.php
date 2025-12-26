@@ -56,20 +56,10 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     public const DEFAULT_EXPORT_PERIOD = 60;
     public const CERTIFICATE_BASE_PATH = '/etc/pki/';
 
-    /** @var array<string> Forbidden base directories for certificates */
+    /** @var array<string> */
     private const FORBIDDEN_DIRECTORIES = [
-        '/tmp',
-        '/root',
-        '/proc',
-        '/mnt',
-        '/run',
-        '/snap',
-        '/sys',
-        '/boot',
+        '/tmp', '/root', '/proc', '/mnt', '/run', '/snap', '/sys', '/boot',
     ];
-
-    /** @var _CmaParameters */
-    private array $parameters;
 
     /**
      * @param array<string,mixed> $parameters
@@ -77,70 +67,60 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @throws AssertionException
      */
-    public function __construct(array $parameters, bool $fromReadRepository = false)
+    public function __construct(private array $parameters, private readonly bool $fromReadRepository = false)
     {
-        /** @var _CmaParameters $parameters */
-        $parameters = $this->normalizeCertificatePaths($parameters);
-
-        if ($parameters['agent_initiated'] === false) {
-            $parameters['otel_public_certificate'] = null;
-            $parameters['otel_private_key'] = null;
-            $parameters['otel_ca_certificate'] = null;
-            $parameters['tokens'] = [];
+        if ($this->parameters['agent_initiated'] === false) {
+            $this->parameters['otel_public_certificate'] = null;
+            $this->parameters['otel_private_key'] = null;
+            $this->parameters['otel_ca_certificate'] = null;
+            $this->parameters['tokens'] = [];
         } else {
-            $this->validateOptionalCertificate(
-                $parameters['otel_public_certificate'],
+            $this->parameters['otel_public_certificate'] = $this->validateCertificatePath(
+                $this->parameters['otel_public_certificate'],
                 'configuration.otel_public_certificate'
             );
-            $this->validateOptionalCertificate(
-                $parameters['otel_private_key'],
+            $this->parameters['otel_private_key'] = $this->validateCertificatePath(
+                $this->parameters['otel_private_key'],
                 'configuration.otel_private_key'
             );
-            $this->validateOptionalCertificate(
-                $parameters['otel_ca_certificate'],
+            $this->parameters['otel_ca_certificate'] = $this->validateCertificatePath(
+                $this->parameters['otel_ca_certificate'],
                 'configuration.otel_ca_certificate'
             );
 
             // $fromReadRepository allow configurations created before tokens was mandatoryto be read even without tokens
-            if (! $fromReadRepository) {
-                Assertion::notEmpty($parameters['tokens'], 'configuration.tokens');
-                foreach ($parameters['tokens'] as $token) {
+            if (! $this->fromReadRepository) {
+                Assertion::notEmpty($this->parameters['tokens'], 'configuration.tokens');
+                foreach ($this->parameters['tokens'] as $token) {
                     Assertion::notEmptyString($token['name']);
                 }
             }
-            if (! isset($parameters['port'])) {
-                $parameters['port'] = AgentConfiguration::DEFAULT_PORT;
+            if (! isset($this->parameters['port'])) {
+                $this->parameters['port'] = AgentConfiguration::DEFAULT_PORT;
             }
-            Assertion::range($parameters['port'] ?? AgentConfiguration::DEFAULT_PORT, 0, 65535, 'configuration.port');
+            Assertion::range($this->parameters['port'] ?? AgentConfiguration::DEFAULT_PORT, 0, 65535, 'configuration.port');
         }
 
-        if ($parameters['poller_initiated'] === false) {
-            $parameters['hosts'] = [];
+        if ($this->parameters['poller_initiated'] === false) {
+            $this->parameters['hosts'] = [];
         } else {
-            foreach ($parameters['hosts'] as $host) {
+            foreach ($this->parameters['hosts'] as $key => $host) {
                 Assertion::positiveInt($host['id'], 'configuration.hosts[].id');
                 Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
                 Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
-                $this->validateOptionalCertificate(
+                $this->parameters['hosts'][$key]['poller_ca_certificate'] = $this->validateCertificatePath(
                     $host['poller_ca_certificate'],
                     'configuration.hosts[].poller_ca_certificate'
                 );
-                $this->validateOptionalCertificate(
-                    $host['poller_ca_name'],
-                    'configuration.hosts[].poller_ca_name'
-                );
 
                 // $fromReadRepository allow configurations created before tokens was mandatoryto be read even without tokens
-                if (! $fromReadRepository) {
+                if (! $this->fromReadRepository) {
                     Assertion::notNull($host['token'], 'configuration.hosts[].token');
                     Assertion::notEmptyString($host['token']['name'] ?? '');
                     Assertion::positiveInt($host['token']['creator_id'] ?? 0);
                 }
             }
         }
-
-        /** @var _CmaParameters $parameters */
-        $this->parameters = $parameters;
     }
 
     /**
@@ -150,6 +130,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      */
     public function getData(): array
     {
+        /** @var _CmaParameters */
         return $this->parameters;
     }
 
@@ -161,73 +142,33 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         return self::BROKER_MODULE_DIRECTIVE;
     }
 
-    /**
-     * Normalizes the certificate paths in the given parameters array.
-     *
-     * @param array<string,mixed> $parameters
-     *
-     * @return array<string, mixed>
-     */
-    private function normalizeCertificatePaths(array $parameters): array
+    private function validateCertificatePath(?string $path, string $field): ?string
     {
-        foreach ($parameters as $key => $value) {
-            if (
-                (
-                    str_ends_with($key, '_certificate')
-                    || str_ends_with($key, '_key')
-                )
-                && (is_string($value) || is_null($value))
-            ) {
-                $parameters[$key] = $this->prependPrefix($value);
-            }
-
-            if ($key === 'hosts' && is_array($value)) {
-                foreach ($value as $hostIndex => $host) {
-                    if (isset($host['poller_ca_certificate']) && is_string($host['poller_ca_certificate'])) {
-                        $parameters[$key][$hostIndex]['poller_ca_certificate'] = $this->prependPrefix(
-                            $host['poller_ca_certificate']
-                        );
-                    }
-                }
-            }
+        if ($path === null || $path === '') {
+            return null;
         }
 
-        return $parameters;
+        $this->assertPathSecurity($path, $field);
+        $normalizedPath = $this->prependPrefix($path);
+        Assertion::maxLength($normalizedPath, self::MAX_LENGTH, $field);
+
+        return $normalizedPath;
     }
 
     /**
      * Prepends a prefix to a certificate path if it's a relative path.
      *
-     * @param ?string $path
+     * @param string $path
      *
-     * @return ?string
+     * @return string
      */
-    private function prependPrefix(?string $path): ?string
+    private function prependPrefix(string $path): string
     {
-        if ($path === null || $path === '') {
+        if (str_starts_with($path, '/')) {
             return $path;
         }
 
-        // Prepend the default certificate base path
-        return str_starts_with($path, '/')
-            ? $path
-            : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
-    }
-
-    /**
-     * Validates an optional certificate.
-     *
-     * @param ?string $certificate
-     * @param string $field Used for error reporting
-     *
-     * @throws AssertionException
-     */
-    private function validateOptionalCertificate(?string $certificate, string $field): void
-    {
-        if ($certificate !== null && $certificate !== '') {
-            Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
-            $this->validateCertificatePath($certificate, $field);
-        }
+        return self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
     }
 
     /**
@@ -238,7 +179,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      *
      * @throws AssertionException
      */
-    private function validateCertificatePath(string $path, string $field): void
+    private function assertPathSecurity(string $path, string $field): void
     {
         // Reject relative paths
         if (

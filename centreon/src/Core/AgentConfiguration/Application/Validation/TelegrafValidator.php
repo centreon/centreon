@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Validation;
 
-use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
@@ -53,11 +53,15 @@ class TelegrafValidator implements TypeValidatorInterface
             // validate file extension
             if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
                 if (preg_match('/^(?!.*\.(cer|crt)$).+$/', (string) $value) === 1) {
-                    throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+                    throw new AssertionException(
+                        sprintf("File path or format '%s' (%s) is invalid", (string) $value, "configuration.{$key}")
+                    );
                 }
             } elseif (str_ends_with($key, '_key') && (is_string($value) || is_null($value))) {
                 if (preg_match('/^(?!.*\.key$).+$/', (string) $value) === 1) {
-                    throw AgentConfigurationException::invalidFilename("configuration.{$key}", (string) $value);
+                    throw new AssertionException(
+                        sprintf("File path or format '%s' (%s) is invalid", (string) $value, "configuration.{$key}")
+                    );
                 }
             }
         }
