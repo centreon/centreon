@@ -41,6 +41,12 @@ runs:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
 
+    - name: Parse distrib name
+      id: parse-distrib
+      uses: ./.github/actions/parse-distrib
+      with:
+        distrib: ${{ inputs.distrib }}
+
     - name: Publish DEBs
       env:
         JF_URL: https://packages.centreon.com
@@ -88,6 +94,7 @@ runs:
             OS_DISTRIB=$(echo "$file" | sed -nE 's/.*(\+deb[0-9]+).*/\1/p')
           else
             echo "Distrib ${{ inputs.distrib }} is not supported as OS_DISTRIB."
+            exit 1
           fi
 
           # debug
