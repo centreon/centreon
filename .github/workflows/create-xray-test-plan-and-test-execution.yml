@@ -181,12 +181,25 @@ jobs:
         id: get_test_plan_id
         run: |
           test_plan_key=$(echo '${{ toJSON(steps.get_test_plan_key.outputs) }}' | jq -r '.test_plan_key_'${{ inputs.os }})
-          echo "getting the testPlanId for the testPlanKey: $test_plan_key"
+          echo "Getting the TestPlan ID for key: $test_plan_key"
+
           jira_url="https://centreon.atlassian.net/rest/api/2/issue/$test_plan_key"
 
-          test_plan_id=$(curl -u "${{ secrets.xray_jira_user_email }}:${{ secrets.xray_jira_token }}" -X GET -s "$jira_url" | jq -r '.id')
-          echo "this is the testPlan ID : $test_plan_id"
-          echo "test_plan_id_${{ inputs.os }}=$test_plan_id" >> $GITHUB_OUTPUT
+          response=$(curl -sS -u "${{ secrets.xray_jira_user_email }}:${{ secrets.xray_jira_token }}" "$jira_url")
+
+          # Debug (optional, remove later)
+          echo "Jira response:"
+          echo "$response"
+
+          test_plan_id=$(echo "$response" | jq -r '.id')
+
+          if [ "$test_plan_id" = "null" ] || [ -z "$test_plan_id" ]; then
+            echo "❌ ERROR: Unable to retrieve TestPlan ID for $test_plan_key"
+            exit 1
+          fi
+
+          echo "TestPlan ID: $test_plan_id"
+          echo "test_plan_id_${{ inputs.os }}=$test_plan_id" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Create TestExecution and Get the TestExecutionID
