@@ -2440,7 +2440,7 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
-    if (isset($ret['command_command_id'])) {
+    if (isset($ret['command_command_id']) && ! empty($ret['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $ret['command_command_id']);
         if ($command === null) {
