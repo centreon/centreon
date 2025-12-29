@@ -79,12 +79,12 @@ const LoginForm = (): JSX.Element => {
         required
         StartAdornment={PersonIcon}
         ariaLabel={labelAlias}
+        dataTestId={labelAlias}
         error={aliasError}
         label={t(labelAlias)}
         value={aliasValue || ''}
         onBlur={handleBlur(aliasFieldName)}
         onChange={handleChange(aliasFieldName)}
-        dataTestId={labelAlias}
       />
       <TextField
         fullWidth
@@ -92,6 +92,7 @@ const LoginForm = (): JSX.Element => {
         EndAdornment={passwordEndAdornment}
         StartAdornment={LockIcon}
         ariaLabel={labelPassword}
+        dataTestId={labelPassword}
         error={passwordError}
         inputProps={{
           'aria-label': t(labelPassword) as string,
@@ -102,7 +103,6 @@ const LoginForm = (): JSX.Element => {
         value={passwordValue || ''}
         onBlur={handleBlur(passwordFieldName)}
         onChange={handleChange(passwordFieldName)}
-        dataTestId={labelPassword}
       />
       <Button
         fullWidth
