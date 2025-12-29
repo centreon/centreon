@@ -69,7 +69,7 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
     const filterValues = filters?.[filterName];
 
     return filterValues.map((filterValue) => ({
-      name: `${filterName}[eq]`,
+      name: `${filterName}[]`,
       value: filterValue
     }));
   };
