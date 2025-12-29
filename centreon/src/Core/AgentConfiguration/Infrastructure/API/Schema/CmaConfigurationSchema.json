@@ -16,6 +16,7 @@
                 "otel_public_certificate",
                 "otel_ca_certificate",
                 "otel_private_key",
+                "port",
                 "hosts",
                 "tokens"
             ],
@@ -42,6 +43,12 @@
                     "type": [
                         "null",
                         "string"
+                    ]
+                },
+                "port": {
+                    "type": [
+                        "null",
+                        "integer"
                     ]
                 },
                 "tokens": {

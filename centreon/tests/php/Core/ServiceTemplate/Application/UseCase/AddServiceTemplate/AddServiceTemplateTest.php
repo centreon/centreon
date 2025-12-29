@@ -710,10 +710,10 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         new ServiceTemplateInheritance(1, 8),
     ];
 
-    $macroA = new Macro($newServiceTemplateId, 'MACROA', 'A');
+    $macroA = new Macro(null, $newServiceTemplateId, 'MACROA', 'A');
     $macroA->setDescription('');
 
-    $macroB = new Macro($newServiceTemplateId, 'MACROB', 'B');
+    $macroB = new Macro(null, $newServiceTemplateId, 'MACROB', 'B');
     $macroB->setDescription('');
 
     $serviceGroup = new ServiceGroup(1, 'SG-name', 'SG-alias', null, '', true);

@@ -184,9 +184,9 @@ beforeEach(function (): void {
     ];
 
     // Settup macros
-    $this->macroA = new Macro($this->hostTemplate->getId(), 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(1, $this->hostTemplate->getId(), 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->hostTemplate->getId(), 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(2, $this->hostTemplate->getId(), 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
@@ -690,6 +690,7 @@ it('should return created object on success (with admin user)', function (): voi
         ->and($response->macros)
         ->toBe(array_map(
             (fn ($macro) => [
+                'id' => $macro->getId(),
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),
@@ -877,6 +878,7 @@ it('should return created object on success (with non-admin user)', function ():
         ->and($response->macros)
         ->toBe(array_map(
             (fn ($macro) => [
+                'id' => $macro->getId(),
                 'name' => $macro->getName(),
                 'value' => $macro->getValue(),
                 'isPassword' => $macro->isPassword(),

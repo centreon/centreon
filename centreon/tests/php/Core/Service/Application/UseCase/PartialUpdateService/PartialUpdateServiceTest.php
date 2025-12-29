@@ -118,9 +118,9 @@ beforeEach(closure: function (): void {
     $this->request->groups = [$this->groupB->getId()];
 
     // Settup macros
-    $this->macroA = new Macro($this->service->getId(), 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(null, $this->service->getId(), 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->service->getId(), 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(null, $this->service->getId(), 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Service, 'commandMacroName');
     $this->commandMacros = [

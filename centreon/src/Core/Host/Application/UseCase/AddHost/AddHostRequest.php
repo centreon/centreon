@@ -116,7 +116,7 @@ final class AddHostRequest
     /** @var int[] */
     public array $templates = [];
 
-    /** @var array<array{name:string,value:null|string,is_password:bool,description:null|string}> */
+    /** @var array<array{id?:int|null,name:string,value:null|string,is_password:bool,description:null|string}> */
     public array $macros = [];
 
     public bool $isActivated = true;
