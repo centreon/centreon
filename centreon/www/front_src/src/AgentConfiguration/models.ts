@@ -37,6 +37,7 @@ export interface HostConfiguration {
 }
 
 export interface CMAConfiguration {
+  port?: number | null;
   agentInitiated: boolean;
   pollerInitiated: boolean;
   otelPublicCertificate: string | null;

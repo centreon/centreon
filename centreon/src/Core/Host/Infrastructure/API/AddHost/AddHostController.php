@@ -121,7 +121,7 @@ final class AddHostController extends AbstractController
              *     categories?: int[],
              *     groups?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
+             *     macros?: array<array{id?:int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
              *     add_inherited_contact_group?: bool,
              *     add_inherited_contact?: bool,
              *     is_activated?: bool
@@ -223,7 +223,7 @@ final class AddHostController extends AbstractController
              *     categories?: int[],
              *     groups?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
+             *     macros?: array<array{id?:int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
              *     is_activated?: bool,
              *     event_handler_enabled?: int,
              *     event_handler_command_id?: null|int,
