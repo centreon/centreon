@@ -72,14 +72,23 @@ Given(
   'a running platform in major {string} with {string} version',
   (major_version_from_expression: string, version_from_expression: string) => {
     return cy.getWebVersion().then(({ major_version }) => {
+      cy.task('logVersion', `Current Major version value is ${major_version}`);
       let major_version_from = '0';
       switch (major_version_from_expression) {
         case 'n - 1':
           major_version_from = getCentreonPreviousMajorVersion(major_version);
+          cy.task(
+            'logVersion',
+            `Previous Major version value is ${major_version_from}`,
+          );
           break;
         case 'n - 2':
           major_version_from = getCentreonPreviousMajorVersion(
             getCentreonPreviousMajorVersion(major_version)
+          );
+          cy.task(
+            'logVersion',
+            `Previous Major version value is ${major_version_from}`
           );
           break;
         default:
@@ -140,7 +149,10 @@ Given(
                 const installed_version = `${major_version_from}.${stable_minor_versions[minor_version_index]}`;
                 Cypress.env('installed_version', installed_version);
                 cy.log('installed_version', installed_version);
-
+                cy.task(
+                  "logVersion",
+                  `Installed version value is ${installed_version}`
+                );
                 return installCentreon(installed_version)
                   .then(() => {
                     if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
@@ -158,13 +170,14 @@ EOF`,
 
                     return cy.execInContainer({
                       command: `bash -e <<EOF
-                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-stable/ bullseye main" > /etc/apt/sources.list.d/centreon-stable.list
-                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-testing/ bullseye main" > /etc/apt/sources.list.d/centreon-testing.list
-                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-unstable/ bullseye main" > /etc/apt/sources.list.d/centreon-unstable.list
-                        echo "deb https://packages.centreon.com/apt-plugins-stable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
-                        echo "deb https://packages.centreon.com/apt-plugins-testing/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
-                        echo "deb https://packages.centreon.com/apt-plugins-unstable/ bullseye main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
-                        wget -O- https://packages.centreon.com/api/security/keypair/Debian/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
+                        echo "deb https://packages.centreon.com/apt-standard-${major_version}-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-stable.list
+                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing-hotfix main" > /etc/apt/sources.list.d/centreon-testing-hotfix.list
+                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-testing-release main" > /etc/apt/sources.list.d/centreon-testing-release.list
+                        echo "deb https://packages.centreon.com/apt-standard/ ${Cypress.env('WEB_IMAGE_OS')}-${major_version}-unstable main" > /etc/apt/sources.list.d/centreon-unstable.list
+                        echo "deb https://packages.centreon.com/apt-plugins-stable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-stable.list
+                        echo "deb https://packages.centreon.com/apt-plugins-testing/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-testing.list
+                        echo "deb https://packages.centreon.com/apt-plugins-unstable/ ${Cypress.env('WEB_IMAGE_OS')} main" > /etc/apt/sources.list.d/centreon-plugins-unstable.list
+                        wget -O- https://packages.centreon.com/api/security/keypair/APT-GPG-KEY/public | gpg --dearmor | tee /etc/apt/trusted.gpg.d/centreon.gpg > /dev/null 2>&1
                         apt-get update
 EOF`,
                       name: 'web'

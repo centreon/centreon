@@ -226,8 +226,8 @@ class Centreon_Object_Contact extends \Centreon_Object
             $this->db->query($sql, $sqlParams);
         }
 
-        if (isset($password) && isset($contactId)) {
-            $contact = new \CentreonContact($this->db);
+        if (isset($password, $contactId)) {
+            $contact = new CentreonContact($this->db);
             $contact->renewPasswordByContactId($contactId, $password);
         }
     }

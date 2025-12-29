@@ -282,19 +282,6 @@ class CentreonLDAP
     }
 
     /**
-     * Transform user, group name for filter
-     *
-     * @param string $name the atrribute
-     * @return string The string changed
-     */
-    public function replaceFilter($name): string
-    {
-        $name = str_replace('(', "\\(", $name);
-        $name = str_replace(')', "\\)", $name);
-        return $name;
-    }
-
-    /**
      * Escape special characters in LDAP filter value for username and group
      * @see https://datatracker.ietf.org/doc/html/rfc4515#section-3
      *
@@ -356,7 +343,7 @@ class CentreonLDAP
             return false;
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($group), $this->groupSearchInfo['filter']);
+        $filter = ldap_escape($group);
         $result = ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         restore_error_handler();
@@ -378,7 +365,8 @@ class CentreonLDAP
             return [];
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->groupSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->groupSearchInfo['filter']);
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         if (false === $result) {
             restore_error_handler();
@@ -412,7 +400,8 @@ class CentreonLDAP
             return array();
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->userSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->userSearchInfo['filter']);
         $result = ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         $nbEntries = $entries['count'];
@@ -477,9 +466,8 @@ class CentreonLDAP
             restore_error_handler();
             return array();
         }
-        $userdn = str_replace('\\', '\\\\', $userdn);
-        $filter = '(&' . preg_replace('/%s/', '*', $this->groupSearchInfo['filter']) .
-            '(' . $this->groupSearchInfo['member'] . '=' . $this->replaceFilter($userdn) . '))';
+        $filter = '(&' . preg_replace('/%s/', '*', $this->groupSearchInfo['filter'])
+            . '(' . $this->groupSearchInfo['member'] . '=' . ldap_escape($userdn, '', LDAP_ESCAPE_FILTER) . '))';
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         if (false === $result) {
             restore_error_handler();
@@ -508,14 +496,13 @@ class CentreonLDAP
             restore_error_handler();
             return array();
         }
-        $groupdn = str_replace('\\', '\\\\', $groupdn);
-        $list = array();
-        if (!empty($this->userSearchInfo['group'])) {
+        $list = [];
+        if (! empty($this->userSearchInfo['group'])) {
             /**
              * we have specific parameter for user to denote groups he belongs to
              */
-            $filter = '(&' . preg_replace('/%s/', '*', $this->userSearchInfo['filter']) .
-                '(' . $this->userSearchInfo['group'] . '=' . $this->replaceFilter($groupdn) . '))';
+            $filter = '(&' . preg_replace('/%s/', '*', $this->userSearchInfo['filter'])
+                . '(' . $this->userSearchInfo['group'] . '=' . ldap_escape($groupdn) . '))';
             $result = @ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
 
             if (false === $result) {

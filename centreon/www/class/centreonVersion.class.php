@@ -75,9 +75,9 @@ class CentreonVersion
         }
 
         // Get version of the centreon-broker
-        $cmd = shell_exec("cbd -v");
+        $cmd = shell_exec('/usr/sbin/cbd -v');
 
-        if (preg_match('/^.*(.\d+\.\d+\.\d+)$/', $cmd, $matches)) {
+        if (preg_match('/^.*(\d+\.\d+\.\d+)$/m', $cmd, $matches)) {
             $data['centreon-broker'] = $matches[1];
         }
 
@@ -157,14 +157,14 @@ class CentreonVersion
     {
         $data = [];
 
-        if (function_exists("shell_exec") && is_readable("/etc/os-release")) {
-            $result = shell_exec('cat /etc/os-release');
-
-            preg_match_all('/(.*)="?(.*)"?/', $result, $matches, PREG_PATTERN_ORDER);
-            $osRelease = array_combine($matches[1], $matches[2]);
-
-            $data['OS_name'] = $osRelease['NAME'];
-            $data['OS_version'] = $osRelease['VERSION_ID'];
+        if (is_readable('/etc/os-release')) {
+            $osRelease = parse_ini_file('/etc/os-release', false, INI_SCANNER_RAW) ?: [];
+            if (isset($osRelease['NAME'])) {
+                $data['OS_name'] = $osRelease['NAME'];
+            }
+            if (isset($osRelease['VERSION_ID'])) {
+                $data['OS_version'] = $osRelease['VERSION_ID'];
+            }
         }
 
         return $data;

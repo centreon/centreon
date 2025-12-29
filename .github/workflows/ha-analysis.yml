@@ -60,16 +60,17 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  checkmarx-analysis:
+  code_scan:
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
       github.event.pull_request.draft != 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false'
-    uses: centreon/security-tools/.github/workflows/checkmarx-analysis.yml@develop
+    uses: centreon/security-tools/.github/workflows/checkmarx-analysis.yml@main
     with:
       module_directory: centreon-ha
-      module_name: centreon-ha
+      module_name: centreon-ha-dev-${{ needs.get-environment.outputs.major_version }}.x
+      exclude_list:
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
       cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
@@ -77,6 +78,6 @@ jobs:
       cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
 
   set-skip-label:
-    needs: [get-environment, checkmarx-analysis]
+    needs: [get-environment, code_scan]
     if: needs.get-environment.outputs.skip_workflow == 'false'
     uses: ./.github/workflows/set-pull-request-skip-label.yml

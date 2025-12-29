@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: List features
         id: list-features
@@ -96,10 +96,15 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - if: ${{ contains(matrix.feature, 'RestApi') }}
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+      - name: Setup pnpm
+        if: ${{ contains(matrix.feature, 'RestApi') }}
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
-          node-version: 20
+          version: 8
+          run_install: |
+            cwd: "centreon/tests/rest_api"
+            args: [--ignore-scripts, --frozen-lockfile]
+          standalone: true
 
       - name: Install dependencies
         run: composer install --optimize-autoloader

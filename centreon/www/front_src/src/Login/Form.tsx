@@ -1,18 +1,18 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
 import { isEmpty, not, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, CircularProgress } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
+import { Button, CircularProgress } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
 
-import { labelAlias, labelConnect, labelPassword } from './translatedLabels';
 import PasswordEndAdornment from './PasswordEndAdornment';
+import { labelAlias, labelConnect, labelPassword } from './translatedLabels';
 
 const aliasFieldName = 'alias';
 const passwordFieldName = 'password';
@@ -54,7 +54,7 @@ const LoginForm = (): JSX.Element => {
     fieldName: aliasFieldName,
     touched
   });
-  const passwordValue = prop(passwordFieldName, values);
+
   const passwordError = getTouchedError({
     errors,
     fieldName: passwordFieldName,
@@ -87,6 +87,7 @@ const LoginForm = (): JSX.Element => {
         onChange={handleChange(aliasFieldName)}
       />
       <TextField
+        forceUncontrolled
         fullWidth
         required
         EndAdornment={passwordEndAdornment}
@@ -96,11 +97,10 @@ const LoginForm = (): JSX.Element => {
         error={passwordError}
         inputProps={{
           'aria-label': t(labelPassword) as string,
-          autocomplete: 'new-password'
+          autocomplete: 'current-password'
         }}
         label={t(labelPassword)}
         type={isVisible ? 'text' : 'password'}
-        value={passwordValue || ''}
         onBlur={handleBlur(passwordFieldName)}
         onChange={handleChange(passwordFieldName)}
       />

@@ -121,9 +121,9 @@ foreach ($listDowntime as $dt) {
     $elemArr[] = array(
         "MenuClass" => "list_" . $style,
         "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($dt["dt_name"]),
+        "RowMenu_name" => $dt["dt_name"],
         "RowMenu_link" => "main.php?p=" . $p . "&o=c&dt_id=" . $dt['dt_id'],
-        "RowMenu_desc" => CentreonUtils::escapeSecure($dt["dt_description"]),
+        "RowMenu_desc" => $dt["dt_description"],
         "RowMenu_status" => $dt["dt_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_options" => $moptions
     );
