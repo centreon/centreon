@@ -131,6 +131,17 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
   });
 
   it('copies the command to the clipboard when the button is clicked', () => {
+    cy.window().then((win) => {
+      const mockWriteText = cy.stub().resolves();
+      Object.defineProperty(win.navigator, 'clipboard', {
+        value: {
+          writeText: mockWriteText
+        },
+        configurable: true
+      });
+      cy.wrap(mockWriteText).as('writeText');
+    });
+
     initialize({
       text: `# a simple command
 echo "hello" | grep "hel"`,
