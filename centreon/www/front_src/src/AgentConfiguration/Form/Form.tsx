@@ -16,7 +16,7 @@ const defaultInitialValues = {
   name: '',
   type: null,
   pollers: [],
-  configuration: {},
+  configuration: { port: 4317 },
   connectionMode: find(propEq('secure', 'id'), connectionModes)
 };
 
