@@ -53,6 +53,115 @@ $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $v
     );
 };
 
+$updateFreshnessforCMAServicesAndHosts = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to select CMA connector';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Selecting Centreon Monitoring Agent Connector ID",
+    );
+    $cmaConnectorId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT id FROM connector
+            WHERE name = 'Centreon Monitoring Agent'
+            SQL
+    );
+
+    if ($cmaConnectorId === false) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [CMA] CMA connector not found, skipping check_freshness update",
+        );
+
+        return;
+    }
+
+    $errorMessage = 'Unable to select commands for CMA connector';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Selecting commands IDs for CMA connector",
+    );
+    $commandsIds = $pearDB->fetchFirstColumn(
+        <<<'SQL'
+            SELECT DISTINCT command_id
+            FROM command
+            WHERE connector_id = :cmaConnectorId
+            SQL,
+        QueryParameters::create([QueryParameter::int('cmaConnectorId', $cmaConnectorId)])
+    );
+    if (empty($commandsIds)) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [CMA] No commands found for CMA connector, skipping check_freshness update",
+        );
+
+        return;
+    }
+
+    $commandsIds = array_map('intval', $commandsIds);
+    $commandsIdsAsString = implode(',', $commandsIds);
+
+    $errorMessage = 'Unable to update service_check_freshness and service_freshness_threshold';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Setting service_check_freshness to true and service_freshness_threshold "
+            . 'to 120 for services using CMA commands',
+    );
+    $pearDB->update(
+        <<<SQL
+            UPDATE service
+            SET service_check_freshness = '1', service_freshness_threshold = 120
+            WHERE command_command_id IN ({$commandsIdsAsString})
+            SQL
+    );
+
+    $errorMessage = 'Unable to update host_check_freshness and host_freshness_threshold';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Setting host_check_freshness to true and host_freshness_threshold "
+            . 'to 120 for hosts using CMA commands',
+    );
+    $pearDB->update(
+        <<<SQL
+            UPDATE host
+            SET host_check_freshness = '1', host_freshness_threshold = 120
+            WHERE command_command_id IN ({$commandsIdsAsString})
+            SQL
+    );
+};
+
+$addDefaultPortToAgentInitiatedAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add default port to agent initiated agent configurations';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [agent_configuration] Adding default port to agent initiated agent configurations",
+    );
+    $agentConfigurations = $pearDB->fetchAllAssociative(
+        <<<'SQL'
+                SELECT id, configuration FROM agent_configuration
+            SQL
+    );
+    foreach ($agentConfigurations as $configurationJson) {
+        $configuration = json_decode($configurationJson['configuration'], true, JSON_THROW_ON_ERROR);
+        if (! isset($configuration['port'])) {
+            $configuration['port'] = (bool) $configuration['agent_initiated'] === true
+                ? AgentConfiguration::DEFAULT_PORT
+                : null;
+        }
+        $updatedConfigurationJson = json_encode($configuration, JSON_THROW_ON_ERROR);
+        $pearDB->update(
+            <<<'SQL'
+                UPDATE agent_configuration
+                SET configuration = :configuration
+                WHERE id = :id
+                SQL,
+            QueryParameters::create([
+                QueryParameter::string('configuration', $updatedConfigurationJson),
+                QueryParameter::int('id', (int) $configurationJson['id']),
+            ])
+        );
+    }
+};
+
 $linkCMAConnectorToExistingRelatedCMACommands = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to select CMA connector';
     CentreonLog::create()->info(
@@ -90,39 +199,6 @@ $linkCMAConnectorToExistingRelatedCMACommands = function () use ($pearDB, &$erro
     );
 };
 
-$addDefaultPortToAgentInitiatedAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add default port to agent initiated agent configurations';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [agent_configuration] Adding default port to agent initiated agent configurations",
-    );
-    $agentConfigurations = $pearDB->fetchAllAssociative(
-        <<<'SQL'
-                SELECT id, configuration FROM agent_configuration
-            SQL
-    );
-    foreach ($agentConfigurations as $configurationJson) {
-        $configuration = json_decode($configurationJson['configuration'], true, JSON_THROW_ON_ERROR);
-        if (! isset($configuration['port'])) {
-            $configuration['port'] = (bool) $configuration['agent_initiated'] === true
-                ? AgentConfiguration::DEFAULT_PORT
-                : null;
-        }
-        $updatedConfigurationJson = json_encode($configuration, JSON_THROW_ON_ERROR);
-        $pearDB->update(
-            <<<'SQL'
-                UPDATE agent_configuration
-                SET configuration = :configuration
-                WHERE id = :id
-                SQL,
-            QueryParameters::create([
-                QueryParameter::string('configuration', $updatedConfigurationJson),
-                QueryParameter::int('id', (int) $configurationJson['id']),
-            ])
-        );
-    }
-};
-
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -137,8 +213,9 @@ try {
 
     // TODO add your function calls to update the configuration database data here
     $setBackupMysqlConfDefaultAsEmpty();
-    $linkCMAConnectorToExistingRelatedCMACommands();
+    $updateFreshnessforCMAServicesAndHosts();
     $addDefaultPortToAgentInitiatedAgentConfiguration();
+    $linkCMAConnectorToExistingRelatedCMACommands();
 
     $pearDB->commitTransaction();
 
