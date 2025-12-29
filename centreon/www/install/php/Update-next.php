@@ -251,7 +251,6 @@ try {
 
     $fixBrokerConfigTypo();
     $updateSamlProviderConfiguration();
-    // TODO add your function calls to update the configuration database data here
     $updateFreshnessforCMAServicesAndHosts();
     $addDefaultPortToAgentInitiatedAgentConfiguration();
 
