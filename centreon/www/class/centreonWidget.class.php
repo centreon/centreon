@@ -37,6 +37,12 @@
 require_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonCustomView.class.php";
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
 /**
  * Class CentreonWidgetException
  */
@@ -1398,20 +1404,97 @@ class CentreonWidget
     /**
      * Rename widget
      *
-     * @param int $elementId widget id
+     * @param int $widgetId
      * @param string $newName widget new name
+     *
+     * @throws PDOException
      * @return string
      */
-    public function rename(int $widgetId, string $newName)
+    public function rename(int $widgetId, string $newName): string
     {
-        $query = 'UPDATE widgets ' .
-            'SET title = :title ' .
-            'WHERE widget_id = :widgetId';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':title', $newName, PDO::PARAM_STR);
-        $stmt->bindParam(':widgetId', $widgetId, PDO::PARAM_INT);
-        $stmt->execute();
+        global $centreon;
+        // ACL check
+        if ($centreon->user->admin === '1') {
+            $updateSql = <<<'SQL'
+                    UPDATE widgets
+                    SET title = :title
+                    WHERE widget_id = :widgetId
+                SQL;
+        } else {
+            $goupIds = $this->userGroups !== [] ? implode(',', $this->userGroups) : '';
+            $groupClause = $goupIds ? " OR cvur.usergroup_id IN ({$goupIds})" : '';
+            $updateSql = <<<'SQL'
+                    UPDATE widgets AS w
+                    INNER JOIN widget_views AS wv
+                        ON wv.widget_id = w.widget_id
+                    SET w.title = :title
+                    WHERE w.widget_id = :widgetId
+                    AND (
+                            /* Case 1: user is owner of the parent custom view */
+                            EXISTS (
+                                SELECT 1
+                                FROM custom_view_user_relation AS cvur
+                                WHERE cvur.custom_view_id = wv.custom_view_id
+                                AND cvur.user_id = :userId
+                                AND cvur.is_owner = 1
+                            )
+                            OR
+                            /* Case 2: (user OR any group) AND not locked */
+                            EXISTS (
+                                SELECT 1
+                                FROM custom_view_user_relation AS cvur
+                                WHERE cvur.custom_view_id = wv.custom_view_id
+                                AND cvur.locked = 0
+                                AND (
+                                        cvur.user_id = :userId
+                                        {$groupClause}
+                                    )
+                            )
+                        )
+                SQL;
+        }
+        try {
+            $params = [
+                QueryParameter::int('widgetId', $widgetId),
+                QueryParameter::string('title', $newName),
+            ];
+            if ($centreon->user->admin !== '1') {
+                $params[] = QueryParameter::int('userId', $this->userId);
+            }
+            $queryParameters = QueryParameters::create($params);
+            $nbAffectedRows = $this->db->update($updateSql, $queryParameters);
 
-        return $newName;
+            // If no row → no permission
+            if ($nbAffectedRows === 0) {
+                $msgError = 'Access denied to rename widget';
+                CentreonLog::create()->error(
+                    CentreonLog::TYPE_BUSINESS_LOG,
+                    $msgError,
+                    [
+                        'widgetId' => $widgetId,
+                        'userId' => $this->userId,
+                        'newTitle' => $newName,
+                    ],
+                );
+
+                return $msgError;
+            }
+
+            return $newName;
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            $msgError = 'Error while renaming widget: ' . $exception->getMessage();
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_SQL,
+                $msgError,
+                [
+                    'widgetId' => $widgetId,
+                    'userId' => $this->userId,
+                    'newTitle' => $newName,
+                ],
+                $exception
+            );
+
+            return $msgError;
+        }
     }
 }

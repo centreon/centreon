@@ -123,20 +123,10 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,cfg,sql}', GLOB_BRACE);
-
                 passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
 
                 if ($return) {
                     throw new \Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                }
-
-                if (count($listBrokerFile) > 0) {
-                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> {$centCorePipe}", $return);
-
-                    if ($return) {
-                        throw new \Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                    }
                 }
             }
         }
@@ -180,7 +170,9 @@ class PollerInteractionService
 
         foreach ($tabServers as $poller) {
             if (isset($poller['localhost']) && $poller['localhost'] == 1) {
-                shell_exec("sudo {$poller['engine_restart_command']}");
+                if ($poller['engine_restart_command'] != '') {
+                    shell_exec(escapeshellcmd("sudo -n -- {$poller['engine_restart_command']}"));
+                }
             } else {
                 if ($fh = @fopen($centCorePipe, 'a+')) {
                     fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
@@ -190,8 +182,8 @@ class PollerInteractionService
                 }
             }
 
-            $restartTimeQuery = "UPDATE `nagios_server` 
-                SET `last_restart` = '" . time() . "' 
+            $restartTimeQuery = "UPDATE `nagios_server`
+                SET `last_restart` = '" . time() . "'
                 WHERE `id` = '{$poller['id']}'";
             $this->db->query($restartTimeQuery);
         }

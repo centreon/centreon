@@ -1824,6 +1824,29 @@ function unvalidFormMessage()
 }
 
 /**
+ * Check if a user is a service account (e.g. centreon-gorgone)
+ *
+ * @param int $userId The user ID to check
+ * @return bool True if the user is a service account, false otherwise
+ */
+function isServiceAccount(int $userId): bool
+{
+    global $pearDB;
+
+    try {
+        $stmt = $pearDB->prepare(
+            "SELECT 1 FROM contact WHERE contact_id = :contact_id AND contact_name IN ('centreon-gorgone', 'CBIS', 'centreon-map') LIMIT 1"
+        );
+        $stmt->bindValue(':contact_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return (bool) $stmt->fetch();
+    } catch (Exception $e) {
+        return false;
+    }
+}
+
+/**
  * Return ids of hosts linked to hostgroups
  *
  * @param int[] $hostgroupIds

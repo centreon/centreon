@@ -49,13 +49,16 @@ export default ({
       },
       setupNodeEvents: async (cypressOn, config) => {
         const on = require('cypress-on-fix')(cypressOn)
-        installLogsPrinter(
-          on,
-          {
-            commandTrimLength: 5000,
-            defaultTrimLength: 5000,
-          }
-      );
+        installLogsPrinter(on, {
+          commandTrimLength: 5000,
+          defaultTrimLength: 5000,
+        });
+        on("task", {
+          logVersion(message) {
+            console.log(`[LOG]: ${message}`);
+            return null;
+          },
+        });
         await esbuildPreprocessor(on, config);
         tasks(on);
 
@@ -80,8 +83,11 @@ export default ({
       runMode: 2
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: isDevelopment,
-    videoCompression: 0,
+    // Ensure previous run assets are removed to avoid accumulation
+    trashAssetsBeforeRuns: true,
+    video: true,
+    // Keep files small in CI, but fast locally
+    videoCompression: process.env.CI ? 32 : 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
     viewportWidth: 1920

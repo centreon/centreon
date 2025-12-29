@@ -415,6 +415,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         }
                         $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
                     }
+                    updateAclResourcesMetaRelations($newMetaId);
                 }
             } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
                 CentreonLog::create()->error(
@@ -1058,12 +1059,12 @@ function getParamValue(
     }
 
     // Handle nested parameter (with subkey)
-    if ($subKey !== null && !empty($params[$key][$subKey])) {
+    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] == 0)) {
         return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
     }
 
     // Handle first-level parameter
-    if (!empty($params[$key])) {
+    if (! empty($params[$key]) || $params[$key] == 0) {
         return $sanitize ? sanitize($params[$key]) : $params[$key];
     }
 

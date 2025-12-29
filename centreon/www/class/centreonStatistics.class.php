@@ -278,18 +278,7 @@ class CentreonStatistics
      */
     public function getApiTokensInfo()
     {
-        $data = [];
-
-        $statementNbTokens = $this->dbConfig->query(
-            <<<'SQL'
-                SELECT count(token_type)
-                FROM security_authentication_tokens
-                WHERE token_type ='manual'
-                SQL
-        );
-        $data['total'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
-
-        $statementNbTokens = $this->dbConfig->query(
+        $statementManagerCount = $this->dbConfig->fetchOne(
             <<<'SQL'
                 SELECT count(contact_id)
                 FROM contact
@@ -315,9 +304,29 @@ class CentreonStatistics
                     )
                 SQL
         );
-        $data['managers'] = $statementNbTokens->fetch(\PDO::FETCH_COLUMN) ?: 0;
 
-        return $data;
+        $statementTokenInfos = $this->dbConfig->fetchAllAssociative(
+            <<<'SQL'
+                SELECT
+                    security_authentication_tokens.token_name as name,
+                    security_authentication_tokens.user_id,
+                    DATEDIFF(
+                        FROM_UNIXTIME(security_token.expiration_date),
+                        FROM_UNIXTIME(security_token.creation_date)
+                    ) as lifespan
+                FROM security_authentication_tokens
+                JOIN security_token
+                    ON security_token.token = security_authentication_tokens.token
+                WHERE
+                    security_authentication_tokens.token_type ='manual'
+                    AND security_authentication_tokens.is_revoked = 0
+                SQL
+        );
+
+        return [
+            'managers' => $statementManagerCount ?: 0,
+            'tokens' => $statementTokenInfos,
+        ];
     }
 
     /**

@@ -34,15 +34,19 @@
  *
  */
 
-require_once "../require.php";
+require_once '../require.php';
+require_once '../widget-error-handling.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 require_once $centreon_path . 'bootstrap.php';
+
+const OBJECT_TYPE_HOST = 'hosts';
+const OBJECT_TYPE_SERVICE = 'services';
 
 CentreonSession::start(1);
 
@@ -53,27 +57,40 @@ $centreon = $_SESSION['centreon'];
 $widgetId = filter_input(INPUT_GET, 'widgetId', FILTER_VALIDATE_INT, ['options' => ['default' => 0]]);
 
 try {
-    $db_centreon = $dependencyInjector['configuration_db'];
-    $db = $dependencyInjector['realtime_db'];
+    $configurationDatabase = $dependencyInjector['configuration_db'];
 
-    if ($centreon->user->admin == 0) {
-        $access = new CentreonACL($centreon->user->get_id());
-        $grouplist = $access->getAccessGroups();
-        $grouplistStr = $access->getAccessGroupsString();
+    $widgetObj = new CentreonWidget($centreon, $configurationDatabase);
+    $preferences = $widgetObj->getWidgetPreferences($widgetId);
+
+    $objectType = ! empty($preferences['object_type']) ? $preferences['object_type'] : OBJECT_TYPE_HOST;
+
+    if (! in_array($objectType, [OBJECT_TYPE_HOST, OBJECT_TYPE_SERVICE])) {
+        throw new InvalidArgumentException('Invalid object type provided in tactical-overview. Accepted: hosts or services');
     }
 
-    $widgetObj = new CentreonWidget($centreon, $db_centreon);
-    $preferences = $widgetObj->getWidgetPreferences($widgetId);
-    $autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
-        ? (int)$preferences['refresh_interval']
+    $autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
+        ? (int) $preferences['refresh_interval']
         : 30;
     $variablesThemeCSS = match ($centreon->user->theme) {
         'light' => "Generic-theme",
         'dark' => "Centreon-Dark",
         default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
     };
-} catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+
+    $theme = $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS;
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error fetching data for tactical-overview widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme ?? 'Generic-theme/Variables-css');
+
     exit;
 }
 
@@ -100,11 +117,4 @@ $buildParameter = function (string $id, string $name) {
     ];
 };
 
-if (
-    isset($preferences['object_type'])
-    && ($preferences['object_type'] === "hosts" || $preferences['object_type'] == "")
-) {
-    require_once 'src/hosts_status.php';
-} elseif (isset($preferences['object_type']) && $preferences['object_type'] === "services") {
-    require_once 'src/services_status.php';
-}
+$objectType === OBJECT_TYPE_HOST ? require_once 'src/hosts_status.php' : require_once 'src/services_status.php';

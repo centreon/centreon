@@ -40,20 +40,25 @@ if (!isset($oreon)) {
     exit;
 }
 
-/*
- * Database retrieve information
- */
-$vmetric = array();
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
+// Database retrieve information
+$vmetric = [];
 
 if (($o == METRIC_MODIFY || $o == METRIC_WATCH)
     && is_int($vmetricId)
 ) {
-    $query = "SELECT *, hidden vhidden FROM virtual_metrics WHERE vmetric_id = $vmetricId LIMIT 1";
-    $p_qy = $pearDB->query($query);
-    // Set base value
-    $vmetric = array_map("myDecode", $p_qy->fetchRow());
-    $p_qy->closeCursor();
+    $virtualMetricResult = $pearDB->fetchAssociative(
+        'SELECT *, hidden vhidden FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1',
+        new QueryParameters([
+            QueryParameter::int('vmetric_id', $vmetricId),
+        ])
+    );
+    $vmetric = array_map('myDecode', $virtualMetricResult ?? []);
 }
+
 /*
  * Database retrieve information and list the different elements we need on the page
  *
@@ -63,32 +68,24 @@ $indds = array("" => sprintf("%s%s", _("Host list"), "&nbsp;&nbsp;&nbsp;"));
 $mx_l = strlen($indds[""]);
 
 try {
-    $dbindd = $pearDBO->query("SELECT DISTINCT 1 AS REALTIME, host_id, host_name FROM index_data;");
-} catch (\PDOException $e) {
-    print "DB Error : " . $e->getMessage() . "<br />";
+    $dbindd = $pearDBO->fetchAllAssociative('SELECT DISTINCT 1 AS REALTIME, host_id, host_name FROM index_data;');
+} catch (ConnectionException $e) {
+    echo 'DB Error : ' . $e->getMessage() . '<br />';
 }
-while ($indd = $dbindd->fetchRow()) {
-    $indds[$indd["host_id"]] = $indd["host_name"] . "&nbsp;&nbsp;&nbsp;";
-    $hn_l = strlen($indd["host_name"]);
+foreach ($dbindd as $indd) {
+    $indds[$indd['host_id']] = $indd['host_name'] . '&nbsp;&nbsp;&nbsp;';
+    $hn_l = strlen($indd['host_name']);
     if ($hn_l > $mx_l) {
         $mx_l = $hn_l;
     }
 }
-$dbindd->closeCursor();
+// End of "database-retrieved" information
 
-/*
- * End of "database-retrieved" information
- */
-
-/*
- * Var information to format the element
- */
-
-$attrsText = array("size" => "30");
-$attrsText2 = array("size" => "10");
-$attrsAdvSelect = array("style" => "width: 200px; height: 100px;");
-$attrsTextarea = array("rows" => "4", "cols" => "60");
-
+// Var information to format the element
+$attrsText = ['size' => '30'];
+$attrsText2 = ['size' => '10'];
+$attrsAdvSelect = ['style' => 'width: 200px; height: 100px;'];
+$attrsTextarea = ['rows' => '4', 'cols' => '60'];
 
 $availableRoute = './api/internal.php?object=centreon_configuration_service&action=list';
 
@@ -330,13 +327,13 @@ if ($valid) {
 $vdef = 1; /* Display VDEF too */
 
 if ($o == METRIC_MODIFY || $o == METRIC_WATCH) {
-    isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $host_service_id = $_POST["host_id"]
-        : $host_service_id = $vmetric["host_id"];
+    $host_service_id = isset($_POST['host_id']) && $_POST['host_id'] != null
+        ? filter_var($_POST['host_id'], FILTER_SANITIZE_NUMBER_INT)
+        : $vmetric['host_id'];
 } elseif ($o == METRIC_ADD) {
-    isset($_POST["host_id"]) && $_POST["host_id"] != null
-        ? $host_service_id = $_POST["host_id"]
-        : $host_service_id = 0;
+    $host_service_id = isset($_POST['host_id']) && $_POST['host_id'] != null
+        ? filter_var($_POST['host_id'], FILTER_SANITIZE_NUMBER_INT)
+        : 0;
 }
 ?>
 <script type="text/javascript">
