@@ -149,12 +149,6 @@ echo "hello" | grep "hel"`,
       commandToCopy: 'echo "hello" | grep "hel"'
     });
 
-    cy.window()
-      .its('navigator.clipboard')
-      .then((clipboard) => {
-        cy.spy(clipboard, 'writeText').as('writeText');
-      });
-
     cy.findByTestId('Copy command').click();
 
     cy.get('@writeText').should(
