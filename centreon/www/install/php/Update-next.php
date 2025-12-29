@@ -48,6 +48,10 @@ try {
     }
 
     // TODO add your function calls to update the configuration database data here
+    $setBackupMysqlConfDefaultAsEmpty();
+    $updateFreshnessforCMAServicesAndHosts();
+    $addDefaultPortToAgentInitiatedAgentConfiguration();
+    $linkCMAConnectorToExistingRelatedCMACommands();
 
     $pearDB->commitTransaction();
 
