@@ -85,6 +85,7 @@ const LoginForm = (): JSX.Element => {
         onBlur={handleBlur(aliasFieldName)}
         onChange={handleChange(aliasFieldName)}
         dataTestId={labelAlias}
+        autoComplete="on"
       />
       <TextField
         fullWidth
@@ -107,6 +108,7 @@ const LoginForm = (): JSX.Element => {
         onBlur={handleBlur(passwordFieldName)}
         onChange={handleChange(passwordFieldName)}
         dataTestId={labelPassword}
+        autoComplete="on"
       />
       <Button
         fullWidth

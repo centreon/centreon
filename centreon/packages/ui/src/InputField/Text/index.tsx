@@ -217,6 +217,7 @@ const TextField = forwardRef(
                 ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
               }
             }}
+            autoComplete="off"
             {...rest}
           />
         </Tooltip>
