@@ -161,6 +161,43 @@ $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $v
     );
 };
 
+$linkCMAConnectorToExistingRelatedCMACommands = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to select CMA connector';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] select existing Centreon Monitoring Agent Connector ID",
+    );
+    $cmaConnectorId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT id FROM connector WHERE name = 'Centreon Monitoring Agent' LIMIT 1
+            SQL
+    );
+    if ($cmaConnectorId === false) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [CMA] No CMA connector found, skipping linking CMA commands",
+        );
+
+        return;
+    }
+
+    $errorMessage = 'Unable to update commands to link them to CMA connector';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [CMA] Updating commands to link them to CMA connector",
+    );
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE command
+            SET connector_id = :cmaConnectorId
+            WHERE command_name LIKE "%Centreon-Monitoring-Agent%" OR command_name LIKE "%-CMA-%"
+            SQL,
+        QueryParameters::create([
+            QueryParameter::int('cmaConnectorId', $cmaConnectorId),
+        ])
+    );
+};
+
 /** -------------------------------------- Command redesign updates-------------------------------------- */
 $addNewCommandPage = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to add new command page topology';
@@ -395,6 +432,7 @@ try {
     $setBackupMysqlConfDefaultAsEmpty();
     $updateFreshnessforCMAServicesAndHosts();
     $addDefaultPortToAgentInitiatedAgentConfiguration();
+    $linkCMAConnectorToExistingRelatedCMACommands();
 
     $pearDB->commitTransaction();
 
