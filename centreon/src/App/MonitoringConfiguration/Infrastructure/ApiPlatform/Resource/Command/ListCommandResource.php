@@ -25,7 +25,6 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Comman
 
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandResourceCount;
@@ -40,7 +39,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
             403 => new Model\Response('You are not allowed to access commands'),
         ],
         parameters: [
-            'name' => new QueryParameter(
+            new Model\Parameter(
+                name: 'name',
+                in: 'query',
                 description: 'Filter commands by name (partial or exact match)',
                 required: false,
                 schema: [
@@ -48,7 +49,9 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
                     'items' => ['type' => 'string'],
                 ],
             ),
-            'type' => new QueryParameter(
+            new Model\Parameter(
+                name: 'type',
+                in: 'query',
                 description: 'Filter commands by type',
                 required: false,
                 schema: [
@@ -64,12 +67,16 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command\ListCom
                     ],
                 ]
             ),
-            'is_activated' => new QueryParameter(
+            new Model\Parameter(
+                name: 'is_activated',
+                in: 'query',
                 description: 'Filter commands by activation status',
                 required: false,
                 schema: ['type' => 'boolean'],
             ),
-            'is_from_monitoring_connector' => new QueryParameter(
+            new Model\Parameter(
+                name: 'is_from_monitoring_connector',
+                in: 'query',
                 description: 'Filter commands by whether they are from a monitoring connector',
                 required: false,
                 schema: ['type' => 'boolean'],
