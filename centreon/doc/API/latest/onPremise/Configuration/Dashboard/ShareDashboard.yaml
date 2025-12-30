@@ -1,5 +1,6 @@
 
 put:
+  operationId: ShareDashboard
   tags:
     - Dashboard
   summary: "Update all the contact and contact groups shares of a dashboard"

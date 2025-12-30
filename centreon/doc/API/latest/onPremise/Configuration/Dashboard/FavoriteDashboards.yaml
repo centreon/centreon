@@ -1,4 +1,5 @@
 get:
+  operationId: FindFavoriteDashboards
   tags:
     - Dashboard
   summary: "List all dashboards set as favorite for the current user"
@@ -37,6 +38,7 @@ get:
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
 
 post:
+  operationId: AddFavoriteDashboard
   tags:
     - Dashboard
   summary: "Set dashboard as favorite for the current user"

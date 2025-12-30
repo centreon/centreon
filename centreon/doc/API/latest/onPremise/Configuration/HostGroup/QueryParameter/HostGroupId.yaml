@@ -1,5 +1,5 @@
 in: path
-name: host_id
+name: hostgroup_id
 required: true
 description: "Host group ID"
 schema:

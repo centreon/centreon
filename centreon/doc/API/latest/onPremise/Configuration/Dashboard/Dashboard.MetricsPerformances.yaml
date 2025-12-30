@@ -1,4 +1,5 @@
 get:
+  operationId: FindMetrics
   tags:
     - Metrics
   summary: "List metrics"

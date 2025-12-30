@@ -1,4 +1,5 @@
 get:
+  operationId: "FindHostTemplates"
   tags:
     - Host template
   summary: "Find all host template configurations"

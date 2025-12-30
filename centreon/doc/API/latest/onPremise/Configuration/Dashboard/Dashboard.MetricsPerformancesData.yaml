@@ -1,4 +1,5 @@
 get:
+  operationId: FindPerformanceMetricsData
   tags:
     - Metrics
   summary: "List metrics"

@@ -1,4 +1,5 @@
 post:
+  operationId: DeleteServices
   tags:
     - Service
   summary: "Delete multiple services"

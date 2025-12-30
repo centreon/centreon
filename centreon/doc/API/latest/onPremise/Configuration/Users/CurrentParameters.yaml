@@ -1,4 +1,5 @@
 get:
+  operationId: FindCurrentUserParameters
   tags:
     - User
   summary: "List user parameters"
@@ -14,14 +15,15 @@ get:
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
 
 patch:
+  operationId: centreon_application_patch_users
   tags:
     - User
   summary: Update a user
   description: |
     Update a user
-    
+
     The available parameters to be updated are :
-    
+
     * theme
     * user_interface_density
   requestBody:

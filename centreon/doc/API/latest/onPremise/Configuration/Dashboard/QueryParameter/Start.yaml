@@ -5,4 +5,4 @@ description: "Start date of metrics (default date is 24 hours in the past)"
 schema:
   type: string
   format: date-time
-  example: "2020-02-18T00:00:00"
+  example: "2020-02-18T00:00:00Z"

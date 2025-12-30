@@ -1,10 +1,11 @@
 get:
+  operationId: FindDashboard
   tags:
     - Dashboard
   summary: "Get a dashboard"
   description: |
     Return one dashboard configuration.
-    
+
     `Since Centreon web 23.10`
   parameters:
     - $ref: 'QueryParameter/DashboardId.yaml'
@@ -18,14 +19,14 @@ get:
     '403': { $ref: '../../Common/Response/Forbidden.yaml' }
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
-
 post:
+  operationId: PartialUpdateDashboard
   tags:
     - Dashboard
   summary: "Partial update of a dashboard"
   description: |
     `Since Centreon web 23.10`
-    
+
     Partial update dashboard.
   parameters:
     - $ref: 'QueryParameter/DashboardId.yaml'
@@ -42,14 +43,14 @@ post:
     '404': { $ref: '../../Common/Response/NotFound.yaml' }
     '409': { $ref: '../../Common/Response/Conflict.yaml' }
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
-
 delete:
+  operationId: DeleteDashboard
   tags:
     - Dashboard
   summary: "Delete a dashboard"
   description: |
     Delete one dashboard configuration.
-    
+
     `Since Centreon web 23.10`
   parameters:
     - $ref: 'QueryParameter/DashboardId.yaml'

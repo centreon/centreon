@@ -1,4 +1,5 @@
 get:
+  operationId: FindContactGroups
   tags:
     - Contact group
   summary: "List contact groups"

@@ -1,4 +1,5 @@
 get:
+  operationId: findTimePeriods
   tags:
     - Time period
   summary: "Get all time periods"
@@ -29,6 +30,7 @@ get:
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
 post:
+  operationId: AddTimePeriod
   tags:
     - Time period
   summary: "Create a new time period"

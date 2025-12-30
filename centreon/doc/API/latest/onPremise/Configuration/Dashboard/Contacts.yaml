@@ -1,15 +1,16 @@
 get:
+  operationId: FindDashboardContacts
   tags:
     - Dashboard
   summary: "List all contacts for the sharing modal of a dashboard"
   description: |
     Return all contacts for the sharing modal of a dashboard.
-    
+
     The available parameters to **search** / **sort_by** are:
-    
+
     * id
     * name
-    
+
     `Since Centreon web 23.10`
   parameters:
     - $ref: '../../Common/QueryParameter/Limit.yaml'

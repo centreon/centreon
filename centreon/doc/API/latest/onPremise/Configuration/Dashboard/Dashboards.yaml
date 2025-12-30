@@ -1,4 +1,5 @@
 get:
+  operationId: FindDashboards
   tags:
     - Dashboard
   summary: "List all dashboards"
@@ -37,6 +38,7 @@ get:
     '500': { $ref: '../../Common/Response/InternalServerError.yaml' }
 
 post:
+  operationId: AddDashboard
   tags:
     - Dashboard
   summary: "Add a dashboard"

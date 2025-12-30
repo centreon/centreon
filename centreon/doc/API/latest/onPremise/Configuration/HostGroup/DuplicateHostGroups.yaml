@@ -1,4 +1,5 @@
 post:
+  operationId: DuplicateHostGroups
   tags:
     - Host group
   summary: "Duplicate multiple host groups"

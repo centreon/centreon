@@ -42,30 +42,37 @@ servers:
 tags:
   -
     name: Acknowledgement
+    description: 'Endpoints to manage acknowledgements'
   -
     name: Administration
+    description: 'Endpoints to manage administration tasks'
   -
     name: Authentication
     description: 'Login and logout endpoints to retrieve authentication token'
   -
     name: Command
-    description: null
-    external_docs: null
-    extension_properties: []
+    description: 'Endpoints to manage commands'
   -
     name: 'Contact group'
+    description: 'Endpoints to manage contact groups'
   -
     name: Downtime
+    description: 'Endpoints to manage downtimes'
   -
     name: Gorgone
+    description: 'Endpoints to manage Gorgone'
   -
     name: Host
+    description: 'Endpoints to manage hosts'
   -
     name: 'Host category'
+    description: 'Endpoints to manage host categories'
   -
     name: 'Host group'
+    description: 'Endpoints to manage host groups'
   -
     name: 'Meta service'
+    description: 'Endpoints to manage meta services'
   -
     name: 'Host severity'
   -
@@ -82,47 +89,30 @@ tags:
     name: 'Service group'
   -
     name: 'Service category'
+    description: 'Endpoints to manage service categories'
   -
     name: Severity
+    description: 'Endpoints to manage severities'
   -
     name: 'Time period'
+    description: 'Endpoints to manage time periods'
   -
     name: Topology
+    description: 'Endpoints to manage topologies'
   -
     name: GlobalMacroResource
-    description: null
-    external_docs: null
-    extension_properties: []
   -
     name: ListPlugins
-    description: null
-    external_docs: null
-    extension_properties: []
   -
     name: ServiceCategory
-    description: null
-    external_docs: null
-    extension_properties: []
   -
     name: StandardMacroResource
-    description: null
-    external_docs: null
-    extension_properties: []
   -
     name: ConnectorResource
-    description: null
-    external_docs: null
-    extension_properties: []
   -
     name: Connector
-    description: null
-    external_docs: null
-    extension_properties: []
   -
     name: Plugin
-    description: null
-    external_docs: null
-    extension_properties: []
 security:
   -
     Token: []
@@ -294,20 +284,12 @@ paths:
   '/configuration/broker/{broker_id}/outputs/{output_id}/file':
     $ref: ./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml
   /configuration/commands:
-    ref: null
-    summary: null
-    description: null
     get:
-      operation_id: api_configurationcommands_get_collection
       tags:
         - Command
       responses:
         '403':
-          description: 'You are not allowed to access commands'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
+          description: 'You are not allowed to list commands'
         '200':
           description: 'Command collection'
           content:
@@ -318,28 +300,44 @@ paths:
                   member: { type: array, items: { $ref: '#/components/schemas/Command.jsonld' } }
                   totalItems: { type: integer, minimum: 0 }
                   view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: [string, 'null'] }, required: { type: boolean } } } } } }
+                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
                 required:
                   - member
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
+              example:
+                "@context": "/centreon/api/latest/contexts/ListCommandResource"
+                "@id": "/centreon/api/latest/configuration/commands"
+                "@type": "Collection"
+                totalItems: 52
+                member:
+                  - "@id": "/centreon/api/latest/list_command_resources/1"
+                    "@type": "ListCommandResource"
+                    used_hosts_count: 0
+                    used_host_templates_count: 1
+                    used_services_count: 0
+                    used_service_templates_count: 0
+                    id: 1
+                    name: "check_host_alive"
+                    type: "Check"
+                    command_line: "$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1"
+                    is_activated: true
+                  - "@id": "/centreon/api/latest/list_command_resources/2"
+                    "@type": "ListCommandResource"
+                    used_hosts_count: 0
+                    used_host_templates_count: 0
+                    used_services_count: 0
+                    used_service_templates_count: 0
+                    id: 2
+                    name: "check_disk_smb"
+                    type: "Check"
+                    command_line: "$USER1$/check_disk_smb -H $HOSTADDRESS$ -s $ARG1$ -u $ARG2$ -p $ARG3$ -w $ARG4$ -c $ARG5$"
+                    is_activated: true
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Command'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
       summary: 'Retrieves the collection of Command resources.'
       description: 'Retrieves the collection of Command resources.'
-      external_docs: null
       parameters:
         -
           name: name
@@ -347,25 +345,19 @@ paths:
           description: 'Filter commands by name (partial or exact match)'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
               type: string
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: 'check_centreon_cpu'
         -
           name: type
           in: query
           description: 'Filter commands by type'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
@@ -377,220 +369,116 @@ paths:
                 - Discovery
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: 'Check'
         -
           name: is_activated
           in: query
           description: 'Filter commands by activation status'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: boolean
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: true
         -
           name: is_from_monitoring_connector
           in: query
           description: 'Filter commands by whether they are from a monitoring connector'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: boolean
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: true
         -
           name: page
           in: query
           description: 'The collection page number'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 1
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: 2
         -
           name: itemsPerPage
           in: query
           description: 'The number of items per page'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 30
             minimum: 0
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
+          example: 10
     post:
-      operation_id: api_configurationcommands_post
+      operationId: _api_/configuration/commands_post
       tags:
         - Command
       responses:
         '409':
           description: 'Command resource already exists'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '403':
           description: 'You are not allowed to create commands'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '201':
           description: 'Command resource created'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '400':
           description: 'Invalid input'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '422':
           description: 'An error occurred'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
       summary: 'Creates a Command resource.'
       description: 'Creates a Command resource.'
-      external_docs: null
       parameters: []
-      request_body:
+      requestBody:
         description: 'The new Command resource'
         content:
           application/ld+json:
             schema:
               $ref: '#/components/schemas/Command.jsonld'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
           application/json:
             schema:
               $ref: '#/components/schemas/Command'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
         required: true
-        extension_properties: []
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
   /configuration/graphs/templates:
     $ref: ./latest/onPremise/Configuration/GraphTemplate/FindGraphTemplates.yaml
   /configuration/connectors:
-    ref: null
-    summary: null
-    description: null
+    summary: 'Connectors'
+    description: 'Endpoints to manage connectors'
     get:
-      operation_id: api_configurationconnectors_get_collection
+      operationId: _api_/configuration/connectors_get_collection
       tags:
         - ConnectorResource
       responses:
@@ -604,55 +492,28 @@ paths:
                   member: { type: array, items: { $ref: '#/components/schemas/ConnectorResource.jsonld' } }
                   totalItems: { type: integer, minimum: 0 }
                   view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: [string, 'null'] }, required: { type: boolean } } } } } }
+                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
                 required:
                   - member
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ConnectorResource'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
         '403':
           description: Forbidden
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
       summary: 'Retrieves the collection of ConnectorResource resources.'
       description: 'Retrieves the collection of ConnectorResource resources.'
-      external_docs: null
       parameters:
         -
           name: 'id[lk]'
@@ -660,123 +521,73 @@ paths:
           description: 'Filter by id using "like" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
-              type: int
+              type: integer
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: 'id[eq]'
           in: query
           description: 'Filter by id using "equals" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
-              type: int
+              type: integer
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: 'name[lk]'
           in: query
           description: 'Filter by name using "like" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
               type: string
           style: form
-          explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: 'name[eq]'
           in: query
           description: 'Filter by name using "equals" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
               type: string
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: ['Perl Connector']
         -
           name: page
           in: query
           description: 'The collection page number'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 1
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: 1
         -
           name: itemsPerPage
           in: query
           description: 'The number of items per page'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 30
             minimum: 0
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
+          example: 10
   '/configuration/hosts/{host_id}':
     $ref: ./latest/onPremise/Configuration/Host/DeleteAndPartialUpdateHost.yaml
   /configuration/hosts/templates:
@@ -787,6 +598,7 @@ paths:
     $ref: ./latest/onPremise/Configuration/Host/AddAndFindHosts.yaml
   /configuration/hosts/categories:
     get:
+      operationId: FindHostCategories
       tags:
         - 'Host category'
       summary: 'List host categories'
@@ -815,6 +627,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
+      operationId: AddHostCategory
       tags:
         - 'Host category'
       summary: 'Create a host category'
@@ -843,6 +656,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/hosts/categories/{host_category_id}':
     get:
+      operationId: FindHostCategory
       tags:
         - 'Host category'
       summary: 'Get a host category'
@@ -865,6 +679,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
+      operationId: UpdateHostCategory
       tags:
         - 'Host category'
       summary: 'Update a host category'
@@ -893,6 +708,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     delete:
+      operationId: DeleteHostCategory
       tags:
         - 'Host category'
       summary: 'Delete a host category'
@@ -913,161 +729,75 @@ paths:
   '/configuration/hosts/{host_id}/services/deploy':
     $ref: ./latest/onPremise/Configuration/Service/DeployServices.yaml
   /configuration/services/categories:
-    ref: null
-    summary: null
-    description: null
-    get: null
-    put: null
+    summary: "Service categories"
+    description: 'Endpoints to manage service categories'
     post:
-      operation_id: api_configurationservicescategories_post
+      operationId: _api_/configuration/services/categories_post
       tags:
         - ServiceCategory
       responses:
         '409':
           description: 'ServiceCategory resource already exists'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '201':
           description: 'ServiceCategory resource created'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/ServiceCategory.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/ServiceCategory'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '400':
           description: 'Invalid input'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '422':
           description: 'An error occurred'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '403':
           description: Forbidden
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
       summary: 'Creates a ServiceCategory resource.'
       description: 'Creates a ServiceCategory resource.'
-      external_docs: null
       parameters: []
-      request_body:
+      requestBody:
         description: 'The new ServiceCategory resource'
         content:
           application/ld+json:
             schema:
               $ref: '#/components/schemas/ServiceCategory.jsonld'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
           application/json:
             schema:
               $ref: '#/components/schemas/ServiceCategory'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
-        required: true
-        extension_properties: []
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
   '/configuration/services/categories/{service_category_id}':
     delete:
+      operationId: DeleteServiceCategory
       tags:
         - 'Host category'
       summary: 'Delete a service category'
@@ -1097,6 +827,7 @@ paths:
     $ref: ./latest/onPremise/Configuration/Service/DeleteServices.yaml
   /monitoring/services/categories:
     get:
+      operationId: FindRealTimeServiceCategories
       tags:
         - 'Service category'
       summary: 'List all real-time service categories'
@@ -1130,6 +861,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/severities:
     get:
+      operationId: FindHostSeverities
       tags:
         - 'Host severity'
       summary: 'List all host severities'
@@ -1162,6 +894,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
+      operationId: AddHostSeverity
       tags:
         - 'Host severity'
       summary: 'Create a host severity'
@@ -1200,6 +933,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/hosts/severities/{host_severity_id}':
     delete:
+      operationId: DeleteHostSeverity
       tags:
         - 'Host severity'
       summary: 'Delete a host severity'
@@ -1218,6 +952,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     get:
+      operationId: FindHostSeverity
       tags:
         - 'Host severity'
       summary: 'Get a host severity'
@@ -1240,6 +975,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
+      operationId: UpdateHostSeverity
       tags:
         - 'Host severity'
       summary: 'Update a host severity'
@@ -1269,16 +1005,19 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/hosts/groups:
     $ref: ./latest/onPremise/Configuration/HostGroup/AddAndFindHostGroups.yaml
-  '/configuration/hosts/groups/{hostgroup_id}':
+  /configuration/hosts/groups/{hostgroup_id}:
     $ref: ./latest/onPremise/Configuration/HostGroup/GetAndDeleteAndUpdateHostGroup.yaml
   /configuration/hosts/groups/_delete:
     $ref: ./latest/onPremise/Configuration/HostGroup/DeleteHostGroups.yaml
-  '/configuration/hosts/groups/{action}':
+  /configuration/hosts/groups/_enable:
+    $ref: ./latest/onPremise/Configuration/HostGroup/EnableDisableHostGroups.yaml
+  /configuration/hosts/groups/_disable:
     $ref: ./latest/onPremise/Configuration/HostGroup/EnableDisableHostGroups.yaml
   /configuration/hosts/groups/_duplicate:
     $ref: ./latest/onPremise/Configuration/HostGroup/DuplicateHostGroups.yaml
   /configuration/services/groups:
     get:
+      operationId: FindServiceGroups
       tags:
         - 'Service group'
       summary: 'List all service groups'
@@ -1314,6 +1053,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     post:
+      operationId: AddServiceGroup
       tags:
         - 'Service group'
       summary: 'Add a service group'
@@ -1349,6 +1089,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/services/groups/{servicegroup_id}':
     delete:
+      operationId: DeleteServiceGroup
       tags:
         - 'Service group'
       summary: 'Delete a host group'
@@ -1376,6 +1117,7 @@ paths:
     $ref: ./latest/onPremise/Configuration/ServiceSeverity/DeleteAndUpdateServiceSeverity.yaml
   /configuration/icons:
     get:
+      operationId: centreon_application_configuration_icon_getIcons
       tags:
         - Icons
       summary: 'List all icons'
@@ -1408,6 +1150,7 @@ paths:
     $ref: ./latest/onPremise/Configuration/Media/UpdateMedia.yaml
   /configuration/proxy:
     get:
+      operationId: configuration.proxy.getProxy
       tags:
         - Proxy
       summary: 'Display the default configuration of the Centreon proxy'
@@ -1423,6 +1166,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
+      operationId: configuration.proxy.updateProxy
       tags:
         - Proxy
       summary: 'Update the default configuration of the Centreon proxy'
@@ -1443,6 +1187,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/monitoring-servers:
     get:
+      operationId: configuration.monitoring-servers.findServer
       tags:
         - 'Monitoring server'
       summary: 'List all monitoring servers configurations'
@@ -1481,6 +1226,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/monitoring-servers/{monitoring_server_id}/generate':
     get:
+      operationId: configuration_monitoring_server_generate
       tags:
         - 'Monitoring server'
       summary: 'Generate the configuration of the monitoring server'
@@ -1500,6 +1246,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/monitoring-servers/{monitoring_server_id}/reload':
     get:
+      operationId: configuration_monitoring_server_reload
       tags:
         - 'Monitoring server'
       summary: 'Reload the configuration of the monitoring server'
@@ -1519,6 +1266,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/monitoring-servers/{monitoring_server_id}/generate-and-reload':
     get:
+      operationId: configuration_monitoring_server_generate_and_reload
       tags:
         - 'Monitoring server'
       summary: 'Generate and reload the configuration of the monitoring server'
@@ -1538,6 +1286,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/monitoring-servers/generate:
     get:
+      operationId: configuration_monitoring_server_generate_all
       tags:
         - 'Monitoring server'
       summary: 'Generate the configuration for all monitoring servers'
@@ -1554,6 +1303,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/monitoring-servers/reload:
     get:
+      operationId: configuration_monitoring_server_reload_all
       tags:
         - 'Monitoring server'
       summary: 'Reload the configuration for all monitoring servers'
@@ -1572,6 +1322,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/monitoring-servers/generate-and-reload:
     get:
+      operationId: configuration_monitoring_server_generate_and_reload_all
       tags:
         - 'Monitoring server'
       summary: 'Generate and reload the configuration for all monitoring servers'
@@ -1590,6 +1341,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /configuration/metaservices:
     get:
+      operationId: centreon_application_find_meta_services_configurations
       tags:
         - 'Meta service'
       summary: 'List all meta services configurations'
@@ -1626,6 +1378,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/metaservices/{meta_id}':
     get:
+      operationId: centreon_application_find_meta_service_configuration
       tags:
         - 'Meta service'
       summary: 'Get a meta service'
@@ -1648,6 +1401,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/monitoring/metaservices/{meta_id}/metrics':
     get:
+      operationId: centreon_application_find_meta_service_metrics
       tags:
         - 'Meta service'
       summary: 'List all meta service metrics'
@@ -1687,6 +1441,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/hosts/{host_id}/notification-policy':
     get:
+      operationId: configuration.host.notification-policy
       tags:
         - 'Notification Policy'
       summary: 'Get notification policy of a host'
@@ -1709,6 +1464,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/configuration/hosts/{host_id}/services/{service_id}/notification-policy':
     get:
+      operationId: configuration.service.notification-policy
       tags:
         - 'Notification Policy'
       summary: 'Get notification policy of a service'
@@ -1731,8 +1487,9 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/configuration/metaservices/{meta_id}/notification-policy':
+  /configuration/metaservices/{meta_id}/notification-policy:
     get:
+      operationId: configuration.metaservice.notification-policy
       tags:
         - 'Notification Policy'
       summary: 'Get notification policy of a meta service'
@@ -1755,6 +1512,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /monitoring/servers:
     get:
+      operationId: centreon_application_find_real_time_monitoring_servers
       tags:
         - 'Monitoring server'
       summary: 'List all real time monitoring servers'
@@ -1791,6 +1549,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /users/acl/actions:
     get:
+      operationId: centreon_application_user_getActionsAuthorization
       tags:
         - User
       summary: 'List allowed actions'
@@ -1813,6 +1572,7 @@ paths:
     $ref: ./latest/onPremise/Configuration/TimePeriod/AddOneAndFindTimePeriods.yaml
   '/configuration/timeperiods/{id}':
     delete:
+      operationId: DeleteTimePeriod
       tags:
         - 'Time period'
       summary: 'Delete a time period'
@@ -1836,6 +1596,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     get:
+      operationId: FindTimePeriod
       tags:
         - 'Time period'
       summary: 'Get a time period'
@@ -1863,6 +1624,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
     put:
+      operationId: UpdateTimePeriod
       tags:
         - 'Time period'
       summary: 'Update a time period'
@@ -1899,6 +1661,7 @@ paths:
     $ref: ./latest/onPremise/Configuration/Users/CurrentParameters.yaml
   /configuration/contacts/templates:
     get:
+      operationId: centreon_application_configuration_contact_template_getContactTemplates
       tags:
         - User
       summary: 'List contact templates'
@@ -2160,6 +1923,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /monitoring/resources:
     get:
+      operationId: FindResources
       tags:
         - Resource
       summary: 'List all resources including hosts and services'
@@ -2253,6 +2017,7 @@ paths:
     $ref: ./latest/onPremise/Realtime/Resources/ExportResources.yaml
   '/monitoring/resources/hosts/{host_id}':
     get:
+      operationId: centreon_application_monitoring_resource_details_host
       tags:
         - Resource
       summary: 'Get a Host resource type detail'
@@ -2275,6 +2040,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/monitoring/resources/hosts/{host_id}/services/{service_id}':
     get:
+      operationId: centreon_application_monitoring_resource_details_service
       tags:
         - Resource
       summary: 'Get a Service resource type detail'
@@ -2299,6 +2065,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /monitoring/hosts:
     get:
+      operationId: centreon_application_monitoring_gethosts
       tags:
         - Host
       summary: 'List all hosts'
@@ -2345,6 +2112,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/monitoring/hosts/{host_id}':
     get:
+      operationId: centreon_application_monitoring_getonehost
       tags:
         - Host
       summary: 'Get a host'
@@ -2371,6 +2139,7 @@ paths:
     $ref: ./latest/onPremise/Realtime/Services/FindServicesStatus.yaml
   /monitoring/services:
     get:
+      operationId: centreon_application_monitoring_getservices
       tags:
         - Service
       summary: 'List all services'
@@ -2419,6 +2188,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /monitoring/services/names:
     get:
+      operationId: FindRealTimeUniqueServiceNames
       tags:
         - Service
       summary: 'List all services unique names'
@@ -2463,6 +2233,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/monitoring/hosts/{host_id}/services':
     get:
+      operationId: centreon_application_monitoring_getservicesbyhost
       tags:
         - Service
       summary: 'List services related to a host'
@@ -2506,6 +2277,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/monitoring/hosts/{host_id}/services/{service_id}':
     get:
+      operationId: centreon_application_monitoring_getoneservice
       tags:
         - Service
       summary: 'Get a service'
@@ -2530,6 +2302,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/monitoring/hosts/{host_id}/services/{service_id}/servicegroups':
     get:
+      operationId: centreon_application_monitoring_getservicegroupsbyhostandservice
       tags:
         - 'Service group'
       summary: 'Get service groups by host id and service id'
@@ -2554,6 +2327,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   '/monitoring/hosts/{host_id}/hostgroups':
     get:
+      operationId: centreon_application_monitoring_gethostgroupsbyhost
       tags:
         - 'Host group'
       summary: 'List all host groups by host id'
@@ -4157,7 +3931,7 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
-  '/monitoring/hosts/{hostId}/services/{serviceId}/metrics/{metricName}':
+  '/monitoring/hosts/{host_id}/services/{service_id}/metrics/{metricName}':
     $ref: ./latest/onPremise/Realtime/Metrics/FindSingleMetric.yaml
   '/monitoring/metaService/{metaServiceId}/metrics/{metricName}':
     $ref: ./latest/onPremise/Realtime/Metrics/FindSingleMetaMetric.yaml
@@ -4327,9 +4101,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                items:
-                  $ref: '#/components/schemas/Gorgone.Response'
+                $ref: '#/components/schemas/Gorgone.Response'
         '403':
           $ref: '#/components/responses/Forbidden'
         '500':
@@ -4503,11 +4275,10 @@ paths:
   /administration/vaults/configurations:
     $ref: ./latest/onPremise/Administration/Vault/VaultConfiguration.yaml
   /configuration/global-macros:
-    ref: null
-    summary: null
-    description: null
+    summary: 'global macros'
+    description: 'global macros configuration'
     get:
-      operation_id: api_configurationglobal-macros_get_collection
+      operationId: _api_/configuration/global-macros_get_collection
       tags:
         - GlobalMacroResource
       responses:
@@ -4521,55 +4292,29 @@ paths:
                   member: { type: array, items: { $ref: '#/components/schemas/GlobalMacroResource.jsonld' } }
                   totalItems: { type: integer, minimum: 0 }
                   view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: [string, 'null'] }, required: { type: boolean } } } } } }
+                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
                 required:
                   - member
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
+
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/GlobalMacroResource'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
         '403':
           description: Forbidden
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
       summary: 'Retrieves the collection of GlobalMacroResource resources.'
       description: 'Retrieves the collection of GlobalMacroResource resources.'
-      external_docs: null
       parameters:
         -
           name: 'name[lk]'
@@ -4577,93 +4322,54 @@ paths:
           description: 'Filter by name using "like" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
               type: string
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: 'name[eq]'
           in: query
           description: 'Filter by name using "equals" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
               type: string
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: page
           in: query
           description: 'The collection page number'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 1
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: 2
         -
           name: itemsPerPage
           in: query
           description: 'The number of items per page'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 30
             minimum: 0
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
+          example: 20
   /configuration/plugins:
-    ref: null
-    summary: null
-    description: null
+    summary: 'plugins'
+    description: 'plugins configuration'
     get:
-      operation_id: api_configurationplugins_get_collection
+      operationId: _api_/configuration/plugins_get_collection
       tags:
         - ListPlugins
       responses:
@@ -4677,28 +4383,16 @@ paths:
                   member: { type: array, items: { $ref: '#/components/schemas/ListPlugins.jsonld' } }
                   totalItems: { type: integer, minimum: 0 }
                   view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: [string, 'null'] }, required: { type: boolean } } } } } }
+                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: string }, required: { type: boolean } } } } } }
                 required:
                   - member
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ListPlugins'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
       summary: 'Retrieves the collection of ListPlugins resources.'
       description: 'Retrieves the collection of ListPlugins resources.'
-      external_docs: null
       parameters:
         -
           name: page
@@ -4706,57 +4400,28 @@ paths:
           description: 'The collection page number'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 1
           style: form
           explode: false
-          allow_reserved: false
           example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: itemsPerPage
           in: query
           description: 'The number of items per page'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 30
             minimum: 0
           style: form
-          explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
   /configuration/standard-macros:
-    ref: null
-    summary: null
-    description: null
+    summary: 'standard macros'
+    description: 'standard macros configuration'
     get:
-      operation_id: api_configurationstandard-macros_get_collection
+      operationId: _api_/configuration/standard-macros_get_collection
       tags:
         - StandardMacroResource
       responses:
@@ -4769,29 +4434,17 @@ paths:
                 properties:
                   member: { type: array, items: { $ref: '#/components/schemas/StandardMacroResource.jsonld' } }
                   totalItems: { type: integer, minimum: 0 }
-                  view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
-                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: [string, 'null'] }, required: { type: boolean } } } } } }
+                  view: { type: object, properties: { '@id': { type: 'string', format: iri-reference }, '@type': { type: 'string' }, first: { type: 'string', format: iri-reference }, last: { type: 'string', format: iri-reference }, previous: { type: 'string', format: iri-reference }, next: { type: 'string', format: iri-reference } }, example: { '@id': 'string', type: 'string', first: 'string', last: 'string', previous: 'string', next: 'string' } }
+                  search: { type: object, properties: { '@type': { type: 'string' }, template: { type: 'string' }, variableRepresentation: { type: 'string' }, mapping: { type: array, items: { type: object, properties: { '@type': { type: 'string' }, variable: { type: 'string' }, property: { type: 'string' }, required: { type: 'boolean' } } } } } }
                 required:
                   - member
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/StandardMacroResource'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
       summary: 'Retrieves the collection of StandardMacroResource resources.'
       description: 'Retrieves the collection of StandardMacroResource resources.'
-      external_docs: null
       parameters:
         -
           name: 'name[lk]'
@@ -4799,131 +4452,71 @@ paths:
           description: 'Filter by name using "like" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
               type: string
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: 'name[eq]'
           in: query
           description: 'Filter by name using "equals" operator'
           required: false
           deprecated: false
-          allow_empty_value: false
           schema:
             type: array
             items:
               type: string
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
         -
           name: page
           in: query
           description: 'The collection page number'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 1
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
+          example: 2
         -
           name: itemsPerPage
           in: query
           description: 'The number of items per page'
           required: false
           deprecated: false
-          allow_empty_value: true
           schema:
             type: integer
             default: 30
             minimum: 0
           style: form
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
-  '/configuration/commands/{id}':
-    ref: null
-    summary: null
-    description: null
+          example: 10
+  /configuration/commands/{id}:
+    summary: 'operations on a specific command resource'
+    description: 'operations on a specific command resource'
     get:
-      operation_id: api_configurationcommands_id_get
       tags:
         - Command
       responses:
         '404':
           description: 'Command resource not found'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '403':
           description: 'You are not allowed to access this command'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '200':
           description: 'Command resource'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
       summary: 'Retrieves a Command resource.'
       description: 'Retrieves a Command resource.'
-      external_docs: null
       parameters:
         -
           name: id
@@ -4931,50 +4524,21 @@ paths:
           description: 'Command identifier'
           required: true
           deprecated: false
-          allow_empty_value: false
           schema:
             type: string
           style: simple
-          explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
     delete:
-      operation_id: api_configurationcommands_id_delete
       tags:
         - Command
       responses:
         '404':
           description: 'Command resource not found'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '403':
           description: 'You are not allowed to delete this command'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '204':
           description: 'Command resource deleted'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
       summary: 'Removes the Command resource.'
       description: 'Removes the Command resource.'
-      external_docs: null
       parameters:
         -
           name: id
@@ -4982,118 +4546,53 @@ paths:
           description: 'Command identifier'
           required: true
           deprecated: false
-          allow_empty_value: false
           schema:
             type: string
           style: simple
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    options: null
-    head: null
     patch:
-      operation_id: api_configurationcommands_id_patch
       tags:
         - Command
       responses:
         '404':
           description: 'Command resource not found'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '403':
           description: 'You are not allowed to update this command'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '200':
           description: 'Command resource updated'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '400':
           description: 'Invalid input'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '422':
           description: 'An error occurred'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
       summary: 'Updates the Command resource.'
       description: 'Updates the Command resource.'
-      external_docs: null
       parameters:
         -
           name: id
@@ -5101,170 +4600,52 @@ paths:
           description: 'Command identifier'
           required: true
           deprecated: false
-          allow_empty_value: false
           schema:
             type: string
           style: simple
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body:
+          example: 1
+      requestBody:
         description: 'The updated Command resource'
         content:
           application/merge-patch+json:
             schema:
               $ref: '#/components/schemas/Command'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
-        required: true
-        extension_properties: []
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
   /configuration/commands/_duplicate:
-    ref: null
-    summary: null
-    description: null
-    get: null
-    put: null
+    summary: 'duplicate a Command resource'
+    description: 'duplicate a Command resource'
     post:
-      operation_id: api_configurationcommands_duplicate_post
+      operationId: _api_/configuration/commands/_duplicate_post
       tags:
         - Command
       responses:
         '403':
           description: 'You are not allowed to duplicate commands'
-          content: null
-          headers: null
-          links: null
-          extension_properties: []
         '200':
           description: 'Command resource created'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
-        '400':
-          description: 'Invalid input'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
-        '422':
-          description: 'An error occurred'
-          content:
-            application/ld+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConstraintViolation-json'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
-      summary: 'Creates a Command resource.'
-      description: 'Creates a Command resource.'
-      external_docs: null
+      summary: 'Creates a Command resource copying an existing one'
+      description: 'Creates a Command resource'
       parameters: []
-      request_body:
+      requestBody:
         description: 'The new Command resource'
         content:
           application/ld+json:
             schema:
               $ref: '#/components/schemas/Command.DuplicateCommandInput.jsonld'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
           application/json:
             schema:
               $ref: '#/components/schemas/Command.DuplicateCommandInput'
-            example: null
-            examples: null
-            encoding: null
-            extension_properties: []
-        required: true
-        extension_properties: []
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
   '/configuration/connectors/{id}':
-    ref: null
-    summary: null
-    description: null
+    summary: 'operations on a specific connector resource'
+    description: 'operations on a specific Connector resource'
     get:
-      operation_id: api_configurationconnectors_id_get
       tags:
         - Connector
       responses:
@@ -5274,77 +4655,35 @@ paths:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Connector.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Connector'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
         '403':
           description: Forbidden
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
         '404':
           description: 'Not found'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
       summary: 'Retrieves a Connector resource.'
       description: 'Retrieves a Connector resource.'
-      external_docs: null
       parameters:
         -
           name: id
@@ -5352,38 +4691,15 @@ paths:
           description: 'Connector identifier'
           required: true
           deprecated: false
-          allow_empty_value: false
           schema:
             type: string
           style: simple
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
+          example: 2
   '/configuration/plugins/{plugin_name}':
-    ref: null
-    summary: null
-    description: null
+    summary: 'operations on a specific plugin resource'
+    description: 'operations on a specific plugin resource'
     get:
-      operation_id: api_configurationplugins_plugin_name_get
       tags:
         - Plugin
       responses:
@@ -5393,50 +4709,23 @@ paths:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Plugin.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Plugin'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: null
-          extension_properties: []
         '404':
           description: 'Not found'
           content:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Error.jsonld'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example: null
-              examples: null
-              encoding: null
-              extension_properties: []
-          headers: null
-          links: []
-          extension_properties: []
       summary: 'Retrieves a Plugin resource.'
       description: 'Retrieves a Plugin resource.'
-      external_docs: null
       parameters:
         -
           name: plugin_name
@@ -5444,32 +4733,11 @@ paths:
           description: 'Plugin identifier'
           required: true
           deprecated: false
-          allow_empty_value: false
           schema:
             type: string
           style: simple
           explode: false
-          allow_reserved: false
-          example: null
-          examples: null
-          content: null
-          extension_properties: []
-      request_body: null
-      callbacks: null
-      deprecated: false
-      security: null
-      servers: null
-      extension_properties: []
-    put: null
-    post: null
-    delete: null
-    options: null
-    head: null
-    patch: null
-    trace: null
-    servers: null
-    parameters: null
-    extension_properties: []
+          example: 'centreon-plugin-1'
 components:
   securitySchemes:
     Token:
@@ -5715,7 +4983,7 @@ components:
         type: string
         pattern: '^\["[^"]+"(,"[^"]+")*\]$'
         description: 'should be in form ["<str1>","<str2>"]'
-        example: '["Central", "Remote-Server-Paris", "Poller-Lyon"]'
+        example: '["Central","Remote-Server-Paris","Poller-Lyon"]'
     ResourceFilterStatusTypes:
       in: query
       name: status_types
@@ -7113,7 +6381,6 @@ components:
         centreonbroker_logs_path:
           type: string
           description: 'Full path of the Broker logs'
-          example: null
         centreonconnector_path:
           type: string
           description: 'Full path of the Engine connectors'
@@ -7129,7 +6396,6 @@ components:
         remote_id:
           type: integer
           description: 'ID of the master Remote Server linked to the server'
-          example: null
         remote_server_use_as_proxy:
           type: boolean
           description: 'Indicates whether Remote Servers are used as SSH proxies'
@@ -8933,14 +8199,12 @@ components:
           type: string
         title:
           readOnly: true
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         instance:
           readOnly: true
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
     ConstraintViolation.jsonld-jsonld:
       type: object
       description: 'Unprocessable entity'
@@ -8995,14 +8259,12 @@ components:
           type: string
         title:
           readOnly: true
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         instance:
           readOnly: true
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
     Error:
       type: object
       description: 'A representation of common errors.'
@@ -9011,26 +8273,22 @@ components:
         title:
           readOnly: true
           description: 'A short, human-readable summary of the problem.'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         detail:
           readOnly: true
           description: 'A human-readable explanation specific to this occurrence of the problem.'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         status:
           type: number
-          examples:
-            - 404
+          example: 404
           default: 400
         instance:
           readOnly: true
           description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         type:
           readOnly: true
           description: 'A URI reference that identifies the problem type'
@@ -9066,67 +8324,59 @@ components:
         title:
           readOnly: true
           description: 'A short, human-readable summary of the problem.'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         detail:
           readOnly: true
           description: 'A human-readable explanation specific to this occurrence of the problem.'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         status:
           type: number
-          examples:
+          example:
             - 404
           default: 400
         instance:
           readOnly: true
           description: 'A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced.'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         type:
           readOnly: true
           description: 'A URI reference that identifies the problem type'
           type: string
         description:
           readOnly: true
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
     GlobalMacroResource:
       type: object
       description: ''
       deprecated: false
       properties:
         id:
-          type:
-            - integer
-            - 'null'
+          type: integer
+          nullable : true
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -9147,32 +8397,28 @@ components:
           readOnly: true
           type: string
         id:
-          type:
-            - integer
-            - 'null'
+          type: integer
+          nullable : true
         name:
           minLength: 1
           maxLength: 255
           pattern: '^(\$.*\$)$'
           description: 'Name of the global macro'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: $USER1$
         expression:
           minLength: 1
           maxLength: 255
           description: 'Expression (value) of the global macro'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: /usr/lib64/nagios/plugins
         comment:
           maxLength: 255
           description: 'Additional information about the macro'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'This macro is used to define the path of plugins'
         is_password:
           type: boolean
@@ -9191,9 +8437,8 @@ components:
         name:
           maxLength: 255
           description: 'Name of plugin'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: negate
     ListPlugins.jsonld:
       type: object
@@ -9211,9 +8456,8 @@ components:
         name:
           maxLength: 255
           description: 'Name of plugin'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: negate
     ServiceCategory:
       type: object
@@ -9221,21 +8465,18 @@ components:
       deprecated: false
       properties:
         id:
-          type:
-            - integer
-            - 'null'
+          type: integer
+          nullable : true
         name:
           minLength: 1
           maxLength: 255
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         alias:
           minLength: 1
           maxLength: 255
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         is_activated:
           type: boolean
       required:
@@ -9270,21 +8511,18 @@ components:
           readOnly: true
           type: string
         id:
-          type:
-            - integer
-            - 'null'
+          type: integer
+          nullable : true
         name:
           minLength: 1
           maxLength: 255
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         alias:
           minLength: 1
           maxLength: 255
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
         is_activated:
           type: boolean
       required:
@@ -9296,13 +8534,11 @@ components:
       deprecated: false
       properties:
         id:
-          type:
-            - integer
-            - 'null'
+          type: integer
+          nullable : true
         name:
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
     StandardMacroResource.jsonld:
       type: object
       description: ''
@@ -9315,13 +8551,11 @@ components:
           readOnly: true
           type: string
         id:
-          type:
-            - integer
-            - 'null'
+          type: integer
+          nullable : true
         name:
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
     Command:
       type: object
       description: ''
@@ -9373,9 +8607,8 @@ components:
             name: 'SSH Connector'
         comment:
           description: 'Additional information about the command'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'This command is used to check the HTTP service'
     Command.DuplicateCommandInput:
       type: object
@@ -9473,9 +8706,8 @@ components:
             name: 'SSH Connector'
         comment:
           description: 'Additional information about the command'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'This command is used to check the HTTP service'
     Connector:
       type: object
@@ -9494,9 +8726,8 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -9542,9 +8773,8 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -9567,9 +8797,8 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -9598,9 +8827,8 @@ components:
           example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
         description:
           description: 'The connector description'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'Connector using SSH to connect to remote hosts'
         is_activated:
           description: 'Indicates whether the connector is activated'
@@ -9621,9 +8849,8 @@ components:
           example: /usr/lib64/nagios/plugins/negate
         description:
           description: 'description of plugin'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'This is the help description of the plugin.'
     Plugin.jsonld:
       type: object
@@ -9663,7 +8890,6 @@ components:
           example: /usr/lib64/nagios/plugins/negate
         description:
           description: 'description of plugin'
-          type:
-            - string
-            - 'null'
+          type: string
+          nullable : true
           example: 'This is the help description of the plugin.'

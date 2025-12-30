@@ -1,4 +1,5 @@
 get:
+  operationId: FindHostGroups
   tags:
     - Host group
   summary: "List all host groups"
@@ -40,6 +41,7 @@ get:
     '500':
       $ref: '../../../Common/Response/InternalServerError.yaml'
 post:
+  operationId: AddHostGroup
   tags:
     - Host group
   summary: "Add a host group"

@@ -1,4 +1,5 @@
 get:
+  operationId: "FindGraphTemplates"
   tags:
     - Graph Template
   summary: "Find all graph templates"

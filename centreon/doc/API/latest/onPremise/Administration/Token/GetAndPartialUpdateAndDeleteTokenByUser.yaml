@@ -9,6 +9,7 @@ get:
     - $ref: 'QueryParameter/UserId.yaml'
   responses:
     '200':
+      description: "OK"
       content:
         application/json:
           schema:
