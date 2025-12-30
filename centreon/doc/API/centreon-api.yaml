@@ -49,6 +49,9 @@ tags:
     description: 'Login and logout endpoints to retrieve authentication token'
   -
     name: Command
+    description: null
+    external_docs: null
+    extension_properties: []
   -
     name: 'Contact group'
   -
@@ -102,6 +105,21 @@ tags:
     extension_properties: []
   -
     name: StandardMacroResource
+    description: null
+    external_docs: null
+    extension_properties: []
+  -
+    name: ConnectorResource
+    description: null
+    external_docs: null
+    extension_properties: []
+  -
+    name: Connector
+    description: null
+    external_docs: null
+    extension_properties: []
+  -
+    name: Plugin
     description: null
     external_docs: null
     extension_properties: []
@@ -276,11 +294,489 @@ paths:
   '/configuration/broker/{broker_id}/outputs/{output_id}/file':
     $ref: ./latest/onPremise/Configuration/Broker/UpdateStreamConnectorFile.yaml
   /configuration/commands:
-    $ref: ./latest/onPremise/Configuration/Command/AddAndFindCommands.yaml
+    ref: null
+    summary: null
+    description: null
+    get:
+      operation_id: api_configurationcommands_get_collection
+      tags:
+        - Command
+      responses:
+        '403':
+          description: 'You are not allowed to access commands'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '200':
+          description: 'Command collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                properties:
+                  member: { type: array, items: { $ref: '#/components/schemas/Command.jsonld' } }
+                  totalItems: { type: integer, minimum: 0 }
+                  view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
+                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: [string, 'null'] }, required: { type: boolean } } } } } }
+                required:
+                  - member
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Command'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: null
+          extension_properties: []
+      summary: 'Retrieves the collection of Command resources.'
+      description: 'Retrieves the collection of Command resources.'
+      external_docs: null
+      parameters:
+        -
+          name: name
+          in: query
+          description: 'Filter commands by name (partial or exact match)'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: type
+          in: query
+          description: 'Filter commands by type'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - Check
+                - Notification
+                - Miscellaneous
+                - Discovery
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: is_activated
+          in: query
+          description: 'Filter commands by activation status'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: boolean
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: is_from_monitoring_connector
+          in: query
+          description: 'Filter commands by whether they are from a monitoring connector'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: boolean
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          allow_empty_value: true
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          allow_empty_value: true
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+      request_body: null
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    put: null
+    post:
+      operation_id: api_configurationcommands_post
+      tags:
+        - Command
+      responses:
+        '409':
+          description: 'Command resource already exists'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '403':
+          description: 'You are not allowed to create commands'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '201':
+          description: 'Command resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Command.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Command'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation-json'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation-json'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+      summary: 'Creates a Command resource.'
+      description: 'Creates a Command resource.'
+      external_docs: null
+      parameters: []
+      request_body:
+        description: 'The new Command resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Command.jsonld'
+            example: null
+            examples: null
+            encoding: null
+            extension_properties: []
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Command'
+            example: null
+            examples: null
+            encoding: null
+            extension_properties: []
+        required: true
+        extension_properties: []
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    delete: null
+    options: null
+    head: null
+    patch: null
+    trace: null
+    servers: null
+    parameters: null
+    extension_properties: []
   /configuration/graphs/templates:
     $ref: ./latest/onPremise/Configuration/GraphTemplate/FindGraphTemplates.yaml
   /configuration/connectors:
-    $ref: ./latest/onPremise/Configuration/Connector/FindConnectors.yaml
+    ref: null
+    summary: null
+    description: null
+    get:
+      operation_id: api_configurationconnectors_get_collection
+      tags:
+        - ConnectorResource
+      responses:
+        '200':
+          description: 'ConnectorResource collection'
+          content:
+            application/ld+json:
+              schema:
+                type: object
+                properties:
+                  member: { type: array, items: { $ref: '#/components/schemas/ConnectorResource.jsonld' } }
+                  totalItems: { type: integer, minimum: 0 }
+                  view: { type: object, properties: { '@id': { type: string, format: iri-reference }, '@type': { type: string }, first: { type: string, format: iri-reference }, last: { type: string, format: iri-reference }, previous: { type: string, format: iri-reference }, next: { type: string, format: iri-reference } }, example: { '@id': string, type: string, first: string, last: string, previous: string, next: string } }
+                  search: { type: object, properties: { '@type': { type: string }, template: { type: string }, variableRepresentation: { type: string }, mapping: { type: array, items: { type: object, properties: { '@type': { type: string }, variable: { type: string }, property: { type: [string, 'null'] }, required: { type: boolean } } } } } }
+                required:
+                  - member
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConnectorResource'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: null
+          extension_properties: []
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+      summary: 'Retrieves the collection of ConnectorResource resources.'
+      description: 'Retrieves the collection of ConnectorResource resources.'
+      external_docs: null
+      parameters:
+        -
+          name: 'id[lk]'
+          in: query
+          description: 'Filter by id using "like" operator'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: array
+            items:
+              type: int
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: 'id[eq]'
+          in: query
+          description: 'Filter by id using "equals" operator'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: array
+            items:
+              type: int
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: 'name[lk]'
+          in: query
+          description: 'Filter by name using "like" operator'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: 'name[eq]'
+          in: query
+          description: 'Filter by name using "equals" operator'
+          required: false
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: page
+          in: query
+          description: 'The collection page number'
+          required: false
+          deprecated: false
+          allow_empty_value: true
+          schema:
+            type: integer
+            default: 1
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+        -
+          name: itemsPerPage
+          in: query
+          description: 'The number of items per page'
+          required: false
+          deprecated: false
+          allow_empty_value: true
+          schema:
+            type: integer
+            default: 30
+            minimum: 0
+          style: form
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+      request_body: null
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    put: null
+    post: null
+    delete: null
+    options: null
+    head: null
+    patch: null
+    trace: null
+    servers: null
+    parameters: null
+    extension_properties: []
   '/configuration/hosts/{host_id}':
     $ref: ./latest/onPremise/Configuration/Host/DeleteAndPartialUpdateHost.yaml
   /configuration/hosts/templates:
@@ -4384,6 +4880,596 @@ paths:
     servers: null
     parameters: null
     extension_properties: []
+  '/configuration/commands/{id}':
+    ref: null
+    summary: null
+    description: null
+    get:
+      operation_id: api_configurationcommands_id_get
+      tags:
+        - Command
+      responses:
+        '404':
+          description: 'Command resource not found'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '403':
+          description: 'You are not allowed to access this command'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '200':
+          description: 'Command resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Command.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Command'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: null
+          extension_properties: []
+      summary: 'Retrieves a Command resource.'
+      description: 'Retrieves a Command resource.'
+      external_docs: null
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Command identifier'
+          required: true
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+      request_body: null
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    put: null
+    post: null
+    delete:
+      operation_id: api_configurationcommands_id_delete
+      tags:
+        - Command
+      responses:
+        '404':
+          description: 'Command resource not found'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '403':
+          description: 'You are not allowed to delete this command'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '204':
+          description: 'Command resource deleted'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+      summary: 'Removes the Command resource.'
+      description: 'Removes the Command resource.'
+      external_docs: null
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Command identifier'
+          required: true
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+      request_body: null
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    options: null
+    head: null
+    patch:
+      operation_id: api_configurationcommands_id_patch
+      tags:
+        - Command
+      responses:
+        '404':
+          description: 'Command resource not found'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '403':
+          description: 'You are not allowed to update this command'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '200':
+          description: 'Command resource updated'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Command.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Command'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation-json'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation-json'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+      summary: 'Updates the Command resource.'
+      description: 'Updates the Command resource.'
+      external_docs: null
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Command identifier'
+          required: true
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+      request_body:
+        description: 'The updated Command resource'
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/Command'
+            example: null
+            examples: null
+            encoding: null
+            extension_properties: []
+        required: true
+        extension_properties: []
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    trace: null
+    servers: null
+    parameters: null
+    extension_properties: []
+  /configuration/commands/_duplicate:
+    ref: null
+    summary: null
+    description: null
+    get: null
+    put: null
+    post:
+      operation_id: api_configurationcommands_duplicate_post
+      tags:
+        - Command
+      responses:
+        '403':
+          description: 'You are not allowed to duplicate commands'
+          content: null
+          headers: null
+          links: null
+          extension_properties: []
+        '200':
+          description: 'Command resource created'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Command.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Command'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+        '400':
+          description: 'Invalid input'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+        '422':
+          description: 'An error occurred'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation.jsonld-jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation-json'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConstraintViolation-json'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+      summary: 'Creates a Command resource.'
+      description: 'Creates a Command resource.'
+      external_docs: null
+      parameters: []
+      request_body:
+        description: 'The new Command resource'
+        content:
+          application/ld+json:
+            schema:
+              $ref: '#/components/schemas/Command.DuplicateCommandInput.jsonld'
+            example: null
+            examples: null
+            encoding: null
+            extension_properties: []
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Command.DuplicateCommandInput'
+            example: null
+            examples: null
+            encoding: null
+            extension_properties: []
+        required: true
+        extension_properties: []
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    delete: null
+    options: null
+    head: null
+    patch: null
+    trace: null
+    servers: null
+    parameters: null
+    extension_properties: []
+  '/configuration/connectors/{id}':
+    ref: null
+    summary: null
+    description: null
+    get:
+      operation_id: api_configurationconnectors_id_get
+      tags:
+        - Connector
+      responses:
+        '200':
+          description: 'Connector resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Connector.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connector'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: null
+          extension_properties: []
+        '403':
+          description: Forbidden
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+        '404':
+          description: 'Not found'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+      summary: 'Retrieves a Connector resource.'
+      description: 'Retrieves a Connector resource.'
+      external_docs: null
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Connector identifier'
+          required: true
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+      request_body: null
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    put: null
+    post: null
+    delete: null
+    options: null
+    head: null
+    patch: null
+    trace: null
+    servers: null
+    parameters: null
+    extension_properties: []
+  '/configuration/plugins/{plugin_name}':
+    ref: null
+    summary: null
+    description: null
+    get:
+      operation_id: api_configurationplugins_plugin_name_get
+      tags:
+        - Plugin
+      responses:
+        '200':
+          description: 'Plugin resource'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Plugin.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plugin'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: null
+          extension_properties: []
+        '404':
+          description: 'Not found'
+          content:
+            application/ld+json:
+              schema:
+                $ref: '#/components/schemas/Error.jsonld'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example: null
+              examples: null
+              encoding: null
+              extension_properties: []
+          headers: null
+          links: []
+          extension_properties: []
+      summary: 'Retrieves a Plugin resource.'
+      description: 'Retrieves a Plugin resource.'
+      external_docs: null
+      parameters:
+        -
+          name: plugin_name
+          in: path
+          description: 'Plugin identifier'
+          required: true
+          deprecated: false
+          allow_empty_value: false
+          schema:
+            type: string
+          style: simple
+          explode: false
+          allow_reserved: false
+          example: null
+          examples: null
+          content: null
+          extension_properties: []
+      request_body: null
+      callbacks: null
+      deprecated: false
+      security: null
+      servers: null
+      extension_properties: []
+    put: null
+    post: null
+    delete: null
+    options: null
+    head: null
+    patch: null
+    trace: null
+    servers: null
+    parameters: null
+    extension_properties: []
 components:
   securitySchemes:
     Token:
@@ -8236,3 +9322,348 @@ components:
           type:
             - string
             - 'null'
+    Command:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        id:
+          type: integer
+        name:
+          minLength: 1
+          maxLength: 255
+          pattern: '^(.*(^[^~!$%^&*"|''<>?,()=]+$).*)$'
+          description: 'The command name'
+          type: string
+          example: check_http
+        type:
+          enum:
+            - Check
+            - Notification
+            - Miscellaneous
+            - Discovery
+          description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+          type: string
+          example: Check
+        command_line:
+          minLength: 1
+          maxLength: 65535
+          description: 'The command line used to execute the command'
+          type: string
+          example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+        is_shell_enabled:
+          description: 'Indicates whether the command can be executed through a shell'
+          type: boolean
+        is_activated:
+          description: 'Indicates whether the command is activated or not'
+          type: boolean
+        is_from_monitoring_connector:
+          description: 'Indicates whether the command comes from a monitoring connector'
+          type: boolean
+        connector:
+          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+          example:
+            id: 1
+            name: 'SSH Connector'
+        comment:
+          description: 'Additional information about the command'
+          type:
+            - string
+            - 'null'
+          example: 'This command is used to check the HTTP service'
+    Command.DuplicateCommandInput:
+      type: object
+      description: ''
+      deprecated: false
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+    Command.DuplicateCommandInput.jsonld:
+      type: object
+      description: ''
+      deprecated: false
+      required:
+        - ids
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+    Command.jsonld:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        '@id':
+          readOnly: true
+          type: string
+        '@type':
+          readOnly: true
+          type: string
+        '@context':
+          readOnly: true
+          oneOf:
+            -
+              type: string
+            -
+              type: object
+              properties:
+                '@vocab':
+                  type: string
+                hydra:
+                  type: string
+                  enum: ['http://www.w3.org/ns/hydra/core#']
+              required:
+                - '@vocab'
+                - hydra
+              additionalProperties: true
+        id:
+          type: integer
+        name:
+          minLength: 1
+          maxLength: 255
+          pattern: '^(.*(^[^~!$%^&*"|''<>?,()=]+$).*)$'
+          description: 'The command name'
+          type: string
+          example: check_http
+        type:
+          enum:
+            - Check
+            - Notification
+            - Miscellaneous
+            - Discovery
+          description: 'The type of command (1: notification, 2: check, 3: Miscellaneous, 4: Discovery)'
+          type: string
+          example: Check
+        command_line:
+          minLength: 1
+          maxLength: 65535
+          description: 'The command line used to execute the command'
+          type: string
+          example: '$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$'
+        is_shell_enabled:
+          description: 'Indicates whether the command can be executed through a shell'
+          type: boolean
+        is_activated:
+          description: 'Indicates whether the command is activated or not'
+          type: boolean
+        is_from_monitoring_connector:
+          description: 'Indicates whether the command comes from a monitoring connector'
+          type: boolean
+        connector:
+          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance'
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+          example:
+            id: 1
+            name: 'SSH Connector'
+        comment:
+          description: 'Additional information about the command'
+          type:
+            - string
+            - 'null'
+          example: 'This command is used to check the HTTP service'
+    Connector:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        id:
+          type: integer
+        name:
+          description: 'The connector name'
+          type: string
+          example: 'Perl Connector'
+        command_line:
+          description: 'The command line used to execute the connector'
+          type: string
+          example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
+        description:
+          description: 'The connector description'
+          type:
+            - string
+            - 'null'
+          example: 'Connector using SSH to connect to remote hosts'
+        is_activated:
+          description: 'Indicates whether the connector is activated'
+          type: boolean
+          example: true
+    Connector.jsonld:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        '@context':
+          readOnly: true
+          oneOf:
+            -
+              type: string
+            -
+              type: object
+              properties:
+                '@vocab':
+                  type: string
+                hydra:
+                  type: string
+                  enum: ['http://www.w3.org/ns/hydra/core#']
+              required:
+                - '@vocab'
+                - hydra
+              additionalProperties: true
+        '@id':
+          readOnly: true
+          type: string
+        '@type':
+          readOnly: true
+          type: string
+        id:
+          type: integer
+        name:
+          description: 'The connector name'
+          type: string
+          example: 'Perl Connector'
+        command_line:
+          description: 'The command line used to execute the connector'
+          type: string
+          example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
+        description:
+          description: 'The connector description'
+          type:
+            - string
+            - 'null'
+          example: 'Connector using SSH to connect to remote hosts'
+        is_activated:
+          description: 'Indicates whether the connector is activated'
+          type: boolean
+          example: true
+    ConnectorResource:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        id:
+          type: integer
+        name:
+          description: 'The connector name'
+          type: string
+          example: 'Perl Connector'
+        command_line:
+          description: 'The command line used to execute the connector'
+          type: string
+          example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
+        description:
+          description: 'The connector description'
+          type:
+            - string
+            - 'null'
+          example: 'Connector using SSH to connect to remote hosts'
+        is_activated:
+          description: 'Indicates whether the connector is activated'
+          type: boolean
+          example: true
+    ConnectorResource.jsonld:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        '@id':
+          readOnly: true
+          type: string
+        '@type':
+          readOnly: true
+          type: string
+        id:
+          type: integer
+        name:
+          description: 'The connector name'
+          type: string
+          example: 'Perl Connector'
+        command_line:
+          description: 'The command line used to execute the connector'
+          type: string
+          example: 'centreon_connector_ssh --log-file=/var/log/centreon-engine/connector-ssh.log'
+        description:
+          description: 'The connector description'
+          type:
+            - string
+            - 'null'
+          example: 'Connector using SSH to connect to remote hosts'
+        is_activated:
+          description: 'Indicates whether the connector is activated'
+          type: boolean
+          example: true
+    Plugin:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        name:
+          description: 'Name of plugin'
+          type: string
+          example: negate
+        command_line:
+          description: 'command line of plugin'
+          type: string
+          example: /usr/lib64/nagios/plugins/negate
+        description:
+          description: 'description of plugin'
+          type:
+            - string
+            - 'null'
+          example: 'This is the help description of the plugin.'
+    Plugin.jsonld:
+      type: object
+      description: ''
+      deprecated: false
+      properties:
+        '@context':
+          readOnly: true
+          oneOf:
+            -
+              type: string
+            -
+              type: object
+              properties:
+                '@vocab':
+                  type: string
+                hydra:
+                  type: string
+                  enum: ['http://www.w3.org/ns/hydra/core#']
+              required:
+                - '@vocab'
+                - hydra
+              additionalProperties: true
+        '@id':
+          readOnly: true
+          type: string
+        '@type':
+          readOnly: true
+          type: string
+        name:
+          description: 'Name of plugin'
+          type: string
+          example: negate
+        command_line:
+          description: 'command line of plugin'
+          type: string
+          example: /usr/lib64/nagios/plugins/negate
+        description:
+          description: 'description of plugin'
+          type:
+            - string
+            - 'null'
+          example: 'This is the help description of the plugin.'
