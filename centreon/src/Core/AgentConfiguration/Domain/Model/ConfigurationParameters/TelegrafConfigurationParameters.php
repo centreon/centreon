@@ -166,7 +166,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
 
         // Reject forbidden directories : /etc but not /etc/pki
         if (str_starts_with($path, '/etc/')) {
-            if (! str_starts_with($path, '/etc/pki/') && $path !== '/etc/pki') {
+            if (! str_starts_with($path, self::CERTIFICATE_BASE_PATH) && $path !== '/etc/pki') {
                 throw new AssertionException(
                     sprintf('[%s] The path "%s" can only be in /etc/pki/ directory', $field, $path),
                 );
