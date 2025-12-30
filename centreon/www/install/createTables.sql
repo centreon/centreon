@@ -1949,7 +1949,7 @@ CREATE TABLE `topology` (
   `readonly` enum('0','1') NOT NULL DEFAULT '1',
   `is_react` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY (`topology_id`),
-  KEY `topology_page` (`topology_page`),
+  UNIQUE KEY `topology_page` (`topology_page`),
   KEY `topology_parent` (`topology_parent`),
   KEY `topology_order` (`topology_order`),
   KEY `topology_group` (`topology_group`)
@@ -1999,7 +1999,7 @@ CREATE TABLE `traps` (
   `traps_customcode` text,
   `traps_comments` text,
   UNIQUE KEY `traps_name` (`traps_name`,`traps_oid`),
-  KEY `traps_id` (`traps_id`),
+  UNIQUE KEY `traps_id` (`traps_id`),
   KEY `traps_ibfk_1` (`manufacturer_id`),
   KEY `traps_ibfk_2` (`severity_id`),
   CONSTRAINT `traps_ibfk_1` FOREIGN KEY (`manufacturer_id`) REFERENCES `traps_vendor` (`id`) ON DELETE CASCADE,

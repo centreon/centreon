@@ -33,7 +33,10 @@
  *
  */
 
-if (!isset($centreon)) {
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
+if (! isset($centreon)) {
     exit();
 }
 
@@ -43,12 +46,7 @@ include "./include/common/autoNumLimit.php";
 
 $list = $_GET["list"] ?? null;
 
-$aclCond = "";
-if (!$oreon->user->admin) {
-    $aclCond = " AND hostgroup_hg_id IN ($hgstring) ";
-}
-
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchHGD'] ?? $_GET['searchHGD'] ?? null
 );
 
@@ -61,23 +59,83 @@ if (isset($_POST['searchHGD']) || isset($_GET['searchHGD'])) {
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-/*
- * List dependencies
- */
-$rq = "SELECT SQL_CALC_FOUND_ROWS dep_id, dep_name, dep_description FROM dependency dep " .
-    "WHERE ((SELECT DISTINCT COUNT(*) FROM dependency_hostgroupParent_relation dhgpr " .
-    "WHERE dhgpr.dependency_dep_id = dep.dep_id $aclCond) > 0  OR (SELECT DISTINCT COUNT(*) " .
-    "FROM dependency_hostgroupChild_relation dhgpr WHERE dhgpr.dependency_dep_id = dep.dep_id $aclCond) > 0)";
+// List dependencies
+$qb = $pearDB->createQueryBuilder()
+    ->select('dep.dep_id', 'dep.dep_name', 'dep.dep_description')
+    ->from('dependency', 'dep');
 
-if ($search) {
-    $rq .= " AND (dep_name LIKE '%" . CentreonDB::escape($search) . "%' OR dep_description LIKE '%" .
-        CentreonDB::escape($search) . "%')";
+$subQueryParent = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_parent.dependency_dep_id)')
+    ->from('dependency_hostgroupParent_relation', 'dhgpr_parent')
+    ->where('dhgpr_parent.dependency_dep_id = dep.dep_id');
+
+$subQueryChild = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_child.dependency_dep_id)')
+    ->from('dependency_hostgroupChild_relation', 'dhgpr_child')
+    ->where('dhgpr_child.dependency_dep_id = dep.dep_id');
+
+if (! $oreon->user->admin) {
+    $subQueryParent->andWhere("dhgpr_parent.hostgroup_hg_id IN ({$hgstring})");
+    $subQueryChild->andWhere("dhgpr_child.hostgroup_hg_id IN ({$hgstring})");
 }
 
-$rq .= " ORDER BY dep_name, dep_description LIMIT " . $num * $limit . ", " . $limit;
-$dbResult = $pearDB->query($rq);
+$qb->where('(' . $subQueryParent->getQuery() . ') > 0')
+    ->orWhere('(' . $subQueryChild->getQuery() . ') > 0');
 
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$params = null;
+if ($search) {
+    $qb->andWhere(
+        $qb->expr()->or(
+            $qb->expr()->like('dep.dep_name', ':search'),
+            $qb->expr()->like('dep.dep_description', ':search')
+        )
+    );
+
+    $params = QueryParameters::create([
+        QueryParameter::string('search', '%' . $search . '%'),
+    ]);
+}
+
+$qb->orderBy('dep.dep_name')
+    ->addOrderBy('dep.dep_description')
+    ->offset($num * $limit)
+    ->limit($limit);
+
+$result = $pearDB->fetchAllAssociative($qb->getQuery(), $params ?? null);
+
+// get rows count with same filters as the select query
+$countQb = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dep.dep_id)')
+    ->from('dependency', 'dep');
+
+$countSubQueryParent = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_parent.dependency_dep_id)')
+    ->from('dependency_hostgroupParent_relation', 'dhgpr_parent')
+    ->where('dhgpr_parent.dependency_dep_id = dep.dep_id');
+
+$countSubQueryChild = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_child.dependency_dep_id)')
+    ->from('dependency_hostgroupChild_relation', 'dhgpr_child')
+    ->where('dhgpr_child.dependency_dep_id = dep.dep_id');
+
+if (! $oreon->user->admin) {
+    $countSubQueryParent->andWhere("dhgpr_parent.hostgroup_hg_id IN ({$hgstring})");
+    $countSubQueryChild->andWhere("dhgpr_child.hostgroup_hg_id IN ({$hgstring})");
+}
+
+$countQb->where('(' . $countSubQueryParent->getQuery() . ') > 0')
+    ->orWhere('(' . $countSubQueryChild->getQuery() . ') > 0');
+
+if ($search) {
+    $countQb->andWhere(
+        $countQb->expr()->or(
+            $countQb->expr()->like('dep.dep_name', ':search'),
+            $countQb->expr()->like('dep.dep_description', ':search')
+        )
+    );
+}
+
+$rows = $pearDB->fetchOne($countQb->getQuery(), $params ?? null);
 
 include "./include/common/checkPagination.php";
 
@@ -107,7 +165,7 @@ $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
 //Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
-for ($i = 0; $dep = $dbResult->fetch(); $i++) {
+foreach ($result as $i => $dep) {
     $moptions = "";
     $selectedElements = $form->addElement('checkbox', "select[" . $dep['dep_id'] . "]");
     $moptions .= "&nbsp;<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57))" .
