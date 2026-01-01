@@ -196,7 +196,7 @@ jobs:
           github.event_name == 'pull_request' &&
           ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
         id: get_changed_files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           files: |
             centreon/www/install/php/Update-**.php
@@ -580,7 +580,7 @@ jobs:
 
       - name: Get changed PHP files
         id: changed-php
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           files: |
             **/*.php
