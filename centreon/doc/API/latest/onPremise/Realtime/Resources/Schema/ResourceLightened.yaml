@@ -65,8 +65,7 @@ properties:
     description: "Indicates whether resource is in flapping"
     example: false
   percent_state_change:
-    type: number
-    format: float
+    type: float
     nullable: true
     description: "Percentage of state change"
     example: "10.4"

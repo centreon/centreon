@@ -1,5 +1,4 @@
 post:
-  operationId: UpdateMedia
   tags:
     - Media
   summary: "Update the media content on the file system"

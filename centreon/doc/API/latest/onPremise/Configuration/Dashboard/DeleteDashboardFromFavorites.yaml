@@ -1,5 +1,4 @@
 delete:
-  operationId: DeleteDashboardFromFavorites
   tags:
     - Dashboard
   summary: "Unset dashboard from current user favorites"

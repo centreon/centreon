@@ -1,5 +1,4 @@
 delete:
-  operationId: DeleteContactDashboardShare
   tags:
     - Dashboard
   summary: "Delete the contact access right of a dashboard"

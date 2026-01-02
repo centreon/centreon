@@ -1,5 +1,4 @@
 delete:
-  operationId: DeleteServiceSeverity
   tags:
     - Service severity
   summary: "Delete a service severity"
@@ -17,7 +16,6 @@ delete:
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
 put:
-  operationId: UpdateServiceSeverity
   tags:
     - Service severity
   summary: "Update a service severity"

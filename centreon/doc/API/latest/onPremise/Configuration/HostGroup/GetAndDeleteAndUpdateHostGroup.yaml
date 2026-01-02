@@ -1,5 +1,4 @@
 get:
-  operationId: GetHostGroup
   tags:
     - Host group
   summary: "Get a host group"
@@ -24,7 +23,6 @@ get:
     '500':
       $ref: '../../../Common/Response/InternalServerError.yaml'
 delete:
-  operationId: DeleteHostGroup
   tags:
     - Host group
   summary: "Delete a host group"
@@ -42,7 +40,6 @@ delete:
     '500':
       $ref: '../../../Common/Response/InternalServerError.yaml'
 put:
-  operationId: UpdateHostGroup
   tags:
     - Host group
   summary: "Update a host group"

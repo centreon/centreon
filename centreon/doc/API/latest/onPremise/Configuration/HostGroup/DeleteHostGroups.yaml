@@ -1,5 +1,4 @@
 post:
-  operationId: DeleteHostGroups
   tags:
     - Host group
   summary: "Delete multiple host groups"

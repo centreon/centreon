@@ -1,5 +1,4 @@
 post:
-  operationId: EnableDisableHostGroups
   tags:
     - Host group
   summary: "enable/disable multiple host groups"
@@ -20,6 +19,8 @@ post:
             - ids
   description: |
     enable/disable multiple host groups from configuration
+  parameters:
+    - $ref: 'QueryParameter/EnableDisable.yaml'
   responses:
     '200':
       description: "Objects enable/disable"

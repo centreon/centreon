@@ -63,8 +63,7 @@ properties:
           nullable: true
 
         otel_public_certificate:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Path to the public certificate.
 
@@ -74,8 +73,7 @@ properties:
           example: otel-cert.crt
 
         otel_ca_certificate:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Path to the CA certificate.
 
@@ -85,8 +83,7 @@ properties:
           example: ca-cert.cer
 
         otel_private_key:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Path to the private key.
 
@@ -140,20 +137,17 @@ properties:
                 example: 1443
 
               poller_ca_certificate:
-                type: 'string'
-                nullable: true
+                type: [string, null]
                 description: Path to poller's CA certificate.
                 example: poller-ca.crt
 
               poller_ca_name:
-                type: 'string'
-                nullable: true
+                type: [string, null]
                 description: CA name expected by the host.
                 example: CentreonCA
 
               token:
-                type: object
-                nullable: true
+                type: [object, null]
                 description: Token used for this host.
                 properties:
                   name:
@@ -202,8 +196,7 @@ properties:
         - conf_private_key
       properties:
         otel_public_certificate:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Path to the public certificate.
 
@@ -213,8 +206,7 @@ properties:
           example: otel-cert.crt
 
         otel_ca_certificate:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Path to the CA certificate.
 
@@ -224,8 +216,7 @@ properties:
           example: telegraf-ca.crt
 
         otel_private_key:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Path to the private key.
 
@@ -240,8 +231,7 @@ properties:
           example: 1443
 
         conf_certificate:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Server certificate path.
 
@@ -251,8 +241,7 @@ properties:
           example: conf-cert.crt
 
         conf_private_key:
-          type: 'string'
-          nullable: true
+          type: [string, null]
           description: |
             Server private key path.
 

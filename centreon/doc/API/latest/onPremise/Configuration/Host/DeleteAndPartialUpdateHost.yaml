@@ -1,5 +1,4 @@
 delete:
-  operationId: "DeleteHost"
   tags:
     - Host
   summary: "Delete a host configuration"
@@ -17,7 +16,6 @@ delete:
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
 patch:
-  operationId: "PartialUpdateHost"
   tags:
     - Host
   summary: "Partially update a host configuration"

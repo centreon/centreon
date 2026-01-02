@@ -1,5 +1,4 @@
 get:
-  operationId: FindUsersNew
   tags:
     - User
   summary: Get configured users

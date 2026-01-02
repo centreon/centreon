@@ -1,4 +1,4 @@
-in: path
+in: query
 name: action
 required: true
 description: "Action to enable or disable host group"

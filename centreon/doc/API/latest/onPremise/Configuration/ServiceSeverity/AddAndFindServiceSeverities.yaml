@@ -1,5 +1,4 @@
 get:
-  operationId: FindServiceSeverities
   tags:
     - Service severity
   summary: "List all service severities"
@@ -37,7 +36,6 @@ get:
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
 post:
-  operationId: AddServiceSeverity
   tags:
     - Service severity
   summary: "Create a service severity"
