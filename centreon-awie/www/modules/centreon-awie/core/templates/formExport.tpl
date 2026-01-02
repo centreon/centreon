@@ -1,7 +1,7 @@
 <script type='text/javascript' src="./modules/centreon-awie/core/js/Export.js"></script>
 
 <form name="exportForm" id="exportForm" enctype="multipart/form-data">
-
+    <input type="hidden" id="centreon_token" name="centreon_token" value="{$csrfToken}" />
     <div class="loadingWrapper" style="display: none">
         {include file='loading.tpl'}
     </div>
