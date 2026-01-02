@@ -355,7 +355,7 @@ paths:
         -
           name: type
           in: query
-          description: 'Filter commands by type'
+          description: 'Filter commands by type. Multiple values can be provided using type[]=Check&type[]=Notification'
           required: false
           deprecated: false
           schema:
@@ -368,7 +368,7 @@ paths:
                 - Miscellaneous
                 - Discovery
           style: form
-          explode: false
+          explode: true
           example: 'Check'
         -
           name: is_activated
@@ -432,9 +432,36 @@ paths:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
+              example:
+                "@context": "/centreon/api/latest/contexts/Command"
+                "@id": "/centreon/api/latest/configuration/commands/1"
+                "@type": "Command"
+                id: 1
+                name: "check_http"
+                type: "Check"
+                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+                is_shell_enabled: false
+                is_activated: true
+                is_from_monitoring_connector: false
+                connector:
+                  id: 1
+                  name: "SSH Connector"
+                comment: "Check HTTP service"
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
+              example:
+                id: 1
+                name: "check_http"
+                type: "Check"
+                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+                is_shell_enabled: false
+                is_activated: true
+                is_from_monitoring_connector: false
+                connector:
+                  id: 1
+                  name: "SSH Connector"
+                comment: "Check HTTP service"
         '400':
           description: 'Invalid input'
           content:
@@ -468,9 +495,23 @@ paths:
           application/ld+json:
             schema:
               $ref: '#/components/schemas/Command.jsonld'
+            example:
+              name: "check_http"
+              type: "Check"
+              command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+              is_shell_enabled: false
+              connector: "/api/latest/configuration/connectors/1"
+              comment: "Check HTTP service"
           application/json:
             schema:
               $ref: '#/components/schemas/Command'
+            example:
+              name: "check_http"
+              type: "Check"
+              command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+              is_shell_enabled: false
+              connector: "/api/latest/configuration/connectors/1"
+              comment: "Check HTTP service"
         required: true
   /configuration/graphs/templates:
     $ref: ./latest/onPremise/Configuration/GraphTemplate/FindGraphTemplates.yaml
@@ -4512,9 +4553,36 @@ paths:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
+              example:
+                "@context": "/centreon/api/latest/contexts/Command"
+                "@id": "/centreon/api/latest/configuration/commands/1"
+                "@type": "Command"
+                id: 1
+                name: "check_http"
+                type: "Check"
+                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+                is_shell_enabled: false
+                is_activated: true
+                is_from_monitoring_connector: false
+                connector:
+                  id: 1
+                  name: "SSH Connector"
+                comment: "Check HTTP service"
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
+              example:
+                id: 1
+                name: "check_http"
+                type: "Check"
+                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+                is_shell_enabled: false
+                is_activated: true
+                is_from_monitoring_connector: false
+                connector:
+                  id: 1
+                  name: "SSH Connector"
+                comment: "Check HTTP service"
       summary: 'Retrieves a Command resource.'
       description: 'Retrieves a Command resource.'
       parameters:
@@ -4564,9 +4632,36 @@ paths:
             application/ld+json:
               schema:
                 $ref: '#/components/schemas/Command.jsonld'
+              example:
+                "@context": "/centreon/api/latest/contexts/Command"
+                "@id": "/centreon/api/latest/configuration/commands/1"
+                "@type": "Command"
+                id: 1
+                name: "check_http"
+                type: "Check"
+                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+                is_shell_enabled: false
+                is_activated: false
+                is_from_monitoring_connector: false
+                connector:
+                  id: 2
+                  name: "Perl Connector"
+                comment: "Updated HTTP check"
             application/json:
               schema:
                 $ref: '#/components/schemas/Command'
+              example:
+                id: 1
+                name: "check_http"
+                type: "Check"
+                command_line: "$USER1$/check_http -H $ARG1$ -w $ARG2$ -c $ARG3$"
+                is_shell_enabled: false
+                is_activated: false
+                is_from_monitoring_connector: false
+                connector:
+                  id: 2
+                  name: "Perl Connector"
+                comment: "Updated HTTP check"
         '400':
           description: 'Invalid input'
           content:
@@ -4611,6 +4706,10 @@ paths:
           application/merge-patch+json:
             schema:
               $ref: '#/components/schemas/Command'
+            example:
+              is_activated: false
+              connector: "/api/latest/configuration/connectors/2"
+              comment: "Updated HTTP check"
   /configuration/commands/_duplicate:
     summary: 'duplicate a Command resource'
     description: 'duplicate a Command resource'
@@ -8592,19 +8691,24 @@ components:
           description: 'Indicates whether the command is activated or not'
           type: boolean
         is_from_monitoring_connector:
+          readOnly: true
           description: 'Indicates whether the command comes from a monitoring connector'
           type: boolean
         connector:
-          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance'
-          type: object
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
-          example:
-            id: 1
-            name: 'SSH Connector'
+          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance. For write operations (POST/PATCH), provide an IRI like "/api/latest/configuration/connectors/1". Read operations (GET) return the full connector object'
+          oneOf:
+            - type: string
+              format: iri-reference
+              example: '/api/latest/configuration/connectors/1'
+            - type: object
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+              example:
+                id: 1
+                name: 'SSH Connector'
         comment:
           description: 'Additional information about the command'
           type: string
@@ -8691,19 +8795,25 @@ components:
           description: 'Indicates whether the command is activated or not'
           type: boolean
         is_from_monitoring_connector:
+          readOnly: true
           description: 'Indicates whether the command comes from a monitoring connector'
           type: boolean
         connector:
-          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance'
-          type: object
-          properties:
-            id:
-              type: integer
-            name:
-              type: string
-          example:
-            id: 1
-            name: 'SSH Connector'
+          description: 'Connectors are run in background and execute specific commands without the need to execute a binary, thus enhancing performance. For write operations, provide an IRI like "/api/latest/configuration/connectors/1". Returns full object in responses'
+          oneOf:
+            - type: string
+              format: iri-reference
+              example: '/api/latest/configuration/connectors/1'
+            - type: object
+              readOnly: true
+              properties:
+                id:
+                  type: integer
+                name:
+                  type: string
+              example:
+                id: 1
+                name: 'SSH Connector'
         comment:
           description: 'Additional information about the command'
           type: string
