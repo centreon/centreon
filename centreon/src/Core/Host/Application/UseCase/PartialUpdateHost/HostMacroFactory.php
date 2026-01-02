@@ -61,6 +61,7 @@ final class HostMacroFactory
         }
 
         $macro = new Macro(
+            $data['id'] ?? null,
             $hostId,
             $data['name'],
             $macroValue,
