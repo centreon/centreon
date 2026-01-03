@@ -90,7 +90,7 @@ export default (): void => {
       cy.waitForRequest('@getCommands').then(({ request }) => {
         expect(request.url.href).to.include('name[lk]=abc');
         expect(request.url.href).to.include(
-          'type[eq]=Notification&type[eq]=Discovery'
+          'type[]=Notification&type[]=Discovery'
         );
         expect(request.url.href).to.include('is_activated=true');
       });
@@ -121,7 +121,7 @@ export default (): void => {
       cy.waitForRequest('@getCommands').then(({ request }) => {
         expect(request.url.href).to.not.include('name[lk]=abc');
         expect(request.url.href).to.not.include(
-          'type[eq]=Notification&type[eq]=Discovery'
+          'type[]=Notification&type[]=Discovery'
         );
         expect(request.url.href).to.not.include('is_activated=true');
       });
