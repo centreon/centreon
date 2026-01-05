@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
@@ -56,7 +57,7 @@ Given('an admin user is in the Agents Configuration page', () => {
     jsonName: 'admin',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agent_configurations);
   cy.wait('@getAgentsPage');
 });
 
@@ -201,7 +202,7 @@ Given('a non-admin user without topology rights is logged in', () => {
 });
 
 When('the user tries to access the Agents Configuration page', () => {
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agent_configurations);
 });
 
 Then('the user cannot access the Agents Configuration page', () => {
@@ -218,7 +219,7 @@ Given('a non-admin user is logged in', () => {
 });
 
 Given('an agent configuration already created linked with two pollers', () => {
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agent_configurations);
   cy.wait('@getAgentsPage');
   cy.contains('button', 'Add').click();
   cy.get('*[role="dialog"]').should('be.visible');
@@ -392,7 +393,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agent_configurations);
   cy.wait('@getAgentsPage');
 });
 
