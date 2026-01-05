@@ -21,7 +21,10 @@ import { isResizingItemAtom } from './atoms';
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
   canMove?: boolean;
-  children: Array<ReactElement | (({ isInViewport }) => ReactElement)>;
+  children: Array<
+    | ReactElement
+    | (({ isInViewport }: { isInViewport: boolean }) => ReactElement)
+  >;
   className?: string;
   disablePadding?: boolean;
   header?: ReactElement | ((params: Parameters) => ReactElement);
@@ -89,6 +92,27 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       style?.transform &&
       `translate3d(${style.transform.match(/translate\(([a-z0-9\ \,\-]+)\)/)[1]}, 0px)`;
 
+    const memoProps = useMemo(
+      () => [
+        style,
+        className,
+        header,
+        theme.palette.mode,
+        canMove,
+        isInViewport,
+        ...additionalMemoProps
+      ],
+      [
+        style,
+        className,
+        header,
+        theme.palette.mode,
+        canMove,
+        isInViewport,
+        additionalMemoProps
+      ]
+    );
+
     return useMemoComponent({
       Component: (
         <div
@@ -106,12 +130,12 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
 
               const childrenHeader = equals(type(header), 'Function')
                 ? (header as (params: Parameters) => ReactElement)({
-                  isExpanded,
-                  label,
-                  ref,
-                  key,
-                  ...rest
-                })
+                    isExpanded,
+                    label,
+                    ref,
+                    key,
+                    ...rest
+                  })
                 : header;
 
               return (
@@ -155,15 +179,7 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
         </div>
       ),
       memoProps: isInViewport
-        ? [
-          style,
-          className,
-          header,
-          theme.palette.mode,
-          canMove,
-          isInViewport,
-          ...additionalMemoProps
-        ]
+        ? memoProps
         : [isInViewport, theme.palette.mode, style]
     });
   }
