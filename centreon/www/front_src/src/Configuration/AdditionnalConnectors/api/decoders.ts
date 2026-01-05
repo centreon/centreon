@@ -8,6 +8,7 @@ import {
   Parameter,
   ParameterKeys
 } from '../models';
+import { maskedPassword } from '../utils';
 
 const namedEntityDecoder = {
   id: JsonDecoder.number,
@@ -59,7 +60,7 @@ const vcenterDecoder = JsonDecoder.object<Parameter>(
     [ParameterKeys.username]: 'username',
     [ParameterKeys.password]: 'password'
   }
-);
+).map((param) => ({ ...param, [ParameterKeys.password]: maskedPassword }));
 
 const connectorsParametersDecoder = JsonDecoder.object<{
   port: number;
