@@ -31,7 +31,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 #[AsEventListener]
 final readonly class LegacyHttpExceptionListener
@@ -60,6 +62,14 @@ final readonly class LegacyHttpExceptionListener
 
         // this case is handled by LegacyValidationExceptionNormalizer
         if ($exception instanceof ValidationException) {
+            return;
+        }
+
+        // handle Symfony ValidationFailedException to be compatible with LegacyValidationExceptionNormalizer
+        $previous = $exception->getPrevious();
+        if ($exception instanceof UnprocessableEntityHttpException && $previous instanceof ValidationFailedException) {
+            $event->setThrowable(new ValidationException($previous->getViolations()));
+
             return;
         }
 

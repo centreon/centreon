@@ -5,6 +5,8 @@ api_platform:
 
     name_converter: 'serializer.name_converter.camel_case_to_snake_case'
 
+    handle_symfony_errors: true
+
     exception_to_status:
         ApiPlatform\Validator\Exception\ValidationException: 400 # To be compatible with the legacy
         App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
