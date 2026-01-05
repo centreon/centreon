@@ -960,18 +960,6 @@ class GlpiRestApiProvider extends AbstractProvider
     }
 
     /*
-    * checks if all mandatory fields have been filled
-    *
-    * @return {array} telling us if there is a missing parameter
-    */
-    public function validateFormatPopup() {
-        $result = array('code' => 0, 'message' => 'ok');
-        $this->validateFormatPopupLists($result);
-
-        return $result;
-    }
-
-    /*
     * brings all parameters together in order to build the ticket arguments and save
     * ticket data in the database
     *
@@ -1035,65 +1023,6 @@ class GlpiRestApiProvider extends AbstractProvider
             'data' => json_encode($ticketArguments)
         ));
         return $result;
-    }
-
-    /*
-    * test if we can reach Glpi webservice with the given Configuration
-    *
-    * @param {array} $info required information to reach the glpi api
-    *
-    * @return {bool}
-    *
-    * throw \Exception if there are some missing parameters
-    * throw \Exception if the connection failed
-    */
-    public static function test($info)
-    {
-        // this is called through our javascript code. Those parameters are already checked in JS code.
-        // but since this function is public, we check again because anyone could use this function
-        if (
-            !isset($info['address'])
-            || !isset($info['api_path'])
-            || !isset($info['user_token'])
-            || !isset($info['app_token'])
-            || !isset($info['protocol'])
-        ) {
-                throw new \Exception('missing arguments', 13);
-        }
-
-        // check if php curl is installed
-        if (!extension_loaded("curl")) {
-            throw new \Exception("couldn't find php curl", 10);
-        }
-
-        $curl = curl_init();
-
-        $apiAddress = $info['protocol'] . '://' . $info['address'] . $info['api_path'] . '/initSession';
-        $info['method'] = 0;
-        // set headers
-        $info['headers'] = array(
-            'App-Token: ' . $info['app_token'],
-            'Authorization: user_token ' . $info['user_token'],
-            'Content-Type: application/json'
-        );
-
-        // initiate our curl options
-        curl_setopt($curl, CURLOPT_URL, $apiAddress);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_POST, $info['method']);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
-        // execute curl and get status information
-        $curlResult = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        if ($httpCode > 301) {
-            throw new Exception('curl result: ' . $curlResult . '|| HTTP return code: ' . $httpCode, 11);
-        }
-
-        return true;
     }
 
     /*
@@ -1543,29 +1472,5 @@ class GlpiRestApiProvider extends AbstractProvider
         }
 
         return 0;
-    }
-
-    /*
-    * check if the close option is enabled, if so, try to close every selected ticket
-    *
-    * @param {array} $tickets
-    *
-    * @return void
-    */
-    public function closeTicket(&$tickets)
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                try {
-                    $this->closeTicketGlpi($k);
-                    $tickets[$k]['status'] = 2;
-                } catch (\Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
     }
 }
