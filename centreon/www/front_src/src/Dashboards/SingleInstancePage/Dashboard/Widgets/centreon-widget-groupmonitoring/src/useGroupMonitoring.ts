@@ -108,25 +108,25 @@ export const useGroupMonitoring = ({
             page: inc(pageToUse),
             search: hasResourcesDefined
               ? {
-                  lists: !isResourceString(resource?.resources)
-                    ? [
-                        {
-                          field: 'name',
-                          values: pluck('name', resource?.resources)
-                        }
-                      ]
-                    : undefined,
-                  conditions: isResourceString(resource?.resources)
-                    ? [
-                        {
-                          field: 'name',
-                          values: {
-                            $rg: resource?.resources
-                          }
-                        }
-                      ]
-                    : undefined
-                }
+                lists: !isResourceString(resource?.resources)
+                  ? [
+                    {
+                      field: 'name',
+                      values: pluck('name', resource?.resources)
+                    }
+                  ]
+                  : undefined,
+                conditions: isResourceString(resource?.resources)
+                  ? [
+                    {
+                      field: 'name',
+                      values: {
+                        $rg: resource?.resources
+                      }
+                    }
+                  ]
+                  : undefined
+              }
               : undefined,
             sort: {
               [sortFieldToUse]: sortOrderToUse.toUpperCase()
@@ -184,6 +184,7 @@ export const useGroupMonitoring = ({
   };
 
   return {
+    isInViewport,
     changeLimit,
     changePage,
     changeSort,
