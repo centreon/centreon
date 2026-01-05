@@ -84,8 +84,8 @@ $isPassword = isset($rs['is_password']) && $rs['is_password'];
  * Resources CFG basic information
  */
 $form->addElement('header', 'information', _('General Information'));
-$form->addElement('text', 'resource_name', _('Resource Name'), $attrsText);
-$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _('MACRO Expression'), $attrsText);
+$form->addElement('text', 'resource_name', _('Name'), $attrsText);
+$form->addElement($isPassword ? 'password' : 'text', 'resource_line', _('Expression'), $attrsText);
 $form->addElement(
     'checkbox',
     'is_password',

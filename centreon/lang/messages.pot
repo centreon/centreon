@@ -12094,6 +12094,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configResources/listResources.php
+#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/home/customViews/index.php
@@ -14894,7 +14895,6 @@ msgstr ""
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
-#: centreon/www/include/configuration/configResources/formResources.php
 msgid "Resource Name"
 msgstr ""
 
