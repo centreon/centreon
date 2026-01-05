@@ -428,10 +428,10 @@ it('should present a NoContentResponse when everything has gone well for an admi
         ->method('findParents')
         ->willReturn($serviceTemplateInheritances);
 
-    $macroA = new Macro($serviceTemplate->getId(), 'MACROA', 'A');
+    $macroA = new Macro(null, $serviceTemplate->getId(), 'MACROA', 'A');
     $macroA->setDescription('');
 
-    $macroB = new Macro($serviceTemplate->getId(), 'MACROB', 'B');
+    $macroB = new Macro(null, $serviceTemplate->getId(), 'MACROB', 'B');
     $macroB->setDescription('');
 
     $this->readServiceMacroRepository
@@ -449,7 +449,7 @@ it('should present a NoContentResponse when everything has gone well for an admi
     $this->writeServiceMacroRepository
         ->expects($this->once())
         ->method('update')
-        ->with(new Macro($serviceTemplate->getId(), 'MACROB', 'B1'));
+        ->with(new Macro(null, $serviceTemplate->getId(), 'MACROB', 'B1'));
 
     $this->writeServiceMacroRepository
         ->expects($this->never())

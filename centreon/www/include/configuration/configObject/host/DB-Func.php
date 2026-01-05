@@ -111,10 +111,9 @@ function hostMacHandler()
     }
 
     $fieldsToBind = [];
-    $counter = count($_POST['macroInput']);
-    for ($index = 0; $index < $counter; $index++) {
-        $fieldsToBind[':macro_' . $index]
-            = "'\$_HOST" . strtoupper($_POST['macroInput'][$index]) . "\$'";
+    foreach ($_POST['macroInput'] as $key => $value) {
+        $fieldsToBind[':macro_' . $key]
+            = "'\$_HOST" . strtoupper($value) . "\$'";
     }
 
     $request
@@ -2965,7 +2964,7 @@ function callHostApi(string $url, string $httpMethod, array $payload): array
         [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+                'Cookie' => CentreonSession::resolveSessionCookie(),
             ],
             'body' => json_encode($payload, JSON_THROW_ON_ERROR),
         ],
@@ -3031,6 +3030,7 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'macros' => array_map(
             static function (int|string $key, string $name, string $value) use ($formData): array {
                 return [
+                    'id' => (empty((int) $formData['macroId'][$key]) ? null : (int) $formData['macroId'][$key]),
                     'name' => $name,
                     'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
@@ -3172,6 +3172,7 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'macros' => array_map(
             static function (int|string $key, string $name, string $value) use ($formData): array {
                 return [
+                    'id' => (empty((int) $formData['macroId'][$key]) ? null : (int) $formData['macroId'][$key]),
                     'name' => $name,
                     'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
