@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { Contact, Token, columnsFromLabels, durationMap } from '../common';
 
 interface FilterOptions {
@@ -113,7 +114,7 @@ Given('Authentication tokens with predefined details are created', () => {
 });
 
 Given('I am on the Authentication tokens page', () => {
-  cy.visit('/centreon/administration/authentication-token');
+  cy.visit(PAGES.configuration.authentication_tokens);
   cy.wait('@getTokens');
 
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
