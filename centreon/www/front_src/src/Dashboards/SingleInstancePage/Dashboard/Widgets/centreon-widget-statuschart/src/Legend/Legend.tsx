@@ -42,7 +42,7 @@ const Legend = ({
   return (
     <div className={classes.legend}>
       {data.map(({ value, color, label: status }) => {
-        if (value === 0) {
+        if (!value) {
           return null;
         }
         return (
