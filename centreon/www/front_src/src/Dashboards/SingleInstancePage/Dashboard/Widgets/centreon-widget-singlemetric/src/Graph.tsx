@@ -9,7 +9,6 @@ import {
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { ReactElement } from 'react';
-import { ReactElement } from 'react';
 import NoResources from '../../NoResources';
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import useThresholds from '../../useThresholds';
@@ -17,10 +16,10 @@ import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
   getWidgetEndpoint
+} from '../../utils';
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { selectEndpoint } from './api/endpoints';
-cGraphType, ValueFormat;
-} from './models'
+import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
 
 interface Props {
   dashboardId: number | string;
