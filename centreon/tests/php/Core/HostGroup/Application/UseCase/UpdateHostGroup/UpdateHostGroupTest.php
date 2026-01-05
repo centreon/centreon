@@ -30,6 +30,7 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
@@ -62,7 +63,8 @@ beforeEach(function (): void {
         $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
         $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
-        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class)
+        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->updateHostGroupRequest = new UpdateHostGroupRequest(
@@ -79,10 +81,11 @@ beforeEach(function (): void {
 it(
     'should present a NotFoundResponse when the hostgroup does not exists',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
+
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findOne')
@@ -98,10 +101,11 @@ it(
 it(
     'should return an InvalidArgumentResponse When an hostgroup already exists with this name',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
+
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findOne')
@@ -130,7 +134,7 @@ it(
 it(
     "should return an InvalidArgumentResponse When a given host doesn't exist",
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -161,7 +165,7 @@ it(
 it(
     'should return an InvalidArgumentResponse When a given resource access rule does not exist',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -192,7 +196,7 @@ it(
 it(
     'should update the host group configuration',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -228,7 +232,7 @@ it(
 it(
     'should update the hosts of the host group',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -271,7 +275,7 @@ it(
 it(
     'should update the resource access rules of the host group',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
