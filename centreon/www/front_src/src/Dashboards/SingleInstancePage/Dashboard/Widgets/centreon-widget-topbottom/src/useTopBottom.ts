@@ -99,15 +99,15 @@ const useTopBottom = ({
               )
                 ? undefined
                 : resources
-                    .filter((resource) => isResourceString(resource.resources))
-                    .map((resource) => ({
-                      field: buildResourceTypeNameForSearchParameter(
-                        resource.resourceType
-                      ),
-                      values: {
-                        $rg: resource.resources
-                      }
-                    }))
+                  .filter((resource) => isResourceString(resource.resources))
+                  .map((resource) => ({
+                    field: buildResourceTypeNameForSearchParameter(
+                      resource.resourceType
+                    ),
+                    values: {
+                      $rg: resource.resources
+                    }
+                  }))
             },
             sort: {
               current_value: equals(topBottomSettings.order, 'bottom')
@@ -131,10 +131,10 @@ const useTopBottom = ({
     ],
     queryOptions: {
       enabled:
-        isInViewport ??
-        (areResourcesFullfilled(resources) &&
+        isInViewport &&
+        areResourcesFullfilled(resources) &&
         !!metricName &&
-        topBottomSettings.numberOfValues > 0),
+        topBottomSettings.numberOfValues > 0,
       refetchInterval: refreshIntervalToUse,
       suspense: false
     }
