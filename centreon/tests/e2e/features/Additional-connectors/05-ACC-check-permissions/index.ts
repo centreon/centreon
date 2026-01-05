@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/additional-configurations/acc.json';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -53,7 +54,7 @@ Given('an admin user is in the Additional Connector Configuration page', () => {
     jsonName: 'admin',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/additional-connector-configurations');
+  cy.visit(PAGES.configuration.additional_configurations);
   cy.wait('@getConnectorPage');
 });
 
@@ -149,7 +150,7 @@ Given('a non-admin user without topology rights is logged in', () => {
 When(
   'the user tries to access the Additional Connector Configuration page',
   () => {
-    cy.visit('/centreon/configuration/additional-connector-configurations');
+    cy.visit(PAGES.configuration.additional_configurations);
   }
 );
 
@@ -172,7 +173,7 @@ Given('a non-admin user is logged in', () => {
 Given(
   'an Additional Connector Configuration already created linked with two pollers',
   () => {
-    cy.visit('/centreon/configuration/additional-connector-configurations');
+    cy.visit(PAGES.configuration.additional_configurations);
     cy.wait('@getConnectorPage');
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
@@ -216,7 +217,7 @@ Given('the user has a filter on one of the pollers', () => {
 });
 
 When('the user accesses the Additional Connector Configuration page', () => {
-  cy.visit('/centreon/configuration/additional-connector-configurations');
+  cy.visit(PAGES.configuration.additional_configurations);
   cy.wait('@getConnectorPage');
 });
 
@@ -250,7 +251,7 @@ When(
 );
 
 Then('the user can view the additional connector linked to the pollers', () => {
-  cy.visit('/centreon/configuration/additional-connector-configurations');
+  cy.visit(PAGES.configuration.additional_configurations);
   cy.wait('@getConnectorPage');
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
@@ -298,7 +299,7 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit('/centreon/configuration/additional-connector-configurations');
+    cy.visit(PAGES.configuration.additional_configurations);
     cy.wait('@getConnectorPage');
   }
 );

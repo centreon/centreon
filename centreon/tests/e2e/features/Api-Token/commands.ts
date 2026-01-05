@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 Cypress.Commands.add('visitApiTokens', () => {
   cy.intercept({
     method: 'GET',
@@ -7,12 +9,9 @@ Cypress.Commands.add('visitApiTokens', () => {
 
   cy.url().then((url) => {
     if (url.includes('/administration/authentication-token')) {
-      cy.visit('/centreon/administration/authentication-token');
+      cy.visit(PAGES.configuration.authentication_tokens);
     } else {
-      cy.navigateTo({
-        page: 'Authentication Tokens',
-        rootItemNumber: 4
-      });
+      cy.visit(PAGES.configuration.authentication_tokens);
     }
   });
 
@@ -29,5 +28,3 @@ declare global {
     }
   }
 }
-
-export {};
