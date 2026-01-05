@@ -9,6 +9,7 @@ import { Tooltip } from '@centreon/ui/components';
 import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
 
+import { ReactElement } from 'react';
 import { Resource } from '../../../models';
 import { useLegendStyles } from './Legend.styles';
 
@@ -31,7 +32,7 @@ const Legend = ({
   getLinkToResourceStatusPage,
   resourceType,
   resources
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const { classes } = useLegendStyles({
@@ -41,6 +42,9 @@ const Legend = ({
   return (
     <div className={classes.legend}>
       {data.map(({ value, color, label: status }) => {
+        if (value === 0) {
+          return null;
+        }
         return (
           <div className={classes.legendItems} key={color}>
             <Tooltip
