@@ -122,7 +122,6 @@ class VmWareV6Parameters implements AccParametersInterface
 
             // Update vcenter
             $updatedVcenter = $requestedVcenters[$vcenter['name']];
-            $updatedVcenter['username'] ??= $vcenter['username'];
             $updatedVcenter['password'] ??= $vcenter['password'];
 
             $parameters['vcenters'][$index] = $updatedVcenter;
@@ -168,10 +167,6 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with(
-                $vcenter['username'],
-                VaultConfiguration::VAULT_PATH_PATTERN
-            ) ? $vcenter['username'] : $this->encryption->crypt($vcenter['username']);
             $parameters['vcenters'][$index]['password'] = str_starts_with(
                 $vcenter['password'],
                 VaultConfiguration::VAULT_PATH_PATTERN
@@ -195,10 +190,6 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with(
-                $vcenter['username'],
-                VaultConfiguration::VAULT_PATH_PATTERN
-            ) ? $vcenter['username'] : $this->encryption->decrypt($vcenter['username']) ?? '';
             $parameters['vcenters'][$index]['password'] = str_starts_with(
                 $vcenter['password'],
                 VaultConfiguration::VAULT_PATH_PATTERN
@@ -218,7 +209,6 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = null;
             $parameters['vcenters'][$index]['password'] = null;
         }
 

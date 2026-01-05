@@ -23,7 +23,13 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use App\Kernel;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Security\Interfaces\EncryptionInterface;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -35,8 +41,6 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDB
  * @var ConnectionInterface $pearDBO
  */
-
-// TODO add your functions here
 
 /** -------------------------------------- Backup updates -------------------------------------- */
 $setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $version): void {
@@ -199,23 +203,170 @@ $linkCMAConnectorToExistingRelatedCMACommands = function () use ($pearDB, &$erro
     );
 };
 
+/** -------------------------------------- Additional configuration - de-vault username -------------------------------------- */
+$migrateAccUsernamesFromVault = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Failed to migrate Additional Configuration usernames from vault';
+    $secondKey = 'additional_connector_configuration_vmware_v6';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE {$version}: Starting migration of VMWare usernames to clear text and removing them from Vault"
+    );
+
+    $getUuidFromPath = function (string $vaultPath): ?string {
+        $parts = explode('::', $vaultPath);
+
+        $pathWithUuid = $parts[count($parts) - 2] ?? null;
+        if ($pathWithUuid === null) {
+            return null;
+        }
+
+        $pathSegments = explode('/', $pathWithUuid);
+
+        return end($pathSegments);
+    };
+
+    $kernel = Kernel::createForWeb();
+    $container = $kernel->getContainer();
+
+    $encryption = $container->get(EncryptionInterface::class);
+    $encryption->setSecondKey($secondKey);
+
+    $readVaultRepository = null;
+    $writeVaultRepository = null;
+    if ($container->has(ReadVaultRepositoryInterface::class)) {
+        $readVaultRepository = $container->get(ReadVaultRepositoryInterface::class);
+    }
+    if ($container->has(WriteVaultRepositoryInterface::class)) {
+        $writeVaultRepository = $container->get(WriteVaultRepositoryInterface::class);
+    }
+
+    if ($readVaultRepository !== null) {
+        $readVaultRepository->setCustomPath(AbstractVaultRepository::ACC_VAULT_PATH);
+    }
+    if ($writeVaultRepository !== null) {
+        $writeVaultRepository->setCustomPath(AbstractVaultRepository::ACC_VAULT_PATH);
+    }
+
+    // get all VMWare v6 ACCs
+    $accs = $pearDB->fetchAllAssociative(
+        "SELECT id, name, type, parameters FROM additional_connector_configuration WHERE type = 'vmware_v6'"
+    );
+
+    foreach ($accs as $acc) {
+        try {
+            $parameters = json_decode($acc['parameters'], true, 512, JSON_THROW_ON_ERROR);
+            $updated = false;
+
+            foreach ($parameters['vcenters'] as $index => $vcenter) {
+                $currentUsername = $vcenter['username'];
+                $newUsername = $currentUsername;
+
+                // if Vaulted username
+                if (str_starts_with($currentUsername, VaultConfiguration::VAULT_PATH_PATTERN)) {
+                    if ($readVaultRepository === null || $writeVaultRepository === null) {
+                        CentreonLog::create()->warning(
+                            logTypeId: CentreonLog::TYPE_UPGRADE,
+                            message: "UPGRADE: Vault not configured, cannot de-vault username for ACC {$acc['id']}"
+                        );
+                        continue;
+                    }
+
+                    try {
+                        $vaultDatas = $readVaultRepository->findFromPath($currentUsername);
+                        $secretValue = null;
+
+                        if (is_array($vaultDatas) && $vaultDatas !== []) {
+                            $usernameKey = $vcenter['name'] . '_username';
+                            if (array_key_exists($usernameKey, $vaultDatas)) {
+                                $secretValue = $vaultDatas[$usernameKey];
+                            }
+                        }
+
+                        if ($secretValue !== null) {
+                            $newUsername = $secretValue;
+
+                            $uuid = $getUuidFromPath($currentUsername);
+
+                            if ($uuid !== null) {
+                                $writeVaultRepository->upsert($uuid, [], [$usernameKey => true]);
+
+                                CentreonLog::create()->info(
+                                    logTypeId: CentreonLog::TYPE_UPGRADE,
+                                    message: "UPGRADE: Successfully de-vaulted and deleted username secret for ACC {$acc['id']}"
+                                );
+                            } else {
+                                CentreonLog::create()->warning(
+                                    logTypeId: CentreonLog::TYPE_UPGRADE,
+                                    message: "UPGRADE: Could not extract UUID from path {$currentUsername} for ACC {$acc['id']}."
+                                );
+                            }
+                        } else {
+                            CentreonLog::create()->warning(
+                                logTypeId: CentreonLog::TYPE_UPGRADE,
+                                message: "UPGRADE: Vault secret found but username key not recognized for ACC {$acc['id']}."
+                            );
+                        }
+                    } catch (Throwable $e) {
+                        CentreonLog::create()->warning(
+                            logTypeId: CentreonLog::TYPE_UPGRADE,
+                            message: "UPGRADE: Failed to retrieve or delete secret from Vault for ACC {$acc['id']}: " . $e->getMessage()
+                        );
+                    }
+                } else {
+                    $decrypted = $encryption->decrypt($currentUsername);
+                    if ($decrypted === null || $decrypted === '') {
+                        CentreonLog::create()->warning(
+                            logTypeId: CentreonLog::TYPE_UPGRADE,
+                            message: "UPGRADE: Failed to decrypt username for ACC {$acc['id']}."
+                        );
+                    } else {
+                        $newUsername = $decrypted;
+                    }
+                }
+
+                if ($newUsername !== $currentUsername) {
+                    $parameters['vcenters'][$index]['username'] = $newUsername;
+                    $updated = true;
+                }
+            }
+
+            if ($updated) {
+                $pearDB->update(
+                    'UPDATE additional_connector_configuration SET parameters = :parameters, updated_at = :updatedAt WHERE id = :id',
+                    QueryParameters::create([
+                        QueryParameter::string(':parameters', json_encode($parameters, JSON_THROW_ON_ERROR)),
+                        QueryParameter::int(':updatedAt', time()),
+                        QueryParameter::int(':id', (int) $acc['id']),
+                    ])
+                );
+            }
+
+        } catch (Throwable $e) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE: Error processing ACC {$acc['id']}: " . $e->getMessage()
+            );
+        }
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE {$version}: ACC usernames migration completed."
+    );
+};
+
 try {
-    // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
-
-    // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
-
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
     $setBackupMysqlConfDefaultAsEmpty();
     $updateFreshnessforCMAServicesAndHosts();
     $addDefaultPortToAgentInitiatedAgentConfiguration();
     $linkCMAConnectorToExistingRelatedCMACommands();
+    $migrateAccUsernamesFromVault();
 
     $pearDB->commitTransaction();
 
