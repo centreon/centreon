@@ -130,7 +130,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         array $accessGroupIds,
     ): ServiceStatusesCount {
         if ($accessGroupIds === []) {
-            $this->createServiceStatusesCountFromRecord([]);
+            return $this->createServiceStatusesCountFromRecord([]);
         }
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group');
@@ -574,9 +574,11 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 ResourceFilter::STATE_IN_DOWNTIME => 'services.in_downtime = 1',
                 ResourceFilter::STATE_IN_FLAPPING => 'services.flapping = 1',
             ];
+            // Filter out invalid states to prevent undefined array key errors
+            $validStates = array_intersect($states, array_keys($sqlStateCatalog));
             $stateConditions = array_map(
                 fn (string $state): string => $sqlStateCatalog[$state],
-                $states
+                $validStates
             );
         }
 

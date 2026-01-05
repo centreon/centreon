@@ -347,19 +347,19 @@ parameters:
 			path: src/Core/Host/Infrastructure/Repository/DbReadHostRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:232\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:233\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:232\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:233\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php
 
 		-
-			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:232\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository\.php\:233\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Core/Host/Infrastructure/Repository/DbReadRealTimeHostRepository.php

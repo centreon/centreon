@@ -32,6 +32,7 @@ use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
@@ -94,7 +95,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
             $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
                 $sqlTranslator->getSearchValues(),
             );
-        } catch (RequestParametersTranslatorException $exception) {
+        } catch (TransformerException $exception) {
             throw new RepositoryException(
                 'Error translating query parameters for host statuses',
                 [
@@ -131,7 +132,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
         array $accessGroupIds,
     ): HostStatusesCount {
         if ($accessGroupIds === []) {
-            $this->createHostStatusesCountFromRecord([]);
+            return $this->createHostStatusesCountFromRecord([]);
         }
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group');
@@ -169,7 +170,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
             $queryParameters = SearchRequestParametersTransformer::reverseToQueryParameters(
                 $sqlTranslator->getSearchValues(),
             );
-        } catch (RequestParametersTranslatorException $exception) {
+        } catch (TransformerException $exception) {
             throw new RepositoryException(
                 'Error translating query parameters for host statuses with access groups',
                 [
@@ -345,9 +346,11 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                 ResourceFilter::STATE_IN_DOWNTIME => 'hosts.in_downtime = 1',
                 ResourceFilter::STATE_IN_FLAPPING => 'hosts.flapping = 1',
             ];
+            // Filter out invalid states to prevent undefined array key errors
+            $validStates = array_intersect($states, array_keys($sqlStateCatalog));
             $stateConditions = array_map(
                 fn (string $state): string => $sqlStateCatalog[$state],
-                $states
+                $validStates
             );
         }
 
