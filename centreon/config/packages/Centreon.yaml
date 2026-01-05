@@ -592,10 +592,6 @@ services:
         class: Core\Host\Infrastructure\Repository\DbReadHostRepository
         public: true
 
-    Core\Contact\Domain\AdminResolver:
-        class: Core\Contact\Domain\AdminResolver
-        public: true
-
     # Configuration Notifications
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:
