@@ -8,6 +8,8 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import NoResources from '../../NoResources';
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import useThresholds from '../../useThresholds';
@@ -15,12 +17,10 @@ import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
   getWidgetEndpoint
-} from '../../utils';
-
 import SingleMetricRenderer from './SingleMetricRenderer';
 import { selectEndpoint } from './api/endpoints';
-import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
-import { ReactElement } from 'react';
+cGraphType, ValueFormat;
+} from './models'
 
 interface Props {
   dashboardId: number | string;
@@ -111,7 +111,9 @@ const Graph = ({
     refreshCount,
     refreshInterval: refreshIntervalToUse,
     resources,
-    isEnabled: isInViewport ?? (Boolean(hostId && (getServiceId() || isMetaServiceSelected)))
+    isEnabled:
+      isInViewport &&
+      Boolean(hostId && (getServiceId() || isMetaServiceSelected))
   });
 
   const displayAsRaw = equals('raw')(valueFormat);

@@ -36,7 +36,6 @@ interface UseGroupMonitoringState {
   page: number;
   sortField: string;
   sortOrder: SortOrder;
-  isInViewport: boolean;
 }
 
 export const useGroupMonitoring = ({
@@ -184,7 +183,6 @@ export const useGroupMonitoring = ({
   };
 
   return {
-    isInViewport,
     changeLimit,
     changePage,
     changeSort,
