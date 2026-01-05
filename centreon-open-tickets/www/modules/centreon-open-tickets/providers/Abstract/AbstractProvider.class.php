@@ -1527,9 +1527,6 @@ Output: {$service.output|substr:0:1024}
         $result = array('confirm_popup' => null);
 
         $submit_result = $this->doSubmit($db_storage, $contact, $host_problems, $service_problems);
-        if ($submit_result['ticket_is_ok'] == 1) {
-            $this->executeCmd($host_problems, $service_problems, $submit_result);
-        }
         $result['confirm_message'] = $this->setConfirmMessage($host_problems, $service_problems, $submit_result);
         $result['ticket_id'] = $submit_result['ticket_id'];
         $result['ticket_is_ok'] = $submit_result['ticket_is_ok'];
