@@ -1,5 +1,6 @@
 import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
@@ -79,11 +80,7 @@ Then(
 
     cy.contains(host).parent().get('.MuiChip-root').should('contain', 'h');
 
-    cy.navigateTo({
-      page: 'Hosts',
-      rootItemNumber: 3,
-      subMenu: 'Hosts'
-    });
+    cy.visit(PAGES.configuration.hosts_legacy);
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -99,11 +96,7 @@ Then(
         .should('be.gte', 21);
     });
 
-    cy.navigateTo({
-      page: 'Services by host',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(PAGES.configuration.services_by_host_legacy);
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -138,10 +131,7 @@ Then(
       }
     ]);
 
-    cy.navigateTo({
-      page: 'Resources Status',
-      rootItemNumber: 1
-    });
+    cy.visit(PAGES.monitoring.resources_status);
 
     cy.get('header').parent().children().eq(1).contains('OK').should('exist');
 

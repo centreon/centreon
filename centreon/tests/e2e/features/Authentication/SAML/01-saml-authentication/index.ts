@@ -1,12 +1,13 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+import { configureProviderAcls } from '../../../../commons';
 import {
   configureSAML,
   initializeSAMLUser,
   navigateToSAMLConfigPage
 } from '../common';
-import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
@@ -102,10 +103,7 @@ Then(
 );
 
 When('the administrator activates SAML authentication on the platform', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
 

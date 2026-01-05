@@ -1,6 +1,7 @@
 import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import { initializeConfigACLAndGetLoginPage } from '../common';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers().then(() => {
@@ -26,11 +27,7 @@ beforeEach(() => {
 Given('an administrator is logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
-    .navigateTo({
-      page: 'Centreon UI',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    })
+    .visit(PAGES.configuration.centreon_ui_legacy)
     .wait('@getTimeZone');
 });
 
@@ -53,7 +50,7 @@ Then(
   () => {
     cy.isInProfileMenu('Edit profile').click();
 
-    cy.visit('/centreon/main.php?p=50104&o=c')
+    cy.visit(PAGES.configuration.account_parameters_legacy)
       .wait('@getTimeZone')
       .getIframeBody()
       .find('form #tab1')
@@ -62,11 +59,7 @@ Then(
         cy.get('#aKey').invoke('val').should('not.be.undefined');
       });
 
-    cy.navigateTo({
-      page: 'Contacts / Users',
-      rootItemNumber: 3,
-      subMenu: 'Users'
-    })
+    cy.visit(PAGES.configuration.contacts_users_legacy)
       .reload()
       .wait('@getTimeZone')
       .getIframeBody()
@@ -92,7 +85,7 @@ Given(
       loginViaApi: true
     })
       .isInProfileMenu('Edit profile')
-      .visit('/centreon/main.php?p=50104&o=c')
+      .visit(PAGES.configuration.account_parameters_legacy)
       .wait('@getTimeZone')
       .getIframeBody()
       .find('form #tab1')
@@ -133,11 +126,7 @@ Given('a user with an autologin key generated', () => {
 });
 
 When('a user generates an autologin link', () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 2,
-    subMenu: 'Hosts'
-  })
+  cy.visit(PAGES.configuration.hosts_templates_legacy)
     .wait('@getTimeZone')
     .getIframeBody()
     .find('form')
@@ -163,7 +152,7 @@ Given(
       jsonName: 'user',
       loginViaApi: true
     });
-    cy.visit('/centreon/main.php?p=50104&o=c')
+    cy.visit(PAGES.configuration.account_parameters_legacy)
       .wait('@getTimeZone')
       .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
