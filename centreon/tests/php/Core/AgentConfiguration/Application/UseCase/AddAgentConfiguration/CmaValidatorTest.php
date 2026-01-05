@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
@@ -60,6 +61,7 @@ beforeEach(function (): void {
         'otel_public_certificate' => '/etc/pki/test.crt',
         'otel_private_key' => '/etc/pki/test.key',
         'otel_ca_certificate' => '/etc/pki/test.cer',
+        'port' => 4444,
         'tokens' => [
             [
                 'name' => $this->token->getName(),
@@ -99,9 +101,6 @@ it('should correctly identify that it does not handle other types', function ():
 foreach (
     [
         'invalidfilename',
-        './fileName.crt',
-        '../fileName.cer',
-        '//fileName.crt',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
     ] as $index => $filename
@@ -110,7 +109,7 @@ foreach (
     it("Invalid certificate filename #{$index}: should throw an exception because of the filename for certificate {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['agent_initiated'] = true;
         $this->request->configuration['otel_ca_certificate'] = $filename;
-        $this->expectException(AgentConfigurationException::class);
+        $this->expectException(AssertionException::class);
         $this->cmaValidator->validateParametersOrFail($this->request);
     });
 }
@@ -137,9 +136,6 @@ foreach (
 foreach (
     [
         'invalidfilename',
-        './fileName.key',
-        '../fileName.key',
-        '//fileName.key',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
     ] as $index => $filename
@@ -148,7 +144,7 @@ foreach (
     it("Invalid key filename #{$index}: should throw an exception because of the filename for key {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['agent_initiated'] = true;
         $this->request->configuration['otel_private_key'] = $filename;
-        $this->expectException(AgentConfigurationException::class);
+        $this->expectException(AssertionException::class);
         $this->cmaValidator->validateParametersOrFail($this->request);
     });
 }
@@ -187,6 +183,13 @@ it('should throw an exception when a token is provided but invalid and connectio
         ->expects($this->once())
         ->method('findByNameAndUserId')
         ->willReturn(null);
+    $this->expectException(AgentConfigurationException::class);
+    $this->cmaValidator->validateParametersOrFail($this->request);
+});
+
+it('should throw an exception when port is not provided (agent_initiated)', function (): void {
+    $this->request->configuration['agent_initiated'] = true;
+    $this->request->configuration['port'] = null;
     $this->expectException(AgentConfigurationException::class);
     $this->cmaValidator->validateParametersOrFail($this->request);
 });

@@ -19,18 +19,8 @@
  *
  */
 
-require_once _CENTREON_PATH_ . '/www/modules/centreon-awie/centreon-awie.conf.php';
-require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
-
-$export ??= null;
-$import = realpath(__DIR__);
-
-// Smarty template initialization
-$path = _MODULE_PATH_ . '/core/templates/';
-$tpl = SmartyBC::createSmartyTemplate($path);
-
-$csrfToken = createCSRFToken();
-
-$tpl->assign('formPath', $export);
-$tpl->assign('csrfToken', $csrfToken);
-$tpl->display('formImport.tpl');
+$help = [];
+$help['ca_cert_path'] = dgettext(
+    'help',
+    'Shall only be available when SSL Verify Peer option is enabled.'
+);
