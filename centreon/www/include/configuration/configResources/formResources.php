@@ -17,7 +17,6 @@
  * For more information : contact@centreon.com
  *
  */
-
 if (! $centreon->user->admin
     && isset($resourceId)
     && count($allowedResourceConf)
@@ -71,11 +70,11 @@ require_once _CENTREON_PATH_ . 'www/class/centreonInstance.class.php';
  */
 $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 if ($o == MACRO_ADD) {
-    $form->addElement('header', 'title', _('Add a Resource'));
+    $form->addElement('header', 'title', _('Add a Global macro'));
 } elseif ($o == MACRO_MODIFY) {
-    $form->addElement('header', 'title', _('Modify a Resource'));
+    $form->addElement('header', 'title', _('Modify a Global macro'));
 } elseif ($o == MACRO_WATCH) {
-    $form->addElement('header', 'title', _('View Resource'));
+    $form->addElement('header', 'title', _('View Global macro'));
 }
 
 $isPassword = isset($rs['is_password']) && $rs['is_password'];
