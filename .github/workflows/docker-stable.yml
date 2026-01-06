@@ -1,5 +1,4 @@
-name: Build stable release containers
-
+name: docker-stable
 run-name: |
   ${{ format('Build stable release containers for tag {0}', inputs.release_bundle_tag) }}
 
