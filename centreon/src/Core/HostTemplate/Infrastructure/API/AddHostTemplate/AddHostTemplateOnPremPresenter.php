@@ -88,6 +88,7 @@ class AddHostTemplateOnPremPresenter extends AbstractPresenter implements AddHos
                         'templates' => $response->templates,
                         'macros' => array_map(
                             fn ($macro) => [
+                                'id' => $macro['id'],
                                 'name' => $macro['name'],
                                 'value' => $macro['isPassword'] ? null : $macro['value'],
                                 'is_password' => $macro['isPassword'],
