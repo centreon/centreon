@@ -224,6 +224,7 @@ export default (on: Cypress.PluginEvents): void => {
             OPENID_IMAGE: openidImage,
             SAML_IMAGE: samlImage,
             WEB_IMAGE: webImage,
+            DATABASE_PARTITIONING: '0',
           })
           .withProfiles(...profiles)
           .withStartupTimeout(120000)

@@ -21,14 +21,17 @@ const checkContactFromListing = () => {
     );
 };
 
-beforeEach(() => {
+before(() => {
   cy.startContainers();
-  cy.setUserTokenApiV1().executeCommandsViaClapi(
-    'resources/clapi/config-ACL/contacts-management-acl-user.json'
-  );
-  cy.setUserTokenApiV1().executeCommandsViaClapi(
-    'resources/clapi/config-ACL/contacts-management-acl-user-readonly-rights.json'
-  );
+});
+
+beforeEach(() => {
+  cy.setUserTokenApiV1()
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contacts-management-acl-user.json'
+    ).executeCommandsViaClapi(
+      'resources/clapi/config-ACL/contacts-management-acl-user-readonly-rights.json'
+    );
   cy.intercept({
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
@@ -44,6 +47,26 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cy.setUserTokenApiV1()
+    .executeCommandsViaClapi(
+      'resources/clapi/config-ACL/delete-contacts-management-acl-user-readonly-rights.json'
+    ).executeCommandsViaClapi(
+      'resources/clapi/config-ACL/delete-contacts-management-acl-user.json'
+    );
+  for (const contactAlias of [contacts.default.alias, `${contacts.default.alias}_1`, contacts.contactForUpdate.alias]) {
+    cy.executeActionViaClapi({
+      bodyContent: {
+        action: 'DEL',
+        object: 'CONTACT',
+        values: contactAlias
+      },
+      failOnError: false
+    });
+  }
+  cy.logoutViaAPI({ failOnError: false });
+});
+
+after(() => {
   cy.stopContainers();
 });
 
@@ -75,6 +98,7 @@ When('a contact is configured', () => {
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
+  cy.wait(2000); // Wait for the export to be completed
 });
 
 When('the user updates some contact properties', () => {

@@ -26,6 +26,7 @@ interface ContactTemplate {
 }
 
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
+  cy.wait(5000);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   cy.getIframeBody().find('input[id="contact_alias"]').clear().type(body.alias);

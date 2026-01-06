@@ -80,10 +80,11 @@ export default ({
       WEB_IMAGE_VERSION: webImageVersion
     },
     execTimeout: 60000,
+    experimentalMemoryManagement: true,
     requestTimeout: 20000,
     retries: {
       openMode: 0,
-      runMode: 2
+      runMode: process.env.CI ? 2 : 0
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
     // Ensure previous run assets are removed to avoid accumulation
