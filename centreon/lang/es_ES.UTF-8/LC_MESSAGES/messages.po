@@ -5687,6 +5687,10 @@ msgid "Edit name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Edit password"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Edit profile"
 msgstr ""
@@ -15367,6 +15371,10 @@ msgstr ""
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Return to list"
 msgstr "Volver a la lista"
+
+#: centreon/www/install/front_translate.php
+msgid "Revert to previous password"
+msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Review form after save"

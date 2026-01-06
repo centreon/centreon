@@ -26,6 +26,7 @@ namespace Tests\Core\ServiceTemplate\Application\UseCase\AddServiceTemplate;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Option\OptionService;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -70,6 +71,7 @@ class Mock extends TestCase
             $testCase->user = $testCase->createMock(ContactInterface::class),
             $testCase->writeVaultRepository = $testCase->createMock(WriteVaultRepositoryInterface::class),
             $testCase->readVaultRepository = $testCase->createMock(ReadVaultRepositoryInterface::class),
+            $testCase->readCommandRepository = $testCase->createMock(ReadCommandRepositoryInterface::class),
         );
     }
 

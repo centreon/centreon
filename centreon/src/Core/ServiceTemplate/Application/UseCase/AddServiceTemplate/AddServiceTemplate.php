@@ -33,6 +33,8 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -89,6 +91,7 @@ final class AddServiceTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -219,7 +222,7 @@ final class AddServiceTemplate
                 $vaultPath = $vaultPaths['_SERVICE' . $macro->getName()];
                 $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPath);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
@@ -432,6 +435,16 @@ final class AddServiceTemplate
      */
     private function createServiceTemplate(AddServiceTemplateRequest $request): int
     {
+        if ($request->commandId !== null) {
+            $command = $this->readCommandRepository->findById($request->commandId);
+            if ($command === null) {
+                throw CommandException::errorWhileRetrieving();
+            }
+            if ($command->isCentreonMonitoringAgentCommand()) {
+                $request->checkFreshness = 1;
+                $request->freshnessThreshold = 120;
+            }
+        }
         $newServiceTemplate = $this->createNewServiceTemplate($request);
         $this->storageEngine->startTransaction();
         try {
@@ -511,7 +524,7 @@ final class AddServiceTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
