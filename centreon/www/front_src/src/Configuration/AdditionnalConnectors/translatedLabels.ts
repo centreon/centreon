@@ -81,3 +81,5 @@ export const labelAdditionalConnectorCreated =
   'Additional configuration created';
 export const labelAdditionalConnectorUpdated =
   'Additional configuration updated';
+export const labelEditPassword = 'Edit password';
+export const labelRevertToPreviousPassword = 'Revert to previous password';
