@@ -53,7 +53,7 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
     public function getList()
     {
         global $centreon, $conf_centreon;
-
+        $this->setArguments();
         $userId = $centreon->user->user_id;
         $isAdmin = $centreon->user->admin;
         $additionalTables = '';
@@ -310,5 +310,10 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         }
 
         return ['query' => $virtualServicesCondition, 'value' => $metaValues];
+    }
+
+    private function setArguments(): void
+    {
+        $this->arguments = $_GET;
     }
 }
