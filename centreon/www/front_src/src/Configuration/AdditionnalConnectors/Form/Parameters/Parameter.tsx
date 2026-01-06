@@ -1,12 +1,13 @@
 import { ReactElement } from 'react';
 
-import { keys } from 'ramda';
+import { equals, keys } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { TextField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
-import { Parameter as ParameterModel } from '../../models';
+import { ParameterKeys, Parameter as ParameterModel } from '../../models';
 
+import PasswordFiled from './PasswordField/PasswordField';
 import useParameter from './useParameter';
 import { useParameterStyles } from './useParametersStyles';
 
@@ -19,13 +20,9 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
   const { t } = useTranslation();
   const { classes } = useParameterStyles();
 
-  const {
-    changeParameterValue,
-    getError,
-    getFieldType,
-    handleBlur,
-    getIsFieldRequired
-  } = useParameter({ index });
+  const { changeParameterValue, getError, handleBlur } = useParameter({
+    index
+  });
 
   return (
     <ItemComposition addButtonHidden>
@@ -40,18 +37,27 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
               className={classes.parameterItem}
               key={name}
             >
-              <TextField
-                fullWidth
-                dataTestId={`${name}_value`}
-                error={getError?.(name)}
-                label={t(name)}
-                name={name}
-                required={getIsFieldRequired(name)}
-                type={getFieldType(name)}
-                value={parameter[name]}
-                onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
-                onChange={changeParameterValue}
-              />
+              {equals(name, ParameterKeys.password) ? (
+                <PasswordFiled
+                  index={index}
+                  error={getError?.(name)}
+                  onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
+                  value={parameter[name]}
+                />
+              ) : (
+                <TextField
+                  fullWidth
+                  dataTestId={`${name}_value`}
+                  error={getError?.(name)}
+                  label={t(name)}
+                  name={name}
+                  required={true}
+                  type="text"
+                  value={parameter[name] as string}
+                  onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
+                  onChange={changeParameterValue}
+                />
+              )}
             </ItemComposition.Item>
           </div>
         ))}
