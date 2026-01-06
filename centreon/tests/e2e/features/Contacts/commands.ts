@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 interface Contact {
   alias: string;
   name: string;
@@ -125,12 +127,8 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('visitContactsPage', (index: number) => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: index,
-    subMenu: 'Users'
-  });
+Cypress.Commands.add('visitContactsPage', (_index: number) => {
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -149,5 +147,3 @@ declare global {
     }
   }
 }
-
-export {};
