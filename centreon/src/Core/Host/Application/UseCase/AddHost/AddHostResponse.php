@@ -114,7 +114,7 @@ final class AddHostResponse
     /** @var array<array{id:int,name:string}> */
     public array $templates = [];
 
-    /** @var array<array{name:string,value:null|string,isPassword:bool,description:string}> */
+    /** @var array<array{id:int|null,name:string,value:null|string,isPassword:bool,description:string}> */
     public array $macros = [];
 
     public bool $addInheritedContactGroup = false;
