@@ -45,6 +45,7 @@ properties:
       type: object
       required:
         - is_reverse
+        - port
         - otel_public_certificate
         - otel_ca_certificate
         - otel_private_key
@@ -55,6 +56,11 @@ properties:
           type: boolean
           description: Whether the connection is initiated by pollers.
           example: true
+
+        port:
+          type: integer
+          description: Port used for connection (mandatory for agent initiated connection).
+          nullable: true
 
         otel_public_certificate:
           type: [string, null]

@@ -198,6 +198,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: 4317,
           agentInitiated: true,
           pollerInitiated: false,
           tokens: [{ id: '1', name: 'token1', creatorId: 1 }],
@@ -224,6 +225,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: null,
           agentInitiated: false,
           pollerInitiated: true,
           tokens: null,
@@ -263,6 +265,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: 4317,
           agentInitiated: false,
           pollerInitiated: false,
           tokens: null,
@@ -335,6 +338,7 @@ describe('useValidationSchema', () => {
         pollers: [{ id: 1, name: 'poller1' }],
         connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
+          port: null,
           agentInitiated: false,
           pollerInitiated: true,
           hosts: [
@@ -358,7 +362,9 @@ describe('useValidationSchema', () => {
         context: {
           connectionMode: { id: 'secure' },
           type: { id: AgentType.CMA },
-          configuration: { pollerInitiated: true }
+          configuration: {
+            pollerInitiated: true
+          }
         }
       });
       expect(result).to.exist;

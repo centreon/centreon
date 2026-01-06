@@ -78,19 +78,13 @@ runs:
               }'
             )"
 
-        response=""
         attempt=0
-        until [[ $(echo "$response" | tr -d '\n' | tail -c 3) -eq 200 || $attempt -ge 40 ]]; do
+        count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
+        until [[ $count -eq 2 || $attempt -ge 40 ]]; do
           attempt=$((attempt+1))
           echo "[INFO] Checking is the feature repository has been created... [ATTEMPT $attempt]"
-          response=$(curl \
-            --write-out "%{http_code}" \
-            --request GET \
-            --url "${{ env.JF_URL }}/artifactory/api/v2/repositories/rpm-standard-feature-$feature_ticket" \
-            --header "Authorization: Bearer ${{ env.JF_ACCESS_TOKEN }}" \
-            --header "Content-Type: application/json"
-          )
           sleep 15
+          count=$(jf rt search rpm-standard-feature/$feature_ticket/$major_version/*.repo 2>/dev/null | jq '. | length' 2>/dev/null || echo "0")
         done
 
         if [[ $attempt -ge 40 ]]; then

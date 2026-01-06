@@ -34,6 +34,7 @@ properties:
         type: object
         required:
           - poller_initiated
+          - port
           - agent_initiated
           - otel_public_certificate
           - otel_ca_certificate
@@ -45,6 +46,11 @@ properties:
             type: boolean
             description: Connection initiated by poller.
             example: true
+
+          port:
+            type: integer
+            description: Port used for connection (mandatory for agent initiated connection).
+            nullable: true
 
           agent_initiated:
             type: boolean

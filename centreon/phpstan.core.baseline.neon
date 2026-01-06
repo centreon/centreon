@@ -311,12 +311,6 @@ parameters:
 			path: src/Core/Host/Application/UseCase/AddHost/AddHostValidation.php
 
 		-
-			message: '#^Property Core\\Host\\Application\\UseCase\\FindHosts\\FindHosts\:\:\$accessGroups \(list\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>\) does not accept array\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: src/Core/Host/Application/UseCase/FindHosts/FindHosts.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
