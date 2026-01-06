@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 interface Contact {
   alias: string;
   name: string;
@@ -142,5 +144,3 @@ declare global {
     }
   }
 }
-
-export {};
