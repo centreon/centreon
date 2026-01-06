@@ -731,7 +731,6 @@ describe('Agent configurations modal', () => {
           otel_public_certificate: '/test.cer',
           poller_initiated: true,
           port: 4317,
-          tokens: [{ creator_id: 1, name: 'token 1' }],
           tokens: [{ creator_id: 1, name: 'token 1' }]
         },
         connection_mode: 'secure',
@@ -1028,7 +1027,6 @@ describe('Agent configurations modal', () => {
           otel_public_certificate: '/test.cer',
           poller_initiated: true,
           port: 4317,
-          tokens: [{ creator_id: 1, name: 'token 1' }],
           tokens: [{ creator_id: 1, name: 'token 1' }]
         },
         connection_mode: 'insecure',

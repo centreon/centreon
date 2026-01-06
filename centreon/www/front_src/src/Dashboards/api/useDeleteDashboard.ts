@@ -61,7 +61,9 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     const { onSettled, ...restOptions } = options || {};
 
     const onSettledWithInvalidateQueries = (
-      data: { _meta?: { id: any } | undefined; payload: Dashboard } | undefined,
+      data:
+        | { _meta?: { id: string | number } | undefined; payload: Dashboard }
+        | undefined,
       error: ResponseError | null,
       vars: DeleteDashboardDto
     ): void => {

@@ -57,7 +57,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       is: (value: string) =>
         equals(value, 'secure') || equals(value, 'insecure'),
       otherwise: () => string().nullable(),
-      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      // biome-ignore lint/suspicious/noThenProperty: false positive
       then: () => certificateFileValidation(isFile).nullable()
     });
 
@@ -76,16 +76,6 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   };
 
   const CMAConfigurationSchema = {
-    port: number()
-      .min(1, t(labelPortMustStartFrom1))
-      .max(65535, t(labelPortExpectedAtMost))
-      .when('agentInitiated', {
-        is: true,
-        // biome-ignore lint/suspicious/noThenProperty: <explanation>
-        then: (schema) => schema.required(t(labelRequired)),
-        otherwise: (schema) => schema.nullable().notRequired()
-      }),
-
     agentInitiated: boolean(),
     hosts: array()
       .of(
@@ -106,7 +96,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
             is: (type, configuration) =>
               configuration?.pollerInitiated && equals(type?.id, AgentType.CMA),
             otherwise: (schema) => schema.nullable(),
-            // biome-ignore lint/suspicious/noThenProperty: <explanation>
+            // biome-ignore lint/suspicious/noThenProperty: false positive
             then: (schema) =>
               schema
                 .shape({
@@ -122,18 +112,27 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
       .when('pollerInitiated', {
         is: true,
         otherwise: (schema) => schema.min(0),
-        // biome-ignore lint/suspicious/noThenProperty: <explanation>
+        // biome-ignore lint/suspicious/noThenProperty: false positive
         then: (schema) => schema.min(1)
       }),
     otelCaCertificate: certificateValidation(),
     otelPrivateKey: certificateValidation(true),
     otelPublicCertificate: certificateValidation(),
     pollerInitiated: boolean(),
+    port: number()
+      .min(1, t(labelPortMustStartFrom1))
+      .max(65535, t(labelPortExpectedAtMost))
+      .when('agentInitiated', {
+        is: true,
+        otherwise: (schema) => schema.nullable().notRequired(),
+        // biome-ignore lint/suspicious/noThenProperty: false positive
+        then: (schema) => schema.required(t(labelRequired))
+      }),
     tokens: array().when(['$type', 'agentInitiated'], {
       is: (type, agentInitiated) =>
         agentInitiated && equals(type?.id, AgentType.CMA),
       otherwise: (schema) => schema.nullable(),
-      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      // biome-ignore lint/suspicious/noThenProperty: false positive
       then: (schema) =>
         schema
           .of(
@@ -157,7 +156,7 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
           name: 'at-least-one-initiated',
           test: (config) => config?.agentInitiated || config?.pollerInitiated
         }),
-      // biome-ignore lint/suspicious/noThenProperty: <explanation>
+      // biome-ignore lint/suspicious/noThenProperty: false positive
       then: (schema) => schema.shape(telegrafConfigurationSchema)
     }),
     connectionMode: object({

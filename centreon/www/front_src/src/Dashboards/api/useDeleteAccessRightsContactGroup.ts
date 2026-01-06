@@ -62,9 +62,9 @@ const useDeleteAccessRightsContactGroup =
       const { onSettled, ...restOptions } = options || {};
 
       const onSettledWithInvalidateQueries = (
-        data: any,
+        data: unknown,
         error: ResponseError | null,
-        vars: any
+        vars: unknown
       ): void => {
         invalidateQueries({ _meta: vars });
         onSettled?.(data, error, variables, undefined);

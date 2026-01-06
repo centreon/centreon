@@ -42,7 +42,7 @@ const useValidationSchema = (): UseValidationSchemaState => {
       .when([], {
         is: () => isCloudPlatform,
         otherwise: (schema) => schema.optional(),
-        // biome-ignore lint/suspicious/noThenProperty: <explanation>
+        // biome-ignore lint/suspicious/noThenProperty: false positive
         then: (schema) => schema.min(1, t(labelRequired))
       })
   });

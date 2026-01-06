@@ -55,7 +55,7 @@ const Dashboard = (): ReactElement => {
     );
 
     iframes.forEach((iframe) => {
-      // biome-ignore lint/correctness/noSelfAssign: <explanation>
+      // biome-ignore lint/correctness/noSelfAssign: false positive
       iframe.src = iframe.src;
     });
   };

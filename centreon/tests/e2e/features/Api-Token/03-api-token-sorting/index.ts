@@ -45,10 +45,10 @@ Given('Authentication tokens with predefined details are created', () => {
       const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        // biome-ignore lint/style/useNamingConvention: <explanation>
+        // biome-ignore lint/style/useNamingConvention: false positive
         expiration_date: expirationDateIsoString,
         name: token.name,
-        // biome-ignore lint/style/useNamingConvention: <explanation>
+        // biome-ignore lint/style/useNamingConvention: false positive
         user_id: token.userId,
         type: token.type
       };

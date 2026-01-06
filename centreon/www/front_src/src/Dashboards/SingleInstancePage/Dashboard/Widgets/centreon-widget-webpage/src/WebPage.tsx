@@ -13,7 +13,7 @@ const getIframeSrc = (url: string) =>
 
 const refreshIframe = (iframeRef) => {
   if (iframeRef.current) {
-    // biome-ignore lint/correctness/noSelfAssign: <explanation>
+    // biome-ignore lint/correctness/noSelfAssign: false positive
     iframeRef.current.src = iframeRef.current?.src;
   }
 };

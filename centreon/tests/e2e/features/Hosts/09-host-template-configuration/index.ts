@@ -60,7 +60,7 @@ Then('the user can configure directly its parent template', () => {
           const params = new URLSearchParams({
             p: '60103',
             o: 'c',
-            // biome-ignore lint/style/useNamingConvention: <explanation>
+            // biome-ignore lint/style/useNamingConvention: false positive
             host_id: hostId.toString(),
             min: '1'
           });

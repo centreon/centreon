@@ -229,7 +229,7 @@ Cypress.Commands.add('checkValuesOfConnectors', (name: string, body: Ctr) => {
 });
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addCommands: (body: Cmd) => Cypress.Chainable;

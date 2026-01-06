@@ -341,7 +341,6 @@ describe('useValidationSchema', () => {
 
       const result = await schema.validate(validData, {
         context: {
-          configuration: { pollerInitiated: true },
           configuration: {
             pollerInitiated: true
           },

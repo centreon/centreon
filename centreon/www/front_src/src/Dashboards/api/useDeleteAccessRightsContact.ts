@@ -59,11 +59,18 @@ const useDeleteAccessRightsContact = (): UseDeleteAccessRightsContact => {
 
     const onSettledWithInvalidateQueries = (
       data:
-        | { _meta?: { dashboardId: any; id: any } | undefined; payload: object }
+        | {
+            _meta?:
+              | { dashboardId: string | number; id: string | number }
+              | undefined;
+            payload: object;
+          }
         | undefined,
       error: Error | null,
       vars: {
-        _meta?: { dashboardId: any; id: any } | undefined;
+        _meta?:
+          | { dashboardId: string | number; id: string | number }
+          | undefined;
         payload?: object;
       },
       context: unknown

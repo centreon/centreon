@@ -15,10 +15,8 @@ import {
   ParameterKeys,
   Payload
 } from './models';
-import { findConnectorTypeById, maskedPassword, splitURL } from './utils';
-
 import { labelName, labelPoller, labelType } from './translatedLabels';
-import { findConnectorTypeById, splitURL } from './utils';
+import { findConnectorTypeById, maskedPassword, splitURL } from './utils';
 
 interface UseAdditionnalConnectorsState {
   api: APIType;
