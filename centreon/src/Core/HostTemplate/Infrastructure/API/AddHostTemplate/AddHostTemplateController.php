@@ -120,7 +120,7 @@ final class AddHostTemplateController extends AbstractController
              *     comment?: string,
              *     categories?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>
+             *     macros?: array<array{id?: int|null,name:string,value:null|string,is_password:bool,description:null|string}>
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateOnPremSchema.json');
@@ -212,7 +212,7 @@ final class AddHostTemplateController extends AbstractController
              *     icon_id?: null|int,
              *     categories?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
+             *     macros?: array<array{id?: int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
              *     event_handler_enabled?: int,
              *     event_handler_command_id?: null|int
              * } $data

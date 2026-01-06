@@ -75,6 +75,7 @@ const LoginForm = (): JSX.Element => {
     <form className={classes.form} onSubmit={handleSubmit}>
       <TextField
         ariaLabel={labelAlias}
+        dataTestId={labelAlias}
         error={aliasError}
         fullWidth
         label={t(labelAlias)}
@@ -86,6 +87,7 @@ const LoginForm = (): JSX.Element => {
       />
       <TextField
         ariaLabel={labelPassword}
+        dataTestId={labelPassword}
         EndAdornment={passwordEndAdornment}
         error={passwordError}
         forceUncontrolled

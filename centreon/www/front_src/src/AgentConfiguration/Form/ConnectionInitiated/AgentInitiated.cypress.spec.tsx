@@ -16,7 +16,10 @@ const initialValues = {
       { id: 2, inputValue: 'testInput2', name: 'testName2', testId: 'testId2' }
     ]
   },
-  connectionMode: { id: ConnectionMode.secure, name: 'secure' }
+  connectionMode: {
+    id: ConnectionMode.secure,
+    name: 'TLS'
+  }
 };
 
 const valuesWithErrors = {
@@ -26,7 +29,10 @@ const valuesWithErrors = {
     otelPublicCertificate: '',
     tokens: []
   },
-  connectionMode: { id: 'secure', name: 'secure' }
+  connectionMode: {
+    id: ConnectionMode.secure,
+    name: 'TLS'
+  }
 };
 
 const mockErrors = {
@@ -35,6 +41,10 @@ const mockErrors = {
     otelPrivateKey: 'Private key is required',
     otelPublicCertificate: 'Public certificate is required',
     tokens: 'At least one token is required'
+  },
+  connectionMode: {
+    id: ConnectionMode.secure,
+    name: 'TLS'
   }
 };
 
@@ -101,7 +111,10 @@ describe('AgentInitiated', () => {
         otelPublicCertificate: 'existing-public.crt',
         tokens: []
       },
-      connectionMode: { id: 'secure', name: 'secure' }
+      connectionMode: {
+        id: ConnectionMode.secure,
+        name: 'TLS'
+      }
     };
 
     initialize(prefilledValues);
@@ -170,7 +183,10 @@ describe('AgentInitiated', () => {
         otelPublicCertificate: null,
         tokens: null
       },
-      connectionMode: { id: 'secure', name: 'secure' }
+      connectionMode: {
+        id: ConnectionMode.secure,
+        name: 'TLS'
+      }
     };
 
     initialize(nullValues);
@@ -219,7 +235,10 @@ describe('AgentInitiated', () => {
         otelPrivateKey: 'existing-private.key',
         otelPublicCertificate: 'existing-public.crt'
       },
-      connectionMode: { id: 'secure', name: 'secure' }
+      connectionMode: {
+        id: ConnectionMode.secure,
+        name: 'TLS'
+      }
     };
 
     initialize(prefilledValues);

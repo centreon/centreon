@@ -5,6 +5,7 @@ export const useParameterStyles = makeStyles()((theme) => ({
     display: 'grid',
     gap: theme.spacing(2, 4),
     gridTemplate: "'1fr 1fr' '1fr 1fr'",
+    gridTemplateColumns: '1fr 1fr',
     height: 'auto',
     marginBottom: theme.spacing(1.5),
     overflow: 'auto',

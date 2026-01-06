@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import data from '../../../fixtures/additional-configurations/acc.json';
 
 before(() => {
   cy.startContainers();
@@ -50,7 +51,9 @@ Given(
 
 Given('an additional connector configuration is already created', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
-  cy.createAccWithMandatoryFields();
+  cy.createAccWithMandatoryFields(data.default);
+  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.wait('@addAdditionalConnector');
 });
 
 When('the user deletes the additional connector configuration', () => {

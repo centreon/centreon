@@ -178,6 +178,7 @@ describe('useValidationSchema', () => {
           agentInitiated: true,
           hosts: [],
           pollerInitiated: false,
+          port: 4317,
           tokens: [{ creatorId: 1, id: '1', name: 'token1' }]
         },
         connectionMode: { id: 'secure', name: 'Secure' },
@@ -217,6 +218,7 @@ describe('useValidationSchema', () => {
             }
           ],
           pollerInitiated: true,
+          port: null,
           tokens: null
         },
         connectionMode: { id: 'secure', name: 'Secure' },
@@ -243,6 +245,7 @@ describe('useValidationSchema', () => {
           agentInitiated: false,
           hosts: [],
           pollerInitiated: false,
+          port: 4317,
           tokens: null
         },
         connectionMode: { id: 'secure', name: 'Secure' },
@@ -327,7 +330,8 @@ describe('useValidationSchema', () => {
               }
             }
           ],
-          pollerInitiated: true
+          pollerInitiated: true,
+          port: null
         },
         connectionMode: { id: 'secure', name: 'Secure' },
         name: 'test',
@@ -338,6 +342,9 @@ describe('useValidationSchema', () => {
       const result = await schema.validate(validData, {
         context: {
           configuration: { pollerInitiated: true },
+          configuration: {
+            pollerInitiated: true
+          },
           connectionMode: { id: 'secure' },
           type: { id: AgentType.CMA }
         }

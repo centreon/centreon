@@ -1,6 +1,7 @@
 import { Form } from '@centreon/ui';
 
 import { find, isNil, propEq } from 'ramda';
+import { ReactElement } from 'react';
 
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
@@ -15,7 +16,7 @@ interface Props {
 }
 
 const defaultInitialValues = {
-  configuration: {},
+  configuration: { port: 4317 },
   connectionMode: find(propEq('secure', 'id'), connectionModes),
   name: '',
   pollers: [],
@@ -25,7 +26,7 @@ const defaultInitialValues = {
 const AgentConfigurationForm = ({
   initialValues,
   isLoading
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes } = useFormStyles();
 
   const { groups, inputs } = useInputs();

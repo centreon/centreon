@@ -58,6 +58,20 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
+    port: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.number)),
+    tokens: JsonDecoder.optional(
+      JsonDecoder.array(
+        JsonDecoder.object(
+          {
+            creatorId: JsonDecoder.number,
+            name: JsonDecoder.string
+          },
+          'token',
+          { creatorId: 'creator_id' }
+        ),
+        'tokens'
+      )
+    ),
     agentInitiated: JsonDecoder.boolean,
     hosts: JsonDecoder.array(
       JsonDecoder.object(

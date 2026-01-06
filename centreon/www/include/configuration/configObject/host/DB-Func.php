@@ -31,6 +31,7 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
@@ -111,10 +112,9 @@ function hostMacHandler()
     }
 
     $fieldsToBind = [];
-    $counter = count($_POST['macroInput']);
-    for ($index = 0; $index < $counter; $index++) {
-        $fieldsToBind[':macro_' . $index]
-            = "'\$_HOST" . strtoupper($_POST['macroInput'][$index]) . "\$'";
+    foreach ($_POST['macroInput'] as $key => $value) {
+        $fieldsToBind[':macro_' . $key]
+            = "'\$_HOST" . strtoupper($value) . "\$'";
     }
 
     $request
@@ -1378,7 +1378,6 @@ function updateHost_MC($hostId = null)
     }
 
     $submittedValues = $form->getSubmitValues();
-
     if (! $isCloudPlatform) {
         if (isset($submittedValues['command_command_id_arg1']) && $submittedValues['command_command_id_arg1'] != null) {
             $submittedValues['command_command_id_arg1'] = str_replace("\n", '#BR#', $submittedValues['command_command_id_arg1']);
@@ -1392,6 +1391,17 @@ function updateHost_MC($hostId = null)
         }
     }
 
+    if (isset($submittedValues['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $submittedValues['host_check_freshness']['host_check_freshness'] = '1';
+            $submittedValues['host_freshness_threshold'] = 120;
+        }
+    }
     // For Centreon 2, we no longer need "host_template_model_htm_id" in Nagios 3
     // but we try to keep it compatible with Nagios 2 which needs "host_template_model_htm_id"
     if (isset($_POST['nbOfSelect'])) {
@@ -1435,7 +1445,6 @@ function updateHost_MC($hostId = null)
         $statement->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $statement->execute();
     }
-
     // update multiple templates
     if (isset($_REQUEST['tpSelect'])) {
         $oldTp = [];
@@ -3031,6 +3040,7 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'macros' => array_map(
             static function (int|string $key, string $name, string $value) use ($formData): array {
                 return [
+                    'id' => (empty((int) $formData['macroId'][$key]) ? null : (int) $formData['macroId'][$key]),
                     'name' => $name,
                     'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
@@ -3172,6 +3182,7 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'macros' => array_map(
             static function (int|string $key, string $name, string $value) use ($formData): array {
                 return [
+                    'id' => (empty((int) $formData['macroId'][$key]) ? null : (int) $formData['macroId'][$key]),
                     'name' => $name,
                     'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),

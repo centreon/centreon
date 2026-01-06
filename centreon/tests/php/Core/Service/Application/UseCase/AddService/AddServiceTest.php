@@ -30,6 +30,8 @@ use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
@@ -88,6 +90,7 @@ beforeEach(function (): void {
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
         $this->writeRealTimeServiceRepository = $this->createMock(WriteRealTimeServiceRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
     );
 
     $this->request = new AddServiceRequest();
@@ -515,7 +518,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $request->severityId = 1;
     $request->graphTemplateId = 1;
     $request->serviceTemplateParentId = 1;
-    $request->commandId = 1;
+    $request->commandId = null;
     $request->eventHandlerId = 12;
     $request->checkTimePeriodId = 13;
     $request->notificationTimePeriodId = 14;
@@ -574,8 +577,8 @@ it('should present an AddServiceResponse when everything has gone well', functio
         $categoryB = new ServiceCategory(13, 'cat-name-B', 'cat-alias-B'),
     ];
 
-    $macroA = new Macro($newServiceId, 'MACROA', 'A');
-    $macroB = new Macro($newServiceId, 'MACROB', 'B');
+    $macroA = new Macro(null, $newServiceId, 'MACROA', 'A');
+    $macroB = new Macro(null, $newServiceId, 'MACROB', 'B');
 
     $serviceGroup = new ServiceGroup(15, 'SG-name', 'SG-alias', null, '', true);
     $serviceGroupRelation = new ServiceGroupRelation(
@@ -626,6 +629,14 @@ it('should present an AddServiceResponse when everything has gone well', functio
         acknowledgementTimeout: 0,
     );
 
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $request->commandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')

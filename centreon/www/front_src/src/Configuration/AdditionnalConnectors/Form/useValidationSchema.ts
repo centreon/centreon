@@ -1,9 +1,6 @@
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { array, number, object, string } from 'yup';
 
-import { modalStateAtom } from '../../ConfigurationBase/atoms';
 import {
   labelAteastOnePollerIsRequired,
   labelAtLeastOneVCenterIsRequired,
@@ -20,7 +17,6 @@ import {
 
 const useValidationSchema = (): { validationSchema } => {
   const { t } = useTranslation();
-  const { mode } = useAtomValue(modalStateAtom);
 
   const urlValidationSchema = string()
     .required(t(labelRequired))
@@ -34,14 +30,10 @@ const useValidationSchema = (): { validationSchema } => {
     name: string().required(t(labelRequired))
   });
 
-  const secretsSchema = {
-    Password: string().required(t(labelRequired)),
-    Username: string().required(t(labelRequired))
-  };
-
   const vcenterSchema = object().shape({
-    ...(equals(mode, 'add') && secretsSchema),
+    Password: string().required(t(labelRequired)),
     URL: urlValidationSchema,
+    Username: string().required(t(labelRequired)),
     'vCenter name': string()
       .required(t(labelRequired))
       .test(

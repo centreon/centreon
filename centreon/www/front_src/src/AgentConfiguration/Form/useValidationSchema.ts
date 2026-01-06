@@ -76,6 +76,16 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   };
 
   const CMAConfigurationSchema = {
+    port: number()
+      .min(1, t(labelPortMustStartFrom1))
+      .max(65535, t(labelPortExpectedAtMost))
+      .when('agentInitiated', {
+        is: true,
+        // biome-ignore lint/suspicious/noThenProperty: <explanation>
+        then: (schema) => schema.required(t(labelRequired)),
+        otherwise: (schema) => schema.nullable().notRequired()
+      }),
+
     agentInitiated: boolean(),
     hosts: array()
       .of(

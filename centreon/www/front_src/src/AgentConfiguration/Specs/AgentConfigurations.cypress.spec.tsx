@@ -589,6 +589,7 @@ describe('Agent configurations modal', () => {
           otel_private_key: 'privateKey.key',
           otel_public_certificate: '/certificate/test.crt',
           poller_initiated: false,
+          port: 4317,
           tokens: [{ creator_id: 1, name: 'token 1' }]
         },
         connection_mode: 'secure',
@@ -729,6 +730,8 @@ describe('Agent configurations modal', () => {
           otel_private_key: 'private.key',
           otel_public_certificate: '/test.cer',
           poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }],
           tokens: [{ creator_id: 1, name: 'token 1' }]
         },
         connection_mode: 'secure',
@@ -873,6 +876,7 @@ describe('Agent configurations modal', () => {
           otel_private_key: null,
           otel_public_certificate: null,
           poller_initiated: true,
+          port: 4317,
           tokens: [{ creator_id: 1, name: 'token 1' }]
         },
         connection_mode: 'no-tls',
@@ -1023,6 +1027,8 @@ describe('Agent configurations modal', () => {
           otel_private_key: 'private.key',
           otel_public_certificate: '/test.cer',
           poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }],
           tokens: [{ creator_id: 1, name: 'token 1' }]
         },
         connection_mode: 'insecure',

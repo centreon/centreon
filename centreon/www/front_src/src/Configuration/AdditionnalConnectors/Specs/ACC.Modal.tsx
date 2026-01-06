@@ -1,4 +1,4 @@
-import { keys } from 'ramda';
+import { equals, keys } from 'ramda';
 
 import { ParameterKeys } from '../models';
 import {
@@ -22,8 +22,15 @@ import {
   labelVcenterNameMustBeUnique,
   labelvCenterESX
 } from '../translatedLabels';
-import { getDefaultParameters } from '../utils';
+import { maskedPassword } from '../utils';
 import initialize from './initialize';
+
+export const defaultParameters = {
+  [ParameterKeys.name]: 'my_vcenter',
+  [ParameterKeys.url]: 'https://<ip_hostname>/sdk',
+  [ParameterKeys.username]: '',
+  [ParameterKeys.password]: ''
+};
 
 const vcenters = [
   {
@@ -74,10 +81,10 @@ export default (): void => {
       cy.findByText(labelvCenterESX).should('be.visible');
       cy.findAllByTestId('parameterGroup').should('have.length', 1);
 
-      keys(getDefaultParameters(0)).forEach((parameter) => {
+      keys(defaultParameters).forEach((parameter) => {
         cy.get(`input[data-testid="${parameter}_value"`)
           .should('be.visible')
-          .should('have.value', getDefaultParameters(0)[parameter])
+          .should('have.value', defaultParameters[parameter])
           .should('not.be.disabled');
       });
 
@@ -136,11 +143,19 @@ export default (): void => {
 
       vcenters.forEach((vcenter, index) => {
         keys(vcenter).forEach((parameter) => {
-          cy.get(`input[data-testid="${parameter}_value"`)
-            .eq(index)
-            .should('be.visible')
-            .should('have.value', vcenter[parameter])
-            .should('not.be.disabled');
+          if (equals(parameter, 'Password')) {
+            cy.get(`input[data-testid="${parameter}_value"`)
+              .eq(index)
+              .should('be.visible')
+              .should('have.value', maskedPassword)
+              .should('be.disabled');
+          } else {
+            cy.get(`input[data-testid="${parameter}_value"`)
+              .eq(index)
+              .should('be.visible')
+              .should('have.value', vcenter[parameter])
+              .should('not.be.disabled');
+          }
         });
       });
 
@@ -389,7 +404,7 @@ export default (): void => {
         cy.findByLabelText('close').click();
       });
 
-      it('validates that vCenter username is not required Edition Mode', () => {
+      it('validates that vCenter username is required Edition Mode', () => {
         cy.waitForRequest('@getConnectors');
 
         cy.contains('VMWare1').click();
@@ -398,12 +413,12 @@ export default (): void => {
 
         clickOutideTheField();
 
-        cy.contains(labelRequired).should('not.exist');
+        cy.contains(labelRequired).should('be.visible');
 
         cy.matchImageSnapshot();
 
         cy.findByLabelText('close').click();
-        cy.findByLabelText('Discard').click();
+        cy.findByLabelText('Leave').click();
       });
 
       it('validates that vCenter password field is required in Creation Mode', () => {
@@ -421,12 +436,17 @@ export default (): void => {
         cy.findByLabelText('close').click();
       });
 
-      it('validates that vCenter password field is not required in Edition Mode', () => {
+      it('validates that vCenter password field is disabled and masked in Edition Mode', () => {
         cy.waitForRequest('@getConnectors');
 
         cy.contains('VMWare1').click();
 
-        cy.get(`input[data-testid="Password_value"`).clear();
+        cy.get(`input[data-testid="Password_value"`).should('be.disabled');
+
+        cy.get(`input[data-testid="Password_value"`).should(
+          'have.value',
+          maskedPassword
+        );
 
         clickOutideTheField();
 
@@ -435,7 +455,6 @@ export default (): void => {
         cy.matchImageSnapshot();
 
         cy.findByLabelText('close').click();
-        cy.findByLabelText('Discard').click();
       });
 
       it('validates that port field is required', () => {
@@ -607,6 +626,14 @@ export default (): void => {
         cy.findAllByTestId(labelName).eq(1).clear().type('Updated name');
         cy.get('input[name=port]').clear().type('100');
 
+        cy.get(`input[data-testid="Password_value"`)
+          .eq(0)
+          .should('be.disabled');
+        cy.findAllByTestId('EditIcon').eq(0).click();
+        cy.get(`input[data-testid="Password_value"`).eq(0).type('new password');
+        cy.findByTestId('CheckIcon').click();
+        cy.findByTestId('RestartAltIcon').should('be.visible');
+
         cy.get(`button[data-testid="submit"`).click();
 
         cy.waitForRequest('@updateConnector').then(({ request }) => {
@@ -618,15 +645,13 @@ export default (): void => {
               vcenters: [
                 {
                   name: 'vCenter1',
-                  password: 'password1',
-                  scheme: 'https',
+                  password: 'new password',
                   url: 'vcenter1.example.com/sdk',
                   username: 'user1'
                 },
                 {
                   name: 'vCenter2',
-                  password: 'password2',
-                  scheme: null,
+                  password: null,
                   url: '192.0.0.1',
                   username: 'user2'
                 }

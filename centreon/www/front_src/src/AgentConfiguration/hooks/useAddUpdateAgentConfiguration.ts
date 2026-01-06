@@ -81,6 +81,7 @@ const adaptCMAConfigurationToAPI = (
   return {
     ...omit(['pollers', 'connectionMode'], agentConfiguration),
     configuration: {
+      port: configuration.agentInitiated ? configuration?.port : null,
       agent_initiated: configuration.agentInitiated,
       hosts: configuration.hosts.map((host) => ({
         address: host.address,

@@ -13,6 +13,11 @@ on:
         required: true
         default: false
         type: boolean
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
@@ -69,6 +74,7 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
       nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
+      labels: ${{ inputs.labels || '' }}
 
   changes:
     if: |
@@ -243,7 +249,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
@@ -266,7 +277,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
@@ -301,7 +317,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:

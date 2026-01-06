@@ -118,10 +118,8 @@ export const useInputs = (): {
                         hosts: [],
                         otelCaCertificate: null,
                         otelPrivateKey: '',
-                        otelPublicCertificate: '',
-                        pollerInitiated: false
-                      },
-                  type: value
+                        port: 4317
+                      }
                 });
                 setTouched({}, false);
               },

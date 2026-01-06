@@ -1,4 +1,4 @@
-import { omit, pluck } from 'ramda';
+import { equals, omit, pluck } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -15,6 +15,8 @@ import {
   ParameterKeys,
   Payload
 } from './models';
+import { findConnectorTypeById, maskedPassword, splitURL } from './utils';
+
 import { labelName, labelPoller, labelType } from './translatedLabels';
 import { findConnectorTypeById, splitURL } from './utils';
 
@@ -32,8 +34,9 @@ export const adaptFormToApiPayload = (
       ...formData.parameters,
       vcenters: formData.parameters.vcenters.map((vcenter) => ({
         name: vcenter[ParameterKeys.name],
-        password: vcenter[ParameterKeys.password],
-        scheme: splitURL(vcenter[ParameterKeys.url]).scheme,
+        password: equals(vcenter[ParameterKeys.password], maskedPassword)
+          ? null
+          : vcenter[ParameterKeys.password],
         url: splitURL(vcenter[ParameterKeys.url]).mainURL,
         username: vcenter[ParameterKeys.username]
       }))
