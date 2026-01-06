@@ -76,6 +76,7 @@ runs:
 
             let response = execSync(
               `curl --request POST \
+                --write-out "%{http_code}" \
                 --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
                 --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
                 --header 'Accept: application/json' \
@@ -87,7 +88,7 @@ runs:
 
             console.log(`response: ${response}`);
 
-            if (response.slice(-3) !== 201) {
+            if (response.slice(-3) !== "201") {
               core.setFailed(`❌ The epic has not been properly created. Exiting.`);
               return;
             }
