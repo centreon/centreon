@@ -160,7 +160,7 @@ Then(
       .isInProfileMenu('Edit profile')
       .should('be.visible');
 
-    cy.visit(PAGES.configuration.account_parameters_legacy).wait(
+    cy.visit(PAGES.configuration.accountParametersLegacy).wait(
       '@getTimeZone'
     );
 
@@ -292,7 +292,7 @@ Then('user can not change password unless the minimum time has passed', () => {
     .isInProfileMenu('Edit profile')
     .should('be.visible');
 
-  cy.visit(PAGES.configuration.account_parameters_legacy).wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
   cy.getIframeBody()
     .find('form')
     .within(() => {
@@ -310,7 +310,7 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#validForm input[name="change"]')
     .should('be.visible');
 
-  cy.visit(PAGES.configuration.account_parameters_legacy).wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
   cy.getIframeBody()
     .find('#Form')
     .within(() => {
@@ -344,7 +344,7 @@ Then('user can not change password unless the minimum time has passed', () => {
 });
 
 Then('user can not reuse the last passwords more than 3 times', () => {
-  cy.visit(PAGES.configuration.account_parameters_legacy).wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
   cy.getIframeBody()
     .find('#Form')
     .within(() => {

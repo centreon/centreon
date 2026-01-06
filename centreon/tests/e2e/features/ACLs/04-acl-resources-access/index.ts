@@ -60,7 +60,7 @@ Given('three ACL access groups including non admin users exist', () => {
 });
 
 When('I add a new Resources access linked with two groups', () => {
-  cy.visit(PAGES.configuration.acl_resources_access_legacy);
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
@@ -111,7 +111,7 @@ Then(
   'only chosen linked access groups display the new Resources access in Authorized information tab',
   () => {
     Object.entries(data.ACLGroups).forEach((aclGroup) => {
-      cy.visit(PAGES.configuration.acl_access_groups_legacy);
+      cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
       cy.wait('@getTimeZone');
       cy.waitForElementInIframe(
         '#main-content',
@@ -156,7 +156,7 @@ Given('one existing Resources access linked with two access groups', () => {
 });
 
 When('I remove one access group', () => {
-  cy.visit(PAGES.configuration.acl_resources_access_legacy);
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('td.ListColLeft > a', aclResource.name).click();
@@ -171,7 +171,7 @@ When('I remove one access group', () => {
 });
 
 Then('link between access group and Resources access must be broken', () => {
-  cy.visit(PAGES.configuration.acl_access_groups_legacy);
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
       aclResource.aclGroups[1],
@@ -213,7 +213,7 @@ Given('one existing Resources access', () => {
 });
 
 When('I duplicate the Resources access', () => {
-  cy.visit(PAGES.configuration.acl_resources_access_legacy);
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -273,7 +273,7 @@ Given('one existing enabled Resources access record', () => {
 When(
   'I modify some properties such as name, description, comments or status',
   () => {
-    cy.visit(PAGES.configuration.acl_resources_access_legacy);
+    cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
     cy.wait('@getTimeZone');
 
     cy.getIframeBody().contains('td.ListColLeft > a', aclResource.name).click();
@@ -324,7 +324,7 @@ Then('the modifications are saved', () => {
 });
 
 When('I delete the Resources access', () => {
-  cy.visit(PAGES.configuration.acl_resources_access_legacy);
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
