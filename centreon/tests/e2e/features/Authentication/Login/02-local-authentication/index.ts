@@ -161,9 +161,7 @@ Then(
       .isInProfileMenu('Edit profile')
       .should('be.visible');
 
-    cy.visit(PAGES.configuration.accountParametersLegacy).wait(
-      '@getTimeZone'
-    );
+    cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
 
     cy.getIframeBody()
       .find('form')

@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/commands/command.json';
 
 const commandTypeMap = {
@@ -42,7 +43,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user creates a command', () => {
-  cy.visit('/centreon/main.php?p=60802&type=2');
+  cy.visit(PAGES.configuration.commandsChecksLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addCommands(data.check);
@@ -60,7 +61,7 @@ Then('the command is displayed in the list', () => {
 });
 
 When('the user changes the properties of a command', () => {
-  cy.visit('/centreon/main.php?p=60802&type=2');
+  cy.visit(PAGES.configuration.commandsChecksLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.getIframeBody().contains(data.check.name).click();
   cy.updateCommands(data.miscellaneous);
@@ -80,7 +81,9 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a command', () => {
-  cy.visit('/centreon/main.php?p=60802&type=3');
+  cy.visit(PAGES.configuration.commandsMiscellaneousLegacy);
+  cy.wait('@getTimeZone');
+  // Wait for the "Command" search field to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.getIframeBody().contains(data.miscellaneous.name).parents('tr').find('input[type="checkbox"]').check({ force: true });
   cy.getIframeBody()
@@ -103,7 +106,7 @@ Then('the new command has the same properties', () => {
 });
 
 When('the user deletes a command', () => {
-  cy.visit('/centreon/main.php?p=60802&type=3');
+  cy.visit(PAGES.configuration.commandsMiscellaneousLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.getIframeBody()
     .contains(data.miscellaneous.name)
@@ -148,11 +151,8 @@ Then('the command is displayed on the {string} page', (type: string) => {
 });
 
 Given('a service being configured', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
+  // Click on the "Add" button
   cy.getIframeBody().contains('a', 'Add').click();
   cy.waitForElementInIframe(
     '#main-content',
@@ -190,11 +190,7 @@ Given('a host being configured', () => {
 });
 
 When('the user selects a check command on the host form', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.waitForElementInIframe(
     '#main-content',
     'a:contains("generic-active-host")'

@@ -1,5 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
@@ -71,11 +72,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the Notification Rules page', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 When('no Notification Rules are configured', () => {
@@ -88,11 +85,7 @@ When('no Notification Rules are configured', () => {
 });
 
 When('the user goes to Notification Rules Listing', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 Then(

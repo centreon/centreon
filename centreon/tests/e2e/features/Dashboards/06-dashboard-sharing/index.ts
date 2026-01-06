@@ -1,5 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
@@ -55,7 +56,7 @@ after(() => {
 });
 
 afterEach(() => {
-  cy.visit('/centreon/home/dashboards/library');
+  cy.visit(PAGES.monitoring.dashboardsLibrary);
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
