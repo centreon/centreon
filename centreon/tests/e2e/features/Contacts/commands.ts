@@ -1,3 +1,32 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
+interface Contact {
+  alias: string;
+  name: string;
+  email: string;
+  pager: string;
+  template: string;
+  isNotificationsEnabled: string;
+}
+
+interface ContactGroup {
+  name: string;
+  alias: string;
+  linkedContact: string;
+  status: string;
+  comment: string;
+}
+
+interface ContactTemplate {
+  alias: string;
+  name: string;
+  usedContactTemplate: string;
+  defaultPage: string;
+  isNotEnabled: string;
+  timePeriod: string;
+  notCommands: string;
+}
+
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
@@ -151,5 +180,3 @@ declare global {
     }
   }
 }
-
-export {};
