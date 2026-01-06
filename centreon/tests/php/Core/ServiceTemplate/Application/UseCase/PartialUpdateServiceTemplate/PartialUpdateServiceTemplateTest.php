@@ -32,6 +32,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
@@ -85,6 +87,7 @@ beforeEach(closure: function (): void {
         $this->optionService = $this->createMock(OptionService::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
     );
 });
 
@@ -390,6 +393,11 @@ it('should present a NoContentResponse when everything has gone well for an admi
         ->expects($this->once())
         ->method('linkToHosts')
         ->with($request->id, $request->hostTemplates);
+
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(id: $request->commandId, name: 'cmd_name', commandLine: 'cmd_line'));
 
     $this->user
         ->expects($this->exactly(2))

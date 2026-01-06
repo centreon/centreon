@@ -143,6 +143,10 @@ services:
         class: Core\Common\Infrastructure\Repository\ReadVaultRepository
         public: true
 
+    Core\Command\Application\Repository\ReadCommandRepositoryInterface:
+        class: Core\Command\Infrastructure\Repository\DbReadCommandRepository
+        public: true
+
     Symfony\Component\HttpClient\AmpHttpClient:
         class: Symfony\Component\HttpClient\AmpHttpClient
         public: true
