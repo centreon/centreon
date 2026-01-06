@@ -53,15 +53,17 @@ afterEach(() => {
     ).executeCommandsViaClapi(
       'resources/clapi/config-ACL/delete-contacts-management-acl-user.json'
     );
-  for (const contactAlias of [contacts.default.alias, `${contacts.default.alias}_1`, contacts.contactForUpdate.alias]) {
-    cy.executeActionViaClapi({
-      bodyContent: {
-        action: 'DEL',
-        object: 'CONTACT',
-        values: contactAlias
-      },
-      failOnError: false
-    });
+  for (const contact of [contacts.default, contacts.contactForUpdate]) {
+    for (const contactAlias of [contact.alias, `${contact.alias}_1`, `${contact.alias}-1`]) {
+      cy.executeActionViaClapi({
+        bodyContent: {
+          action: 'DEL',
+          object: 'CONTACT',
+          values: contactAlias
+        },
+        failOnError: false
+      });
+    }
   }
   cy.logoutViaAPI({ failOnError: false });
 });
@@ -98,7 +100,6 @@ When('a contact is configured', () => {
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
   cy.exportConfig();
-  cy.wait(2000); // Wait for the export to be completed
 });
 
 When('the user updates some contact properties', () => {
@@ -180,18 +181,11 @@ When('the user clicks on the contact creation button', () => {
 When('he does not fill in the {string} field', (field: string) => {
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   // Fill All the required fields first
-  cy.getIframeBody()
-    .find('input[id="contact_alias"]')
-    .clear()
-    .type(contacts.default.alias);
-  cy.getIframeBody()
-    .find('input[id="contact_name"]')
-    .clear()
-    .type(contacts.default.name);
-  cy.getIframeBody()
-    .find('input[id="contact_email"]')
-    .clear()
-    .type(contacts.default.email);
+  cy.getIframeBody().within(() => {
+    cy.find('input[id="contact_alias"]').type(`{selectAll}{backspace}${contacts.default.alias}`);
+    cy.find('input[id="contact_name"]').type(`{selectAll}{backspace}${contacts.default.name}`);
+    cy.find('input[id="contact_email"]').type(`{selectAll}{backspace}${contacts.default.email}`);
+  });
 
   // Remove the content of one of the required field that we have already filled
   switch (field) {

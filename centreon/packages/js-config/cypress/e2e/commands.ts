@@ -76,8 +76,15 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
 
 Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
   return cy
-    .get('iframe#main-content', { timeout: 10000 })
-    .its('0.contentDocument.body')
+    .get<HTMLIFrameElement>('iframe#main-content', { timeout: 10000 })
+    .should($iframe => {
+      expect($iframe[0].contentDocument).to.exist
+    })
+    .its('0.contentDocument')
+    .should(doc => {
+      expect(doc?.readyState).to.eq('complete')
+    })
+    .its('body')
     .should('not.be.empty')
     .then(cy.wrap);
 });
@@ -499,7 +506,7 @@ Cypress.Commands.add(
           samlImage,
           webImage
         },
-        { timeout: 600000 } // 10 minutes because docker pull can be very slow
+        { timeout: 1200000 } // 20 minutes because docker pull can be very slow
       )
       .then(() => {
         const baseUrl = 'http://127.0.0.1:4000';
