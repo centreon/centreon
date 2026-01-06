@@ -47,7 +47,7 @@ runs:
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
     - name: Run Biome CI
-      run: pnpm biome:ci
+      run: pnpm lint:ci
       shell: bash
       working-directory: ${{ inputs.frontend_directory }}
 
