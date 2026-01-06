@@ -57,7 +57,7 @@ Given('a non-admin user is logged in', () => {
 });
 
 When('the user clicks on the Agents Configuration page', () => {
-  cy.visit(PAGES.configuration.agent_configurations);
+  cy.visit(PAGES.configuration.agentConfigurations);
 });
 
 Then('the user sees the Agents Configuration page', () => {
@@ -74,7 +74,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit(PAGES.configuration.agent_configurations);
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 

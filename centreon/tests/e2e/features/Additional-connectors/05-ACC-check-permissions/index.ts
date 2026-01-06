@@ -53,7 +53,7 @@ Given('an admin user is in the Additional Connector Configuration page', () => {
     jsonName: 'admin',
     loginViaApi: false
   });
-  cy.visit(PAGES.configuration.additional_configurations);
+  cy.visit(PAGES.configuration.additionalConfigurations);
   cy.wait('@getConnectorPage');
 });
 
@@ -205,7 +205,7 @@ Given('a non-admin user without topology rights is logged in', () => {
 When(
   'the user tries to access the Additional Connector Configuration page',
   () => {
-    cy.visit(PAGES.configuration.additional_configurations);
+    cy.visit(PAGES.configuration.additionalConfigurations);
   }
 );
 
@@ -228,7 +228,7 @@ Given('a non-admin user is logged in', () => {
 Given(
   'an Additional Connector Configuration already created linked with two pollers',
   () => {
-    cy.visit(PAGES.configuration.additional_configurations);
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
     cy.getByLabel({ label: 'Add', tag: 'button' }).click();
     cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
@@ -272,7 +272,7 @@ Given('the user has a filter on one of the pollers', () => {
 });
 
 When('the user accesses the Additional Connector Configuration page', () => {
-  cy.visit(PAGES.configuration.additional_configurations);
+  cy.visit(PAGES.configuration.additionalConfigurations);
   cy.wait('@getConnectorPage');
 });
 
@@ -304,7 +304,7 @@ When(
 );
 
 Then('the user can view the additional connector linked to the pollers', () => {
-  cy.visit(PAGES.configuration.additional_configurations);
+  cy.visit(PAGES.configuration.additionalConfigurations);
   cy.wait('@getConnectorPage');
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
@@ -353,7 +353,7 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit(PAGES.configuration.additional_configurations);
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
   }
 );

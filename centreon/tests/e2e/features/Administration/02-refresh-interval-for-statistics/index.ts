@@ -31,7 +31,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 When('the user goes to Administration > Parameters > Centreon UI page', () => {
-  cy.visit(PAGES.configuration.centreon_ui_legacy);
+  cy.visit(PAGES.configuration.centreonUiLegacy);
   cy.wait('@getTimeZone');
 });
 

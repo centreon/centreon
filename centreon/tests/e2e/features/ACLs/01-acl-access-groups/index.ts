@@ -66,7 +66,7 @@ Given('one contact group exists including two non admin contacts', () => {
 });
 
 When('the access group is saved with its properties', () => {
-  cy.visit(PAGES.configuration.acl_access_groups_legacy);
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
 
@@ -145,7 +145,7 @@ Given('a new access group with a linked contact group', () => {
 Then(
   'the contact group has the access group displayed in Relations information',
   () => {
-    cy.visit(PAGES.configuration.contact_groups_legacy);
+    cy.visit(PAGES.configuration.contactGroupsLegacy);
 
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.executeActionOnIframe(
@@ -181,7 +181,7 @@ Given('one existing ACL access group', () => {
 });
 
 When('I modify its properties', () => {
-  cy.visit(PAGES.configuration.acl_access_groups_legacy);
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains(originalAclGroup.name).click();
@@ -206,7 +206,7 @@ Then('all modified properties are updated', () => {
 });
 
 When('I duplicate the access group', () => {
-  cy.visit(PAGES.configuration.acl_access_groups_legacy);
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -261,7 +261,7 @@ Then('a new access group with identical properties is created', () => {
 });
 
 When('I delete the access group', () => {
-  cy.visit(PAGES.configuration.acl_access_groups_legacy);
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -296,7 +296,7 @@ Given('one existing enabled ACL access group', () => {
 });
 
 When('I disable it', () => {
-  cy.visit(PAGES.configuration.acl_access_groups_legacy);
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains(originalAclGroup.name).click();

@@ -119,7 +119,7 @@ Cypress.Commands.add('addCmaToken', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit(PAGES.configuration.authentication_tokens);
+  cy.visit(PAGES.configuration.authenticationTokens);
   cy.getByLabel({ label: 'create' }).click();
   cy.contains('Create authentication token').should('be.visible');
   cy.get('#Name').type('CMA-Token-001');

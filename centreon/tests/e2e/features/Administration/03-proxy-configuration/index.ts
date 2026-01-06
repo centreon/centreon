@@ -35,7 +35,7 @@ Given('a user is logged in a Centreon server with a configured proxy', () => {
 });
 
 When('the user tests the proxy configuration in the interface', () => {
-  cy.visit(PAGES.configuration.centreon_ui_legacy);
+  cy.visit(PAGES.configuration.centreonUiLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="test_proxy"]');
   cy.getIframeBody().find('input[name="test_proxy"]').click();
@@ -56,7 +56,7 @@ Given(
       jsonName: 'admin',
       loginViaApi: false
     });
-    cy.visit(PAGES.configuration.centreon_ui_legacy);
+    cy.visit(PAGES.configuration.centreonUiLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="test_proxy"]');
     cy.getIframeBody()
