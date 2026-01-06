@@ -95,16 +95,15 @@ When('the user selects the centreon agent', () => {
   cy.getByTestId({ testId: 'Select existing CMA token(s)' }).click();
   cy.wait('@getTokens');
   cy.contains('CMA-Token-001').click();
-
 });
 
 Then('the connection initiated by poller field must be disabled', () => {
-   cy.contains('div', 'By poller')
-      .should('exist')
-      .parents('button')
-      .within(() => {
-        cy.get('svg.css-1rqte7i-doneIcon').should('not.exist');
-      });
+  cy.contains('div', 'By poller')
+    .should('exist')
+    .parents('button')
+    .within(() => {
+      cy.get('svg.css-1rqte7i-doneIcon').should('not.exist');
+    });
 });
 
 When('the user enables the connection initiated by the poller option', () => {
@@ -171,7 +170,7 @@ When('the user fills in the centreon agent parameters', () => {
     .clear()
     .type('10.0.0.0');
   cy.getByTestId({ testId: 'Port' }).eq(1).clear().type('4317');
-  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' })
     .eq(1)
     .type('my-certificate-name-003.crt');
   cy.getByTestId({ testId: 'Select existing CMA token' }).eq(1).dblclick();
@@ -191,14 +190,20 @@ When("the user doesn't fill in all the mandatory information", () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-002.crt');
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-002.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-002.crt');
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
@@ -218,10 +223,13 @@ When("the user doesn't fill in correct type of information", () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-001.txt');
-  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
+  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
     'ca-file-name-001.txt'
   );
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
@@ -229,7 +237,10 @@ When("the user doesn't fill in correct type of information", () => {
     .type('my-otel-private-key-name-001.txt');
 
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-001.txt');
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
@@ -239,10 +250,10 @@ When("the user doesn't fill in correct type of information", () => {
 });
 
 Then('the form displayed an error', () => {
-  cy.getByTestId({ testId: 'Public certificate(.crt,.cer)' })
+  cy.getByTestId({ testId: 'Public certificate (.crt, .cert, .cer)' })
     .eq(0)
     .contains('Invalid extension');
-  cy.getByTestId({ testId: 'CA(.crt,.cer)' })
+  cy.getByTestId({ testId: 'CA (.crt, .cert, .cer)' })
     .eq(0)
     .contains('Invalid extension');
   cy.getByTestId({ testId: 'Private key(.key)' })
@@ -251,7 +262,7 @@ Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'Port' }).contains(
     'Port number must be at most 65535'
   );
-  cy.getByTestId({ testId: 'Public certificate(.crt,.cer)' })
+  cy.getByTestId({ testId: 'Public certificate (.crt, .cert, .cer)' })
     .eq(2)
     .contains('Invalid extension');
   cy.getByTestId({ testId: 'Private key(.key)' })
@@ -267,17 +278,23 @@ When('the user fills in the needed information', () => {
   cy.contains('Poller-4').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-001.crt');
-  cy.getByLabel({ label: 'CA(.crt,.cer)', tag: 'input' }).type(
+  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
     'ca-file-name-001.crt'
   );
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate(.crt,.cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-001.crt');
   cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })

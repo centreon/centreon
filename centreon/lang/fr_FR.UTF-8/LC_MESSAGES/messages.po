@@ -2254,6 +2254,10 @@ msgid "By poller"
 msgstr "Par le collecteur"
 
 #: centreon/www/install/front_translate.php
+msgid "CA (.crt, .cert, .cer)"
+msgstr "CA (.crt, .cert, .cer)"
+
+#: centreon/www/install/front_translate.php
 msgid "CA Common Name (CN)"
 msgstr "Nom commun CA (CN)"
 
@@ -13310,8 +13314,8 @@ msgid "Public certificate"
 msgstr "Certificat public"
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
-msgstr "Certificat public(.crt,cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
+msgstr "Certificat public (.crt, .cert, .cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
