@@ -44,7 +44,7 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit(PAGES.configuration.additional_configurations);
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
   }
 );

@@ -27,7 +27,7 @@ beforeEach(() => {
 Given('an administrator is logged in the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
-    .visit(PAGES.configuration.centreon_ui_legacy)
+    .visit(PAGES.configuration.centreonUiLegacy)
     .wait('@getTimeZone');
 });
 
@@ -50,7 +50,7 @@ Then(
   () => {
     cy.isInProfileMenu('Edit profile').click();
 
-    cy.visit(PAGES.configuration.account_parameters_legacy)
+    cy.visit(PAGES.configuration.accountParametersLegacy)
       .wait('@getTimeZone')
       .getIframeBody()
       .find('form #tab1')
@@ -59,7 +59,7 @@ Then(
         cy.get('#aKey').invoke('val').should('not.be.undefined');
       });
 
-    cy.visit(PAGES.configuration.contacts_users_legacy)
+    cy.visit(PAGES.configuration.contactsUsersLegacy)
       .reload()
       .wait('@getTimeZone')
       .getIframeBody()
@@ -85,7 +85,7 @@ Given(
       loginViaApi: true
     })
       .isInProfileMenu('Edit profile')
-      .visit(PAGES.configuration.account_parameters_legacy)
+      .visit(PAGES.configuration.accountParametersLegacy)
       .wait('@getTimeZone')
       .getIframeBody()
       .find('form #tab1')
@@ -126,7 +126,7 @@ Given('a user with an autologin key generated', () => {
 });
 
 When('a user generates an autologin link', () => {
-  cy.visit(PAGES.configuration.hosts_templates_legacy)
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy)
     .wait('@getTimeZone')
     .getIframeBody()
     .find('form')
@@ -152,7 +152,7 @@ Given(
       jsonName: 'user',
       loginViaApi: true
     });
-    cy.visit(PAGES.configuration.account_parameters_legacy)
+    cy.visit(PAGES.configuration.accountParametersLegacy)
       .wait('@getTimeZone')
       .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')

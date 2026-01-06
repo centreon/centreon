@@ -9,9 +9,9 @@ Cypress.Commands.add('visitApiTokens', () => {
 
   cy.url().then((url) => {
     if (url.includes('/administration/authentication-token')) {
-      cy.visit(PAGES.configuration.authentication_tokens);
+      cy.visit(PAGES.configuration.authenticationTokens);
     } else {
-      cy.visit(PAGES.configuration.authentication_tokens);
+      cy.visit(PAGES.configuration.authenticationTokens);
     }
   });
 

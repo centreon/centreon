@@ -45,7 +45,7 @@ Given('a non-admin user is logged in', () => {
 });
 
 When('the user clicks on the Additional Connector Configuration page', () => {
-  cy.visit(PAGES.configuration.additional_configurations);
+  cy.visit(PAGES.configuration.additionalConfigurations);
 });
 
 Then('the user sees the Additional Connector Configuration page', () => {
@@ -65,7 +65,7 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit(PAGES.configuration.additional_configurations);
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
   }
 );

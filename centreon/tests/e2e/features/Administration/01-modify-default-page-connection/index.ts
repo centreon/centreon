@@ -30,7 +30,7 @@ Given('an admin user is logged in a Centreon server', () => {
 Given(
   'the user replaced the default page connection with Home > Dashboards',
   () => {
-    cy.visit(PAGES.configuration.account_parameters_legacy);
+    cy.visit(PAGES.configuration.accountParametersLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="contact_name"]');
     cy.getIframeBody()
@@ -64,7 +64,7 @@ Given('an non-admin user is logged in a Centreon server', () => {
 });
 
 Given('the user has access to all menus', () => {
-  cy.visit(PAGES.configuration.acl_menus_access_legacy);
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.getIframeBody().contains('a', 'name-non-admin-ACLMENU').click();
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="acl_topo_name"]');
@@ -77,7 +77,7 @@ Given('the user has access to all menus', () => {
 Given(
   'the user replaced the default page connection with Configuration > Hosts',
   () => {
-    cy.visit(PAGES.configuration.account_parameters_legacy);
+    cy.visit(PAGES.configuration.accountParametersLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="contact_name"]');
     cy.getIframeBody()
