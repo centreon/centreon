@@ -76,6 +76,7 @@ runs:
 
             let response = execSync(
               `curl --request POST \
+                --write-out "%{http_code}" \
                 --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
                 --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
                 --header 'Accept: application/json' \
@@ -84,6 +85,13 @@ runs:
               `,
               { encoding: 'utf8' }
             );
+
+            console.log(`response: ${response}`);
+
+            if (response.slice(-3) !== "201") {
+              core.setFailed(`❌ The epic has not been properly created. Exiting.`);
+              return;
+            }
 
             nightly_epic_id = JSON.parse(response).id;
             nightly_epic_key = JSON.parse(response).key;
@@ -153,7 +161,7 @@ runs:
 
             console.log(data);
 
-            if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources"].includes(failed_job)) {
+            if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources", "create-xray-test-plan-and-test-execution"].includes(failed_job)) {
               ticket_squad_id = 10524
               ticket_board_id = 184
               squad_name = "DEVSECOPS"

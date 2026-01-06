@@ -61,6 +61,26 @@ describe('useValidationSchema', () => {
     });
   });
 
+  it('validate certificate files with .cert extension', () => {
+    cy.then(async () => {
+      const validData = {
+        name: 'test',
+        type: { id: AgentType.Telegraf },
+        pollers: [{ id: 1, name: 'poller1' }],
+        connectionMode: { id: 'secure', name: 'Secure' },
+        configuration: {
+          confServerPort: 8080,
+          otelPublicCertificate: 'cert.cert'
+        }
+      };
+
+      const result = await schema.validate(validData, {
+        context: { connectionMode: { id: 'secure' } }
+      });
+      expect(result).to.exist;
+    });
+  });
+
   it('validate key files with .key extension', () => {
     cy.then(async () => {
       const validData = {
@@ -110,12 +130,8 @@ describe('useValidationSchema', () => {
       const invalidData = {
         configuration: {
           confServerPort: 8080,
-          otelPublicCertificate: './path/to/cert.crt'
-        },
-        connectionMode: { id: 'secure', name: 'Secure' },
-        name: 'test',
-        pollers: [{ id: 1, name: 'poller1' }],
-        type: { id: AgentType.Telegraf }
+          otelPublicCertificate: './path/to/cert.cert'
+        }
       };
 
       try {
