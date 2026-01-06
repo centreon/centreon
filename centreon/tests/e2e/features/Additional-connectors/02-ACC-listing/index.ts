@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { PAGES } from 'fixtures/shared/constants/pages';
+import data from '../../../fixtures/additional-configurations/acc.json';
 
 before(() => {
   cy.startContainers();
@@ -72,7 +73,9 @@ Given(
 
 Given('an already existing additional connector configuration', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
-  cy.createAccWithMandatoryFields();
+  cy.createAccWithMandatoryFields(data.default);
+  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
 
