@@ -23,7 +23,13 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use App\Kernel;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Security\Interfaces\EncryptionInterface;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -36,7 +42,21 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-/** -------------------------------------- Agent configuration updates -------------------------------------- */
+/** -------------------------------------- Backup updates -------------------------------------- */
+$setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to reset default of database configuration path in backup configuration';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [backup] Updating default value of backup_mysql_conf in 'options' table",
+    );
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE options SET value = ''
+            WHERE options.key = 'backup_mysql_conf' AND options.value = '/etc/my.cnf.d/centreon.cnf'
+            SQL
+    );
+};
+
 $updateFreshnessforCMAServicesAndHosts = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to select CMA connector';
     CentreonLog::create()->info(
@@ -144,21 +164,6 @@ $addDefaultPortToAgentInitiatedAgentConfiguration = function () use ($pearDB, &$
             ])
         );
     }
-};
-
-/** -------------------------------------- Backup updates -------------------------------------- */
-$setBackupMysqlConfDefaultAsEmpty = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to reset default of database configuration path in backup configuration';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [backup] Updating default value of backup_mysql_conf in 'options' table",
-    );
-    $pearDB->update(
-        <<<'SQL'
-            UPDATE options SET value = ''
-            WHERE options.key = 'backup_mysql_conf' AND options.value = '/etc/my.cnf.d/centreon.cnf'
-            SQL
-    );
 };
 
 $linkCMAConnectorToExistingRelatedCMACommands = function () use ($pearDB, &$errorMessage, $version): void {
@@ -426,13 +431,14 @@ try {
         $pearDB->startTransaction();
     }
 
-    $addNewCommandPage();
-    $updateCommandsParentTopology();
-    $moveCommandACLTopologyIntoACLActions();
     $setBackupMysqlConfDefaultAsEmpty();
     $updateFreshnessforCMAServicesAndHosts();
     $addDefaultPortToAgentInitiatedAgentConfiguration();
     $linkCMAConnectorToExistingRelatedCMACommands();
+    // Command redesign updates
+    $addNewCommandPage();
+    $updateCommandsParentTopology();
+    $moveCommandACLTopologyIntoACLActions();
 
     $pearDB->commitTransaction();
 
