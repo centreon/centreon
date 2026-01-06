@@ -143,8 +143,8 @@ class CmaValidator implements TypeValidatorInterface
     private function validateFilename(string $name, ?string $value, bool $isCertificate = true): void
     {
         $pattern = $isCertificate
-            ? '/\.\/|\.\.\/|\/\/|^(?!.*\.(cer|crt|cert)$).+$/'
-            : '/\.\/|\.\.\/|\/\/|^(?!.*\.key$).+$/';
+            ? '^(?!.*\.(cer|crt|cert)$).+$/'
+            : '^(?!.*\.key$).+$/';
 
         if ($value !== null && preg_match($pattern, $value)) {
             throw new AssertionException(
