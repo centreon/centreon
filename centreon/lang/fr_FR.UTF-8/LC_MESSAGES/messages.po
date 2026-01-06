@@ -24606,3 +24606,11 @@ msgstr "alerte"
 #: unknown
 msgid "will display resources with host name starting by'"
 msgstr "affichera les ressources avec un nom d'hôte commençant par"
+
+#: unknown
+msgid "Edit password"
+msgstr "Modifier le mot de passe"
+
+#: unknown
+msgid "Revert to previous password"
+msgstr "Rétablir le mot de passe précédent"
