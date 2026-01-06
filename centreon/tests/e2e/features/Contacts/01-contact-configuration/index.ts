@@ -1,7 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import contacts from '../../../fixtures/users/contact.json';
-import cypressConfig from 'cypress.config';
 
 let isAdmin = true;
 let contactPageIndex = 3;
