@@ -15,6 +15,7 @@ export const openTicketAtom = atom<OpenTicketContext>({
   enableServiceTicketCreation: false,
   isDownHostHidden: false,
   isOpenTicketEnabled: false,
+  isOpenTicketInstalled: false,
   isUnreachableHostHidden: false,
   provider: undefined
 });
