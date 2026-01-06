@@ -227,7 +227,7 @@ export default (on: Cypress.PluginEvents): void => {
             DATABASE_PARTITIONING: '0',
           })
           .withProfiles(...profiles)
-          .withStartupTimeout(120000)
+          .withStartupTimeout(900_000) // 15 minutes
           .withWaitStrategy(
             "web-1",
             Wait.forAll([
@@ -239,9 +239,7 @@ export default (on: Cypress.PluginEvents): void => {
 
         return null;
       } catch (error) {
-        if (error instanceof Error) {
-          console.error(error.message);
-        }
+        console.error(error);
 
         throw error;
       }

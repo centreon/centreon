@@ -495,8 +495,11 @@ Cypress.Commands.add(
 
     const webImage = `docker.centreon.com/centreon/${moduleName}${slimSuffix}-${webOs}:${webVersion}`;
 
-    return cy
-      .task(
+    const timeout = 1200_000;
+    const cypressTaskTimeout = Cypress.config('taskTimeout') || 600_000;
+    Cypress.config('taskTimeout', timeout);
+
+    cy.task(
         'startContainers',
         {
           composeFile: composeFilePath,
@@ -506,7 +509,7 @@ Cypress.Commands.add(
           samlImage,
           webImage
         },
-        { timeout: 1200000 } // 20 minutes because docker pull can be very slow
+        { timeout: 1200_000 } // 20 minutes because docker pull can be very slow
       )
       .then(() => {
         const baseUrl = 'http://127.0.0.1:4000';
@@ -517,6 +520,10 @@ Cypress.Commands.add(
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
       .setUserTokenApiV1();
+
+    Cypress.config('taskTimeout', cypressTaskTimeout);
+
+    return cy.wrap(null);
   }
 );
 

@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import contacts from '../../../fixtures/users/contact.json';
+import cypressConfig from 'cypress.config';
 
 let isAdmin = true;
 let contactPageIndex = 3;
@@ -103,7 +104,9 @@ When('a contact is configured', () => {
 });
 
 When('the user updates some contact properties', () => {
-  cy.getIframeBody().contains(contacts.default.alias).click();
+  cy.getIframeBody().within(()=> {
+    cy.contains(contacts.default.alias).click();
+  });
   cy.addOrUpdateContact(contacts.contactForUpdate);
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
   cy.wait('@getTimeZone');
@@ -111,8 +114,9 @@ When('the user updates some contact properties', () => {
 });
 
 Then('these properties are updated', () => {
-  cy.getIframeBody().contains(contacts.contactForUpdate.alias).should('exist');
-  cy.getIframeBody().contains(contacts.contactForUpdate.alias).click();
+  cy.getIframeBody().within(()=> {
+    cy.contains(contacts.contactForUpdate.alias).click();
+  });
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   cy.getIframeBody()
@@ -139,8 +143,9 @@ When('the user duplicates the configured contact', () => {
 });
 
 Then('a new contact is created with identical properties', () => {
-  cy.getIframeBody().contains(`${contacts.default.alias}_1`).should('exist');
-  cy.getIframeBody().contains(`${contacts.default.alias}_1`).click();
+  cy.getIframeBody().within(()=> {
+    cy.contains(`${contacts.default.alias}_1`).click();
+  });
   cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
 
   cy.getIframeBody()
