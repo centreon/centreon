@@ -35,7 +35,7 @@ final class AddHostGroupInput
      * @param string|null $geoCoords
      * @param string|null $comment
      * @param int|null $iconId
-     * @param int[] $hosts
+     * @param int[]|null $hosts
      * @param int[] $resourceAccessRules
      */
     public function __construct(
@@ -50,7 +50,6 @@ final class AddHostGroupInput
         public readonly mixed $comment,
         #[Assert\Type('integer')]
         public readonly mixed $iconId,
-        #[Assert\NotNull()]
         #[Assert\Type('array')]
         #[Assert\All(
             new Assert\Type('integer')
