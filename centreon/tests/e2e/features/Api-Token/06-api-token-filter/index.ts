@@ -110,7 +110,7 @@ Given('API tokens with predefined details are created', () => {
 });
 
 Given('I am on the Authentication tokens page', () => {
-  cy.visit(PAGES.configuration.authentication_tokens);
+  cy.visit(PAGES.configuration.authenticationTokens);
   cy.wait('@getTokens');
 
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();

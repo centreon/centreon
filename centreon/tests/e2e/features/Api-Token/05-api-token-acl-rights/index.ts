@@ -23,7 +23,7 @@ Given('I am logged in as an Administrator', () => {
 });
 
 When('I navigate to "Administration" > "ACL" > "Actions Access"', () => {
-  cy.visit(PAGES.configuration.acl_actions_access_legacy);
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -37,7 +37,7 @@ Then('I see {string} listed as an action', (actionName: string) => {
 });
 
 When('I navigate to "Administration" > "ACL" > "Menus Access"', () => {
-  cy.visit(PAGES.configuration.acl_menus_access_legacy);
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
 });
 

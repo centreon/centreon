@@ -131,7 +131,7 @@ Given(
 );
 
 When('I add a new action access linked with the access groups', () => {
-  cy.visit(PAGES.configuration.acl_actions_access_legacy);
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
@@ -191,7 +191,7 @@ Then(
   'all linked access group display the new actions access in authorized information tab',
   () => {
     ACLAction.ACLGroups.map((ACLGroup) => {
-      cy.visit(PAGES.configuration.acl_access_groups_legacy);
+      cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
       cy.waitForElementInIframe(
         '#main-content',
         `a:contains("${ACLGroup}")`
@@ -216,7 +216,7 @@ Then(
 When(
   'I select one by one all action to authorize them in an action access record I create',
   () => {
-    cy.visit(PAGES.configuration.acl_actions_access_legacy);
+    cy.visit(PAGES.configuration.aclActionsAccessLegacy);
     cy.wait('@getTimeZone');
 
     cy.getIframeBody().contains('a', 'Add').click();
@@ -249,7 +249,7 @@ Then('all radio-buttons have to be checked', () => {
 });
 
 When('I check button-radio for a lot of actions', () => {
-  cy.visit(PAGES.configuration.acl_actions_access_legacy);
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
@@ -305,7 +305,7 @@ Given('one existing action access', () => {
 });
 
 When('I remove the access group', () => {
-  cy.visit(PAGES.configuration.acl_actions_access_legacy);
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -326,7 +326,7 @@ When('I remove the access group', () => {
 Then(
   'the link between the access group and the action access is voided',
   () => {
-    cy.visit(PAGES.configuration.acl_access_groups_legacy);
+    cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
 
     cy.waitForElementInIframe(
       '#main-content',
@@ -356,7 +356,7 @@ Then(
 );
 
 When('I duplicate the action access', () => {
-  cy.visit(PAGES.configuration.acl_actions_access_legacy);
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -413,7 +413,7 @@ Then(
 When(
   'I modify some properties such as name, description, comments, status or authorized actions',
   () => {
-    cy.visit(PAGES.configuration.acl_actions_access_legacy);
+    cy.visit(PAGES.configuration.aclActionsAccessLegacy);
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
@@ -487,7 +487,7 @@ Then('the modifications are saved', () => {
 });
 
 When('I delete the action access', () => {
-  cy.visit(PAGES.configuration.acl_actions_access_legacy);
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -518,7 +518,7 @@ Then(
 
 Then('the links with the acl groups are broken', () => {
   ACLAction.ACLGroups.map((ACLGroup) => {
-    cy.visit(PAGES.configuration.acl_access_groups_legacy);
+    cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
 
     cy.waitForElementInIframe(
       '#main-content',

@@ -80,7 +80,7 @@ Then(
 
     cy.contains(host).parent().get('.MuiChip-root').should('contain', 'h');
 
-    cy.visit(PAGES.configuration.hosts_legacy);
+    cy.visit(PAGES.configuration.hostsLegacy);
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -96,7 +96,7 @@ Then(
         .should('be.gte', 21);
     });
 
-    cy.visit(PAGES.configuration.services_by_host_legacy);
+    cy.visit(PAGES.configuration.servicesByHostLegacy);
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -131,7 +131,7 @@ Then(
       }
     ]);
 
-    cy.visit(PAGES.monitoring.resources_status);
+    cy.visit(PAGES.monitoring.resourcesStatus);
 
     cy.get('header').parent().children().eq(1).contains('OK').should('exist');
 

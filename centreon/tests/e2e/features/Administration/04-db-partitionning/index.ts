@@ -29,7 +29,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 When('the user visits the database informations page', () => {
-  cy.visit(PAGES.configuration.databases_platform_status_legacy);
+  cy.visit(PAGES.configuration.databasesPlatformStatusLegacy);
   cy.wait('@getTimeZone');
 });
 
