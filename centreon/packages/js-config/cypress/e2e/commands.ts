@@ -495,7 +495,7 @@ Cypress.Commands.add(
 
     const webImage = `docker.centreon.com/centreon/${moduleName}${slimSuffix}-${webOs}:${webVersion}`;
 
-    const timeout = 1200_000;
+    const timeout = 1200_000; // 20 minutes because docker pull can be very slow
     const cypressTaskTimeout = Cypress.config('taskTimeout') || 600_000;
     Cypress.config('taskTimeout', timeout);
 
@@ -509,7 +509,7 @@ Cypress.Commands.add(
           samlImage,
           webImage
         },
-        { timeout: 1200_000 } // 20 minutes because docker pull can be very slow
+        { timeout }
       )
       .then(() => {
         const baseUrl = 'http://127.0.0.1:4000';
