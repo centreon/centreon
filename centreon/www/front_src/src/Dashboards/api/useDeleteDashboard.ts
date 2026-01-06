@@ -61,7 +61,7 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     const { onSettled, ...restOptions } = options || {};
 
     const onSettledWithInvalidateQueries = (
-      data: undefined,
+      data: { _meta?: { id: any } | undefined; payload: Dashboard } | undefined,
       error: ResponseError | null,
       vars: DeleteDashboardDto
     ): void => {
@@ -71,7 +71,7 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
 
     const { id } = variables;
 
-    return mutateAsync(
+    return await mutateAsync(
       { _meta: { id } },
       {
         mutationKey: [resource.dashboards, 'delete', id],

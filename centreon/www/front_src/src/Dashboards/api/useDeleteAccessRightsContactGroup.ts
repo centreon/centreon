@@ -62,34 +62,40 @@ const useDeleteAccessRightsContactGroup =
       const { onSettled, ...restOptions } = options || {};
 
       const onSettledWithInvalidateQueries = (
-        data: undefined,
+        data: any,
         error: ResponseError | null,
-        vars: DeleteAccessRightDto
+        vars: any
       ): void => {
-        invalidateQueries(vars as unknown);
-        onSettled?.(data, error, vars, undefined);
+        invalidateQueries({ _meta: vars });
+        onSettled?.(data, error, variables, undefined);
       };
 
-      const { id, dashboardId } = variables as unknown;
+      const { id, dashboardId } = variables;
 
-      return mutateAsync(
-        {
-          _meta: {
-            dashboardId,
-            id
+      try {
+        const result = await mutateAsync(
+          {
+            _meta: {
+              dashboardId,
+              id
+            }
+          },
+          {
+            onSettled: onSettledWithInvalidateQueries,
+            ...restOptions
           }
-        },
-        {
-          onSettled: onSettledWithInvalidateQueries,
-          ...restOptions
-        }
-      ).then(() => {
-        queryClient.invalidateQueries({
+        );
+
+        await queryClient.invalidateQueries({
           queryKey: [resource.dashboards]
         });
 
         showSuccessMessage(t(labelUserDeleted));
-      });
+
+        return result;
+      } catch (error) {
+        return error as ResponseError;
+      }
     };
 
     return {

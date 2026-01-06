@@ -10,10 +10,8 @@ import { makeStyles } from 'tss-react/mui';
 
 import { CustomTimePeriodProperty } from '../../../Details/tabs/Graph/models';
 import {
-  labelEndDate,
   labelEndDateGreaterThanStartDate,
   labelFrom,
-  labelStartDate,
   labelTo
 } from '../../../translatedLabels';
 import {
@@ -157,7 +155,7 @@ const PopoverCustomTimePeriodPickers = ({
         {renderTitle}
         <div className={classNamePicker}>
           <Typography>{t(labelFrom)}</Typography>
-          <div aria-label={t(labelStartDate) as string}>
+          <div>
             <DateTimePickerInput
               changeDate={changeDate}
               date={start}
@@ -168,7 +166,7 @@ const PopoverCustomTimePeriodPickers = ({
             />
           </div>
           <Typography>{t(labelTo)}</Typography>
-          <div aria-label={t(labelEndDate) as string}>
+          <div>
             <DateTimePickerInput
               changeDate={changeDate}
               date={end}

@@ -91,7 +91,7 @@ const Events = ({ timeline, infiniteScrollTriggerRef }: Props): JSX.Element => {
   const formattedLocale = locale.substring(0, 2);
 
   return (
-    <div aria-label="test">
+    <div>
       {eventsByDateDivisions.map(
         ({
           label,

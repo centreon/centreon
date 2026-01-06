@@ -28,7 +28,7 @@ const DatasetFilters = (): ReactElement => {
         <div
           className={classes.datasetFiltersContainer}
           key={`${
-            // biome-ignore lint/suspicious/noArrayIndexKey:
+            // biome-ignore lint/suspicious/noArrayIndexKey: <index>
             index
           }-datasetFilter`}
         >

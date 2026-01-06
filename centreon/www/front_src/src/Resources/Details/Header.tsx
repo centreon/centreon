@@ -175,10 +175,7 @@ const Header = ({ details, onSelectParent }: Props): JSX.Element => {
         severityCode={details.status.severity_code}
       />
       <div className={classes.resourceNameContainer}>
-        <div
-          aria-label={`${details.name}_hover`}
-          className={classes.resourceName}
-        >
+        <div className={classes.resourceName}>
           <Tooltip
             classes={{ tooltip: classes.resourceNameTooltip }}
             placement="top"

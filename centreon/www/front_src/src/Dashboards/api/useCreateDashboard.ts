@@ -53,7 +53,10 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
-  } = useMutationQuery<Omit<Dashboard, 'globalRefreshInterval'>, unknown>({
+  } = useMutationQuery<
+    Omit<Dashboard, 'globalRefreshInterval'>,
+    CreateDashboardDto
+  >({
     getEndpoint: () => dashboardsEndpoint,
     httpCodesBypassErrorSnackbar: [400, 500],
     method: Method.POST,
@@ -93,7 +96,7 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
       onSettled?.(data, error, vars, undefined);
     };
 
-    return mutateAsync(
+    return await mutateAsync(
       {
         payload: variables
       },
