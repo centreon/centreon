@@ -48,6 +48,7 @@ runs:
 
     - name: Run Biome CI
       run: pnpm biome:ci
+      shell: bash
 
     - uses: mongolyy/reviewdog-action-biome@8fa6a2cd987b0c08cb1a860df2df931f6cb9a822 # v1.9.0
       with:
