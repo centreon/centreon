@@ -45,6 +45,7 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
+import { openTicketAtom } from '../atom';
 import {
   columnsForViewByHost,
   columnsForViewByService,
@@ -54,7 +55,6 @@ import {
   resourcesRegex,
   selectedColumnIds
 } from './testUtils';
-import { openTicketAtom } from '../atom';
 
 interface Props {
   data: Data;

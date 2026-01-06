@@ -12,9 +12,9 @@ import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
 import type { PanelOptions } from '../models';
 
+import { openTicketAtom } from '../atom';
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
-import { openTicketAtom } from '../atom';
 
 interface LoadResourcesProps
   extends Pick<

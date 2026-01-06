@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
-import { equals } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { ReactElement } from 'react';
 
 import { useTheme } from '@mui/material';
 
@@ -10,6 +10,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { PanelOptions } from '../models';
 
+import { openTicketAtom } from '../atom';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -18,7 +19,6 @@ import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
 import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
 import useListing from './useListing';
-import { openTicketAtom } from '../atom';
 
 interface ListingProps
   extends Pick<
@@ -129,11 +129,7 @@ const Listing = ({
             isOpenTicketEnabled={isOpenTicketEnabled}
           />
         }
-        actionsBarMemoProps={[
-          displayType,
-          hasMetaService,
-          isOpenTicketEnabled
-        ]}
+        actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true

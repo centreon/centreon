@@ -48,10 +48,9 @@ import {
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
-
-import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
 
+import { openTicketAtom } from '../../atom';
 import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import { TicketLink } from './OpenTicket/TicketLink';
@@ -61,7 +60,6 @@ import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
-import { openTicketAtom } from '../../atom';
 
 interface ColumnProps {
   displayType?: DisplayType;
@@ -111,10 +109,10 @@ const useColumns = ({
 
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    isOpenTicketInstalled
-    && isOpenTicketEnabled
-    && hasProvider
-    && or(enableHostTicketCreation, enableServiceTicketCreation);
+    isOpenTicketInstalled &&
+    isOpenTicketEnabled &&
+    hasProvider &&
+    or(enableHostTicketCreation, enableServiceTicketCreation);
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');

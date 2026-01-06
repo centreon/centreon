@@ -32,7 +32,7 @@ const ResourceTable = ({
     selectedColumnIds,
     statusTypes,
     hostSeverities,
-    serviceSeverities,
+    serviceSeverities
   } = panelOptions;
 
   const refreshIntervalToUse = useRefreshInterval({

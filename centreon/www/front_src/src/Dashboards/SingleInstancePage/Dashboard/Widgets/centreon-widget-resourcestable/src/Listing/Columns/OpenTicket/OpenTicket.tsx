@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, or } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@mui/material';
@@ -22,18 +22,20 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
   const { palette } = useTheme();
 
   const setResourcesToOpenTicket = useSetAtom(resourcesToOpenTicketAtom);
-  const { 
-    enableHostTicketCreation,
-    enableServiceTicketCreation 
-  } = useAtomValue(openTicketAtom);
+  const { enableHostTicketCreation, enableServiceTicketCreation } =
+    useAtomValue(openTicketAtom);
 
   const { type } = row;
   const isHost = equals(type, 'host');
   const isService = equals(type, 'service');
-  const displayCreateServiceTicketButton =
-    and(enableServiceTicketCreation, isService);
-  const displayCreateHostTicketButton =
-    and(enableHostTicketCreation, or(isHost, isService));
+  const displayCreateServiceTicketButton = and(
+    enableServiceTicketCreation,
+    isService
+  );
+  const displayCreateHostTicketButton = and(
+    enableHostTicketCreation,
+    or(isHost, isService)
+  );
 
   const createServiceTicket = (): void => {
     setResourcesToOpenTicket([{ hostID: row?.parent.id, serviceID: row?.id }]);

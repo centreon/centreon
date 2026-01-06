@@ -138,7 +138,7 @@ const getYupValidatorType = ({
                   if (!value || properties.allowEmptyResources) {
                     return true;
                   }
-                  
+
                   const { resourceType, resources } = value;
 
                   return !(resourceType && isEmpty(resources || []));

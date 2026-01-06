@@ -25,7 +25,6 @@ import {
   type Ticket
 } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import useIsOpenTicketInstalled from './useIsOpenTicketInstalled';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
@@ -116,11 +115,8 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
-  const {
-    isOpenTicketEnabled,
-    isOpenTicketInstalled,
-    provider
-  } = useAtomValue(openTicketAtom);
+  const { isOpenTicketEnabled, isOpenTicketInstalled, provider } =
+    useAtomValue(openTicketAtom);
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
