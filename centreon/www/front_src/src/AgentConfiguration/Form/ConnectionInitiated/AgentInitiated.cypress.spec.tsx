@@ -83,10 +83,9 @@ const initialize = (
 describe('AgentInitiated', () => {
   it('should render the component with initial values', () => {
     initialize();
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      ''
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', '');
     cy.get('[data-testid="CA (.crt, .cert, .cer)"] input').should(
       'have.value',
       ''
@@ -124,10 +123,9 @@ describe('AgentInitiated', () => {
 
     initialize(prefilledValues);
 
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      'existing-public.crt'
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', 'existing-public.crt');
     cy.get('[data-testid="CA (.crt, .cert, .cer)"] input').should(
       'have.value',
       'existing-ca.cert'
@@ -163,7 +161,9 @@ describe('AgentInitiated', () => {
   it('should have correct aria-labels for accessibility', () => {
     initialize();
 
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should(
       'have.attr',
       'aria-label',
       'Public certificate (.crt, .cert, .cer)'
@@ -196,10 +196,9 @@ describe('AgentInitiated', () => {
 
     initialize(nullValues);
 
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      ''
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', '');
     cy.get('[data-testid="CA (.crt, .cert, .cer)"] input').should(
       'have.value',
       ''
@@ -212,10 +211,9 @@ describe('AgentInitiated', () => {
     cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input')
       .clear()
       .type('test.cert');
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      'test.cert'
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', 'test.cert');
   });
 
   it('should update the CA certificate field', () => {
@@ -256,10 +254,9 @@ describe('AgentInitiated', () => {
     cy.get(
       '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
     ).clear();
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      ''
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', '');
   });
 
   it('should handle CMA tokens selection and change', () => {
