@@ -1,29 +1,10 @@
 {
-  "canExpand": true,
-  "data": {
-    "resources": {
-      "allowEmptyResources": true,
-      "allowRegexOnResourceTypes": ["host-group", "service-group"],
-      "defaultValue": [],
-      "required": false,
-      "requireResourceType": true,
-      "restrictedResourceTypes": ["host-group", "service-group"],
-      "singleResourceType": true,
-      "type": "resources"
-    }
-  },
-  "description": "Displays the distribution of current statuses on selected groups of resources, as a table.",
+  "title": "Group monitoring",
   "icon": "<svg viewBox=\"0 0 24 24\"><circle cx=\"19.68\" cy=\"5.98\" r=\"1.5\"/><circle cx=\"19.67\" cy=\"11.99\" r=\"1.5\"/><circle cx=\"19.67\" cy=\"18.02\" r=\"1.5\"/><path d=\"M11.17 6.98h-7c-.55 0-1-.45-1-1s.45-1 1-1h7c.55 0 1 .45 1 1s-.45 1-1 1z\"/><circle cx=\"15.01\" cy=\"5.98\" r=\"1.5\"/><path d=\"M11.29 12.99h-7c-.55 0-1-.45-1-1s.45-1 1-1h7c.55 0 1 .45 1 1s-.45 1-1 1z\"/><circle cx=\"15\" cy=\"11.99\" r=\"1.5\"/><path d=\"M11.29 19.02h-7c-.55 0-1-.45-1-1s.45-1 1-1h7c.55 0 1 .45 1 1s-.45 1-1 1z\"/><circle cx=\"15\" cy=\"18.02\" r=\"1.5\"/></svg>",
-  "moduleName": "centreon-widget-groupmonitoring",
+  "description": "Displays the distribution of current statuses on selected groups of resources, as a table.",
   "options": {
-    "refreshInterval": {
-      "defaultValue": "default",
-      "label": "Interval",
-      "type": "refresh-interval"
-    },
     "resourceTypes": {
-      "defaultValue": ["host", "service"],
-      "keepOneOptionSelected": true,
+      "type": "checkbox",
       "label": "Display resources with this type",
       "options": [
         {
@@ -35,10 +16,11 @@
           "name": "Service"
         }
       ],
-      "type": "checkbox"
+      "defaultValue": ["host", "service"],
+      "keepOneOptionSelected": true
     },
     "statuses": {
-      "defaultValue": ["2", "1"],
+      "type": "checkbox",
       "label": "Display resources with this status",
       "options": [
         {
@@ -62,9 +44,27 @@
           "name": "Undefined (Unreachable/Unknown)"
         }
       ],
-      "type": "checkbox"
+      "defaultValue": ["2", "1"]
+    },
+    "refreshInterval": {
+      "type": "refresh-interval",
+      "defaultValue": "default",
+      "label": "Interval"
     }
   },
-  "title": "Group monitoring",
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": [],
+      "required": false,
+      "requireResourceType": true,
+      "singleResourceType": true,
+      "restrictedResourceTypes": ["host-group", "service-group"],
+      "allowRegexOnResourceTypes": ["host-group", "service-group"],
+      "allowEmptyResources": true
+    }
+  },
+  "moduleName": "centreon-widget-groupmonitoring",
+  "canExpand": true,
   "widgetType": "realtime"
 }

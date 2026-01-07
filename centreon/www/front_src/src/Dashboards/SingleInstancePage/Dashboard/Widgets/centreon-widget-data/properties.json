@@ -1,10 +1,85 @@
 {
+  "title": "Generic data (example)",
+  "description": "This is the description of the data widget",
+  "options": {
+    "threshold": {
+      "type": "threshold",
+      "defaultValue": {
+        "enabled": true,
+        "customCritical": null,
+        "criticalType": "default",
+        "customWarning": null,
+        "warningType": "default"
+      },
+      "label": "threshold"
+    },
+    "sortBy": {
+      "type": "radio",
+      "label": "Sort by",
+      "options": [
+        {
+          "id": "name",
+          "name": "Name"
+        }
+      ],
+      "defaultValue": "name",
+      "hiddenCondition": {
+        "target": "options",
+        "when": "options.threshold.enabled",
+        "method": "equals",
+        "matches": false
+      }
+    }
+  },
+  "data": {
+    "resources": {
+      "type": "resources",
+      "defaultValue": []
+    },
+    "metrics": {
+      "type": "metrics",
+      "defaultValue": []
+    }
+  },
   "categories": {
     "General properties": {
+      "groups": [
+        {
+          "id": "group",
+          "name": "Group name"
+        }
+      ],
       "elements": {
-        "buttonGroup": {
-          "defaultValue": "button1",
+        "select": {
           "group": "group",
+          "type": "select",
+          "label": "Select field",
+          "defaultValue": "option1",
+          "options": [
+            {
+              "id": "option1",
+              "name": "Option 1"
+            },
+            {
+              "id": "option2",
+              "name": "Option 2"
+            }
+          ]
+        },
+        "radio": {
+          "type": "radio",
+          "label": "Radio",
+          "options": [
+            {
+              "id": "name",
+              "name": "Name"
+            }
+          ],
+          "defaultValue": "name"
+        },
+        "buttonGroup": {
+          "group": "group",
+          "type": "button-group",
           "label": "Group",
           "options": [
             {
@@ -24,6 +99,7 @@
               "name": "Button 4"
             }
           ],
+          "defaultValue": "button1",
           "subInputs": [
             {
               "displayValue": "button3",
@@ -62,87 +138,11 @@
               },
               "name": "sub3"
             }
-          ],
-          "type": "button-group"
-        },
-        "radio": {
-          "defaultValue": "name",
-          "label": "Radio",
-          "options": [
-            {
-              "id": "name",
-              "name": "Name"
-            }
-          ],
-          "type": "radio"
-        },
-        "select": {
-          "defaultValue": "option1",
-          "group": "group",
-          "label": "Select field",
-          "options": [
-            {
-              "id": "option1",
-              "name": "Option 1"
-            },
-            {
-              "id": "option2",
-              "name": "Option 2"
-            }
-          ],
-          "type": "select"
+          ]
         }
-      },
-      "groups": [
-        {
-          "id": "group",
-          "name": "Group name"
-        }
-      ]
+      }
     }
   },
-  "data": {
-    "metrics": {
-      "defaultValue": [],
-      "type": "metrics"
-    },
-    "resources": {
-      "defaultValue": [],
-      "type": "resources"
-    }
-  },
-  "description": "This is the description of the data widget",
-  "moduleName": "centreon-widget-data",
-  "options": {
-    "sortBy": {
-      "defaultValue": "name",
-      "hiddenCondition": {
-        "matches": false,
-        "method": "equals",
-        "target": "options",
-        "when": "options.threshold.enabled"
-      },
-      "label": "Sort by",
-      "options": [
-        {
-          "id": "name",
-          "name": "Name"
-        }
-      ],
-      "type": "radio"
-    },
-    "threshold": {
-      "defaultValue": {
-        "criticalType": "default",
-        "customCritical": null,
-        "customWarning": null,
-        "enabled": true,
-        "warningType": "default"
-      },
-      "label": "threshold",
-      "type": "threshold"
-    }
-  },
-  "title": "Generic data (example)",
-  "widgetType": "realtime"
+  "widgetType": "realtime",
+  "moduleName": "centreon-widget-data"
 }

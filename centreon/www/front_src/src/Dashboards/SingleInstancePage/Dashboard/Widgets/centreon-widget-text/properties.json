@@ -1,7 +1,7 @@
 {
-  "description": "This is the description of the text widget",
-  "moduleName": "centreon-widget-text",
-  "options": {},
   "title": "Generic text (example)",
+  "description": "This is the description of the text widget",
+  "options": {},
+  "moduleName": "centreon-widget-text",
   "widgetType": "generic"
 }
