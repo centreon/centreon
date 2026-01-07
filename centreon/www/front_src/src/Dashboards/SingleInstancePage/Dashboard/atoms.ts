@@ -17,6 +17,12 @@ import {
 } from 'ramda';
 
 import {
+  customBaseColorAtom,
+  singleResourceSelectionAtom,
+  widgetFormInitialDataAtom,
+  widgetPropertiesAtom
+} from './AddEditWidget/atoms';
+import {
   Dashboard,
   Panel,
   PanelConfiguration,
@@ -324,6 +330,13 @@ export const switchPanelsEditionModeDerivedAtom = atom(
     });
   }
 );
+
+export const closeModalAtom = atom(null, (_, set) => {
+  set(widgetFormInitialDataAtom, null);
+  set(widgetPropertiesAtom, undefined);
+  set(singleResourceSelectionAtom, undefined);
+  set(customBaseColorAtom, undefined);
+});
 
 export const quitWithoutSavedDashboardAtom =
   atomWithStorage<QuitWithoutSavedDashboard | null>(

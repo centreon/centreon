@@ -3,12 +3,13 @@ import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { equals, find, isEmpty, propEq, toPairs } from 'ramda';
-import { Dispatch, SetStateAction, startTransition, useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import {
   addPanelDerivedAtom,
+  closeModalAtom,
   removePanelDerivedAtom,
   setPanelOptionsAndDataDerivedAtom
 } from '../atoms';
@@ -18,12 +19,7 @@ import {
   labelYourWidgetHasBeenCreated,
   labelYourWidgetHasBeenModified
 } from '../translatedLabels';
-import {
-  customBaseColorAtom,
-  singleResourceSelectionAtom,
-  widgetFormInitialDataAtom,
-  widgetPropertiesAtom
-} from './atoms';
+import { widgetFormInitialDataAtom } from './atoms';
 import { Widget } from './models';
 import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 
@@ -57,9 +53,7 @@ const useWidgetModal = (): UseWidgetModalState => {
   const addPanel = useSetAtom(addPanelDerivedAtom);
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
-  const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
-  const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
-  const setCustomBaseColor = useSetAtom(customBaseColorAtom);
+  const closeModalAction = useSetAtom(closeModalAtom);
 
   const { showSuccessMessage } = useSnackbar();
 
@@ -91,28 +85,22 @@ const useWidgetModal = (): UseWidgetModalState => {
           }
         : {};
 
-    startTransition(() =>
-      setWidgetFormInitialDataAtom({
-        data: widget?.data || {},
-        id: widget?.i || null,
-        moduleName: widget?.name || null,
-        options: {
-          ...defaultOptions,
-          ...(widget?.options || {})
-        },
-        panelConfiguration: widget?.panelConfiguration || null
-      })
-    );
+    setWidgetFormInitialDataAtom({
+      data: widget?.data || {},
+      id: widget?.i || null,
+      moduleName: widget?.name || null,
+      options: {
+        ...defaultOptions,
+        ...(widget?.options || {})
+      },
+      panelConfiguration: widget?.panelConfiguration || null
+    });
   };
 
-  const closeModal = (): void =>
-    startTransition(() => {
-      setWidgetFormInitialDataAtom(null);
-      setWidgetProperties(undefined);
-      setAskingBeforeCloseModal(false);
-      setSingleResourceSelection(undefined);
-      setCustomBaseColor(undefined);
-    });
+  const closeModal = (): void => {
+    closeModalAction();
+    setAskingBeforeCloseModal(false);
+  };
 
   const addWidget = (values: Widget): void => {
     const panelConfiguration = values.panelConfiguration as PanelConfiguration;
