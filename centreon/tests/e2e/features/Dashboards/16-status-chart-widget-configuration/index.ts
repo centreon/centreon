@@ -279,7 +279,7 @@ Then(
         redCssBackground,
         blueCssBackground
       ],
-      ['100.0%', '41.7%', '50.0%']
+      ['100.0%', '41.7%', '50.0%', '8.3%'],
     );
   }
 );
@@ -297,8 +297,8 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       redCssBackground,
       blueCssBackground
     ],
-    ['100.0%', '41.7%', '50.0%'],
-    ['41.7%', '50.0%', '100.0%']
+    ['100.0%', '41.7%', '50.0%', '8.3%'],
+    ['41.7%', '50.0%', '100.0%', '33.3%']
   );
 });
 
@@ -329,7 +329,7 @@ Then('the unit of the resources already displayed should be updated', () => {
       redCssBackground,
       blueCssBackground
     ],
-    ['41.7%', '16.7%', '16.7%', '33.3%'],
+    ['50.0%', '8.3%', '16.7%', '33.3%'],
     ['33.3%', '25.0%', '8.3%', '33.3%']
   );
 });
@@ -365,7 +365,7 @@ Then('only the contents of the other widget are displayed', () => {
       redCssBackground,
       blueCssBackground
     ],
-    ['41.7%', '16.7%', '16.7%', '33.3%'],
+    ['50.0%', '16.7%', '16.7%', '33.3%'],
     ['33.3%', '8.3%', '8.3%', '33.3%']
   );
 });
@@ -397,7 +397,7 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
       redCssBackground,
       blueCssBackground
     ],
-    ['41.7%', '16.7%', '16.7%', '33.3%'],
+    ['50.0%', '16.7%', '16.7%', '33.3%'],
     ['33.3%', '8.3%', '8.3%', '33.3%']
   );
 });
@@ -434,7 +434,7 @@ Then(
         redCssBackground,
         blueCssBackground
       ],
-      ['41.7%', '16.7%', '16.7%', '33.3%'],
+      ['50.0%', '8.3%', '16.7%', '33.3%'],
       ['33.3%', '25.0%', '8.3%', '33.3%']
     );
   }
