@@ -277,7 +277,6 @@ Then(
         greenCssBackground,
         orangeCssBackground,
         redCssBackground,
-        greyCssBackground,
         blueCssBackground
       ],
       ['100.0%', '41.7%', '50.0%']
@@ -296,10 +295,10 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      greyCssBackground,
       blueCssBackground
     ],
-    ['100.0%', '41.7%', '50.0%']
+    ['100.0%', '41.7%', '50.0%'],
+    ['41.7%', '50.0%', '100.0%']
   );
 });
 
@@ -328,10 +327,9 @@ Then('the unit of the resources already displayed should be updated', () => {
       greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      blueCssBackground,
-      greyCssBackground
+      blueCssBackground
     ],
-    ['41.7%', '16.7%', '8.3%', '33.3%'],
+    ['41.7%', '16.7%', '16.7%', '33.3%'],
     ['33.3%', '25.0%', '8.3%', '33.3%']
   );
 });
@@ -365,11 +363,10 @@ Then('only the contents of the other widget are displayed', () => {
       greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      blueCssBackground,
-      greyCssBackground
+      blueCssBackground
     ],
-    ['41.7%', '16.7%', '8.3%', '33.3%'],
-    ['33.3%', '25.0%', '8.3%', '33.3%']
+    ['41.7%', '16.7%', '16.7%', '33.3%'],
+    ['33.3%', '8.3%', '8.3%', '33.3%']
   );
 });
 
@@ -398,11 +395,10 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
       greenCssBackground,
       orangeCssBackground,
       redCssBackground,
-      blueCssBackground,
-      greyCssBackground
+      blueCssBackground
     ],
-    ['41.7%', '16.7%', '8.3%', '33.3%'],
-    ['33.3%', '25.0%', '8.3%', '33.3%']
+    ['41.7%', '16.7%', '16.7%', '33.3%'],
+    ['33.3%', '8.3%', '8.3%', '33.3%']
   );
 });
 
@@ -436,10 +432,9 @@ Then(
         greenCssBackground,
         orangeCssBackground,
         redCssBackground,
-        blueCssBackground,
-        greyCssBackground
+        blueCssBackground
       ],
-      ['41.7%', '16.7%', '8.3%', '33.3%'],
+      ['41.7%', '16.7%', '16.7%', '33.3%'],
       ['33.3%', '25.0%', '8.3%', '33.3%']
     );
   }
