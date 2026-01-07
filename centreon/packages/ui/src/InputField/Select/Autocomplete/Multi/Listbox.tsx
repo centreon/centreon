@@ -24,12 +24,7 @@ const CustomListbox = ({
       <ListSubheader sx={{ padding: 0 }}>
         <div className={classes.lisSubHeader}>
           <Typography variant="body2">{labelTotal}</Typography>
-          <Button
-            data-testid={label}
-            onClick={handleSelectAllToggle}
-            size="small"
-            variant="ghost"
-          >
+          <Button onClick={handleSelectAllToggle} size="small" variant="ghost">
             {label}
           </Button>
         </div>
