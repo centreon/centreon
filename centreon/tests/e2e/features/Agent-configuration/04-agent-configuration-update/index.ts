@@ -93,7 +93,7 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
@@ -109,7 +109,7 @@ Then('a pop up is displayed with all of the agent information', () => {
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
     );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',

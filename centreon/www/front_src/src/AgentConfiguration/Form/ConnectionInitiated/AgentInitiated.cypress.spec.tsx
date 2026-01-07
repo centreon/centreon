@@ -130,7 +130,7 @@ describe('AgentInitiated', () => {
       'have.value',
       'existing-ca.cert'
     );
-    cy.get('[data-testid="Private key(.key)"] input').should(
+    cy.get('[data-testid="Private key (.key)"] input').should(
       'have.value',
       'existing-private.key'
     );
@@ -173,10 +173,10 @@ describe('AgentInitiated', () => {
       'aria-label',
       'CA (.crt, .cert, .cer)'
     );
-    cy.get('[data-testid="Private key(.key)"] input').should(
+    cy.get('[data-testid="Private key (.key)"] input').should(
       'have.attr',
       'aria-label',
-      'Private key(.key)'
+      'Private key (.key)'
     );
   });
 
@@ -229,8 +229,8 @@ describe('AgentInitiated', () => {
 
   it('should update the private key field', () => {
     initialize();
-    cy.get('[data-testid="Private key(.key)"] input').clear().type('test.key');
-    cy.get('[data-testid="Private key(.key)"] input').should(
+    cy.get('[data-testid="Private key (.key)"] input').clear().type('test.key');
+    cy.get('[data-testid="Private key (.key)"] input').should(
       'have.value',
       'test.key'
     );

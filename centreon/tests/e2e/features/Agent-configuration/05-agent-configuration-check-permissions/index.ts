@@ -134,7 +134,7 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.value',
     `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .should(
       'have.value',
@@ -150,7 +150,7 @@ Then('a pop up is displayed with all of the agent information', () => {
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
     );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .should(
       'have.value',
@@ -249,7 +249,7 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
     agentsConfiguration.telegraf1.caFileName
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
@@ -259,7 +259,7 @@ Given('an agent configuration already created linked with two pollers', () => {
   })
     .eq(1)
     .type(agentsConfiguration.telegraf1.certfFileName);
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByTestId({ testId: 'submit' }).click();
@@ -358,7 +358,7 @@ Then(
       'have.value',
       `/etc/pki/${agentsConfiguration.telegraf1.caFileName}`
     );
-    cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+    cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
       .eq(0)
       .should(
         'have.value',
@@ -374,7 +374,7 @@ Then(
         'have.value',
         `/etc/pki/${agentsConfiguration.telegraf1.certfFileName}`
       );
-    cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+    cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
       .eq(1)
       .should(
         'have.value',

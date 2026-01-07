@@ -196,7 +196,7 @@ When("the user doesn't fill in all the mandatory information", () => {
   })
     .eq(0)
     .type('my-otel-certificate-name-002.crt');
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-002.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
@@ -206,7 +206,7 @@ When("the user doesn't fill in all the mandatory information", () => {
   })
     .eq(1)
     .type('my-certificate-name-002.crt');
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type('my-otel-private-key-name-002.key');
 });
@@ -232,7 +232,7 @@ When("the user doesn't fill in correct type of information", () => {
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
     'ca-file-name-001.txt'
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-001.txt');
 
@@ -243,7 +243,7 @@ When("the user doesn't fill in correct type of information", () => {
   })
     .eq(1)
     .type('my-certificate-name-001.txt');
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type('my-otel-private-key-name-001.txt');
   cy.getByLabel({ label: 'Name', tag: 'input' }).click();
@@ -256,7 +256,7 @@ Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'CA (.crt, .cert, .cer)' })
     .eq(0)
     .contains('Invalid extension');
-  cy.getByTestId({ testId: 'Private key(.key)' })
+  cy.getByTestId({ testId: 'Private key (.key)' })
     .eq(0)
     .contains('Invalid extension');
   cy.getByTestId({ testId: 'Port' }).contains(
@@ -265,7 +265,7 @@ Then('the form displayed an error', () => {
   cy.getByTestId({ testId: 'Public certificate (.crt, .cert, .cer)' })
     .eq(2)
     .contains('Invalid extension');
-  cy.getByTestId({ testId: 'Private key(.key)' })
+  cy.getByTestId({ testId: 'Private key (.key)' })
     .eq(2)
     .contains('Invalid extension');
 });
@@ -287,7 +287,7 @@ When('the user fills in the needed information', () => {
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
     'ca-file-name-001.crt'
   );
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
@@ -297,7 +297,7 @@ When('the user fills in the needed information', () => {
   })
     .eq(1)
     .type('my-certificate-name-001.crt');
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type('my-otel-private-key-name-001.key');
 });

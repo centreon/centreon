@@ -44,7 +44,7 @@ Cypress.Commands.add('fillTelegrafMandatoryFields', (body: Telegraf) => {
   })
     .eq(1)
     .type(body.certificateFileName);
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type(body.privateKeyFileName);
 });
@@ -73,7 +73,7 @@ Cypress.Commands.add(
       body.caFileName
     );
     cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-    cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+    cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
       .eq(1)
       .type(body.privateKeyFileName);
   }
@@ -108,7 +108,7 @@ Cypress.Commands.add('addTelegrafAgent', (body: Telegraf) => {
   })
     .eq(1)
     .type(body.certificateFileName);
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .type(body.privateKeyFileName);
 });
@@ -129,7 +129,7 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' })
     .clear()
     .type(body.caFileName);
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .clear()
     .type(body.privateKeyFileName);
@@ -141,7 +141,7 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
     .eq(1)
     .clear()
     .type(body.certificateFileName);
-  cy.getByLabel({ label: 'Private key(.key)', tag: 'input' })
+  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(1)
     .clear()
     .type(body.privateKeyFileName);
