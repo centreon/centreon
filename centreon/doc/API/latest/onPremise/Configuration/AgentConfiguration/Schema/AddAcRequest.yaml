@@ -61,7 +61,7 @@ properties:
             type: [string, null]
             description: |
               Path of the public certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed: `../`, `./`, or `//`
               - Automatically prefixed with `/etc/pki/`
             example: otel-cert.crt
@@ -187,7 +187,7 @@ properties:
             type: [string, null]
             description: |
               Path of the public certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed
               - Automatically prefixed with `/etc/pki/`
             example: otel-cert.crt
@@ -196,7 +196,7 @@ properties:
             type: [string, null]
             description: |
               Path of CA certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed
               - Automatically prefixed with `/etc/pki/`
             example: telegraf-ca.crt

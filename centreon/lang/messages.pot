@@ -2291,7 +2291,7 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA Common Name (CN)"
+msgid "CA (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -14048,7 +14048,7 @@ msgid "Private key path"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Private key(.key)"
+msgid "Private key (.key)"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -14156,7 +14156,7 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate(.crt,.cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
