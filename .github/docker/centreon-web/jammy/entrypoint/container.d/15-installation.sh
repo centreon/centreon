@@ -16,7 +16,11 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
   echo "Creating Centreon configuration files..."
   su www-data -s /bin/bash -c "php configFileSetup.php"
 
-  echo "Centreon is already installed."
+  if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e \
+    "SELECT count(*) from information_schema.tables WHERE \
+        table_schema='centreon' and table_name='nagios_server'") -eq 1
+  ]; then
+    echo "Centreon is already installed."
 
     echo "Creating Centreon database user..."
     su www-data -s /bin/bash -c "php createDbUser.php"

@@ -74,11 +74,11 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
     });
 });
 
-Cypress.Commands.add('getIframeBody', (): Cypress.Chainable<JQuery<HTMLElement>> => {
+Cypress.Commands.add('getIframeBody', (iframeSelector = 'iframe#main-content'): Cypress.Chainable<JQuery<HTMLElement>> => {
   return cy.waitUntil(
     () =>
       cy
-        .get<HTMLIFrameElement>('iframe#main-content', { log: false })
+        .get<HTMLIFrameElement>(iframeSelector, { log: false })
         .then($iframe => {
           const body = $iframe[0].contentDocument?.body;
 
@@ -91,7 +91,7 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable<JQuery<HTMLElement>>
     }
   ).then(() => {
     return cy
-      .get<HTMLIFrameElement>('iframe#main-content')
+      .get<HTMLIFrameElement>(iframeSelector)
       .then($iframe => {
         const body = $iframe[0].contentDocument!.body;
 
@@ -1004,7 +1004,7 @@ declare global {
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
       getContainerMappedPort: (containerName: string, containerPort: number) => Cypress.Chainable;
-      getIframeBody: () => Cypress.Chainable;
+      getIframeBody: (iframeSelector?: string) => Cypress.Chainable;
       getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;

@@ -457,6 +457,7 @@ overrides:
       - perl-HTML-Parser
       - perl(File::Which)
       - perl(Net::SNMP)
+      - perl(User::pwent)
       - rrdtool
       - rrdtool-perl
       - net-snmp
