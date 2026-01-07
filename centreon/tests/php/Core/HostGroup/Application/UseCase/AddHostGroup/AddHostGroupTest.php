@@ -112,7 +112,7 @@ it(
             ->expects($this->once())
             ->method('assertNameIsValid')
             ->willThrowException(
-                new \Assert\AssertionFailedException('[HostGroup::name] The value contains unauthorized characters: ~!')
+                new \Assert\InvalidArgumentException('[HostGroup::name] The value contains unauthorized characters: ~!', 0)
             );
 
         $response = ($this->useCase)($this->addHostGroupRequest);

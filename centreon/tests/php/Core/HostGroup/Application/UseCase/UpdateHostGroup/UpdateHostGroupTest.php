@@ -156,7 +156,7 @@ it(
             ->expects($this->once())
             ->method('assertNameIsValid')
             ->willThrowException(
-                new \Assert\AssertionFailedException('[HostGroup::name] The value contains unauthorized characters: ~!')
+                new \Assert\InvalidArgumentException('[HostGroup::name] The value contains unauthorized characters: ~!', 0)
             );
 
         $response = ($this->useCase)($this->updateHostGroupRequest);
@@ -169,7 +169,7 @@ it(
 );
 
 it(
-    "should return an InvalidArgumentResponse When a given host doesn't exist",
+    "Should return an InvalidArgumentResponse When a given host doesn't exist",
     function (): void {
         $this->adminResolver
             ->expects($this->once())
