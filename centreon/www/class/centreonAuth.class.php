@@ -428,7 +428,7 @@ class CentreonAuth
      *
      * @throws PDOException
      */
-    private function checkLdapPassword($password, $autoImport): void
+    private function checkLdapPassword(string $password, bool $autoImport): void
     {
         $res = $this->pearDB->query("SELECT ar_id FROM auth_ressource WHERE ar_enable = '1'");
         $authResources = [];
@@ -442,7 +442,7 @@ class CentreonAuth
 
         foreach ($authResources as $arId) {
             if ($autoImport && ! isset($this->ldap_auto_import[$arId])) {
-                break;
+                continue;
             }
             if ($this->passwdOk == self::PASSWORD_VALID) {
                 break;
