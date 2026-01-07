@@ -44,7 +44,7 @@ $rewordingResourceToGlobalMacro = function () use ($pearDB, &$errorMessage, $ver
         <<<'SQL'
             UPDATE topology
             SET topology_name = 'Global macros'
-            WHERE topology_id = 91 AND topology_name = 'Resource'
+            WHERE topology_name = 'Resources'
             SQL
     );
 };
