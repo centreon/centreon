@@ -21,8 +21,6 @@
 
 class IvantiProvider extends AbstractProvider
 {
-
-
     public const IVANTI_INCIDENT_TYPE = 10;
     public const IVANTI_SERVICE_REQUEST_TYPE = 11;
     public const IVANTI_PROBLEM_TYPE = 12;
@@ -30,7 +28,6 @@ class IvantiProvider extends AbstractProvider
     public const IVANTI_EMPLOYEE_TYPE = 14;
     public const IVANTI_TEAM_TYPE = 15;
     public const IVANTI_CATEGORY_TYPE = 16;
-
     public const ARG_TITLE = 1;
     public const ARG_SYMPTOM = 2;
     public const ARG_CATEGORY = 3;
@@ -40,15 +37,12 @@ class IvantiProvider extends AbstractProvider
     public const ARG_TEAM = 8;
     public const ARG_STATUS = 9;
 
-
-
     protected $close_advanced = 1;
 
     protected $proxy_enabled = 1;
 
     /** @var null|array */
     protected $ivantiCallResult;
-
 
     protected $internal_arg_name = [
         self::ARG_TITLE => 'title',
@@ -84,37 +78,38 @@ class IvantiProvider extends AbstractProvider
     * throw \Exception if there are some missing parameters
     * throw \Exception if the connection failed
     */
-    public static function test($info) {
-        if (!isset($info['address']) || !isset($info['apiKey'])) {
-        throw new Exception('Paramètres manquants : address ou apiKey.');
-    }
+    public static function test($info)
+    {
+        if (! isset($info['address']) || ! isset($info['apiKey'])) {
+            throw new Exception('Paramètres manquants : address ou apiKey.');
+        }
 
-    if (!extension_loaded('curl')) {
-        throw new Exception("L'extension PHP curl est requise.");
-    }
+        if (! extension_loaded('curl')) {
+            throw new Exception("L'extension PHP curl est requise.");
+        }
 
-    $curl = curl_init();
-    $apiAddress = $info['address'] . '/HEAT/api/odata/businessobject/incidents?$top=1';
+        $curl = curl_init();
+        $apiAddress = $info['address'] . '/HEAT/api/odata/businessobject/incidents?$top=1';
 
-    $headers = [
-        "Authorization: rest_api_key=" . $info['apiKey'],
-        "Content-Type: application/json"
-    ];
+        $headers = [
+            'Authorization: rest_api_key=' . $info['apiKey'],
+            'Content-Type: application/json',
+        ];
 
-    curl_setopt($curl, CURLOPT_URL, $apiAddress);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_URL, $apiAddress);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
 
-    $curlResult = curl_exec($curl);
-    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    curl_close($curl);
+        $curlResult = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
 
-    if ($httpCode >= 400) {
-        throw new Exception("Erreur lors de la connexion à l'API Ivanti : HTTP $httpCode - $curlResult", 11);
-    }
+        if ($httpCode >= 400) {
+            throw new Exception("Erreur lors de la connexion à l'API Ivanti : HTTP {$httpCode} - {$curlResult}", 11);
+        }
 
-    return true;
+        return true;
     }
 
     /*
@@ -127,14 +122,14 @@ class IvantiProvider extends AbstractProvider
     public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
+            foreach ($tickets as $key => $ticket) {
                 try {
-                    $ticketId = $v['ticket_id'];
+                    $ticketId = $ticket['ticket_id'];
                     $this->closeTicketIvanti($ticketId);
-                    $tickets[$k]['status'] = 2;
+                    $tickets[$key]['status'] = 2;
                 } catch (Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
+                    $tickets[$key]['status'] = -1;
+                    $tickets[$key]['msg_error'] = $e->getMessage();
                 }
             }
         } else {
@@ -204,19 +199,19 @@ class IvantiProvider extends AbstractProvider
                 'Id' => 'ivanti_category',
                 'Label' => _('Category'),
                 'Type' => self::IVANTI_CATEGORY_TYPE,
-                'Filter' => '', 'Mandatory' => ''
+                'Filter' => '', 'Mandatory' => '',
             ],
             [
                 'Id' => 'ivanti_employee',
                 'Label' => _('Employee'),
                 'Type' => self::IVANTI_EMPLOYEE_TYPE,
-                'Filter' => '', 'Mandatory' => ''
+                'Filter' => '', 'Mandatory' => '',
             ],
             [
                 'Id' => 'ivanti_team',
                 'Label' => _('Team'),
                 'Type' => self::IVANTI_TEAM_TYPE,
-                'Filter' => '', 'Mandatory' => ''
+                'Filter' => '', 'Mandatory' => '',
             ],
             [
                 'Id' => 'urgency',
@@ -235,42 +230,42 @@ class IvantiProvider extends AbstractProvider
         ];
 
         $this->default_data['clones']['customList'] = [
-        [
-            'Id' => 'impact',
-            'Value' => '1',
-            'Label' => 'Low',
-            'Default' => ''
-        ],
-        [
-            'Id' => 'impact',
-            'Value' => '2',
-            'Label' => 'Medium',
-            'Default' => ''
-        ],
-        [
-            'Id' => 'impact',
-            'Value' => '3',
-            'Label' => 'High',
-            'Default' => ''
-        ],
-        [
-            'Id' => 'urgency',
-            'Value' => '1',
-            'Label' => 'Low',
-            'Default' => ''
-        ],
-        [
-            'Id' => 'urgency',
-            'Value' => '2',
-            'Label' => 'Medium',
-            'Default' => ''
-        ],
-        [
-            'Id' => 'urgency',
-            'Value' => '3',
-            'Label' => 'High',
-            'Default' => ''
-        ],
+            [
+                'Id' => 'impact',
+                'Value' => '1',
+                'Label' => 'Low',
+                'Default' => '',
+            ],
+            [
+                'Id' => 'impact',
+                'Value' => '2',
+                'Label' => 'Medium',
+                'Default' => '',
+            ],
+            [
+                'Id' => 'impact',
+                'Value' => '3',
+                'Label' => 'High',
+                'Default' => '',
+            ],
+            [
+                'Id' => 'urgency',
+                'Value' => '1',
+                'Label' => 'Low',
+                'Default' => '',
+            ],
+            [
+                'Id' => 'urgency',
+                'Value' => '2',
+                'Label' => 'Medium',
+                'Default' => '',
+            ],
+            [
+                'Id' => 'urgency',
+                'Value' => '3',
+                'Label' => 'High',
+                'Default' => '',
+            ],
         ];
     }
 
@@ -419,7 +414,7 @@ class IvantiProvider extends AbstractProvider
         // Ajoute un label à l'entrée et active le tri si nécessaire
         $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0),
         ];
         // Ajoute l'entrée dans le tableau d'ordre des groupes
         $groups_order[] = $entry['Id'];
@@ -434,13 +429,14 @@ class IvantiProvider extends AbstractProvider
         } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
+
             return;
         }
 
         $result = [];
         foreach ($listUsers['value'] ?? [] as $user) {
             // Si aucun filtre n'est configuré, ajoute tous les utilisateurs
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$user['RecId']] = $this->to_utf8($user['FirstName'] . ' ' . $user['LastName']);
                 continue;
             }
@@ -453,53 +449,54 @@ class IvantiProvider extends AbstractProvider
         $groups[$entry['Id']]['values'] = $result;
     }
 
-   /**
-   * Assigne les équipes récupérées depuis l'API Ivanti à un groupe de configuration.
-   *
-   * @param array $entry Configuration de l'entrée pour les équipes.
-   * @param array &$groups_order Ordre des groupes.
-   * @param array &$groups Tableau des groupes.
-   * @return void
-   */
-   protected function assignIvantiTeams($entry, &$groups_order, &$groups) {
-       // Ajoute un label à l'entrée et active le tri si nécessaire
-       $groups[$entry['Id']] = [
-           'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
-           'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
-       ];
+    /**
+     * Assigne les équipes récupérées depuis l'API Ivanti à un groupe de configuration.
+     *
+     * @param array $entry configuration de l'entrée pour les équipes
+     * @param array &$groups_order Ordre des groupes
+     * @param array &$groups Tableau des groupes
+     * @return void
+     */
+    protected function assignIvantiTeams($entry, &$groups_order, &$groups)
+    {
+        // Ajoute un label à l'entrée et active le tri si nécessaire
+        $groups[$entry['Id']] = [
+            'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0),
+        ];
 
-       // Ajoute l'entrée dans le tableau d'ordre des groupes
-       $groups_order[] = $entry['Id'];
+        // Ajoute l'entrée dans le tableau d'ordre des groupes
+        $groups_order[] = $entry['Id'];
 
-       // Récupère les équipes depuis le cache ou l'API
-       try {
-           $listTeams = $this->getCache($entry['Id']);
-           if (is_null($listTeams)) {
-               $listTeams = $this->getTeams();
-               $this->setCache($entry['Id'], $listTeams, 8 * 3600); // Cache pour 8 heures
-           }
-       } catch (Exception $e) {
-           $groups[$entry['Id']]['code'] = -1;
-           $groups[$entry['Id']]['msg_error'] = $e->getMessage();
-           return;
-       }
+        // Récupère les équipes depuis le cache ou l'API
+        try {
+            $listTeams = $this->getCache($entry['Id']);
+            if (is_null($listTeams)) {
+                $listTeams = $this->getTeams();
+                $this->setCache($entry['Id'], $listTeams, 8 * 3600); // Cache pour 8 heures
+            }
+        } catch (Exception $e) {
+            $groups[$entry['Id']]['code'] = -1;
+            $groups[$entry['Id']]['msg_error'] = $e->getMessage();
 
-       $result = [];
-       foreach ($listTeams['value'] ?? [] as $team) {
-           // Si aucun filtre n'est configuré, ajoute toutes les équipes
-           if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
-               $result[$team['RecId']] = $this->to_utf8($team['Team']);
-               continue;
-           }
-           // Applique le filtre si configuré
-           if (preg_match('/' . $entry['Filter'] . '/', $team['Team'])) {
-               $result[$team['RecId']] = $this->to_utf8($team['Team']);
-           }
-       }
+            return;
+        }
 
-       $groups[$entry['Id']]['values'] = $result;
-   }
+        $result = [];
+        foreach ($listTeams['value'] ?? [] as $team) {
+            // Si aucun filtre n'est configuré, ajoute toutes les équipes
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+                $result[$team['RecId']] = $this->to_utf8($team['Team']);
+                continue;
+            }
+            // Applique le filtre si configuré
+            if (preg_match('/' . $entry['Filter'] . '/', $team['Team'])) {
+                $result[$team['RecId']] = $this->to_utf8($team['Team']);
+            }
+        }
 
+        $groups[$entry['Id']]['values'] = $result;
+    }
 
     /*
     * handle gathered categories
@@ -517,7 +514,7 @@ class IvantiProvider extends AbstractProvider
         // Ajoute un label à l'entrée et active le tri si nécessaire
         $groups[$entry['Id']] = [
             'label' => _($entry['Label']) . (isset($entry['Mandatory']) && $entry['Mandatory'] == 1 ? $this->required_field : ''),
-            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0)
+            'sort' => (isset($entry['Sort']) && $entry['Sort'] == 1 ? 1 : 0),
         ];
         // Ajoute l'entrée dans le tableau d'ordre des groupes
         $groups_order[] = $entry['Id'];
@@ -532,13 +529,14 @@ class IvantiProvider extends AbstractProvider
         } catch (Exception $e) {
             $groups[$entry['Id']]['code'] = -1;
             $groups[$entry['Id']]['msg_error'] = $e->getMessage();
+
             return;
         }
 
         $result = [];
         foreach ($listCategories['value'] ?? [] as $category) {
             // Si aucun filtre n'est configuré, ajoute toutes les catégories
-            if (!isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
+            if (! isset($entry['Filter']) || is_null($entry['Filter']) || $entry['Filter'] == '') {
                 $result[$category['RecId']] = $this->to_utf8($category['Category']);
                 continue;
             }
@@ -563,7 +561,7 @@ class IvantiProvider extends AbstractProvider
     *
     * @return {array} $result will tell us if the submit ticket action resulted in a ticket being opened
     */
-        protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments = [])
+    protected function doSubmit($db_storage, $contact, $host_problems, $service_problems, $extraTicketArguments = [])
     {
         // initiate a result array
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
@@ -619,58 +617,59 @@ class IvantiProvider extends AbstractProvider
     * throw \Exception if we can't get a session token
     * throw \Exception 11 if glpi api fails
      */
-    protected function curlQuery($info) {
-    if (!extension_loaded('curl')) {
-        throw new Exception("L'extension PHP curl est requise.", 10);
+    protected function curlQuery($info)
+    {
+        if (! extension_loaded('curl')) {
+            throw new Exception("L'extension PHP curl est requise.", 10);
+        }
+
+        $curl = curl_init();
+
+        // Construction de l'URL complète avec le api_path
+        $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address')
+                      . $this->getFormValue('api_path') . $info['query_endpoint'];
+
+        // Headers par défaut
+        $headers = [
+            'Authorization: rest_api_key=' . $this->getFormValue('apiKey'),
+            'Content-Type: application/json',
+        ];
+
+        // Fusionne les headers supplémentaires si $info['headers'] est défini et est un tableau
+        if (isset($info['headers']) && is_array($info['headers'])) {
+            $headers = array_merge($headers, $info['headers']);
+        }
+
+        curl_setopt($curl, CURLOPT_URL, $apiAddress);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_TIMEOUT, (int) $this->getFormValue('timeout', false));
+
+        if ($info['method']) {
+            curl_setopt($curl, CURLOPT_POST, true);
+        }
+
+        if (isset($info['postFields'])) {
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $info['postFields']);
+        }
+
+        if (isset($info['custom_request'])) {
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $info['custom_request']);
+        }
+
+        $curlResult = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        if ($httpCode >= 400) {
+            $errorMessage = " Erreur API Ivanti (HTTP {$httpCode}) : {$curlResult}";
+
+            throw new Exception($errorMessage, 11);
+        }
+
+        return json_decode($curlResult, true);
     }
-
-    $curl = curl_init();
-
-    // Construction de l'URL complète avec le api_path
-    $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address') .
-                  $this->getFormValue('api_path') . $info['query_endpoint'];
-
-
-    // Headers par défaut
-    $headers = [
-        "Authorization: rest_api_key=" . $this->getFormValue('apiKey'),
-        "Content-Type: application/json"
-    ];
-
-    // Fusionne les headers supplémentaires si $info['headers'] est défini et est un tableau
-    if (isset($info['headers']) && is_array($info['headers'])) {
-        $headers = array_merge($headers, $info['headers']);
-    }
-
-    curl_setopt($curl, CURLOPT_URL, $apiAddress);
-    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($curl, CURLOPT_TIMEOUT, (int) $this->getFormValue('timeout', false));
-
-    if ($info['method']) {
-        curl_setopt($curl, CURLOPT_POST, true);
-    }
-
-    if (isset($info['postFields'])) {
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $info['postFields']);
-    }
-
-    if (isset($info['custom_request'])) {
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $info['custom_request']);
-    }
-
-    $curlResult = curl_exec($curl);
-    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-    curl_close($curl);
-
-    if ($httpCode >= 400) {
-        $errorMessage = " Erreur API Ivanti (HTTP $httpCode) : $curlResult";
-        throw new Exception($errorMessage, 11);
-    }
-
-    return json_decode($curlResult, true);
-}
 
     /*
     * get categories from ivanti
@@ -683,17 +682,16 @@ class IvantiProvider extends AbstractProvider
     {
         $info['query_endpoint'] = '/Categorys';
         $info['method'] = 0;
-                // try to get itil categories from Ivanti
+        // try to get itil categories from Ivanti
         try {
             // the variable is going to be used outside of this method.
             $this->ivantiCallResult['response'] = $this->curlQuery($info);
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage(), $e->getCode());
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode());
         }
 
         return $this->ivantiCallResult['response'];
     }
-
 
     /*
     * get users from ivanti
@@ -720,20 +718,19 @@ class IvantiProvider extends AbstractProvider
         return $this->ivantiCallResult['response'];
     }
 
-
     /**
-    * Récupère la liste des équipes depuis l'API Ivanti.
-    *
-    * @return array Retourne la liste des équipes.
-    * @throws Exception Si la récupération échoue.
-    */
+     * Récupère la liste des équipes depuis l'API Ivanti.
+     *
+     * @throws Exception si la récupération échoue
+     * @return array retourne la liste des équipes
+     */
     protected function getTeams()
     {
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/standarduserteams';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = ['Authorization: ' . $this->getFormValue('apikey'), 'Content-Type: application/json'];;
+        $info['headers'] = ['Authorization: ' . $this->getFormValue('apikey'), 'Content-Type: application/json'];
 
         // try to get teams from Ivanti
         try {
@@ -761,42 +758,42 @@ class IvantiProvider extends AbstractProvider
     */
     protected function createTicket($ticketArguments)
     {
-       $endpoint = "/incidents";
+        $endpoint = '/incidents';
 
-       $data = [
-           "Service" => $ticketArguments['service'],
-           "Category" => $ticketArguments['category'] ?? "Functionality Loss",
-           "Impact" => $ticketArguments['impact'] ?? "Low",
-           "Urgency" => $ticketArguments['urgency'] ?? "High",
-           "Source" => "Supervision",
-           "Status" => "Logged",
-           "OwnerTeam" => $ticketArguments['team'],
-           "Subject" => $ticketArguments['title'],
-           "Symptom" => $ticketArguments['symptom'],
-           "ProfileLink" => $ticketArguments['profile_link'] ?? "5ECF36C0AB57473C83DBB03470A28254",
-           "AlternateContactLink" => $ticketArguments['alternate_contact_link'] ?? "5ECF36C0AB57473C83DBB03470A28254",
-       ];
+        $data = [
+            'Service' => $ticketArguments['service'],
+            'Category' => $ticketArguments['category'] ?? 'Functionality Loss',
+            'Impact' => $ticketArguments['impact'] ?? 'Low',
+            'Urgency' => $ticketArguments['urgency'] ?? 'High',
+            'Source' => 'Supervision',
+            'Status' => 'Logged',
+            'OwnerTeam' => $ticketArguments['team'],
+            'Subject' => $ticketArguments['title'],
+            'Symptom' => $ticketArguments['symptom'],
+            'ProfileLink' => $ticketArguments['profile_link'] ?? '5ECF36C0AB57473C83DBB03470A28254',
+            'AlternateContactLink' => $ticketArguments['alternate_contact_link'] ?? '5ECF36C0AB57473C83DBB03470A28254',
+        ];
 
-       $info = [
-           'query_endpoint' => $endpoint,
-           'method' => 1, // POST
-           'headers' => [
-               "Authorization: rest_api_key=" . $this->getFormValue('apiKey'),
-               "Content-Type: application/json"
-           ],
-           'postFields' => json_encode($data)
-       ];
+        $info = [
+            'query_endpoint' => $endpoint,
+            'method' => 1, // POST
+            'headers' => [
+                'Authorization: rest_api_key=' . $this->getFormValue('apiKey'),
+                'Content-Type: application/json',
+            ],
+            'postFields' => json_encode($data),
+        ];
 
-       try {
-           $response = $this->curlQuery($info);
-           if (isset($response['RecId'])) {
-               return $response['RecId'];
-           } else {
-               throw new Exception("Reponse inattendue de l'API Ivanti : " . json_encode($response));
-           }
-       } catch (Exception $e) {
-               throw new Exception("Erreur lors de la creation du ticket : " . $e->getMessage(), $e->getCode(), $e);
-       }
+        try {
+            $response = $this->curlQuery($info);
+            if (isset($response['RecId'])) {
+                return $response['RecId'];
+            }
+
+            throw new Exception("Reponse inattendue de l'API Ivanti : " . json_encode($response));
+        } catch (Exception $e) {
+            throw new Exception('Erreur lors de la creation du ticket : ' . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /*
@@ -808,11 +805,12 @@ class IvantiProvider extends AbstractProvider
     *
     * throw \Exception if it can't close the ticket
     */
-    protected function closeTicketIvanti($ticketId) {
-        $endpoint = "/incidents($ticketId)";
+    protected function closeTicketIvanti($ticketId)
+    {
+        $endpoint = "/incidents({$ticketId})";
 
         $data = [
-            "Status" => "Closed"
+            'Status' => 'Closed',
         ];
 
         $info = [
@@ -820,17 +818,18 @@ class IvantiProvider extends AbstractProvider
             'method' => 0, // GET par défaut, mais sera remplacé par PATCH
             'custom_request' => 'PATCH',
             'headers' => [
-                "Authorization: rest_api_key=" . $this->getFormValue('apiKey'),
-                "Content-Type: application/json"
+                'Authorization: rest_api_key=' . $this->getFormValue('apiKey'),
+                'Content-Type: application/json',
             ],
-            'postFields' => json_encode($data)
+            'postFields' => json_encode($data),
         ];
 
         try {
             $response = $this->curlQuery($info);
+
             return true;
         } catch (Exception $e) {
-            throw new Exception("Erreur lors de la clôture du ticket : " . $e->getMessage(), $e->getCode());
+            throw new Exception('Erreur lors de la clôture du ticket : ' . $e->getMessage(), $e->getCode());
         }
     }
 }
