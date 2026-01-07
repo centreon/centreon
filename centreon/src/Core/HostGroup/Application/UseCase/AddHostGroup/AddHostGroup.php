@@ -80,9 +80,7 @@ final class AddHostGroup
     {
         try {
             $this->validator->assertNameDoesNotAlreadyExists($request->name);
-            if ($request->hosts !== null) {
-                $this->validator->assertHostsExist($request->hosts);
-            }
+            $this->validator->assertHostsExist($request->hosts);
             if ($request->iconId !== null) {
                 $this->validator->assertIconExists($request->iconId);
             }
@@ -107,10 +105,7 @@ final class AddHostGroup
 
             $newHostGroupId = $this->writeHostGroupRepository->add($hostGroup);
 
-            if ($request->hosts !== null) {
-                $this->writeHostGroupRepository->addHostLinks($newHostGroupId, $request->hosts);
-            }
-
+            $this->writeHostGroupRepository->addHostLinks($newHostGroupId, $request->hosts);
             $this->linkHostGroupToRessourceAccess($request->resourceAccessRules, $newHostGroupId);
 
             $newHostGroup = $this->readHostGroupRepository->findOne($newHostGroupId);

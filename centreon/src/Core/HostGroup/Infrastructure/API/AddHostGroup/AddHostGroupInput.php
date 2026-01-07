@@ -35,7 +35,7 @@ final class AddHostGroupInput
      * @param string|null $geoCoords
      * @param string|null $comment
      * @param int|null $iconId
-     * @param int[]|null $hosts
+     * @param int[] $hosts
      * @param int[] $resourceAccessRules
      */
     public function __construct(
