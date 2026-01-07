@@ -12,7 +12,7 @@ import {
 } from '../../../translatedLabels';
 import { goToUrl } from '../../../utils';
 import Legend from '../Legend/Legend';
-import type { ChartType } from '../models';
+import { type ChartType, DisplayType } from '../models';
 import TooltipContent from '../Tooltip/Tooltip';
 import useLoadResources from '../useLoadResources';
 import { useStyles } from './Chart.styles';

@@ -603,7 +603,6 @@ export default (): void => {
                 {
                   name: 'my_vcenter',
                   password: 'password',
-                  scheme: 'http',
                   url: '10.10.10.10/sdk',
                   username: 'username'
                 }

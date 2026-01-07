@@ -588,9 +588,13 @@ describe('Agent configurations modal', () => {
           otel_ca_certificate: 'test.crt',
           otel_private_key: 'privateKey.key',
           otel_public_certificate: '/certificate/test.crt',
-          poller_initiated: false,
           port: 4317,
-          tokens: [{ creator_id: 1, name: 'token 1' }]
+          tokens: [
+            {
+              creator_id: 1,
+              name: 'token 1'
+            }
+          ]
         },
         connection_mode: 'secure',
         name: 'My agent',

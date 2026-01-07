@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/useHookAtTopLevel: To be refactored. Not critical yet. */
 import { Form } from '@centreon/ui';
 import { FormActions } from '@centreon/ui/components';
 
@@ -18,9 +19,10 @@ import useFormInputs from './useFormInputs';
 import useInitilialValues from './useInitilialValues';
 import useValidationSchema from './useValidationSchema';
 
-const Actions = ({ close, token }): JSX.Element => {
+const Actions = (close: () => void) => (): ReactElement => {
   const { t } = useTranslation();
   const { values } = useFormikContext();
+  const token = useAtomValue(tokenAtom);
 
   const actionsLabels = {
     cancel: t(labelCancel),
@@ -54,7 +56,7 @@ const TokenForm = ({ close }): ReactElement => {
 
   return (
     <Form
-      Buttons={Actions({ close, token })}
+      Buttons={Actions(close)}
       initialValues={initialValues}
       inputs={inputs}
       submit={(values, bag) => (token ? close() : createToken?.(values, bag))}

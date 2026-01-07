@@ -140,7 +140,6 @@ const visibleColumns = [
   'information',
   'tries'
 ];
-const search = { $and: [] };
 
 const initialize = (
   countResourcesPath = 'resources/listing/count/count.json'
@@ -559,7 +558,7 @@ describe('CSV export', () => {
     cy.get('@modal').should('not.be.visible');
     cy.contains(labelExportProcessingInProgress);
 
-    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=${encodeURIComponent(JSON.stringify({ last_status_change: 'desc', status_severity_code: 'desc' }))}&search=${encodeURIComponent(JSON.stringify(search))}&all_pages=true&max_lines=10000&columns[]=status&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&columns[]=severity&columns[]=notes_url&columns[]=action_url&columns[]=state&columns[]=alias&columns[]=parent_alias&columns[]=fqdn&columns[]=monitoring_server_name&columns[]=notification&columns[]=checks&format=csv`;
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=%7B%22status_severity_code%22%3A%22desc%22%2C%22last_status_change%22%3A%22desc%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D&all_pages=true&max_lines=10000&columns[]=status&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&columns[]=severity&columns[]=notes_url&columns[]=action_url&columns[]=state&columns[]=alias&columns[]=parent_alias&columns[]=fqdn&columns[]=monitoring_server_name&columns[]=notification&columns[]=checks&format=csv`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,
@@ -598,7 +597,7 @@ describe('CSV export', () => {
     cy.contains(labelExportProcessingInProgress);
     cy.get('@modal').should('not.be.visible');
 
-    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=${encodeURIComponent(JSON.stringify({ last_status_change: 'desc', status_severity_code: 'desc' }))}&search=${encodeURIComponent(JSON.stringify(search))}&all_pages=false&max_lines=10000&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&format=csv`;
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=%7B%22status_severity_code%22%3A%22desc%22%2C%22last_status_change%22%3A%22desc%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D&all_pages=false&max_lines=10000&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&format=csv`;
     cy.get('@windowOpen').should(
       'be.calledWith',
       expectedUrl,

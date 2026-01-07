@@ -119,7 +119,8 @@ export const useInputs = (): {
                         otelCaCertificate: null,
                         otelPrivateKey: '',
                         port: 4317
-                      }
+                      },
+                  type: value
                 });
                 setTouched({}, false);
               },

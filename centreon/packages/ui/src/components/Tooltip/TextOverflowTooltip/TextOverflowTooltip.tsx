@@ -87,7 +87,7 @@ const TextOverflowTooltip = ({
   useEffect(() => {
     if (isOpen) setState({ ...state, isOpen });
     onResize();
-  }, [isOpen, onResize, setState, state]);
+  }, [isOpen, label]);
 
   return (
     <Tooltip
