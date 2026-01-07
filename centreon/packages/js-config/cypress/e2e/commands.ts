@@ -74,20 +74,82 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
     });
 });
 
-Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
-  return cy
-    .get<HTMLIFrameElement>('iframe#main-content', { timeout: 10000 })
-    .should($iframe => {
-      expect($iframe[0].contentDocument).to.exist
-    })
-    .its('0.contentDocument')
-    .should(doc => {
-      expect(doc?.readyState).to.eq('complete')
-    })
-    .its('body')
-    .should('not.be.empty')
-    .then(cy.wrap);
+Cypress.Commands.add('getIframeBody', (): Cypress.Chainable<JQuery<HTMLElement>> => {
+  return cy.waitUntil(
+    () =>
+      cy
+        .get<HTMLIFrameElement>('iframe#main-content', { log: false })
+        .then($iframe => {
+          const body = $iframe[0].contentDocument?.body;
+
+          return Boolean(body && body.children.length);
+        }),
+    {
+      timeout: 20000,
+      interval: 200,
+      errorMsg: 'Iframe body not ready',
+    }
+  ).then(() => {
+    return cy
+      .get<HTMLIFrameElement>('iframe#main-content')
+      .then($iframe => {
+        const body = $iframe[0].contentDocument!.body;
+
+        return cy.wrap(body);
+      });
+  });
 });
+
+Cypress.Commands.add(
+  'waitForElementInIframe',
+  (iframeSelector, elementSelector) => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get(iframeSelector)
+          .its('0.contentDocument.body')
+          .should('not.be.empty')
+          .then(cy.wrap)
+          .within(() => {
+            const element = Cypress.$(elementSelector);
+
+            return element.length > 0 && element.is(':visible');
+          }),
+      {
+        errorMsg: 'The element is not visible',
+        interval: 5000,
+        timeout: 100000
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error('The element is not visible');
+      }
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'waitForElementToBeVisible',
+  (selector, timeout = 50000, interval = 2000) => {
+    cy.waitUntil(
+      () =>
+        cy.get('body').then(($body) => {
+          const element = $body.find(selector);
+
+          return element.length > 0 && element.is(':visible');
+        }),
+      {
+        errorMsg: `The element '${selector}' is not visible`,
+        interval,
+        timeout
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error(`The element '${selector}' is not visible`);
+      }
+    });
+  }
+);
 
 Cypress.Commands.add(
   'hoverRootMenuItem',
@@ -308,9 +370,14 @@ Cypress.Commands.add('logout', (): void => {
   cy.clearAllCookies();
 });
 
-Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
+interface LogoutViaAPIProps {
+  failOnError?: boolean;
+}
+
+Cypress.Commands.add('logoutViaAPI', ({ failOnError = true }: LogoutViaAPIProps = {}): Cypress.Chainable => {
   return cy
     .request({
+      failOnStatusCode: failOnError,
       method: 'GET',
       url: '/centreon/authentication/logout'
     })
@@ -963,7 +1030,7 @@ declare global {
         loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       logout: () => void;
-      logoutViaAPI: () => Cypress.Chainable;
+      logoutViaAPI: (props?: LogoutViaAPIProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({
         page,
@@ -1002,6 +1069,15 @@ declare global {
       stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
       stopContainers: () => Cypress.Chainable;
       visitEmptyPage: () => Cypress.Chainable;
+      waitForElementInIframe: (
+        iframeSelector: string,
+        elementSelector: string
+      ) => Cypress.Chainable;
+      waitForElementToBeVisible(
+        selector: string,
+        timeout?: number,
+        interval?: number
+      ): Cypress.Chainable;
     }
   }
 }
