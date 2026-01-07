@@ -220,8 +220,8 @@ Then(
           .find('table.ListTable')
           .eq(0)
           .find('tbody tr')
-          .then(($elts) => {
-            const count = $elts.length;
+          .then((elts) => {
+            const count = elts.length;
             if (count === 1) {
               // Refresh the page until the added comment is displayed on the listing page
               cy.reload();

@@ -116,8 +116,8 @@ Cypress.Commands.add(
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
 
-    return cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
+    return cy.get('.MuiAlert-message').then((snackbar) => {
+      if (snackbar.text().includes('Login succeeded')) {
         cy.wait('@getNavigationList');
         cy.get('.MuiAlert-message').should('not.be.visible');
       }

@@ -82,24 +82,24 @@ Given('a host dependency is configured', () => {
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addHostDependency({
-    name: data.default.name,
-    description: data.default.description,
-    parentRelationship: data.default.parent_relationship,
-    executionFailsOnOk: data.default.execution_fails_on_ok,
-    executionFailsOnDown: data.default.execution_fails_on_down,
-    executionFailsOnUnreachable: data.default.execution_fails_on_unreachable,
-    executionFailsOnPending: data.default.execution_fails_on_pending,
-    executionFailsOnNone: data.default.notification_fails_on_none,
-    notificationFailsOnNone: data.default.notification_fails_on_none,
-    notificationFailsOnOk: data.default.notification_fails_on_ok,
-    notificationFailsOnDown: data.default.notification_fails_on_down,
-    notificationFailsOnUnreachable:
-      data.default.notification_fails_on_unreachable,
-    notificationFailsOnPending: data.default.notification_fails_on_pending,
-    hostNames: data.default.hostNames,
+    comment: data.default.comment,
     dependentHostNames: data.default.dependentHostNames,
     dependentServices: data.default.dependentServices,
-    comment: data.default.comment
+    description: data.default.description,
+    executionFailsOnDown: data.default.execution_fails_on_down,
+    executionFailsOnNone: data.default.notification_fails_on_none,
+    executionFailsOnOk: data.default.execution_fails_on_ok,
+    executionFailsOnPending: data.default.execution_fails_on_pending,
+    executionFailsOnUnreachable: data.default.execution_fails_on_unreachable,
+    hostNames: data.default.hostNames,
+    name: data.default.name,
+    notificationFailsOnDown: data.default.notification_fails_on_down,
+    notificationFailsOnNone: data.default.notification_fails_on_none,
+    notificationFailsOnOk: data.default.notification_fails_on_ok,
+    notificationFailsOnPending: data.default.notification_fails_on_pending,
+    notificationFailsOnUnreachable:
+      data.default.notification_fails_on_unreachable,
+    parentRelationship: data.default.parent_relationship
   });
 });
 
@@ -112,26 +112,26 @@ When('the user changes the properties of a host dependency', () => {
   cy.wait('@getTopCounter');
   cy.wait('@getTimeZone');
   cy.updateHostDependency({
-    name: data.HostDependency1.name,
-    description: data.HostDependency1.description,
-    parentRelationship: data.HostDependency1.parent_relationship,
-    executionFailsOnOk: data.HostDependency1.execution_fails_on_ok,
-    executionFailsOnDown: data.HostDependency1.execution_fails_on_down,
-    executionFailsOnUnreachable:
-      data.HostDependency1.execution_fails_on_unreachable,
-    executionFailsOnPending: data.HostDependency1.execution_fails_on_pending,
-    executionFailsOnNone: data.HostDependency1.execution_fails_on_none,
-    notificationFailsOnNone: data.HostDependency1.notification_fails_on_none,
-    notificationFailsOnOk: data.HostDependency1.notification_fails_on_ok,
-    notificationFailsOnDown: data.HostDependency1.notification_fails_on_down,
-    notificationFailsOnUnreachable:
-      data.HostDependency1.notification_fails_on_unreachable,
-    notificationFailsOnPending:
-      data.HostDependency1.notification_fails_on_pending,
-    hostNames: data.HostDependency1.hostNames,
+    comment: data.HostDependency1.comment,
     dependentHostNames: data.HostDependency1.dependentHostNames,
     dependentServices: data.HostDependency1.dependentServices,
-    comment: data.HostDependency1.comment
+    description: data.HostDependency1.description,
+    executionFailsOnDown: data.HostDependency1.execution_fails_on_down,
+    executionFailsOnNone: data.HostDependency1.execution_fails_on_none,
+    executionFailsOnOk: data.HostDependency1.execution_fails_on_ok,
+    executionFailsOnPending: data.HostDependency1.execution_fails_on_pending,
+    executionFailsOnUnreachable:
+      data.HostDependency1.execution_fails_on_unreachable,
+    hostNames: data.HostDependency1.hostNames,
+    name: data.HostDependency1.name,
+    notificationFailsOnDown: data.HostDependency1.notification_fails_on_down,
+    notificationFailsOnNone: data.HostDependency1.notification_fails_on_none,
+    notificationFailsOnOk: data.HostDependency1.notification_fails_on_ok,
+    notificationFailsOnPending:
+      data.HostDependency1.notification_fails_on_pending,
+    notificationFailsOnUnreachable:
+      data.HostDependency1.notification_fails_on_unreachable,
+    parentRelationship: data.HostDependency1.parent_relationship
   });
 });
 

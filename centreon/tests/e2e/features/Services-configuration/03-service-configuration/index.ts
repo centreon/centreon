@@ -156,12 +156,12 @@ When('the user deletes a service', () => {
   cy.enterIframe('iframe#main-content')
     .find('table tbody')
     .find('tr.list_one')
-    .each(($row) => {
-      cy.wrap($row)
+    .each((row) => {
+      cy.wrap(row)
         .find('td.ListColLeft')
-        .then(($td) => {
-          if ($td.text().includes('host_1')) {
-            cy.wrap($row)
+        .then((td) => {
+          if (td.text().includes('host_1')) {
+            cy.wrap(row)
               .find('td.ListColPicker')
               .find('div.md-checkbox')
               .click();

@@ -4,8 +4,8 @@ interface Cmd {
   commandLine: string;
   isShell: boolean;
   argumentExample: string;
-  arguments: string[];
-  macros: string[];
+  arguments: Array<string>;
+  macros: Array<string>;
   connectorId: number;
   graphTemplateId: number;
 }
@@ -32,9 +32,9 @@ Cypress.Commands.add('addCommands', (body: Cmd) => {
   // Enable/ Disable shell
   cy.getIframeBody()
     .find('input[name="enable_shell"]')
-    .then(($val) => {
+    .then((val) => {
       if (body.isShell === true) {
-        cy.wrap($val).click();
+        cy.wrap(val).click();
       }
     });
   // Type a value on the "Argument Example" input
@@ -68,9 +68,9 @@ Cypress.Commands.add('updateCommands', (body: Cmd) => {
   // Update the value of the "Enable shell"
   cy.getIframeBody()
     .find('input[name="enable_shell"]')
-    .then(($val) => {
+    .then((val) => {
       if (body.isShell === true) {
-        cy.wrap($val).click();
+        cy.wrap(val).click();
       }
     });
   // Update the value of the "Argument Example"
@@ -106,11 +106,11 @@ Cypress.Commands.add('checkValuesOfCommands', (name: string, body: Cmd) => {
   // Check that the "Enable Shell" checkbox contains right value
   cy.getIframeBody()
     .find('input[name="enable_shell"]')
-    .then(($val) => {
+    .then((val) => {
       if (body.isShell === true) {
-        cy.wrap($val).should('be.checked');
+        cy.wrap(val).should('be.checked');
       } else {
-        cy.wrap($val).should('not.be.checked');
+        cy.wrap(val).should('not.be.checked');
       }
     });
   // Check that the "Argument Example" input contains right value
@@ -149,9 +149,9 @@ Cypress.Commands.add('addConnectors', (body: Ctr) => {
   // Enable if needed the connector (default value is disabled)
   cy.getIframeBody()
     .find('input[name="connector_status[connector_status]"][value="1"]')
-    .then(($val) => {
+    .then((val) => {
       if (body.isEnabled === 1) {
-        cy.wrap($val).click({ force: true });
+        cy.wrap(val).click({ force: true });
       }
     });
 });
@@ -185,9 +185,9 @@ Cypress.Commands.add('updateConnectors', (body: Ctr) => {
   // Update the value of the "Connector Status"
   cy.getIframeBody()
     .find('input[name="connector_status[connector_status]"][value="1"]')
-    .then(($val) => {
+    .then((val) => {
       if (body.isEnabled === 1) {
-        cy.wrap($val).click({ force: true });
+        cy.wrap(val).click({ force: true });
       }
     });
 });
@@ -210,14 +210,14 @@ Cypress.Commands.add('checkValuesOfConnectors', (name: string, body: Ctr) => {
   // Check that the "Used by command" input contains right value
   cy.getIframeBody()
     .find('select[id="command_id"]')
-    .then(($val) => {
+    .then((val) => {
       // If the name of the connector ends with "_1", it means the connector is duplicated then the value should be empty
       if (name.endsWith('_1')) {
-        cy.wrap($val).should('have.text', '');
+        cy.wrap(val).should('have.text', '');
       }
       // Else, the value should be the one chose during the creation/update of the connector
       else {
-        cy.wrap($val).should('have.text', body.usedByCommand);
+        cy.wrap(val).should('have.text', body.usedByCommand);
       }
     });
   // Check that the "Connector Status" contains right value

@@ -28,9 +28,7 @@ Cypress.Commands.add('deleteAllEventViewFilters', () => {
 
 Cypress.Commands.add('setPassiveResource', (urlString) => {
   const payload = {
-    // biome-ignore lint/style/useNamingConvention: false positive
     active_check_enabled: 0,
-    // biome-ignore lint/style/useNamingConvention: false positive
     passive_check_enabled: 1
   };
   cy.request({

@@ -66,8 +66,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('select[id="traps"]')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
@@ -94,8 +94,8 @@ Then('the a new trap group is created with identical properties', () => {
   cy.getIframeBody()
     .find('select[id="traps"]')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([

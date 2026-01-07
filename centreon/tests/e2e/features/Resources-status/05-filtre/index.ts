@@ -190,8 +190,8 @@ When('I select the critical service filter', () => {
 });
 
 Then('only the critical services are displayed in the result', () => {
-  cy.get('div[class*="statusColumn"]').each(($statusCell) => {
-    cy.wrap($statusCell).should('contain.text', 'Critical');
+  cy.get('div[class*="statusColumn"]').each((statusCell) => {
+    cy.wrap(statusCell).should('contain.text', 'Critical');
   });
 });
 
@@ -218,8 +218,8 @@ When('I select the pending host filter', () => {
 });
 
 Then('only the pending hosts are displayed in the result', () => {
-  cy.get('div[class*="statusColumn"]').each(($statusCell) => {
-    cy.wrap($statusCell).should('contain.text', 'Pending');
+  cy.get('div[class*="statusColumn"]').each((statusCell) => {
+    cy.wrap(statusCell).should('contain.text', 'Pending');
   });
 });
 
@@ -246,8 +246,8 @@ When('I select the up host filter', () => {
 });
 
 Then('only the up hosts are displayed in the result', () => {
-  cy.get('div[class*="statusColumn"]').each(($statusCell) => {
-    cy.wrap($statusCell).should('contain.text', 'Up');
+  cy.get('div[class*="statusColumn"]').each((statusCell) => {
+    cy.wrap(statusCell).should('contain.text', 'Up');
   });
 });
 
@@ -288,8 +288,8 @@ Then(
           });
       }
     );
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
 
       expect(cellText).to.match(/^(Pending|OK|Unknown)$/);
@@ -330,8 +330,8 @@ Then('only services with OK and Up statuses are shown in the result', () => {
         expect(text.trim()).to.match(/^(Up|OK)$/);
       });
   });
-  cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-    const cellText = $statusCell.text().trim();
+  cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+    const cellText = statusCell.text().trim();
     cy.log(`Cell ${index}: ${cellText}`);
     expect(['OK', 'Up']).to.include(
       cellText,
@@ -368,8 +368,8 @@ Then(
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
       cy.get('div[class*="statusColumn"]:last').should('contain.text', 'Up');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical', 'Up']).to.include(
         cellText,
@@ -412,8 +412,8 @@ Then(
         cy.get('div[class*="statusColumn"]:first').should('contain.text', 'OK');
       }
     );
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,
@@ -453,8 +453,8 @@ Then(
         cy.get('div[class*="statusColumn"]:first').should('contain.text', 'OK');
       }
     );
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,
@@ -495,8 +495,8 @@ Then(
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
       cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical', 'OK']).to.include(
         cellText,
@@ -543,8 +543,8 @@ Then(
         'Critical'
       );
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical']).to.include(
         cellText,
@@ -588,8 +588,8 @@ Then(
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
       cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,
@@ -633,8 +633,8 @@ Then(
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
       cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK', 'Critical']).to.include(
         cellText,
@@ -678,8 +678,8 @@ Then(
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
       cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['OK']).to.include(
         cellText,

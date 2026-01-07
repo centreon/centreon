@@ -299,7 +299,7 @@ When(
 Then('the form of this contact is displayed in READ ONLY mode', () => {
   cy.getIframeBody()
     .find('#tab1 input:not([class*="select"])')
-    .each(($input) => {
-      cy.wrap($input).should('have.attr', 'type', 'hidden');
+    .each((input) => {
+      cy.wrap(input).should('have.attr', 'type', 'hidden');
     });
 });

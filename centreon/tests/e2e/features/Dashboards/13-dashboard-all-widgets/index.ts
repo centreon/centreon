@@ -274,7 +274,7 @@ When(
     cy.getByTestId({ testId: 'Widget type' }).click();
     cy.contains('Status grid').click();
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
-    cy.contains("Select all").eq(0).click();
+    cy.contains('Select all').eq(0).click();
     cy.get('input[name="unhandled_problems"]').click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
@@ -423,14 +423,10 @@ Then(
 
       case 'status grid': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const statusGridStatuses = [
-          'Up',
-          'Up',
-          'Up'
-        ];
+        const statusGridStatuses = ['Up', 'Up', 'Up'];
         cy.get('[class$="chip-statusColumnChip"]')
-          .each(($chip) => {
-            if (statusGridStatuses.includes($chip.text()) && !statusFound) {
+          .each((chip) => {
+            if (statusGridStatuses.includes(chip.text()) && !statusFound) {
               statusFound = true;
               return false;
             }
@@ -456,8 +452,8 @@ Then(
           'OK'
         ];
         cy.get('[class$="chip-statusColumnChip"]')
-          .each(($chip) => {
-            if (topButtomStatuses.includes($chip.text()) && !statusFound) {
+          .each((chip) => {
+            if (topButtomStatuses.includes(chip.text()) && !statusFound) {
               statusFound = true;
               return false;
             }

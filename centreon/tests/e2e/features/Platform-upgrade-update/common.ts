@@ -1,6 +1,6 @@
-import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
@@ -98,7 +98,7 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
+    const _osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
         'dnf module enable -y mariadb:10.11',
@@ -199,9 +199,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
       `centreon-perl-libs='${packageVersionSuffix}'`
     ];
     if (
-      Number(versionMatches[1]) < 24
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7)
+      Number(versionMatches[1]) < 24 ||
+      (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) ||
+      (Number(versionMatches[1]) === 24 &&
+        Number(versionMatches[2]) === 10 &&
+        Number(versionMatches[3]) < 7)
     ) {
       packagesToInstall.push(`centreon-common=${packageVersionSuffix}`);
     }
@@ -478,8 +480,8 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
             // Copy the Update-next.php content to container with proper name
             return cy
               .copyToContainer({
-                source: updateNextFile,
                 destination: targetUpdateFile,
+                source: updateNextFile,
                 type: CopyToContainerContentType.File
               })
               .then(() => {
@@ -522,8 +524,8 @@ When('administrator runs the update procedure', () => {
     });
 
     cy.wait('@getStep2').then(() => {
-      cy.get('span[style]').each(($span) => {
-        cy.wrap($span).should('have.text', 'Loaded');
+      cy.get('span[style]').each((span) => {
+        cy.wrap(span).should('have.text', 'Loaded');
       });
       cy.get('.btc.bt_info').should('be.visible').click();
     });
@@ -547,8 +549,8 @@ When('administrator runs the update procedure', () => {
 
     cy.wait('@generatingCache')
       .get('span[style]', { timeout: 15000 })
-      .each(($span) => {
-        cy.wrap($span).should('have.text', 'OK');
+      .each((span) => {
+        cy.wrap(span).should('have.text', 'OK');
       });
     cy.get('.btc.bt_info', { timeout: 15000 }).should('be.visible').click();
 
@@ -556,8 +558,8 @@ When('administrator runs the update procedure', () => {
     cy.contains('Congratulations');
 
     // disable statistics if checkbox is available (only on upgrade to new major version)
-    cy.get('body').then(($body) => {
-      if ($body.find('#send_statistics').length) {
+    cy.get('body').then((body) => {
+      if (body.find('#send_statistics').length) {
         cy.get('#send_statistics').uncheck({ force: true });
       }
     });
@@ -612,8 +614,8 @@ Then(
       () => {
         cy.get('[aria-label="Refresh"]').click({ force: true });
 
-        return cy.get('#content').then(($el) => {
-          return $el.find(':contains("service1")').length > 0;
+        return cy.get('#content').then((el) => {
+          return el.find(':contains("service1")').length > 0;
         });
       },
       {
@@ -637,8 +639,8 @@ Then('legacy services grid page should still work', () => {
     return cy
       .getIframeBody()
       .find('.ListTable tr:not(.ListHeader)')
-      .then(($el) => {
-        return $el.find(':contains("host1")').length > 0;
+      .then((el) => {
+        return el.find(':contains("host1")').length > 0;
       });
   });
 });

@@ -178,9 +178,9 @@ Cypress.Commands.add(
       return cy
         .get('.MuiSelect-select')
         .should('be.visible')
-        .then(($elements) => {
+        .then((elements) => {
           cy.getByLabel({ label: 'close', tag: 'button' }).click();
-          return cy.wrap($elements.length === expectedElementCount);
+          return cy.wrap(elements.length === expectedElementCount);
         });
     };
 
@@ -453,11 +453,11 @@ Cypress.Commands.add(
   ): Cypress.Chainable => {
     cy.get('[data-testid="Legend"] > *')
       .eq(index)
-      .each(($legendItem) => {
-        cy.wrap($legendItem)
+      .each((legendItem) => {
+        cy.wrap(legendItem)
           .find('[class*=legendItem] a')
-          .then(($aTags) => {
-            $aTags.each((i, aTag) => {
+          .then((aTags) => {
+            aTags.each((i, aTag) => {
               cy.wrap(aTag)
                 .find('div')
                 .invoke('attr', 'style')
@@ -495,13 +495,11 @@ Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
     macros: [
       {
         description: 'Some text to describe the macro',
-        // biome-ignore lint/style/useNamingConvention: false positive
         is_password: false,
         name: 'MacroName',
         value: 'macroValue'
       }
     ],
-    // biome-ignore lint/style/useNamingConvention: false positive
     monitoring_server_id: 1,
     name: 'generic-active-host',
     templates: [2]
@@ -538,7 +536,6 @@ Cypress.Commands.add('getServiceIdByName', (serviceName) => {
 
 Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   const patchData = {
-    // biome-ignore lint/style/useNamingConvention: false positive
     host_id: hostId
   };
   cy.request({
@@ -554,26 +551,19 @@ Cypress.Commands.add(
   'addNewServiceAndReturnId',
   (hostId: number, serviceData = {}) => {
     const defaultServiceData = {
-      // biome-ignore lint/style/useNamingConvention: false positive
       check_command_args: [],
-      // biome-ignore lint/style/useNamingConvention: false positive
       check_command_id: null,
       comment: 'string',
-      // biome-ignore lint/style/useNamingConvention: false positive
       geo_coords: '48.10,12.5',
-      // biome-ignore lint/style/useNamingConvention: false positive
       host_id: hostId,
-      // biome-ignore lint/style/useNamingConvention: false positive
       max_check_attempts: 1,
       name: 'generic-service',
-      // biome-ignore lint/style/useNamingConvention: false positive
       service_template_id: 5
     };
 
     const requestBody = {
       ...defaultServiceData,
       ...serviceData,
-      // biome-ignore lint/style/useNamingConvention: false positive
       host_id: hostId
     };
 
@@ -608,7 +598,6 @@ Cypress.Commands.add(
       };
 
       const uniqueServiceData = {
-        // biome-ignore lint/style/useNamingConvention: false positive
         geo_coords: '48.10,12.5',
         name: `service-${i + 1}`
       };
@@ -643,8 +632,8 @@ Cypress.Commands.add(
   (selector, timeout = 50000, interval = 2000) => {
     cy.waitUntil(
       () =>
-        cy.get('body').then(($body) => {
-          const element = $body.find(selector);
+        cy.get('body').then((body) => {
+          const element = body.find(selector);
 
           return element.length > 0 && element.is(':visible');
         }),

@@ -126,12 +126,12 @@ When(
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
       })
-      .then(($input) => {
-        if ($input.is(':checked')) {
+      .then((input) => {
+        if (input.is(':checked')) {
           return;
         }
 
-        cy.wrap($input).check();
+        cy.wrap(input).check();
 
         saveOpenIdFormIfEnabled();
       });

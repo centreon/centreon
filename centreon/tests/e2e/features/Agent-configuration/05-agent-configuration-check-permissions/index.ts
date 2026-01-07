@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
@@ -72,10 +73,10 @@ Then('a pop-up menu with the form is displayed', () => {
 When('the admin user fills in all the information', () => {
   cy.addTelegrafAgent({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 
@@ -121,7 +122,10 @@ Then('a pop up is displayed with all of the agent information', () => {
     'have.text',
     'Central'
   );
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .should(
       'have.value',
@@ -138,7 +142,10 @@ Then('a pop up is displayed with all of the agent information', () => {
       `/etc/pki/${agentsConfiguration.telegraf1.privateKFileName}`
     );
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .should(
       'have.value',
@@ -155,10 +162,10 @@ Then('a pop up is displayed with all of the agent information', () => {
 When('the user modifies the configuration', () => {
   cy.updateTelegrafAgent({
     ...agentsConfiguration.telegraf2,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf2.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf2.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf2.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf2.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf2.publicCertfFileName
   });
 });
 
@@ -233,7 +240,10 @@ Given('an agent configuration already created linked with two pollers', () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type(agentsConfiguration.telegraf1.publicCertfFileName);
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
@@ -243,7 +253,10 @@ Given('an agent configuration already created linked with two pollers', () => {
     .eq(0)
     .type(agentsConfiguration.telegraf1.privateKFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type(agentsConfiguration.telegraf1.certfFileName);
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -425,10 +438,10 @@ Then('only the filtered pollers are listed in the Pollers field', () => {
 When('the non-admin user fills in all the information', () => {
   cy.addTelegrafAgent({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 

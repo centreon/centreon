@@ -102,7 +102,7 @@ Then('no certificate fields are shown', () => {
 
 When('the user enables connection initiated by the poller', () => {
   // Disable the "By agent" mode first
-  cy.getByTestId({ testId: 'enable_agent', tag: 'span' }).click();
+  cy.getByTestId({ tag: 'span', testId: 'enable_agent' }).click();
   // Then enable the "By poller" mode
   cy.contains('div', 'By poller').click();
   cy.get('input[type="checkbox"]').click();

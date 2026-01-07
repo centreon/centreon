@@ -1,6 +1,6 @@
-import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
@@ -154,8 +154,8 @@ When(
       cy.contains(data.hostGroups.hostGroup1.name).click();
       cy.get('#Searchhostgroups').blur();
       cy.contains('Include services for these hosts').click();
-      cy.get('[data-testid="Extra events services"] >').each(($el) => {
-        cy.wrap($el).click();
+      cy.get('[data-testid="Extra events services"] >').each((el) => {
+        cy.wrap(el).click();
       });
     } else {
       throw new Error(`${resourceType} not managed`);
@@ -392,8 +392,8 @@ When(
     cy.contains(data.hostGroups.hostGroup1.name).click();
     cy.get('#Searchhostgroups').blur();
     cy.contains('Include services for these hosts').click();
-    cy.get('[data-testid="Extra events services"] >').each(($el) => {
-      cy.wrap($el).click();
+    cy.get('[data-testid="Extra events services"] >').each((el) => {
+      cy.wrap(el).click();
     });
   }
 );

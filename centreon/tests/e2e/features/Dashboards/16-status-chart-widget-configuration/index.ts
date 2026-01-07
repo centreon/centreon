@@ -500,8 +500,8 @@ When('the dashboard administrator clicks on a random resource', () => {
   cy.get('[data-testid="Legend"] > *')
     .first()
     .find('a')
-    .then(($link) => {
-      const href = $link.attr('href');
+    .then((link) => {
+      const href = link.attr('href');
       if (href) {
         cy.log('First link found:', href);
         cy.visit(href);

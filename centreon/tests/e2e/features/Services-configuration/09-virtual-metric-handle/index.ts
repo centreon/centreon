@@ -60,8 +60,8 @@ When('the user adds a virtual metric', () => {
   cy.addOrUpdateVirtualMetric(
     {
       ...vms.default,
-      warningThreshold: vms.default.warning_threshold,
-      criticalThreshold: vms.default.critical_threshold
+      criticalThreshold: vms.default.critical_threshold,
+      warningThreshold: vms.default.warning_threshold
     },
     false
   );
@@ -73,8 +73,8 @@ Then('all properties are saved', () => {
   cy.wait('@getTimeZone');
   cy.checkFieldsOfVm({
     ...vms.default,
-    warningThreshold: vms.default.warning_threshold,
-    criticalThreshold: vms.default.critical_threshold
+    criticalThreshold: vms.default.critical_threshold,
+    warningThreshold: vms.default.warning_threshold
   });
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')
@@ -95,8 +95,8 @@ When('the user changes the properties of the configured virtual metric', () => {
   cy.addOrUpdateVirtualMetric(
     {
       ...vms.vmForUpdate,
-      warningThreshold: vms.default.warning_threshold,
-      criticalThreshold: vms.default.critical_threshold
+      criticalThreshold: vms.default.critical_threshold,
+      warningThreshold: vms.default.warning_threshold
     },
     false
   );
@@ -107,8 +107,8 @@ Then('these properties are updated', () => {
   cy.getIframeBody().contains(vms.vmForUpdate.name).click();
   cy.checkFieldsOfVm({
     ...vms.vmForUpdate,
-    warningThreshold: vms.default.warning_threshold,
-    criticalThreshold: vms.default.critical_threshold
+    criticalThreshold: vms.default.critical_threshold,
+    warningThreshold: vms.default.warning_threshold
   });
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')
@@ -127,8 +127,8 @@ Then('a new virtual metric is created with identical fields', () => {
   cy.getIframeBody().contains(vms.vmForDuplication.name).click();
   cy.checkFieldsOfVm({
     ...vms.vmForDuplication,
-    warningThreshold: vms.default.warning_threshold,
-    criticalThreshold: vms.default.critical_threshold
+    criticalThreshold: vms.default.critical_threshold,
+    warningThreshold: vms.default.warning_threshold
   });
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')

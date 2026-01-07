@@ -80,8 +80,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('#cg_contacts')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
@@ -92,8 +92,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('#cg_acl_groups')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members(['ALL']);
@@ -125,8 +125,8 @@ Then('a new contact group is created with identical properties', () => {
   cy.getIframeBody()
     .find('#cg_contacts')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
@@ -136,8 +136,8 @@ Then('a new contact group is created with identical properties', () => {
   cy.getIframeBody()
     .find('#cg_acl_groups')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members(['ALL']);

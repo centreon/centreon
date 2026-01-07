@@ -1,9 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
 const services = {
@@ -202,8 +202,8 @@ When('the user duplicates the configured host group', () => {
   cy.updateHostGroupViaApi(
     {
       ...hostGroups.forDuplicate,
-      iconId: hostGroups.forDuplicate.icon_id,
       geoCoords: hostGroups.forDuplicate.geo_coords,
+      iconId: hostGroups.forDuplicate.icon_id,
       isActivated: hostGroups.forDuplicate.is_activated
     },
     hostGroups.default.name

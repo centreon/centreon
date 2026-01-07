@@ -1,6 +1,6 @@
-import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PatternType } from '@centreon/js-config/cypress/e2e/commands';
+
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';

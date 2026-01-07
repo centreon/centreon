@@ -145,8 +145,8 @@ Then('link between access group and Menu access must be broken', () => {
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
       data.ACLGroups.ACLGroup2.name,
-      ($body) => {
-        cy.wrap($body)
+      (body) => {
+        cy.wrap(body)
           .contains('td.ListColLeft > a', data.ACLGroups.ACLGroup2.name)
           .click();
       },
@@ -158,8 +158,8 @@ Then('link between access group and Menu access must be broken', () => {
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
       'Authorizations information',
-      ($body) => {
-        cy.wrap($body).contains('a', 'Authorizations information').click();
+      (body) => {
+        cy.wrap(body).contains('a', 'Authorizations information').click();
       },
       3,
       3000

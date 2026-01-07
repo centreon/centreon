@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import tokens from '../../../fixtures/api-token/tokens.json';
-import { Contact, Token, durationMap } from '../common';
+import { Contact, durationMap, Token } from '../common';
 
 const tokenToDelete = tokens.Token_2.name;
 
@@ -30,8 +30,8 @@ afterEach(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Login succeeded')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
@@ -48,12 +48,10 @@ Given('Authentication tokens with predefined details are created', () => {
       const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        // biome-ignore lint/style/useNamingConvention: false positive
         expiration_date: expirationDateIsoString,
         name: token.name,
-        // biome-ignore lint/style/useNamingConvention: false positive
-        user_id: token.userId,
-        type: token.type
+        type: token.type,
+        user_id: token.userId
       };
       cy.request({
         body: payload,

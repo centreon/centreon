@@ -157,8 +157,8 @@ Then(
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.executeActionOnIframe(
         data.contactGroups.contactGroup1.name,
-        ($body) => {
-          cy.wrap($body)
+        (body) => {
+          cy.wrap(body)
             .contains(data.contactGroups.contactGroup1.name)
             .eq(0)
             .click();
@@ -171,8 +171,8 @@ Then(
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.executeActionOnIframe(
         originalAclGroup.name,
-        ($body) => {
-          cy.wrap($body)
+        (body) => {
+          cy.wrap(body)
             .find('select[name="cg_acl_groups[]"]')
             .contains(originalAclGroup.name);
         },

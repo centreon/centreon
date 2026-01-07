@@ -3,13 +3,13 @@ Cypress.Commands.add(
   (iframeSelector, elementSelector) => {
     cy.waitUntil(
       () =>
-        cy.get(iframeSelector).then(($iframe) => {
-          const iframeBody = ($iframe[0] as HTMLIFrameElement).contentDocument
+        cy.get(iframeSelector).then((iframe) => {
+          const iframeBody = (iframe[0] as HTMLIFrameElement).contentDocument
             ?.body;
           if (iframeBody) {
-            const $element = Cypress.$(iframeBody).find(elementSelector);
+            const Element = Cypress.$(iframeBody).find(elementSelector);
 
-            return $element.length > 0 && $element.is(':visible');
+            return Element.length > 0 && Element.is(':visible');
           }
 
           return false;
@@ -216,9 +216,9 @@ interface HostDependency {
   notificationFailsOnDown: number;
   notificationFailsOnUnreachable: number;
   notificationFailsOnPending: number;
-  hostNames: string[];
-  dependentHostNames: string[];
-  dependentServices: string[];
+  hostNames: Array<string>;
+  dependentHostNames: Array<string>;
+  dependentServices: Array<string>;
   comment: string;
 }
 
@@ -236,8 +236,8 @@ interface HostGroupDependency {
   notificationFailsOnDown: number;
   notificationFailsOnUnreachable: number;
   notificationFailsOnPending: number;
-  hostGroupsNames: string[];
-  dependentHostGroupsNames: string[];
+  hostGroupsNames: Array<string>;
+  dependentHostGroupsNames: Array<string>;
   comment: string;
 }
 

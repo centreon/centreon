@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
 import { configureKb, getMediaWikiContainerPort } from '../common';
 
 const kbUrl = 'http://mediawiki';
@@ -56,9 +57,9 @@ Given(
 Given('a host is configured', () => {
   cy.addHost({
     activeCheckEnabled: false,
-    passiveCheckEnabled: true,
     hostGroup: 'Linux-Servers',
     name: services.serviceOk.host,
+    passiveCheckEnabled: true,
     template: 'generic-host'
   })
     .addService({
@@ -83,9 +84,9 @@ When('the user adds a procedure concerning this host in MediaWiki', () => {
   cy.getIframeBody()
     .find('a[target="_blank"]')
     .eq(5)
-    .then(($elt) => {
+    .then((elt) => {
       // Get the href of the mediawiki link of the host
-      const linkUrl = $elt.prop('href');
+      const linkUrl = elt.prop('href');
       // Check that the href is as expected
       expect(linkUrl).to.contains(`Host_:_${services.serviceOk.host}`);
       // Get MediaWiki container port and visit the link
@@ -159,9 +160,9 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
   cy.getIframeBody()
     .find('a[name="Create wiki page"]')
     .eq(10)
-    .then(($elt) => {
+    .then((elt) => {
       // Get the href of the mediawiki link of the service
-      const linkUrl = $elt.prop('href');
+      const linkUrl = elt.prop('href');
       // Check that the href is as expected
       expect(linkUrl).to.contains(
         `Service_:_${services.serviceOk.host}_/_${services.serviceOk.name}`

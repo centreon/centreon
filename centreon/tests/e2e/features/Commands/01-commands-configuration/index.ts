@@ -48,11 +48,11 @@ When('the user creates a command', () => {
   cy.getIframeBody().contains('a', '+ ADD').click();
   cy.addCommands({
     ...data.check,
-    commandLine: data.check.command_line,
-    isShell: data.check.is_shell,
     argumentExample: data.check.argument_example,
+    commandLine: data.check.command_line,
     connectorId: data.check.connector_id,
-    graphTemplateId: data.check.graph_template_id
+    graphTemplateId: data.check.graph_template_id,
+    isShell: data.check.is_shell
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -87,11 +87,11 @@ When('the user changes the properties of a command', () => {
   cy.getIframeBody().contains(data.check.name).click();
   cy.updateCommands({
     ...data.miscellaneous,
-    commandLine: data.miscellaneous.command_line,
-    isShell: data.miscellaneous.is_shell,
     argumentExample: data.miscellaneous.argument_example,
+    commandLine: data.miscellaneous.command_line,
     connectorId: data.miscellaneous.connector_id,
-    graphTemplateId: data.miscellaneous.graph_template_id
+    graphTemplateId: data.miscellaneous.graph_template_id,
+    isShell: data.miscellaneous.is_shell
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -115,11 +115,11 @@ Then('the properties are updated', () => {
   cy.getIframeBody().contains(data.miscellaneous.name).click();
   cy.checkValuesOfCommands(data.miscellaneous.name, {
     ...data.miscellaneous,
-    commandLine: data.miscellaneous.command_line,
-    isShell: data.miscellaneous.is_shell,
     argumentExample: data.miscellaneous.argument_example,
+    commandLine: data.miscellaneous.command_line,
     connectorId: data.miscellaneous.connector_id,
-    graphTemplateId: data.miscellaneous.graph_template_id
+    graphTemplateId: data.miscellaneous.graph_template_id,
+    isShell: data.miscellaneous.is_shell
   });
 });
 
@@ -147,11 +147,11 @@ Then('the new command has the same properties', () => {
   cy.getIframeBody().contains('a', `${data.miscellaneous.name}_1`).click();
   cy.checkValuesOfCommands(`${data.miscellaneous.name}_1`, {
     ...data.miscellaneous,
-    commandLine: data.miscellaneous.command_line,
-    isShell: data.miscellaneous.is_shell,
     argumentExample: data.miscellaneous.argument_example,
+    commandLine: data.miscellaneous.command_line,
     connectorId: data.miscellaneous.connector_id,
-    graphTemplateId: data.miscellaneous.graph_template_id
+    graphTemplateId: data.miscellaneous.graph_template_id,
+    isShell: data.miscellaneous.is_shell
   });
 });
 
@@ -190,11 +190,11 @@ When('the user creates a {string} command', (type: string) => {
   cy.getIframeBody().contains('a', '+ ADD').click();
   cy.addCommands({
     ...commandData,
-    commandLine: commandData.command_line,
-    isShell: commandData.is_shell,
     argumentExample: commandData.argument_example,
+    commandLine: commandData.command_line,
     connectorId: commandData.connector_id,
-    graphTemplateId: commandData.graph_template_id
+    graphTemplateId: commandData.graph_template_id,
+    isShell: commandData.is_shell
   });
   // Click on the first "Save" button
   cy.getIframeBody()

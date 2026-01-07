@@ -40,8 +40,8 @@ Cypress.Commands.add(
   (selector, timeout = 50000, interval = 2000) => {
     cy.waitUntil(
       () =>
-        cy.get('body').then(($body) => {
-          const element = $body.find(selector);
+        cy.get('body').then((body) => {
+          const element = body.find(selector);
 
           return element.length > 0 && element.is(':visible');
         }),

@@ -50,14 +50,14 @@ Given(
     // Enable LDAP authentification
     cy.getIframeBody()
       .find('input[name="ldap_auth_enable[ldap_auth_enable]"]')
-      .then(($input) => {
-        cy.wrap($input).parent().find('label').contains('Yes').click();
+      .then((input) => {
+        cy.wrap(input).parent().find('label').contains('Yes').click();
       });
     // Disable Auto import users
     cy.getIframeBody()
       .find('input[name="ldap_auto_import[ldap_auto_import]"]')
-      .then(($input) => {
-        cy.wrap($input).parent().find('label').contains('No').click();
+      .then((input) => {
+        cy.wrap(input).parent().find('label').contains('No').click();
       });
     // Click on the first "Save" button
     cy.getIframeBody()

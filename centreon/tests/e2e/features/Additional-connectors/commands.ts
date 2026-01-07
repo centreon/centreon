@@ -1,10 +1,10 @@
 interface Acc {
   name: string;
   type: string;
-  pollers: string[];
+  pollers: Array<string>;
   user: string;
   password: string;
-  vCenternames: string[];
+  vCenternames: Array<string>;
   url: string;
   port: string;
 }
@@ -37,10 +37,10 @@ Cypress.Commands.add('updateAcc', (body: Acc) => {
 });
 
 Cypress.Commands.add('editvCenterPassword', (value: string) => {
-  cy.getByTestId({ testId: 'button_edit', tag: 'button' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'button_edit' }).click();
   cy.get('#Passwordvalue').should('not.be.disabled').and('have.value', '');
   cy.get('#Passwordvalue').clear().type(value);
-  cy.getByTestId({ testId: 'button_save', tag: 'button' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'button_save' }).click();
 });
 
 Cypress.Commands.add('verifyAccFieldValues', (body: Acc) => {
@@ -127,10 +127,10 @@ Cypress.Commands.add(
         return false;
       },
       {
-        errorMsg: `Input did not reach value "${expectedValue}" after ${maxAttempts} attempts.`,
-        timeout: maxAttempts * interval,
-        interval,
         customMessage: `Waiting for input to have value "${expectedValue}"`,
+        errorMsg: `Input did not reach value "${expectedValue}" after ${maxAttempts} attempts.`,
+        interval,
+        timeout: maxAttempts * interval,
         verbose: true
       }
     );

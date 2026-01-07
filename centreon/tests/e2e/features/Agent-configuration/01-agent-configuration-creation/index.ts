@@ -75,10 +75,10 @@ When('the user fills in all the information', () => {
   cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.fillTelegrafMandatoryFields({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 
@@ -132,8 +132,8 @@ When('the user fills in the mandatory information', () => {
   cy.contains('div', 'By agent').click();
   cy.fillCmaMandatoryFields({
     ...agentsConfiguration.CMA1,
-    publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName,
-    privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+    privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
+    publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName
   });
 });
 
@@ -193,14 +193,20 @@ When("the user doesn't fill in all the mandatory information", () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-002.crt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-002.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-002.crt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -220,7 +226,10 @@ When("the user doesn't fill in correct type of information", () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-001.txt');
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
@@ -231,7 +240,10 @@ When("the user doesn't fill in correct type of information", () => {
     .type('my-otel-private-key-name-001.txt');
 
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-001.txt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -269,7 +281,10 @@ When('the user fills in the needed information', () => {
   cy.contains('Poller-4').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-001.crt');
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
@@ -279,7 +294,10 @@ When('the user fills in the needed information', () => {
     .eq(0)
     .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-001.crt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -320,7 +338,7 @@ Then('the form fields are empty', () => {
 });
 
 When('the user clicks on Save in the cancellation pop-up', () => {
-  cy.getByTestId({ testId: 'confirm', tag: 'button' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'confirm' }).click();
   cy.wait('@addAgents');
 });
 
@@ -333,16 +351,16 @@ When('the user fills in the {string} mandatory fields', (agentType: string) => {
   if (agentType.includes('Agent')) {
     cy.fillCmaMandatoryFields({
       ...agentsConfiguration.CMA1,
-      publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName,
-      privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+      privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
+      publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName
     });
   } else {
     cy.fillTelegrafMandatoryFields({
       ...agentsConfiguration.telegraf1,
-      publicCertificationFileName:
-        agentsConfiguration.telegraf1.publicCertfFileName,
+      certificateFileName: agentsConfiguration.telegraf1.certfFileName,
       privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-      certificateFileName: agentsConfiguration.telegraf1.certfFileName
+      publicCertificationFileName:
+        agentsConfiguration.telegraf1.publicCertfFileName
     });
   }
 });
@@ -355,10 +373,10 @@ When('the user selects the {string} type', (agentType: string) => {
 When('the user fills all the Telegraf mandatory fields', () => {
   cy.fillTelegrafMandatoryFields({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 
@@ -392,17 +410,17 @@ When(
     if (agentType.includes('Agent')) {
       cy.fillOnlySomeCmaMandatoryFields({
         ...agentsConfiguration.CMA1,
+        privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
         publicCertificationFileName:
-          agentsConfiguration.CMA1.publicCertfFileName,
-        privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+          agentsConfiguration.CMA1.publicCertfFileName
       });
     } else {
       cy.fillOnlySomeTelegrafMandatoryFields({
         ...agentsConfiguration.telegraf1,
-        publicCertificationFileName:
-          agentsConfiguration.telegraf1.publicCertfFileName,
+        certificateFileName: agentsConfiguration.telegraf1.certfFileName,
         privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-        certificateFileName: agentsConfiguration.telegraf1.certfFileName
+        publicCertificationFileName:
+          agentsConfiguration.telegraf1.publicCertfFileName
       });
     }
   }

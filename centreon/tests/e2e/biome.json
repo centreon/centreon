@@ -1,5 +1,5 @@
 {
-	"extends": ["./node_modules/@centreon/js-config/biome/biome.json"],
+	"extends": ["../../packages/js-config/biome/biome.json"],
 	"linter": {
 		"enabled": true,
 		"rules": {
