@@ -14,7 +14,7 @@ Cypress.Commands.add(
       {
         errorMsg: `Element ${elementSelector} not found in iframe ${iframeSelector} after waiting`,
         timeout: 60000,
-        interval: 500
+        interval: 1000
       }
     );
   }
