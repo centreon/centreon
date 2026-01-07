@@ -337,7 +337,8 @@ When(
       .eq(0)
       .type(genericTextWidgets.default.description);
     cy.get('[data-testid="Select all"]').eq(0).click();
-    cy.get('[data-testid="Select all"]').eq(1).click();
+    cy.get('[data-testid="Unselect all"]').should('exist');
+    cy.get('[data-testid="Select all"]').eq(0).click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
