@@ -1,8 +1,8 @@
-ARG VERSION
+ARG MAJOR_VERSION
 
 FROM almalinux:9 AS web_dependencies
 
-ARG VERSION
+ARG MAJOR_VERSION
 ARG IS_CLOUD
 ARG STABILITY
 
@@ -23,10 +23,10 @@ dnf config-manager --set-enabled crb
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/24.10/el9/centreon-24.10-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-24.10-internal.repo
+  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${VERSION}/el9/centreon-${VERSION}-internal.repo
+  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${VERSION}-internal.repo
 else
-  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el9/centreon-${VERSION}.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el9/centreon-${MAJOR_VERSION}.repo
 fi
 
 dnf config-manager --set-enabled 'centreon*'
@@ -116,13 +116,18 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
 FROM web_dependencies AS web_dependencies_collect
 
+ARG COLLECT_MINOR_VERSION
+ARG COMMON_MINOR_VERSION
+ARG GORGONE_MINOR_VERSION
+ARG MAJOR_VERSION
+ARG STABILITY
+
 RUN bash -e <<EOF
 
 dnf install -y \
   centreon-common \
   centreon-gorgone \
   centreon-engine \
-  centreon-broker-cbmod \
   centreon-broker-cbd \
   centreon-connector
 
