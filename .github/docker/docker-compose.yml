@@ -52,7 +52,7 @@ services:
   glpi:
     env_file:
       - .env
-    image: "${GLPI_IMAGE:-docker.centreon.com/centreon/glpi:24.11}"
+    image: "${GLPI_IMAGE:-docker.centreon.com/centreon/glpi:26.01}"
     ports: ["80"]
     depends_on:
       - db
@@ -61,7 +61,7 @@ services:
       MYSQL_HOST: db
 
   vault:
-    image: "${VAULT_IMAGE:-docker.centreon.com/centreon/vault:24.11}"
+    image: "${VAULT_IMAGE:-docker.centreon.com/centreon/vault:26.01}"
     env_file:
       - .env
     ports: ["8200"]
@@ -70,14 +70,14 @@ services:
   openid:
     env_file:
       - .env
-    image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
+    image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:26.01}"
     ports: []
     profiles: ["openid"]
 
   saml:
     env_file:
       - .env
-    image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
+    image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:26.01}"
     ports: ["8080:8080"]
     profiles: ["saml"]
 
