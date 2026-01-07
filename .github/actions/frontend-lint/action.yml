@@ -46,12 +46,14 @@ runs:
         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-    - name: Run Biome CI
-      run: pnpm lint:ci
-      shell: bash
-      working-directory: ${{ inputs.frontend_directory }}
+    - name: Setup Biome CLI
+      uses: biomejs/setup-biome@454fa0d884737805f48d7dc236c1761a0ac3cc13 # v2.6.0
+      with:
+        working-dir: ${{ inputs.frontend_directory }}
+        token: ${{ inputs.pat }}
+        version: 2.3.11
 
-    - uses: mongolyy/reviewdog-action-biome@8fa6a2cd987b0c08cb1a860df2df931f6cb9a822 # v1.9.0
+    - uses: mongolyy/reviewdog-action-biome@abafdf75a79678ef8e2715298ee2dfc12262c82f # v2.7.1
       with:
         workdir: ${{ inputs.frontend_directory }}
         github_token: ${{ inputs.pat }}
