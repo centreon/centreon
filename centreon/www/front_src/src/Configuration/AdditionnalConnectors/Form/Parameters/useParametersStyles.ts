@@ -8,7 +8,7 @@ export const useParameterStyles = makeStyles()((theme) => ({
     paddingTop: theme.spacing(1),
     width: '100%',
     display: 'grid',
-    gridTemplate: "'1fr 1fr' '1fr 1fr'",
+    gridTemplateColumns: '1fr 1fr',
     gap: theme.spacing(2, 4)
   },
   parameterCompositionItem: {
