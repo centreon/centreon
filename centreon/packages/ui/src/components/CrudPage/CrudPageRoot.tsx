@@ -90,53 +90,55 @@ export const CrudPageRoot = <
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <DataTable
-          isEmpty={isDataEmpty}
-          variant={isDataEmpty ? 'grid' : 'listing'}
-        >
-          {isDataEmpty && !isLoading ? (
-            <DataTable.EmptyState
-              aria-label="create"
-              buttonCreateTestId="create-crudpage"
-              labels={{
-                actions: labels?.actions,
-                description: labels.welcome.description,
-                title: labels.welcome.title
-              }}
-              onCreate={add}
-            />
-          ) : (
-            <Listing
-              columns={columns}
-              filters={filters}
-              isLoading={isLoading}
-              labels={{
-                add: labels.actions.create,
-                search: labels.listing.search
-              }}
-              rows={items}
-              subItems={subItems}
-              total={total}
-            />
-          )}
-        </DataTable>
-        <DeleteModal<TData>
-          deleteEndpoint={deleteItem.deleteEndpoint}
-          labels={deleteItem.labels}
-          listingQueryKey={queryKeyName}
-          modalSize={deleteItem.modalSize}
-        />
-        <AddModal
-          Form={form.Form}
-          modalSize={form.modalSize}
-          title={form.labels.add.title}
-        />
-        <UpdateModal<TItem, TItemForm>
-          Form={form.Form}
-          modalSize={form.modalSize}
-          title={form.labels.update.title}
-          {...form.getItem}
-        />
+        <div className="h-full w-full">
+          <DataTable
+            isEmpty={isDataEmpty}
+            variant={isDataEmpty ? 'grid' : 'listing'}
+          >
+            {isDataEmpty && !isLoading ? (
+              <DataTable.EmptyState
+                aria-label="create"
+                buttonCreateTestId="create-crudpage"
+                labels={{
+                  actions: labels?.actions,
+                  description: labels.welcome.description,
+                  title: labels.welcome.title
+                }}
+                onCreate={add}
+              />
+            ) : (
+              <Listing
+                columns={columns}
+                filters={filters}
+                isLoading={isLoading}
+                labels={{
+                  add: labels.actions.create,
+                  search: labels.listing.search
+                }}
+                rows={items}
+                subItems={subItems}
+                total={total}
+              />
+            )}
+          </DataTable>
+          <DeleteModal<TData>
+            deleteEndpoint={deleteItem.deleteEndpoint}
+            labels={deleteItem.labels}
+            listingQueryKey={queryKeyName}
+            modalSize={deleteItem.modalSize}
+          />
+          <AddModal
+            Form={form.Form}
+            modalSize={form.modalSize}
+            title={form.labels.add.title}
+          />
+          <UpdateModal<TItem, TItemForm>
+            Form={form.Form}
+            modalSize={form.modalSize}
+            title={form.labels.update.title}
+            {...form.getItem}
+          />
+        </div>
       </PageLayout.Body>
     </PageLayout>
   );
