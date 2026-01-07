@@ -706,7 +706,7 @@ class IvantiProvider extends AbstractProvider
         $info['query_endpoint'] = '/Employees';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = ['Authorization: ' . $this->getFormValue('apikey'), 'Content-Type: application/json'];
+        $info['headers'] = ['Authorization: ' . $this->getFormValue('apiKey'), 'Content-Type: application/json'];
         // try to get users from Ivanti
         try {
             // the variable is going to be used outside of this method.
@@ -730,7 +730,7 @@ class IvantiProvider extends AbstractProvider
         $info['query_endpoint'] = '/standarduserteams';
         $info['method'] = 0;
         // set headers
-        $info['headers'] = ['Authorization: ' . $this->getFormValue('apikey'), 'Content-Type: application/json'];
+        $info['headers'] = ['Authorization: ' . $this->getFormValue('apiKey'), 'Content-Type: application/json'];
 
         // try to get teams from Ivanti
         try {
