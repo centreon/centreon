@@ -313,31 +313,7 @@ if ($orderByToAnalyse !== null) {
 }
 
 // concatenate order by + limit + offset  to the query
-$baseQuery .= ' ORDER BY ' . $orderBy;
-
-try {
-    $recordIds = $realtimeDatabase->fetchAllAssociative('SELECT h.host_id' . $baseQuery, QueryParameters::create($mainQueryParameters));
-
-    $hostIds = array_map(
-        fn (array $record) => $record['host_id'],
-        $recordIds,
-    );
-
-    $nbRows = count($hostIds);
-
-    CentreonSession::writeSessionClose(sprintf('w_hm_%d', $widgetId), $hostIds);
-} catch (PDOException $e) {
-    CentreonLog::create()->error(
-        CentreonLog::TYPE_SQL,
-        'Error while counting hosts for the host monitoring custom view',
-        ['pdo_info' => $e->errorInfo],
-        $e
-    );
-
-    throw $e;
-}
-
-$query = $querySelect . $baseQuery . ' LIMIT :limit OFFSET :offset';
+$query = $querySelect . $baseQuery . ' ORDER BY ' . $orderBy . ' LIMIT :limit OFFSET :offset';
 
 $num = filter_var($preferences['entries'], FILTER_VALIDATE_INT) ?: 10;
 

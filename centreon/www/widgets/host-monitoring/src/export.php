@@ -82,11 +82,6 @@ if (str_contains($_GET['list'], ',')) {
     $exportList[] = $_GET['list'];
 }
 
-// if export list contains a 0, that means all checkboxes a checked.
-if (in_array('0', $exportList, true)) {
-    $exportList = $_SESSION[sprintf('w_hm_%d', $widgetId)];
-}
-
 // Filter out invalid host IDs
 $filteredHostList = array_filter($exportList, static function ($hostId) {
     return (int) $hostId > 0; // Keep only valid positive integers
@@ -173,13 +168,18 @@ if (! $centreon->user->admin) {
 
 $baseQuery .= " WHERE enabled = 1 AND h.name NOT LIKE '_Module_%'";
 
-['parameters' => $hostQueryParameters, 'placeholderList' => $hostQuery] = createMultipleBindParameters(
-    $filteredHostList,
-    'host_',
-    QueryParameterTypeEnum::INTEGER,
-);
+if (!empty($filteredHostList)) {
+    ['parameters' => $hostQueryParameters, 'placeholderList' => $hostQuery] = createMultipleBindParameters(
+        $filteredHostList,
+        'host_',
+        QueryParameterTypeEnum::INTEGER,
+    );
 
-$mainQueryParameters = [...$hostQueryParameters, ...$mainQueryParameters];
+    $mainQueryParameters = [...$hostQueryParameters, ...$mainQueryParameters];
+} else {
+    $mainQueryParameters = [...$mainQueryParameters];
+}
+
 
 if (! empty($hostQuery)) {
     $baseQuery .= ' AND h.host_id IN (' . $hostQuery . ') ';

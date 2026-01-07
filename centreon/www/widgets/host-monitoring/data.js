@@ -70,11 +70,5 @@ function exportChecked() {
 
   // remove last comma
   exportList = exportList.substring(0, exportList.length - 1);
-
-  // if at least one resource is found, redirect to the export.php
-  if (exportList.length > 0) {
-    window.location.href = `./src/export.php?widgetId=${widgetId}&list=${exportList}`;
-  } else {
-    alert('Please select at least one resource');
-  }
+  window.location.href = `./src/export.php?widgetId=${widgetId}&list=${exportList}`
 }
