@@ -186,9 +186,9 @@ When('he does not fill in the {string} field', (field: string) => {
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   // Fill All the required fields first
   cy.getIframeBody().within(() => {
-    cy.find('input[id="contact_alias"]').type(`{selectAll}{backspace}${contacts.default.alias}`);
-    cy.find('input[id="contact_name"]').type(`{selectAll}{backspace}${contacts.default.name}`);
-    cy.find('input[id="contact_email"]').type(`{selectAll}{backspace}${contacts.default.email}`);
+    cy.get('input[id="contact_alias"]').type(`{selectAll}{backspace}${contacts.default.alias}`);
+    cy.get('input[id="contact_name"]').type(`{selectAll}{backspace}${contacts.default.name}`);
+    cy.get('input[id="contact_email"]').type(`{selectAll}{backspace}${contacts.default.email}`);
   });
 
   // Remove the content of one of the required field that we have already filled

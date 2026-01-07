@@ -13,7 +13,6 @@ RUN bash -e <<EOF
 
 /opt/keycloak/bin/kc.sh build
 /opt/keycloak/bin/kc.sh import --file /realms/Centreon_SSO_realm.json
-/opt/keycloak/bin/kc.sh show-config
 
 EOF
 
