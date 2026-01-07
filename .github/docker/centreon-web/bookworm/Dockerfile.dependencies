@@ -4,6 +4,7 @@ FROM debian:bookworm AS web_dependencies
 
 ARG MAJOR_VERSION
 ARG STABILITY
+ARG APT_AUTH_CONF_FILE="/etc/apt/auth.conf.d/centreon-${MAJOR_VERSION}-internal-${STABILITY}.conf"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
