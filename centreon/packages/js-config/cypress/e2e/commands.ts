@@ -74,31 +74,38 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
     });
 });
 
-Cypress.Commands.add('getIframeBody', (iframeSelector = 'iframe#main-content'): Cypress.Chainable<JQuery<HTMLElement>> => {
-  return cy.waitUntil(
-    () =>
-      cy
-        .get<HTMLIFrameElement>(iframeSelector, { log: false })
+Cypress.Commands.add(
+  'getIframeBody',
+  (iframeSelector = 'iframe#main-content'): Cypress.Chainable<JQuery<HTMLElement>> => {
+    return cy.waitUntil(
+      () =>
+        cy
+          .get<HTMLIFrameElement>(iframeSelector, { log: false })
+          .then($iframe => {
+            const doc = $iframe[0].contentDocument;
+
+            return Boolean(
+              doc &&
+              doc.readyState === 'complete' &&
+              doc.body &&
+              doc.body.children.length > 0
+            );
+          }),
+      {
+        timeout: 20000,
+        interval: 200,
+        errorMsg: 'Iframe not fully loaded (readyState !== complete)',
+      }
+    ).then(() => {
+      return cy
+        .get<HTMLIFrameElement>(iframeSelector)
         .then($iframe => {
-          const body = $iframe[0].contentDocument?.body;
-
-          return Boolean(body && body.children.length);
-        }),
-    {
-      timeout: 20000,
-      interval: 200,
-      errorMsg: 'Iframe body not ready',
-    }
-  ).then(() => {
-    return cy
-      .get<HTMLIFrameElement>(iframeSelector)
-      .then($iframe => {
-        const body = $iframe[0].contentDocument!.body;
-
-        return cy.wrap(body);
-      });
-  });
-});
+          const body = $iframe[0].contentDocument!.body;
+          return cy.wrap(body);
+        });
+    });
+  }
+);
 
 Cypress.Commands.add(
   'waitForElementInIframe',
