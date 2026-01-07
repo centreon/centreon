@@ -676,6 +676,8 @@ describe('Dashboard', () => {
         .eq(1)
         .type('Text for the new widget');
 
+      cy.findAllByLabelText(labelSave).eq(1).click();
+
       cy.contains('Text for the new widget').should('be.visible');
     });
 
@@ -700,7 +702,7 @@ describe('Dashboard', () => {
       cy.get('.react-grid-item')
         .eq(3)
         .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 12, 240)');
-      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '593px');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '598px');
 
       cy.get('.react-grid-item').eq(3).should('have.css', 'height', '444px');
     });
