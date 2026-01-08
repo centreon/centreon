@@ -4894,10 +4894,6 @@ msgid "Display properties"
 msgstr "Anzeigeeigenschaften"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Display ticket creation buttons"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
 msgid "Display resources"
 msgstr ""
 
@@ -4931,6 +4927,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Display the password"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5663,6 +5663,14 @@ msgstr "Routing aktivieren"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Shell aktivieren"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket management"
@@ -8037,11 +8045,11 @@ msgid "Hide graphs of selected Services"
 msgstr "Graphen der ausgewählten Services verstecken"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Hide services with Down hosts"
+msgid "Hide services with Down host"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Hide services with Unreachable hosts"
+msgid "Hide services with Unreachable host"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -21234,9 +21242,3 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
-
-# msgid "Enable ticket creation for hosts"
-# msgstr ""
-
-# msgid "Enable ticket creation for services"
-# msgstr ""
