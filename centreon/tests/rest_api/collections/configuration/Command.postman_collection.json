@@ -2,1429 +2,40 @@
 	"info": {
 		"_postman_id": "d30122f8-9adc-40e7-80b3-3a6fa9bdb1ca",
 		"name": "Command",
+		"description": "This Postman collection relies on variables automatically imported from scripts located in the API test GitHub repository.\n\nThese scripts initialize the test context, including:\n\n- ACL definitions\n    \n- Test users\n    \n- Roles and permissions\n    \n\nVariables must be generated before running the collection to ensure consistent and repeatable test executions.\n\n\\--\n\nPrerequisites:\n\n- Clone the API test GitHub repository\n    \n- Pull and run the docker\n    \n- Copy the fixtures on docker\n    \n- Run script to adding fixtures",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28117716",
 		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-d30122f8-9adc-40e7-80b3-3a6fa9bdb1ca?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
-			"name": "Log in as Admin",
+			"name": "Super Administrator user",
 			"item": [
 				{
-					"name": "Login with admin user",
+					"name": "POST /login - Super administrator authentication - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
+									"pm.test(\"Login successful with the super administrator profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql('admin');\r",
+									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "user_with_RW_rights",
-			"item": [
-				{
-					"name": "Add user_with_RW_rights",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new user has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_RW\", \"user_with_RW_rights\");\r",
-									"pm.collectionVariables.set(\"api_password_user_RW\", \"Centreon!123\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW}};{{api_login_user_RW}};{{api_login_user_RW}}@localhost;{{api_password_user_RW}};0;1;en_US;local\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW}};reach_api;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api_rt parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_RW}};reach_api_rt;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Group RW_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;RW_ALL\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link user to RW_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;{{api_login_user_RW}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link resources to RW_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;All Resources\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Menu RW",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;RW\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Grant RW right",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The Read/Write rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Configuration\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link RW to RW_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RW_ALL;RW\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "user_with_R_rights",
-			"item": [
-				{
-					"name": "Add user_with_R_rights",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new user has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_Read\", \"user_with_R_rights\");\r",
-									"pm.collectionVariables.set(\"api_password_user_Read\", \"Centreon!123\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read}};{{api_login_user_Read}};{{api_login_user_Read}}@localhost;{{api_password_user_Read}};0;1;en_US;local\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read}};reach_api;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api_rt parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Read}};reach_api_rt;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Group RO_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;RO_ALL\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link user to RO_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;{{api_login_user_Read}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link resources to RO_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;All Resources\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Menu RO",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RO;RO\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Grant RO right",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The Read Only rights has been successfully.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantro\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RO;1;Configuration\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link RO to RO_ALL",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"RO_ALL;RO\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "user_nothing  ",
-			"item": [
-				{
-					"name": "Add user_nothing",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The new user has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"api_login_user_Nothing\", \"user_nothing\");\r",
-									"pm.collectionVariables.set(\"api_password_user_Nothing\", \"Centreon!123\");"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing}};{{api_login_user_Nothing}};{{api_login_user_Nothing}}@localhost;{{api_password_user_Nothing}};0;1;en_US;local\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The api access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing}};reach_api;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add reach_api_rt parameters",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The api rt access rights has been successfully added.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_Nothing}};reach_api_rt;1\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Group Nothing",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL group has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;Nothing\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link user to Nothing",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The contact has been successfully linked to the ACL group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;{{api_login_user_Nothing}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link resources to Nothing",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL Resources has been successfully linked to the ACL Group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;All Resources\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Create ACL Menu Nothing",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL menu has been successfully created.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"Nothing;Nothing\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Link Nothing to Nothing",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"The ACL menu has been successfully linked to the ACL group.\", function () {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"Nothing;Nothing\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUriCentreonCLAPI}}",
-							"host": [
-								"{{baseUriCentreonCLAPI}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Admin",
-			"item": [
-				{
-					"name": "Login with admin user",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The role is a super administrator (is_admin)\", function () {\r",
 									"    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-									"    pm.environment.set(\"token\", responseJson.security.token);\r",
-									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
+									"})\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1456,19 +67,475 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command",
+					"name": "POST /commands - Missing required field \"name\" - HTTP 400",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"Command1Name\", \"command_8\");\r",
-									"pm.collectionVariables.set(\"Command1Type\", \"Check\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Command has not been added because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"[name]\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /commands - Missing required field \"type\" - HTTP 400",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Command has not been added because the type is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"[type]\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /commands - Missing required field \"command_line\" - HTTP 400",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Command has not been added because the command_line is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"[command_line]\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /commands - Empty required field \"command_line\" - HTTP 400",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Command has not been added because the command_line is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"[command_line]\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /commands - Empty required field \"name\" - HTTP 400",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Command has not been added because the name is mandatory.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"[name]\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /commands - Invalid field type \"type\" - HTTP 400",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Command has not been added because of values of wrong type.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"[type]\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /commands - Valid request - HTTP 201",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"CommandName\", \"command_1_by_admin\");\r",
+									"pm.collectionVariables.set(\"CommandType\", \"Check\");\r",
 									"pm.collectionVariables.set(\r",
-									"  \"Command1Line\",\r",
+									"  \"CommandLine\",\r",
 									"  \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$ | @MAILER@ -s '** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **' $CONTACTEMAIL$ - $ARG1$ - $_HOSTSNMPCOMMUNITY$\"\r",
 									");\r",
-									"pm.collectionVariables.set(\"Command1Connector\", \"/centreon/api/latest/configuration/connectors/1\");\r",
+									"pm.collectionVariables.set(\"CommandConnector\", \"/centreon/api/latest/configuration/connectors/1\");\r",
 									""
 								],
 								"type": "text/javascript",
@@ -1486,21 +553,21 @@
 									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
-									"    pm.collectionVariables.set(\"Command1Id\", responseJson.id);\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
+									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
-									"        \"type\": pm.collectionVariables.get(\"Command1Type\"),\r",
-									"        \"command_line\": pm.collectionVariables.get(\"Command1Line\"),\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
+									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
 									"        \"is_shell_enabled\": true,\r",
 									"        \"is_activated\": true,\r",
 									"        \"is_from_monitoring_connector\": false\r",
 									"    });\r",
 									"\r",
 									"    pm.expect(responseJson).to.have.property(\"connector\");\r",
-									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"Command1Connector\"));\r",
+									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"CommandConnector\"));\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the command response\", function () {\r",
@@ -1561,7 +628,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1582,569 +649,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command with wrong type of value",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Command has not been added because of values of wrong type.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.contains(\"[type]\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new command without name",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Command has not been added because the name is mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.contains(\"[name]\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new command without type",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Command has not been added because the type is mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.contains(\"[type]\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new command without command line",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Command has not been added because the command_line is mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.contains(\"[command_line]\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new command with empty command line",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Command has not been added because the command_line is mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.contains(\"[command_line]\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"command_line\": \"\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new command with empty name",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Command has not been added because the name is mandatory.\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"\r",
-									"    pm.expect(responseJson.message).to.contains(\"[name]\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"\",\r\n    \"type\": \"{{Command1Type}}\",\r\n    \"command_line\": \"{{Command1Line}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{Command1Connector}}\",\r\n    \"comment\": \"test comment {{Command1Name}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Show available command",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const json = pm.response.json();\r",
-									"\r",
-									"pm.test(\"Status code is 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation for the command response\", function () {\r",
-									"    pm.expect(json).to.have.property(\"@context\");\r",
-									"    pm.expect(json).to.have.property(\"member\");\r",
-									"    pm.expect(json.member).to.be.an(\"array\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Each command has the required properties\", function () {\r",
-									"    json.member.forEach(cmd => {\r",
-									"        pm.expect(cmd).to.have.property(\"id\").that.is.a(\"number\");\r",
-									"        pm.expect(cmd).to.have.property(\"name\").that.is.a(\"string\");\r",
-									"        pm.expect(cmd).to.have.property(\"type\").that.is.a(\"string\");\r",
-									"        pm.expect(cmd).to.have.property(\"command_line\").that.is.a(\"string\");\r",
-									"        pm.expect(cmd).to.have.property(\"is_activated\").that.is.a(\"boolean\");\r",
-									"    });\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Response body is valid JSON Schema\", function () {\r",
-									"    const schema = {\r",
-									"        type: \"object\",\r",
-									"        required: [\"member\"],\r",
-									"        properties: {\r",
-									"                member: {\r",
-									"                type: \"array\",\r",
-									"                items: {\r",
-									"                    type: \"object\",\r",
-									"                    required: [\"id\", \"name\", \"type\", \"command_line\", \"is_activated\"],\r",
-									"                    properties: {\r",
-									"                    id: { type: \"number\" },\r",
-									"                    name: { type: \"string\" },\r",
-									"                    type: { type: \"string\" },\r",
-									"                    command_line: { type: \"string\" },\r",
-									"                    is_activated: { type: \"boolean\" }\r",
-									"                    }\r",
-									"                }\r",
-									"            }\r",
-									"        }\r",
-									"    };\r",
-									"\r",
-									"    pm.response.to.have.jsonSchema(schema);\r",
-									"});\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands?sort_by=id&search={\"name\":{\"$lk\":\"command%\"}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "id"
-								},
-								{
-									"key": "search",
-									"value": "{\"name\":{\"$lk\":\"command%\"}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout from admin user and clear collection variables",
+					"name": "GET /logout - Super administrator user logout and clear session - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
@@ -2224,26 +729,44 @@
 			]
 		},
 		{
-			"name": "User with R/W Right",
+			"name": "Administrator user",
 			"item": [
 				{
-					"name": "Login with Read/Write user",
+					"name": "POST /login - Administrator authentication - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"pm.test(\"Login successful with the administrator profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_RW'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_administrator'));\r",
+									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"The role is not a super administrator (is_admin)\", function () {\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"})\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2255,7 +778,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_RW}}\",\r\n      \"password\": \"{{api_password_user_RW}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_administrator}}\",\r\n      \"password\": \"{{api_password_generic}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2275,140 +798,24 @@
 					"response": []
 				},
 				{
-					"name": "Show available command",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"pm.test(\"A list of commands has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"/*\r",
-									"/  Check body content\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The commands retrieved are listed with all parameters\", function() {\r",
-									"    // Check the number of commands (1)\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"\r",
-									"    // Check the properties of each command \r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
-									"        \"type\": 2,\r",
-									"        \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r",
-									"        \"is_shell\": true,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": \"object\",\r",
-									"        \"properties\": {\r",
-									"            \"result\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"id\": { \"type\": \"integer\" },\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"integer\" },\r",
-									"                        \"command_line\": { \"type\": \"string\" },\r",
-									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
-									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
-									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
-									"                    },\r",
-									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
-									"                }\r",
-									"            },\r",
-									"            \"meta\": {\r",
-									"                \"type\": \"object\",\r",
-									"                \"properties\": {\r",
-									"                    \"page\": { \"type\": \"integer\" },\r",
-									"                    \"limit\": { \"type\": \"integer\" },\r",
-									"                    \"search\": { \"type\": \"object\" },\r",
-									"                    \"sort_by\": { \"type\": \"object\" },\r",
-									"                    \"total\": { \"type\": \"integer\" }\r",
-									"                },\r",
-									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
-									"            }\r",
-									"        },\r",
-									"        \"required\": [\"result\", \"meta\"]\r",
-									"    }\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands?sort_by=id&search={\"name\":{\"$lk\":\"command%\"}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "id"
-								},
-								{
-									"key": "search",
-									"value": "{\"name\":{\"$lk\":\"command%\"}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a new command",
+					"name": "POST /commands - Valid request - HTTP 201",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"Command2Name\", \"command_2\");\r",
+									"pm.collectionVariables.set(\"CommandName\", \"command_2_by_administrator\");\r",
+									"pm.collectionVariables.set(\"CommandType\", \"Check\");\r",
+									"pm.collectionVariables.set(\r",
+									"  \"CommandLine\",\r",
+									"  \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\"\r",
+									");\r",
+									"pm.collectionVariables.set(\"CommandConnector\", \"/centreon/api/latest/configuration/connectors/2\");\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2416,39 +823,26 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command2Name\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new command \r",
-									"    pm.collectionVariables.set(\"Command2Id\", responseJson.id);\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
+									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command2Name\"),\r",
-									"        \"type\": 4,\r",
-									"        \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r",
-									"        \"is_shell\": false,\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
+									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
+									"        \"is_shell_enabled\": true,\r",
 									"        \"is_activated\": true,\r",
-									"        \"is_locked\": false,\r",
-									"        \"argument_example\": \"abcbbbbcccc\"\r",
+									"        \"is_from_monitoring_connector\": false\r",
 									"    });\r",
-									"    pm.expect(responseJson.arguments[0]).to.include({\r",
-									"        \"name\": \"ARG465\", \r",
-									"        \"description\": \"I'm a wonderful argument\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.macros[0]).to.include({\r",
-									"        \"name\": \"twixou\", \r",
-									"        \"type\": '2', \r",
-									"        \"description\": \"Such a beautiful cat\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.connector).to.include({\r",
-									"        \"id\": 1, \r",
-									"        \"name\": 'Perl Connector'\r",
-									"    });\r",
-									"    pm.expect(responseJson.grap_template).to.include({\r",
-									"        \"id\": 5, \r",
-									"        \"name\": 'CPU'\r",
-									"    });\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.property(\"connector\");\r",
+									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"CommandConnector\"));\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the command response\", function () {\r",
@@ -2457,12 +851,11 @@
 									"        \"properties\": {\r",
 									"            \"id\": { \"type\": \"integer\" },\r",
 									"            \"name\": { \"type\": \"string\" },\r",
-									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"type\": { \"type\": \"string\" },\r",
 									"            \"command_line\": { \"type\": \"string\" },\r",
-									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_shell_enabled\": { \"type\": \"boolean\" },\r",
 									"            \"is_activated\": { \"type\": \"boolean\" },\r",
-									"            \"is_locked\": { \"type\": \"boolean\" },\r",
-									"            \"argument_example\": { \"type\": \"string\" },\r",
+									"            \"is_from_monitoring_connector\": { \"type\": \"boolean\" },\r",
 									"            \"arguments\": {\r",
 									"                \"type\": \"array\",\r",
 									"                \"items\": {\r",
@@ -2474,44 +867,28 @@
 									"                    \"required\": [\"name\", \"description\"]\r",
 									"                }\r",
 									"            },\r",
-									"            \"macros\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"string\" },\r",
-									"                        \"description\": { \"type\": \"string\" }\r",
-									"                    },\r",
-									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
-									"                }\r",
-									"            },\r",
 									"            \"connector\": {\r",
 									"                \"type\": \"object\",\r",
 									"                \"properties\": {\r",
 									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"command_line\": { \"type\": \"string\" },\r",
+									"                    \"description\": { \"type\": \"string\" },\r",
+									"                    \"is_activated\": { \"type\": \"boolean\" }\r",
 									"                },\r",
 									"                \"required\": [\"id\", \"name\"]\r",
 									"            },\r",
-									"            \"grap_template\": {\r",
-									"                \"type\": \"object\",\r",
-									"                \"properties\": {\r",
-									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
-									"                },\r",
-									"                \"required\": [\"id\", \"name\"]\r",
-									"            }\r",
-									"                        \r",
+									"            \"comment\": { \"type\": \"string\"}          \r",
 									"        },\r",
-									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell_enabled\", \"is_activated\", \"is_from_monitoring_connector\", \"connector\"]\r",
 									"    };\r",
 									"    \r",
 									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2526,7 +903,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command2Name}}\",\r\n    \"type\": 4,\r\n    \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r\n    \"is_shell\": false,\r\n    \"argument_example\": \"abcbbbbcccc\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG465\", \r\n            \"description\": \"I'm a wonderful argument\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"twixou\", \r\n            \"type\": 2, \r\n            \"description\": \"Such a beautiful cat\"\r\n        }\r\n    ],\r\n    \"connector_id\": 1,\r\n    \"graph_template_id\": 5\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -2542,17 +924,278 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command with mandatory properties",
+					"name": "GET /commands - List available commands - HTTP 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/* \r",
+									"// testing response time\r",
+									"pm.test(\"Response time is acceptable\", () => {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"});\r",
+									"*/\r",
+									"\r",
+									"pm.test(\"Response is JSON\", () => {\r",
+									"  pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"first level fields exist\", () => {\r",
+									"  pm.expect(responseJson).to.have.property(\"@context\");\r",
+									"  pm.expect(responseJson).to.have.property(\"@id\");\r",
+									"  pm.expect(responseJson).to.have.property(\"@type\", \"Collection\");\r",
+									"  pm.expect(responseJson).to.have.property(\"totalItems\");\r",
+									"  pm.expect(responseJson).to.have.property(\"member\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Key 'member' is an array\", () => {\r",
+									"  pm.expect(responseJson.member).to.be.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Key 'member' length is <= totalItems\", () => {\r",
+									"  pm.expect(responseJson.member.length).to.be.at.most(responseJson.totalItems);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each command has a valid schema\", () => {\r",
+									"  responseJson.member.forEach(cmd => {\r",
+									"    pm.expect(cmd).to.have.property(\"@id\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"@type\", \"ListCommandResource\");\r",
+									"\r",
+									"    pm.expect(cmd).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(cmd).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"type\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"command_line\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"is_activated\").that.is.a(\"boolean\");\r",
+									"\r",
+									"    pm.expect(cmd).to.have.property(\"used_hosts_count\").that.is.a(\"number\");\r",
+									"    pm.expect(cmd).to.have.property(\"used_services_count\").that.is.a(\"number\");\r",
+									"  });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Usage counters are never negative\", () => {\r",
+									"  responseJson.member.forEach(cmd => {\r",
+									"    pm.expect(cmd.used_hosts_count).to.be.at.least(0);\r",
+									"    pm.expect(cmd.used_services_count).to.be.at.least(0);\r",
+									"    pm.expect(cmd.used_service_templates_count).to.be.at.least(0);\r",
+									"  });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /logout - Administrator user logout and clear session - HTTP 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
+									"    pm.environment.unset(\"token\");\r",
+									"    pm.environment.unset(\"currentUserName\");\r",
+									"    pm.environment.unset(\"currentUserID\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{token}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-AUTH-TOKEN",
+									"type": "string"
+								},
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"logout"
+							],
+							"variable": [
+								{
+									"key": "protocol",
+									"value": "{{protocol}}",
+									"description": "HTTP schema (This can only be one of http,https)"
+								},
+								{
+									"key": "server",
+									"value": "{{server}}",
+									"description": "IP address or hostname of Centreon server"
+								},
+								{
+									"key": "port",
+									"value": "{{port}}",
+									"description": "Port used by HTTP server"
+								},
+								{
+									"key": "version",
+									"value": "{{version}}",
+									"description": "Version of the API"
+								}
+							]
+						},
+						"description": "Entry point to delete an existing authentication token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Editor user",
+			"item": [
+				{
+					"name": "POST /login - Editor authentication - HTTP 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"Login successful with the editor profile\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_editor'));\r",
+									"    \r",
+									"    pm.environment.set(\"token\", responseJson.security.token);\r",
+									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
+									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The role is not a super administrator (is_admin)\", function () {\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"})\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableCookies": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_editor}}\",\r\n      \"password\": \"{{api_password_generic}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST /commands - Valid request - HTTP 201",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"Command3Name\", \"command_3\");\r",
+									"pm.collectionVariables.set(\"CommandName\", \"command_2_by_editor\");\r",
+									"pm.collectionVariables.set(\"CommandType\", \"Check\");\r",
+									"pm.collectionVariables.set(\r",
+									"  \"CommandLine\",\r",
+									"  \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\"\r",
+									");\r",
+									"pm.collectionVariables.set(\"CommandConnector\", \"/centreon/api/latest/configuration/connectors/2\");\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2560,26 +1203,26 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command3Name\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new command \r",
-									"    pm.collectionVariables.set(\"Command3Id\", responseJson.id);\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
+									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command3Name\"),\r",
-									"        \"type\": 3,\r",
-									"        \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r",
-									"        \"is_shell\": false,\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
+									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
+									"        \"is_shell_enabled\": true,\r",
 									"        \"is_activated\": true,\r",
-									"        \"is_locked\": false,\r",
-									"        \"argument_example\": null,\r",
-									"        \"connector\": null,\r",
-									"        \"grap_template\": null\r",
+									"        \"is_from_monitoring_connector\": false\r",
 									"    });\r",
-									"    pm.expect(responseJson.arguments).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.property(\"connector\");\r",
+									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"CommandConnector\"));\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the command response\", function () {\r",
@@ -2588,12 +1231,11 @@
 									"        \"properties\": {\r",
 									"            \"id\": { \"type\": \"integer\" },\r",
 									"            \"name\": { \"type\": \"string\" },\r",
-									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"type\": { \"type\": \"string\" },\r",
 									"            \"command_line\": { \"type\": \"string\" },\r",
-									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_shell_enabled\": { \"type\": \"boolean\" },\r",
 									"            \"is_activated\": { \"type\": \"boolean\" },\r",
-									"            \"is_locked\": { \"type\": \"boolean\" },\r",
-									"            \"argument_example\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"            \"is_from_monitoring_connector\": { \"type\": \"boolean\" },\r",
 									"            \"arguments\": {\r",
 									"                \"type\": \"array\",\r",
 									"                \"items\": {\r",
@@ -2605,43 +1247,28 @@
 									"                    \"required\": [\"name\", \"description\"]\r",
 									"                }\r",
 									"            },\r",
-									"            \"macros\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"string\" },\r",
-									"                        \"description\": { \"type\": \"string\" }\r",
-									"                    },\r",
-									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
-									"                }\r",
-									"            },\r",
 									"            \"connector\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
+									"                \"type\": \"object\",\r",
 									"                \"properties\": {\r",
 									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
-									"                }\r",
-									"            },\r",
-									"            \"grap_template\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
-									"                \"properties\": {\r",
-									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"command_line\": { \"type\": \"string\" },\r",
+									"                    \"description\": { \"type\": \"string\" },\r",
+									"                    \"is_activated\": { \"type\": \"boolean\" }\r",
 									"                },\r",
 									"                \"required\": [\"id\", \"name\"]\r",
-									"            }\r",
-									"                        \r",
+									"            },\r",
+									"            \"comment\": { \"type\": \"string\"}          \r",
 									"        },\r",
-									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell_enabled\", \"is_activated\", \"is_from_monitoring_connector\", \"connector\"]\r",
 									"    };\r",
 									"    \r",
 									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2656,7 +1283,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command3Name}}\",\r\n    \"type\": 3,\r\n    \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\"\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -2672,150 +1304,7 @@
 					"response": []
 				},
 				{
-					"name": "Show available command",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"pm.test(\"A list of commands has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"/*\r",
-									"/  Check body content\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The commands retrieved are listed with all parameters\", function() {\r",
-									"    // Check the number of commands (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
-									"\r",
-									"    // Check the properties of each command \r",
-									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
-									"        \"type\": 2,\r",
-									"        \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r",
-									"        \"is_shell\": true,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command2Name\"),\r",
-									"        \"type\": 4,\r",
-									"        \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r",
-									"        \"is_shell\": false,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[2]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command3Name\"),\r",
-									"        \"type\": 3,\r",
-									"        \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r",
-									"        \"is_shell\": false,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation for the command response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": \"object\",\r",
-									"        \"properties\": {\r",
-									"            \"result\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"id\": { \"type\": \"integer\" },\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"integer\" },\r",
-									"                        \"command_line\": { \"type\": \"string\" },\r",
-									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
-									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
-									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
-									"                    },\r",
-									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
-									"                }\r",
-									"            },\r",
-									"            \"meta\": {\r",
-									"                \"type\": \"object\",\r",
-									"                \"properties\": {\r",
-									"                    \"page\": { \"type\": \"integer\" },\r",
-									"                    \"limit\": { \"type\": \"integer\" },\r",
-									"                    \"search\": { \"type\": \"object\" },\r",
-									"                    \"sort_by\": { \"type\": \"object\" },\r",
-									"                    \"total\": { \"type\": \"integer\" }\r",
-									"                },\r",
-									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
-									"            }\r",
-									"        },\r",
-									"        \"required\": [\"result\", \"meta\"]\r",
-									"    }\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/commands?sort_by=id&search={\"name\":{\"$lk\":\"command%\"}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"commands"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "id"
-								},
-								{
-									"key": "search",
-									"value": "{\"name\":{\"$lk\":\"command%\"}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Logout from RW user",
+					"name": "GET /logout - Editor user logout and clear session - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
@@ -2895,26 +1384,33 @@
 			]
 		},
 		{
-			"name": "User with Read Only Right",
+			"name": "Operator user",
 			"item": [
 				{
-					"name": "Login with Read Only user",
+					"name": "POST /login - Operator authentication - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"pm.test(\"Login successful with the operator profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_Read'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_operator'));\r",
+									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"The role is not a super administrator (is_admin)\", function () {\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"})\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2926,7 +1422,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Read}}\",\r\n      \"password\": \"{{api_password_user_Read}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_operator}}\",\r\n      \"password\": \"{{api_password_generic}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2946,7 +1442,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command",
+					"name": "POST /commands - Insufficient permissions - HTTP 403",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2955,7 +1451,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2963,10 +1460,11 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"You are not allowed to create commands.\", function () {\r",
+									"\r",
+									"pm.test(\"Should deny command creation when permissions are insufficient\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add a command\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"You are not allowed\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -2984,7 +1482,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2999,7 +1498,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"command_4\",\r\n    \"type\": 4,\r\n    \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r\n    \"is_shell\": false,\r\n    \"argument_example\": \"abcbbbbcccc\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG465\", \r\n            \"description\": \"I'm a wonderful argument\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"twixou\", \r\n            \"type\": 2, \r\n            \"description\": \"Such a beautiful cat\"\r\n        }\r\n    ],\r\n    \"connector_id\": 1,\r\n    \"graph_template_id\": 5\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -3015,101 +1519,38 @@
 					"response": []
 				},
 				{
-					"name": "Show available command",
+					"name": "GET /commands - Insufficient permissions - HTTP 403",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"pm.test(\"A list of commands has been successfully fetched.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"/*\r",
-									"/  Check body content\r",
-									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The commands retrieved are listed with all parameters\", function() {\r",
-									"    // Check the number of commands (3)\r",
-									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
-									"    // Check the properties of each command \r",
-									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command1Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
-									"        \"type\": 2,\r",
-									"        \"command_line\": \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$\\\" | @MAILER@ -s \\\"** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\\\" $CONTACTEMAIL$  -  $ARG1$  -  $_HOSTSNMPCOMMUNITY$\",\r",
-									"        \"is_shell\": true,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
+									"pm.test(\"You are not allowed to create commands.\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
 									"\r",
-									"    pm.expect(responseJson.result[1]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command2Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command2Name\"),\r",
-									"        \"type\": 4,\r",
-									"        \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r",
-									"        \"is_shell\": false,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
-									"    pm.expect(responseJson.result[2]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Command3Id\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command3Name\"),\r",
-									"        \"type\": 3,\r",
-									"        \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r",
-									"        \"is_shell\": false,\r",
-									"        \"is_locked\": false,\r",
-									"        \"is_activated\": true\r",
-									"    });\r",
-									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"You are not allowed\");\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"\r",
+									"pm.test(\"Schema validation test for the command response\", function () {\r",
 									"    const schema = {\r",
-									"        \"type\": \"object\",\r",
+									"        \"type\": 'object',\r",
 									"        \"properties\": {\r",
-									"            \"result\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"id\": { \"type\": \"integer\" },\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"integer\" },\r",
-									"                        \"command_line\": { \"type\": \"string\" },\r",
-									"                        \"is_shell\": { \"type\": \"boolean\" },\r",
-									"                        \"is_activated\": { \"type\": \"boolean\" },\r",
-									"                        \"is_locked\": { \"type\": \"boolean\" }                                    \r",
-									"                    },\r",
-									"                    \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\"]\r",
-									"                }\r",
-									"            },\r",
-									"            \"meta\": {\r",
-									"                \"type\": \"object\",\r",
-									"                \"properties\": {\r",
-									"                    \"page\": { \"type\": \"integer\" },\r",
-									"                    \"limit\": { \"type\": \"integer\" },\r",
-									"                    \"search\": { \"type\": \"object\" },\r",
-									"                    \"sort_by\": { \"type\": \"object\" },\r",
-									"                    \"total\": { \"type\": \"integer\" }\r",
-									"                },\r",
-									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
-									"            }\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
 									"        },\r",
-									"        \"required\": [\"result\", \"meta\"]\r",
-									"    }\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
 									"\r",
 									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3158,7 +1599,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from Read Only user",
+					"name": "GET /logout - Operator user logout and clear session - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
@@ -3238,26 +1679,33 @@
 			]
 		},
 		{
-			"name": "User with No Access",
+			"name": "Unprivileged user",
 			"item": [
 				{
-					"name": "Login with user with no access",
+					"name": "POST /login - Unprivileged user authentication - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"Login successful. The account displayed in response matches with credentials and has not admin rights.\", function () {\r",
+									"pm.test(\"Login successful with the external profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_Nothing'));\r",
-									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_unprivileged'));\r",
+									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"The role is not a super administrator (is_admin)\", function () {\r",
+									"    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
+									"})\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3269,7 +1717,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_Nothing}}\",\r\n      \"password\": \"{{api_password_user_Nothing}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_unprivileged}}\",\r\n      \"password\": \"{{api_password_generic}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3289,7 +1737,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command  ",
+					"name": "POST /commands - Insufficient permissions - HTTP 403",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3298,7 +1746,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3306,11 +1755,13 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
+									"\r",
 									"pm.test(\"You are not allowed to create commands.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to add a command\");\r",
+									"    pm.expect(responseJson.message).to.contains(\"You are not allowed\");\r",
 									"});\r",
+									"\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
 									"    const schema = {\r",
@@ -3327,7 +1778,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3342,7 +1794,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"command_3\",\r\n    \"type\": 4,\r\n    \"command_line\": \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\",\r\n    \"is_shell\": false,\r\n    \"argument_example\": \"abcbbbbcccc\",\r\n    \"arguments\": [\r\n        {\r\n            \"name\": \"ARG465\", \r\n            \"description\": \"I'm a wonderful argument\"\r\n        }\r\n    ],\r\n    \"macros\": [\r\n        {\r\n            \"name\": \"twixou\", \r\n            \"type\": 2, \r\n            \"description\": \"Such a beautiful cat\"\r\n        }\r\n    ],\r\n    \"connector_id\": 1,\r\n    \"graph_template_id\": 5\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -3358,20 +1815,20 @@
 					"response": []
 				},
 				{
-					"name": "Show available command",
+					"name": "GET /commands - Insufficient permissions - HTTP 403",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The commands have not been  listed, because the user does have the corrects rights\", function () {\r",
+									"\r",
+									"pm.test(\"You are not allowed to create commands.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access commands\");\r",
+									"\r",
+									"    pm.expect(responseJson.message).to.contains(\"You are not allowed\");\r",
 									"});\r",
+									"\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
 									"    const schema = {\r",
@@ -3388,7 +1845,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3433,7 +1891,7 @@
 					"response": []
 				},
 				{
-					"name": "Logout from user with no access",
+					"name": "GET /logout - Unprivileged user logout and clear session - HTTP 200",
 					"event": [
 						{
 							"listen": "test",
@@ -3448,7 +1906,9 @@
 									"    pm.environment.unset(\"currentUserID\");\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3533,6 +1993,7 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -3542,6 +2003,7 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -3550,27 +2012,43 @@
 	],
 	"variable": [
 		{
-			"key": "Command1Name",
+			"key": "api_login_user_administrator",
 			"value": ""
 		},
 		{
-			"key": "Command1Type",
+			"key": "api_login_editor",
 			"value": ""
 		},
 		{
-			"key": "Command1Line",
+			"key": "api_login_operator",
 			"value": ""
 		},
 		{
-			"key": "Command1Id",
+			"key": "api_login_user_unprivileged",
 			"value": ""
 		},
 		{
-			"key": "Commande1Connector",
+			"key": "api_password_generic",
 			"value": ""
 		},
 		{
-			"key": "Command1Connector",
+			"key": "CommandName",
+			"value": ""
+		},
+		{
+			"key": "CommandType",
+			"value": ""
+		},
+		{
+			"key": "CommandLine",
+			"value": ""
+		},
+		{
+			"key": "CommandConnector",
+			"value": ""
+		},
+		{
+			"key": "CommandId",
 			"value": ""
 		}
 	]
