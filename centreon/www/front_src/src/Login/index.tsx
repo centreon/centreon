@@ -69,8 +69,8 @@ const initialValues: LoginFormValues = {
 };
 
 const LoginPage = (): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
+  const { classes } = useStyles();
   const validationSchema = useValidationSchema();
 
   const { loginPageCustomisation } = useGetLoginCustomData();
