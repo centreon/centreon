@@ -2194,7 +2194,7 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA (.crt,.cer)"
+msgid "CA (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5190,6 +5190,10 @@ msgstr ""
 msgid "Display the password"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Display up to"
 msgstr ""
@@ -5921,6 +5925,14 @@ msgstr "Habilita el enrutamiento de trampa"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Habilitar el shell"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket management"
@@ -7938,9 +7950,9 @@ msgstr ""
 # msgstr ""
 # msgid "Resources with no ticket"
 # msgstr ""
-# msgid "Hide services with Down host"
+# msgid "Hide services with Down hosts"
 # msgstr ""
-# msgstr "Hide services with Unreachable host"
+# msgstr "Hide services with Unreachable hosts"
 # msgstr ""
 # msgstr "Ticket ID"
 # msgstr ""
@@ -14623,7 +14635,7 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt,.cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
 msgstr "Certificado publico"
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -17377,9 +17389,9 @@ msgstr "Reconocimiento persistente en caso de cambio de estado no correcto"
 # msgstr ""
 # msgid "Extension not allowed"
 # msgstr ""
-# msgid "Public certificate (.crt,.cer)"
+# msgid "Public certificate (.crt, .cert, .cer)"
 # msgstr ""
-# msgid "CA (.crt,.cer)"
+# msgid "CA (.crt, .cert, .cer)"
 # msgstr ""
 # msgid "CA Common Name (CN)"
 # msgstr ""

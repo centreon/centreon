@@ -6,6 +6,7 @@ import {
   head,
   isEmpty,
   isNotNil,
+  or,
   pipe,
   propOr,
   split
@@ -47,10 +48,9 @@ import {
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
-
-import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
 
+import { openTicketAtom } from '../../atom';
 import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import { TicketLink } from './OpenTicket/TicketLink';
@@ -62,10 +62,7 @@ import StateColumn from './State';
 import StatusColumn from './Status';
 
 interface ColumnProps {
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
-  isOpenTicketEnabled: boolean;
-  provider?: { id: number; name: string };
 }
 
 interface ColumnsState {
@@ -78,10 +75,7 @@ const getTicketInformations = (row) =>
   row?.parent?.extra?.open_tickets?.tickets;
 
 const useColumns = ({
-  displayType = DisplayType.All,
-  displayResources,
-  provider,
-  isOpenTicketEnabled
+  displayType = DisplayType.All
 }: ColumnProps): ColumnsState => {
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
@@ -89,11 +83,17 @@ const useColumns = ({
   });
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const {
+    displayResources,
+    enableHostTicketCreation,
+    enableServiceTicketCreation,
+    isOpenTicketEnabled,
+    isOpenTicketInstalled,
+    provider
+  } = useAtomValue(openTicketAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
-
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -109,7 +109,10 @@ const useColumns = ({
 
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
+    isOpenTicketInstalled &&
+    isOpenTicketEnabled &&
+    hasProvider &&
+    or(enableHostTicketCreation, enableServiceTicketCreation);
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');

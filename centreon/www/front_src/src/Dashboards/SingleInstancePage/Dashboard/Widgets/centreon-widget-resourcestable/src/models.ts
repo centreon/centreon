@@ -12,8 +12,10 @@ export interface Data {
 }
 
 export interface PanelOptions {
-  displayResources: 'all' | 'withTicket' | 'withoutTicket';
+  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
+  enableHostTicketCreation: boolean;
+  enableServiceTicketCreation: boolean;
   hostSeverities: Array<NamedEntity>;
   isDownHostHidden: boolean;
   isOpenTicketEnabled: boolean;
@@ -35,4 +37,15 @@ export interface ResourcesTableProps extends CommonWidgetProps<PanelOptions> {
   changeViewMode?: (displayType) => void;
   panelData: Data;
   panelOptions: PanelOptions;
+}
+
+export interface OpenTicketContext {
+  displayResources: 'withTicket' | 'withoutTicket';
+  isDownHostHidden: boolean;
+  isOpenTicketInstalled: boolean;
+  isOpenTicketEnabled: boolean;
+  isUnreachableHostHidden: boolean;
+  enableHostTicketCreation: boolean;
+  enableServiceTicketCreation: boolean;
+  provider?: { id: number; name: string };
 }
