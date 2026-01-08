@@ -69,11 +69,12 @@ export const useComputeYAxisMaxCharacters = ({
     ]
   );
 
+  // Always add a character space in case the algorithm does not compute the displayed value in axis.
   const maxLeftAxisCharacters = useMemo(
     () =>
       isEmpty(maxLeftValue)
         ? 2
-        : Math.max(...maxLeftValue.map((value) => value.length), 2),
+        : Math.max(...maxLeftValue.map((value) => value.length), 2) + 1,
     [maxLeftValue]
   );
 
@@ -81,7 +82,7 @@ export const useComputeYAxisMaxCharacters = ({
     () =>
       isEmpty(maxRightValue)
         ? 5
-        : Math.max(...maxRightValue.map((value) => value.length), 5),
+        : Math.max(...maxRightValue.map((value) => value.length), 5) + 1,
     [maxRightValue]
   );
 
