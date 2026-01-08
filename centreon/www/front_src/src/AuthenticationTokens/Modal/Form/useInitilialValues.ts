@@ -13,7 +13,7 @@ const useInitilialValues = () => {
   const type = find(propEq(searchParams.get('type'), 'id'), tokenTypes);
 
   const user = currentUser.canManageApiTokens
-    ? null
+    ? {}
     : pick(['id', 'alias'], currentUser);
 
   const duration = find(propEq('neverExpire', 'id'), dataDuration);
