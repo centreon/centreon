@@ -34,6 +34,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\NewHostGroup;
 use Core\MonitoringServer\Model\MonitoringServer;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
@@ -75,7 +76,7 @@ class UpdateHostGroupValidator
             'HostGroup::name'
         );
 
-        $formattedName = \Core\HostGroup\Domain\Model\NewHostGroup::formatName($hostGroupName);
+        $formattedName = NewHostGroup::formatName($hostGroupName);
 
         if (
             $hostGroup->getName() !== $formattedName
