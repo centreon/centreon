@@ -19,8 +19,11 @@
  * limitations under the License.
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class JiraProvider extends AbstractProvider
 {
+    use LoggerTrait;
     protected $proxy_enabled = 1;
 
     public const JIRA_PROJECT = 30;
@@ -582,8 +585,14 @@ class JiraProvider extends AbstractProvider
 
         $proto = 'https';
 
-        $base_url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['rest_api_resource'] .
-            '/' . $function;
+        $base_url = $proto . '://' . $this->rule_data['address'] . $this->rule_data['rest_api_resource']
+            . '/' . $function;
+
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         $ch = curl_init($base_url);
         if ($ch == false) {
             $this->setWsError("cannot init curl object");
@@ -602,7 +611,8 @@ class JiraProvider extends AbstractProvider
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt(
             $ch,
             CURLOPT_USERPWD,
@@ -618,6 +628,25 @@ class JiraProvider extends AbstractProvider
             )
         );
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $optionsToLog = [
+            'apiAddress' => $base_url,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        // log the curl options
+        $this->debug('Jira API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $result = curl_exec($ch);
         if ($result == false) {
             $this->setWsError(curl_error($ch));

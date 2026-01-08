@@ -19,8 +19,11 @@
  * limitations under the License.
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class EasyVistaRestProvider extends AbstractProvider
 {
+    use LoggerTrait;
     protected $close_advanced = 1;
     protected $proxy_enabled = 1;
 
@@ -512,6 +515,11 @@ class EasyVistaRestProvider extends AbstractProvider
         $apiAddress = $this->getFormValue('protocol') . '://' . $this->getFormValue('address')
             . $this->getFormValue('api_path') . $info['query_endpoint'];
 
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         $info['headers'] = [
             "content-type: application/json"
         ];
@@ -524,9 +532,23 @@ class EasyVistaRestProvider extends AbstractProvider
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt($curl, CURLOPT_POST, $info['method']);
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
+        $optionsToLog = [
+            'apiAddress' => $apiAddress,
+            'method' => $info['method'],
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
 
         if ($this->getFormValue('use_token') != 1) {
             curl_setopt($curl, CURLOPT_USERPWD, $this->getFormValue('account') . ":" . $this->getFormValue('token'));
@@ -540,6 +562,7 @@ class EasyVistaRestProvider extends AbstractProvider
         // change curl method with a custom one (PUT, DELETE) if needed
         if (isset($info['custom_request'])) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $info['custom_request']);
+            $optionsToLog['custom_request'] = $info['custom_request'];
         }
 
         // if proxy is set, we add it to curl
@@ -565,6 +588,11 @@ class EasyVistaRestProvider extends AbstractProvider
                 );
             }
         }
+
+        // log the curl options
+        $this->debug('Easyvista Rest API request options', [
+            'options' => $optionsToLog,
+        ]);
 
         // execute curl and get status information
         $curlResult = curl_exec($curl);
