@@ -55,12 +55,6 @@ export interface InputProps {
     limitTags?: number;
     decoder?;
   };
-  file?: {
-    multiple?: boolean;
-    accept?: string;
-    maxFileSize?: number;
-    CustomDropZoneContent: ({ files }) => JSX.Element;
-  };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
   };

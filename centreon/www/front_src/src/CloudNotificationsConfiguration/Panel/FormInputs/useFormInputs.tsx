@@ -10,30 +10,28 @@ import { Variant } from '@mui/material/styles/createTypography';
 import { Group, InputType } from '@centreon/ui';
 
 import {
-  labelSelectResourcesAndEvents,
-  labelNotificationSettings,
+  labelBusinessViews,
+  labelBusinessViewsEvents,
+  labelContacts,
   labelEmailTemplateForTheNotificationMessage,
-  labelSubject,
-  labelNotificationChannels,
   labelHostGroups,
-  labelServiceGroups,
-  labelTimePeriod,
+  labelNotificationChannels,
+  labelNotificationSettings,
+  labelSearchBusinessViews,
+  labelSearchContacts,
   labelSearchHostGroups,
   labelSearchServiceGroups,
-  labelContacts,
-  labelSearchContacts,
-  labelSearchBusinessViews,
-  labelBusinessViews,
-  labelBusinessViewsEvents
+  labelSelectResourcesAndEvents,
+  labelServiceGroups,
+  labelSubject,
+  labelTimePeriod
 } from '../../translatedLabels';
-import { hostEvents, serviceEvents } from '../utils';
 import {
   businessViewsEndpoint,
   hostsGroupsEndpoint,
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
-
 import { hostEvents, serviceEvents } from '../utils';
 
 import { EmailBody } from './Channel';
@@ -242,11 +240,6 @@ const useFormInputs = ({
     {
       additionalLabel: <TimePeriodTitle />,
       additionalLabelClassName: classes.additionalLabel,
-      connectedAutocomplete: {
-        additionalConditionParameters: [],
-        endpoint: availableTimePeriodsEndpoint,
-        getOptionLabel: (option) => option.name
-      },
       dataTestId: t(labelTimePeriod),
       fieldName: 'timeperiod',
       getDisabled: T,
