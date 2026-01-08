@@ -2294,7 +2294,7 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA (.crt,.cer)"
+msgid "CA (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5210,6 +5210,10 @@ msgstr ""
 msgid "Display the password"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Display up to"
 msgstr ""
@@ -6080,6 +6084,14 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -14163,7 +14175,7 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt,.cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
