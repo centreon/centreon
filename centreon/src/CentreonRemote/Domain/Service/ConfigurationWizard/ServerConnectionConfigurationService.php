@@ -23,11 +23,14 @@ namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
 use App\Kernel;
 use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
+use CentreonLog;
 use CentreonRemote\Domain\Resources\RemoteConfig\BamBrokerCfgInfo;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosBrokerModule;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosLogger;
 use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\FeatureFlags;
@@ -118,6 +121,8 @@ abstract class ServerConnectionConfigurationService
      */
     public function insert(): int
     {
+        global $centreon;
+
         $this->getDbAdapter()->beginTransaction();
 
         $serverID = $this->insertNagiosServer();
@@ -132,11 +137,27 @@ abstract class ServerConnectionConfigurationService
 
         $this->insertConfigCentreonBroker($serverID);
 
+        $this->getDbAdapter()->commit();
+
+        $kernel = Kernel::createForWeb();
+        $deployAgentConfiguration = $kernel->getContainer()
+            ->get(DeployDefaultAgentConfigurationForPoller::class);
+        if (! $deployAgentConfiguration instanceof DeployDefaultAgentConfigurationForPoller) {
+            CentreonLog::create()->warning(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'DeployDefaultAgentConfigurationForPoller service not found, skipping default agent configuration deployment'
+            );
+        } else {
+            $request = new DeployDefaultAgentConfigurationForPollerRequest(
+                pollerId: $serverID,
+                creatorId: $centreon->user->user_id,
+                creatorName: $centreon->user->alias,
+            );
+            $deployAgentConfiguration($request);
+        }
         if ($this->shouldInsertBamBrokers && $this->isRemote()) {
             $this->insertBamBrokers();
         }
-
-        $this->getDbAdapter()->commit();
 
         return $serverID;
     }
