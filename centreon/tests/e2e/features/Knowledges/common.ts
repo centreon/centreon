@@ -2,7 +2,7 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 
 const configureKb = (url, account, password): void => {
   // Visit the Configuration of 'Knowledge Base' page
-  cy.visit(PAGES.configuration.KnowledgeBaseLegacy);
+  cy.visit(PAGES.configuration.knowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'knowledge base url' is visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="kb_wiki_url"]');
