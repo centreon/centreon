@@ -5155,6 +5155,10 @@ msgid "Display properties"
 msgstr "Ajustes de pantalla"
 
 #: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
 msgid "Display resources"
 msgstr ""
 
@@ -7938,9 +7942,9 @@ msgstr ""
 # msgstr ""
 # msgid "Resources with no ticket"
 # msgstr ""
-# msgid "Hide services with Down host"
+# msgid "Hide services with Down hosts"
 # msgstr ""
-# msgstr "Hide services with Unreachable host"
+# msgstr "Hide services with Unreachable hosts"
 # msgstr ""
 # msgstr "Ticket ID"
 # msgstr ""
@@ -25106,3 +25110,9 @@ msgstr "periodo de tiempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nombre de la topología."
+
+# msgid "Enable ticket creation for hosts"
+# msgstr ""
+
+# msgid "Enable ticket creation for services"
+# msgstr ""
