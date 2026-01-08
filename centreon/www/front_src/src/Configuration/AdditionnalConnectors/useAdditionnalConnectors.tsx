@@ -35,7 +35,7 @@ export const adaptFormToApiPayload = (
         password: equals(vcenter[ParameterKeys.password], maskedPassword)
           ? null
           : vcenter[ParameterKeys.password],
-        url: splitURL(vcenter[ParameterKeys.url]).mainURL,
+        url: vcenter[ParameterKeys.url],
         username: vcenter[ParameterKeys.username]
       }))
     },
