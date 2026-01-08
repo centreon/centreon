@@ -456,6 +456,11 @@ jobs:
             docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
             docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
           fi
+
+          # Import dataset via CLAPI for tests
+          docker compose -f ../../../.github/docker/docker-compose.yml cp ./fixtures web:/tmp
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web ls -la /tmp/fixtures
+          docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex -c "/tmp/fixtures/clapi-import-dataset.sh"
         shell: bash
 
       - name: Run Postman Tests and Generate HTML Report

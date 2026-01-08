@@ -1,21 +1,43 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Import users, acls, permissions and relations datasets for tests
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+command -v centreon >/dev/null 2>&1 || {
+  echo "centreon CLI not found" >&2
+  exit 1
+}
+
+CENTREON_CMD=(centreon -u admin -p 'Centreon!2021')
+
+import() {
+  local file="$1"
+  [[ -f "$file" ]] || {
+    echo "Missing file: $file" >&2
+    exit 1
+  }
+  echo " ==> Importing $file"
+  "${CENTREON_CMD[@]}" -i "$file"
+}
 
 # Import ACLs groups, menus, actions
-centreon -u admin -p 'Centreon!2021' -i ./imports/acls/aclgroup.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/acls/aclmenu.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/acls/aclaction.csv
+import ./imports/acls/aclgroup.csv
+import ./imports/acls/aclmenu.csv
+import ./imports/acls/aclaction.csv
 
 # Import ACLs permissions
-centreon -u admin -p 'Centreon!2021' -i ./imports/permissions/aclactionperms.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/permissions/aclmenuperms.csv
+import ./imports/permissions/aclactionperms.csv
+import ./imports/permissions/aclmenuperms.csv
+
 # Import ACLs relations
-centreon -u admin -p 'Centreon!2021' -i ./imports/relations/aclgroup_aclaction.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/relations/aclgroup_aclmenu.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/relations/aclgroup_allresources.csv
+import ./imports/relations/aclgroup_aclaction.csv
+import ./imports/relations/aclgroup_aclmenu.csv
+import ./imports/relations/aclgroup_allresources.csv
 
 # Import users
-centreon -u admin -p 'Centreon!2021' -i ./imports/users/administrator.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/users/editor.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/users/operator.csv
-centreon -u admin -p 'Centreon!2021' -i ./imports/users/unprivileged.csv
+import ./imports/users/administrator.csv
+import ./imports/users/editor.csv
+import ./imports/users/operator.csv
+import ./imports/users/unprivileged.csv
