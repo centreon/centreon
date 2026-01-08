@@ -71,8 +71,8 @@ export type Contact = {
 };
 
 export enum DeleteType {
-  MultipleItems = 0 = 0,
-  SingleItem = 1 = 1
+  MultipleItems = 'MultipleItems',
+  SingleItem = 'SingleItem'
 }
 
 export interface DeleteResourceAccessRuleType {
