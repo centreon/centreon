@@ -53,14 +53,8 @@ export type DatasetFilter = {
 };
 
 export type GetResourceAccessRule = ResourceAccessRuleType & {
-  contactGroups: {
-    all: boolean;
-    values: Array<NamedEntity>;
-  };
-  contacts: {
-    all: boolean;
-    values: Array<Contact>;
-  };
+  contactGroups: Array<NamedEntity>;
+  contacts: Array<NamedEntity>;
   datasetFilters: Array<DatasetFilter>;
 };
 
@@ -77,8 +71,8 @@ export type Contact = {
 };
 
 export enum DeleteType {
-  MultipleItems,
-  SingleItem
+  MultipleItems = 0 = 0,
+  SingleItem = 1 = 1
 }
 
 export interface DeleteResourceAccessRuleType {

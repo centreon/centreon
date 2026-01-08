@@ -61,10 +61,8 @@ export const getInitialValues = ({
   isActivated,
   name
 }): Omit<ResourceAccessRule, 'id'> => ({
-  allContactGroups: contactGroups?.all,
-  allContacts: contacts?.all,
-  contactGroups: contactGroups?.values,
-  contacts: contacts?.values,
+  contactGroups,
+  contacts,
   datasetFilters: formatDatasetFilters(datasetFilters),
   description,
   isActivated,
