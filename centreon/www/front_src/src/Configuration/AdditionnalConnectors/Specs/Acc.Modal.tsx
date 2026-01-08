@@ -603,7 +603,7 @@ export default (): void => {
                 {
                   name: 'my_vcenter',
                   password: 'password',
-                  url: '10.10.10.10/sdk',
+                  url: 'https://10.10.10.10/sdk',
                   username: 'username'
                 }
               ]
@@ -651,7 +651,7 @@ export default (): void => {
                 {
                   name: 'vCenter2',
                   password: null,
-                  url: '192.0.0.1',
+                  url: 'https://192.0.0.1',
                   username: 'user2'
                 }
               ]
