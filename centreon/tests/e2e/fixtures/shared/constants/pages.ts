@@ -33,7 +33,7 @@ export const PAGES = {
     snmpTrapsLegacy: '/centreon/main.php?p=61701',
     hostsKnowledgeBaseLegacy: '/centreon/main.php?p=61001',
     servicesKnowledgeBaseLegacy: '/centreon/main.php?p=61002',
-    KnowledgeBaseLegacy: '/centreon/main.php?p=50133&o=knowledgeBase'
+    knowledgeBaseLegacy: '/centreon/main.php?p=50133&o=knowledgeBase'
   },
   monitoring: {
     resourcesStatus: '/centreon/monitoring/resources',
