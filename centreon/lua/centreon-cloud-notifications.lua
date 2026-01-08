@@ -429,7 +429,7 @@ local function send_mail(notif, event, conf, hostname)
 
   -- Constructing the mail command
   local cmd = data.mail_command
-  cmd = string.gsub(cmd, "{{SENDER}}", escape_shell_chars(sender))
+  cmd = string.gsub(cmd, "{{SENDER}}", escape_shell_chars(data.sender))
   cmd = string.gsub(cmd, "{{DESTINATION_FILE}}", dest_tmpname)
   cmd = string.gsub(cmd, "{{MESSAGE_FILE}}", msg_tmpname)
 
