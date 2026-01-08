@@ -1,13 +1,13 @@
 import { JsonDecoder } from 'ts.data.json';
 
-import { TimeperiodType, ChannelsEnum, ResourcesTypeEnum } from '../../models';
+import { ChannelsEnum, ResourcesTypeEnum, TimeperiodType } from '../../models';
 import {
+  MessageType,
   NotificationType,
-  ResourceType,
-  UserType,
-  ResourceIdsType,
   ResourceExtraType,
-  MessageType
+  ResourceIdsType,
+  ResourceType,
+  UserType
 } from '../models';
 
 const timeperiod = JsonDecoder.object<TimeperiodType>(
@@ -49,9 +49,17 @@ const resource = JsonDecoder.object<ResourceType>(
 const user = JsonDecoder.object<UserType>(
   {
     id: JsonDecoder.number,
-    name: JsonDecoder.string
+    alias: JsonDecoder.string
   },
   'User'
+);
+
+const contactGroup = JsonDecoder.object<UserType>(
+  {
+    id: JsonDecoder.number,
+    name: JsonDecoder.string
+  },
+  'ContactGroup'
 );
 
 const message = JsonDecoder.object<MessageType>(
@@ -69,7 +77,7 @@ const message = JsonDecoder.object<MessageType>(
 
 export const notificationdecoder = JsonDecoder.object<NotificationType>(
   {
-    contactgroups: JsonDecoder.array(user, 'Contactgroups'),
+    contactgroups: JsonDecoder.array(contactGroup, 'Contactgroups'),
     id: JsonDecoder.number,
     isActivated: JsonDecoder.boolean,
     messages: JsonDecoder.array(message, 'Messages'),

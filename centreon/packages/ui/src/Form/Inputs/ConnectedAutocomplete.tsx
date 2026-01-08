@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isEmpty, path, split } from 'ramda';
+import { path, equals, isEmpty, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -113,6 +113,8 @@ const ConnectedAutocomplete = ({
         field={filterKey}
         getEndpoint={getEndpoint}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
+        getOptionLabel={connectedAutocomplete?.getOptionLabel}
+        optionProperty={connectedAutocomplete?.optionProperty}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}

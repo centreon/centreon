@@ -25,6 +25,7 @@
     "cypress:cli:updateSnapshot": "./cypress/scripts/cypress-cli.sh --env updateSnapshots=true",
     "cypress:ui": "TZ=Europe/London cypress open --component --browser=chrome",
     "cypress:run": "TZ=Europe/London cypress run --component --browser=chrome",
+    "cypress:run:updateSnapshot": "TZ=Europe/London cypress run --component --browser=chrome --env updateSnapshots=true",
     "cypress:run:coverage": "TZ=Europe/London cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
     "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
     "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api-v24.04.yaml"
