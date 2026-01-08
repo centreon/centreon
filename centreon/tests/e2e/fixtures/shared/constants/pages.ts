@@ -16,6 +16,10 @@ export const PAGES = {
     additionalConfigurations: '/centreon/configuration/additional-connector-configurations',
     hostsTemplatesLegacy: '/centreon/main.php?p=60103',
     hostsLegacy: '/centreon/main.php?p=60101',
+    hostCategoriesLegacy: '/centreon/main.php?p=60104',
+    hostsDependenciesLegacy: '/centreon/main.php?p=60407',
+    hostGroups: '/centreon/configuration/hosts/groups',
+    hostGroupsDependenciesLegacy: '/centreon/main.php?p=60408',
     authentication: '/centreon/administration/authentication',
     backupParameters: '/centreon/main.php?p=50165&o=backup',
     cloudNotifications: '/centreon/configuration/notifications',
@@ -25,7 +29,11 @@ export const PAGES = {
     commandsConnectorsLegacy: '/centreon/main.php?p=60806',
     servicesTemplatesLegacy: '/centreon/main.php?p=60206',
     servicesByHostLegacy: '/centreon/main.php?p=60201',
-    centreonUiLegacy: '/centreon/main.php?p=50110&o=general'
+    centreonUiLegacy: '/centreon/main.php?p=50110&o=general',
+    snmpTrapsLegacy: '/centreon/main.php?p=61701',
+    hostsKnowledgeBaseLegacy: '/centreon/main.php?p=61001',
+    servicesKnowledgeBaseLegacy: '/centreon/main.php?p=61002',
+    KnowledgeBaseLegacy: '/centreon/main.php?p=50133&o=knowledgeBase'
   },
   monitoring: {
     resourcesStatus: '/centreon/monitoring/resources',
