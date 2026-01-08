@@ -15,7 +15,7 @@ type Props = Pick<
 >;
 
 const toSelectEntries = (columns: Array<Column>): Array<SelectEntry> => {
-  return columns.map(({ id, label, shortLabel }) => ({
+  return columns.filter(Boolean).map(({ id, label, shortLabel }) => ({
     id,
     name: `${label}${!isNil(shortLabel) ? ` (${shortLabel})` : ''}`
   }));
@@ -28,10 +28,11 @@ const ColumnMultiSelect = ({
   onResetColumns
 }: Props): JSX.Element => {
   const { t } = useTranslation();
+  const sanitizedColumns = columns.filter(Boolean);
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns
+    columns: sanitizedColumns
   });
 
   const selectColumnIds = (updatedColumns): void => {
@@ -41,7 +42,7 @@ const ColumnMultiSelect = ({
   return (
     <IconPopoverMultiSelect
       icon={<ColumnIcon />}
-      options={toSelectEntries(columns)}
+      options={toSelectEntries(sanitizedColumns)}
       popperPlacement="bottom-end"
       title={t(labelAddColumns)}
       value={toSelectEntries(visibleColumns)}

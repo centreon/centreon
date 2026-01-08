@@ -188,9 +188,10 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
     labelExpand: 'Expand'
   }
 }: Props<TRow>): JSX.Element => {
+  const sanitizedColumns = columns.filter(Boolean);
   const currentVisibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns
+    columns: sanitizedColumns
   });
   const { dataStyle, getGridTemplateColumn } = useStyleTable({
     checkable,
@@ -486,7 +487,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
 
   const visibleColumns = getVisibleColumns({
     columnConfiguration,
-    columns
+    columns: sanitizedColumns
   });
 
   React.useEffect(() => {
@@ -520,7 +521,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
             actions={actions}
             actionsBarMemoProps={actionsBarMemoProps}
             columnConfiguration={columnConfiguration}
-            columns={columns}
+            columns={sanitizedColumns}
             currentPage={currentPage}
             customPaginationClassName={customPaginationClassName}
             limit={limit}
@@ -567,7 +568,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                     areColumnsEditable={areColumnsEditable}
                     checkable={checkable}
                     columnConfiguration={columnConfiguration}
-                    columns={columns}
+                    columns={sanitizedColumns}
                     listingVariant={listingVariant}
                     memoProps={headerMemoProps}
                     predefinedRowsSelection={predefinedRowsSelection}
@@ -600,7 +601,7 @@ const Listing = <TRow extends { id: RowId; internalListingParentId?: RowId }>({
                             (!isSubItem || subItems.canCheckSubItems)
                           }
                           columnConfiguration={columnConfiguration}
-                          columnIds={columns.map(prop('id'))}
+                          columnIds={sanitizedColumns.map(prop('id'))}
                           disableRowCondition={disableRowCondition}
                           isHovered={isRowHovered}
                           isSelected={isRowSelected}

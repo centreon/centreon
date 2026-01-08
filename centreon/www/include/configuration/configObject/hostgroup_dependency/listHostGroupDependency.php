@@ -1,83 +1,97 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 if (!isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
+include_once './class/centreonUtils.class.php';
+include './include/common/autoNumLimit.php';
 
-include "./include/common/autoNumLimit.php";
+// Preserve and sanitize search term
+$rawSearch = $_POST['searchHGD'] ?? $_GET['searchHGD'] ?? null;
 
-$list = $_GET["list"] ?? null;
-
-$aclCond = "";
-if (!$oreon->user->admin) {
-    $aclCond = " AND hostgroup_hg_id IN ($hgstring) ";
-}
-
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
-    $_POST['searchHGD'] ?? $_GET['searchHGD'] ?? null
-);
-
-if (isset($_POST['searchHGD']) || isset($_GET['searchHGD'])) {
+if ($rawSearch !== null) {
     //saving filters values
-    $centreon->historySearch[$url] = array();
+    $search = HtmlSanitizer::createFromString((string) $rawSearch)
+        ->removeTags()
+        ->sanitize()
+        ->getString();
     $centreon->historySearch[$url]['search'] = $search;
 } else {
     //restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
-/*
- * List dependencies
- */
-$rq = "SELECT SQL_CALC_FOUND_ROWS dep_id, dep_name, dep_description FROM dependency dep " .
-    "WHERE ((SELECT DISTINCT COUNT(*) FROM dependency_hostgroupParent_relation dhgpr " .
-    "WHERE dhgpr.dependency_dep_id = dep.dep_id $aclCond) > 0  OR (SELECT DISTINCT COUNT(*) " .
-    "FROM dependency_hostgroupChild_relation dhgpr WHERE dhgpr.dependency_dep_id = dep.dep_id $aclCond) > 0)";
+// Fetch dependencies from DB with pagination
+try {
+    $db = $pearDB;
+    $mainSelect = 'SELECT DISTINCT dep.dep_id, dep.dep_name, dep.dep_description ';
+    $sql = <<<SQL
+            FROM dependency dep
+            WHERE ((SELECT COUNT(DISTINCT dhgpr_parent.dependency_dep_id)
+                    FROM dependency_hostgroupParent_relation dhgpr_parent
+                    WHERE dhgpr_parent.dependency_dep_id = dep.dep_id
+        SQL;
 
-if ($search) {
-    $rq .= " AND (dep_name LIKE '%" . CentreonDB::escape($search) . "%' OR dep_description LIKE '%" .
-        CentreonDB::escape($search) . "%')";
+    if (! $centreon->user->admin) {
+        $sql .= " AND dhgpr_parent.hostgroup_hg_id IN ({$hgstring})";
+    }
+
+    $sql .= <<<SQL
+                ) > 0
+                OR (SELECT COUNT(DISTINCT dhgpr_child.dependency_dep_id)
+                    FROM dependency_hostgroupChild_relation dhgpr_child
+                    WHERE dhgpr_child.dependency_dep_id = dep.dep_id
+        SQL;
+
+    if (! $centreon->user->admin) {
+        $sql .= " AND dhgpr_child.hostgroup_hg_id IN ({$hgstring})";
+    }
+
+    $sql .= ') > 0)';
+
+    $params = null;
+
+    // Search filter
+    if ($search !== null && $search !== '') {
+        $sql .= " AND (dep.dep_name LIKE :search OR dep.dep_description LIKE :search)";
+        $params = QueryParameters::create([QueryParameter::string('search', "%$search%")]);
+    }
+
+    $countSql = 'SELECT COUNT(DISTINCT dep.dep_id) AS total ' . $sql;
+
+    $sql = $mainSelect . $sql;
+    $sql .= " ORDER BY dep.dep_name, dep.dep_description";
+    $offset = $num * $limit;
+    $sql .= " LIMIT $limit OFFSET $offset";
+
+    $result = $db->fetchAllAssociative($sql, $params);
+    $countResult = $db->fetchAssociative($countSql, $params);
+    $rows = $countResult['total'] ?? 0;
+} catch (Exception $e) {
+    error_log("Error fetching hostgroup dependencies: " . $e->getMessage());
+    $result = [];
+    $rows = 0;
 }
-
-$rq .= " ORDER BY dep_name, dep_description LIMIT " . $num * $limit . ", " . $limit;
-$dbResult = $pearDB->query($rq);
-
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
 
 include "./include/common/checkPagination.php";
 
@@ -108,24 +122,17 @@ $attrBtnSuccess = array(
 );
 $form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
 
-//Fill a tab with a multidimensional Array we put in $tpl
-$elemArr = array();
-for ($i = 0; $dep = $dbResult->fetch(); $i++) {
-    $moptions = "";
-    $selectedElements = $form->addElement('checkbox', "select[" . $dep['dep_id'] . "]");
-    $moptions .= "&nbsp;<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57))" .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" .
-        "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
-        $dep['dep_id'] . "]' />";
-    $elemArr[$i] = array(
-        "MenuClass" => "list_" . $style,
-        "RowMenu_select" => $selectedElements->toHtml(),
-        "RowMenu_name" => CentreonUtils::escapeSecure($dep["dep_name"]),
-        "RowMenu_link" => "main.php?p=" . $p . "&o=c&dep_id=" . $dep['dep_id'],
-        "RowMenu_description" => CentreonUtils::escapeSecure($dep["dep_description"]),
-        "RowMenu_options" => $moptions
-    );
-    $style != "two" ? $style = "two" : $style = "one";
+// Fill a tab with a multidimensional Array we put in $tpl
+$elemArr = [];
+foreach ($result as $i => $dep) {
+    $moptions = '';
+    $selectedElements = $form->addElement('checkbox', 'select[' . $dep['dep_id'] . ']');
+    $moptions .= '&nbsp;<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57))'
+        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;'
+        . "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
+        . $dep['dep_id'] . "]' />";
+    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure($dep['dep_name']), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&dep_id=' . $dep['dep_id'], 'RowMenu_description' => CentreonUtils::escapeSecure($dep['dep_description']), 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
 $tpl->assign("elemArr", $elemArr);
 

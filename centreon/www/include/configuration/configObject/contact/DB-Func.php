@@ -1726,13 +1726,10 @@ function validateAutologin(array $fields): array|bool
     global $pearDB, $centreon;
     $errors = [];
 
-    if (! empty($fields['contact_autologin_key'])) {
+    // If adding a new contact, contact_id will not be set
+    $contactId = (int) $fields['contact_id'] ?? 0;
 
-        $contactId = (int) $fields['contact_id'];
-
-        if (! $contactId > 0) {
-            throw new InvalidArgumentException('Invalid contact ID provided for autologin validation');
-        }
+    if (! empty($fields['contact_autologin_key']) && $contactId > 0) {
 
         $userIdConnected = (int) $centreon->user->get_id();
 
