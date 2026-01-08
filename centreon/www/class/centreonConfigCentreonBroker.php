@@ -883,6 +883,33 @@ class CentreonConfigCentreonBroker
     }
 
     /**
+     * Generate fieldinfos array.
+     *
+     * @param int $typeId The type id
+     * @return array<string,array<string,{type:string,default:string|null}>|{type:string,default:string|null}>
+     */
+    public function getFieldInfosWithGroup($typeId)
+    {
+        $fields = [];
+        $block = $this->getBlockInfos($typeId);
+        foreach ($block as $fieldInfos) {
+            if (! empty($fieldInfos['group_name']) && $fieldInfos['group_name'] !== null) {
+                $fields[$fieldInfos['group_name']][$fieldInfos['fieldname']] = [
+                    'type' => $fieldInfos['fieldtype'],
+                    'default' => $fieldInfos['value'] ?? $this->getDefaults($fieldInfos['id']) ?? null,
+                ];
+            } else {
+                $fields[$fieldInfos['fieldname']] = [
+                    'type' => $fieldInfos['fieldtype'],
+                    'default' => $fieldInfos['value'] ?? $this->getDefaults($fieldInfos['id']) ?? null,
+                ];
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
      * Find a broker config original value based on fieldIndex
      *
      * @param int $configId
@@ -1720,7 +1747,7 @@ class CentreonConfigCentreonBroker
         /** @var string $blockId */
         $blockId = $inputOutput['blockId'];
         [, $typeId] = explode('_', $blockId);
-        $fieldTypes = $this->getFieldtypesWithGroup((int) $typeId);
+        $fieldTypes = $this->getFieldInfosWithGroup((int) $typeId);
 
         $payload = [
             'name' => $inputOutput['name'],
@@ -1734,9 +1761,11 @@ class CentreonConfigCentreonBroker
                     foreach($groups as $subName => $subValue) {
                         [$groupName, $name] = explode('__', $subName);
 
-                        $fieldType = $fieldTypes[$groupName][$name];
-                        $payload['parameters'][$groupName][$index] ??= [];
-                        $this->addToPayload($payload['parameters'][$groupName][$index], $fieldType, $name, $subValue);
+                        $fieldType = $fieldTypes[$groupName][$name]['type'] ?? null;
+                        if ($fieldType !== null) {
+                            $payload['parameters'][$groupName][$index] ??= [];
+                            $this->addToPayload($payload['parameters'][$groupName][$index], $fieldType, $name, $subValue);
+                        }
                     }
                 }
             } else {
@@ -1746,9 +1775,9 @@ class CentreonConfigCentreonBroker
                     } else {
                         $name = $fieldName;
                     }
-                    $fieldType = $fieldTypes[$name] ?? null;
+                    $fieldType = $fieldTypes[$name]['type'] ?? null;
                 } else {
-                    $fieldType = $fieldTypes[$fieldName] ?? null;
+                    $fieldType = $fieldTypes[$fieldName]['type'] ?? null;
                 }
                 if ($fieldType !== null) {
                     $this->addToPayload($payload['parameters'], $fieldType, $fieldName, $fieldValue);
@@ -1756,15 +1785,16 @@ class CentreonConfigCentreonBroker
             }
         }
 
-        foreach($fieldTypes as $name => $type) {
-            if ($type == 'multiselect') {
+        foreach ($fieldTypes as $name => $infos) {
+            if (! isset($infos['type'])) {
+                $infos['type'] = 'grouped';
+            } elseif ($infos['type'] === 'multiselect') {
                 $name = "filters_{$name}";
-            } elseif (is_array($type)) {
-                $type = 'grouped';
             }
+
             if (! array_key_exists($name, $payload['parameters'])) {
-                $payload['parameters'][$name] = match ($type) {
-                    'select', 'text', 'password', 'int', 'radio' => null,
+                $payload['parameters'][$name] = match ($infos['type']) {
+                    'select', 'text', 'password', 'int', 'radio' => $infos['default'],
                     'multiselect', 'grouped' => [],
                 };
             }
@@ -1850,25 +1880,4 @@ class CentreonConfigCentreonBroker
 
         return [$groups_infos, $groups_infos_multiple];
     }
-
-    /**
-     * Generate fieldtype array.
-     *
-     * @param int $typeId The type id
-     * @return array
-     */
-    public function getFieldtypesWithGroup($typeId)
-    {
-        $fieldTypes = [];
-        $block = $this->getBlockInfos($typeId);
-        foreach ($block as $fieldInfos) {
-            if ($fieldInfos['group_name'] !== null) {
-                $fieldTypes[$fieldInfos['group_name']][$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
-            } else {
-                $fieldTypes[$fieldInfos['fieldname']] = $fieldInfos['fieldtype'];
-            }
-        }
-        return $fieldTypes;
-    }
-
 }
