@@ -19,8 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -253,15 +255,9 @@ $moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage
         $insertNewCommandsTopologyRights($aclTopologyId);
         $deleteCommandsTopologyRights($aclTopologyId);
     }
-}
+};
 
 try {
-    // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
-
-    // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
-
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
