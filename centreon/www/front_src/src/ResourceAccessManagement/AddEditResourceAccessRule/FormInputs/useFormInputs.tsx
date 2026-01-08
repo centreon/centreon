@@ -169,9 +169,9 @@ const useFormInputs = (): UseFormInputsState => {
                         connectedAutocomplete: {
                           additionalConditionParameters: [],
                           endpoint: findContactsEndpoint,
+                          filterKey: 'alias',
                           getRenderedOptionText: (option): string =>
                             option.alias?.toString(),
-                          filterKey: 'alias',
                           optionProperty: 'alias'
                         },
                         dataTestId: t(labelContacts),

@@ -1,10 +1,10 @@
 /* eslint-disable hooks/sort */
 import { useState } from 'react';
 
-import { Box } from '@mui/material';
 import { T, always, cond, gt, isEmpty, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import { Box } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
@@ -304,9 +304,9 @@ const useFormInputs = ({
             connectedAutocomplete: {
               additionalConditionParameters: [],
               endpoint: usersEndpoint,
+              filterKey: 'alias',
               getRenderedOptionText: (option): string =>
                 option.alias?.toString(),
-              filterKey: 'alias',
               optionProperty: 'alias'
             },
             dataTestId: 'Search contacts',

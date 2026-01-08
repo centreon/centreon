@@ -66,8 +66,8 @@ export type NamedEntity = {
 };
 
 export type Contact = {
-  id: number;
   alias: string;
+  id: number;
 };
 
 export enum DeleteType {

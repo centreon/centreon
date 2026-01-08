@@ -40,8 +40,8 @@ export interface MessageType {
 }
 
 export interface UserType {
-  id: number;
   alias: string;
+  id: number;
 }
 
 export interface ResourceIdsType {

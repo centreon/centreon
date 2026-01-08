@@ -45,8 +45,8 @@ const contactGroups = JsonDecoder.object<NamedEntity>(
 
 const contacts = JsonDecoder.object<Contact>(
   {
-    id: JsonDecoder.number,
-    alias: JsonDecoder.string
+    alias: JsonDecoder.string,
+    id: JsonDecoder.number
   },
   'Contact'
 );
