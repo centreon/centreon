@@ -1,12 +1,13 @@
-import { useSetAtom } from 'jotai';
-import { equals, or } from 'ramda';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { and, equals, or } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
-import { resourcesToOpenTicketAtom } from '../../../atom';
+import { openTicketAtom, resourcesToOpenTicketAtom } from '../../../atom';
 import {
   labelOpenTicketForHost,
   labelOpenTicketForService
@@ -15,16 +16,26 @@ import { useOpenTicketStyles } from '../Columns.styles';
 import IconCreateTicket from '../Icons/CreateTicket';
 import TooltipContent from '../Tooltip/Tooltip';
 
-const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
+const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
   const { classes } = useOpenTicketStyles();
   const { t } = useTranslation();
   const { palette } = useTheme();
 
   const setResourcesToOpenTicket = useSetAtom(resourcesToOpenTicketAtom);
+  const { enableHostTicketCreation, enableServiceTicketCreation } =
+    useAtomValue(openTicketAtom);
 
   const { type } = row;
   const isHost = equals(type, 'host');
   const isService = equals(type, 'service');
+  const displayCreateServiceTicketButton = and(
+    enableServiceTicketCreation,
+    isService
+  );
+  const displayCreateHostTicketButton = and(
+    enableHostTicketCreation,
+    or(isHost, isService)
+  );
 
   const createServiceTicket = (): void => {
     setResourcesToOpenTicket([{ hostID: row?.parent.id, serviceID: row?.id }]);
@@ -42,18 +53,20 @@ const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
 
   return (
     <div className={classes.actions}>
-      {isService && (
+      {displayCreateServiceTicketButton && (
         <IconButton
           ariaLabel={t(labelOpenTicketForService)}
           color="primary"
           data-testid={labelOpenTicketForService}
           disabled={hasTicket}
           size="large"
-          title={TooltipContent({
-            ...ticket,
-            hasNoTicket: hasTicket,
-            isHost: false
-          })}
+          title={
+            <TooltipContent
+              {...ticket}
+              hasNoTicket={hasTicket}
+              isHost={false}
+            />
+          }
           tooltipClassName={hasTicket ? classes.tooltip : undefined}
           onClick={createServiceTicket}
         >
@@ -63,18 +76,20 @@ const OpenTicket = ({ row }: ComponentColumnProps): JSX.Element => {
           />
         </IconButton>
       )}
-      {or(isHost, isService) && (
+      {displayCreateHostTicketButton && (
         <IconButton
           ariaLabel={t(labelOpenTicketForHost)}
           color="primary"
           data-testid={labelOpenTicketForHost}
           disabled={didHostHasTicket}
           size="large"
-          title={TooltipContent({
-            ...(isHost ? ticket : parentTicket),
-            hasNoTicket: didHostHasTicket,
-            isHost: true
-          })}
+          title={
+            <TooltipContent
+              {...(isHost ? ticket : parentTicket)}
+              hasNoTicket={didHostHasTicket}
+              isHost={true}
+            />
+          }
           tooltipClassName={didHostHasTicket ? classes.tooltip : undefined}
           onClick={createHostTicket}
         >
