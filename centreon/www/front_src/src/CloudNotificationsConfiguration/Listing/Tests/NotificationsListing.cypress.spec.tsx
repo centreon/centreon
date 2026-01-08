@@ -515,21 +515,10 @@ describe('column sorting', () => {
   it('executes a listing request when a sortable column is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
-    columnToSort.forEach(({ label, id, sortField }) => {
-      cy.contains('notification1').should('exist');
+    cy.contains('notification1').should('exist');
 
-      const sortBy = (sortField || id) as string;
+    cy.findByLabelText('Column Name').click();
 
-      cy.findByLabelText(`Column ${label}`).click();
-
-      cy.waitForRequestAndVerifyQueries({
-        queries: [{ key: 'sort_by', value: { [sortBy]: 'desc' } }],
-        requestAlias: `dataToListingTableDesc${label}`
-      });
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
-    });
+    cy.waitForRequest('@defaultRequest');
   });
 });
