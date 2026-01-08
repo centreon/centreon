@@ -2,6 +2,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/hostGroups/dependency.json';
 import grps from '../../../fixtures/notifications/data-for-notification.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -36,11 +37,7 @@ Given('some hosts groups are configured', () => {
 });
 
 Given('a host group dependency is configured', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addHostGroupDependency(data.default);

@@ -126,7 +126,7 @@ When('I remove one access group', () => {
 });
 
 Then('link between access group and Menu access must be broken', () => {
-  cy.visit(PAGES.configuration.contactGroupsLegacy);
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
 
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
