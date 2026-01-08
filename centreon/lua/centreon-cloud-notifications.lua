@@ -408,12 +408,22 @@ local function send_mail(notif, event, conf, hostname)
   }
 
   --- Create temporary files for destination and message json files
-  local dest_tmpname = "/tmp/" .. os.tmpname() .. ".json"
-  local msg_tmpname = "/tmp/" .. os.tmpname() .. ".json"
+  local dest_tmpname = os.tmpname() .. ".json"
   local dest_file = io.open(dest_tmpname, "w")
+  if not dest_file then
+    broker_log:error(0, "Unable to create destination file: " .. dest_tmpname)
+    return
+  end
   dest_file:write(broker.json_encode(destination_json))
   dest_file:close()
+
+  local msg_tmpname = os.tmpname() .. ".json"
   local msg_file = io.open(msg_tmpname, "w")
+  if not msg_file then
+    broker_log:error(0, "Unable to create message file: " .. msg_tmpname)
+    os.remove(dest_tmpname)
+    return
+  end
   msg_file:write(broker.json_encode(message_json))
   msg_file:close()
 
