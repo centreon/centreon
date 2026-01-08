@@ -1,14 +1,11 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import hostTemplates from '../../../fixtures/host-templates/host-template.json';
 
 const checkFirstHostTemplateFromListing = () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
@@ -58,11 +55,7 @@ When('a host template is configured', () => {
 });
 
 When('the user changes the properties of the configured host template', () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(hostTemplates.defaultHostTemplate.name).click();
   cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
