@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -32,11 +33,7 @@ When('a service is configured', () => {
 });
 
 When('the user changes the properties of a service', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
 
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
@@ -109,11 +106,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates a service', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
   cy.getIframeBody().find('input[name="searchH"]').clear().type('host_1');
   cy.getIframeBody().find('input[name="Search"].btc.bt_success').click();
@@ -148,11 +141,7 @@ Then('the new service has the same properties', () => {
 });
 
 When('the user deletes a service', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table tbody')
     .find('tr.list_one')

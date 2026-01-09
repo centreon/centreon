@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkIfConfigurationIsExported } from '../../../commons';
 import {
   breakSomePollers,
@@ -81,11 +82,7 @@ Given('some post-generation commands are configured for each poller', () => {
 });
 
 When('I visit the export configuration page', () => {
-  cy.navigateTo({
-    page: 'Pollers',
-    rootItemNumber: 0,
-    subMenu: 'Pollers'
-  })
+  cy.visit(PAGES.configuration.pollersLegacy)
     .wait('@getTimeZone')
     .then(() => {
       cy.url().should('include', '/centreon/main.php?p=60901');

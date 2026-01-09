@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import periods from '../../../fixtures/time-periods/time-period.json';
 
 beforeEach(() => {
@@ -32,11 +33,7 @@ When('a call to the endpoint "Add" a time period is done via APIv2', () => {
 });
 
 Then('a new time period is displayed on the time periods page', () => {
-  cy.navigateTo({
-    page: 'Time Periods',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.timePeriodsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', periods.default.name).should('be.visible');
 });
@@ -44,10 +41,7 @@ Then('a new time period is displayed on the time periods page', () => {
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -123,10 +117,7 @@ When(
 Then(
   'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -185,10 +176,7 @@ When(
 Then(
   'a new "Deleted" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

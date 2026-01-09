@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const services = {
   serviceCritical: {
@@ -97,7 +98,7 @@ Given(
 );
 
 When('the user submits some results to this service', () => {
-  cy.visit('/centreon/monitoring/resources');
+  cy.visit(PAGES.monitoring.resourcesStatus);
   cy.get('input[placeholder="Search"]').clear().type('{enter}');
   cy.wait('@getResources');
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
@@ -148,7 +149,7 @@ Given(
 );
 
 When('the user submits some results to this host', () => {
-  cy.visit('/centreon/monitoring/resources');
+  cy.visit(PAGES.monitoring.resourcesStatus);
   cy.get('input[placeholder="Search"]').clear().type('{enter}');
   cy.getByTestId({ testId: 'RefreshIcon' }).click();
   cy.get('input[placeholder="Search"]')
