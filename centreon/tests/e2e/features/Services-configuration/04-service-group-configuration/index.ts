@@ -1,6 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/services/service.json';
 
 beforeEach(() => {
@@ -45,11 +46,7 @@ Then('a service group is configured', () => {
 });
 
 When('the user changes the properties of a service group', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
     .find('tr.list_one')
@@ -84,11 +81,7 @@ When('the user changes the properties of a service group', () => {
 });
 
 Then('the properties of the service group are updated', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
     .find('tr.list_one')
@@ -116,11 +109,7 @@ Then('the properties of the service group are updated', () => {
 });
 
 When('the user duplicates a service group', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table tbody')
     .find('tr.list_one')
@@ -180,11 +169,7 @@ Then('the new service group has the same properties', () => {
 });
 
 When('the user deletes a service group', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table tbody')
     .find('tr.list_one')

@@ -2,6 +2,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import commands from '../../../fixtures/commands/command.json';
 
 beforeEach(() => {
@@ -101,10 +102,7 @@ Then('a new {string} command is displayed on the {string} commands page', (type:
 );
 
 Then('a new "Added" ligne of log is getting added to the page Administration > Logs', () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

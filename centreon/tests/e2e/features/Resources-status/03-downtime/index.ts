@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkServicesAreMonitored } from '../../../commons';
 import {
   actionBackgroundColors,
@@ -222,11 +223,7 @@ Given('a resource is in downtime', () => {
 });
 
 Given('that you have to go to the downtime page', () => {
-  cy.navigateTo({
-    page: 'Downtimes',
-    rootItemNumber: 1,
-    subMenu: 'Downtimes'
-  });
+  cy.visit(PAGES.monitoring.downtimesLegacy);
 });
 
 When('I search for the resource currently "In Downtime" in the list', () => {
@@ -284,10 +281,7 @@ Then('the line disappears from the listing', () => {
 });
 
 Then('the user goes to the Resource Status page', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 });
 
 Then('the resource should not be in Downtime anymore', () => {

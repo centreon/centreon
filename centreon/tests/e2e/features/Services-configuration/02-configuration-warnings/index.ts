@@ -1,6 +1,7 @@
 /* eslint-disable newline-before-return */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
@@ -31,11 +32,7 @@ Given('a service with notifications enabled', () => {
     name: data.hosts.host1.name,
     template: 'generic-host'
   });
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.getIframeBody()
     .find('tr.ToolbarTR')
     .find('.btc.bt_success')
@@ -90,7 +87,7 @@ Given('the service has no notification period', () => {
 });
 
 When('the configuration is exported', () => {
-  cy.navigateTo({ page: 'Pollers', rootItemNumber: 3, subMenu: 'Pollers' });
+  cy.visit(PAGES.configuration.pollersLegacy);
   cy.wait('@getUserTimezone');
   cy.waitForElementInIframe('#main-content', 'input[name="searchP"]');
   cy.getIframeBody().find('h4').contains('Poller').should('exist');

@@ -1,6 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import severities from '../../../fixtures/services/severity.json';
 
 beforeEach(() => {
@@ -34,11 +35,7 @@ When('an apiV2 call is made to "Add" a service severity', () => {
 Then(
   'a new service severity is displayed on the service severities page',
   () => {
-    cy.navigateTo({
-      page: 'Categories',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(PAGES.configuration.servicesCategoriesLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -53,10 +50,7 @@ Then(
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -133,10 +127,7 @@ When(
 Then(
   'a new "Deleted" ligne of log is getting added to the page Administration > Log',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -167,10 +158,7 @@ When(
 Then(
   'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -246,10 +234,7 @@ When(
 Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -287,10 +272,7 @@ When(
 Then(
   'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
