@@ -1,5 +1,5 @@
 # Prompt pour sélectionner les fichiers .feature à exécuter
-inputs:
+messages:
   - role: system
     content: |
       Tu es un expert Cypress + Gherkin (Centreon).
