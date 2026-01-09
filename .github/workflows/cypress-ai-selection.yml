@@ -20,14 +20,14 @@ jobs:
       # Checkout repository
       # -------------------------------
       - name: Checkout repository
-        uses: actions/checkout@7d3d9c7b0f0a1e22a9c3c8b6e4b234fa9b9b3c99
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       # -------------------------------
       # Detect changed files
       # -------------------------------
       - name: Get changed files
         id: changed
-        uses: tj-actions/changed-files@v37b49f0b93a5b1f6a918bdf04f8122f0f94b63f0
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
         with:
           base: develop
           format: txt
@@ -58,29 +58,15 @@ jobs:
       - name: Infer relevant feature files (AI)
         id: ai
         if: steps.check_changes.outputs.changed == 'true'
-        uses: actions/ai-inference@a1b2c3d4e5f6g7h8i9j0k  # <-- Remplace par le SHA exact de v2
+        uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e  # v2.0.4
         with:
           model: openai/gpt-4o-mini
-          messages: |
-            system:
-              Tu es un expert Cypress + Gherkin (Centreon).
-              Tu ne dois jamais inventer de fichiers.
-            user:
-              Fichiers modifiés :
-              {{changed_files}}
-
-              Fichiers feature disponibles :
-              {{available_features}}
-
-              Règles STRICTES :
-              - Réponds uniquement avec des chemins EXISTANTS
-              - Un chemin par ligne
-              - Si aucun test pertinent → réponds EXACTEMENT "NONE"
-        input: |
-          changed_files: |
-            ${{ steps.check_changes.outputs.changed_files }}
-          available_features: |
-            $(cat all_features.txt)
+          prompt-file: .github/ai-prompts/select-features.prompt.yml
+          input: |
+            changed_files=${{ steps.check_changes.outputs.changed_files }}
+            available_features=$(cat all_features.txt)
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # -------------------------------
       # Validate AI output
