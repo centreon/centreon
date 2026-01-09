@@ -2210,43 +2210,43 @@
 	"variable": [
 		{
 			"key": "CommandName",
-			"value": ""
+			"value": "command_by_generic_test"
 		},
 		{
 			"key": "CommandName_administrator",
-			"value": ""
+			"value": "command_by_administrator"
 		},
 		{
 			"key": "CommandName_editor",
-			"value": ""
+			"value": "command_by_editor"
 		},
 		{
 			"key": "CommandType",
-			"value": ""
+			"value": "Check"
 		},
 		{
 			"key": "CommandConnector",
-			"value": ""
+			"value": "/centreon/api/latest/configuration/connectors/1"
 		},
 		{
 			"key": "CommandLine",
-			"value": ""
+			"value": "$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$"
 		},
 		{
 			"key": "CommandId",
-			"value": ""
+			"value": "1"
 		},
 		{
 			"key": "CommandNameSuperAdministrator",
-			"value": ""
+			"value": "command_by_super_administrator"
 		},
 		{
 			"key": "CommandNameAdministrator",
-			"value": ""
+			"value": "command_by_administrator"
 		},
 		{
 			"key": "CommandNameEditor",
-			"value": ""
+			"value": "command_by_editor"
 		}
 	]
 }
