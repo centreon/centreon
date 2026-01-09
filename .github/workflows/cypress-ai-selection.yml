@@ -116,6 +116,7 @@ jobs:
           else
             echo "mode=mapped" >> $GITHUB_OUTPUT
             echo "specs=${SPECS#,}" >> $GITHUB_OUTPUT
+          fi
 
       # -------------------------------
       # Final decision
@@ -133,6 +134,7 @@ jobs:
             echo "decision=SKIP" >> $GITHUB_OUTPUT
           else
             echo "decision=FULL" >> $GITHUB_OUTPUT
+          fi
 
       # -------------------------------
       # Summary

@@ -101,6 +101,7 @@ class AuthenticationRepository extends AbstractRepositoryDRB implements
             INNER JOIN `:db`.security_token provider_token ON provider_token.id = sat.provider_token_id
             LEFT JOIN `:db`.security_token refresh_token ON refresh_token.id = sat.provider_token_refresh_id
             WHERE sat.token = :token
+            AND sat.disable = 1
         '));
         $statement->bindValue(':token', $token, \PDO::PARAM_STR);
         $statement->execute();
