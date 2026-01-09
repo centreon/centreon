@@ -241,7 +241,9 @@ const rolesMapping: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
-            endpoint: accessGroupsEndpoint
+            endpoint: accessGroupsEndpoint,
+            getOptionLabel: (option) => option?.name?.toString() || '',
+            optionProperty: 'name'
           },
           dataTestId: 'oidc_accessGroup',
           fieldName: 'accessGroup',
@@ -322,7 +324,9 @@ const groupsMapping: Array<InputProps> = [
         {
           connectedAutocomplete: {
             additionalConditionParameters: [],
-            endpoint: contactGroupsEndpoint
+            endpoint: contactGroupsEndpoint,
+            getOptionLabel: (option) => option?.name?.toString() || '',
+            optionProperty: 'name'
           },
           dataTestId: 'oidc_contactGroup',
           fieldName: 'contactGroup',
@@ -492,7 +496,9 @@ export const inputs: Array<InputProps> = [
   {
     connectedAutocomplete: {
       additionalConditionParameters: [],
-      endpoint: contactTemplatesEndpoint
+      endpoint: contactTemplatesEndpoint,
+      getOptionLabel: (option) => option?.name?.toString() || '',
+      optionProperty: 'name'
     },
     dataTestId: 'oidc_contactTemplate',
     fieldName: 'contactTemplate',

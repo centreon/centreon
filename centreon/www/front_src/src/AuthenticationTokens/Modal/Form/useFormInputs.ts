@@ -69,7 +69,10 @@ const useFormInputs = (): FormInputsState => {
       connectedAutocomplete: {
         additionalConditionParameters: [userSearchConditions],
         endpoint: listUsers,
-        filterKey: 'name'
+        getRenderedOptionText: (option): string =>
+          option.alias?.toString() || '',
+        filterKey: 'alias',
+        getOptionLabel: (option): string => option?.alias || ''
       },
       fieldName: 'user',
       hideInput: (values) => equals(values?.type?.id, TokenType.CMA),
