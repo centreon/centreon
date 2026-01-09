@@ -448,13 +448,13 @@ jobs:
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
             echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
-            bash -ex '${COLLECTION_DIRECTORY}/setup.sh "${{ matrix.feature }}"'
+            bash -ex ${COLLECTION_DIRECTORY}/setup.sh "${{ matrix.feature }}"
           fi
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
             echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh ..."
             docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
-            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex '/tmp/setup-web.sh "${{ matrix.feature }}"'
+            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex /tmp/setup-web.sh "${{ matrix.feature }}"
           fi
         shell: bash
 
