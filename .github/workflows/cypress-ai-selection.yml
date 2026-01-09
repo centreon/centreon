@@ -28,9 +28,6 @@ jobs:
       - name: Get changed files
         id: changed
         uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
-        with:
-          base: develop
-          format: txt
 
       - name: Check if there are changes
         id: check_changes
@@ -63,8 +60,10 @@ jobs:
           model: openai/gpt-4o-mini
           prompt-file: .github/ai-prompts/select-features.prompt.yml
           input: |
-            changed_files=${{ steps.check_changes.outputs.changed_files }}
-            available_features=$(cat all_features.txt)
+            changed_files: |
+              ${{ steps.check_changes.outputs.changed_files }}
+            available_features: |
+              $(cat all_features.txt)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
