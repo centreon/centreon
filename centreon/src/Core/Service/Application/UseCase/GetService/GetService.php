@@ -71,7 +71,7 @@ final class GetService
      * @param GetServicePresenterInterface $presenter
      * @param int $serviceId
      */
-    public function __invoke(int $serviceId, GetServicePresenterInterface $presenter): void
+    public function __invoke(GetServicePresenterInterface $presenter, int $serviceId): void
     {
         try {
             if (

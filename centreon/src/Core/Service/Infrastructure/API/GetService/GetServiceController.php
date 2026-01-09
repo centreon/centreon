@@ -45,11 +45,12 @@ final class GetServiceController extends AbstractController
         GetServiceOnPremPresenter $onPremPresenter,
         GetServiceSaasPresenter $saasPresenter,
         bool $isCloudPlatform,
+        int $serviceId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
         $presenter = $isCloudPlatform ? $saasPresenter : $onPremPresenter;
-        $useCase($presenter);
+        $useCase($presenter, $serviceId);
 
         return $presenter->show();
     }

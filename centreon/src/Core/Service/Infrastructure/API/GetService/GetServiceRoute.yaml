@@ -4,4 +4,4 @@ GetService:
   requirements:
     serviceId: '\d+'
   controller: 'Core\Service\Infrastructure\API\GetService\GetServiceController'
-  condition: "request.attributes.get('version') >= 24.10"
+  condition: "request.attributes.get('version') >= 25.10"
