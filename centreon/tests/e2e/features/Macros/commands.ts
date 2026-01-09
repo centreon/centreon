@@ -1,26 +1,16 @@
-Cypress.Commands.add('visitHostTemplatesListing', (index: number) => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: index,
-    subMenu: 'Hosts'
-  });
+import { PAGES } from 'fixtures/shared/constants/pages';
+
+Cypress.Commands.add('visitHostTemplatesListing', (_index: number) => {
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
-Cypress.Commands.add('visitServiceTemplatesListing', (index: number) => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: index,
-    subMenu: 'Services'
-  });
+Cypress.Commands.add('visitServiceTemplatesListing', (_index: number) => {
+  cy.visit(PAGES.configuration.servicesTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
 
-Cypress.Commands.add('visitServicesListing', (index: number) => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: index,
-    subMenu: 'Services'
-  });
+Cypress.Commands.add('visitServicesListing', (_index: number) => {
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -154,5 +144,3 @@ declare global {
     }
   }
 }
-
-export {};
