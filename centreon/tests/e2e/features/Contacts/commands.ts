@@ -28,12 +28,22 @@ interface ContactTemplate {
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
-  cy.getIframeBody().find('input[id="contact_alias"]').clear().type(body.alias);
-  cy.getIframeBody().find('input[id="contact_name"]').clear().type(body.name);
-  cy.getIframeBody().find('input[id="contact_email"]').clear().type(body.email);
-  cy.getIframeBody().find('input[id="contact_pager"]').clear().type(body.pager);
-  cy.getIframeBody().find('#contact_template_id').select(body.template);
-  cy.getIframeBody().contains('label', body.isNotificationsEnabled).click();
+  cy.getIframeBody().within(() => {
+    cy.get('input[id="contact_alias"]').type(
+      `{selectAll}{backspace}${body.alias}`
+    );
+    cy.get('input[id="contact_name"]').type(
+      `{selectAll}{backspace}${body.name}`
+    );
+    cy.get('input[id="contact_email"]').type(
+      `{selectAll}{backspace}${body.email}`
+    );
+    cy.get('input[id="contact_pager"]').type(
+      `{selectAll}{backspace}${body.pager}`
+    );
+    cy.get('#contact_template_id').select(body.template);
+    cy.contains('label', body.isNotificationsEnabled).click();
+  });
 });
 
 Cypress.Commands.add('addOrUpdateContactGroup', (body: ContactGroup) => {
