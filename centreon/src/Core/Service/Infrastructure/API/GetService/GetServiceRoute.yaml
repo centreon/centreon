@@ -1,0 +1,7 @@
+GetService:
+  methods: GET
+  path: /configuration/services/{serviceId}
+  requirements:
+    serviceId: '\d+'
+  controller: 'Core\Service\Infrastructure\API\GetService\GetServiceController'
+  condition: "request.attributes.get('version') >= 24.10"
