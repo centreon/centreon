@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import severities from '../../../fixtures/host-categories/severity.json';
 
 beforeEach(() => {
@@ -31,11 +32,7 @@ When('an apiV2 call is made to "Add" a host severity', () => {
 });
 
 Then('a new severity is displayed on the hosts severities page', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
@@ -49,10 +46,7 @@ Then('a new severity is displayed on the hosts severities page', () => {
 Then(
   'a new "ADDED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -120,10 +114,7 @@ When('an apiV2 call is made to "Delete" the configured host severity', () => {
 Then(
   'a new "DELETED" ligne of log is getting added to the page Administration > Log',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -154,10 +145,7 @@ When(
 Then(
   'a new "CHANGED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -223,10 +211,7 @@ When('an apiV2 call is made to "Disable" the configured host severity', () => {
 Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -261,10 +246,7 @@ When('an apiV2 call is made to "Enable" the configured host severity', () => {
 Then(
   'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLgacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

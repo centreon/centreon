@@ -1,13 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import vms from '../../../fixtures/services/virtual-metric.json';
 
 const checkFirstVmFromListing = () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtuelMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -50,11 +47,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user adds a virtual metric', () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtuelMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateVirtualMetric(
@@ -83,11 +76,7 @@ Then('all properties are saved', () => {
 
 Given('an existing virtual metric', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtuelMetricsLegacy);
 });
 
 When('the user changes the properties of the configured virtual metric', () => {

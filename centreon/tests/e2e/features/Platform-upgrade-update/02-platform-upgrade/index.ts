@@ -103,7 +103,7 @@ Given(
     cy.log(`Testing ${Cypress.env('IS_CLOUD') ? 'cloud' : 'onprem'} upgrade`);
 
     return cy.getWebVersion().then(({ major_version, minor_version }) => {
-      cy.task("logVersion", `Current Major version value is ${major_version}`);
+      cy.task('logVersion', `Current Major version value is ${major_version}`);
       let majorVersionFrom = '0';
       switch (majorVersionFromExpression) {
         case 'n - 1': {
@@ -111,8 +111,8 @@ Given(
             getCentreonPreviousMajorVersion(major_version);
           cy.log(`Getting Centreon previous major version: ${previousVersion}`);
           cy.task(
-            "logVersion",
-            `Previous Major version value is ${previousVersion}`,
+            'logVersion',
+            `Previous Major version value is ${previousVersion}`
           );
           // Cloud versioning is different from on-prem
           if (Cypress.env('IS_CLOUD')) {
@@ -124,8 +124,8 @@ Given(
                 cy.wrap(previousVersion).as('majorVersionFrom');
                 majorVersionFrom = previousVersion;
                 cy.task(
-                  "logVersion",
-                  `Found version value is ${previousVersion}`,
+                  'logVersion',
+                  `Found version value is ${previousVersion}`
                 );
               } else {
                 cy.log(
@@ -138,8 +138,8 @@ Given(
                     majorVersionFrom = versionFilePath;
                     cy.wrap(newVersion).as('majorVersionFrom');
                     cy.task(
-                      "logVersion",
-                      `Closest version found value is ${newVersion}`,
+                      'logVersion',
+                      `Closest version found value is ${newVersion}`
                     );
                   }
                 );
@@ -147,11 +147,8 @@ Given(
             });
           } else {
             majorVersionFrom = previousVersion;
-            cy.wrap(previousVersion).as("majorVersionFrom");
-            cy.task(
-              "logVersion",
-              `Found version value is ${previousVersion}`,
-            );
+            cy.wrap(previousVersion).as('majorVersionFrom');
+            cy.task('logVersion', `Found version value is ${previousVersion}`);
           }
           break;
         }
@@ -229,8 +226,8 @@ Given(
                   Cypress.env('installed_version', installedVersion);
                   cy.log('installed_version', installedVersion);
                   cy.task(
-                    "logVersion",
-                    `Installed version value is ${installedVersion}`,
+                    'logVersion',
+                    `Installed version value is ${installedVersion}`
                   );
                   return installCentreon(installedVersion)
                     .then(() => {
