@@ -65,8 +65,8 @@ jobs:
           input: |
             changed_files=${{ steps.check_changes.outputs.changed_files }}
             available_features=$(cat all_features.txt)
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # -------------------------------
       # Validate AI output
