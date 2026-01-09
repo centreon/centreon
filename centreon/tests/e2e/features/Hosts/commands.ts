@@ -3,13 +3,10 @@ Cypress.Commands.add(
   (iframeSelector, elementSelector) => {
     cy.waitUntil(
       () =>
-        cy.getIframeBody(iframeSelector).then($iframeBody => {
+        cy.getIframeBody(iframeSelector).then(($iframeBody) => {
           const element = $iframeBody.find(elementSelector);
 
-          return (
-            element.length > 0 &&
-            element.is(':visible')
-          );
+          return element.length > 0 && element.is(':visible');
         }),
       {
         errorMsg: `Element ${elementSelector} not found in iframe ${iframeSelector} after waiting`,

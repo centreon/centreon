@@ -29,10 +29,18 @@ Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   cy.getIframeBody().within(() => {
-    cy.get('input[id="contact_alias"]').type(`{selectAll}{backspace}${body.alias}`);
-    cy.get('input[id="contact_name"]').type(`{selectAll}{backspace}${body.name}`);
-    cy.get('input[id="contact_email"]').type(`{selectAll}{backspace}${body.email}`);
-    cy.get('input[id="contact_pager"]').type(`{selectAll}{backspace}${body.pager}`);
+    cy.get('input[id="contact_alias"]').type(
+      `{selectAll}{backspace}${body.alias}`
+    );
+    cy.get('input[id="contact_name"]').type(
+      `{selectAll}{backspace}${body.name}`
+    );
+    cy.get('input[id="contact_email"]').type(
+      `{selectAll}{backspace}${body.email}`
+    );
+    cy.get('input[id="contact_pager"]').type(
+      `{selectAll}{backspace}${body.pager}`
+    );
     cy.get('#contact_template_id').select(body.template);
     cy.contains('label', body.isNotificationsEnabled).click();
   });

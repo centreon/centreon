@@ -29,7 +29,8 @@ beforeEach(() => {
   cy.setUserTokenApiV1()
     .executeCommandsViaClapi(
       'resources/clapi/config-ACL/contacts-management-acl-user.json'
-    ).executeCommandsViaClapi(
+    )
+    .executeCommandsViaClapi(
       'resources/clapi/config-ACL/contacts-management-acl-user-readonly-rights.json'
     );
   cy.intercept({
@@ -50,11 +51,16 @@ afterEach(() => {
   cy.setUserTokenApiV1()
     .executeCommandsViaClapi(
       'resources/clapi/config-ACL/delete-contacts-management-acl-user-readonly-rights.json'
-    ).executeCommandsViaClapi(
+    )
+    .executeCommandsViaClapi(
       'resources/clapi/config-ACL/delete-contacts-management-acl-user.json'
     );
   for (const contact of [contacts.default, contacts.contactForUpdate]) {
-    for (const contactAlias of [contact.alias, `${contact.alias}_1`, `${contact.alias}-1`]) {
+    for (const contactAlias of [
+      contact.alias,
+      `${contact.alias}_1`,
+      `${contact.alias}-1`
+    ]) {
       cy.executeActionViaClapi({
         bodyContent: {
           action: 'DEL',
@@ -103,7 +109,7 @@ When('a contact is configured', () => {
 });
 
 When('the user updates some contact properties', () => {
-  cy.getIframeBody().within(()=> {
+  cy.getIframeBody().within(() => {
     cy.contains(contacts.default.alias).click();
   });
   cy.addOrUpdateContact(contacts.contactForUpdate);
@@ -113,7 +119,7 @@ When('the user updates some contact properties', () => {
 });
 
 Then('these properties are updated', () => {
-  cy.getIframeBody().within(()=> {
+  cy.getIframeBody().within(() => {
     cy.contains(contacts.contactForUpdate.alias).click();
   });
   cy.wait('@getTimeZone');
@@ -142,7 +148,7 @@ When('the user duplicates the configured contact', () => {
 });
 
 Then('a new contact is created with identical properties', () => {
-  cy.getIframeBody().within(()=> {
+  cy.getIframeBody().within(() => {
     cy.contains(`${contacts.default.alias}_1`).click();
   });
   cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');
@@ -186,9 +192,15 @@ When('he does not fill in the {string} field', (field: string) => {
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
   // Fill All the required fields first
   cy.getIframeBody().within(() => {
-    cy.get('input[id="contact_alias"]').type(`{selectAll}{backspace}${contacts.default.alias}`);
-    cy.get('input[id="contact_name"]').type(`{selectAll}{backspace}${contacts.default.name}`);
-    cy.get('input[id="contact_email"]').type(`{selectAll}{backspace}${contacts.default.email}`);
+    cy.get('input[id="contact_alias"]').type(
+      `{selectAll}{backspace}${contacts.default.alias}`
+    );
+    cy.get('input[id="contact_name"]').type(
+      `{selectAll}{backspace}${contacts.default.name}`
+    );
+    cy.get('input[id="contact_email"]').type(
+      `{selectAll}{backspace}${contacts.default.email}`
+    );
   });
 
   // Remove the content of one of the required field that we have already filled
