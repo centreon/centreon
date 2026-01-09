@@ -649,6 +649,111 @@
 					"response": []
 				},
 				{
+					"name": "GET /commands - List available commands - HTTP 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/* \r",
+									"// testing response time\r",
+									"pm.test(\"Response time is acceptable\", () => {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"});\r",
+									"*/\r",
+									"\r",
+									"pm.test(\"Response is JSON\", () => {\r",
+									"  pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"first level fields exist\", () => {\r",
+									"  pm.expect(responseJson).to.have.property(\"@context\");\r",
+									"  pm.expect(responseJson).to.have.property(\"@id\");\r",
+									"  pm.expect(responseJson).to.have.property(\"@type\", \"Collection\");\r",
+									"  pm.expect(responseJson).to.have.property(\"totalItems\");\r",
+									"  pm.expect(responseJson).to.have.property(\"member\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Key 'member' is an array\", () => {\r",
+									"  pm.expect(responseJson.member).to.be.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Key 'member' length is <= totalItems\", () => {\r",
+									"  pm.expect(responseJson.member.length).to.be.at.most(responseJson.totalItems);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each command has a valid schema\", () => {\r",
+									"  responseJson.member.forEach(cmd => {\r",
+									"    pm.expect(cmd).to.have.property(\"@id\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"@type\", \"ListCommandResource\");\r",
+									"\r",
+									"    pm.expect(cmd).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(cmd).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"type\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"command_line\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"is_activated\").that.is.a(\"boolean\");\r",
+									"\r",
+									"    pm.expect(cmd).to.have.property(\"used_hosts_count\").that.is.a(\"number\");\r",
+									"    pm.expect(cmd).to.have.property(\"used_services_count\").that.is.a(\"number\");\r",
+									"  });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Usage counters are never negative\", () => {\r",
+									"  responseJson.member.forEach(cmd => {\r",
+									"    pm.expect(cmd.used_hosts_count).to.be.at.least(0);\r",
+									"    pm.expect(cmd.used_services_count).to.be.at.least(0);\r",
+									"    pm.expect(cmd.used_service_templates_count).to.be.at.least(0);\r",
+									"  });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "GET /logout - Super administrator user logout and clear session - HTTP 200",
 					"event": [
 						{
@@ -1284,6 +1389,111 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /commands - List available commands - HTTP 200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"/* \r",
+									"// testing response time\r",
+									"pm.test(\"Response time is acceptable\", () => {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"});\r",
+									"*/\r",
+									"\r",
+									"pm.test(\"Response is JSON\", () => {\r",
+									"  pm.response.to.be.json;\r",
+									"});\r",
+									"\r",
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"first level fields exist\", () => {\r",
+									"  pm.expect(responseJson).to.have.property(\"@context\");\r",
+									"  pm.expect(responseJson).to.have.property(\"@id\");\r",
+									"  pm.expect(responseJson).to.have.property(\"@type\", \"Collection\");\r",
+									"  pm.expect(responseJson).to.have.property(\"totalItems\");\r",
+									"  pm.expect(responseJson).to.have.property(\"member\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Key 'member' is an array\", () => {\r",
+									"  pm.expect(responseJson.member).to.be.an(\"array\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Key 'member' length is <= totalItems\", () => {\r",
+									"  pm.expect(responseJson.member.length).to.be.at.most(responseJson.totalItems);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each command has a valid schema\", () => {\r",
+									"  responseJson.member.forEach(cmd => {\r",
+									"    pm.expect(cmd).to.have.property(\"@id\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"@type\", \"ListCommandResource\");\r",
+									"\r",
+									"    pm.expect(cmd).to.have.property(\"id\").that.is.a(\"number\");\r",
+									"    pm.expect(cmd).to.have.property(\"name\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"type\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"command_line\").that.is.a(\"string\");\r",
+									"    pm.expect(cmd).to.have.property(\"is_activated\").that.is.a(\"boolean\");\r",
+									"\r",
+									"    pm.expect(cmd).to.have.property(\"used_hosts_count\").that.is.a(\"number\");\r",
+									"    pm.expect(cmd).to.have.property(\"used_services_count\").that.is.a(\"number\");\r",
+									"  });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Usage counters are never negative\", () => {\r",
+									"  responseJson.member.forEach(cmd => {\r",
+									"    pm.expect(cmd.used_hosts_count).to.be.at.least(0);\r",
+									"    pm.expect(cmd.used_services_count).to.be.at.least(0);\r",
+									"    pm.expect(cmd.used_service_templates_count).to.be.at.least(0);\r",
+									"  });\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
