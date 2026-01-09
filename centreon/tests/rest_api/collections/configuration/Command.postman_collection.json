@@ -5,7 +5,7 @@
 		"description": "This Postman collection relies on variables automatically imported from scripts located in the API test GitHub repository.\n\nThese scripts initialize the test context, including:\n\n- ACL definitions\n    \n- Test users\n    \n- Roles and permissions\n    \n\nVariables must be generated before running the collection to ensure consistent and repeatable test executions.\n\n\\--\n\nPrerequisites:\n\n- Clone the API test GitHub repository\n    \n- Pull and run the docker\n    \n- Copy the fixtures on docker\n    \n- Run script to adding fixtures",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28117716",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-d30122f8-9adc-40e7-80b3-3a6fa9bdb1ca?action=share&source=collection_link&creator=28117716"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-d30122f8-9adc-40e7-80b3-3a6fa9bdb1ca?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -198,7 +198,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandNameSuperAdministrator}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameSuperAdministrator}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -274,7 +274,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandNameSuperAdministrator}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameSuperAdministrator}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -317,6 +317,7 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.contains(\"[command_line]\");\r",
+									"    console.log(responseJson.message)\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation test for the command response\", function () {\r",
@@ -350,7 +351,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandNameSuperAdministrator}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameSuperAdministrator}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -426,7 +427,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameSuperAdministrator}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -502,7 +503,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandNameSuperAdministrator}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameSuperAdministrator}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -529,13 +530,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"CommandName\", \"command_1_by_admin\");\r",
-									"pm.collectionVariables.set(\"CommandType\", \"Check\");\r",
-									"pm.collectionVariables.set(\r",
-									"  \"CommandLine\",\r",
-									"  \"Notification Type: $NOTIFICATIONTYPE$#BR##BR#Service: $SERVICEDESC$#BR#Host: $HOSTALIAS$#BR#Address: $HOSTADDRESS$#BR#State: $SERVICESTATE$#BR##BR#Date/Time: $DATE$ Additional Info : $SERVICEOUTPUT$ | @MAILER@ -s '** $NOTIFICATIONTYPE$ alert - $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **' $CONTACTEMAIL$ - $ARG1$ - $_HOSTSNMPCOMMUNITY$\"\r",
-									");\r",
-									"pm.collectionVariables.set(\"CommandConnector\", \"/centreon/api/latest/configuration/connectors/1\");\r",
 									""
 								],
 								"type": "text/javascript",
@@ -558,7 +552,7 @@
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandNameSuperAdministrator\"),\r",
 									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
 									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
 									"        \"is_shell_enabled\": true,\r",
@@ -628,7 +622,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandNameSuperAdministrator}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameSuperAdministrator}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -846,7 +840,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Login successful with the administrator profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_administrator'));\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_administrator'));\r",
 									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
@@ -909,13 +903,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"CommandName\", \"command_2_by_administrator\");\r",
-									"pm.collectionVariables.set(\"CommandType\", \"Check\");\r",
-									"pm.collectionVariables.set(\r",
-									"  \"CommandLine\",\r",
-									"  \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\"\r",
-									");\r",
-									"pm.collectionVariables.set(\"CommandConnector\", \"/centreon/api/latest/configuration/connectors/2\");\r",
 									""
 								],
 								"type": "text/javascript",
@@ -933,12 +920,12 @@
 									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandNameAdministrator\") + \"'.\", function () {\r",
 									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandNameAdministrator\"),\r",
 									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
 									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
 									"        \"is_shell_enabled\": true,\r",
@@ -1008,7 +995,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"raw": "{\r\n    \"name\": \"{{CommandNameAdministrator}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameAdministrator}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1226,7 +1213,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Login successful with the editor profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_editor'));\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_editor'));\r",
 									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
@@ -1289,13 +1276,6 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"CommandName\", \"command_2_by_editor\");\r",
-									"pm.collectionVariables.set(\"CommandType\", \"Check\");\r",
-									"pm.collectionVariables.set(\r",
-									"  \"CommandLine\",\r",
-									"  \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\"\r",
-									");\r",
-									"pm.collectionVariables.set(\"CommandConnector\", \"/centreon/api/latest/configuration/connectors/2\");\r",
 									""
 								],
 								"type": "text/javascript",
@@ -1313,12 +1293,12 @@
 									"    pm.response.to.have.status(201);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandNameEditor\") + \"'.\", function () {\r",
 									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandNameEditor\"),\r",
 									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
 									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
 									"        \"is_shell_enabled\": true,\r",
@@ -1388,7 +1368,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"raw": "{\r\n    \"name\": \"{{CommandNameEditor}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandNameEditor}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1606,7 +1586,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Login successful with the operator profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_operator'));\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_operator'));\r",
 									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
@@ -1901,7 +1881,7 @@
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"Login successful with the external profile\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
-									"    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user_unprivileged'));\r",
+									"    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login_user_unprivileged'));\r",
 									"    \r",
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
@@ -2205,7 +2185,14 @@
 				"type": "text/javascript",
 				"requests": {},
 				"exec": [
-					""
+					"pm.collectionVariables.set(\"CommandName\", \"command_by_generic_test\");",
+					"pm.collectionVariables.set(\"CommandNameSuperAdministrator\", \"command_by_super_administrator\");",
+					"pm.collectionVariables.set(\"CommandNameAdministrator\", \"command_by_administrator\");",
+					"pm.collectionVariables.set(\"CommandNameEditor\", \"command_by_editor\");",
+					"pm.collectionVariables.set(\"CommandType\", \"Check\");",
+					"pm.collectionVariables.set(\"CommandConnector\", \"/centreon/api/latest/configuration/connectors/1\");",
+					"pm.collectionVariables.set(\"CommandLine\", \"$CENTREONPLUGINS$/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format  -  $ARG465$  -  $_SERVICEtwixou$\");",
+					"pm.collectionVariables.set(\"CommandId\", \"\");"
 				]
 			}
 		},
@@ -2222,27 +2209,15 @@
 	],
 	"variable": [
 		{
-			"key": "api_login_user_administrator",
-			"value": ""
-		},
-		{
-			"key": "api_login_editor",
-			"value": ""
-		},
-		{
-			"key": "api_login_operator",
-			"value": ""
-		},
-		{
-			"key": "api_login_user_unprivileged",
-			"value": ""
-		},
-		{
-			"key": "api_password_generic",
-			"value": ""
-		},
-		{
 			"key": "CommandName",
+			"value": ""
+		},
+		{
+			"key": "CommandName_administrator",
+			"value": ""
+		},
+		{
+			"key": "CommandName_editor",
 			"value": ""
 		},
 		{
@@ -2250,15 +2225,27 @@
 			"value": ""
 		},
 		{
-			"key": "CommandLine",
-			"value": ""
-		},
-		{
 			"key": "CommandConnector",
 			"value": ""
 		},
 		{
+			"key": "CommandLine",
+			"value": ""
+		},
+		{
 			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "CommandNameSuperAdministrator",
+			"value": ""
+		},
+		{
+			"key": "CommandNameAdministrator",
+			"value": ""
+		},
+		{
+			"key": "CommandNameEditor",
 			"value": ""
 		}
 	]
