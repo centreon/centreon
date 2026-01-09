@@ -33,7 +33,7 @@ use Security\Interfaces\EncryptionInterface;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$version = '25.10.5';
+$version = '25.10.6';
 
 $errorMessage = '';
 
