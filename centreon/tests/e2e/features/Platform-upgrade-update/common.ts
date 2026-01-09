@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
 
 import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
@@ -99,7 +99,6 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
         'dnf module enable -y mariadb:10.11',
