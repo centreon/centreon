@@ -67,7 +67,7 @@ jobs:
             available_features: |
               $(cat all_features.txt)
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}  # PAT avec repo + workflow
+          GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}  # PAT avec repo + workflow
 
       # -------------------------------
       # Validate AI output
