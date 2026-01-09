@@ -1,0 +1,156 @@
+name: cypress-ai-selection
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "centreon/**"
+      - ".github/workflows/cypress-ai-selection.yml"
+
+permissions:
+  contents: read
+  models: read
+
+jobs:
+  ai-cypress-selection:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -------------------------------
+      # Checkout repository
+      # -------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@7d3d9c7b0f0a1e22a9c3c8b6e4b234fa9b9b3c99
+
+      # -------------------------------
+      # Detect changed files
+      # -------------------------------
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@v37b49f0b93a5b1f6a918bdf04f8122f0f94b63f0
+        with:
+          base: develop
+          format: txt
+
+      - name: Check if there are changes
+        id: check_changes
+        run: |
+          if [ -z "${{ steps.changed.outputs.all_changed_files }}" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed_files=${{ steps.changed.outputs.all_changed_files }}" >> $GITHUB_OUTPUT
+          fi
+
+      # -------------------------------
+      # List available feature files
+      # -------------------------------
+      - name: List available feature files
+        id: list_features
+        run: |
+          find centreon/tests/e2e/features -type f -name "*.feature" > all_features.txt
+          echo "Available feature files:"
+          cat all_features.txt
+
+      # -------------------------------
+      # AI inference (GitHub Models v2)
+      # -------------------------------
+      - name: Infer relevant feature files (AI)
+        id: ai
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: actions/ai-inference@a1b2c3d4e5f6g7h8i9j0k  # <-- Remplace par le SHA exact de v2
+        with:
+          model: openai/gpt-4o-mini
+          messages: |
+            system:
+              Tu es un expert Cypress + Gherkin (Centreon).
+              Tu ne dois jamais inventer de fichiers.
+            user:
+              Fichiers modifiés :
+              {{changed_files}}
+
+              Fichiers feature disponibles :
+              {{available_features}}
+
+              Règles STRICTES :
+              - Réponds uniquement avec des chemins EXISTANTS
+              - Un chemin par ligne
+              - Si aucun test pertinent → réponds EXACTEMENT "NONE"
+        input: |
+          changed_files: |
+            ${{ steps.check_changes.outputs.changed_files }}
+          available_features: |
+            $(cat all_features.txt)
+
+      # -------------------------------
+      # Validate AI output
+      # -------------------------------
+      - name: Validate AI output
+        id: validate
+        run: |
+          echo "${{ steps.ai.outputs.response }}" > ai_raw.txt
+          cat ai_raw.txt
+
+          if grep -qx "NONE" ai_raw.txt; then
+            echo "mode=skip" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          VALID=""
+          while read -r spec; do
+            if [ -f "$spec" ]; then
+              VALID="$VALID,$spec"
+            fi
+          done < ai_raw.txt
+
+          if [ -z "$VALID" ]; then
+            echo "mode=fallback" >> $GITHUB_OUTPUT
+          else
+            echo "mode=ai" >> $GITHUB_OUTPUT
+            echo "specs=${VALID#,}" >> $GITHUB_OUTPUT
+
+      # -------------------------------
+      # Fallback mapping simple
+      # -------------------------------
+      - name: Fallback mapping
+        id: fallback
+        if: steps.validate.outputs.mode == 'fallback'
+        run: |
+          SPECS=""
+          if echo "${{ steps.check_changes.outputs.changed_files }}" | grep -q "^centreon/tests/e2e/features/www/"; then
+            SPECS="$SPECS,centreon/tests/e2e/features/www"
+          fi
+          if echo "${{ steps.check_changes.outputs.changed_files }}" | grep -q "^centreon/tests/e2e/features/widgets/"; then
+            SPECS="$SPECS,centreon/tests/e2e/features/widgets"
+          fi
+          if [ -z "$SPECS" ]; then
+            echo "mode=full" >> $GITHUB_OUTPUT
+          else
+            echo "mode=mapped" >> $GITHUB_OUTPUT
+            echo "specs=${SPECS#,}" >> $GITHUB_OUTPUT
+
+      # -------------------------------
+      # Final decision
+      # -------------------------------
+      - name: Resolve final decision
+        id: final
+        run: |
+          if [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
+            echo "decision=AI" >> $GITHUB_OUTPUT
+            echo "specs=${{ steps.validate.outputs.specs }}" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.fallback.outputs.mode }}" = "mapped" ]; then
+            echo "decision=FALLBACK" >> $GITHUB_OUTPUT
+            echo "specs=${{ steps.fallback.outputs.specs }}" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.validate.outputs.mode }}" = "skip" ]; then
+            echo "decision=SKIP" >> $GITHUB_OUTPUT
+          else
+            echo "decision=FULL" >> $GITHUB_OUTPUT
+
+      # -------------------------------
+      # Summary
+      # -------------------------------
+      - name: Summary
+        run: |
+          echo "### Cypress AI Feature Selection Result" >> $GITHUB_STEP_SUMMARY
+          echo "- Decision: ${{ steps.final.outputs.decision }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Specs: ${{ steps.final.outputs.specs || 'N/A' }}" >> $GITHUB_STEP_SUMMARY

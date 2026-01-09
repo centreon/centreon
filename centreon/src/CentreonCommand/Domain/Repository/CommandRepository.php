@@ -60,7 +60,7 @@ class CommandRepository extends AbstractRepositoryRDB implements PaginationRepos
         if ($filters !== null) {
             if (array_key_exists('search', $filters) && $filters['search']) {
                 $sql .= ' AND `command_name` LIKE :search';
-                $collector->addValue(':search', "%{$filters['search']}%");
+                $collector->addValue(':search', "%{$filters['search']}");
             }
 
             if (array_key_exists('ids', $filters) && is_array($filters['ids'])) {
