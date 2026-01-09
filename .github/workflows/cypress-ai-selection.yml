@@ -13,6 +13,9 @@ permissions:
 
 jobs:
   ai-cypress-selection:
+    permissions:
+      contents: read
+      models: read
     runs-on: ubuntu-latest
 
     steps:
