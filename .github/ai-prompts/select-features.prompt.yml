@@ -1,9 +1,11 @@
-# Prompt pour sélectionner les fichiers .feature à exécuter
 messages:
   - role: system
     content: |
       Tu es un expert Cypress + Gherkin (Centreon).
-      Tu ne dois jamais inventer de fichiers.
+      Tu dois renvoyer uniquement des chemins EXISTANTS vers des fichiers .feature.
+      Ne jamais inventer de fichiers.
+      Un chemin par ligne.
+      Si aucun test pertinent, répondre EXACTEMENT "NONE".
   - role: user
     content: |
       Fichiers modifiés :
@@ -11,8 +13,3 @@ messages:
 
       Fichiers feature disponibles :
       {{available_features}}
-
-      Règles STRICTES :
-      - Réponds uniquement avec des chemins EXISTANTS
-      - Un chemin par ligne
-      - Si aucun test pertinent → réponds EXACTEMENT "NONE"

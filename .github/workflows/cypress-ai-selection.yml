@@ -23,14 +23,14 @@ jobs:
       # Checkout repository
       # -------------------------------
       - name: Checkout repository
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       # -------------------------------
       # Detect changed files
       # -------------------------------
       - name: Get changed files
         id: changed
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
 
       - name: Check if there are changes
         id: check_changes
@@ -40,10 +40,9 @@ jobs:
           else
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "changed_files=${{ steps.changed.outputs.all_changed_files }}" >> $GITHUB_OUTPUT
-          fi
 
       # -------------------------------
-      # List available feature files
+      # List all feature files
       # -------------------------------
       - name: List available feature files
         id: list_features
@@ -60,14 +59,14 @@ jobs:
         if: steps.check_changes.outputs.changed == 'true'
         uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e # v2.0.4
         with:
-          model: openai/gpt-4o
+          model: openai/gpt-4o-mini
           prompt-file: .github/ai-prompts/select-features.prompt.yml
           input: |
             changed_files: ${{ steps.check_changes.outputs.changed_files }}
             available_features: |
               $(cat all_features.txt)
         env:
-          GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}  # PAT avec repo + workflow
 
       # -------------------------------
       # Validate AI output
@@ -78,14 +77,9 @@ jobs:
           echo "${{ steps.ai.outputs.response }}" > ai_raw.txt
           cat ai_raw.txt
 
-          if grep -qx "NONE" ai_raw.txt; then
-            echo "mode=skip" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
           VALID=""
           while read -r spec; do
-            if [ -f "$spec" ]; then
+            if [ -f "$spec" ] && [[ "$spec" == *.feature ]]; then
               VALID="$VALID,$spec"
             fi
           done < ai_raw.txt
@@ -105,6 +99,7 @@ jobs:
         if: steps.validate.outputs.mode == 'fallback'
         run: |
           SPECS=""
+          # Exemple : map fichiers modifiés vers dossiers feature
           if echo "${{ steps.check_changes.outputs.changed_files }}" | grep -q "^centreon/tests/e2e/features/www/"; then
             SPECS="$SPECS,centreon/tests/e2e/features/www"
           fi
@@ -133,11 +128,14 @@ jobs:
           elif [ "${{ steps.validate.outputs.mode }}" = "skip" ]; then
             echo "decision=SKIP" >> $GITHUB_OUTPUT
           else
+            # full run de toutes les features
+            SPECS=$(cat all_features.txt | tr '\n' ',' | sed 's/,$//')
             echo "decision=FULL" >> $GITHUB_OUTPUT
+            echo "specs=$SPECS" >> $GITHUB_OUTPUT
           fi
 
       # -------------------------------
-      # Summary
+      # Step Summary
       # -------------------------------
       - name: Summary
         run: |
