@@ -32,7 +32,7 @@ outputs:
     description: Final selection decision (AI, FALLBACK, or FULL).
     value: ${{ steps.final.outputs.decision }}
   specs:
-    description: Comma-separated list of feature files or directories selected for execution.
+    description: JSON array of feature files or directories selected for execution.
     value: ${{ steps.final.outputs.specs }}
 runs:
   using: composite
@@ -143,25 +143,25 @@ runs:
           if [ -n "$MISSING_LINES" ]; then
             MISSING=$(printf '%s' "$MISSING_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           else
-            MISSING=""
+            MISSING="[]"
           fi
 
           if [ -n "$VALID_LINES" ]; then
             VALID=$(printf '%s' "$VALID_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           else
-            VALID=""
+            VALID="[]"
           fi
         else
-          MISSING=""
-          VALID=""
+          MISSING="[]"
+          VALID="[]"
         fi
 
-        if [ -n "$MISSING" ]; then
+        if [ -n "$MISSING_LINES" ]; then
           echo "mode=fallback" >> "$GITHUB_OUTPUT"
           exit 0
         fi
 
-        if [ -z "$VALID" ]; then
+        if [ "$VALID" = "[]" ]; then
           echo "mode=fallback" >> "$GITHUB_OUTPUT"
         else
           echo "mode=ai" >> "$GITHUB_OUTPUT"
