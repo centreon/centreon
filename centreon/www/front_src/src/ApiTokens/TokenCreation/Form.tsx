@@ -18,6 +18,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
+import { Parameters } from '../api/models';
 import {
   labelCancel,
   labelClose,
@@ -26,7 +27,6 @@ import {
   labelName,
   labelUser
 } from '../translatedLabels';
-import { Parameters } from '../api/models';
 
 import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
@@ -173,12 +173,14 @@ const FormCreation = ({
         className={classes.input}
         dataTestId={labelUser}
         disabled={Boolean(token) || !canManageApiTokens}
-        field="name"
+        field="alias"
         getEndpoint={getUsersEndpoint}
+        getOptionLabel={(option): string => option?.alias || ''}
+        getRenderedOptionText={(option): string => option?.alias || ''}
         id="user"
         label={t(labelUser)}
         required={!token}
-        value={user}
+        value={values.user}
         onChange={changeUser}
       />
       {token && <TokenInput token={token} />}
