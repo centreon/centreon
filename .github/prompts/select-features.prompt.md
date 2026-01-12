@@ -14,7 +14,9 @@ Rules:
 - Backend changes may impact frontend flows
 - Shared components → include all dependent features
 - Provide files from given list only (path centreon/tests/e2e/features/*.feature)
-- NEVER invent files which does not exist, it is really important
+- NEVER invent files. Only choose from the list above.
+- Only include files impacted by the code changes provided below.
+- If no files are impacted, return an empty JSON array: []
 - Provide one path per line
 - Do not provide file with tag @ignore on feature
 - Do not provide file with tag @ignore on all scenarios
