@@ -44,18 +44,6 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       # -------------------------------
-      # Check if changes exist
-      # -------------------------------
-      - name: Check changes
-        id: check
-        run: |
-          if [ -z "${{ steps.diff.outputs.diff }}" ]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      # -------------------------------
       # List all feature files
       # -------------------------------
       - name: List available feature files
@@ -71,7 +59,7 @@ jobs:
       # -------------------------------
       - name: Infer relevant feature files (AI)
         id: ai
-        if: steps.check.outputs.changed == 'true'
+        if: steps.diff.outputs.diff != ''
         uses: actions/ai-inference@v2
         with:
           model: openai/gpt-4.1
@@ -94,7 +82,7 @@ jobs:
       # -------------------------------
       - name: Validate AI output
         id: validate
-        if: steps.check.outputs.changed == 'true'
+        if: steps.diff.outputs.diff != ''
         run: |
           echo '${{ steps.ai.outputs.result }}' > ai.json
           cat ai.json
