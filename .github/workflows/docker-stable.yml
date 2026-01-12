@@ -95,6 +95,7 @@ jobs:
               24.04)
                 echo "::error::The workflow does not work on 24.04 version."
                 exit 1
+                ;;
               24.10)
                 DISTRIBS=("alma8" "alma9" "bookworm" "noble")
                 ;;
