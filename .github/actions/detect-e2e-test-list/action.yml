@@ -88,6 +88,8 @@ runs:
       if: steps.check_changes.outputs.changed == 'true'
       shell: bash
       run: |
+        set -x
+
         cat <<'EOF' > ai.json
         ${{ steps.ai.outputs.response }}
         EOF
