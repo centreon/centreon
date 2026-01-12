@@ -28,9 +28,9 @@ apt-get update
 
 if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
-    centreon-poller=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+ubuntu.24.04 \
-    centreon-trap=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+ubuntu.24.04 \
-    centreon-web=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+ubuntu.24.04
+    centreon-poller=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*-0ubuntu.24.04 \
+    centreon-trap=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*-0ubuntu.24.04 \
+    centreon-web=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*-0ubuntu.24.04
 else
   apt-get install -y /tmp/packages-centreon/centreon-*.deb
 fi

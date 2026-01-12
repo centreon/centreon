@@ -13,9 +13,9 @@ RUN bash -e <<EOF
 
 if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
-    centreon-awie=${MAJOR_VERSION}.${AWIE_MINOR_VERSION}-*+ubuntu.24.04 \
-    centreon-dsm=${MAJOR_VERSION}.${DSM_MINOR_VERSION}-*+ubuntu.24.04 \
-    centreon-open-tickets=${MAJOR_VERSION}.${OPEN_TICKETS_MINOR_VERSION}-*+ubuntu.24.04
+    centreon-awie=${MAJOR_VERSION}.${AWIE_MINOR_VERSION}-*-0ubuntu.24.04 \
+    centreon-dsm=${MAJOR_VERSION}.${DSM_MINOR_VERSION}-*-0ubuntu.24.04 \
+    centreon-open-tickets=${MAJOR_VERSION}.${OPEN_TICKETS_MINOR_VERSION}-*-0ubuntu.24.04
 else
   apt-get install -y /tmp/packages-centreon/centreon-*.deb
 fi
