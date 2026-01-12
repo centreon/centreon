@@ -16,6 +16,9 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+
       - name: Detect relevant E2E specs
         id: detect
         uses: ./.github/actions/detect-e2e-test-list
