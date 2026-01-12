@@ -46,7 +46,7 @@ class Upgrader extends Module
         $upgrades = $this->services->get('finder');
         $upgrades
             ->directories()
-            ->depth('== 1')
+            ->depth('== 0')
             ->in($upgradesPath);
         $orderedUpgrades = [];
         foreach ($upgrades as $upgrade) {
