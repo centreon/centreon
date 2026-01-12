@@ -25,7 +25,10 @@ Cypress.Commands.add('fillTelegrafMandatoryFields', (body: Telegraf) => {
   cy.contains(body.pollerName).click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type(body.publicCertificationFileName);
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
@@ -35,7 +38,10 @@ Cypress.Commands.add('fillTelegrafMandatoryFields', (body: Telegraf) => {
     .eq(0)
     .type(body.privateKeyFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type(body.certificateFileName);
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -83,7 +89,10 @@ Cypress.Commands.add('addTelegrafAgent', (body: Telegraf) => {
   cy.contains('Central').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type(body.publicCertificationFileName);
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
@@ -93,7 +102,10 @@ Cypress.Commands.add('addTelegrafAgent', (body: Telegraf) => {
     .eq(0)
     .type(body.privateKeyFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type(body.certificateFileName);
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -107,7 +119,10 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .clear()
     .type(body.publicCertificationFileName);
@@ -119,7 +134,10 @@ Cypress.Commands.add('updateTelegrafAgent', (body: Telegraf) => {
     .clear()
     .type(body.privateKeyFileName);
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .clear()
     .type(body.certificateFileName);

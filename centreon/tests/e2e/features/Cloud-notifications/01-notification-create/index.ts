@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+import { CopyToContainerContentType } from '../../../../../packages/js-config/cypress/e2e/commands';
 
 import {
   checkHostsAreMonitored,
