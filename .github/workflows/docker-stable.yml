@@ -92,7 +92,7 @@ jobs:
           major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
-            DISTRIBS=("el9")
+            DISTRIBS=("alma9")
           else
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             case "${major_version}" in
