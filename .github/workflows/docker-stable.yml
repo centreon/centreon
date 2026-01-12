@@ -30,13 +30,13 @@ jobs:
     steps:
 
       - name: Checkout .version (current branch)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           path: centreon-current
           sparse-checkout: .version
 
       - name: Checkout .version (develop branch)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: develop
           path: centreon-develop
@@ -63,14 +63,10 @@ jobs:
         run: |
           for repo in "centreon" "centreon-collect"; do
             if [[ -z $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name') ]]; then
-              echo "::notice::Release bundle tag ${{ inputs.release_bundle_tag }} could not be found on repository $repo."
+              echo "::error::Release bundle tag ${{ inputs.release_bundle_tag }} could not be found on repository $repo."
               echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith(\"${{ inputs.release_bundle_tag }}\"))] | .[].name')"
               echo "Command output: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name')"
-              echo "Checking with branch instead of tag."
-              if [[ -z $(gh api repos/centreon/$repo/branches --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name') ]]; then
-                echo "::error::${{ inputs.release_bundle_tag }} could not be found on repository $repo as either a branch or a workflow."
-                exit 1
-              fi
+              exit 1
             else
               echo "Release bundle or branch ${{ inputs.release_bundle_tag }} was found on repository $repo."
               echo "Information fetched on the tag: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[]' )"
