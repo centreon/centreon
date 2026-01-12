@@ -221,11 +221,13 @@ runs:
 
         if ! printf '%s' "$SPEC_JSON_RAW" | jq -e 'type == "array"' >/dev/null 2>&1; then
           SPEC_JSON_RAW=$(printf '%s' "$SPEC_JSON_RAW" |
-            tr ',' '\n' |
-            jq -R -s -c 'split("\n") | map(select(length > 0) | gsub("^\\s+|\\s+$"; ""))')
-        else
-          SPEC_JSON_RAW=$(printf '%s' "$SPEC_JSON_RAW" | jq -c 'map(tostring)')
+            sed -e 's/^\[\s*//' -e 's/\s*\]$//' |
+            tr ',\n' '\n' |
+            awk 'NF { gsub(/^ +| +$/,"", $0); print }' |
+            jq -R -s -c 'split("\n") | map(select(length > 0))')
         fi
+
+        SPEC_JSON_RAW=$(printf '%s' "$SPEC_JSON_RAW" | jq -c 'map(tostring)')
 
         echo "decision=$DECISION" >> "$GITHUB_OUTPUT"
         echo "specs=$SPEC_JSON_RAW" >> "$GITHUB_OUTPUT"
