@@ -235,7 +235,7 @@ jobs:
           build-args: |
             "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
@@ -252,7 +252,7 @@ jobs:
             "DSM_MINOR_VERSION=${{ steps.export-minor-versions.outputs.dsm_minor_version }}"
             "OPEN_TICKETS_MINOR_VERSION=${{ steps.export-minor-versions.outputs.open_tickets_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
