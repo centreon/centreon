@@ -154,7 +154,7 @@ jobs:
         with:
           repository: centreon/centreon-collect
           ref: ${{ inputs.release_bundle_tag }}
-          path: ./${{ inputs.release_bundle_tag }}/
+          path: ./centreon-collect-${{ inputs.release_bundle_tag }}/
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
@@ -172,8 +172,10 @@ jobs:
           ls -lah ./${{ inputs.dev_branch }}/
           echo "####################"
           ls -lah ./${{ inputs.dev_branch }}/.github/
+          echo "####################"
+          ls -lah ./${{ inputs.dev_branch }}/.version.centreon-web
 
-          mv .version.* ./centreon-${{ inputs.release_bundle_tag }}/
+          mv ./centreon-collect-${{ inputs.release_bundle_tag }}/.version.* ./${{ inputs.release_bundle_tag }}/
 
           for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
             source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-${package}
