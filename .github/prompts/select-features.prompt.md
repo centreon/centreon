@@ -17,6 +17,8 @@ Rules:
 - Provide one path per line
 - Do not provide file with tag @ignore on feature
 - Do not provide file with tag @ignore on all scenarios
+- If backend or frontend code referenced in a feature test changes, consider the feature impacted.
+- For instance, if a file in "centreon/src/Security/*/Authentication/" changes, any feature testing authentication should be considered impacted.
 
 Output format (STRICT):
 Return a JSON array of feature file paths.

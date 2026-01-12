@@ -20,28 +20,21 @@ jobs:
       # Checkout (FULL history required)
       # -------------------------------
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
-      # -------------------------------
-      # Compute git diff (SAFE)
-      # -------------------------------
-      - name: Compute git diff
-        id: diff
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
+
+      - name: Check if there are changes
+        id: check_changes
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            BASE_SHA="${{ github.event.pull_request.base.sha }}"
-            HEAD_SHA="${{ github.sha }}"
-            DIFF=$(git diff "$BASE_SHA...$HEAD_SHA")
+          if [ -z "${{ steps.changed.outputs.all_changed_files }}" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
           else
-            # workflow_dispatch fallback
-            DIFF=$(git diff HEAD~1)
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed_files=${{ steps.changed.outputs.all_changed_files }}" >> $GITHUB_OUTPUT
           fi
-
-          echo "diff<<EOF" >> $GITHUB_OUTPUT
-          echo "$DIFF" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
 
       # -------------------------------
       # List all feature files
@@ -59,15 +52,15 @@ jobs:
       # -------------------------------
       - name: Infer relevant feature files (AI)
         id: ai
-        if: steps.diff.outputs.diff != ''
+        if: steps.check_changes.outputs.changed == 'true'
         uses: actions/ai-inference@v2
         with:
           model: openai/gpt-4.1
           prompt-file: .github/prompts/select-features.prompt.md
           input: |
-            Git diff:
+            Modified files:
             ```
-            ${{ steps.diff.outputs.diff }}
+            ${{ steps.check_changes.outputs.changed_files }}
             ```
 
             Available feature files:
@@ -82,7 +75,7 @@ jobs:
       # -------------------------------
       - name: Validate AI output
         id: validate
-        if: steps.diff.outputs.diff != ''
+        if: steps.check_changes.outputs.changed == 'true'
         run: |
           echo '${{ steps.ai.outputs.response }}' > ai.json
           cat ai.json
