@@ -131,18 +131,19 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.dev_branch || inputs.release_bundle_tag }}
-          path: ./centreon-${{ inputs.dev_branch || inputs.release_bundle_tag }}/
+          path: ./${{ inputs.dev_branch || inputs.release_bundle_tag }}/
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/
             .github/docker/centreon-web/init/
             .github/docker/centreon-web/scripts/
             .github/docker/centreon-web/sql/
+          clean: false
 
       - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
-          path: ./centreon-${{ inputs.release_bundle_tag }}/
+          path: ./${{ inputs.release_bundle_tag }}/
           sparse-checkout: |
             .version.centreon-awie
             .version.centreon-dsm
@@ -156,7 +157,7 @@ jobs:
         with:
           repository: centreon/centreon-collect
           ref: ${{ inputs.release_bundle_tag }}
-          path: ./centreon-${{ inputs.release_bundle_tag }}/
+          path: ./${{ inputs.release_bundle_tag }}/
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
@@ -201,7 +202,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: ./centreon-${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          file: ./${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies
           context: .
           build-args: |
@@ -222,7 +223,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_CHECKS_ANNOTATIONS: false
         with:
-          file: ./centreon-${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
+          file: ./${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.dependencies
           target: web_dependencies_collect
           context: .
           build-args: |
@@ -239,7 +240,7 @@ jobs:
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          file: ./centreon-${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile
+          file: ./${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile
           context: .
           build-args: |
             "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
@@ -254,7 +255,7 @@ jobs:
       - name: Build and push OSS image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          file: ./centreon-${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.oss
+          file: ./${{ inputs.dev_branch || inputs.release_bundle_tag }}/.github/docker/centreon-web/${{ matrix.distrib }}/Dockerfile.oss
           context: .
           build-args: |
             "AWIE_MINOR_VERSION=${{ steps.export-minor-versions.outputs.awie_minor_version }}"
