@@ -16,8 +16,5 @@ messages:
       If no relevant test exists, respond with [].
   - role: user
     content: |
-      Modified files:
-      {{changed_files}}
-
-      Available feature files:
-      {{available_features}}
+      Modified files: {{changed_files}}
+      Available feature files: {{available_features}}
