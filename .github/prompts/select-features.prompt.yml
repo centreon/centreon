@@ -8,7 +8,7 @@ messages:
       For instance, if a file in "centreon/src/Security/*/Authentication/" changes,
       any feature testing authentication should be considered impacted.
 
-      Never invent files.
+      Never invent files, only choose from the "Available feature files" list.
       Provide one path per line.
       Do not provide file with tag @ignore on feature.
       Do not provide file with tag @ignore on all scenarios.
