@@ -9,8 +9,8 @@ Tech stack:
 - Tests: Cypress + Gherkin
 
 Inputs:
-- A list of recently modified files in the codebase.
-- A list of available Cypress Gherkin feature files.
+- A list of recently modified files in the codebase: {{modified_files}}.
+- A list of available Cypress Gherkin feature files: {{available_feature_files}}.
 
 Rules:
 - NEVER invent files. Only choose from the "Available feature files" list.
