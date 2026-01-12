@@ -59,12 +59,16 @@ jobs:
         run: |
           for repo in "centreon" "centreon-collect"; do
             if [[ -z $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name') ]]; then
-              echo "::error::Release bundle tag ${{ inputs.release_bundle_tag }} could not be found on repository $repo."
+              echo "::notice::Release bundle tag ${{ inputs.release_bundle_tag }} could not be found on repository $repo."
               echo "Command: gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith(\"${{ inputs.release_bundle_tag }}\"))] | .[].name')"
               echo "Command output: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name')"
-              exit 1
+              echo "Checking with branch instead of tag."
+              if [[ -z $(gh api repos/centreon/$repo/branches --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name') ]]; then
+                echo "::error::${{ inputs.release_bundle_tag }} could not be found on repository $repo as either a branch or a workflow."
+                exit 1
+              fi
             else
-              echo "Release bundle ${{ inputs.release_bundle_tag }} was found on repository $repo."
+              echo "Release bundle or branch ${{ inputs.release_bundle_tag }} was found on repository $repo."
               echo "Information fetched on the tag: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[]' )"
             fi
           done
