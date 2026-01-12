@@ -34,6 +34,8 @@ jobs:
           else
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "changed_files=${{ steps.changed.outputs.all_changed_files }}" >> $GITHUB_OUTPUT
+            CHANGED_JSON=$(printf '%s\n' "${{ steps.changed.outputs.all_changed_files }}" | jq -R -s -c 'split("\n")[:-1]')
+            echo "changed_files_json=$CHANGED_JSON" >> $GITHUB_OUTPUT
           fi
 
       # -------------------------------
@@ -43,9 +45,8 @@ jobs:
         id: features
         run: |
           find centreon/tests/e2e/features -type f -name "*.feature" > all_features.txt
-          echo "features<<EOF" >> $GITHUB_OUTPUT
-          cat all_features.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          FEATURES_JSON=$(cat all_features.txt | jq -R -s -c 'split("\n")[:-1]')
+          echo "features_json=$FEATURES_JSON" >> $GITHUB_OUTPUT
 
       # -------------------------------
       # AI inference
@@ -58,9 +59,10 @@ jobs:
           model: openai/gpt-4.1
           prompt-file: .github/prompts/select-features.prompt.yml
           input: |
-            changed_files: ${{ steps.check_changes.outputs.changed_files }}
-            available_features: |
-              $(cat all_features.txt)
+            {
+              "changed_files": ${{ steps.check_changes.outputs.changed_files_json }},
+              "available_features": ${{ steps.features.outputs.features_json }}
+            }
         env:
           GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}  # PAT avec repo + workflow
 
@@ -74,12 +76,12 @@ jobs:
           echo '${{ steps.ai.outputs.response }}' > ai.json
           cat ai.json
 
-          if ! jq -e . ai.json >/dev/null; then
+          if ! jq -e 'type == "object" and has("specs") and (.specs | type == "array")' ai.json >/dev/null; then
             echo "mode=fallback" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          VALID=$(jq -r '.[]' ai.json | while read f; do
+          VALID=$(jq -r '.specs[]?' ai.json | while read f; do
             [ -f "$f" ] && echo "$f"
           done | paste -sd "," -)
 

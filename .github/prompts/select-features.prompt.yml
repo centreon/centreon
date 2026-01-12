@@ -8,16 +8,15 @@ messages:
       For instance, if a file in "centreon/src/Security/*/Authentication/" changes,
       any feature testing authentication should be considered impacted.
 
-      Never invent files, only choose from the "Available feature files" list.
-      Provide one path per line.
-      Do not provide file with tag @ignore on feature.
-      Do not provide file with tag @ignore on all scenarios.
-
-      If no relevant test, reply EXACTLY "NONE".
+      Never invent files, only choose from the "available_features" JSON array.
+      Output MUST be valid minified JSON with the following schema:
+        {"specs":["<path>", ...]}
+      Each path in "specs" must be taken verbatim from the provided list.
+      If no relevant test exists, respond with {"specs":[]}.
   - role: user
     content: |
       Modified files:
-      {{changed_files}}
+      {{changed_files_json}}
 
       Available feature files:
-      {{available_features}}
+      {{available_features_json}}
