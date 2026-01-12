@@ -124,8 +124,6 @@ describe('SAMLConfiguration', () => {
     cy.findByLabelText(labelSAMLOnly).should('not.be.checked');
     cy.findByLabelText(labelMixed).should('be.checked');
 
-    cy.makeSnapshot('displays the SAML configuration form - Activation');
-
     cy.contains(labelIdentityProvider).click();
 
     cy.findByLabelText(labelRemoteLoginUrl).should(
@@ -156,8 +154,6 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo(0, 300);
 
-    cy.makeSnapshot('displays the SAML configuration form - Identity provider');
-
     cy.contains(labelAuthenticationConditions).click();
 
     cy.findByLabelText(labelEnableConditionsOnIdentityProvider).should(
@@ -179,10 +175,6 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo(0, 800);
 
-    cy.makeSnapshot(
-      'displays the SAML configuration form - Authentication conditions'
-    );
-
     cy.contains(labelAutoImportUsers).click();
 
     cy.findByLabelText(labelEnableAutoImport).should('be.checked');
@@ -201,8 +193,6 @@ describe('SAMLConfiguration', () => {
 
     cy.wait(500).scrollTo(0, 1200);
 
-    cy.makeSnapshot('displays the SAML configuration form - Auto import users');
-
     cy.contains(labelRolesMapping).click();
 
     cy.findAllByLabelText(labelEnableAutomaticManagement)
@@ -213,6 +203,9 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.roles_mapping.attribute_path
     );
+
+    cy.scrollTo('bottom', 500);
+
     cy.findAllByLabelText(labelRoleValue).should('have.length', 2);
     cy.findAllByLabelText(labelRoleValue)
       .eq(0)
@@ -229,10 +222,6 @@ describe('SAMLConfiguration', () => {
         retrievedSAMLConfiguration.roles_mapping.relations[0].access_group.name
       );
     cy.findAllByLabelText(labelAclAccessGroup).eq(1).should('have.value', '');
-
-    cy.wait(500).scrollTo('bottom');
-
-    cy.makeSnapshot('displays the SAML configuration form - Roles mapping');
 
     cy.contains(labelGroupsMapping).click();
 
@@ -260,10 +249,6 @@ describe('SAMLConfiguration', () => {
           .name
       );
     cy.findAllByLabelText(labelContactGroup).eq(1).should('have.value', '');
-
-    cy.wait(500).scrollTo('bottom');
-
-    cy.makeSnapshot('displays the SAML configuration form - Groups mapping');
   });
 
   it('disables auto import fields when auto import is disabled', () => {

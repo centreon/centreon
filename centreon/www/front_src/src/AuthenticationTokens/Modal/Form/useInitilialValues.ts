@@ -14,7 +14,7 @@ const useInitilialValues = () => {
 
   const user = currentUser.canManageApiTokens
     ? null
-    : pick(['id', 'name'], currentUser);
+    : pick(['id', 'alias'], currentUser);
 
   const duration = find(propEq('neverExpire', 'id'), dataDuration);
 
