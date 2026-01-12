@@ -62,7 +62,9 @@ When(
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
-    }).scrollIntoView().check();
+    })
+      .scrollIntoView()
+      .check();
 
     configureOpenIdConnect();
 
@@ -85,7 +87,9 @@ When(
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    }).eq(0).type('{selectall}{backspace}centreon-editor');
+    })
+      .eq(0)
+      .type('{selectall}{backspace}centreon-editor');
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'

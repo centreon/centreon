@@ -76,7 +76,8 @@ dnf install -y \
   perl-HTML-Parser \
   perl-Net-Curl \
   perl-lib \
-  perl-Env
+  perl-Env \
+  "perl(User::pwent)"
 
 #############################
 # install test dependencies #

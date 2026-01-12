@@ -170,7 +170,9 @@ Then(
     cy.getIframeBody()
       .find('form')
       .within(() => {
-        cy.get('#current_password').should('be.visible').type('Centreon!2021User1');
+        cy.get('#current_password')
+          .should('be.visible')
+          .type('Centreon!2021User1');
         cy.get('#passwd1').should('be.visible').type('azerty');
         cy.get('#passwd2').should('be.visible').type('azerty');
       });
@@ -303,7 +305,9 @@ Then('user can not change password unless the minimum time has passed', () => {
   cy.getIframeBody()
     .find('form')
     .within(() => {
-      cy.get('#current_password').should('be.visible').type('Centreon!2021User1');
+      cy.get('#current_password')
+        .should('be.visible')
+        .type('Centreon!2021User1');
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
     });
@@ -319,7 +323,9 @@ Then('user can not change password unless the minimum time has passed', () => {
   cy.getIframeBody()
     .find('#Form')
     .within(() => {
-      cy.get('#current_password').should('be.visible').type('@zerty!976=Centreon');
+      cy.get('#current_password')
+        .should('be.visible')
+        .type('@zerty!976=Centreon');
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
     });
@@ -351,7 +357,9 @@ Then('user can not reuse the last passwords more than 3 times', () => {
   cy.getIframeBody()
     .find('#Form')
     .within(() => {
-      cy.get('#current_password').should('be.visible').type('@zerty!976=Centreon');
+      cy.get('#current_password')
+        .should('be.visible')
+        .type('@zerty!976=Centreon');
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
     });
