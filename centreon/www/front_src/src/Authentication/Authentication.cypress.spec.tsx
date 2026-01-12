@@ -88,11 +88,11 @@ describe('Authentication configuration', () => {
     cy.waitForRequest('@getOpendidConnectConfiguration');
 
     cy.findByLabelText(labelEnableOpenIDConnectAuthentication).should('exist');
-    cy.findByLabelText(labelGroupsMapping).click();
-    cy.findByLabelText(labelRolesMapping).click();
-    cy.findByLabelText(labelAutoImportUsers).click();
-    cy.findByLabelText(labelAuthenticationConditions).click();
-    cy.findByLabelText(labelIdentityProvider).click();
+    cy.findByTestId(`tab-${labelGroupsMapping}`).click();
+    cy.findByTestId(`tab-${labelRolesMapping}`).click();
+    cy.findByTestId(`tab-${labelAutoImportUsers}`).click();
+    cy.findByTestId(`tab-${labelAuthenticationConditions}`).click();
+    cy.findByTestId(`tab-${labelIdentityProvider}`).click();
 
     cy.get('@OpenidConnectTab').scrollIntoView();
 
@@ -112,11 +112,11 @@ describe('Authentication configuration', () => {
 
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.findByLabelText(labelGroupsMapping).click();
-    cy.findByLabelText(labelRolesMapping).click();
-    cy.findByLabelText(labelAutoImportUsers).click();
-    cy.findByLabelText(labelAuthenticationConditions).click();
-    cy.findByLabelText(labelIdentityProvider).click();
+    cy.findByTestId(`tab-${labelGroupsMapping}`).click();
+    cy.findByTestId(`tab-${labelRolesMapping}`).click();
+    cy.findByTestId(`tab-${labelAutoImportUsers}`).click();
+    cy.findByTestId(`tab-${labelAuthenticationConditions}`).click();
+    cy.findByTestId(`tab-${labelIdentityProvider}`).click();
 
     cy.findAllByLabelText(labelSAMLConfiguration).eq(0).scrollIntoView();
 

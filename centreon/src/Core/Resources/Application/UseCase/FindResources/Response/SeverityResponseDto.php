@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ final class SeverityResponseDto
         public string $name = '',
         public int $level = 0,
         public int $type = 0,
-        public IconResponseDto $icon = new IconResponseDto()
+        public IconResponseDto $icon = new IconResponseDto(),
     ) {
     }
 }

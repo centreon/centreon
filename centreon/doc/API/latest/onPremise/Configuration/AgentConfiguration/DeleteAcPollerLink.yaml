@@ -1,6 +1,6 @@
 delete:
   tags:
-    - Poller/agent configuration
+    - Agent configuration
   summary: "Delete a poller/agent configuration's link to a poller"
   parameters:
     - $ref: 'QueryParameter/AgentConfigurationId.yaml'

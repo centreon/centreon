@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,19 @@ class DbWriteMonitoringServerRepository extends AbstractRepositoryRDB implements
         $statement->bindValue(':engineStartCommand', $monitoringServer->getEngineStartCommand(), \PDO::PARAM_STR);
         $statement->bindValue(':brokerReloadCommand', $monitoringServer->getBrokerReloadCommand(), \PDO::PARAM_STR);
         $statement->bindValue(':monitoringServerId', $monitoringServer->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    public function updateAllEncryptionReadyFromRealtime(): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.nagios_server ns
+                    INNER JOIN `:dbstg`.instances i
+                    ON ns.id = i.instance_id
+                SET ns.is_encryption_ready = i.is_encryption_ready
+                SQL
+        ));
         $statement->execute();
     }
 }

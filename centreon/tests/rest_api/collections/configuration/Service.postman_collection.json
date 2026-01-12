@@ -2331,6 +2331,9 @@
 									"    pm.collectionVariables.set(\"ServiceCategory1Id\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.eql({\r",
+									"        \"@context\": \"/centreon/api/latest/contexts/ServiceCategory\",\r",
+									"        \"@type\": \"ServiceCategory\",\r",
+									"        \"@id\": \"/centreon/api/latest/service_categories/\" + pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory1Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory1Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory1Alias\"),\r",
@@ -2342,6 +2345,9 @@
 									"  const schema = {\r",
 									"    type: \"object\",\r",
 									"    properties: {\r",
+									"      \"@context\": { type: \"string\" },\r",
+									"      \"@id\": { type: \"string\" },\r",
+									"      \"@type\": { type: \"string\" },\r",
 									"      id: { type: \"integer\" },\r",
 									"      name: { type: \"string\" },\r",
 									"      alias: { type: \"string\" },\r",
@@ -2411,6 +2417,9 @@
 									"    pm.collectionVariables.set(\"ServiceCategory2Id\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.eql({\r",
+									"        \"@context\": \"/centreon/api/latest/contexts/ServiceCategory\",\r",
+									"        \"@type\": \"ServiceCategory\",\r",
+									"        \"@id\": \"/centreon/api/latest/service_categories/\" + pm.collectionVariables.get(\"ServiceCategory2Id\"),\r",
 									"        \"id\": pm.collectionVariables.get(\"ServiceCategory2Id\"),\r",
 									"        \"name\": pm.collectionVariables.get(\"ServiceCategory2Name\"),\r",
 									"        \"alias\": pm.collectionVariables.get(\"ServiceCategory2Alias\"),\r",
@@ -2422,6 +2431,9 @@
 									"  const schema = {\r",
 									"    type: \"object\",\r",
 									"    properties: {\r",
+									"      \"@context\": { type: \"string\" },\r",
+									"      \"@id\": { type: \"string\" },\r",
+									"      \"@type\": { type: \"string\" },\r",
 									"      id: { type: \"integer\" },\r",
 									"      name: { type: \"string\" },\r",
 									"      alias: { type: \"string\" },\r",
@@ -27465,6 +27477,17 @@
 		]
 	},
 	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"if (!pm.request.headers.has('Content-Type')) {",
+					"    pm.request.headers.add({ key: 'Content-Type', value: 'application/json' });",
+					"}"
+				]
+			}
+		},
 		{
 			"listen": "prerequest",
 			"script": {

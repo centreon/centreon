@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,8 @@ use Adaptation\Database\ExpressionBuilder\ExpressionBuilderInterface;
 use Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter;
 use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Adaptation\Database\QueryBuilder\QueryBuilderInterface;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * Trait.
@@ -121,7 +123,7 @@ trait ConnectionTrait
     {
         try {
             // Clean up the query string
-            $query = ltrim($query);
+            $query = mb_ltrim($query);
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(INSERT INTO|WITH)\b/i', $query) !== 1) {
@@ -238,7 +240,7 @@ trait ConnectionTrait
     {
         try {
             // Clean up the query string
-            $query = ltrim($query);
+            $query = mb_ltrim($query);
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(UPDATE|WITH)\b/i', $query) !== 1) {
@@ -266,7 +268,7 @@ trait ConnectionTrait
     {
         try {
             // Clean up the query string
-            $query = ltrim($query);
+            $query = mb_ltrim($query);
 
             // Check if the query starts with a valid SQL command
             if (preg_match('/^(DELETE|WITH)\b/i', $query) !== 1) {
@@ -442,15 +444,65 @@ trait ConnectionTrait
         }
     }
 
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    /**
+     * Check if a column exists in a table.
+     *
+     * @throws ConnectionException
+     */
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool
+    {
+        if (empty($dbName)) {
+            throw ConnectionException::columnExistsFailed('Database name must not be empty', $tableName, $columnName);
+        }
+
+        if (empty($tableName)) {
+            throw ConnectionException::columnExistsFailed('Table name must not be empty', $tableName, $columnName);
+        }
+
+        if (empty($columnName)) {
+            throw ConnectionException::columnExistsFailed('Column name must not be empty', $tableName, $columnName);
+        }
+
+        $query = <<<'SQL'
+            SELECT COUNT(*) FROM information_schema.COLUMNS
+            WHERE TABLE_NAME = :tableName
+              AND COLUMN_NAME = :columnName
+              AND TABLE_SCHEMA = :dbName
+            SQL;
+
+        try {
+            $queryParameters = QueryParameters::create([
+                QueryParameter::string('tableName', $tableName),
+                QueryParameter::string('columnName', $columnName),
+                QueryParameter::string('dbName', $dbName),
+            ]);
+
+            $entry = $this->fetchOne($query, $queryParameters);
+
+            return is_numeric($entry) && (int) $entry > 0;
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw ConnectionException::columnExistsFailed(
+                message: 'Failed to query column existence',
+                tableName: $tableName,
+                columnName: $columnName,
+                previous: $exception
+            );
+        }
+    }
+
     // ----------------------------------------- PROTECTED METHODS -----------------------------------------
+
     abstract protected function writeDbLog(
         string $message,
         array $customContext = [],
         string $query = '',
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ): void;
 
     // ----------------------------------------- PRIVATE METHODS -----------------------------------------
+
     /**
      * @throws ConnectionException
      */
@@ -461,10 +513,10 @@ trait ConnectionTrait
         }
 
         // Clean up the query string
-        $query = ltrim($query);
+        $query = mb_ltrim($query);
 
         // Check if the query starts with a valid SQL command
-        if (preg_match('/^(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
+        if (preg_match('/^\(*\s*(SELECT|EXPLAIN|SHOW|DESCRIBE|WITH)\b/i', $query) !== 1) {
             throw ConnectionException::selectQueryBadFormat($query);
         }
     }

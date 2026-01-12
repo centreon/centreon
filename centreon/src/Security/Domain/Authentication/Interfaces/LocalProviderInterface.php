@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Interfaces;
 
+use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Throwable;
 
 interface LocalProviderInterface extends ProviderInterface
 {
     /**
      * @param array<string, mixed> $data
      *
-     * @throws Throwable
+     * @throws AuthenticationException
      */
     public function authenticateOrFail(array $data): void;
 

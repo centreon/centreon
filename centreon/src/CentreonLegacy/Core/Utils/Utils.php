@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,13 +86,21 @@ class Utils
 
         $file = fopen($fileName, 'r');
         $str = '';
+        $delimiter = ';';
         while (! feof($file)) {
             $line = fgets($file);
             if (! preg_match('/^(--|#)/', $line)) {
-                $pos = strrpos($line, ';');
+                if (preg_match('/DELIMITER\s+(\S+)/i', $line, $matches)) {
+                    $delimiter = $matches[1];
+                    continue;
+                }
+                $pos = strrpos($line, $delimiter);
                 $str .= $line;
                 if ($pos !== false) {
                     $str = rtrim($this->replaceMacros($str, $customMacros));
+                    if ($delimiter !== ';') {
+                        $str = preg_replace('/' . preg_quote($delimiter, '/') . '$/', '', $str);
+                    }
                     $this->services->get($dbName)->query($str);
                     $str = '';
                 }

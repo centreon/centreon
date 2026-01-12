@@ -4,6 +4,7 @@ import { makeStyles } from 'tss-react/mui';
 import {
   Divider,
   FormControl,
+  FormControlProps,
   FormHelperText,
   InputLabel,
   ListSubheader,
@@ -59,6 +60,7 @@ type Props = {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   options: Array<SelectEntry>;
   selectedOptionId: number | string;
+  formControlProps: FormControlProps;
 } & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
@@ -72,6 +74,7 @@ const SelectField = ({
   ariaLabel,
   inputProps,
   compact = false,
+  formControlProps,
   ...props
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -92,6 +95,7 @@ const SelectField = ({
       error={!isNil(error)}
       fullWidth={fullWidth}
       size="small"
+      {...formControlProps}
     >
       {label && <InputLabel>{label}</InputLabel>}
       <Select

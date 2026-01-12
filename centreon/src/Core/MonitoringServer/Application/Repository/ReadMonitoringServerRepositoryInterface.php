@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -121,4 +121,13 @@ interface ReadMonitoringServerRepositoryInterface
      * @return MonitoringServer
      */
     public function get(int $monitoringServerId): MonitoringServer;
+
+    /**
+     * Check if the monitoring server is ready for encryption.
+     *
+     * @param int $monitoringServerId
+     *
+     * @return bool
+     */
+    public function isEncryptionReady(int $monitoringServerId): bool;
 }

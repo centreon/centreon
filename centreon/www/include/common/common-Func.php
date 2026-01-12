@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -146,6 +131,11 @@ function myEncode($data)
     }
 
     return $data;
+}
+
+function isPositiveInteger($value)
+{
+    return preg_match('/^\d+$/', $value);
 }
 
 function getStatusColor($pearDB)
@@ -428,7 +418,7 @@ function getMyServiceMacro($service_id, $field)
     global $pearDB;
     $query = 'SELECT macro.svc_macro_value '
         . 'FROM on_demand_macro_service macro '
-        . 'WHERE macro.svc_svc_id = :svc_svc_id 
+        . 'WHERE macro.svc_svc_id = :svc_svc_id
         AND macro.svc_macro_name = :svc_macro_name LIMIT 1';
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':svc_svc_id', (int) $service_id, PDO::PARAM_INT);
@@ -485,7 +475,7 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
         $row = $statement->fetch(PDO::FETCH_ASSOC);
         if (isset($row[$field]) && $row[$field]) {
             $query = 'SELECT img_path, dir_alias FROM view_img vi, view_img_dir vid, view_img_dir_relation vidr '
-                . 'WHERE vi.img_id = :img_id 
+                . 'WHERE vi.img_id = :img_id
                 AND vidr.img_img_id = vi.img_id AND vid.dir_id = vidr.dir_dir_parent_id LIMIT 1';
             $statement = $pearDB->prepare($query);
             $statement->bindValue(':img_id', (int) $row[$field], PDO::PARAM_INT);
@@ -512,7 +502,7 @@ function getMyHostExtendedInfoImage($host_id, $field, $flag1stLevel = null, $ant
            . 'WHERE ehi.host_host_id = :host_host_id LIMIT 1';
     $ehiStatement = $pearDB->prepare($rq2);
     $query = 'SELECT img_path, dir_alias FROM view_img vi, view_img_dir vid, view_img_dir_relation vidr '
-             . 'WHERE vi.img_id = :img_id 
+             . 'WHERE vi.img_id = :img_id
                  AND vidr.img_img_id = vi.img_id AND vid.dir_id = vidr.dir_dir_parent_id LIMIT 1';
     $imgStatement = $pearDB->prepare($query);
     while ($row = $htStatement->fetch(PDO::FETCH_ASSOC)) {
@@ -1598,7 +1588,7 @@ function isCloudPlatform(): bool
  */
 function is_enabled_feature_flag(?string $feature): bool
 {
-    return null === $feature || '' === $feature
+    return $feature === null || $feature === ''
         || in_array($feature, get_enabled_feature_flags(), true);
 }
 
@@ -1656,6 +1646,34 @@ function validateGeoCoords()
             $coords
         )
     );
+}
+
+function truncateGeoCoords(): string
+{
+    global $form;
+    $coords = trim($form->getElementValue('geo_coords'));
+
+    $parts = explode(',', $coords);
+    if (count($parts) !== 2) {
+        return $coords;
+    }
+
+    $latitude = truncateDecimals($parts[0]);
+    $longitude = truncateDecimals($parts[1]);
+
+    return sprintf('%s,%s', $latitude, $longitude);
+}
+
+function truncateDecimals(string $value): string
+{
+    if (! str_contains($value, '.')) {
+        return $value;
+    }
+
+    [$intPart, $decimalPart] = explode('.', $value, 2);
+    $decimalPart = mb_substr($decimalPart, 0, 6);
+
+    return $intPart . '.' . $decimalPart;
 }
 
 /**
@@ -1787,6 +1805,30 @@ function unvalidFormMessage()
     echo "<div class='msg' align='center'>"
         . _('The form has not been submitted since 15 minutes. Please retry to resubmit')
         . '</div>';
+}
+
+/**
+ * Check if a user is a service account (e.g. centreon-gorgone)
+ *
+ * @param int $userId The user ID to check
+ * @return bool True if the user is a service account, false otherwise
+ */
+function isServiceAccount(int $userId): bool
+{
+    global $pearDB;
+
+    try {
+        $stmt = $pearDB->prepare(
+            'SELECT is_service_account FROM contact WHERE contact_id = :contact_id LIMIT 1'
+        );
+        $stmt->bindValue(':contact_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result && isset($result['is_service_account']) && (bool) $result['is_service_account'] === true;
+    } catch (Exception $e) {
+        return false;
+    }
 }
 
 /**
@@ -1931,7 +1973,7 @@ function findServicesForConfigChangeFlagFromServiceTemplateIds(array $serviceTem
  */
 function findHostsForConfigChangeFlagFromServiceGroupId(
     int $servicegroupId,
-    bool $shouldServicegroupBeEnabled = true
+    bool $shouldServicegroupBeEnabled = true,
 ): array {
     global $pearDB;
 
@@ -2066,7 +2108,7 @@ function signalConfigurationChange(
     string $resourceType,
     int $resourceId,
     array $previousPollers = [],
-    bool $shouldResourceBeEnabled = true
+    bool $shouldResourceBeEnabled = true,
 ): void {
     $hostIds = [];
     switch ($resourceType) {

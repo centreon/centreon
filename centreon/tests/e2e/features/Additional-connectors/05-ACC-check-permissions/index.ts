@@ -1,5 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import data from '../../../fixtures/additional-configurations/acc.json';
 
 before(() => {
   cy.startContainers();
@@ -66,102 +66,48 @@ Then('a pop-up menu with the form is displayed', () => {
 });
 
 When('the admin user fills in all the informations', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type('Connector-001');
-  cy.getByLabel({ label: 'Description', tag: 'input' }).type(
-    "I'm the first connector created"
-  );
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.contains('Central').click();
-  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2021');
-  cy.getByTestId({ testId: 'vCenter name_value' })
-    .eq(0)
-    .clear()
-    .type('vCenter-001');
-  cy.getByTestId({ testId: 'URL_value' })
-    .eq(0)
-    .clear()
-    .type('https://10.0.0.0/sdk');
-  cy.get('#Portvalue').should('have.value', '5700');
+  cy.createAccWithMandatoryFields(data.default);
 });
 
 When('the admin user clicks on Save', () => {
   cy.saveAcc();
+  cy.wait('@addAdditionalConnector');
 });
 
 Then('the creation form is closed', () => {
-  cy.wait('@addAdditionalConnector');
   cy.get('Add an additional configuration').should('not.exist');
 });
 
 Then(
   'the first configuration is displayed in the Additional Connector Configuration page',
   () => {
-    cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
+    cy.get('*[role="rowgroup"]').should('contain', data.default.name);
   }
 );
 
 Given('an additional connector configuration is already created', () => {
-  cy.contains('Welcome to the additional configurations page').should('not.exist');
+  cy.contains('Welcome to the additional configurations page').should(
+    'not.exist'
+  );
 });
 
 When(
   'the user clicks on the Edit button of the additional connector configuration',
   () => {
-    cy.contains('Connector-001').click();
+    cy.contains(data.default.name).click();
   }
 );
 
 Then(
   'a pop up is displayed with all of the additional connector information',
   () => {
-    cy.contains('Modify an additional configuration').should(
-      'be.visible'
-    );
-    cy.getByLabel({ label: 'Name', tag: 'input' }).should(
-      'have.value',
-      'Connector-001'
-    );
-    cy.getByLabel({ label: 'Description', tag: 'input' }).should(
-      'have.value',
-      "I'm the first connector created"
-    );
-    cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-    cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
-      'contain',
-      'Central'
-    );
-    cy.getByTestId({ testId: 'Username_value' }).eq(1).should('be.empty');
-    cy.getByTestId({ testId: 'Password_value' }).eq(1).should('be.empty');
-    cy.getByTestId({ testId: 'vCenter name_value' })
-      .eq(1)
-      .should('have.value', 'vCenter-001');
-    cy.getByTestId({ testId: 'URL_value' })
-      .eq(1)
-      .should('have.value', 'https://10.0.0.0/sdk');
-    cy.get('#Portvalue').should('have.value', '5700');
+    cy.contains('Modify an additional configuration').should('be.visible');
+    cy.verifyAccFieldValues(data.default);
   }
 );
 
 When('the user modifies the configuration', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.get('svg[class*="deleteIcon"]').click();
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
-  cy.contains('Poller-1').click();
-  cy.getByTestId({ testId: 'Username_value' }).eq(0).type('admin');
-  cy.getByTestId({ testId: 'Password_value' }).eq(0).type('Abcde!2022');
-  cy.getByTestId({ testId: 'vCenter name_value' })
-    .eq(0)
-    .clear()
-    .type('vCenter-002');
-  cy.getByTestId({ testId: 'URL_value' })
-    .eq(0)
-    .clear()
-    .type('https://10.3.3.3/sdk');
-  cy.get('#Portvalue').clear().click().type('6900');
+  cy.updateAcc(data.updated);
 });
 
 When('the user clicks on Save', () => {
@@ -176,7 +122,7 @@ Then('the update form is closed', () => {
 Then(
   'the updated configuration is displayed correctly in the Additional Connector Configuration page',
   () => {
-    cy.get('*[role="rowgroup"]').should('contain', 'Connector-002');
+    cy.get('*[role="rowgroup"]').should('contain', data.updated.name);
   }
 );
 
@@ -189,7 +135,7 @@ Then(
   'the additional connector configuration is no longer displayed in the listing page',
   () => {
     cy.wait('@deleteConnector');
-    cy.contains('Connector-001').should('not.exist');
+    cy.contains(data.default.name).should('not.exist');
   }
 );
 
@@ -257,7 +203,7 @@ Given('the user has a filter on one of the pollers', () => {
     bodyContent: {
       action: 'addfilter_instance',
       object: 'ACLRESOURCE',
-      values: `All Resources;Poller-1`
+      values: 'All Resources;Poller-1'
     }
   });
   cy.setUserTokenApiV1().executeActionViaClapi({
@@ -277,7 +223,9 @@ When('the user accesses the Additional Connector Configuration page', () => {
 Then(
   'the user can not view the additional connector linked to the 2 pollers',
   () => {
-    cy.contains('Welcome to the additional configurations page').should('be.visible');
+    cy.contains('Welcome to the additional configurations page').should(
+      'be.visible'
+    );
   }
 );
 
@@ -288,7 +236,7 @@ When(
       bodyContent: {
         action: 'addfilter_instance',
         object: 'ACLRESOURCE',
-        values: `All Resources;Poller-2`
+        values: 'All Resources;Poller-2'
       }
     });
     cy.setUserTokenApiV1().executeActionViaClapi({
@@ -310,9 +258,7 @@ Then('the user can view the additional connector linked to the pollers', () => {
 When(
   'a pop up is displayed with all of the additional connector information with the 2 pollers',
   () => {
-    cy.contains('Modify an additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Modify an additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'
@@ -340,7 +286,7 @@ Then('the user can update the additional connector configuration', () => {
   cy.contains('Modify an additional configuration').should('be.visible');
   cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
   cy.get('svg[class*="deleteIcon"]').eq(0).click();
- cy.saveAcc();
+  cy.saveAcc();
   cy.wait('@updateConnectorDetail');
   cy.get('Modify an additional configuration').should('not.exist');
 });
@@ -384,7 +330,7 @@ When('the non-admin user fills in all the informations', () => {
     .clear()
     .type('https://10.1.1.1/sdk');
   cy.get('#Portvalue').should('have.value', '5700');
- cy.saveAcc();
+  cy.saveAcc();
 });
 
 Then(
@@ -421,7 +367,7 @@ When(
 );
 
 When('the non-admin clicks on Save button', () => {
- cy.saveAcc();
+  cy.saveAcc();
 });
 
 Then('an error message is displayed', () => {

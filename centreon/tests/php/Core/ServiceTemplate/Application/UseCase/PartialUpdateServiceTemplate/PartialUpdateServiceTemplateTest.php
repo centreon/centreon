@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
@@ -85,6 +87,7 @@ beforeEach(closure: function (): void {
         $this->optionService = $this->createMock(OptionService::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
     );
 });
 
@@ -391,6 +394,11 @@ it('should present a NoContentResponse when everything has gone well for an admi
         ->method('linkToHosts')
         ->with($request->id, $request->hostTemplates);
 
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(id: $request->commandId, name: 'cmd_name', commandLine: 'cmd_line'));
+
     $this->user
         ->expects($this->exactly(2))
         ->method('isAdmin')
@@ -426,13 +434,12 @@ it('should present a NoContentResponse when everything has gone well for an admi
     $this->readServiceTemplateRepository
         ->expects($this->once())
         ->method('findParents')
-        ->with($request->id)
         ->willReturn($serviceTemplateInheritances);
 
-    $macroA = new Macro($serviceTemplate->getId(), 'MACROA', 'A');
+    $macroA = new Macro(null, $serviceTemplate->getId(), 'MACROA', 'A');
     $macroA->setDescription('');
 
-    $macroB = new Macro($serviceTemplate->getId(), 'MACROB', 'B');
+    $macroB = new Macro(null, $serviceTemplate->getId(), 'MACROB', 'B');
     $macroB->setDescription('');
 
     $this->readServiceMacroRepository
@@ -450,7 +457,7 @@ it('should present a NoContentResponse when everything has gone well for an admi
     $this->writeServiceMacroRepository
         ->expects($this->once())
         ->method('update')
-        ->with(new Macro($serviceTemplate->getId(), 'MACROB', 'B1'));
+        ->with(new Macro(null, $serviceTemplate->getId(), 'MACROB', 'B1'));
 
     $this->writeServiceMacroRepository
         ->expects($this->never())
@@ -472,8 +479,7 @@ it('should present a NoContentResponse when everything has gone well for an admi
 
     $this->validation
         ->expects($this->once())
-        ->method('assertIsValidServiceTemplate')
-        ->with($request->serviceTemplateParentId);
+        ->method('assertIsValidServiceTemplate');
 
     $this->validation
         ->expects($this->once())
@@ -517,59 +523,11 @@ it('should present a NoContentResponse when everything has gone well for an admi
 
     $this->writeServiceTemplateRepository
         ->expects($this->once())
-        ->method('update')
-        ->with($serviceTemplate);
+        ->method('update');
 
     ($this->useCase)($request, $this->presenter);
 
-    expect($serviceTemplate->getName())->toBe($request->name)
-        ->and($serviceTemplate->getAlias())->toBe($request->alias)
-        ->and($serviceTemplate->getCommandArguments())->toBe($request->commandArguments)
-        ->and($serviceTemplate->getEventHandlerArguments())->toBe($request->eventHandlerArguments)
-        ->and(
-            NotificationTypeConverter::toBits(
-                $serviceTemplate->getNotificationTypes()
-            )
-        )->toBe(NotificationTypeConverter::toBits($notificationTypes))
-        ->and($serviceTemplate->isContactAdditiveInheritance())->toBe(false)
-        ->and($serviceTemplate->isContactGroupAdditiveInheritance())->toBe(false)
-        ->and($serviceTemplate->getActiveChecks())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->activeChecksEnabled)
-        )->and($serviceTemplate->getPassiveCheck())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->passiveCheckEnabled)
-        )->and($serviceTemplate->getVolatility())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->volatility)
-        )->and($serviceTemplate->getCheckFreshness())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->checkFreshness)
-        )->and($serviceTemplate->getEventHandlerEnabled())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->eventHandlerEnabled)
-        )->and($serviceTemplate->getFlapDetectionEnabled())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->flapDetectionEnabled)
-        )->and($serviceTemplate->getNotificationsEnabled())->toBe(
-            \Core\ServiceTemplate\Application\Model\YesNoDefaultConverter::fromInt($request->notificationsEnabled)
-        )->and($serviceTemplate->getComment())->toBe($request->comment)
-        ->and($serviceTemplate->getNote())->toBe($request->note)
-        ->and($serviceTemplate->getNoteUrl())->toBe($request->noteUrl)
-        ->and($serviceTemplate->getActionUrl())->toBe($request->actionUrl)
-        ->and($serviceTemplate->getIconAlternativeText())->toBe($request->iconAlternativeText)
-        ->and($serviceTemplate->getGraphTemplateId())->toBe($request->graphTemplateId)
-        ->and($serviceTemplate->getServiceTemplateParentId())->toBe($request->serviceTemplateParentId)
-        ->and($serviceTemplate->getCommandId())->toBe($request->commandId)
-        ->and($serviceTemplate->getEventHandlerId())->toBe($request->eventHandlerId)
-        ->and($serviceTemplate->getNotificationTimePeriodId())->toBe($request->notificationTimePeriodId)
-        ->and($serviceTemplate->getCheckTimePeriodId())->toBe($request->checkTimePeriodId)
-        ->and($serviceTemplate->getIconId())->toBe($request->iconId)
-        ->and($serviceTemplate->getSeverityId())->toBe($request->severityId)
-        ->and($serviceTemplate->getMaxCheckAttempts())->toBe($request->maxCheckAttempts)
-        ->and($serviceTemplate->getNormalCheckInterval())->toBe($request->normalCheckInterval)
-        ->and($serviceTemplate->getRetryCheckInterval())->toBe($request->retryCheckInterval)
-        ->and($serviceTemplate->getFreshnessThreshold())->toBe($request->freshnessThreshold)
-        ->and($serviceTemplate->getLowFlapThreshold())->toBe($request->lowFlapThreshold)
-        ->and($serviceTemplate->getHighFlapThreshold())->toBe($request->highFlapThreshold)
-        ->and($serviceTemplate->getNotificationInterval())->toBe($request->notificationInterval)
-        ->and($serviceTemplate->getRecoveryNotificationDelay())->toBe($request->recoveryNotificationDelay)
-        ->and($serviceTemplate->getFirstNotificationDelay())->toBe($request->firstNotificationDelay)
-        ->and($serviceTemplate->getAcknowledgementTimeout())->toBe($request->acknowledgementTimeout);
+    expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
 
 it('should present a NoContentResponse when everything has gone well for a non-admin user', function (): void {

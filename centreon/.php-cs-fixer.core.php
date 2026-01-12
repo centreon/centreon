@@ -23,17 +23,14 @@ declare(strict_types=1);
 
 use PhpCsFixer\Finder;
 
-$config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
+$csFixerConfig = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
 $finder = Finder::create()
-    ->in([
-        __DIR__ . '/src/Core',
-        __DIR__ . '/tests/php/Core',
-    ])
-    ->append([
-        __DIR__ . '/src/Centreon/Infrastructure/DatabaseConnection.php',
-    ]);
+    ->in($pathsConfig['core']['directories'])
+    ->append($pathsConfig['core']['files'])
+    ->notPath($pathsConfig['core']['skip']);
 
-return $config
+return $csFixerConfig
     ->setFinder($finder)
     ->setCacheFile('.php-cs-fixer.core.cache');

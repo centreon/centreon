@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             ]
         );
 
-        if ([] === $accessGroups || [] === $resourceIds) {
+        if ($accessGroups === [] || $resourceIds === []) {
             return [];
         }
 
@@ -190,9 +190,9 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
      */
     public function findByNotificationIdAndAccessGroups(
         int $notificationId,
-        array $accessGroups
+        array $accessGroups,
     ): ?NotificationResource {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return null;
         }
 
@@ -303,7 +303,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
      */
     public function countResourcesByNotificationIdsAndAccessGroups(
         array $notificationIds,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(
             static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
@@ -474,7 +474,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     INNER JOIN `:db`.acl_resources_hg_relations arhr
@@ -521,7 +521,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     INNER JOIN `:db`.acl_resources_hg_relations arhr

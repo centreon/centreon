@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Security;
 
+use Adaptation\Log\LoggerToken;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Exception\ContactDisabledException;
 use Centreon\Domain\Log\LoggerTrait;
@@ -121,7 +122,7 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
     public function authenticate(Request $request): SelfValidatingPassport
     {
         $apiToken = $request->headers->get('X-AUTH-TOKEN');
-        if (null === $apiToken) {
+        if ($apiToken === null) {
             // The token header was empty, authentication fails with HTTP Status
             // Code 401 "Unauthorized"
             throw new TokenNotFoundException('API token not provided');
@@ -175,23 +176,21 @@ class TokenAPIAuthenticator extends AbstractAuthenticator implements Authenticat
         try {
             $tokenString = $request->headers->get('X-AUTH-TOKEN');
             if ($tokenString && ! $this->readTokenRepository->isTokenTypeAuto($tokenString)) {
+                /** @var ApiToken|null $apiToken */
                 $apiToken = $this->readTokenRepository->find($tokenString);
                 if ($apiToken instanceof ApiToken) {
-                    $this->info(
-                        'Api token used',
-                        [
-                            'event' => 'Token usage',
-                            'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                            'user_id' => $apiToken->getUserId(),
-                            'token_name' => $apiToken->getName(),
-                            'endpoint' => $request->getRequestUri(),
-                            'http_method' => $request->getMethod(),
-                        ]
+                    LoggerToken::create()->success(
+                        event: 'usage',
+                        userId: $apiToken->getCreatorId(),
+                        tokenName: $apiToken->getName(),
+                        tokenType: 'api',
+                        endpoint: $request->getRequestUri(),
+                        httpMethod: $request->getMethod(),
                     );
                 }
             }
-        } catch (\Throwable $e) {
-            $this->error('Token usage log failure');
+        } catch (\Throwable $ex) {
+            $this->error('Token usage log failure', ['exception' => $ex]);
         }
     }
 }

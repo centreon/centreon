@@ -6,6 +6,10 @@ import { useAtomValue } from 'jotai';
 import useAxisY from '../../../common/Axes/useAxisY';
 import { getTimeValue } from '../../../common/timeSeries';
 import { Line, TimeValue } from '../../../common/timeSeries/models';
+import {
+  computPixelsToShiftMouse,
+  computeGElementMarginLeft
+} from '../../../common/utils';
 import { margin } from '../../common';
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
 
@@ -25,6 +29,8 @@ interface Props {
   rightScale?: ScaleLinear<number, number>;
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const useTickGraph = ({
@@ -33,7 +39,9 @@ const useTickGraph = ({
   leftScale,
   rightScale,
   lines = [],
-  baseAxis = 1000
+  baseAxis = 1000,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): AnchorPointResult => {
   const guidingLinesRef = useRef<SVGGElement | null>(null);
   const [tickAxisBottom, setTickAxisBottom] = useState<Date | null>(null);
@@ -69,8 +77,17 @@ const useTickGraph = ({
 
       return;
     }
+    const pixelToShift = computPixelsToShiftMouse(xScale);
     const mousePositionTimeTick = mousePosition
-      ? getTimeValue({ timeSeries, x: mousePosition[0], xScale })?.timeTick
+      ? getTimeValue({
+          timeSeries,
+          x: mousePosition[0] - pixelToShift,
+          xScale,
+          marginLeft: computeGElementMarginLeft({
+            maxCharacters: maxLeftAxisCharacters,
+            hasSecondUnit
+          })
+        })?.timeTick
       : 0;
     const timeTickValue = mousePosition
       ? new Date(mousePositionTimeTick || 0)

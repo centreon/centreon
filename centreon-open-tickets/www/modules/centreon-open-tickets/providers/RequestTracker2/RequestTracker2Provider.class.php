@@ -1,27 +1,29 @@
 <?php
 
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
+
+use Centreon\Domain\Log\LoggerTrait;
 
 class RequestTracker2Provider extends AbstractProvider
 {
+    use LoggerTrait;
     public const RT_QUEUE_TYPE = 10;
     public const RT_CUSTOMFIELD_TYPE = 11;
     public const ARG_QUEUE = 1;
@@ -526,17 +528,44 @@ class RequestTracker2Provider extends AbstractProvider
             $headers[] = 'Content-Length: ' . strlen($argument_json);
             $method = 'POST';
         }
+
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
 
         self::setProxy(
             $ch,
             ['proxy_address' => $this->getFormValue('proxy_address', false), 'proxy_port' => $this->getFormValue('proxy_port', false), 'proxy_username' => $this->getFormValue('proxy_username', false), 'proxy_password' => $this->getFormValue('proxy_password', false)]
         );
+
+        $optionsToLog = [
+            'apiAddress' => $base_url,
+            'method' => $method,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        if ($peerVerify && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        // log the curl options
+        $this->debug('Request tracker API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $result = curl_exec($ch);
         if ($result == false) {
             $this->setWsError(curl_error($ch));

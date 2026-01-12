@@ -1,39 +1,28 @@
 <?php
 
 /*
- * Copyright 2005-2023 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Macro\Domain\Model\Macro as MacroDomain;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
@@ -46,6 +35,7 @@ require_once __DIR__ . '/object.class.php';
  */
 abstract class AbstractHost extends AbstractObject
 {
+    use VaultTrait;
     public const TYPE_HOST = 1;
     public const TYPE_TEMPLATE = 0;
     public const TYPE_VIRTUAL_HOST = 2;
@@ -241,39 +231,16 @@ abstract class AbstractHost extends AbstractObject
     }
 
     /**
-     * @param $host
-     *
-     * @throws LogicException
-     * @throws PDOException
-     * @throws ServiceCircularReferenceException
-     * @throws ServiceNotFoundException
-     * @return int
-     */
-    protected function getMacros(&$host)
-    {
-        if (isset($host['macros'])) {
-            return 1;
-        }
-
-        $host['macros'] = Macro::getInstance($this->dependencyInjector)
-            ->getHostMacroByHostId($host['host_id']);
-        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
-            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
-        }
-
-        return 0;
-    }
-
-    /**
      * @param array $host
      * @param bool $generate
+     * @param Macro[] $hostTemplateMacros
      *
      * @throws LogicException
      * @throws PDOException
      * @throws ServiceCircularReferenceException
      * @throws ServiceNotFoundException
      */
-    protected function getHostTemplates(array &$host, bool $generate = true): void
+    protected function getHostTemplates(array &$host, bool $generate = true, array $hostTemplateMacros = []): void
     {
         if (! isset($host['htpl'])) {
             if (is_null($this->stmt_htpl)) {
@@ -296,8 +263,82 @@ abstract class AbstractHost extends AbstractObject
         $hostTemplate = HostTemplate::getInstance($this->dependencyInjector);
         $host['use'] = [];
         foreach ($host['htpl'] as $templateId) {
-            $host['use'][] = $hostTemplate->generateFromHostId($templateId);
+            $host['use'][] = $hostTemplate->generateFromHostId($templateId, $hostTemplateMacros);
         }
+    }
+
+    /**
+     * Format Macros for export.
+     * Warning: is to be run BEFORE running getSeverity to not override severity export.
+     *
+     * @param array<string, mixed> $host
+     * @param MacroDomain[] $hostMacros
+     */
+    protected function formatMacros(array &$host, array $hostMacros)
+    {
+        $host['macros'] = [];
+        if ($this->isVaultEnabled && $this->readVaultRepository !== null) {
+            $vaultPathByHosts = $this->getVaultPathByResources(
+                $hostMacros,
+                $host['host_id'],
+                $host['host_snmp_community'] ?? null
+            );
+            $vaultData = $this->readVaultRepository->findFromPaths($vaultPathByHosts);
+            foreach ($vaultData as $hostId => $macros) {
+                foreach ($macros as $macroName => $value) {
+                    if (str_starts_with($macroName, '_HOST')) {
+                        $newName = preg_replace('/^_HOST/', '', $macroName);
+                        $vaultData[$hostId][$newName] = $value;
+                        unset($vaultData[$hostId][$macroName]);
+                    }
+                }
+            }
+
+            // Set macro values
+            foreach ($hostMacros as $hostMacro) {
+                $hostId = $hostMacro->getOwnerId();
+                $macroName = $hostMacro->getName();
+                if (isset($vaultData[$hostId][$macroName])) {
+                    $hostMacro->setValue($vaultData[$hostId][$macroName]);
+                }
+            }
+        }
+
+        foreach ($hostMacros as $hostMacro) {
+            if ($hostMacro->getOwnerId() === $host['host_id']) {
+                if ($hostMacro->shouldBeEncrypted()) {
+                    if ($hostMacro->isPassword()) {
+                        $host['macros']['_' . $hostMacro->getName()] = 'encrypt::'
+                            . $this->engineContextEncryption->crypt($hostMacro->getValue());
+                    } else {
+                        $host['macros']['_' . $hostMacro->getName()] = 'raw::' . $hostMacro->getValue();
+                    }
+                } else {
+                    $host['macros']['_' . $hostMacro->getName()] = $hostMacro->getValue();
+                }
+            }
+        }
+        if (isset($host['host_snmp_community'])) {
+            $snmpCommunity = $vaultData[$host['host_id']]['SNMPCOMMUNITY'] ?? $host['host_snmp_community'];
+            $shouldEncrypt = $this->backend_instance->db->fetchAssociative(
+                <<<'SQL'
+                    SELECT 1 FROM nagios_server ns
+                    INNER JOIN ns_host_relation nsr
+                    ON ns.id = nsr.nagios_server_id
+                    WHERE nsr.host_host_id = :hostId
+                    AND ns.is_encryption_ready = 1
+                    SQL,
+                QueryParameters::create([QueryParameter::int('hostId', $host['host_id'])])
+            );
+            $host['macros']['_SNMPCOMMUNITY'] = $shouldEncrypt !== false
+                ? 'encrypt::' . $this->engineContextEncryption->crypt($snmpCommunity)
+                : $snmpCommunity;
+        }
+        if (! is_null($host['host_snmp_version']) && $host['host_snmp_version'] !== '0') {
+            $host['macros']['_SNMPVERSION'] = $host['host_snmp_version'];
+        }
+
+        $host['macros']['_HOST_ID'] = $host['host_id'];
     }
 
     /**
@@ -478,5 +519,38 @@ abstract class AbstractHost extends AbstractObject
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Retrieves a mapping of resource IDs to their vault paths from macros and SNMP community.
+     *
+     * @param MacroDomain[] $macros
+     * @param int $hostId
+     * @param string|null $snmpCommunity
+     * @return array<int, string> Vault path indexed by resource (host) ID
+     */
+    private function getVaultPathByResources(array $macros, int $hostId, ?string $snmpCommunity = null): array
+    {
+        $vaultPathByResources = [];
+
+        // Collect vault paths from macros
+        foreach ($macros as $macro) {
+            $ownerId = $macro->getOwnerId();
+            $value = $macro->getValue();
+
+            // Store the vault path if not already stored for this owner
+            if ($this->isAVaultPath($value) && ! isset($vaultPathByResources[$ownerId])) {
+                $vaultPathByResources[$ownerId] = $value;
+            }
+        }
+
+        // If no vault path found in macros, check SNMP community
+        if ($vaultPathByResources === [] && $snmpCommunity !== null) {
+            if ($this->isAVaultPath($snmpCommunity)) {
+                $vaultPathByResources[$hostId] = $snmpCommunity;
+            }
+        }
+
+        return $vaultPathByResources;
     }
 }

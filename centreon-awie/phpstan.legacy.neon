@@ -6,7 +6,11 @@ parameters:
     level: 6
 
     scanFiles:
+        - .php-cs-fixer.conf.php
+        - .php-cs-fixer.diff.php
         - .php-cs-fixer.legacy.php
+        - rector.conf.php
+        - rector.diff.php
         - rector.legacy.php
 
     paths:
@@ -16,3 +20,5 @@ parameters:
     ignoreErrors:
         - # Ignore problem with path of centreon for modules
           message: '#^Path in require_once\(\) "../centreon/www/modules/#'
+        - # Functions from centreon common-Func.php loaded at runtime
+          message: '#^Function (createCSRFToken|isCSRFTokenValid|purgeCSRFToken|isServiceAccount) not found\.$#'

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace CentreonOpenTickets\Providers\Application\UseCase;
 
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use CentreonOpenTickets\Providers\Application\Exception\ProviderException;
 use CentreonOpenTickets\Providers\Application\Repository\ReadProviderRepositoryInterface;
 use CentreonOpenTickets\Providers\Domain\Model\Provider;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 
 final class FindProviders
 {
@@ -42,7 +42,7 @@ final class FindProviders
      */
     public function __construct(
         private RequestParametersInterface $requestParameters,
-        private ReadProviderRepositoryInterface $repository
+        private ReadProviderRepositoryInterface $repository,
     ) {
     }
 
@@ -82,7 +82,8 @@ final class FindProviders
             static fn (Provider $provider): ProviderDto => new ProviderDto(
                 id: $provider->getId(),
                 name: $provider->getName(),
-                type: $provider->getType(),
+                typeId: $provider->getProviderTypeId(),
+                typeName: $provider->getProviderTypeName(),
                 isActivated: $provider->isActivated()
             ),
             $providers

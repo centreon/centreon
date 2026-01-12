@@ -98,6 +98,7 @@ export type TextProps = {
   transparent?: boolean;
   value?: string;
   textFieldSlotsAndSlotProps?: TextFieldSlotsAndSlotProps<InputProps>;
+  forceUncontrolled?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -123,6 +124,7 @@ const TextField = forwardRef(
       containerClassName,
       type,
       textFieldSlotsAndSlotProps,
+      forceUncontrolled,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -141,7 +143,7 @@ const TextField = forwardRef(
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
     const getValueProps = useCallback((): object => {
-      if (debounced) {
+      if (debounced || forceUncontrolled) {
         return {};
       }
       if (defaultValue) {
@@ -149,7 +151,7 @@ const TextField = forwardRef(
       }
 
       return { value: innerValue };
-    }, [innerValue, debounced, defaultValue]);
+    }, [innerValue, debounced, defaultValue, forceUncontrolled]);
 
     return (
       <Box

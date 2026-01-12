@@ -15,14 +15,14 @@ const serviceInDtName = 'service_downtime_1';
 const secondServiceInDtName = 'service_downtime_2';
 const serviceInAcknowledgementName = 'service_ack_1';
 
-const chosenTZ = 'Africa/Casablanca';
+const chosenTz = 'Africa/Casablanca';
 
 const convert12hFormatToDate = (timeString: string): Date => {
   const currentDate = new Date();
   const dateString = currentDate.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'long',
-    timeZone: chosenTZ,
+    timeZone: chosenTz,
     year: 'numeric'
   });
 
@@ -189,13 +189,13 @@ When('the user clicks on Timezone field in his profile menu', () => {
 When('the user selects a Timezone \\/ Location', () => {
   cy.getIframeBody()
     .find('input[class="select2-search__field"]')
-    .type(`{selectall}{backspace}${chosenTZ}`);
+    .type(`{selectall}{backspace}${chosenTz}`);
 
   cy.wait('@getTimezonesList');
 
   cy.getIframeBody()
     .find('ul[id="select2-contact_location-results"] li')
-    .contains(chosenTZ)
+    .contains(chosenTz)
     .eq(0)
     .click();
 });
@@ -218,16 +218,16 @@ Then('timezone information are updated on the banner', () => {
     .wait(['@getTimeZone', '@getUserParameters'])
     .getTimeFromHeader()
     .then((localTime: string) => {
-      const timeofTZ = new Date().toLocaleTimeString('en-US', {
+      const timeofTz = new Date().toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
-        timeZone: chosenTZ
+        timeZone: chosenTz
       });
 
       expect(
         calculateMinuteInterval(
           convert12hFormatToDate(localTime),
-          convert12hFormatToDate(timeofTZ)
+          convert12hFormatToDate(timeofTz)
         )
       ).to.be.lte(2);
     });
@@ -237,7 +237,7 @@ Then("new timezone information is displayed in user's profile menu", () => {
   cy.getIframeBody()
     .find('span[aria-labelledby="select2-contact_location-container"]')
     .eq(0)
-    .should('contain.text', chosenTZ);
+    .should('contain.text', chosenTz);
 });
 
 Given('a user with a custom timezone set in his profile', function _() {

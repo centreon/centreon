@@ -1,13 +1,13 @@
 <?php
 
-/**
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,17 +16,19 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 require_once '../require.php';
+require_once '../widget-error-handling.php';
 require_once 'functions.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 require_once $centreon_path . 'bootstrap.php';
 
 CentreonSession::start(1);
@@ -63,8 +65,20 @@ try {
         'dark' => 'Centreon-Dark',
         default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
-} catch (Exception $e) {
-    echo $e->getMessage() . '<br/>';
+
+    $theme = $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS;
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error fetching data for single-metric widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme);
 
     exit;
 }
@@ -81,8 +95,8 @@ $resourceController = $kernel->getContainer()->get(
 $isAdmin = $centreon->user->admin === '1';
 $accessGroups = [];
 if (! $isAdmin) {
-    $access = new CentreonACL($centreon->user->get_id());
-    $accessGroups = $access->getAccessGroups();
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+    $accessGroups = $acls->getAccessGroups()->getIds();
 }
 
 // Smarty template initialization
@@ -104,7 +118,7 @@ if (! isset($preferences['service']) || $preferences['service'] === '') {
 } else {
     [$hostId, $serviceId] = explode('-', $preferences['service']);
     $numLine = 0;
-    if ($isAdmin || ! empty($accessGroups)) {
+    if ($isAdmin || $accessGroups !== []) {
         $query
             = "SELECT
                 1 AS REALTIME,

@@ -1,5 +1,24 @@
 <?php
 
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 $help = [];
 
 /**
@@ -232,4 +251,11 @@ $help['tip_display_comment_chart'] = dgettext(
     'help',
     'If this option is enabled, the comments will be displayed on the status chart.<br>'
     . '<b>Warning</b> : This option can slow down the display of the chart.'
+);
+
+$help['tip_resource_status_search_mode'] = dgettext(
+    'help',
+    'This option can be used to avoid search performance issues in Resource status, when dealing with large amounts of data.
+Limited search: Free text search will be performed only on the following fields: host name, alias and address, and service description. Use if you have a large amount of data.
+Full search: Free text search will also be performed on the "information" field. This is appropriate only if you have a small amount of data, as it affects performance.'
 );

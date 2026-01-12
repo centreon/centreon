@@ -1,27 +1,30 @@
 <?php
 
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
+
+use Centreon\Domain\Log\LoggerTrait;
 
 class BmcItsmProvider extends AbstractProvider
 {
+    use LoggerTrait;
+
     protected $_set_empty_xml = 1;
 
     protected $_itsm_fields = ['Assigned_Group', 'Assigned_Group_Shift_Name', 'Assigned_Support_Company', 'Assigned_Support_Organization', 'Assignee', 'Categorization_Tier_1', 'Categorization_Tier_2', 'Categorization_Tier_3', 'CI_Name', 'Closure_Manufacturer', 'Closure_Product_Category_Tier1', 'Closure_Product_Category_Tier2', 'Closure_Product_Category_Tier3', 'Closure_Product_Model_Version', 'Closure_Product_Name', 'Department', 'First_Name', 'Impact', 'Last_Name', 'Lookup_Keyword', 'Manufacturer', 'Product_Categorization_Tier_1', 'Product_Categorization_Tier_2', 'Product_Categorization_Tier_3', 'Product_Model_Version', 'Product_Name', 'Reported_Source', 'Resolution', 'Resolution_Category_Tier_1', 'Resolution_Category_Tier_2', 'Resolution_Category_Tier_3', 'Service_Type', 'Status', 'z1D_Action', 'Flag_Create_Request', 'Description', 'Detailed_Decription', 'Urgency', 'z1D_WorklogDetails', 'z1D_Details', 'z1D_Activity_Type', 'z1D_ActivityDate_tab', 'z1D_CommunicationSource', 'z1D_Secure_Log', 'z1D_View_Access', 'AccessMode', 'AppInstanceServer', 'AppInterfaceForm', 'AppLogin', 'AppPassword', 'Area_Business', 'Assigned_Group_ID', 'Assigned_To', 'Assignee_Groups', 'Assignee_Login_ID', 'Attachment_4_attachmentName', 'Attachment_4_attachmentData', 'Attachment_4_attachmentOrigSize', 'Attachment_5_attachmentName', 'Attachment_5_attachmentData', 'Attachment_5_attachmentOrigSize', 'Attachment_6_attachmentName', 'Attachment_6_attachmentData', 'Attachment_6_attachmentOrigSize', 'Attachment_7_attachmentName', 'Attachment_7_attachmentData', 'Attachment_7_attachmentOrigSize', 'Attachment_8_attachmentName', 'Attachment_8_attachmentData', 'Attachment_8_attachmentOrigSize', 'Attachment_9_attachmentName', 'Attachment_9_attachmentData', 'Attachment_9_attachmentOrigSize', 'BiiARS_01', 'BiiARS_02', 'BiiARS_03', 'BiiARS_04', 'BiiARS_05', 'bOrphanedRoot', 'CC_Business', 'cell_name', 'Client_Sensitivity', 'Client_Type', 'ClientLocale', 'Company', 'Component_ID', 'Contact_Company', 'Created_By', 'Created_From_flag', 'DatasetId', 'DataTags', 'Default_City', 'Default_Country', 'Desk_Location', 'Direct_Contact_Company', 'Direct_Contact_Department', 'Direct_Contact_First_Name', 'Direct_Contact_Internet_E-mail', 'Direct_Contact_Last_Name', 'Direct_Contact_Middle_Initial', 'Direct_Contact_Organization', 'Direct_Contact_Phone_Number', 'Direct_Contact_Site', 'Extension_Business', 'first_name2', 'Generic_Categorization_Tier_1', 'Global_OR_Custom_Mapping', 'Impact_OR_Root', 'Incident_Number', 'Incident_Entry_ID', 'InstanceId', 'Internet_E-mail', 'last_name2', 'Local_Business', 'Login_ID', 'Mail_Station', 'MaxRetries', 'mc_ueid', 'Middle_Initial', 'OptionForClosingIncident', 'Organization', 'Person_ID', 'Phone_Number', 'policy_name', 'PortNumber', 'Priority', 'Priority_Weight', 'Protocol', 'ReconciliationIdentity', 'Region', 'Reported_Date', 'Required_Resolution_DateTime', 'Resolution_Method', 'root_component_id_list', 'root_incident_id_list', 'Schema_Name', 'Short_Description', 'Site', 'Site_Group', 'Site_ID', 'SRID', 'SRInstanceID', 'SRMS_Registry_Instance_ID', 'SRMSAOIGuid', 'status_incident', 'Status_Reason', 'status_reason2', 'Submitter', 'TemplateID', 'TemplateID2', 'Unavailability_Type', 'Unavailability_Priority', 'Unknown_User', 'use_case', 'Vendor_Group', 'Vendor_Group_ID', 'Vendor_Name', 'Vendor_Organization', 'Vendor_Ticket_Number', 'VIP', 'z1D_Char01', 'z1D_Permission_Group_ID', 'z1D_Permission_Group_List', 'z1D_Char02', 'z1D_CIUAAssignGroup', 'z1D_CIUASupportCompany', 'z1D_CIUASupportOrg', 'z1D_Command', 'z1D_SRMInteger', 'z1D_SupportGroupID', 'z1D_UAAssignmentMethod', 'z2AF_Act_Attachment_1_attachmentName', 'z2AF_Act_Attachment_1_attachmentData', 'z2AF_Act_Attachment_1_attachmentOrigSize', 'z2Attachment_2_attachmentName', 'z2Attachment_2_attachmentData', 'z2Attachment_2_attachmentOrigSize', 'z2Attachment_3_attachmentName', 'z2Attachment_3_attachmentData', 'z2Attachment_3_attachmentOrigSize', 'zTmpEventGUID'];
@@ -285,17 +288,42 @@ class BmcItsmProvider extends AbstractProvider
             return 1;
         }
 
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->rule_data['timeout']);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt(
             $ch,
             CURLOPT_HTTPHEADER,
             ['Content-Type:  text/xml;charset=UTF-8', 'SOAPAction: urn:' . $this->rule_data['namespace'] . '/HelpDesk_Submit_Service', 'Content-Length: ' . strlen($data)]
         );
+
+        $optionsToLog = [
+            'apiAddress' => $base_url,
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($ch, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        // log the curl options
+        $this->debug('BmcItsm API request options', [
+            'options' => $optionsToLog,
+        ]);
+
         $result = curl_exec($ch);
         curl_close($ch);
 

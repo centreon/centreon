@@ -1,12 +1,12 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import { createNotification, enableNotificationFeature } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import data from '../../../fixtures/notifications/data-for-notification.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { createNotification, enableNotificationFeature } from '../common';
 
 const previousPageLabel = 'Previous page';
 const nextPageLabel = 'Next page';
@@ -83,8 +83,6 @@ When('no Notification Rules are configured', () => {
     method: 'GET',
     url: 'centreon/api/latest/configuration/notifications'
   }).then((response) => {
-    // https://github.com/cypress-io/eslint-plugin-cypress?tab=readme-ov-file#chai-and-no-unused-expressions
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     expect(response.body.result).to.be.an('array').that.is.empty;
   });
 });

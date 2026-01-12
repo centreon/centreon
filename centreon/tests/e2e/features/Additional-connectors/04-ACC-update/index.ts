@@ -1,5 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import data from '../../../fixtures/additional-configurations/acc.json';
 
 before(() => {
   cy.startContainers();
@@ -59,14 +59,16 @@ Given(
 
 Given('an additional connector configuration is already created', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
-  cy.createAccWithMandatoryFields();
+  cy.createAccWithMandatoryFields(data.default);
+  cy.saveAcc();
+  cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
 
 When(
   'the user clicks on the Edit properties button of an additional connector configuration',
   () => {
-    cy.contains('Connector-001').click();
+    cy.contains(data.default.name).click();
   }
 );
 
@@ -78,36 +80,12 @@ Then('a pop-up menu with the form is displayed', () => {
 Then(
   'all of the informations of the additional connector configuration are correct',
   () => {
-    cy.getByLabel({ label: 'Name', tag: 'input' }).should(
-      'have.value',
-      'Connector-001'
-    );
-    cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
-    cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-    cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
-      'contain',
-      'Central'
-    );
-    cy.get('#Usernamevalue').should('be.empty');
-    cy.get('#Passwordvalue').should('be.empty');
-    cy.get('#vCenternamevalue').should('have.value', 'vCenter-001');
-    cy.get('#URLvalue').should('have.value', 'https://10.0.0.0/sdk');
-    cy.get('#Portvalue').should('have.value', '5700');
+    cy.verifyAccFieldValues(data.default);
   }
 );
 
 When('the user updates some information', () => {
-  cy.getByLabel({ label: 'Name', tag: 'input' }).clear().type('Connector-002');
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click();
-  cy.get('svg[class*="deleteIcon"]').click();
-  cy.getByLabel({ label: 'Select poller(s)', tag: 'input' }).click().click();
-  cy.contains('Poller-1').click();
-  cy.get('#Usernamevalue').type('admin');
-  cy.get('#Passwordvalue').type('Abcde!2022');
-  cy.get('#vCenternamevalue').clear().type('vCenter-002');
-  cy.get('#URLvalue').clear().type('https://10.3.3.3/sdk');
-  cy.get('#Portvalue').clear().click().type('6900');
+  cy.updateAcc(data.updated);
 });
 
 When('the user clicks on Update', () => {
@@ -121,23 +99,7 @@ Then('the form is closed', () => {
 });
 
 Then('the informations are successfully saved', () => {
-  cy.contains('VMWare 6/7').click();
-  cy.ensureConnectorInputValue('Connector-002', { maxAttempts: 6, interval: 5000 });
-  cy.contains('VMWare 6/7').click();
-  cy.wait('@keepAlive');
-  cy.getByLabel({ label: 'Name', tag: 'input' }).should(
-    'have.value',
-    'Connector-002'
-  );
-  cy.getByLabel({ label: 'Description', tag: 'input' }).should('be.empty');
-  cy.get('#mui-component-select-type').should('have.text', 'VMWare 6/7');
-  cy.get('*[class^="MuiChip-label MuiChip-labelMedium"]').should(
-    'contain',
-    'Poller-1'
-  );
-  cy.get('#Usernamevalue').should('be.empty');
-  cy.get('#Passwordvalue').should('be.empty');
-  cy.get('#vCenternamevalue').should('have.value', 'vCenter-002');
-  cy.get('#URLvalue').should('have.value', 'https://10.3.3.3/sdk');
-  cy.get('#Portvalue').should('have.value', '6900');
+  cy.contains(data.updated.name).click();
+  cy.wait('@getConnectorDetail');
+  cy.verifyAccFieldValues(data.updated);
 });

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2fbe20a339aa732246aa9b4c7a83da3c",
+    "content-hash": "95a18cd5ab9825e971aff4e907184182",
     "packages": [],
     "packages-dev": [
         {
@@ -943,16 +943,16 @@
         },
         {
             "name": "api-platform/core",
-            "version": "v4.1.18",
+            "version": "v4.1.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d"
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/api-platform/core/zipball/fe921cda3edd0c2efa0c75446dea56a3fb69000d",
-                "reference": "fe921cda3edd0c2efa0c75446dea56a3fb69000d",
+                "url": "https://api.github.com/repos/api-platform/core/zipball/1dcc0da1bc56f2161ecfa863f7820e332a622d37",
+                "reference": "1dcc0da1bc56f2161ecfa863f7820e332a622d37",
                 "shasum": ""
             },
             "require": {
@@ -968,6 +968,7 @@
                 "symfony/serializer": "^6.4 || ^7.0",
                 "symfony/translation-contracts": "^3.3",
                 "symfony/type-info": "^7.2",
+                "symfony/validator": "^6.4 || ^7.1",
                 "symfony/web-link": "^6.4 || ^7.1",
                 "willdurand/negotiation": "^3.1"
             },
@@ -1153,9 +1154,9 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v4.1.18"
+                "source": "https://github.com/api-platform/core/tree/v4.1.19"
             },
-            "time": "2025-07-03T13:10:08+00:00"
+            "time": "2025-07-18T11:49:35+00:00"
         },
         {
             "name": "beberlei/assert",
@@ -1550,11 +1551,11 @@
         },
         {
             "name": "centreon/centreon",
-            "version": "25.09",
+            "version": "25.11",
             "dist": {
                 "type": "path",
                 "url": "../centreon",
-                "reference": "0e02b74e7815c1914b8e6fb21bde7cfaea06275e"
+                "reference": "6d733178c9107fdda3d84160b1c98c9a5878d020"
             },
             "require": {
                 "amphp/http-client": "4.6.*",
@@ -1598,7 +1599,7 @@
                 "php": "8.2.*",
                 "phpdocumentor/reflection-docblock": "5.4.*",
                 "pimple/pimple": "3.5.*",
-                "psr/container": "1.1.*",
+                "psr/container": "2.0.*",
                 "smarty-gettext/smarty-gettext": "1.7.*",
                 "smarty/smarty": "4.5.*",
                 "symfony/asset": "7.3.*",
@@ -1618,8 +1619,10 @@
                 "symfony/http-foundation": "7.3.*",
                 "symfony/http-kernel": "7.3.*",
                 "symfony/lock": "7.3.*",
+                "symfony/messenger": "7.3.*",
                 "symfony/mime": "7.3.*",
                 "symfony/monolog-bundle": "3.10.*",
+                "symfony/process": "7.3.*",
                 "symfony/property-info": "7.3.*",
                 "symfony/routing": "7.3.*",
                 "symfony/runtime": "7.3.*",
@@ -1631,6 +1634,9 @@
                 "symfony/validator": "7.3.*",
                 "symfony/yaml": "7.3.*",
                 "webmozart/assert": "1.11.*"
+            },
+            "conflict": {
+                "symfony/symfony": "*"
             },
             "replace": {
                 "paragonie/random_compat": "2.*",
@@ -1647,9 +1653,12 @@
                 "friends-of-behat/mink": "1.11.*",
                 "friends-of-behat/mink-extension": "2.7.*",
                 "mockery/mockery": "1.6.*",
+                "pestphp/pest": "2.36.*",
                 "php-vfs/php-vfs": "1.4.*",
+                "phpunit/phpunit": "10.5.*",
                 "robertfausk/mink-panther-driver": "1.1.*",
                 "squizlabs/php_codesniffer": "3.10.*",
+                "symfony/debug-bundle": "7.3.*",
                 "symfony/phpunit-bridge": "7.3.*",
                 "symfony/stopwatch": "7.3.*",
                 "symfony/var-dumper": "7.3.*",
@@ -1658,17 +1667,17 @@
             },
             "type": "project",
             "extra": {
+                "public-dir": "www",
                 "symfony": {
                     "allow-contrib": true,
                     "require": "7.3.*",
-                    "public-dir": "www"
+                    "docker": false
                 }
             },
             "autoload": {
                 "psr-4": {
                     "": "src/",
-                    "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-                    "Tests\\": "tests/php/"
+                    "ConfigGenerateRemote\\": "www/class/config-generate-remote/"
                 },
                 "classmap": [
                     "www/class/",
@@ -1692,30 +1701,75 @@
                     "www/class/centreon-clapi/centreonACL.class.php"
                 ]
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Centreon\\Test\\Mock\\": "tests/php/mock/",
+                    "Tests\\": "tests/php/"
+                }
+            },
             "scripts": {
+                "auto-scripts": {
+                    "cache:clear": "symfony-cmd",
+                    "assets:install %PUBLIC_DIR%": "symfony-cmd"
+                },
+                "post-install-cmd": [
+                    "@auto-scripts",
+                    "@symfony:assets:install:new"
+                ],
+                "post-update-cmd": [
+                    "@auto-scripts",
+                    "@symfony:assets:install:new"
+                ],
+                "symfony:assets:install": [
+                    "bin/console assets:install www"
+                ],
+                "symfony:assets:install:new": [
+                    "bin/console.new assets:install www"
+                ],
+                "symfony:update": [
+                    "composer update symfony/* --with-all-dependencies --no-scripts"
+                ],
+                "symfony:update:test": [
+                    "composer update symfony/* --with-all-dependencies --no-scripts --dry-run"
+                ],
                 "require:check": [
                     "../php-tools/vendor/bin/composer-require-checker check composer.json"
                 ],
                 "symfony:check": [
                     "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
                 ],
+                "symfony:new:check": [
+                    "php bin/console.new lint:yaml config src --parse-tags && php bin/console.new lint:container"
+                ],
+                "rector:diff": [
+                    "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
+                ],
+                "rector:diff:fix": [
+                    "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
+                ],
                 "rector:legacy": [
                     "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run"
                 ],
                 "rector:legacy:fix": [
-                    "../php-tools/vendor/bin/rector --config=rector.legacy.php process"
+                    "../php-tools/vendor/bin/rector process --config=rector.legacy.php"
                 ],
                 "rector:core": [
                     "../php-tools/vendor/bin/rector process --config=rector.core.php --dry-run"
                 ],
                 "rector:core:fix": [
-                    "../php-tools/vendor/bin/rector --config=rector.core.php process"
+                    "../php-tools/vendor/bin/rector process --config=rector.core.php"
                 ],
                 "rector:new": [
                     "../php-tools/vendor/bin/rector process --config=rector.new.php --dry-run"
                 ],
                 "rector:new:fix": [
                     "../php-tools/vendor/bin/rector process --config=rector.new.php"
+                ],
+                "cs:diff": [
+                    "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
+                ],
+                "cs:diff:fix": [
+                    "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}"
                 ],
                 "cs:legacy": [
                     "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff"
@@ -1788,6 +1842,12 @@
                 "test:ci": [
                     "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml"
                 ],
+                "test:new": [
+                    "./vendor/bin/phpunit --configuration phpunit.new.xml"
+                ],
+                "test:new:wip": [
+                    "@test:new --group wip"
+                ],
                 "rector": [
                     "@rector:legacy",
                     "@rector:core",
@@ -1837,6 +1897,7 @@
                     "@legacy:check",
                     "@core:check",
                     "@new:check",
+                    "@test:new",
                     "@test"
                 ]
             },
@@ -1854,12 +1915,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/centreon/centreon-test-lib.git",
-                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764"
+                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/42b0b5c3a3cde5df2721750e76b30e0907426764",
-                "reference": "42b0b5c3a3cde5df2721750e76b30e0907426764",
+                "url": "https://api.github.com/repos/centreon/centreon-test-lib/zipball/b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
+                "reference": "b6eb799c0c06be38e28d9b6bfd82003c2bc8d8ce",
                 "shasum": ""
             },
             "require": {
@@ -1870,7 +1931,6 @@
                 "justinrainbow/json-schema": "5.3.*",
                 "league/openapi-psr7-validator": "0.17.*",
                 "nyholm/psr7": "1.8.*",
-                "pestphp/pest": "2.36.*",
                 "php": "8.2.*",
                 "psr/http-client": "1.0.*",
                 "symfony/http-client": "7.3.*",
@@ -1886,27 +1946,22 @@
             "autoload": {
                 "psr-4": {
                     "Centreon\\Command\\": "src/Command",
-                    "Centreon\\Test\\Mock\\": "src/mock",
-                    "Centreon\\Test\\Behat\\": "src/behat",
-                    "Centreon\\Test\\Traits\\": "src/traits"
+                    "Centreon\\Test\\Behat\\": "src/behat"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
-            "description": "Library using for Behat test and PHPUnit test",
+            "description": "Library using for Behat test",
             "keywords": [
-                "Behat",
-                "centreon",
-                "phpunit",
-                "testing"
+                "Behat"
             ],
             "support": {
                 "issues": "https://github.com/centreon/centreon-test-lib/issues",
                 "source": "https://github.com/centreon/centreon-test-lib/tree/master"
             },
-            "time": "2025-07-21T09:54:54+00:00"
+            "time": "2025-08-25T14:27:53+00:00"
         },
         {
             "name": "composer/pcre",
@@ -3095,16 +3150,16 @@
         },
         {
             "name": "fidry/cpu-core-counter",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theofidry/cpu-core-counter.git",
-                "reference": "8520451a140d3f46ac33042715115e290cf5785f"
+                "reference": "db9508f7b1474469d9d3c53b86f817e344732678"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theofidry/cpu-core-counter/zipball/8520451a140d3f46ac33042715115e290cf5785f",
-                "reference": "8520451a140d3f46ac33042715115e290cf5785f",
+                "url": "https://api.github.com/repos/theofidry/cpu-core-counter/zipball/db9508f7b1474469d9d3c53b86f817e344732678",
+                "reference": "db9508f7b1474469d9d3c53b86f817e344732678",
                 "shasum": ""
             },
             "require": {
@@ -3114,10 +3169,10 @@
                 "fidry/makefile": "^0.2.0",
                 "fidry/php-cs-fixer-config": "^1.1.2",
                 "phpstan/extension-installer": "^1.2.0",
-                "phpstan/phpstan": "^1.9.2",
-                "phpstan/phpstan-deprecation-rules": "^1.0.0",
-                "phpstan/phpstan-phpunit": "^1.2.2",
-                "phpstan/phpstan-strict-rules": "^1.4.4",
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-deprecation-rules": "^2.0.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
                 "phpunit/phpunit": "^8.5.31 || ^9.5.26",
                 "webmozarts/strict-phpunit": "^7.5"
             },
@@ -3144,7 +3199,7 @@
             ],
             "support": {
                 "issues": "https://github.com/theofidry/cpu-core-counter/issues",
-                "source": "https://github.com/theofidry/cpu-core-counter/tree/1.2.0"
+                "source": "https://github.com/theofidry/cpu-core-counter/tree/1.3.0"
             },
             "funding": [
                 {
@@ -3152,20 +3207,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-08-06T10:04:20+00:00"
+            "time": "2025-08-14T07:29:31+00:00"
         },
         {
             "name": "filp/whoops",
-            "version": "2.18.3",
+            "version": "2.18.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filp/whoops.git",
-                "reference": "59a123a3d459c5a23055802237cb317f609867e5"
+                "reference": "d2102955e48b9fd9ab24280a7ad12ed552752c4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filp/whoops/zipball/59a123a3d459c5a23055802237cb317f609867e5",
-                "reference": "59a123a3d459c5a23055802237cb317f609867e5",
+                "url": "https://api.github.com/repos/filp/whoops/zipball/d2102955e48b9fd9ab24280a7ad12ed552752c4d",
+                "reference": "d2102955e48b9fd9ab24280a7ad12ed552752c4d",
                 "shasum": ""
             },
             "require": {
@@ -3215,7 +3270,7 @@
             ],
             "support": {
                 "issues": "https://github.com/filp/whoops/issues",
-                "source": "https://github.com/filp/whoops/tree/2.18.3"
+                "source": "https://github.com/filp/whoops/tree/2.18.4"
             },
             "funding": [
                 {
@@ -3223,7 +3278,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-16T00:02:10+00:00"
+            "time": "2025-08-08T12:00:00+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -4562,16 +4617,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.13.3",
+            "version": "1.13.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "faed855a7b5f4d4637717c2b3863e277116beb36"
+                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/faed855a7b5f4d4637717c2b3863e277116beb36",
-                "reference": "faed855a7b5f4d4637717c2b3863e277116beb36",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/07d290f0c47959fd5eed98c95ee5602db07e0b6a",
+                "reference": "07d290f0c47959fd5eed98c95ee5602db07e0b6a",
                 "shasum": ""
             },
             "require": {
@@ -4610,7 +4665,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.3"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.13.4"
             },
             "funding": [
                 {
@@ -4618,7 +4673,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-07-05T12:25:42+00:00"
+            "time": "2025-08-01T08:46:24+00:00"
         },
         {
             "name": "nelmio/cors-bundle",
@@ -6439,22 +6494,27 @@
         },
         {
             "name": "psr/container",
-            "version": "1.1.2",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
-                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/c71ecc56dfe541dbd90c5360474fbc405f8d5963",
+                "reference": "c71ecc56dfe541dbd90c5360474fbc405f8d5963",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.4.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Psr\\Container\\": "src/"
@@ -6481,9 +6541,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.2"
+                "source": "https://github.com/php-fig/container/tree/2.0.2"
             },
-            "time": "2021-11-05T16:50:12+00:00"
+            "time": "2021-11-05T16:47:00+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -7924,23 +7984,23 @@
         },
         {
             "name": "sebastian/recursion-context",
-            "version": "5.0.0",
+            "version": "5.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/recursion-context.git",
-                "reference": "05909fb5bc7df4c52992396d0116aed689f93712"
+                "reference": "47e34210757a2f37a97dcd207d032e1b01e64c7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/05909fb5bc7df4c52992396d0116aed689f93712",
-                "reference": "05909fb5bc7df4c52992396d0116aed689f93712",
+                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/47e34210757a2f37a97dcd207d032e1b01e64c7a",
+                "reference": "47e34210757a2f37a97dcd207d032e1b01e64c7a",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^10.0"
+                "phpunit/phpunit": "^10.5"
             },
             "type": "library",
             "extra": {
@@ -7975,15 +8035,28 @@
             "homepage": "https://github.com/sebastianbergmann/recursion-context",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/recursion-context/issues",
-                "source": "https://github.com/sebastianbergmann/recursion-context/tree/5.0.0"
+                "security": "https://github.com/sebastianbergmann/recursion-context/security/policy",
+                "source": "https://github.com/sebastianbergmann/recursion-context/tree/5.0.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/sebastian/recursion-context",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2023-02-03T07:05:40+00:00"
+            "time": "2025-08-10T07:50:56+00:00"
         },
         {
             "name": "sebastian/type",
@@ -9856,16 +9929,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v7.3.1",
+            "version": "v7.3.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "23dd60256610c86a3414575b70c596e5deff6ed9"
+                "reference": "db488a62f98f7a81d5746f05eea63a74e55bb7c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/23dd60256610c86a3414575b70c596e5deff6ed9",
-                "reference": "23dd60256610c86a3414575b70c596e5deff6ed9",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/db488a62f98f7a81d5746f05eea63a74e55bb7c4",
+                "reference": "db488a62f98f7a81d5746f05eea63a74e55bb7c4",
                 "shasum": ""
             },
             "require": {
@@ -9915,7 +9988,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v7.3.1"
+                "source": "https://github.com/symfony/http-foundation/tree/v7.3.7"
             },
             "funding": [
                 {
@@ -9927,11 +10000,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-06-23T15:07:14+00:00"
+            "time": "2025-11-08T16:41:12+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -10124,6 +10201,99 @@
                 }
             ],
             "time": "2025-04-20T20:19:01+00:00"
+        },
+        {
+            "name": "symfony/messenger",
+            "version": "v7.3.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/messenger.git",
+                "reference": "58a7efa3bebadbe4cdd8f7577c5856f0e3ea3978"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/58a7efa3bebadbe4cdd8f7577c5856f0e3ea3978",
+                "reference": "58a7efa3bebadbe4cdd8f7577c5856f0e3ea3978",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.2",
+                "psr/log": "^1|^2|^3",
+                "symfony/clock": "^6.4|^7.0",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "conflict": {
+                "symfony/console": "<7.2",
+                "symfony/event-dispatcher": "<6.4",
+                "symfony/event-dispatcher-contracts": "<2.5",
+                "symfony/framework-bundle": "<6.4",
+                "symfony/http-kernel": "<6.4",
+                "symfony/lock": "<6.4",
+                "symfony/serializer": "<6.4"
+            },
+            "require-dev": {
+                "psr/cache": "^1.0|^2.0|^3.0",
+                "symfony/console": "^7.2",
+                "symfony/dependency-injection": "^6.4|^7.0",
+                "symfony/event-dispatcher": "^6.4|^7.0",
+                "symfony/http-kernel": "^6.4|^7.0",
+                "symfony/lock": "^6.4|^7.0",
+                "symfony/process": "^6.4|^7.0",
+                "symfony/property-access": "^6.4|^7.0",
+                "symfony/rate-limiter": "^6.4|^7.0",
+                "symfony/routing": "^6.4|^7.0",
+                "symfony/serializer": "^6.4|^7.0",
+                "symfony/service-contracts": "^2.5|^3",
+                "symfony/stopwatch": "^6.4|^7.0",
+                "symfony/validator": "^6.4|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Messenger\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Samuel Roze",
+                    "email": "samuel.roze@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Helps applications send and receive messages to/from other applications or via message queues",
+            "homepage": "https://symfony.com",
+            "support": {
+                "source": "https://github.com/symfony/messenger/tree/v7.3.6"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2025-11-06T11:17:34+00:00"
         },
         {
             "name": "symfony/mime",
@@ -13224,7 +13394,7 @@
         "ext-pdo": "*",
         "ext-session": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.2"
     },

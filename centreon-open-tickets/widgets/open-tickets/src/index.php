@@ -1,23 +1,22 @@
 <?php
 
 /*
- * Copyright 2016-2023 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 require_once '../../require.php';
@@ -35,6 +34,8 @@ require_once $centreon_path . 'www/class/centreonHostcategories.class.php';
 require_once $centreon_path . 'www/class/centreonService.class.php';
 require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
+require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 
 $smartyDir = __DIR__ . '/../../../../vendor/smarty/smarty/';
 require_once $smartyDir . 'libs/Smarty.class.php';
@@ -381,7 +382,7 @@ if (! empty($preferences['hostcategories'])) {
         $queryHC .= ':id_' . $resultHC;
         $mainQueryParameters[] = [
             'parameter' => ':id_' . $resultHC,
-            'value' => (int) $resultsHC,
+            'value' => (int) $resultHC,
             'type' => PDO::PARAM_INT,
         ];
     }
@@ -422,9 +423,15 @@ if (isset($preferences['display_severities'])
 
 if (! $centreon->user->admin) {
     $pearDB = $db;
-    $aclObj = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-    $groupList = $aclObj->getAccessGroupsString();
-    $query .= " AND h.host_id = acl.host_id AND acl.service_id = s.service_id AND acl.group_id IN ({$groupList})";
+    $acls = new CentreonAclLazy($centreon->user->user_id);
+
+    if (! $acls->getAccessGroups()->isEmpty()) {
+        $groupList = implode(', ', $acls->getAccessGroups()->getIds());
+        $query .= " AND h.host_id = acl.host_id AND acl.service_id = s.service_id AND acl.group_id IN ({$groupList})";
+    } else {
+        // make the request return nothing if no ACL groups linked to the user
+        $query .= ' AND 1 = 0';
+    }
 }
 if (isset($preferences['output_search']) && $preferences['output_search'] != '') {
     $tab = explode(' ', $preferences['output_search']);

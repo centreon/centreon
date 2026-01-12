@@ -4,8 +4,8 @@ import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { PanelOptions } from './models';
 import { useLocale } from '@centreon/ui';
+import { PanelOptions } from './models';
 
 export const useGetLocaleAndTimezone = ({
   locale,

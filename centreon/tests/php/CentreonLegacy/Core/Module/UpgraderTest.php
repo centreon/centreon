@@ -1,19 +1,22 @@
 <?php
 
-/**
- * Copyright 2016-2019 Centreon
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace CentreonLegacy\Core\Module;
@@ -34,6 +37,39 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
     private $information;
 
     private $utils;
+
+    private static $originalProcessClass;
+
+    /**
+     * Create a hacky Process class for the test
+     */
+    public static function setUpBeforeClass(): void
+    {
+        // Save the real Process if it is already loaded
+        if (class_exists(\Symfony\Component\Process\Process::class, false)) {
+            self::$originalProcessClass = new \ReflectionClass(\Symfony\Component\Process\Process::class);
+        }
+
+        // HACK: create a fake Process in the Symfony namespace
+        eval('
+        namespace Symfony\Component\Process;
+        class Process {
+            public function __construct(array $cmd) {}
+            public function setWorkingDirectory($dir) {}
+            public function run() {}
+            public function isSuccessful() { return true; }
+        }');
+    }
+
+    /**
+     * Delete mock and restore origin class.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$originalProcessClass !== null) {
+            self::$originalProcessClass = null;
+        }
+    }
 
     public function setUp(): void
     {
@@ -82,6 +118,12 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function testUpgrader(): void
     {
+        // HACK:this is done to prevent an error in code execution that says
+        // the constant is not defined while using the Symfony proccess setWorkingDir method
+        if (! defined('_CENTREON_PATH_')) {
+            define('_CENTREON_PATH_', getcwd());
+        }
+
         $filesystem = $this->getMockBuilder(\Symfony\Component\Filesystem\Filesystem::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['exists'])

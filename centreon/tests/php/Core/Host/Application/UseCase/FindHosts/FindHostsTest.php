@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\UseCase\FindHosts\FindHosts;
@@ -56,6 +57,7 @@ beforeEach(closure: function (): void {
     $this->hostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class);
     $this->hostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class);
     $this->presenter = new FindHostsPresenterStub($this->createMock(PresenterFormatterInterface::class));
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 
     $this->useCase = new FindHosts(
         $this->requestParameters,
@@ -65,7 +67,7 @@ beforeEach(closure: function (): void {
         $this->hostCategoryRepository,
         $this->hostTemplateRepository,
         $this->hostGroupRepository,
-        false
+        $this->adminResolver
     );
 });
 
@@ -94,7 +96,7 @@ it('should present an ErrorResponse when an error occurs concerning the request 
         ->with(Contact::ROLE_CONFIGURATION_HOSTS_READ)
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -117,7 +119,7 @@ it('should present an ErrorResponse when an exception occurs', function (): void
         ->with(Contact::ROLE_CONFIGURATION_HOSTS_READ)
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -143,7 +145,7 @@ it('should present a FindHostsResponse when no error occurs for an admin user', 
         ->with(Contact::ROLE_CONFIGURATION_HOSTS_READ)
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -235,7 +237,7 @@ it('should present a FindHostsResponse when no error occurs for a non-admin user
         ->with(Contact::ROLE_CONFIGURATION_HOSTS_READ)
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);

@@ -1,24 +1,25 @@
 <?php
 
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
+
+use Adaptation\Database\Connection\Exception\ConnectionException;
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
@@ -59,7 +60,8 @@ $centreon_provider = new $classname(
     $centreon_open_tickets_path,
     $get_information['rule_id'],
     $get_information['form'],
-    $get_information['provider_id']
+    $get_information['provider_id'],
+    $provider_name
 );
 
 // We get Host or Service
@@ -104,7 +106,6 @@ if (! $centreon_bg->is_admin) {
 $query .= ' AND motl.host_id = hosts.host_id
             AND motl.service_id = services.service_id
             AND motl.ticket_id = mot.ticket_id
-            AND mot.timestamp > services.last_hard_state_change
     ) UNION ALL (
         SELECT DISTINCT
             NULL as description,
@@ -124,13 +125,24 @@ if (! $centreon_bg->is_admin) {
 $query .= ' AND motl.host_id = hosts.host_id
             AND motl.service_id IS NULL
             AND motl.ticket_id = mot.ticket_id
-            AND mot.timestamp > hosts.last_hard_state_change
     ) ORDER BY `host_name`, `description`, `timestamp` DESC';
 
 $hosts_done = [];
+try {
+    $dbResult = $db_storage->fetchAllAssociative($query);
+} catch (ConnectionException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while fetching tickets to close: ' . $e->getMessage(),
+        exception: $e
+    );
+    $resultat['code'] = 1;
+    $resultat['msg'] = 'Error while fetching tickets to close: ' . $e->getMessage();
 
-$dbResult = $db_storage->query($query);
-while ($row = $dbResult->fetch()) {
+    return;
+}
+
+foreach ($dbResult as $row) {
     if (isset($hosts_done[$row['host_name'] . ';' . $row['description']])) {
         continue;
     }

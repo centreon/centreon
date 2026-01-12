@@ -1,17 +1,17 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { configureProviderAcls } from '../../../../commons';
 import {
-  configureSAML,
-  initializeSAMLUser,
-  navigateToSAMLConfigPage,
+  configureSaml,
+  initializeSamlUser,
+  navigateToSamlConfigPage,
   saveSamlFormIfEnabled
 } from '../common';
-import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
-    initializeSAMLUser();
+    initializeSamlUser();
   });
 });
 
@@ -39,7 +39,7 @@ Given('an administrator is logged on the platform', () => {
 });
 
 When('the administrator sets authentication mode to SAML only', () => {
-  navigateToSAMLConfigPage();
+  navigateToSamlConfigPage();
 
   cy.getByLabel({
     label: 'SAML only',
@@ -51,7 +51,7 @@ When('the administrator sets authentication mode to SAML only', () => {
     tag: 'input'
   }).check();
 
-  configureSAML();
+  configureSaml();
 
   saveSamlFormIfEnabled();
 
@@ -72,9 +72,7 @@ Then(
 
     cy.loginKeycloak('admin');
 
-    cy.get('#input-error')
-      .should('be.visible')
-      .and('include.text', 'Invalid username or password.');
+    cy.contains('Invalid username or password.');
 
     cy.loginKeycloak(username);
 

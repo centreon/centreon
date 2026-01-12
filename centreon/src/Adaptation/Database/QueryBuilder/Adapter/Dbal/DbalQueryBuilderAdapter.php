@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,7 +50,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
      */
     public function __construct(
         private DoctrineDbalQueryBuilder $dbalQueryBuilder,
-        private ConnectionConfig $connectionConfig
+        private ConnectionConfig $connectionConfig,
     ) {
     }
 
@@ -305,7 +305,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->join($fromAlias, $join, $joinAlias, $condition);
 
@@ -334,7 +334,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->innerJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -363,7 +363,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->leftJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -392,7 +392,7 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
         string $fromAlias,
         string $join,
         string $joinAlias,
-        string $condition
+        string $condition,
     ): QueryBuilderInterface {
         $this->dbalQueryBuilder->rightJoin($fromAlias, $join, $joinAlias, $condition);
 
@@ -770,6 +770,18 @@ final readonly class DbalQueryBuilderAdapter implements QueryBuilderInterface
     public function resetOrderBy(): QueryBuilderInterface
     {
         $this->dbalQueryBuilder->resetOrderBy();
+
+        return $this;
+    }
+
+    /**
+     * Resets the limit for the query.
+     *
+     * @return DbalQueryBuilderAdapter this QueryBuilder instance
+     */
+    public function resetLimit(): QueryBuilderInterface
+    {
+        $this->dbalQueryBuilder->setMaxResults(null);
 
         return $this;
     }

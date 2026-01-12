@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -46,6 +31,7 @@ require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
@@ -126,10 +112,9 @@ function hostMacHandler()
     }
 
     $fieldsToBind = [];
-    $counter = count($_POST['macroInput']);
-    for ($index = 0; $index < $counter; $index++) {
-        $fieldsToBind[':macro_' . $index]
-            = "'\$_HOST" . strtoupper($_POST['macroInput'][$index]) . "\$'";
+    foreach ($_POST['macroInput'] as $key => $value) {
+        $fieldsToBind[':macro_' . $key]
+            = "'\$_HOST" . strtoupper($value) . "\$'";
     }
 
     $request
@@ -265,7 +250,7 @@ function hasNoInfiniteLoop($hostId, $templateId)
             if ($hId == $templateId) {
                 return false;
             }
-            if (false === hasNoInfiniteLoop($hId, $templateId)) {
+            if (hasNoInfiniteLoop($hId, $templateId) === false) {
                 return false;
             }
         }
@@ -1393,7 +1378,6 @@ function updateHost_MC($hostId = null)
     }
 
     $submittedValues = $form->getSubmitValues();
-
     if (! $isCloudPlatform) {
         if (isset($submittedValues['command_command_id_arg1']) && $submittedValues['command_command_id_arg1'] != null) {
             $submittedValues['command_command_id_arg1'] = str_replace("\n", '#BR#', $submittedValues['command_command_id_arg1']);
@@ -1407,6 +1391,17 @@ function updateHost_MC($hostId = null)
         }
     }
 
+    if (isset($submittedValues['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $submittedValues['host_check_freshness']['host_check_freshness'] = '1';
+            $submittedValues['host_freshness_threshold'] = 120;
+        }
+    }
     // For Centreon 2, we no longer need "host_template_model_htm_id" in Nagios 3
     // but we try to keep it compatible with Nagios 2 which needs "host_template_model_htm_id"
     if (isset($_POST['nbOfSelect'])) {
@@ -1450,7 +1445,6 @@ function updateHost_MC($hostId = null)
         $statement->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $statement->execute();
     }
-
     // update multiple templates
     if (isset($_REQUEST['tpSelect'])) {
         $oldTp = [];
@@ -2355,6 +2349,7 @@ function createHostTemplateService($hostId = null, $htm_id = null)
     if (
         ! empty($submittedValues['dupSvTplAssoc']['dupSvTplAssoc'])
         || $isCloudPlatform === true
+        && $submittedValues['host_register'] != 0
     ) {
         generateHostServiceMultiTemplate($hostId, $hostId);
     }
@@ -2536,6 +2531,7 @@ function applytpl(array $hostIds)
     foreach ($hostIds as $hostId) {
         $hostObj->deployServices($hostId);
         $centreon->user->access->updateACL(['type' => 'HOST', 'id' => $hostId, 'action' => 'UPDATE']);
+        signalConfigurationChange('host', (int) $hostId);
     }
 }
 
@@ -2978,7 +2974,7 @@ function callHostApi(string $url, string $httpMethod, array $payload): array
         [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+                'Cookie' => CentreonSession::resolveSessionCookie(),
             ],
             'body' => json_encode($payload, JSON_THROW_ON_ERROR),
         ],
@@ -3015,32 +3011,36 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'note_url' => $formData['ehi_notes_url'] ?: null,
         'note' => $formData['ehi_notes'] ?: null,
         'action_url' => $formData['ehi_action_url'] ?: null,
-        'icon_id' => '' !== $formData['ehi_icon_image']
+        'icon_id' => $formData['ehi_icon_image'] !== ''
             ? (int) $formData['ehi_icon_image']
             : null,
-        'timezone_id' => '' !== $formData['host_location']
+        'timezone_id' => $formData['host_location'] !== ''
             ? (int) $formData['host_location']
             : null,
-        'severity_id' => '' !== $formData['criticality_id']
+        'severity_id' => $formData['criticality_id'] !== ''
             ? (int) $formData['criticality_id']
             : null,
-        'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+        'check_timeperiod_id' => $formData['timeperiod_tp_id'] !== ''
             ? (int) $formData['timeperiod_tp_id']
             : null,
-        'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+        'max_check_attempts' => $formData['host_max_check_attempts'] !== ''
             ? (int) $formData['host_max_check_attempts']
             : null,
-        'normal_check_interval' => '' !== $formData['host_check_interval']
+        'normal_check_interval' => $formData['host_check_interval'] !== ''
             ? (int) $formData['host_check_interval']
             : null,
-        'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+        'retry_check_interval' => $formData['host_retry_check_interval'] !== ''
             ? (int) $formData['host_retry_check_interval']
             : null,
-        'templates' => array_map(static fn (string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+        'templates' => array_map(
+            static fn (string $id): int => (int) $id,
+            array_values(array_filter($formData['tpSelect'] ?? [], static fn ($id) => ! empty($id)))
+        ),
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'macros' => array_map(
-            static function (int $key, string $name, string $value) use ($formData): array {
+            static function (int|string $key, string $name, string $value) use ($formData): array {
                 return [
+                    'id' => (empty((int) $formData['macroId'][$key]) ? null : (int) $formData['macroId'][$key]),
                     'name' => $name,
                     'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
@@ -3054,10 +3054,10 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
-        'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+        'event_handler_command_id' => isset($formData['command_command_id2']) && $formData['command_command_id2'] !== ''
             ? (int) $formData['command_command_id2']
             : null,
-        'check_command_id' => '' !== $formData['command_command_id']
+        'check_command_id' => $formData['command_command_id'] !== ''
             ? (int) $formData['command_command_id']
             : null,
         'check_command_args' => array_values(array_filter(
@@ -3088,17 +3088,17 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
             'comment' => $formData['host_comment'] ?: null,
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
-            'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
+            'low_flap_threshold' => $formData['host_low_flap_threshold'] !== ''
                 ? (int) $formData['host_low_flap_threshold']
                 : null,
-            'high_flap_threshold' => '' !== $formData['host_high_flap_threshold']
+            'high_flap_threshold' => $formData['host_high_flap_threshold'] !== ''
                 ? (int) $formData['host_high_flap_threshold']
                 : null,
             'freshness_checked' => (int) $formData['host_check_freshness']['host_check_freshness'],
-            'freshness_threshold' => '' !== $formData['host_freshness_threshold']
+            'freshness_threshold' => $formData['host_freshness_threshold'] !== ''
                 ? (int) $formData['host_freshness_threshold']
                 : null,
-            'acknowledgement_timeout' => '' !== $formData['host_acknowledgement_timeout']
+            'acknowledgement_timeout' => $formData['host_acknowledgement_timeout'] !== ''
                 ? (int) $formData['host_acknowledgement_timeout']
                 : null,
             'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
@@ -3107,19 +3107,19 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
                 static fn (string $elem): bool => $elem !== ''
             )),
             'notification_enabled' => (int) $formData['host_notifications_enabled']['host_notifications_enabled'],
-            'notification_interval' => '' !== $formData['host_notification_interval']
+            'notification_interval' => $formData['host_notification_interval'] !== ''
                  ? (int) $formData['host_notification_interval']
                  : null,
-            'notification_timeperiod_id' => '' !== $formData['timeperiod_tp_id2']
+            'notification_timeperiod_id' => $formData['timeperiod_tp_id2'] !== ''
                 ? (int) $formData['timeperiod_tp_id2']
                 : null,
             'notification_options' => HostEventConverter::toBitFlag(HostEventConverter::fromString(
                 implode(',', array_keys($formData['host_notifOpts'] ?? []))
             )),
-            'first_notification_delay' => '' !== $formData['host_first_notification_delay']
+            'first_notification_delay' => $formData['host_first_notification_delay'] !== ''
                 ? (int) $formData['host_first_notification_delay']
                 : null,
-            'recovery_notification_delay' => '' !== $formData['host_recovery_notification_delay']
+            'recovery_notification_delay' => $formData['host_recovery_notification_delay'] !== ''
                 ? (int) $formData['host_recovery_notification_delay']
                 : null,
             'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
@@ -3150,35 +3150,39 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'note_url' => $formData['ehi_notes_url'] ?: null,
         'note' => $formData['ehi_notes'] ?: null,
         'action_url' => $formData['ehi_action_url'] ?: null,
-        'icon_id' => '' !== $formData['ehi_icon_image']
+        'icon_id' => $formData['ehi_icon_image'] !== ''
             ? (int) $formData['ehi_icon_image']
             : null,
         'geo_coords' => $formData['geo_coords'] ?: null,
-        'timezone_id' => '' !== $formData['host_location']
+        'timezone_id' => $formData['host_location'] !== ''
             ? (int) $formData['host_location']
             : null,
-        'severity_id' => '' !== $formData['criticality_id']
+        'severity_id' => $formData['criticality_id'] !== ''
             ? (int) $formData['criticality_id']
             : null,
-        'check_timeperiod_id' => '' !== $formData['timeperiod_tp_id']
+        'check_timeperiod_id' => $formData['timeperiod_tp_id'] !== ''
             ? (int) $formData['timeperiod_tp_id']
             : null,
-        'max_check_attempts' => '' !== $formData['host_max_check_attempts']
+        'max_check_attempts' => $formData['host_max_check_attempts'] !== ''
             ? (int) $formData['host_max_check_attempts']
             : null,
-        'normal_check_interval' => '' !== $formData['host_check_interval']
+        'normal_check_interval' => $formData['host_check_interval'] !== ''
             ? (int) $formData['host_check_interval']
             : null,
-        'retry_check_interval' => '' !== $formData['host_retry_check_interval']
+        'retry_check_interval' => $formData['host_retry_check_interval'] !== ''
             ? (int) $formData['host_retry_check_interval']
             : null,
         'is_activated' => (bool) ($formData['host_activate']['host_activate'] ?: false),
-        'templates' => array_map(static fn (string $id): int => (int) $id, $formData['tpSelect'] ?? []),
+        'templates' => array_map(
+            static fn (string $id): int => (int) $id,
+            array_values(array_filter($formData['tpSelect'] ?? [], static fn ($id) => ! empty($id)))
+        ),
         'categories' => array_map(static fn (string $id): int => (int) $id, $formData['host_hcs'] ?? []),
         'groups' => array_map(static fn (string $id): int => (int) $id, $formData['host_hgs'] ?? []),
         'macros' => array_map(
             static function (int|string $key, string $name, string $value) use ($formData): array {
                 return [
+                    'id' => (empty((int) $formData['macroId'][$key]) ? null : (int) $formData['macroId'][$key]),
                     'name' => $name,
                     'value' => $value === PASSWORD_REPLACEMENT_VALUE ? null : $value,
                     'is_password' => (bool) ($formData['macroPassword'][$key] ?? false),
@@ -3192,10 +3196,10 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
         'event_handler_enabled' => isset($formData['host_event_handler_enabled']['host_event_handler_enabled'])
             ? (int) $formData['host_event_handler_enabled']['host_event_handler_enabled']
             : null,
-        'event_handler_command_id' => isset($formData['command_command_id2']) && '' !== $formData['command_command_id2']
+        'event_handler_command_id' => isset($formData['command_command_id2']) && $formData['command_command_id2'] !== ''
             ? (int) $formData['command_command_id2']
             : null,
-        'check_command_id' => '' !== $formData['command_command_id']
+        'check_command_id' => $formData['command_command_id'] !== ''
             ? (int) $formData['command_command_id']
             : null,
         'check_command_args' => array_values(array_filter(
@@ -3226,17 +3230,17 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             'comment' => $formData['host_comment'] ?: null,
             'active_check_enabled' => (int) $formData['host_active_checks_enabled']['host_active_checks_enabled'],
             'passive_check_enabled' => (int) $formData['host_passive_checks_enabled']['host_passive_checks_enabled'],
-            'low_flap_threshold' => '' !== $formData['host_low_flap_threshold']
+            'low_flap_threshold' => $formData['host_low_flap_threshold'] !== ''
                 ? (int) $formData['host_low_flap_threshold']
                 : null,
-            'high_flap_threshold' => '' !== $formData['host_high_flap_threshold']
+            'high_flap_threshold' => $formData['host_high_flap_threshold'] !== ''
                 ? (int) $formData['host_high_flap_threshold']
                 : null,
             'freshness_checked' => (int) $formData['host_check_freshness']['host_check_freshness'],
-            'freshness_threshold' => '' !== $formData['host_freshness_threshold']
+            'freshness_threshold' => $formData['host_freshness_threshold'] !== ''
                 ? (int) $formData['host_freshness_threshold']
                 : null,
-            'acknowledgement_timeout' => '' !== $formData['host_acknowledgement_timeout']
+            'acknowledgement_timeout' => $formData['host_acknowledgement_timeout'] !== ''
                 ? (int) $formData['host_acknowledgement_timeout']
                 : null,
             'flap_detection_enabled' => (int) $formData['host_flap_detection_enabled']['host_flap_detection_enabled'],
@@ -3245,19 +3249,19 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
                 static fn (string $elem): bool => $elem !== ''
             )),
             'notification_enabled' => (int) $formData['host_notifications_enabled']['host_notifications_enabled'],
-            'notification_interval' => '' !== $formData['host_notification_interval']
+            'notification_interval' => $formData['host_notification_interval'] !== ''
                 ? (int) $formData['host_notification_interval']
                 : null,
-            'notification_timeperiod_id' => '' !== $formData['timeperiod_tp_id2']
+            'notification_timeperiod_id' => $formData['timeperiod_tp_id2'] !== ''
                 ? (int) $formData['timeperiod_tp_id2']
                 : null,
             'notification_options' => HostEventConverter::toBitFlag(HostEventConverter::fromString(
                 implode(',', array_keys($formData['host_notifOpts'] ?? []))
             )),
-            'first_notification_delay' => '' !== $formData['host_first_notification_delay']
+            'first_notification_delay' => $formData['host_first_notification_delay'] !== ''
                 ? (int) $formData['host_first_notification_delay']
                 : null,
-            'recovery_notification_delay' => '' !== $formData['host_recovery_notification_delay']
+            'recovery_notification_delay' => $formData['host_recovery_notification_delay'] !== ''
                 ? (int) $formData['host_recovery_notification_delay']
                 : null,
             'add_inherited_contact_group' => (bool) ($formData['cg_additive_inheritance'] ?? false),
@@ -3267,4 +3271,108 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
     }
 
     return $payload;
+}
+
+/**
+ * Validates that there are no circular references between host parents and children.
+ *
+ * Checks if any host is both a parent and a child, or if adding the specified parent-child
+ * relationships would create a circular reference in the host hierarchy.
+ *
+ * @param array<string, mixed> $fields associative array with 'host_parents' and 'host_childs' as arrays of host IDs
+ *
+ * @return array|true returns an array on the form [form_field => error_message] if a circular reference is detected,
+ *                    or true if validation passes
+ */
+function validateParentChildAreNotCircular(array $fields): array|true
+{
+    global $pearDB;
+
+    $parents = $fields['host_parents'] ?? [];
+    $children = $fields['host_childs'] ?? [];
+    $common = array_intersect($parents, $children);
+
+    if ($common) {
+        $hostIds = [];
+        foreach ($common as $hostId) {
+            $hostIds[':host' . $hostId] = $hostId;
+        }
+        $hostIdsAsString = implode(',', array_keys($hostIds));
+        $statement = $pearDB->prepare("SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})");
+        foreach ($hostIds as $param => $id) {
+            $statement->bindValue($param, $id, PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+        $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'host_parents' => 'Circular reference detected with host children: ' . implode(', ', $hostNames),
+        ];
+    }
+
+    $circular = [];
+    foreach ($parents as $parentId) {
+        foreach ($children as $childId) {
+            if (($foundId = hasCircularReference($parentId, $childId)) !== null) {
+                $circular[] = $foundId;
+            }
+        }
+    }
+
+    if ($circular) {
+        $hostIds = [];
+        foreach (array_unique($circular) as $hostId) {
+            $hostIds[':host' . $hostId] = $hostId;
+        }
+        $hostIdsAsString = implode(',', array_keys($hostIds));
+        $statement = $pearDB->prepare(
+            "SELECT host_name FROM host WHERE host_id IN ({$hostIdsAsString})"
+        );
+        foreach ($hostIds as $param => $id) {
+            $statement->bindValue($param, $id, PDO::PARAM_INT);
+        }
+        $statement->execute();
+        $hostNames = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'host_parents' => 'Circular reference detected with host children: ' . implode(', ', $hostNames),
+        ];
+    }
+
+    return true;
+}
+
+/**
+ * Checks if adding a parent-child relationship would create a circular reference.
+ *
+ * Traverses the parent hierarchy to determine if the child is already an ancestor of the parent.
+ *
+ * @param int $parentId the ID of the proposed parent host
+ * @param int $childId the ID of the proposed child host
+ * @return int|null returns the ID of the host causing the circular reference, or null if none is found
+ */
+function hasCircularReference($parentId, $childId): ?int
+{
+    global $pearDB;
+
+    $toCheck = [$parentId];
+    $checked = [];
+    while ($toCheck) {
+        $current = array_pop($toCheck);
+        if ($current == $childId) {
+            return $current;
+        }
+        $checked[] = $current;
+        $stmt = $pearDB->prepare('SELECT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId');
+        $stmt->bindValue(':hostId', $current, PDO::PARAM_INT);
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $parent) {
+            if (! in_array($parent, $checked)) {
+                $toCheck[] = $parent;
+            }
+        }
+    }
+
+    return null;
 }

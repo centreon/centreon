@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): HostStatusesCount {
         if ($accessGroupIds === []) {
             $this->createHostStatusesCountFromRecord([]);
@@ -137,7 +137,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
      * @return SqlRequestParametersTranslator
      */
     private function prepareSqlRequestParametersTranslatorForStatuses(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): SqlRequestParametersTranslator {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([

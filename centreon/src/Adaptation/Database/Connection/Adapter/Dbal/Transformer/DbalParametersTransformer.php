@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -49,11 +49,11 @@ abstract readonly class DbalParametersTransformer
         foreach ($queryParameters->getIterator() as $queryParameter) {
             // remove : from the key to avoid issues with named parameters, dbal doesn't accept : in the key
             $name = $queryParameter->getName();
-            if (str_starts_with($queryParameter->getName(), ':')) {
-                $name = mb_substr($queryParameter->getName(), 1);
+            if (str_starts_with((string) $queryParameter->getName(), ':')) {
+                $name = mb_substr((string) $queryParameter->getName(), 1);
             }
             $params[$name] = $queryParameter->getValue();
-            if (null !== $queryParameter->getType()) {
+            if ($queryParameter->getType() !== null) {
                 $types[$name] = DbalParameterTypeTransformer::transformFromQueryParameterType(
                     $queryParameter->getType()
                 );

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -162,7 +162,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
      * To validate grouped elements as separated entities,
      * use addGroupRule instead of addRule.
      *
-     * @param string $element Form element name
+     * @param string|string[] $element Form element name
      * @param string $message Message to display for invalid data
      * @param string $type Rule type, use getRegisteredRules() to get types
      * @param string $format (optional)Required for extra rule data
@@ -233,7 +233,7 @@ class HTML_QuickFormCustom extends HTML_QuickForm
             }
             foreach ($element as $elName) {
                 $value = $this->getSubmitValue($elName);
-                if (null !== $value) {
+                if ($value !== null) {
                     if (! str_contains($elName, '[')) {
                         $this->_submitValues[$elName] = $this->_recursiveFilter($filter, $value);
                     } else {

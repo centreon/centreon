@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ final class AddHostController extends AbstractController
     private function executeUseCaseOnPrem(
         AddHost $useCase,
         AddHostOnPremPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         try {
             /**
@@ -121,7 +121,7 @@ final class AddHostController extends AbstractController
              *     categories?: int[],
              *     groups?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
+             *     macros?: array<array{id?:int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
              *     add_inherited_contact_group?: bool,
              *     add_inherited_contact?: bool,
              *     is_activated?: bool
@@ -198,7 +198,7 @@ final class AddHostController extends AbstractController
     private function executeUseCaseSaas(
         AddHost $useCase,
         AddHostSaasPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         try {
             /**
@@ -223,7 +223,7 @@ final class AddHostController extends AbstractController
              *     categories?: int[],
              *     groups?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
+             *     macros?: array<array{id?:int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
              *     is_activated?: bool,
              *     event_handler_enabled?: int,
              *     event_handler_command_id?: null|int,

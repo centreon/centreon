@@ -46,6 +46,10 @@ inputs:
   is_nightly:
     description: "nightly status"
     required: false
+  upload_artifacts:
+    description: "Upload packages as artifacts"
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -94,7 +98,6 @@ runs:
 
         MAJOR_LEFT=$( echo $MAJOR_VERSION | cut -d "." -f1 )
         MAJOR_RIGHT=$( echo $MAJOR_VERSION | cut -d "-" -f1 | cut -d "." -f2 )
-        BUMP_MAJOR_RIGHT=$(( MAJOR_RIGHT_PART + 1 ))
         if [ "$MAJOR_RIGHT" = "04" ]; then
           BUMP_MAJOR_LEFT="$MAJOR_LEFT"
           BUMP_MAJOR_RIGHT="10"
@@ -123,17 +126,15 @@ runs:
       shell: bash
 
     - name: Cache packages
-      uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
+      uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
 
     # Add 'upload-artifacts' label to pull request to get packages as artifacts
-    - if: |
-        contains(github.event.pull_request.labels.*.name, 'upload-artifacts') ||
-        inputs.is_nightly == 'true'
+    - if: inputs.upload_artifacts == 'true'
       name: Upload package artifacts
-      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
         name: ${{ inputs.module_name }}-${{ inputs.arch != '' && format('packages-{0}-{1}', inputs.distrib, inputs.arch) || format('packages-{0}', inputs.distrib) }}
         path: ./*.${{ inputs.package_extension }}

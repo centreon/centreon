@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\User\Application\Exception\UserException;
@@ -40,15 +41,13 @@ final class FindUsers
 {
     use LoggerTrait;
 
-    /** @var AccessGroup[] */
-    private array $accessGroups = [];
-
     public function __construct(
         private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
         private readonly RequestParametersInterface $requestParameters,
         private readonly bool $isCloudPlatform,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -58,23 +57,24 @@ final class FindUsers
     public function __invoke(FindUsersPresenterInterface $presenter): void
     {
         try {
-            if ($this->hasAccessToAllUsers()) {
+            $hasAccessToAllUsers = $this->adminResolver->isAdmin($this->user);
+            if ($hasAccessToAllUsers) {
                 $users = $this->readUserRepository->findAllByRequestParameters($this->requestParameters);
             } else {
-                $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
+                $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessGroupNames = array_map(
                     fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-                    $this->accessGroups,
+                    $accessGroups,
                 );
                 if (
                     ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_READ)
                     && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACTS_READ_WRITE)
                     && ! ($this->isCloudPlatform && in_array('customer_editor_acl', $accessGroupNames, true))
                 ) {
-                    $this->error(
-                        "User doesn't have sufficient rights to see users/contacts",
-                        ['user_id' => $this->user->getId()]
-                    );
+                    $this->error("User doesn't have sufficient rights to list users/contacts", [
+                        'status' => 'failure',
+                        'initiator_user' => $this->user->getAlias(),
+                    ]);
                     $presenter->presentResponse(
                         new ForbiddenResponse(UserException::accessNotAllowed())
                     );
@@ -82,7 +82,7 @@ final class FindUsers
                     return;
                 }
                 $users = $this->readUserRepository->findByAccessGroupsUserAndRequestParameters(
-                    $this->accessGroups,
+                    $accessGroups,
                     $this->user,
                     $this->requestParameters
                 );
@@ -96,28 +96,46 @@ final class FindUsers
                 );
             }
 
-            $presenter->presentResponse($this->createResponse($users));
+            $this->info('Users listing succeeded', [
+                'status' => 'success',
+                'initiator_user' => $this->user->getAlias(),
+            ]);
+            $presenter->presentResponse($this->createResponse($users, $hasAccessToAllUsers));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error('User listing failed : ' . $ex->getMessage(), [
+                'status' => 'failure',
+                'initiator_user' => $this->user->getAlias(),
+            ]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
                 new ErrorResponse(UserException::errorWhileSearching($ex))
             );
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $this->error('User listing failed : ' . $ex->getMessage(), [
+                'status' => 'failure',
+                'initiator_user' => $this->user->getAlias(),
+            ]);
         }
     }
 
     /**
      * @param User[] $users
+     * @param bool $hasAccessToAllUsers
      *
      * @return FindUsersResponse
      */
-    public function createResponse(array $users): FindUsersResponse
+    public function createResponse(array $users, bool $hasAccessToAllUsers): FindUsersResponse
     {
         $response = new FindUsersResponse();
-
         foreach ($users as $user) {
+            if (! $hasAccessToAllUsers) {
+                $dto = new TinyUserDto();
+                $dto->id = $user->getId();
+                $dto->alias = $user->getAlias();
+                $response->users[] = $dto;
+
+                continue;
+            }
             $dto = new UserDto();
             $dto->id = $user->getId();
             $dto->alias = $user->getAlias();
@@ -128,24 +146,5 @@ final class FindUsers
         }
 
         return $response;
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    private function hasAccessToAllUsers(): bool
-    {
-        if ($this->user->isAdmin()) {
-            return true;
-        }
-        $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-        $accessGroupNames = array_map(
-            fn (AccessGroup $accessGroup): string => $accessGroup->getName(),
-            $this->accessGroups
-        );
-
-        return
-            $this->user->hasTopologyRole(Contact::ROLE_HOME_DASHBOARD_ADMIN)
-            || ($this->isCloudPlatform && in_array('customer_admin_acl', $accessGroupNames, true));
     }
 }

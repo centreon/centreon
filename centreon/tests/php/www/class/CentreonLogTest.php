@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,7 +66,7 @@ it('test contructor arguments of CentreonLog', function (): void {
             99 => __DIR__ . '/log/custom.log',
         ]
     );
-})->skip();
+});
 
 it('test changing the path of an existing log', function (): void {
     $loggerTest = new CentreonLog();
@@ -87,14 +87,14 @@ it('test changing the path of an existing log', function (): void {
             CentreonLog::TYPE_BUSINESS_LOG => '/user/test/centreon-web.log',
         ]
     );
-})->skip();
+});
 
 it('test adding custom log', function (): void {
     $loggerTest = new CentreonLog();
     $loggerTest->setPathLogFile('/user/test')
         ->pushLogFileHandler(99, 'custom.log');
     expect($loggerTest->getLogFileHandler())->toHaveKey(99, '/user/test/custom.log');
-})->skip();
+});
 
 it('test log file handler is correct', function (): void {
     expect($this->centreonLogTest->loggerTest->getLogFileHandler())->toEqual(
@@ -108,7 +108,7 @@ it('test log file handler is correct', function (): void {
             CentreonLog::TYPE_BUSINESS_LOG => __DIR__ . '/log/centreon-web.log',
         ]
     );
-})->skip();
+});
 
 it('test writing the log to the login file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -121,7 +121,7 @@ it('test writing the log to the login file', function (): void {
         'login_message',
         (__LINE__ - 6)
     );
-})->skip();
+});
 
 it('test writing the log to the sql file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/sql-error.log';
@@ -134,7 +134,7 @@ it('test writing the log to the sql file', function (): void {
         'sql_message',
         (__LINE__ - 6)
     );
-})->skip();
+});
 
 it('test writing the log to the ldap file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/ldap.log';
@@ -147,7 +147,7 @@ it('test writing the log to the ldap file', function (): void {
         'ldap_message',
         (__LINE__ - 6)
     );
-})->skip();
+});
 
 it('test writing the log to the upgrade file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/upgrade.log';
@@ -160,7 +160,7 @@ it('test writing the log to the upgrade file', function (): void {
         'upgrade_message',
         (__LINE__ - 6)
     );
-})->skip();
+});
 
 it('test writing the log to the plugin pack manager file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/plugin-pack-manager.log';
@@ -173,7 +173,7 @@ it('test writing the log to the plugin pack manager file', function (): void {
         'plugin_message',
         (__LINE__ - 6)
     );
-})->skip();
+});
 
 it('test writing the log to the custom log file', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/custom.log';
@@ -185,7 +185,7 @@ it('test writing the log to the custom log file', function (): void {
         'custom_message',
         (__LINE__ - 6)
     );
-})->skip();
+});
 
 it('test writing logs with all levels', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -245,7 +245,7 @@ it('test writing logs with all levels', function (): void {
         'login_message',
         (__LINE__ - 6)
     );
-})->skip();
+});
 
 it('test writing logs with a custom context', function (): void {
     $logfile = $this->centreonLogTest->pathToLogTest . '/login.log';
@@ -260,7 +260,7 @@ it('test writing logs with a custom context', function (): void {
     );
     $successDeleteFile = unlink($logfile);
     expect($successDeleteFile)->toBeTrue();
-})->skip();
+});
 
 it('test writing logs with a custom context and an exception', function (): void {
     try {
@@ -275,24 +275,21 @@ it('test writing logs with a custom context and an exception', function (): void
             sprintf(
                 '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},"exception":{"exceptions":'
                 . '[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"',
                 'RuntimeException',
                 'test_message_exception',
                 $e->getFile(),
                 $e->getLine(),
                 99,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
-                '{closure}',
-                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '->'
+                '{closure}'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}}'
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-})->skip();
+});
 
 it('test writing logs with a custom context and a native exception with a previous (native exception)', function (): void {
     try {
@@ -310,7 +307,7 @@ it('test writing logs with a custom context and a native exception with a previo
                 '] NOTICE : login_message | {"custom":{"custom_value1":"foo"},'
                 . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"',
                 'RuntimeException',
                 'test_message_exception',
                 $e->getFile(),
@@ -324,17 +321,14 @@ it('test writing logs with a custom context and a native exception with a previo
                 $e->getPrevious()->getLine(),
                 98,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
-                '{closure}',
-                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '->'
+                '{closure}'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-})->skip();
+});
 
 it('test writing logs with a custom context and an exception (BusinessLogicException with context) with a previous exception (native exception)', function (): void {
     try {
@@ -352,7 +346,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 '] NOTICE : login_message | {"custom":{"custom_value1":"foo","from_exception":[{"contact":1}]},'
                 . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"',
                 'CentreonDbException',
                 'test_message_exception',
                 $e->getFile(),
@@ -366,17 +360,14 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 $e->getPrevious()->getLine(),
                 99,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
-                '{closure}',
-                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '->'
+                '{closure}'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-})->skip();
+});
 
 it('test writing logs with a custom context and an exception (BusinessLogicException with context) with a previous exception (BusinessLogicException with context) which have a native exception as previous', function (): void {
     try {
@@ -397,7 +388,7 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 . '"exception":{"exceptions":[{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"},'
                 . '{"type":"%s","message":"%s","file":"%s","line":%s,"code":%s,"class":"%s","method":"%s"}],'
-                . '"traces":[{"function":"%s","class":"%s","type":"%s"},',
+                . '"traces":[{"',
                 'StatisticException',
                 'test_message_exception',
                 $e->getFile(),
@@ -418,17 +409,14 @@ it('test writing logs with a custom context and an exception (BusinessLogicExcep
                 $e->getPrevious()->getPrevious()->getLine(),
                 99,
                 'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '{closure}',
-                '{closure}',
-                'P\\\\Tests\\\\php\\\\www\\\\class\\\\CentreonLogTest',
-                '->'
+                '{closure}'
             ),
             '"default":{"request_infos":{"uri":null,"http_method":null,"server":null}}',
         );
         $successDeleteFile = unlink($logfile);
         expect($successDeleteFile)->toBeTrue();
     }
-})->skip();
+});
 
 /**
  * @param string $level
@@ -444,7 +432,7 @@ function testContentLogWithoutContext(
     string $logfile,
     string $date,
     string $message,
-    int $line
+    int $line,
 ): void {
     expect(file_exists($logfile))->toBeTrue();
     $contentLog = file_get_contents($logfile);

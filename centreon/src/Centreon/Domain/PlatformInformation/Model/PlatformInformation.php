@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\PlatformInformation\Model;
@@ -221,8 +222,8 @@ class PlatformInformation
      */
     public function setApiScheme(?string $schema): self
     {
-        if (null !== $schema) {
-            $schema = ('https' === trim($schema, '/') ? 'https' : 'http');
+        if ($schema !== null) {
+            $schema = (trim($schema, '/') === 'https' ? 'https' : 'http');
         }
         $this->apiScheme = $schema;
 
@@ -301,7 +302,7 @@ class PlatformInformation
      */
     private function checkPortConsistency(int $port): int
     {
-        if (1 > $port || $port > 65535) {
+        if ($port < 1 || $port > 65535) {
             throw PlatformInformationException::inconsistentDataException();
         }
 

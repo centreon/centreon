@@ -41,8 +41,14 @@ Given('a non-admin user is in the Agents Configuration page', () => {
 });
 
 Given('an already existing agent configuration', () => {
-  cy.contains('button', 'Add poller/agent configuration').click();
-  cy.addTelegrafAgent(agentsConfiguration.telegraf1);
+  cy.contains('button', 'Add agent configuration').click();
+  cy.addTelegrafAgent({
+    ...agentsConfiguration.telegraf1,
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName,
+    privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+  });
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });
@@ -59,9 +65,6 @@ When('the user confirms on the pop-up', () => {
 Then(
   'the agent configuration is no longer displayed in the listing page',
   () => {
-    cy.contains('Welcome to the poller/agent configuration page').should(
-      'be.visible'
-    );
     cy.contains('telegraf-001').should('not.exist');
   }
 );

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ class AgentConfigurationException extends \Exception
     public static function invalidFilename(string $name, string $value): self
     {
         return new self(
-            sprintf(_("Filename '%s' (%s) is invalid"), $value, $name),
+            sprintf(_("File path or format '%s' (%s) is invalid"), $value, $name),
             self::CODE_CONFLICT
         );
     }
@@ -166,5 +166,15 @@ class AgentConfigurationException extends \Exception
     public static function invalidHostId(int $hostId): self
     {
         return new self(sprintf(_('Host ID #%d is invalid'), $hostId));
+    }
+
+    public static function atLeastOneConnectionModeIsRequired(): self
+    {
+        return new self('At least one connection mode (agent initiated or poller initiated) must be set to true', self::CODE_CONFLICT);
+    }
+
+    public static function portIsMandatory(): self
+    {
+        return new self('Port is mandatory', self::CODE_CONFLICT);
     }
 }

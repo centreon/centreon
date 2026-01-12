@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,7 +40,7 @@ try {
         WHERE (`key` = 'isRemote' AND `value` = 'no') OR (`key` = 'isCentral' AND `value` = 'no')
     ");
     $row = $result->fetch();
-    if (2 === (int) $row['count']) {
+    if ((int) $row['count'] === 2) {
         $errorMessage = "Unable to modify isCentral flag value in 'informations' table.";
         $stmt = $pearDB->query("UPDATE `informations` SET `value` = 'yes' WHERE `key` = 'isCentral'");
     }
@@ -52,7 +52,7 @@ try {
         SELECT `value` FROM `informations`
         WHERE `key` = 'isRemote'
     ");
-    if ('yes' === $serverType->fetch()['value']) {
+    if ($serverType->fetch()['value'] === 'yes') {
         $showPage = '1';
     }
     // Create a new menu page related to remote. Hidden by default on a Central

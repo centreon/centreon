@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInt
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\ParametersValidation;
 use Core\ServiceTemplate\Application\UseCase\PartialUpdateServiceTemplate\ServiceGroupDto;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
@@ -81,13 +82,35 @@ it('should raise an exception when the service template ID does not exist', func
     $this->readServiceTemplateRepository
         ->expects($this->once())
         ->method('exists')
-        ->with(1)
         ->willReturn(false);
 
-    $this->parametersValidation->assertIsValidServiceTemplate(1);
+    $this->parametersValidation->assertIsValidServiceTemplate(1, 2);
 })->throws(
     ServiceTemplateException::class,
-    ServiceTemplateException::idDoesNotExist('service_template_id', 1)->getMessage()
+    ServiceTemplateException::idDoesNotExist('service_template_id', 2)->getMessage()
+);
+
+it('should raise an exception when the service template is its own parent', function (): void {
+    $this->parametersValidation->assertIsValidServiceTemplate(1, 1);
+})->throws(
+    ServiceTemplateException::class,
+    ServiceTemplateException::circularTemplateInheritance()->getMessage()
+);
+
+it('should raise an exception when the service template has circular inheritance', function (): void {
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('exists')
+        ->willReturn(true);
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn([new ServiceTemplateInheritance(1, 2)]);
+
+    $this->parametersValidation->assertIsValidServiceTemplate(1, 2);
+})->throws(
+    ServiceTemplateException::class,
+    ServiceTemplateException::circularTemplateInheritance()->getMessage()
 );
 
 it('should raise an exception when the command ID does not exist', function (): void {

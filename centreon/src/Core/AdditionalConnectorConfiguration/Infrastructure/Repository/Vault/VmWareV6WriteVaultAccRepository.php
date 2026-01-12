@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
      */
     public function saveCredentialInVault(AccParametersInterface $parameters): AccParametersInterface
     {
-        if (false === $this->writeVaultRepository->isVaultConfigured()) {
+        if ($this->writeVaultRepository->isVaultConfigured() === false) {
             return $parameters;
         }
 
@@ -70,16 +70,25 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
         $inserts = [];
 
         foreach ($data['vcenters'] as $vcenter) {
-            $inserts[$vcenter['name'] . '_username'] = $vcenter['username'];
-            $inserts[$vcenter['name'] . '_password'] = $vcenter['password'];
+            $password = $vcenter['password'] ?? '';
+            if ($password === '' || str_starts_with($password, VaultConfiguration::VAULT_PATH_PATTERN) === true) {
+                continue;
+            }
+
+            $inserts[$vcenter['name'] . '_password'] = $password;
+        }
+
+        if ($inserts === []) {
+            return new VmWareV6Parameters($this->encryption, $data);
         }
 
         $vaultPaths = $this->writeVaultRepository->upsert(null, $inserts);
 
         foreach ($data['vcenters'] as $index => $vcenter) {
-            if (in_array($vcenter['name'] . '_username', array_keys($vaultPaths), true)) {
-                $data['vcenters'][$index]['username'] = $vaultPaths[$vcenter['name'] . '_username'];
-                $data['vcenters'][$index]['password'] = $vaultPaths[$vcenter['name'] . '_password'];
+            $passwordKey = $vcenter['name'] . '_password';
+
+            if (array_key_exists($passwordKey, $vaultPaths)) {
+                $data['vcenters'][$index]['password'] = $vaultPaths[$passwordKey];
             }
         }
 
@@ -91,7 +100,7 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
      */
     public function deleteFromVault(Acc $acc): void
     {
-        if (false === $this->writeVaultRepository->isVaultConfigured()) {
+        if ($this->writeVaultRepository->isVaultConfigured() === false) {
             return;
         }
 
@@ -106,7 +115,7 @@ class VmWareV6WriteVaultAccRepository implements WriteVaultAccRepositoryInterfac
             }
         }
 
-        if (null !== $vaultPath && null !== $uuid = $this->getUuidFromPath($vaultPath)) {
+        if ($vaultPath !== null && null !== $uuid = $this->getUuidFromPath($vaultPath)) {
             $this->writeVaultRepository->delete($uuid);
         }
     }

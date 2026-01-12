@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ class DbWriteHostActionLogRepository extends AbstractRepositoryRDB implements Wr
         private readonly ContactInterface $contact,
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }

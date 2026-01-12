@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ final class AgentConfigurationVoter extends Voter
     public function __construct(
         private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
         private readonly ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -81,7 +81,7 @@ final class AgentConfigurationVoter extends Voter
         return match ($attribute) {
             self::READ_AC => $this->checkTopologyRole($user),
             self::READ_AC_POLLERS => $this->checkAgentConfigurationPollers($user, (int) $subject),
-            default => throw new \LogicException('Action on agent configuration not handled')
+            default => throw new \LogicException('Action on agent configuration not handled'),
         };
     }
 
@@ -130,7 +130,7 @@ final class AgentConfigurationVoter extends Voter
             $pollerIds,
             $this->readAccessGroupRepository->findByContact($user)
         );
-        if ([] === array_diff($pollerIds, $validPollerIds)) {
+        if (array_diff($pollerIds, $validPollerIds) === []) {
             return true;
         }
 

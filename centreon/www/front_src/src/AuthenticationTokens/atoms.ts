@@ -15,3 +15,7 @@ export const filtersAtom = atomWithStorage<Filter>(
 
 export const modalStateAtom = atom<ModalState>({ isOpen: false, mode: 'add' });
 export const tokenAtom = atom<string | null>(null);
+
+export const isWelcomePageDisplayedAtom = atom(true);
+
+export const isRevokingDialogCanceledAtom = atom(false);

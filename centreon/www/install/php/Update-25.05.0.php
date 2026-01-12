@@ -1,8 +1,5 @@
 <?php
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -10,7 +7,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +18,9 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -327,7 +327,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
@@ -633,7 +633,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         return match ($value) {
             '0' => YesNoDefault::No,
             '1' => YesNoDefault::Yes,
-            default => YesNoDefault::Default
+            default => YesNoDefault::Default,
         };
     }
 
@@ -660,7 +660,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 'f' => NotificationType::Flapping,
                 's' => NotificationType::DowntimeScheduled,
                 'n' => NotificationType::None,
-                default => throw new \Exception("Notification type '{$type}' unknown")
+                default => throw new \Exception("Notification type '{$type}' unknown"),
             };
         }
 

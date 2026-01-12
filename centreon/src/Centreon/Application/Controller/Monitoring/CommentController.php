@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
@@ -47,7 +48,7 @@ class CommentController extends AbstractController
     public function __construct(
         private CommentServiceInterface $commentService,
         private MonitoringServiceInterface $monitoringService,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -60,7 +61,7 @@ class CommentController extends AbstractController
      * @return View
      */
     public function addResourcesComment(
-        Request $request
+        Request $request,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
@@ -68,14 +69,14 @@ class CommentController extends AbstractController
          */
         $contact = $this->getUser();
 
-        if (false === $contact->isAdmin()) {
+        if ($contact->isAdmin() === false) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
             $accessGroupIds = array_map(
                 fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
-            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+            if ($this->readAccessGroupRepository->hasAccessToResources($accessGroupIds) === false) {
                 return $this->view(null, Response::HTTP_FORBIDDEN);
             }
         }
@@ -137,7 +138,7 @@ class CommentController extends AbstractController
      */
     public function addHostComment(
         Request $request,
-        int $hostId
+        int $hostId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
@@ -179,7 +180,7 @@ class CommentController extends AbstractController
     public function addServiceComment(
         Request $request,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -225,7 +226,7 @@ class CommentController extends AbstractController
      */
     public function addMetaServiceComment(
         Request $request,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 

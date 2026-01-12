@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ final class DeleteVaultConfiguration
     public function __construct(
         readonly private ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
         readonly private WriteVaultConfigurationRepositoryInterface $writeVaultConfigurationRepository,
-        readonly private ContactInterface $user
+        readonly private ContactInterface $user,
     ) {
     }
 

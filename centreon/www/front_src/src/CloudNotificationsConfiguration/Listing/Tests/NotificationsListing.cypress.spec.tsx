@@ -427,6 +427,8 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findByText(labelDuplicate).should('be.disabled');
     cy.findByText(labelDiscard).click();
 
+    cy.findByText(labelDiscard).should('not.exist');
+
     cy.makeSnapshot();
   });
 
@@ -448,6 +450,8 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
+    cy.findByText(labelDiscard).should('not.exist');
+
     cy.makeSnapshot();
   });
 
@@ -462,6 +466,8 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findByTestId('Confirm').should('be.disabled');
 
     cy.findByText(labelDiscard).click();
+
+    cy.findByText(labelDiscard).should('not.exist');
 
     cy.makeSnapshot();
   });

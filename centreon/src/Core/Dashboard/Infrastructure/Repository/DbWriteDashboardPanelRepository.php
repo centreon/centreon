@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ class DbWriteDashboardPanelRepository extends AbstractRepositoryDRB implements W
     private function bindValuesOfPanel(
         \PDOStatement $statement,
         int $dashboardId,
-        DashboardPanel|NewDashboardPanel $panel
+        DashboardPanel|NewDashboardPanel $panel,
     ): void {
         $statement->bindValue(':dashboard_id', $dashboardId, \PDO::PARAM_INT);
         $statement->bindValue(':name', $panel->getName(), \PDO::PARAM_STR);

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Filter;
@@ -316,7 +317,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         string $pageName,
         ?string $searchRequest = null,
         ?string $sortRequest = null,
-        ?string $paginationRequest = null
+        ?string $paginationRequest = null,
     ): array {
         $request = $this->translateDbName('
             SELECT SQL_CALC_FOUND_ROWS id, name, user_id, page_name, criterias, `order`
@@ -444,7 +445,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         int $userId,
         string $pageName,
         int $lowOrder,
-        int $highOrder
+        int $highOrder,
     ): void {
         $filters = $this->findFiltersByUserId($userId, $pageName, null, null, null);
 
@@ -469,7 +470,7 @@ class FilterRepositoryRDB extends AbstractRepositoryDRB implements FilterReposit
         int $userId,
         string $pageName,
         int $lowOrder,
-        int $highOrder
+        int $highOrder,
     ): void {
         $filters = $this->findFiltersByUserId($userId, $pageName, null, null, null);
 

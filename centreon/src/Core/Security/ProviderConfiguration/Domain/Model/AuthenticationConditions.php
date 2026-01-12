@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class AuthenticationConditions
         private bool $isEnabled,
         private string $attributePath,
         private ?Endpoint $endpoint,
-        private array $authorizedValues
+        private array $authorizedValues,
     ) {
         $this->validateMandatoryParametersForEnabledCondition(
             $isEnabled,
@@ -207,7 +207,7 @@ class AuthenticationConditions
     private function validateMandatoryParametersForEnabledCondition(
         bool $isEnabled,
         string $attributePath,
-        array $authorizedValues
+        array $authorizedValues,
     ): void {
         if ($isEnabled) {
             $mandatoryParameters = [];

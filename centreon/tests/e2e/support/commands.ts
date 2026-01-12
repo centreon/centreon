@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+
 
 import 'cypress-wait-until';
-import '@centreon/js-config/cypress/e2e/commands';
+import '../../../packages/js-config/cypress/e2e/commands';
 import { refreshButton } from '../features/Resources-status/common';
 import '../features/ACLs/commands';
 import '../features/Api-Token/commands';
@@ -19,6 +19,7 @@ import '../features/Commands/commands';
 import '../features/Resources-status/commands';
 import '../features/Platform-upgrade-update/commands';
 import '../features/Additional-connectors/commands';
+import '../features/Macros/commands';
 
 
 Cypress.Commands.add('refreshListing', (): Cypress.Chainable => {

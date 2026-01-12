@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,7 +46,7 @@ final readonly class ConnectionConfig
         private string $databaseNameRealTime,
         private int $port = 3306,
         private string $charset = 'utf8mb4',
-        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL
+        private ConnectionDriverEnum $driver = ConnectionDriverEnum::DRIVER_PDO_MYSQL,
     ) {
     }
 

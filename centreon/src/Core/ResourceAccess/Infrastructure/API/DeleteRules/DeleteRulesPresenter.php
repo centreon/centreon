@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ final class DeleteRulesPresenter extends AbstractPresenter implements DeleteRule
      */
     public function __construct(
         protected PresenterFormatterInterface $presenterFormatter,
-        private readonly Router $router
+        private readonly Router $router,
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -80,7 +80,7 @@ final class DeleteRulesPresenter extends AbstractPresenter implements DeleteRule
         return match ($code) {
             ResponseCode::OK => Response::HTTP_NO_CONTENT,
             ResponseCode::NotFound => Response::HTTP_NOT_FOUND,
-            ResponseCode::Error => Response::HTTP_INTERNAL_SERVER_ERROR
+            ResponseCode::Error => Response::HTTP_INTERNAL_SERVER_ERROR,
         };
     }
 

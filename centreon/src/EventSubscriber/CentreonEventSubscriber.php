@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             $query[RequestParameters::NAME_FOR_LIMIT] ?? RequestParameters::DEFAULT_LIMIT,
             FILTER_VALIDATE_INT
         );
-        if (false === $limit) {
+        if ($limit === false) {
             throw RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT);
         }
         $this->requestParameters->setLimit($limit);
@@ -146,7 +146,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             $query[RequestParameters::NAME_FOR_PAGE] ?? RequestParameters::DEFAULT_PAGE,
             FILTER_VALIDATE_INT
         );
-        if (false === $page) {
+        if ($page === false) {
             throw RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE);
         }
         $this->requestParameters->setPage($page);
@@ -509,6 +509,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             ->setTimezoneId($user->getTimezoneId())
             ->setDefaultPage($user->getDefaultPage())
             ->setUseDeprecatedPages($user->isUsingDeprecatedPages())
+            ->setUseDeprecatedCustomViews($user->isUsingDeprecatedCustomViews())
             ->setTheme($user->getTheme() ?? 'light')
             ->setUserInterfaceDensity($user->getUserInterfaceDensity());
     }

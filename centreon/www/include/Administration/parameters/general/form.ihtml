@@ -218,6 +218,30 @@
     </tr>
     <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="tip_send_statistics">{$form.send_statistics.label}</td><td class="FormRowValue">{$form.send_statistics.html}</td></tr>
 
+    <tr class="list_lvl_1">
+        <td class="ListColLvl1_name" colspan="2">
+            <h4>{$resource_status_performance}</h4>
+        </td>
+    </tr>
+    <tr class="list_one">
+        <td class="FormRowField">
+            <div class="formRowLabel">
+                <div>
+                    <img class="helpTooltip" name="tip_resource_status_search_mode">
+
+                </div>
+                <div>
+                    <p class="fieldLabel">
+                        {$form.resource_status_search_mode.label}
+                    </p>
+
+                </div>
+            </div>
+
+        </td>
+        <td class="FormRowValue">{$form.resource_status_search_mode.html}</td>
+    </tr>
+
     <tr class="list_lvl_1"><td class="ListColLvl1_name" colspan="2">
     {if isset($form.required)}
         {$form.required._note}

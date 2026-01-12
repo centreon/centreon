@@ -2,6 +2,8 @@ includes:
     - ../../vendor/phpstan/phpstan-mockery/extension.neon
     - ../../vendor/phpstan/phpstan-beberlei-assert/extension.neon
     - ../../vendor/phpstan/phpstan-phpunit/extension.neon
+    - ../../vendor/phpstan/phpstan-symfony/extension.neon
+    - ../../vendor/phpstan/phpstan-webmozart-assert/extension.neon
 
 rules:
     - Tools\PhpStan\CustomRules\MiscRules\VariableLengthCustomRule

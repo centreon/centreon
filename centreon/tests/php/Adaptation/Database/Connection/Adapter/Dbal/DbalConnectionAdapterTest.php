@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,7 +47,7 @@ $dbPassword = getEnvironmentVariable('MYSQL_PASSWORD');
 
 $dbConfigCentreon = null;
 
-if (null !== $dbHost && null !== $dbUser && null !== $dbPassword) {
+if ($dbHost !== null && $dbUser !== null && $dbPassword !== null) {
     $dbConfigCentreon = new ConnectionConfig(
         host: $dbHost,
         user: $dbUser,
@@ -1572,6 +1572,47 @@ if ($dbConfigCentreon instanceof ConnectionConfig && hasConnectionDb($dbConfigCe
             $db->stopUnbufferedQuery();
         }
     )->throws(ConnectionException::class);
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    it('check if a column exists with success', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $exists = $db->columnExists(
+            dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+            tableName: 'contact',
+            columnName: 'contact_id'
+        );
+        expect($exists)->toBeTrue();
+    });
+
+    it('check if a non-existent column with success', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        $exists = $db->columnExists(
+            dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+            tableName: 'contact',
+            columnName: 'dummy_column'
+        );
+        expect($exists)->toBeFalse();
+    });
+
+    it('check if a column exists with errors must to throw an exception', function () use ($dbConfigCentreon): void {
+        $db = DbalConnectionAdapter::createFromConfig(connectionConfig: $dbConfigCentreon);
+        expect(fn (): bool => $db->columnExists(
+            dbName: '',
+            tableName: 'contact',
+            columnName: 'contact_id'
+        ))->toThrow(ConnectionException::class)
+            ->and(fn (): bool => $db->columnExists(
+                dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+                tableName: 'contact',
+                columnName: ''
+            ))->toThrow(ConnectionException::class)
+            ->and(fn (): bool => $db->columnExists(
+                dbName: $dbConfigCentreon->getDatabaseNameConfiguration(),
+                tableName: '',
+                columnName: 'contact_id'
+            ))->toThrow(ConnectionException::class);
+    });
 
     // ----------------------------------- QUERY ON SEVERAL DATABASES -------------------------------------
 

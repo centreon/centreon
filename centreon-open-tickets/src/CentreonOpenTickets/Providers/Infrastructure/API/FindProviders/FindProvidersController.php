@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Api\StandardPresenter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted(
@@ -44,9 +45,14 @@ final class FindProvidersController extends AbstractController
      *
      * @return Response
      */
+    #[Route(
+        path: '/open-tickets/providers',
+        name: 'FindProviders',
+        methods: 'GET'
+    )]
     public function __invoke(
         FindProviders $useCase,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase();
 

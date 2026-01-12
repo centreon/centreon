@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -380,6 +380,36 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
             : throw new EntityNotFoundException(sprintf('Monitoring Server [%d] does not exist', $monitoringServerId));
     }
 
+    public function isEncryptionReady(int $monitoringServerId): bool
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:dbstg`.`instances`
+                WHERE instance_id = :monitoringServerId
+                    AND is_encryption_ready = 1
+                SQL
+        ));
+        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+        if ($statement->fetchColumn()) {
+            return true;
+        }
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.`nagios_server`
+                WHERE id = :monitoringServerId
+                    AND is_encryption_ready = 1
+                SQL
+        ));
+        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
     /**
      * @param MSResultSet $result
      *
@@ -396,7 +426,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
             engineStopCommand: $result['engine_stop_command'] ?? null,
             engineReloadCommand: $result['engine_reload_command'] ?? null,
             engineRestartCommand: $result['engine_restart_command'] ?? null,
-            brokerReloadCommand: $result['broker_reload_command'] ?? null
+            brokerReloadCommand: $result['broker_reload_command'] ?? null,
         );
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,7 +200,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $this->info('Getting all host templates');
         if ($accessGroups === []) {
@@ -918,7 +918,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                 default => SnmpVersion::from($result['host_snmp_version']),
             },
             (string) $result['host_snmp_community'],
-            0 === $result['host_location'] ? null : $result['host_location'],
+            $result['host_location'] === 0 ? null : $result['host_location'],
             $result['severity_id'],
             $result['command_command_id'],
             $extractCommandArguments($result['command_command_id_arg1']),

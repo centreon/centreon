@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,16 +82,18 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
             <<<'SQL'
                 UPDATE `:db`.`on_demand_macro_host`
                 SET
+                    `host_macro_name` = :macroName,
                     `host_macro_value` = :macroValue,
                     `is_password` = :isPassword,
                     `description` = :macroDescription,
                     `macro_order` = :macroOrder
                 WHERE `host_host_id` = :hostId
-                AND `host_macro_name` = :macroName
+                AND `host_macro_id` = :macroId
                 SQL
         ));
 
         $statement->bindValue(':hostId', $macro->getOwnerId(), \PDO::PARAM_INT);
+        $statement->bindValue(':macroId', $macro->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':macroName', '$_HOST' . $macro->getName() . '$', \PDO::PARAM_STR);
         $statement->bindValue(':macroValue', $macro->getValue(), \PDO::PARAM_STR);
         $statement->bindValue(':isPassword', $macro->isPassword() ? '1' : null, \PDO::PARAM_INT);
@@ -117,11 +119,11 @@ class DbWriteHostMacroRepository extends AbstractRepositoryRDB implements WriteH
                     FROM `:db`.`on_demand_macro_host`
                 WHERE
                     `host_host_id` = :hostId
-                    AND `host_macro_name` = :macroName
+                    AND `host_macro_id` = :macroId
                 SQL
         ));
         $statement->bindValue(':hostId', $macro->getOwnerId(), \PDO::PARAM_INT);
-        $statement->bindValue(':macroName', '$_HOST' . $macro->getName() . '$', \PDO::PARAM_STR);
+        $statement->bindValue(':macroId', $macro->getId(), \PDO::PARAM_INT);
         $statement->execute();
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,7 +196,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
      */
     public function findByRequestParameterAndAccessGroups(
         array $accessGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
         $this->info('Getting all service categories by access groups');
 
@@ -553,7 +553,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         $hostGroupAcls = '';
         $hostCategoryAcls = '';
         $serviceGroupAcls = '';
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             if (! $this->hasAccessToAllHosts($accessGroupIds)) {
                 $hostAcls = <<<'SQL'
                     AND hsr.host_host_id IN (
@@ -790,7 +790,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
      */
     private function retrieveServiceCategories(
         array $concatenators,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
         $concatenatorsAsString = [];
         // Settup for search, pagination, order
@@ -882,7 +882,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -925,7 +925,7 @@ class DbReadServiceCategoryRepository extends AbstractRepositoryRDB implements R
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }

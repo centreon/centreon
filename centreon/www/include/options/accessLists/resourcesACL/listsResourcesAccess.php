@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -44,10 +29,14 @@ $searchStr = '';
 $search = null;
 
 if (isset($_POST['searchACLR'])) {
-    $search = HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchACLR']);
+    $search = HtmlSanitizer::createFromString($_POST['searchACLR'])
+        ->removeTags()
+        ->getString();
     $centreon->historySearch[$url] = $search;
 } elseif (isset($_GET['searchACLR'])) {
-    $search = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['searchACLR']);
+    $search = HtmlSanitizer::createFromString($_GET['searchACLR'])
+        ->removeTags()
+        ->getString();
     $centreon->historySearch[$url] = $search;
 } elseif (isset($centreon->historySearch[$url])) {
     $search = $centreon->historySearch[$url];
@@ -58,7 +47,7 @@ if ($search) {
 }
 $rq = "
     SELECT SQL_CALC_FOUND_ROWS acl_res_id, acl_res_name, acl_res_alias, all_hosts, all_hostgroups,
-    all_servicegroups, acl_res_activate FROM acl_resources
+    all_servicegroups, all_image_folders, acl_res_activate FROM acl_resources
     WHERE locked = 0 AND cloud_specific = 0 {$searchStr}
     ORDER BY acl_res_name
     LIMIT :num, :limit
@@ -85,6 +74,7 @@ $tpl->assign('headerMenu_contacts', _('Contacts'));
 $tpl->assign('headerMenu_allH', _('All Hosts'));
 $tpl->assign('headerMenu_allHG', _('All Hostgroups'));
 $tpl->assign('headerMenu_allSG', _('All Servicegroups'));
+$tpl->assign('headerMenu_allImageFolders', _('All image folders'));
 $tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_options', _('Options'));
 
@@ -119,13 +109,27 @@ for ($i = 0; $resources = $statement->fetchRow(); $i++) {
         . "return false;\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
         . $resources['acl_res_id'] . "]'></input>";
 
-    // Contacts
     $allHostgroups = (isset($resources['all_hostgroups']) && $resources['all_hostgroups'] == 1 ? _('Yes') : _('No'));
     $allServicegroups = (isset($resources['all_servicegroups']) && $resources['all_servicegroups'] == 1
         ? _('Yes')
         : _('No'));
 
-    $elemArr[$i] = ['MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => $resources['acl_res_name'], 'RowMenu_alias' => myDecode($resources['acl_res_alias']), 'RowMenu_all_hosts' => (isset($resources['all_hosts']) && $resources['all_hosts'] == 1 ? _('Yes') : _('No')), 'RowMenu_all_hostgroups' => $allHostgroups, 'RowMenu_all_servicegroups' => $allServicegroups, 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&acl_res_id=' . $resources['acl_res_id'], 'RowMenu_status' => $resources['acl_res_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $resources['acl_res_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
+    $allImageFolders = (isset($resources['all_image_folders']) && $resources['all_image_folders'] == 1 ? _('Yes') : _('No'));
+
+    $elemArr[$i] = [
+        'MenuClass' => 'list_' . $style,
+        'RowMenu_select' => $selectedElements->toHtml(),
+        'RowMenu_name' => $resources['acl_res_name'],
+        'RowMenu_alias' => myDecode($resources['acl_res_alias']),
+        'RowMenu_all_hosts' => (isset($resources['all_hosts']) && $resources['all_hosts'] == 1 ? _('Yes') : _('No')),
+        'RowMenu_all_hostgroups' => $allHostgroups,
+        'RowMenu_all_servicegroups' => $allServicegroups,
+        'RowMenu_all_image_folders' => $allImageFolders,
+        'RowMenu_link' => 'main.php?p=' . $p . '&o=c&acl_res_id=' . $resources['acl_res_id'],
+        'RowMenu_status' => $resources['acl_res_activate'] ? _('Enabled') : _('Disabled'),
+        'RowMenu_badge' => $resources['acl_res_activate'] ? 'service_ok' : 'service_critical',
+        'RowMenu_options' => $moptions,
+    ];
 
     $style = $style != 'two' ? 'two' : 'one';
 }

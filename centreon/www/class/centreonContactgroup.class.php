@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -73,7 +58,7 @@ class CentreonContactgroup
 
         $query = 'SELECT a.cg_id, a.cg_name, a.cg_ldap_dn, b.ar_name FROM contactgroup a ';
         $query .= ' LEFT JOIN auth_ressource b ON a.ar_id = b.ar_id';
-        if (false === $withLdap) {
+        if ($withLdap === false) {
             $query .= " WHERE a.cg_type != 'ldap'";
         }
         $query .= ' ORDER BY a.cg_name';
@@ -130,7 +115,7 @@ class CentreonContactgroup
                 foreach ($ldapGroups as $ldapGroup) {
                     $ldapGroupName = $ldapGroup['name'];
                     if (
-                        false === array_search($ldapGroupName . ' (LDAP : ' . $ldapRow['ar_name'] . ')', $cgs)
+                        array_search($ldapGroupName . ' (LDAP : ' . $ldapRow['ar_name'] . ')', $cgs) === false
                         && preg_match('/' . $filter . '/i', $ldapGroupName)
                     ) {
                         $cgs['[' . $ldapRow['ar_id'] . ']' . $ldapGroupName] = $this->formatLdapContactgroupName(
@@ -198,7 +183,7 @@ class CentreonContactgroup
     public function insertLdapGroup(string $cgName): ?int
     {
         // Parse contactgroup name
-        if (false === preg_match('/\[(\d+)\](.*)/', $cgName, $matches)) {
+        if (preg_match('/\[(\d+)\](.*)/', $cgName, $matches) === false) {
             return 0;
         }
         $arId = (int) $matches[1];
@@ -343,7 +328,7 @@ class CentreonContactgroup
         while ($ldapRow = $ldapRes->fetch()) {
             $ldapConn = new CentreonLDAP($this->db, null, $ldapRow['ar_id']);
             $connectionResult = $ldapConn->connect();
-            if (false != $connectionResult) {
+            if ($connectionResult != false) {
                 $res = $this->db->prepare(
                     'SELECT cg_id, cg_name, cg_ldap_dn FROM contactgroup '
                     . "WHERE cg_type = 'ldap' AND ar_id = :arId"
@@ -381,11 +366,11 @@ class CentreonContactgroup
                 try {
                     while ($row = $res->fetch()) {
                         // Test is the group has not been moved or deleted in ldap
-                        if ((empty($row['cg_ldap_dn']) || false === $ldapConn->getEntry($row['cg_ldap_dn']))
+                        if ((empty($row['cg_ldap_dn']) || $ldapConn->getEntry($row['cg_ldap_dn']) === false)
                             && ldap_errno($ldapConn->getDs()) != 3
                         ) {
                             $dn = $ldapConn->findGroupDn($row['cg_name']);
-                            if (false === $dn && ldap_errno($ldapConn->getDs()) != 3) {
+                            if ($dn === false && ldap_errno($ldapConn->getDs()) != 3) {
                                 // Delete the ldap group in contactgroup
                                 try {
                                     $stmt = $this->db->prepare(
@@ -509,9 +494,9 @@ class CentreonContactgroup
     {
         global $pearDB;
         foreach ($listCgs as $cg) {
-            if (false === is_numeric($cg)) {
+            if (is_numeric($cg) === false) {
                 // Parse the name
-                if (false === preg_match('/\[(\d+)\](.*)/', $cg, $matches)) {
+                if (preg_match('/\[(\d+)\](.*)/', $cg, $matches) === false) {
                     return false;
                 }
                 $cg_name = $matches[2];

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -147,7 +147,7 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
     $isCentral = $statement->fetch(PDO::FETCH_COLUMN);
 
     $errorMessage = 'Unable to insert data into table topology';
-    if (false === $topologyAlreadyExists) {
+    if ($topologyAlreadyExists === false) {
         $constraintStatement = $pearDB->prepareQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)

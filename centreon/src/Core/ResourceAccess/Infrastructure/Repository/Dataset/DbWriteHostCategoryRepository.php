@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
      */
     public function isValidFor(string $type): bool
     {
-        return HostCategoryFilterType::TYPE_NAME === $type;
+        return $type === HostCategoryFilterType::TYPE_NAME;
     }
 
     /**
@@ -51,7 +51,7 @@ class DbWriteHostCategoryRepository extends AbstractRepositoryRDB implements Wri
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void
     {
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

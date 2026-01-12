@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\DeleteToken;
 
+use Adaptation\Log\LoggerToken;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -31,6 +32,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
@@ -58,10 +60,22 @@ final class DeleteToken
     {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_TOKENS_RW)) {
-                $this->error(
-                    "User doesn't have sufficient rights to delete a token",
-                    ['user_id' => $this->user->getId()]
+                ExceptionLogger::create()->log(
+                    TokenException::deleteNotAllowed(),
+                    [
+                        'message' => 'User doesn\'t have sufficient rights to delete a token',
+                        'user_id' => $this->user->getId(),
+                        'token_name' => $tokenName,
+                    ]
                 );
+
+                LoggerToken::create()->warning(
+                    event: 'deletion',
+                    reason: 'insufficient rights',
+                    userId: $this->user->getId(),
+                    tokenName: $tokenName
+                );
+
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(TokenException::deleteNotAllowed())
                 );
@@ -72,20 +86,46 @@ final class DeleteToken
             $userId ??= $this->user->getId();
 
             if (! ($token = $this->readTokenRepository->findByNameAndUserId($tokenName, $userId))) {
-                $this->error(
-                    'Token not found',
-                    ['token_name' => $tokenName, 'user_id' => $userId]
+                ExceptionLogger::create()->log(
+                    TokenException::tokenNotFound(),
+                    [
+                        'message' => 'Token not found',
+                        'user_id' => $this->user->getId(),
+                        'token_name' => $tokenName,
+                    ]
                 );
+
+                LoggerToken::create()->warning(
+                    event: 'deletion',
+                    reason: 'not found',
+                    userId: $this->user->getId(),
+                    tokenName: $tokenName
+                );
+
                 $presenter->setResponseStatus(new NotFoundResponse('Token'));
 
                 return;
             }
 
             if (! $this->canUserDeleteToken($this->user, $token)) {
-                $this->error(
-                    'Not allowed to delete token linked to user who isn\'t the requester',
-                    ['token_name' => $tokenName, 'user_id' => $userId, 'requester_id' => $this->user->getId()]
+                ExceptionLogger::create()->log(
+                    TokenException::notAllowedToDeleteTokenForUser($userId),
+                    [
+                        'message' => 'Not allowed to delete token linked to user who isn\'t the requester',
+                        'token_name' => $tokenName,
+                        'token_type' => $token->getType()->name,
+                        'user_id' => $this->user->getId(),
+                    ]
                 );
+
+                LoggerToken::create()->warning(
+                    event: 'deletion',
+                    reason: 'not allowed to delete token for user',
+                    userId: $this->user->getId(),
+                    tokenName: $tokenName,
+                    tokenType: $token->getType()->name
+                );
+
                 $presenter->setResponseStatus(
                     new ForbiddenResponse(TokenException::notAllowedToDeleteTokenForUser($userId))
                 );
@@ -95,24 +135,36 @@ final class DeleteToken
 
             $this->writeTokenRepository->deleteByNameAndUserId($tokenName, $userId);
 
-            $this->info(
-                'Delete token succeeded',
-                [
-                    'event' => 'Token deletion',
-                    'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
-                    'requester_id' => $this->user->getId(),
-                    'user_id' => $userId,
-                    'token_type' => $token->getType()->name,
-                    'token_name' => $tokenName,
-                ]
+            LoggerToken::create()->success(
+                event: 'deletion',
+                userId: $this->user->getId(),
+                tokenName: $tokenName,
+                tokenType: $token->getType()->name
             );
 
             $presenter->setResponseStatus(new NoContentResponse());
         } catch (\Throwable $ex) {
+            ExceptionLogger::create()->log(
+                $ex,
+                [
+                    'user_id' => $this->user->getId(),
+                    'token_name' => $tokenName,
+                    'token_type' => isset($token) ? $token->getType()->name : null,
+                ]
+            );
+
+            LoggerToken::create()->warning(
+                event: 'deletion',
+                reason: 'unexpected error',
+                userId: $this->user->getId(),
+                tokenName: $tokenName,
+                tokenType: isset($token) ? $token->getType()->name : null,
+                exception: $ex
+            );
+
             $presenter->setResponseStatus(
                 new ErrorResponse(TokenException::deleteToken())
             );
-            $this->error((string) $ex);
         }
     }
 

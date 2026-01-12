@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ final class NotFoundResponse extends AbstractResponse
     public function __construct(
         string|\Throwable $objectNotFound,
         array $context = [],
-        private readonly ?\Throwable $exception = null
+        private readonly ?\Throwable $exception = null,
     ) {
         parent::__construct(
             \is_string($objectNotFound) ? $objectNotFound . ' not found' : $objectNotFound,

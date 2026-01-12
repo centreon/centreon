@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ final class DeleteAgentConfigurationPollerLink
     public function __invoke(
         int $acId,
         int $pollerId,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -74,7 +74,7 @@ final class DeleteAgentConfigurationPollerLink
                 return;
             }
 
-            if (null === $this->readAcRepository->find($acId)) {
+            if ($this->readAcRepository->find($acId) === null) {
                 $presenter->setResponseStatus(new NotFoundResponse('Poller/agent Configuration'));
 
                 return;
@@ -85,7 +85,7 @@ final class DeleteAgentConfigurationPollerLink
                 $this->readAcRepository->findPollersByAcId($acId)
             );
 
-            if (false === $this->user->isAdmin()) {
+            if ($this->user->isAdmin() === false) {
                 // non admin cannot delete servers on cloud platform if among them a central linked to the ac
                 if ($this->isCloudPlatform) {
                     $centralPoller = $this->readMonitoringServerRepository->findCentralByIds($linkedPollerIds);

@@ -1,5 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import data from '../../../fixtures/additional-configurations/acc.json';
 
 before(() => {
   cy.startContainers();
@@ -57,7 +57,9 @@ Then('the user sees the Additional Connector Configuration page', () => {
 });
 
 Then('there is no additional connector configuration listed', () => {
-  cy.contains('Welcome to the additional configurations page').should('be.visible');
+  cy.contains('Welcome to the additional configurations page').should(
+    'be.visible'
+  );
 });
 
 Given(
@@ -74,7 +76,9 @@ Given(
 
 Given('an already existing additional connector configuration', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
-  cy.createAccWithMandatoryFields();
+  cy.createAccWithMandatoryFields(data.default);
+  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.wait('@addAdditionalConnector');
   cy.get('*[role="rowgroup"]').should('contain', 'Connector-001');
 });
 
@@ -89,9 +93,7 @@ Then(
   'a pop up is displayed with all of the additional connector informations',
   () => {
     cy.wait('@getConnectorDetail');
-    cy.contains('Modify an additional configuration').should(
-      'be.visible'
-    );
+    cy.contains('Modify an additional configuration').should('be.visible');
     cy.getByLabel({ label: 'Name', tag: 'input' }).should(
       'have.value',
       'Connector-001'

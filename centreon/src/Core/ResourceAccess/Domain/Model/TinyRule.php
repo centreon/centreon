@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class TinyRule
         private readonly int $id,
         private readonly string $name,
         private readonly ?string $description = null,
-        private readonly bool $isEnabled = true
+        private readonly bool $isEnabled = true,
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 

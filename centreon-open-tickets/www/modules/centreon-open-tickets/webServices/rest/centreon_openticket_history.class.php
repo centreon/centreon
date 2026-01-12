@@ -1,23 +1,22 @@
 <?php
 
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
@@ -116,13 +115,13 @@ class CentreonOpenticketHistory extends CentreonWebService
                 . $this->pearDBMonitoring->quote($this->arguments['ticket_id'])
             . ')'
         );
-        if (true === PEAR::isError($res)) {
+        if (PEAR::isError($res) === true) {
             return ['code' => 1, 'message' => 'cannot insert in database'];
         }
 
         // Get Autoincrement
         $res = $this->pearDBMonitoring->query('SELECT LAST_INSERT_ID() AS last_id');
-        if (true === PEAR::isError($res) || ! ($row = $res->fetch())) {
+        if (PEAR::isError($res) === true || ! ($row = $res->fetch())) {
             return ['code' => 1, 'message' => 'database issue'];
         }
         $auto_ticket = $row['last_id'];
@@ -134,7 +133,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                 . $this->pearDBMonitoring->quote($this->arguments['subject'])
             . ')'
         );
-        if (true === PEAR::isError($res)) {
+        if (PEAR::isError($res) === true) {
             return ['code' => 1, 'message' => 'cannot insert in database'];
         }
 
@@ -154,7 +153,7 @@ class CentreonOpenticketHistory extends CentreonWebService
                     . $values
                 . ')'
             );
-            if (true === PEAR::isError($res)) {
+            if (PEAR::isError($res) === true) {
                 return ['code' => 1, 'message' => 'cannot insert in database'];
             }
         }

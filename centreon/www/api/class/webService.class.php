@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -164,7 +149,7 @@ class CentreonWebService
         global $pearDB;
 
         // Test if route is defined
-        if (false === isset($_GET['object']) || false === isset($_GET['action'])) {
+        if (isset($_GET['object']) === false || isset($_GET['action']) === false) {
             static::sendResult('Bad parameters', 400);
         }
 
@@ -228,7 +213,7 @@ class CentreonWebService
             $wsObj->finalConstruct($dependencyInjector);
         }
 
-        if (false === method_exists($wsObj, $action)) {
+        if (method_exists($wsObj, $action) === false) {
             static::sendResult('Method not found', 404);
         }
 
@@ -346,6 +331,7 @@ class CentreonWebService
 
     /**
      * Update the ttl for a token if the authentication is by token
+     * Does not update the manual tokens
      *
      * @return void
      */
@@ -356,13 +342,15 @@ class CentreonWebService
         if (isset($_SERVER['HTTP_CENTREON_AUTH_TOKEN'])) {
             try {
                 $stmt = $pearDB->prepare(
-                    'UPDATE security_token
-                    SET expiration_date = (
+                    'UPDATE security_token st
+                    INNER JOIN security_authentication_tokens sat
+                        ON st.id = sat.provider_token_id AND sat.token_type = \'auto\'
+                    SET st.expiration_date = (
                         SELECT UNIX_TIMESTAMP(NOW() + INTERVAL (`value` * 60) SECOND)
                         FROM `options`
                         wHERE `key` = \'session_expire\'
                     )
-                    WHERE token = :token'
+                    WHERE st.token = :token'
                 );
                 $stmt->bindValue(':token', $_SERVER['HTTP_CENTREON_AUTH_TOKEN'], PDO::PARAM_STR);
                 $stmt->execute();

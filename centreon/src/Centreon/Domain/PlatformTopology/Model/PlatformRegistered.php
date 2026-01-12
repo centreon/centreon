@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -114,7 +114,7 @@ class PlatformRegistered implements PlatformInterface
      */
     public function setType(?string $type): PlatformInterface
     {
-        if (null !== $type) {
+        if ($type !== null) {
             $type = strtolower($type);
 
             // Check if the server_type is available
@@ -200,7 +200,7 @@ class PlatformRegistered implements PlatformInterface
      */
     public function setParentAddress(?string $parentAddress): PlatformInterface
     {
-        if (null !== $parentAddress && $this->getType() === static::TYPE_CENTRAL) {
+        if ($parentAddress !== null && $this->getType() === static::TYPE_CENTRAL) {
             throw new \InvalidArgumentException(_('Cannot use parent address on a Central server type'));
         }
         $this->parentAddress = $this->checkIpAddress($parentAddress);
@@ -221,7 +221,7 @@ class PlatformRegistered implements PlatformInterface
      */
     public function setParentId(?int $parentId): PlatformInterface
     {
-        if (null !== $parentId && $this->getType() === static::TYPE_CENTRAL) {
+        if ($parentId !== null && $this->getType() === static::TYPE_CENTRAL) {
             throw new \InvalidArgumentException(_('Cannot set parent id to a central server'));
         }
         $this->parentId = $parentId;

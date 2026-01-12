@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ namespace Core\ResourceAccess\Application\UseCase\FindRule;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\ResourceAccess\Application\Exception\RuleException;
@@ -40,13 +40,12 @@ use Core\ResourceAccess\Domain\Model\Rule;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
-final class FindRule
+final readonly class FindRule
 {
-    use LoggerTrait;
     public const AUTHORIZED_ACL_GROUPS = ['customer_admin_acl'];
 
     /** @var DatasetProviderInterface[] */
-    private array $repositoryProviders = [];
+    private array $repositoryProviders;
 
     /**
      * @param ContactInterface $user
@@ -59,14 +58,14 @@ final class FindRule
      * @param \Traversable<DatasetProviderInterface> $repositoryProviders
      */
     public function __construct(
-        private readonly ContactInterface $user,
-        private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly ReadResourceAccessRepositoryInterface $repository,
-        private readonly ReadContactRepositoryInterface $contactRepository,
-        private readonly ReadContactGroupRepositoryInterface $contactGroupRepository,
-        private readonly DatasetFilterValidator $datasetFilterValidator,
-        private readonly bool $isCloudPlatform,
-        \Traversable $repositoryProviders
+        private ContactInterface $user,
+        private ReadAccessGroupRepositoryInterface $accessGroupRepository,
+        private ReadResourceAccessRepositoryInterface $repository,
+        private ReadContactRepositoryInterface $contactRepository,
+        private ReadContactGroupRepositoryInterface $contactGroupRepository,
+        private DatasetFilterValidator $datasetFilterValidator,
+        private bool $isCloudPlatform,
+        \Traversable $repositoryProviders,
     ) {
         $this->repositoryProviders = iterator_to_array($repositoryProviders);
     }
@@ -82,36 +81,32 @@ final class FindRule
                 ? $this->findRule($ruleId)
                 : new ForbiddenResponse(RuleException::notAllowed()->getMessage());
 
-            if ($response instanceof FindRuleResponse) {
-                $this->info('Finding resource access rule detail', ['rule_id' => $ruleId]);
-            } elseif ($response instanceof NotFoundResponse) {
-                $this->warning('Resource Access Rule (%s) not found', ['rule_id' => $ruleId]);
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to list resource access rules",
-                    [
-                        'user_id' => $this->user->getId(),
-                    ]
-                );
-            }
-
             $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(RuleException::errorWhileSearchingRules()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: RuleException::errorWhileSearchingRules(),
+                    context: [
+                        'user_id' => $this->user->getId(),
+                        'rule_id' => $ruleId,
+                    ],
+                    exception: $ex
+                )
+            );
         }
     }
 
     /**
      * @param int $ruleId
      *
+     * @throws RepositoryException
      * @return FindRuleResponse|NotFoundResponse
      */
     private function findRule(int $ruleId): FindRuleResponse|NotFoundResponse
     {
         $rule = $this->repository->findById($ruleId);
 
-        if (null === $rule) {
+        if ($rule === null) {
             return new NotFoundResponse('Resource Access Rule');
         }
 
@@ -120,6 +115,8 @@ final class FindRule
 
     /**
      * @param Rule $rule
+     *
+     * @throws RepositoryException
      *
      * @return FindRuleResponse
      */
@@ -135,7 +132,7 @@ final class FindRule
 
         // retrieve names of linked contact IDs
         $response->contacts = array_values(
-            $this->contactRepository->findNamesByIds(...$rule->getLinkedContactIds())
+            $this->contactRepository->findAliasesByIds(...$rule->getLinkedContactIds())
         );
 
         // retrieve names of linked contact group IDs
@@ -198,6 +195,7 @@ final class FindRule
      * Only users linked to AUTHORIZED_ACL_GROUPS acl_group and having access in Read/Write rights on the page
      * are authorized to add a Resource Access Rule.
      *
+     * @throws RepositoryException
      * @return bool
      */
     private function isAuthorized(): bool

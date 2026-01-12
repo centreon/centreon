@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ class DowntimeController extends AbstractController
      */
     public function __construct(
         DowntimeServiceInterface $downtimeService,
-        MonitoringServiceInterface $monitoringService
+        MonitoringServiceInterface $monitoringService,
     ) {
         $this->downtimeService = $downtimeService;
         $this->monitoringService = $monitoringService;
@@ -258,7 +258,7 @@ class DowntimeController extends AbstractController
         Request $request,
         SerializerInterface $serializer,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -438,7 +438,7 @@ class DowntimeController extends AbstractController
     public function findDowntimesByService(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**

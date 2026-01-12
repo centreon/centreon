@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ final class DeleteAcc
 
     public function __invoke(
         int $id,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_ACC_RW)) {
@@ -91,7 +91,7 @@ final class DeleteAcc
                 return;
             }
 
-            if (false === $this->user->isAdmin()) {
+            if ($this->user->isAdmin() === false) {
                 $linkedPollerIds = array_map(
                     static fn (Poller $poller): int => $poller->id,
                     $this->readAccRepository->findPollersByAccId($id)

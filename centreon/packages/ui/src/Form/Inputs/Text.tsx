@@ -127,6 +127,7 @@ const Text = ({
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}
         dataTestId={dataTestId || label}
+        data-testid-suffix={`test-${label}`}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}

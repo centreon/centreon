@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ final class PartialUpdateOpenIdConfiguration
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory,
         private ReadVaultConfigurationRepositoryInterface $vaultConfigurationRepository,
-        private WriteVaultRepositoryInterface $writeVaultRepository
+        private WriteVaultRepositoryInterface $writeVaultRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::OPEN_ID_CREDENTIALS_VAULT_PATH);
     }
@@ -95,7 +95,7 @@ final class PartialUpdateOpenIdConfiguration
      */
     public function __invoke(
         PartialUpdateOpenIdConfigurationPresenterInterface $presenter,
-        PartialUpdateOpenIdConfigurationRequest $request
+        PartialUpdateOpenIdConfigurationRequest $request,
     ): void {
 
         $this->info('Partially Updating OpenID Provider');
@@ -171,7 +171,7 @@ final class PartialUpdateOpenIdConfiguration
      */
     private function createUpdatedCustomConfiguration(
         CustomConfigurationInterface $customConfig,
-        PartialUpdateOpenIdConfigurationRequest $request
+        PartialUpdateOpenIdConfigurationRequest $request,
     ): CustomConfiguration {
 
         $requestArray = $request->toArray();
@@ -348,7 +348,7 @@ final class PartialUpdateOpenIdConfiguration
      */
     private function findAccessGroupFromFoundAccessGroups(
         int $accessGroupIdFromRequest,
-        array $foundAccessGroups
+        array $foundAccessGroups,
     ): ?AccessGroup {
         foreach ($foundAccessGroups as $foundAccessGroup) {
             if ($accessGroupIdFromRequest === $foundAccessGroup->getId()) {
@@ -384,7 +384,7 @@ final class PartialUpdateOpenIdConfiguration
      */
     private function createUpdatedAuthenticationConditions(
         array $requestParam,
-        AuthenticationConditions $authConditions
+        AuthenticationConditions $authConditions,
     ): AuthenticationConditions {
         $newAuthConditions = new AuthenticationConditions(
             isEnabled: $requestParam['is_enabled'] instanceof NoValue
@@ -425,7 +425,7 @@ final class PartialUpdateOpenIdConfiguration
      */
     private function createUpdatedGroupsMapping(
         array $requestParam,
-        GroupsMapping $groupsMapping
+        GroupsMapping $groupsMapping,
     ): GroupsMapping {
         $contactGroupRelations = [];
         if (! $requestParam['relations'] instanceof NoValue) {
@@ -512,7 +512,7 @@ final class PartialUpdateOpenIdConfiguration
      */
     private function findContactGroupFromFoundcontactGroups(
         int $contactGroupIdFromRequest,
-        array $foundContactGroups
+        array $foundContactGroups,
     ): ?ContactGroup {
         foreach ($foundContactGroups as $foundContactGroup) {
             if ($contactGroupIdFromRequest === $foundContactGroup->getId()) {
@@ -537,7 +537,7 @@ final class PartialUpdateOpenIdConfiguration
      */
     private function manageClientIdAndClientSecretIntoVault(
         array $requestArray,
-        CustomConfiguration $customConfiguration
+        CustomConfiguration $customConfiguration,
     ): array {
         // No need to do anything if vault is not configured
         if (! $this->vaultConfigurationRepository->exists()) {

@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -79,7 +64,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         $query = '';
 
         // Check for select2 'q' argument
-        $queryValues['hostName'] = false === isset($this->arguments['q']) ? '%%' : '%' . (string) $this->arguments['q'] . '%';
+        $queryValues['hostName'] = isset($this->arguments['q']) === false ? '%%' : '%' . (string) $this->arguments['q'] . '%';
         $query .= 'SELECT SQL_CALC_FOUND_ROWS DISTINCT host_name, host_id, host_activate '
             . 'FROM ( '
             . '( SELECT DISTINCT h.host_name, h.host_id, h.host_activate '
@@ -88,7 +73,8 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
         if (isset($this->arguments['hostgroup'])) {
             $additionalTables .= ',hostgroup_relation hg ';
             $additionalCondition .= 'AND hg.host_host_id = h.host_id AND hg.hostgroup_hg_id IN (';
-            foreach (explode(',', $this->arguments['hostgroup']) as $hgId => $hgValue) {
+            $hostgroups = is_array($this->arguments['hostgroup']) ? $this->arguments['hostgroup'] : explode(',', $this->arguments['hostgroup']);
+            foreach ($hostgroups as $hgId => $hgValue) {
                 if (! is_numeric($hgValue)) {
                     throw new RestBadRequestException('Error, host group id must be numerical');
                 }
@@ -176,7 +162,7 @@ class CentreonConfigurationHost extends CentreonConfigurationObjects
     public function getServices()
     {
         // Check for id
-        if (false === isset($this->arguments['id'])) {
+        if (isset($this->arguments['id']) === false) {
             throw new RestBadRequestException('Missing host id');
         }
         $id = $this->arguments['id'];

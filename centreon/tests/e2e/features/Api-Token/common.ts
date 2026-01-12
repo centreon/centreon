@@ -1,5 +1,5 @@
 interface Contact {
-  GUIAccess?: boolean;
+  guiAccess?: boolean;
   admin?: boolean;
   alias?: string | null;
   authenticationType?: 'local' | 'ldap';
@@ -33,7 +33,7 @@ const columnsFromLabels = [
   'User',
   'Creator',
   'Creation date',
-  'Expiration date',
+  'Expiration date'
 ];
 
-export { Contact, durationMap, Token, columns, columnsFromLabels };
+export { type Contact, durationMap, type Token, columns, columnsFromLabels };

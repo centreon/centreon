@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
-        if ($searchRequest !== null) {
+        if ($searchRequest !== null && str_contains($searchRequest, 'hg.')) {
             $request .= <<<'SQL'
 
                     INNER JOIN `:db`.hostcategories_relation hcr
@@ -217,7 +217,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
         // Update the SQL string builder with the RequestParameters through SqlRequestParametersTranslator
         $searchRequest = $sqlTranslator?->translateSearchParameterToSql();
 
-        if ($searchRequest !== null) {
+        if ($searchRequest !== null && str_contains($searchRequest, 'hg.')) {
             $request .= <<<'SQL'
                     INNER JOIN `:db`.hostcategories_relation hcr
                         ON hc.hc_id = hcr.hostcategories_hc_id
@@ -614,7 +614,7 @@ class DbReadHostCategoryRepository extends AbstractRepositoryRDB implements Read
      */
     private function retrieveHostCategories(
         SqlConcatenator $concatenator,
-        ?RequestParametersInterface $requestParameters
+        ?RequestParametersInterface $requestParameters,
     ): array {
         // Exclude severities from the results
         $concatenator->appendWhere('hc.level IS NULL');

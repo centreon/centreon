@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccReposito
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VSphereServer, VmWareConfig};
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 
 /**
@@ -45,12 +46,10 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
     public function __construct(
         Container $dependencyInjector,
         private readonly Backend $backend,
-        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
+        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readyMonitoringServerRepository,
     ) {
         parent::__construct($dependencyInjector);
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
     }
 
     /**
@@ -104,6 +103,7 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
         $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
             ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
 
+        $shouldBeEncrypted = $this->readyMonitoringServerRepository->isEncryptionReady($pollerId);
         // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
         $object = (object) [];
         if ($additionalConnectorsVMWareV6 !== null) {
@@ -119,9 +119,6 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                     $parameters['name'] . '_' . 'password';
                     if (array_key_exists($parameters['name'] . '_' . 'password', $vaultData)) {
                         $parameters['password'] = $vaultData[$parameters['name'] . '_' . 'password'];
-                    }
-                    if (array_key_exists($parameters['name'] . '_' . 'username', $vaultData)) {
-                        $parameters['username'] = $vaultData[$parameters['name'] . '_' . 'username'];
                     }
                 }
 
@@ -141,7 +138,9 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
                         'name' => $vSphereServer->getName(),
                         'url' => $vSphereServer->getUrl(),
                         'username' => $vSphereServer->getUsername(),
-                        'password' => $vSphereServer->getPassword(),
+                        'password' => $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
+                            : $vSphereServer->getPassword(),
                     ],
                     $vmWareConfig->getVSphereServers()
                 ),

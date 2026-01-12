@@ -1,40 +1,26 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 
 /**
@@ -74,10 +60,6 @@ class Resource extends AbstractObject
     public function __construct(Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
-
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
     }
 
     /**
@@ -93,17 +75,32 @@ class Resource extends AbstractObject
         }
 
         if (is_null($this->stmt)) {
-            $query = 'SELECT resource_name, resource_line FROM cfg_resource_instance_relations, cfg_resource '
-                . 'WHERE instance_id = :poller_id AND cfg_resource_instance_relations.resource_id = '
-                . "cfg_resource.resource_id AND cfg_resource.resource_activate = '1'";
-            $this->stmt = $this->backend_instance->db->prepare($query);
+            $this->stmt = $this->backend_instance->db->prepare(
+                <<<'SQL'
+                    SELECT cr.resource_name, cr.resource_line, cr.is_password, ns.is_encryption_ready
+                    FROM cfg_resource_instance_relations cfgri
+                    INNER JOIN cfg_resource cr
+                        ON cr.resource_id = cfgri.resource_id
+                    INNER JOIN nagios_server ns
+                        ON ns.id = cfgri.instance_id
+                    WHERE cfgri.instance_id = :poller_id
+                        AND cfgri.resource_id = cr.resource_id
+                        AND cr.resource_activate = '1';
+                    SQL
+            );
         }
         $this->stmt->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
         $this->stmt->execute();
 
         $object = ['resources' => []];
         $vaultPaths = [];
-        foreach ($this->stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+        $isPassword = [];
+
+        $results = $this->stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($results as $value) {
+            if ((bool) $value['is_password'] === true) {
+                $isPassword[$value['resource_name']] = true;
+            }
             $object['resources'][$value['resource_name']] = $value['resource_line'];
             if ($this->isAVaultPath($value['resource_line'])) {
                 $vaultPaths[] = $value['resource_line'];
@@ -120,6 +117,15 @@ class Resource extends AbstractObject
             }
         }
 
+        $readMonitoringServerRepository = $this->kernel->getContainer()->get(ReadMonitoringServerRepositoryInterface::class);
+        $shouldBeEncrypted = $readMonitoringServerRepository->isEncryptionReady($poller_id);
+        foreach ($object['resources'] as $macroKey => &$macroValue) {
+            if (isset($isPassword[$macroKey])) {
+                $macroValue =  $shouldBeEncrypted
+                ? 'encrypt::' . $this->engineContextEncryption->crypt($macroValue)
+                : $macroValue;
+            }
+        }
         $this->generateFile($object);
     }
 }

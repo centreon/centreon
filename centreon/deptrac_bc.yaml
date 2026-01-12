@@ -3,6 +3,16 @@ parameters:
         - ./src/App
 
     layers:
+        - name: ActivityLogging
+          collectors:
+              - type: directory
+                value: src/App/ActivityLogging/.*
+
+        - name: MonitoringConfiguration
+          collectors:
+              - type: directory
+                value: src/App/MonitoringConfiguration/.*
+
         - name: Shared
           collectors:
               - type: directory
@@ -11,17 +21,49 @@ parameters:
         - name: Vendors
           collectors:
               - { type: classNameRegex, value: '#^ApiPlatform\\#' }
+              - { type: classNameRegex, value: '#^Doctrine\\#' }
+              - { type: classNameRegex, value: '#^Psr\\#' }
               - { type: classNameRegex, value: '#^Symfony\\#' }
               - { type: classNameRegex, value: '#^Webmozart\\#' }
 
-        - name: LegacyKernel
+        - name: Legacy
           collectors:
               - { type: classNameRegex, value: '#^App\\Kernel$#' }
+              - { type: classNameRegex, value: '#^Adaptation\\$#' }
+              - { type: classNameRegex, value: '#^Centreon*\\#' }
+              - { type: classNameRegex, value: '#^Core\\#' }
+              - { type: classNameRegex, value: '#^EventSubscriber\\#' }
+              - { type: classNameRegex, value: '#^Security\\#' }
+              - { type: classNameRegex, value: '#^Utility\\#' }
+
+        - name: TypeAliases # needed because deptrac does not parse phpstan type aliases
+          collectors:
+              - { type: classNameRegex, value: '#TypeAlias$#' }
 
     ruleset:
-        Shared: [ Vendors ]
-        LegacyKernel: [ Vendors ]
+        ActivityLogging: [ MonitoringConfiguration, Shared, Vendors, TypeAliases ]
+        MonitoringConfiguration: [ Shared, Vendors, TypeAliases ]
+        Shared: [ Vendors, TypeAliases ]
+        Legacy: [ Vendors, TypeAliases ]
 
     skip_violations:
-        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper: 
+        App\Shared\Infrastructure\Legacy\LegacyKernelWrapper:
             - App\Kernel
+        App\Shared\Infrastructure\Legacy\LegacyContainer:
+            - App\Kernel
+        App\Shared\Infrastructure\Legacy\LegacyContactProviderWrapper:
+            - Centreon\Domain\Contact\ContactProvider
+        App\Shared\Infrastructure\Legacy\LegacyTokenApiAuthenticatorWrapper:
+            - Security\TokenAPIAuthenticator
+        App\Shared\Infrastructure\Legacy\LegacyWebSsoAuthenticatorWrapper:
+            - Security\WebSSOAuthenticator
+        App\Shared\Infrastructure\Legacy\LegacySessionApiAuthenticatorWrapper:
+            - Security\SessionAPIAuthenticator
+        App\Shared\Infrastructure\Legacy\LegacySecurity:
+            - Centreon\Domain\Contact\Contact
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyServiceCategoryPermissionVoter:
+            - Centreon\Domain\Contact\Contact
+        App\MonitoringConfiguration\Infrastructure\Legacy\LegacyGlobalMacroPermissionVoter:
+            - Centreon\Domain\Contact\Contact
+        App\Shared\Infrastructure\Legacy\LegacyHttpExceptionListener:
+            - Centreon\Domain\Exception\EntityNotFoundException

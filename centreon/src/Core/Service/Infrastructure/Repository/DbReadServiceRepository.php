@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     {
         $this->debug('Check existence of services', ['service_ids' => $serviceIds]);
 
-        if ([] === $serviceIds) {
+        if ($serviceIds === []) {
             return [];
         }
 
@@ -259,6 +259,41 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                     ON hsr.service_service_id = service.service_id
                 WHERE hsr.host_host_id = :host_id
                     AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceIds = [];
+        while (($serviceId = $statement->fetchColumn()) !== false) {
+            $serviceIds[] = (int) $serviceId;
+        }
+
+        return $serviceIds;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsExclusivelyLinkedToHostId(int $hostId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.host_service_relation hsr
+                INNER JOIN `:db`.host h
+                    ON h.host_id = hsr.host_host_id
+                INNER JOIN (
+                    SELECT service_service_id
+                    FROM `:db`.host_service_relation
+                    GROUP BY service_service_id
+                    HAVING COUNT(*) = 1
+                ) uniq
+                    ON uniq.service_service_id = hsr.service_service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND h.host_register = '1'
                 SQL
         );
 
@@ -499,7 +534,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findByRequestParameterAndAccessGroup(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
@@ -951,7 +986,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -993,7 +1028,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -1024,7 +1059,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 'f' => NotificationType::Flapping,
                 's' => NotificationType::DowntimeScheduled,
                 'n' => NotificationType::None,
-                default => throw new \Exception("Notification type '{$type}' unknown")
+                default => throw new \Exception("Notification type '{$type}' unknown"),
             };
         }
 
@@ -1119,7 +1154,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         return match ($value) {
             '0' => YesNoDefault::No,
             '1' => YesNoDefault::Yes,
-            default => YesNoDefault::Default
+            default => YesNoDefault::Default,
         };
     }
 }

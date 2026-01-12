@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
     use MonitoringServerRepositoryTrait;
 
     public function __construct(
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -258,7 +258,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
      */
     public function findAllByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         if ($accessGroups === []) {
             return [];
@@ -417,7 +417,7 @@ class DbReadAgentConfigurationRepository extends AbstractRepositoryRDB implement
             connectionMode: $connectionMode,
             configuration: match ($type->value) {
                 Type::TELEGRAF->value => new TelegrafConfigurationParameters($configuration),
-                Type::CMA->value => new CmaConfigurationParameters($configuration, $connectionMode),
+                Type::CMA->value => new CmaConfigurationParameters($configuration, true),
             }
         );
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ use Core\Application\Common\UseCase\{
     ResponseStatusInterface,
 };
 use Core\Common\Domain\SimpleEntity;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
@@ -80,7 +81,8 @@ final class UpdateHostGroup
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly WriteResourceAccessRepositoryInterface $writeResourceAccessRepository,
         private readonly WriteMonitoringServerRepositoryInterface $writeMonitoringServerRepository,
-        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository
+        private readonly WriteAccessGroupRepositoryInterface $writeAccessGroupRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -90,7 +92,7 @@ final class UpdateHostGroup
     public function __invoke(UpdateHostGroupRequest $request): ResponseStatusInterface
     {
         try {
-            $existingHostGroup = $this->user->isAdmin()
+            $existingHostGroup = $this->adminResolver->isAdmin($this->user)
                 ? $this->readHostGroupRepository->findOne($request->id)
                 : $this->readHostGroupRepository->findOneByAccessGroups(
                     $request->id,
@@ -186,7 +188,7 @@ final class UpdateHostGroup
      */
     private function updateHostLinks(UpdateHostGroupRequest $request): void
     {
-        if ($this->user->isAdmin()) {
+        if ($this->adminResolver->isAdmin($this->user)) {
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
         } else {

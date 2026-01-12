@@ -1,37 +1,29 @@
 <?php
 
 /*
- * Copyright 2005-2024 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
 
 require_once realpath(__DIR__ . '/centreonDBInstance.class.php');
 require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
@@ -65,6 +57,9 @@ class CentreonACL
 
     /** @var bool */
     public $hasAccessToAllServiceGroups = false;
+
+    /** @var bool */
+    public $hasAccessToAllImageFolders = true;
 
     /** @var array */
     protected $pollers = []; // Pollers the user can see
@@ -145,6 +140,7 @@ class CentreonACL
             $this->setResourceGroups();
             $this->hasAccessToAllHostGroups = $this->hasAccessToAllHostGroups();
             $this->hasAccessToAllServiceGroups = $this->hasAccessToAllServiceGroups();
+            $this->hasAccessToAllImageFolders = $this->hasAccessToAllImageFolders();
             $this->setHostGroups();
             $this->setPollers();
             $this->setServiceGroups();
@@ -550,6 +546,7 @@ class CentreonACL
      *
      * @param mixed $flag
      * @param mixed $escape
+     *
      * @return string
      */
     public function getHostCategoriesString($flag = null, $escape = true)
@@ -679,7 +676,7 @@ class CentreonACL
         $rows,
         $originTable = 'centreon_acl',
         $force = false,
-        $fields = []
+        $fields = [],
     ) {
         if (! empty($this->tempTableArray[$tmpTableName]) && ! $force) {
             return $this->tempTableArray[$tmpTableName];
@@ -1415,7 +1412,9 @@ class CentreonACL
                                 VALUES (:data_id, NULL, :group_id)
                             SQL;
 
-                        $hostACLStatement = CentreonDBInstance::getDbCentreonStorageInstance()->prepare($hostInsertACLQuery);
+                        $hostACLStatement = CentreonDBInstance::getDbCentreonStorageInstance()->prepare(
+                            $hostInsertACLQuery
+                        );
 
                         $serviceACLInsertQuery = <<<'SQL'
                                 INSERT INTO centreon_acl (host_id, service_id, group_id)
@@ -1423,7 +1422,9 @@ class CentreonACL
                                 ON DUPLICATE KEY UPDATE group_id = :group_id
                             SQL;
 
-                        $serviceACLStatement = CentreonDBInstance::getDbCentreonStorageInstance()->prepare($serviceACLInsertQuery);
+                        $serviceACLStatement = CentreonDBInstance::getDbCentreonStorageInstance()->prepare(
+                            $serviceACLInsertQuery
+                        );
 
                         while ($record = $aclStatement->fetchRow()) {
                             // Insert New Host
@@ -1482,8 +1483,10 @@ class CentreonACL
                                 . "WHERE host_id = {$host_id} AND service_id = " . $data['duplicate_service'];
                             $DBRESULT = CentreonDBInstance::getDbCentreonStorageInstance()->query($request);
                             $statement = CentreonDBInstance::getDbCentreonStorageInstance()
-                                ->prepare('INSERT INTO centreon_acl (host_id, service_id, group_id) '
-                                    . 'VALUES (:host_id, :data_id, :group_id)');
+                                ->prepare(
+                                    'INSERT INTO centreon_acl (host_id, service_id, group_id) '
+                                    . 'VALUES (:host_id, :data_id, :group_id)'
+                                );
                             while ($record = $DBRESULT->fetchRow()) {
                                 $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
                                 $statement->bindValue(':data_id', (int) $data['id'], PDO::PARAM_INT);
@@ -1523,6 +1526,7 @@ class CentreonACL
      * Get DB Name
      *
      * @param string $broker
+     *
      * @return string
      */
     public function getNameDBAcl($broker = null)
@@ -1547,7 +1551,13 @@ class CentreonACL
         $sg = [];
 
         if (is_null($options)) {
-            $options = ['order' => ['LOWER(sg_name)'], 'fields' => ['servicegroup.sg_id', 'servicegroup.sg_name'], 'keys' => ['sg_id'], 'keys_separator' => '', 'get_row' => 'sg_name'];
+            $options = [
+                'order' => ['LOWER(sg_name)'],
+                'fields' => ['servicegroup.sg_id', 'servicegroup.sg_name'],
+                'keys' => ['sg_id'],
+                'keys_separator' => '',
+                'get_row' => 'sg_name',
+            ];
         }
 
         $request = $this->constructRequest($options);
@@ -1602,6 +1612,7 @@ class CentreonACL
      * @param int $sgId servicegroup id
      * @param mixed $broker
      * @param mixed $options
+     *
      * @return array
      */
     public function getServiceServiceGroupAclConf($sgId, $broker = null, $options = null)
@@ -1614,7 +1625,12 @@ class CentreonACL
         }
 
         if (is_null($options)) {
-            $options = ['order' => ['LOWER(host_name)', 'LOWER(service_description)'], 'fields' => ['service.service_description', 'service.service_id', 'host.host_id', 'host.host_name'], 'keys' => ['host_id', 'service_id'], 'keys_separator' => '_'];
+            $options = [
+                'order' => ['LOWER(host_name)', 'LOWER(service_description)'],
+                'fields' => ['service.service_description', 'service.service_id', 'host.host_id', 'host.host_name'],
+                'keys' => ['host_id', 'service_id'],
+                'keys_separator' => '_',
+            ];
         }
 
         $request = $this->constructRequest($options);
@@ -1679,7 +1695,13 @@ class CentreonACL
         }
 
         if (is_null($options)) {
-            $options = ['order' => ['LOWER(host.host_name)'], 'fields' => ['host.host_id', 'host.host_name'], 'keys' => ['host_id'], 'keys_separator' => '', 'get_row' => 'host_name'];
+            $options = [
+                'order' => ['LOWER(host.host_name)'],
+                'fields' => ['host.host_id', 'host.host_name'],
+                'keys' => ['host_id'],
+                'keys_separator' => '',
+                'get_row' => 'host_name',
+            ];
         }
 
         $request = $this->constructRequest($options, true);
@@ -1746,7 +1768,13 @@ class CentreonACL
         }
 
         if (is_null($options)) {
-            $options = ['order' => ['LOWER(service_description)'], 'fields' => ['s.service_id', 'service_description'], 'keys' => ['service_id'], 'keys_separator' => '', 'get_row' => 'service_description'];
+            $options = [
+                'order' => ['LOWER(service_description)'],
+                'fields' => ['s.service_id', 'service_description'],
+                'keys' => ['service_id'],
+                'keys_separator' => '',
+                'get_row' => 'service_description',
+            ];
         }
 
         $request = $this->constructRequest($options);
@@ -1821,7 +1849,13 @@ class CentreonACL
         $hg = [];
 
         if (is_null($options)) {
-            $options = ['order' => ['LOWER(hg_name)'], 'fields' => ['hg_id', 'hg_name'], 'keys' => ['hg_id'], 'keys_separator' => '', 'get_row' => 'hg_name'];
+            $options = [
+                'order' => ['LOWER(hg_name)'],
+                'fields' => ['hg_id', 'hg_name'],
+                'keys' => ['hg_id'],
+                'keys_separator' => '',
+                'get_row' => 'hg_name',
+            ];
         }
 
         $request = $this->constructRequest($options, true);
@@ -1868,6 +1902,7 @@ class CentreonACL
      * @param string $search
      * @param array<string,mixed> $options
      * @param bool $hg_empty
+     *
      * @return string[]
      */
     public function getAllHostGroupAclConf($search = null, $options = null, $hg_empty = false)
@@ -1934,7 +1969,14 @@ class CentreonACL
         $hg = [];
 
         if (is_null($options)) {
-            $options = ['distinct' => true, 'order' => ['LOWER(host_name)'], 'fields' => ['host_id', 'host_name'], 'keys' => ['host_id'], 'keys_separator' => '', 'get_row' => 'host_name'];
+            $options = [
+                'distinct' => true,
+                'order' => ['LOWER(host_name)'],
+                'fields' => ['host_id', 'host_name'],
+                'keys' => ['host_id'],
+                'keys_separator' => '',
+                'get_row' => 'host_name',
+            ];
         }
 
         $request = $this->constructRequest($options);
@@ -2046,6 +2088,7 @@ class CentreonACL
      *
      * @param array $options
      * @param bool $localOnly Indicates if only local contactgroups should be searched
+     *
      * @return array
      */
     public function getContactGroupAclConf(array $options = [], bool $localOnly = true)
@@ -2103,6 +2146,7 @@ class CentreonACL
      * Duplicate Host ACL
      *
      * @param array $hosts | hosts to duplicate
+     *
      * @return void
      */
     public static function duplicateHostAcl($hosts = []): void
@@ -2113,7 +2157,9 @@ class CentreonACL
         $tbHostEx = 'acl_resources_hostex_relations';
         foreach ($hosts as $copyId => $originalId) {
             CentreonDBInstance::getDbCentreonInstance()->query(sprintf($sql, $tbHost, $copyId, $tbHost, $originalId));
-            CentreonDBInstance::getDbCentreonInstance()->query(sprintf($sql, $tbHostEx, $copyId, $tbHostEx, $originalId));
+            CentreonDBInstance::getDbCentreonInstance()->query(
+                sprintf($sql, $tbHostEx, $copyId, $tbHostEx, $originalId)
+            );
         }
     }
 
@@ -2224,6 +2270,7 @@ class CentreonACL
         $this->setActions();
         $this->hasAccessToAllHostGroups = false;
         $this->hasAccessToAllServiceGroups = false;
+        $this->hasAccessToAllImageFolders = true;
     }
 
     /**
@@ -2338,12 +2385,67 @@ class CentreonACL
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Check if all_image_folders is activated at least of one ACL Group which this user is linked
+     *
+     * @throws RepositoryException
+     * @return bool
+     */
+    private function hasAccessToAllImageFolders(): bool
+    {
+        $accessGroups = $this->getAccessGroups();
+        $aclResources = $this->getResourceGroups();
+
+        // Users not linked to an ACL group or ACL resource will not be able to see images.
+        if ($accessGroups === [] || $aclResources === []) {
+            return false;
+        }
+
+        [
+            'parameters' => $bindQueryParameters,
+            'placeholderList' => $bindQuery,
+        ] = createMultipleBindParameters(
+            values: array_keys($accessGroups),
+            prefix: 'access_group_id_',
+            paramType: QueryParameterTypeEnum::INTEGER
+        );
+
+        try {
+            $query = <<<SQL
+                SELECT res.all_image_folders
+                FROM acl_resources res
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = res.acl_res_id
+                INNER JOIN acl_groups ag
+                    ON ag.acl_group_id = argr.acl_group_id
+                WHERE res.acl_res_activate = '1' AND ag.acl_group_id IN ({$bindQuery})
+                ORDER BY res.all_image_folders DESC LIMIT 1
+                SQL;
+
+            $db = CentreonDBInstance::getDbCentreonInstance();
+
+            while (false !== ($hasAccessToAll = $db->fetchFirstColumn($query, QueryParameters::create($bindQueryParameters)))) {
+                if ((bool) $hasAccessToAll === true) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Error while checking access to all image folders',
+                context: ['accessGroups' => $accessGroups, 'bindQueryParameters' => $bindQueryParameters],
+                previous: $e
+            );
+        }
     }
 
     /**
@@ -2382,7 +2484,7 @@ class CentreonACL
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -2689,12 +2791,14 @@ class CentreonACL
                 $topology = [];
                 $tmp_topo_page = [];
                 $statement = $centreonDb
-                    ->prepare('SELECT topology_topology_id, acl_topology_relations.access_right '
+                    ->prepare(
+                        'SELECT topology_topology_id, acl_topology_relations.access_right '
                         . 'FROM acl_topology_relations, acl_topology '
                         . "WHERE acl_topology.acl_topo_activate = '1' "
                         . 'AND acl_topology.acl_topo_id = acl_topology_relations.acl_topo_id '
                         . 'AND acl_topology_relations.acl_topo_id = :acl_topology_id '
-                        . 'AND acl_topology_relations.access_right != 0');
+                        . 'AND acl_topology_relations.access_right != 0'
+                    );
                 while ($topo_group = $DBRESULT->fetchRow()) {
                     $statement->bindValue(':acl_topology_id', (int) $topo_group['acl_topology_id'], PDO::PARAM_INT);
                     $statement->execute();

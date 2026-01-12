@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -55,7 +55,7 @@ abstract readonly class PdoParameterTypeTransformer
             \PDO::PARAM_STR => QueryParameterTypeEnum::STRING,
             \PDO::PARAM_LOB => QueryParameterTypeEnum::LARGE_OBJECT,
             \PDO::PARAM_BOOL => QueryParameterTypeEnum::BOOLEAN,
-            default => throw new TransformerException('Unknown PDO parameter type', ['pdo_parameter_type' => $pdoParameterType])
+            default => throw new TransformerException('Unknown PDO parameter type', ['pdo_parameter_type' => $pdoParameterType]),
         };
     }
 }

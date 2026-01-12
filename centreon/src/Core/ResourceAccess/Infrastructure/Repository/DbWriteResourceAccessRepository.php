@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -242,12 +242,13 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         bool $accessAllHosts = false,
         bool $accessAllHostGroups = false,
         bool $accessAllServiceGroups = false,
+        bool $accessAllImageFolders = false,
     ): int {
         $request = $this->translateDbName(
             <<<'SQL'
                 INSERT INTO `:db`.acl_resources
-                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
-                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, '1', 1, 1)
+                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, all_image_folders, acl_res_activate, changed, cloud_specific)
+                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, :allImageFolders, '1', 1, 1)
                 SQL
         );
 
@@ -256,6 +257,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         $statement->bindValue(':allHosts', $accessAllHosts ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':allHostGroups', $accessAllHostGroups ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':allServiceGroups', $accessAllServiceGroups ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allImageFolders', $accessAllImageFolders ? '1' : '0', \PDO::PARAM_STR);
 
         $statement->execute();
 
@@ -267,7 +269,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactsToRule(int $ruleId, array $contactIds): void
     {
-        if ([] === $contactIds) {
+        if ($contactIds === []) {
             return;
         }
 
@@ -333,7 +335,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void
     {
-        if ([] === $contactGroupIds) {
+        if ($contactGroupIds === []) {
             return;
         }
 
@@ -370,7 +372,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function updateDatasetResources(int $datasetId, array $resourceIds): void
     {
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

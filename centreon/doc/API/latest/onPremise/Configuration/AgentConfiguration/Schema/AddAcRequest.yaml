@@ -33,23 +33,35 @@ properties:
       - title: Configuration for `centreon-agent`
         type: object
         required:
-          - is_reverse
+          - poller_initiated
+          - port
+          - agent_initiated
           - otel_public_certificate
           - otel_ca_certificate
           - otel_private_key
           - tokens
           - hosts
         properties:
-          is_reverse:
+          poller_initiated:
             type: boolean
             description: Connection initiated by poller.
+            example: true
+
+          port:
+            type: integer
+            description: Port used for connection (mandatory for agent initiated connection).
+            nullable: true
+
+          agent_initiated:
+            type: boolean
+            description: Connection initiated by agent.
             example: true
 
           otel_public_certificate:
             type: [string, null]
             description: |
               Path of the public certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed: `../`, `./`, or `//`
               - Automatically prefixed with `/etc/pki/`
             example: otel-cert.crt
@@ -133,7 +145,8 @@ properties:
                       example: 10
 
         example:
-          is_reverse: true
+          poller_initiated: true
+          agent_initiated: true
           otel_public_certificate: otel-reverse.crt
           otel_ca_certificate: ca-certif.crt
           otel_private_key: otel.key
@@ -174,7 +187,7 @@ properties:
             type: [string, null]
             description: |
               Path of the public certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed
               - Automatically prefixed with `/etc/pki/`
             example: otel-cert.crt
@@ -183,7 +196,7 @@ properties:
             type: [string, null]
             description: |
               Path of CA certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed
               - Automatically prefixed with `/etc/pki/`
             example: telegraf-ca.crt

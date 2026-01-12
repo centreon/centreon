@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -98,6 +100,7 @@ final class PartialUpdateHost
         private readonly PartialUpdateHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -110,7 +113,7 @@ final class PartialUpdateHost
     public function __invoke(
         PartialUpdateHostRequest $request,
         PresenterInterface $presenter,
-        int $hostId
+        int $hostId,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_WRITE)) {
@@ -231,10 +234,6 @@ final class PartialUpdateHost
             $host->setAlias($dto->alias ?? '');
         }
 
-        if (! $dto->snmpCommunity instanceof NoValue) {
-            $host->setSnmpCommunity($dto->snmpCommunity ?? '');
-        }
-
         if (! $dto->noteUrl instanceof NoValue) {
             $host->setNoteUrl($dto->noteUrl ?? '');
         }
@@ -278,9 +277,27 @@ final class PartialUpdateHost
             $host->setSeverityId($dto->severityId);
         }
 
+        if (! $dto->freshnessThreshold instanceof NoValue) {
+            $host->setFreshnessThreshold($dto->freshnessThreshold);
+        }
+
+        if (! $dto->freshnessChecked instanceof NoValue) {
+            $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar($dto->freshnessChecked));
+        }
+
         if (! $dto->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($dto->checkCommandId, CommandType::Check, 'checkCommandId');
             $host->setCheckCommandId($dto->checkCommandId);
+            if ($dto->checkCommandId !== null) {
+                $command = $this->readCommandRepository->findById($dto->checkCommandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                    $host->setFreshnessThreshold(120);
+                }
+            }
         }
 
         if (! $dto->checkTimeperiodId instanceof NoValue) {
@@ -326,10 +343,6 @@ final class PartialUpdateHost
             $host->setAcknowledgementTimeout($dto->acknowledgementTimeout);
         }
 
-        if (! $dto->freshnessThreshold instanceof NoValue) {
-            $host->setFreshnessThreshold($dto->freshnessThreshold);
-        }
-
         if (! $dto->lowFlapThreshold instanceof NoValue) {
             $host->setLowFlapThreshold($dto->lowFlapThreshold);
         }
@@ -352,10 +365,6 @@ final class PartialUpdateHost
 
         if (! $dto->notificationEnabled instanceof NoValue) {
             $host->setNotificationEnabled(YesNoDefaultConverter::fromScalar($dto->notificationEnabled));
-        }
-
-        if (! $dto->freshnessChecked instanceof NoValue) {
-            $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar($dto->freshnessChecked));
         }
 
         if (! $dto->flapDetectionEnabled instanceof NoValue) {
@@ -402,19 +411,7 @@ final class PartialUpdateHost
             );
         }
 
-        if (
-            $this->writeVaultRepository->isVaultConfigured()
-            && ! $dto->snmpCommunity instanceof NoValue
-            && ! $this->isAVaultPath((string) $dto->snmpCommunity)
-        ) {
-            $vaultPaths = $this->writeVaultRepository->upsert(
-                $this->uuid ?? null,
-                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $host->getSnmpCommunity()]
-            );
-            $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
-            $host->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
-        }
-
+        $this->updateSnmpCommunity($host, $dto->snmpCommunity);
         $this->writeHostRepository->update($host);
     }
 
@@ -549,13 +546,13 @@ final class PartialUpdateHost
      */
     private function updateMacros(PartialUpdateHostRequest $dto, Host $host): void
     {
-        $this->info(
+        $this->debug(
             'PartialUpdateHost: update macros',
             ['host_id' => $host->getId(), 'macros' => $dto->macros]
         );
 
         if ($dto->macros instanceof NoValue) {
-            $this->info('Macros not provided, nothing to update');
+            $this->debug('Macros not provided, nothing to update');
 
             return;
         }
@@ -659,14 +656,13 @@ final class PartialUpdateHost
     private function retrieveHostUuidFromVault(Host $host): void
     {
         $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($host->getId());
             foreach ($macros as $macro) {
                 if (
                     $macro->isPassword() === true
                     && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
                 ) {
-
                     break;
                 }
             }
@@ -692,9 +688,15 @@ final class PartialUpdateHost
                 $action === 'INSERT' ? [$macroPrefixedName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixedName => $macro->getValue()] : [],
             );
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $this->uuid ??= $this->getUuidFromPath($vaultPaths[$macroPrefixedName]);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -716,7 +718,7 @@ final class PartialUpdateHost
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword() || false === $this->isAVaultPath($macro->getValue())) {
+            if ($macro->isPassword() === false || $this->isAVaultPath($macro->getValue()) === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }
@@ -724,7 +726,7 @@ final class PartialUpdateHost
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
@@ -734,5 +736,56 @@ final class PartialUpdateHost
         }
 
         return $updatedMacros;
+    }
+
+    /**
+     * Update SNMP community for a host, handling vault storage and clearing logic.
+     *
+     * @param Host $host
+     * @param NoValue|string|null $snmpCommunity
+     *
+     * @throws \Throwable
+     */
+    private function updateSnmpCommunity(Host $host, NoValue|string|null $snmpCommunity): void
+    {
+        if ($snmpCommunity instanceof NoValue) {
+            return;
+        }
+
+        // If vault is not configured, just set the value directly
+        if (! $this->writeVaultRepository->isVaultConfigured()) {
+            $host->setSnmpCommunity($snmpCommunity ?? '');
+
+            return;
+        }
+
+        // If the value is already a vault path, do nothing
+        if ($this->isAVaultPath($snmpCommunity ?? '')) {
+            return;
+        }
+
+        // If the current value is a vault path and we want to clear it
+        if ($this->isAVaultPath($host->getSnmpCommunity()) && empty($snmpCommunity)) {
+            $this->writeVaultRepository->upsert(
+                uuid: $this->getUuidFromPath($host->getSnmpCommunity()),
+                deletes: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity ?? '']
+            );
+            $host->setSnmpCommunity($snmpCommunity ?? '');
+
+            return;
+        }
+
+        // If the new value is empty, do nothing
+        if (empty($snmpCommunity)) {
+            return;
+        }
+
+        // Otherwise, store in vault and update host
+        $vaultPaths = $this->writeVaultRepository->upsert(
+            uuid: $this->uuid ?? null,
+            inserts: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity],
+        );
+        $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
+        $host->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
     }
 }

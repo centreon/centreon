@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,4 +47,12 @@ interface WriteMonitoringServerRepositoryInterface
      * @param MonitoringServer $monitoringServer
      */
     public function update(MonitoringServer $monitoringServer): void;
+
+    /**
+     * Update the encryption readiness of Monitoring Server configuration,
+     * based on the value of the Monitoring Server readiness in real time.
+     *
+     * This ensure that the configuration is always up to date with the realtime.
+     */
+    public function updateAllEncryptionReadyFromRealtime(): void;
 }

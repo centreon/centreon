@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ final class AddHostTemplateController extends AbstractController
     private function executeUseCaseOnPrem(
         AddHostTemplate $useCase,
         AddHostTemplateOnPremPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         try {
             /**
@@ -120,7 +120,7 @@ final class AddHostTemplateController extends AbstractController
              *     comment?: string,
              *     categories?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>
+             *     macros?: array<array{id?: int|null,name:string,value:null|string,is_password:bool,description:null|string}>
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateOnPremSchema.json');
@@ -189,7 +189,7 @@ final class AddHostTemplateController extends AbstractController
     private function executeUseCaseSaas(
         AddHostTemplate $useCase,
         AddHostTemplateSaasPresenter $presenter,
-        Request $request
+        Request $request,
     ): Response {
         try {
             /**
@@ -212,7 +212,7 @@ final class AddHostTemplateController extends AbstractController
              *     icon_id?: null|int,
              *     categories?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>,
+             *     macros?: array<array{id?: int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
              *     event_handler_enabled?: int,
              *     event_handler_command_id?: null|int
              * } $data

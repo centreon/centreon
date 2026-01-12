@@ -1,38 +1,30 @@
 <?php
 
-/**
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use enshrined\svgSanitize\Sanitizer;
 
 if (! isset($oreon)) {
@@ -80,7 +72,7 @@ function isValidImage($filename)
     }
     $imginfo = getimagesize($filename);
 
-    if (isset($imginfo) && false !== $imginfo) {
+    if (isset($imginfo) && $imginfo !== false) {
         return true;
     }
 
@@ -413,26 +405,74 @@ function updateDirectory($dir_id, $dir_alias, $dir_comment = '')
     }
 }
 
-function getListDirectory($filter = null)
+/**
+ * @param null|mixed $filter
+ *
+ * @throws RepositoryException
+ * @return array<int|string,mixed>
+ */
+function getListDirectory($filter = null): array
 {
-    global $pearDB;
+    global $pearDB, $centreon;
 
-    $query = 'SELECT dir_id, dir_name FROM view_img_dir ';
-    if (! is_null($filter) && strlen($filter) > 0) {
-        $query .= "WHERE dir_name LIKE '" . $filter . "%' ";
-    }
-    $query .= 'ORDER BY dir_name';
-    $list_dir = [];
-    $dbresult = $pearDB->query($query);
-    while ($row = $dbresult->fetch(PDO::FETCH_ASSOC)) {
-        $list_dir[$row['dir_id']] = CentreonUtils::escapeSecure(
-            $row['dir_name'],
-            CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
+    try {
+        $queryParameters = [];
+
+        if (
+            $centreon->user->admin === '1'
+            || $centreon->user->access->hasAccessToAllImageFolders
+        ) {
+            $query = <<<'SQL'
+                    SELECT
+                        directories.dir_id,
+                        directories.dir_name
+                    FROM view_img_dir AS `directories`
+                SQL;
+        } else {
+            $query = <<<'SQL'
+                    SELECT
+                        directories.dir_id,
+                        directories.dir_name
+                    FROM view_img_dir AS `directories`
+                    INNER JOIN acl_resources_image_folder_relations armdr
+                        ON armdr.dir_id = directories.dir_id
+                    INNER JOIN acl_resources ar
+                        ON ar.acl_res_id = armdr.acl_res_id
+                    INNER JOIN acl_res_group_relations argr
+                        ON argr.acl_res_id = ar.acl_res_id
+                    LEFT JOIN acl_group_contacts_relations gcr
+                        ON gcr.acl_group_id = argr.acl_group_id
+                    LEFT JOIN acl_group_contactgroups_relations gcgr
+                        ON gcgr.acl_group_id = argr.acl_group_id
+                    LEFT JOIN contactgroup_contact_relation cgcr
+                        ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+                        AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+                SQL;
+            $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
+        }
+
+        // Handling a potential filter even though I do not know where it comes from (no BC break).
+        if ($filter !== null && $filter !== '') {
+            $query .= <<<'SQL'
+                    WHERE directories.dir_name LIKE :filter AND directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
+                SQL;
+            $queryParameters[] = QueryParameter::string('filter', '%' . $filter . '%');
+        } else {
+            $query .= <<<'SQL'
+                    WHERE directories.dir_name NOT IN ('centreon-map', 'ppm', 'dashboards')
+                SQL;
+        }
+
+        $query .= ' GROUP BY directories.dir_id ORDER BY directories.dir_name';
+
+        return $pearDB->fetchAllKeyValue($query, QueryParameters::create($queryParameters));
+    } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+        throw new RepositoryException(
+            message: 'Unable to retrieve the list of directories',
+            context: ['filter' => $filter],
+            previous: $e
         );
     }
-    $dbresult->closeCursor();
-
-    return $list_dir;
 }
 
 /**
@@ -608,7 +648,7 @@ function isValidMIMETypeFromArchive(
     string $dir,
     ?string $filename = null,
     ?ZipArchive $zip = null,
-    ?PharData $tar = null
+    ?PharData $tar = null,
 ): bool {
     $files = [];
 

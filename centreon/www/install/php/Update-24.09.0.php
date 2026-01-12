@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,7 +81,7 @@ $insertIntoTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
             SQL
     );
 
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+    if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_show`)
@@ -101,7 +101,7 @@ $insertClockWidget = function (CentreonDB $pearDB) use (&$errorMessage): void {
     );
 
     $errorMessage = 'Unable to insert data into table dashboard_widgets';
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+    if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
         $pearDB->executeQuery(
             <<<'SQL'
                 INSERT INTO `dashboard_widgets` (`name`)

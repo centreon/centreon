@@ -1,0 +1,26 @@
+[
+    {
+        "action": "DEL",
+        "object": "ACLACTION",
+        "values": "user-ACLACTION"
+    },
+    {
+        "action": "DEL",
+        "object": "ACLMENU",
+        "values": "user-ACLMENU"
+    },
+    {
+        "action": "DEL",
+        "object": "ACLGROUP",
+        "values": "user-ACLGROUP"
+    },
+    {
+        "action": "DEL",
+        "object": "CONTACT",
+        "values": "contacts-user"
+    },
+    {
+        "action": "RELOAD",
+        "object": "ACL"
+    }
+]

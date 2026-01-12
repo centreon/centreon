@@ -52,3 +52,16 @@ export interface Payload
   pollers: Array<number>;
   type: string;
 }
+
+export interface Filters {
+  name: string;
+  'poller.id': Array<number>;
+  type: Array<string>;
+}
+
+export enum PasswordActionState {
+  Invisble = 'Invisble',
+  Disabled = 'Disabled',
+  Reset = 'Reset',
+  Editing = 'Editing'
+}

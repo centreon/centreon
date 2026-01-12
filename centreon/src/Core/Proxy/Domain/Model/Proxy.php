@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class Proxy implements \Stringable
         private string $url,
         readonly private ?int $port = null,
         private ?string $login = null,
-        private ?string $password = null
+        private ?string $password = null,
     ) {
         $this->url = trim($this->url);
         Assertion::notEmptyString($this->url, 'Proxy:url');

@@ -1,38 +1,26 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 if (! isset($centreon)) {
     exit();
@@ -44,24 +32,39 @@ if (! isset($centreon)) {
 $dep = [];
 $initialValues = [];
 if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
-    $DBRESULT = $pearDB->query("SELECT * FROM dependency WHERE dep_id = '" . $depId . "' LIMIT 1");
+    $qb = $pearDB->createQueryBuilder()
+        ->select('*')
+        ->from('dependency')
+        ->where('dep_id = :depId')
+        ->limit(1)
+        ->getQuery();
+    $params = QueryParameters::create([
+        QueryParameter::int('depId', (int) $depId),
+    ]);
+    $result = $pearDB->fetchAssociative($qb, $params);
 
-    // Set base value
-    $dep = array_map('myDecode', $DBRESULT->fetchRow());
+    if ($result !== false) {
+        // Set base value
+        $dep = array_map('myDecode', $result);
 
-    // Set Notification Failure Criteria
-    $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
-    foreach ($dep['notification_failure_criteria'] as $key => $value) {
-        $dep['notification_failure_criteria'][trim($value)] = 1;
+        // Set Notification Failure Criteria
+        $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
+        foreach ($dep['notification_failure_criteria'] as $key => $value) {
+            $dep['notification_failure_criteria'][trim($value)] = 1;
+        }
+
+        // Set Execution Failure Criteria
+        $dep['execution_failure_criteria'] = explode(',', $dep['execution_failure_criteria']);
+        foreach ($dep['execution_failure_criteria'] as $key => $value) {
+            $dep['execution_failure_criteria'][trim($value)] = 1;
+        }
+    } else {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Dependency not found',
+            ['depId' => $depId]
+        );
     }
-
-    // Set Execution Failure Criteria
-    $dep['execution_failure_criteria'] = explode(',', $dep['execution_failure_criteria']);
-    foreach ($dep['execution_failure_criteria'] as $key => $value) {
-        $dep['execution_failure_criteria'][trim($value)] = 1;
-    }
-
-    $DBRESULT->closeCursor();
 }
 
 // Var information to format the element
@@ -214,6 +217,10 @@ $form->addRule('dep_hgChilds', _('Circular Definition'), 'cycle');
 $form->registerRule('exist', 'callback', 'testHostGroupDependencyExistence');
 $form->addRule('dep_name', _('Name is already in use'), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
+
+if ($o === ADD_DEPENDENCY || $o === MODIFY_DEPENDENCY) {
+    $form->addFormRule('validateParentChildAreNotCircular');
+}
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);

@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -43,12 +28,15 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
@@ -88,6 +76,31 @@ function setHostChangeFlag($db, $hostId = null, $hostgroupId = null)
     $statement->execute();
 
     return null;
+}
+
+/**
+ * This is a quickform rule for checking if circular inheritance is used
+ *
+ * @return bool
+ */
+function checkCircularInheritance(int $templateId)
+{
+    global $form;
+
+    $data = $form->getSubmitValues();
+    if ((int) $data['service_id'] === $templateId) {
+        return false;
+    }
+
+    $kernel = Kernel::createForWeb();
+    $repository = $kernel->getContainer()->get(ReadServiceTemplateRepositoryInterface::class);
+    $inheritanceArray = $repository->findParents($templateId);
+    $parentsIds = array_map(
+        static fn (ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
+        $inheritanceArray
+    );
+
+    return ! (in_array((int) $data['service_id'], $parentsIds, true));
 }
 
 /**
@@ -296,7 +309,7 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
         $service = $statement->fetch(PDO::FETCH_ASSOC);
         // Duplicate entry
         if ($statement->rowCount() >= 1 && $service['service_id'] != $id) {
-            return (false == $returnId) ? false : $service['service_id'];
+            return ($returnId == false) ? false : $service['service_id'];
         }
     }
 
@@ -317,11 +330,11 @@ function testServiceExistence($name = null, $hPars = [], $hgPars = [], $returnId
         $service = $statement->fetch(PDO::FETCH_ASSOC);
         // Duplicate entry
         if ($statement->rowCount() >= 1 && $service['service_id'] != $id) {
-            return (false == $returnId) ? false : $service['service_id'];
+            return ($returnId == false) ? false : $service['service_id'];
         }
     }
 
-    return (false == $returnId) ? true : 0;
+    return ($returnId == false) ? true : 0;
 }
 
 /**
@@ -618,7 +631,7 @@ function multipleServiceInDB(
     $hostgroup = null,
     $hPars = [],
     $hgPars = [],
-    $params = []
+    $params = [],
 ) {
     global $pearDB, $centreon;
 
@@ -1001,6 +1014,19 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
+    if (isset($ret['command_command_id'])) {
+        $kernel = Kernel::createForWeb();
+        /** @var ReadCommandRepositoryInterface $commandRepository */
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
+    }
     $ret['service_description'] = $service->checkIllegalChar($ret['service_description']);
 
     $rq = 'UPDATE service SET ';
@@ -1048,7 +1074,13 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         ? $rq .= "'" . $ret['service_retry_check_interval'] . "', "
         : $rq .= 'NULL, ';
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
-    $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
+    isset($ret['service_check_freshness']['service_check_freshness'])
+        ? $rq .= 'service_check_freshness = ' . "'" . $ret['service_check_freshness']['service_check_freshness'] . "', "
+        : $rq .= "service_check_freshness = '2', ";
+    isset($ret['service_freshness_threshold']) && $ret['service_freshness_threshold'] != null
+        ? $rq .= 'service_freshness_threshold = ' . "'" . $ret['service_freshness_threshold'] . "', "
+        : $rq .= 'service_freshness_threshold = NULL, ';
+    // $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
     $rq .= 'service_event_handler_enabled = ';
     isset($ret['service_event_handler_enabled']['service_event_handler_enabled'])
     && $ret['service_event_handler_enabled']['service_event_handler_enabled'] != 2
@@ -1168,6 +1200,18 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
+    if (isset($ret['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
+    }
+
     if (isset($ret['sg_name'])) {
         $ret['sg_name'] = $centreon->checkIllegalChar($ret['sg_name']);
     }
@@ -1211,8 +1255,13 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
 
     $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
-    $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
-    $rq .= 'service_freshness_threshold = null, ';
+    $rq .= "service_obsess_over_service = '2',";
+    $rq .= isset($ret['service_check_freshness']['service_check_freshness'])
+        ? " service_check_freshness = '" . $ret['service_check_freshness']['service_check_freshness'] . "', "
+        : " service_check_freshness = '2', ";
+    $rq .= isset($ret['service_freshness_threshold']) && $ret['service_freshness_threshold'] != null
+        ? "service_freshness_threshold = '" . $ret['service_freshness_threshold'] . "', "
+        : 'service_freshness_threshold = null, ';
 
     $rq .= 'service_event_handler_enabled = ';
     isset($ret['service_event_handler_enabled']['service_event_handler_enabled'])
@@ -1699,381 +1748,6 @@ function updateServiceInDBForOnPrem($serviceId = null, $massiveChange = false, $
 }
 
 /**
- * Inserts a new service template into the database.
- *
- * @param array $submittedValues
- *
- * @throws Exception
- * @throws LogicException
- * @throws TransportExceptionInterface
- * @throws RedirectionExceptionInterface
- * @throws ClientExceptionInterface
- * @throws ServerExceptionInterface
- *
- * @return int
- */
-function insertServiceTemplate(array $submittedValues = []): int
-{
-    global $isCloudPlatform;
-
-    return $isCloudPlatform
-        ? insertServiceTemplateForCloud($submittedValues)
-        : insertServiceTemplateForOnPremise($submittedValues);
-}
-
-/**
- * Inserts a new service template into the database for cloud.
- *
- * @param array $submittedValues
- *
- * @throws Exception
- * @throws LogicException
- * @throws TransportExceptionInterface
- * @throws RedirectionExceptionInterface
- * @throws ClientExceptionInterface
- * @throws ServerExceptionInterface
- *
- * @return int
- */
-function insertServiceTemplateForCloud(array $submittedValues): int
-{
-    global $centreon, $basePath;
-
-    try {
-        $serviceId = insertServiceTemplateByApi(
-            submittedValues: $submittedValues,
-            isCloudPlatform: true,
-            basePath: $basePath
-        );
-
-        updateServiceHost($serviceId, $submittedValues);
-        updateServiceServiceGroup($serviceId, $submittedValues);
-        signalConfigurationChange('service', $serviceId);
-        $centreon->user->access->updateACL(
-            [
-                'type' => 'SERVICE',
-                'id' => $serviceId,
-                'action' => 'ADD',
-            ]
-        );
-
-        return $serviceId;
-    } catch (Exception $exception) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error while creating service template: {$exception->getMessage()}",
-            customContext: ['service template Id' => $serviceId, 'basePath' => $basePath],
-            exception: $exception
-        );
-
-        throw $exception;
-    }
-}
-
-/**
- * Inserts a new service template into the database for on-premise.
- *
- * @param array $submittedValues
- *
- * @throws Exception
- * @throws LogicException
- * @throws CentreonDbException
- * @throws PDOException
- * @throws TransportExceptionInterface
- * @throws RedirectionExceptionInterface
- * @throws ClientExceptionInterface
- * @throws ServerExceptionInterface
- *
- * @return int
- */
-function insertServiceTemplateForOnPremise(array $submittedValues = []): int
-{
-    global $centreon, $basePath;
-
-    try {
-        $serviceId = insertServiceTemplateByApi(
-            submittedValues: $submittedValues,
-            isCloudPlatform: false,
-            basePath: $basePath
-        );
-
-        insertServiceTemplateAdditionalOptions($serviceId, $submittedValues);
-        updateServiceContactGroup($serviceId, $submittedValues);
-        updateServiceContact($serviceId, $submittedValues);
-        updateServiceNotifs($serviceId, $submittedValues);
-        updateServiceHost($serviceId, $submittedValues);
-        updateServiceServiceGroup($serviceId, $submittedValues);
-        updateServiceTrap($serviceId, $submittedValues);
-        signalConfigurationChange('service', $serviceId);
-        $centreon->user->access->updateACL(
-            [
-                'type' => 'SERVICE',
-                'id' => $serviceId,
-                'action' => 'ADD',
-            ]
-        );
-
-        return $serviceId;
-    } catch (Exception $exception) {
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: "Error while creating service template: {$exception->getMessage()}",
-            customContext: ['service template Id' => $serviceId ?? null, 'basePath' => $basePath],
-            exception: $exception
-        );
-
-        throw $exception;
-    }
-}
-
-/**
- * Inserts a new service template into the database by calling the API.
- *
- * @param array $submittedValues
- * @param bool $isCloudPlatform
- * @param string $basePath
- *
- * @throws Exception
- * @throws LogicException
- * @throws PDOException
- * @throws TransportExceptionInterface
- * @throws RedirectionExceptionInterface
- * @throws ClientExceptionInterface
- * @throws ServerExceptionInterface
- *
- * @return int
- */
-function insertServiceTemplateByApi(
-    array $submittedValues = [],
-    bool $isCloudPlatform = false,
-    string $basePath
-): int {
-    $kernel = Kernel::createForWeb();
-    $router = $kernel->getContainer()->get(Router::class) ?? throw new LogicException('Router not found');
-
-    if ($isCloudPlatform) {
-        $payload = getServiceTemplatePayload($submittedValues, true);
-    } else {
-        $payload = getServiceTemplatePayload($submittedValues);
-    }
-
-    $url = $router->generate(
-        'AddServiceTemplate',
-        $basePath ? ['base_uri' => $basePath] : [],
-        UrlGeneratorInterface::ABSOLUTE_URL
-    );
-
-    $response = callApi($url, 'POST', $payload);
-    if ($response['status_code'] !== 201) {
-        throw new Exception($response['message'] ?? 'Unexpected return code by API');
-    }
-
-    $serviceId = $response['content']['id'] ?? null;
-    if ($serviceId === null) {
-        throw new Exception('Failed to create service template by API');
-    }
-
-    return $serviceId;
-}
-
-/**
- * Constructs the payload for a service template.
- *
- * @param array $submittedValues
- * @param bool $isCloudPlatform
- *
- * @throws PDOException
- *
- * @return array
- */
-function getServiceTemplatePayload(
-    array $submittedValues,
-    bool $isCloudPlatform = false
-): array {
-    global $form, $pearDB;
-
-    $service = new CentreonService($pearDB);
-
-    $name = '';
-    if (isset($submittedValues['service_description'])) {
-        $name = preg_replace('/\s{2,}/', ' ', $service->checkIllegalChar($submittedValues['service_description']));
-    }
-
-    if (! $isCloudPlatform && isset($submittedValues['command_command_id_arg2'])) {
-        $submittedValues['command_command_id_arg2'] = str_replace(
-            ['\n', '\t', '\r'],
-            ['//BR//', '//T//', '//R//'],
-            $submittedValues['command_command_id_arg2']
-        );
-    }
-
-    $submittedValues['command_command_id_arg'] = getCommandArgs($_POST, $submittedValues);
-
-    if (isset($submittedValues['esi_icon_image']) && strrchr('REP_', (string) $submittedValues['esi_icon_image'])) {
-        $submittedValues['esi_icon_image'] = null;
-    }
-
-    $payload = [
-        'service_template_id' => $submittedValues['service_template_model_stm_id']
-            && is_numeric($submittedValues['service_template_model_stm_id'])
-            && (int) $submittedValues['service_template_model_stm_id'] > 0
-                ? (int) $submittedValues['service_template_model_stm_id']
-                : null,
-        'check_command_id' => $submittedValues['command_command_id']
-            && is_numeric($submittedValues['command_command_id'])
-            && (int) $submittedValues['command_command_id'] > 0
-                ? (int) $submittedValues['command_command_id']
-                : null,
-        'check_timeperiod_id' => $submittedValues['timeperiod_tp_id']
-            && is_numeric($submittedValues['timeperiod_tp_id'])
-            && (int) $submittedValues['timeperiod_tp_id'] > 0
-                ? (int) $submittedValues['timeperiod_tp_id']
-                : null,
-        'event_handler_command_id' => $submittedValues['command_command_id2']
-            && is_numeric($submittedValues['command_command_id2'])
-            && (int) $submittedValues['command_command_id2'] > 0
-                ? (int) $submittedValues['command_command_id2']
-                : null,
-        'name' => $name,
-        'alias' => $submittedValues['service_alias'] ?? null,
-        'max_check_attempts' => $submittedValues['service_max_check_attempts']
-            ? (int) $submittedValues['service_max_check_attempts']
-            : null,
-        'normal_check_interval' => $submittedValues['service_normal_check_interval']
-            ? (int) $submittedValues['service_normal_check_interval']
-            : null,
-        'retry_check_interval' => $submittedValues['service_retry_check_interval']
-            ? (int) $submittedValues['service_retry_check_interval'] : null,
-        'event_handler_enabled' => isset($submittedValues['service_event_handler_enabled']['service_event_handler_enabled'])
-            && $submittedValues['service_event_handler_enabled']['service_event_handler_enabled'] != 2
-                ? (int) $submittedValues['service_event_handler_enabled']['service_event_handler_enabled']
-                : 2,
-        'check_command_args' => ! empty($submittedValues['command_command_id_arg'])
-            ? array_values(array_filter(
-                explode('!', $submittedValues['command_command_id_arg']),
-                function ($value) {
-                    return $value !== '';
-                }
-            ))
-            : [],
-        'severity_id' => $submittedValues['criticality_id']
-            && is_numeric($submittedValues['criticality_id'])
-            && (int) $submittedValues['criticality_id'] > 0
-                ? (int) $submittedValues['criticality_id']
-                : null,
-        'action_url' => ! empty($submittedValues['esi_action_url']) ? $submittedValues['esi_action_url'] : null,
-        'icon_id' => $submittedValues['esi_icon_image']
-            && is_numeric($submittedValues['esi_icon_image'])
-            && (int) $submittedValues['esi_icon_image'] > 0
-                ? (int) $submittedValues['esi_icon_image']
-                : null,
-        'note' => ! empty($submittedValues['esi_notes']) ? $submittedValues['esi_notes'] : null,
-        'note_url' => ! empty($submittedValues['esi_notes_url']) ? $submittedValues['esi_notes_url'] : null,
-        'service_categories' => isset($submittedValues['service_categories'])
-            ? array_map('intval', $submittedValues['service_categories'])
-            : CentreonUtils::mergeWithInitialValues($form, 'service_categories'),
-    ];
-
-    if (! $isCloudPlatform) {
-        $additionalFields = [
-            'notification_timeperiod_id' => $submittedValues['timeperiod_tp_id2']
-                && is_numeric($submittedValues['timeperiod_tp_id2'])
-                && (int) $submittedValues['timeperiod_tp_id2'] > 0
-                    ? (int) $submittedValues['timeperiod_tp_id2']
-                    : null,
-            'volatility_enabled' => isset($submittedValues['service_is_volatile']['service_is_volatile'])
-                && $submittedValues['service_is_volatile']['service_is_volatile'] != 2
-                    ? (int) $submittedValues['service_is_volatile']['service_is_volatile']
-                    : 2,
-            'active_check_enabled' => isset($submittedValues['service_active_checks_enabled']['service_active_checks_enabled'])
-                && $submittedValues['service_active_checks_enabled']['service_active_checks_enabled'] != 2
-                    ? (int) $submittedValues['service_active_checks_enabled']['service_active_checks_enabled']
-                    : 2,
-            'passive_check_enabled' => isset($submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'])
-                && $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'] != 2
-                    ? (int) $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled']
-                    : 2,
-            'freshness_checked' => isset($submittedValues['service_check_freshness']['service_check_freshness'])
-                && $submittedValues['service_check_freshness']['service_check_freshness'] != 2
-                    ? (int) $submittedValues['service_check_freshness']['service_check_freshness']
-                    : 2,
-            'freshness_threshold' => $submittedValues['service_freshness_threshold']
-                ? (int) $submittedValues['service_freshness_threshold']
-                : null,
-            'low_flap_threshold' => $submittedValues['service_low_flap_threshold']
-                ? (int) $submittedValues['service_low_flap_threshold']
-                : null,
-            'high_flap_threshold' => $submittedValues['service_high_flap_threshold']
-                ? (int) $submittedValues['service_high_flap_threshold']
-                : null,
-            'flap_detection_enabled' => isset($submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled'])
-                && $submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled'] != 2
-                    ? (int) $submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled']
-                    : 2,
-            'notification_interval' => $submittedValues['service_notification_interval']
-                ? (int) $submittedValues['service_notification_interval']
-                : null,
-            'notification_enabled' => isset($submittedValues['service_notifications_enabled']['service_notifications_enabled'])
-                && $submittedValues['service_notifications_enabled']['service_notifications_enabled'] != 2
-                    ? (int) $submittedValues['service_notifications_enabled']['service_notifications_enabled']
-                    : 2,
-            'is_contact_additive_inheritance' => isset($submittedValues['contact_additive_inheritance']) ? true : false,
-            'is_contact_group_additive_inheritance' => isset($submittedValues['cg_additive_inheritance']) ? true : false,
-            'first_notification_delay' => $submittedValues['service_first_notification_delay']
-                ? (int) $submittedValues['service_first_notification_delay']
-                : null,
-            'recovery_notification_delay' => $submittedValues['service_recovery_notification_delay']
-                ? (int) $submittedValues['service_recovery_notification_delay']
-                : null,
-            'comment' => ! empty($submittedValues['service_comment']) ? $submittedValues['service_comment'] : null,
-            'event_handler_command_args' => ! empty($submittedValues['command_command_id_arg2'])
-                ? array_values(array_filter(
-                    explode('!', $submittedValues['command_command_id_arg2']),
-                    function ($value) {
-                        return $value !== '';
-                    }
-                ))
-                : [],
-            'acknowledgement_timeout' => $submittedValues['service_acknowledgement_timeout']
-                ? (int) $submittedValues['service_acknowledgement_timeout']
-                : null,
-            'icon_alternative' => ! empty($submittedValues['esi_icon_image_alt'])
-                ? $submittedValues['esi_icon_image_alt']
-                : null,
-            'graph_template_id' => $submittedValues['graph_id']
-                && is_numeric($submittedValues['graph_id'])
-                && (int) $submittedValues['graph_id'] > 0
-                    ? (int) $submittedValues['graph_id']
-                    : null,
-        ];
-
-        $payload = array_merge($payload, $additionalFields);
-    }
-
-    if (isset($submittedValues['macroInput'], $submittedValues['macroValue'])) {
-        $macroDescription = [];
-        foreach ($submittedValues as $name => $value) {
-            if (preg_match_all("/^macroDescription_(\w+)$/", $name, $matches, PREG_SET_ORDER)) {
-                foreach ($matches as $match) {
-                    $macroDescription[$match[1]] = $value;
-                }
-            }
-        }
-
-        foreach ($submittedValues['macroInput'] as $key => $macroName) {
-            $payload['macros'][] = [
-                'name' => $macroName,
-                'value' => $submittedValues['macroValue'][$key] ?? null,
-                'is_password' => isset($submittedValues['macroPassword'][$key]) ? true : false,
-                'description' => $macroDescription[$key] ?? null,
-            ];
-        }
-    }
-
-    return $payload;
-}
-
-/**
  * Insert additional options for service template
  *
  * @param int $serviceId
@@ -2186,7 +1860,6 @@ function insertServiceInDBForOnPremise($submittedValues = [], $onDemandMacro = n
     if (! count($submittedValues)) {
         $submittedValues = $form->getSubmitValues();
     }
-
     $tmp_fields = insertServiceForOnPremise($submittedValues, $onDemandMacro);
     if (! isset($tmp_fields['service_id'])) {
         return null;
@@ -2225,6 +1898,20 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
 
     if (! count($submittedValues)) {
         $submittedValues = $form->getSubmitValues();
+    }
+
+    if (isset($submittedValues['command_command_id'])) {
+        $kernel = Kernel::createForWeb();
+        /** @var ReadCommandRepositoryInterface $commandRepository */
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $submittedValues['service_check_freshness']['service_check_freshness'] = '1';
+            $submittedValues['service_freshness_threshold'] = 120;
+        }
     }
 
     $submittedValues['service_description'] = $service->checkIllegalChar($submittedValues['service_description']);
@@ -2284,8 +1971,13 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     $request .= "'2', ";  // service_active_checks_enabled = '2' (default)
     $request .= "'2', ";  // service_passive_checks_enabled = '2' (default)
     $request .= "'2', ";  // service_obsess_over_service = '2' (default)
-    $request .= "'2', ";  // service_check_freshness = '2' (default)
-    $request .= 'null, '; // service_freshness_threshold = null
+
+    isset($submittedValues['service_check_freshness']['service_check_freshness'])
+        ? $request .= "'" . $submittedValues['service_check_freshness']['service_check_freshness'] . "', "
+        : $request .= "'2', ";
+    isset($submittedValues['service_freshness_threshold']) && $submittedValues['service_freshness_threshold'] != null
+        ? $request .= "'" . $submittedValues['service_freshness_threshold'] . "', "
+        : $request .= 'NULL, ';
 
     isset($submittedValues['service_event_handler_enabled']['service_event_handler_enabled'])
     && $submittedValues['service_event_handler_enabled']['service_event_handler_enabled'] != 2
@@ -2388,6 +2080,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         try {
             /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
+            $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
             insertServiceSecretsInVault($writeVaultRepository, $passwordMacros);
         } catch (Throwable $ex) {
             error_log((string) $ex);
@@ -2419,6 +2112,20 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
 
     if (! count($submittedValues)) {
         $submittedValues = $form->getSubmitValues();
+    }
+
+    if (isset($submittedValues['command_command_id'])) {
+        $kernel = Kernel::createForWeb();
+        /** @var ReadCommandRepositoryInterface $commandRepository */
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $submittedValues['service_check_freshness']['service_check_freshness'] = '1';
+            $submittedValues['service_freshness_threshold'] = 120;
+        }
     }
 
     $submittedValues['service_description'] = $service->checkIllegalChar($submittedValues['service_description']);
@@ -2733,6 +2440,17 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
+    if (isset($ret['command_command_id']) && ! empty($ret['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
+    }
     $ret['service_description'] = $service->checkIllegalChar($ret['service_description']);
 
     if (isset($ret['command_command_id_arg2']) && $ret['command_command_id_arg2'] != null) {
@@ -2928,10 +2646,6 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         /** @var WriteVaultRepositoryInterface $writeVaultRepository */
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
-        $updatedPasswordMacros = array_filter($service->getFormattedMacros(), function ($macro) {
-            return $macro['macroPassword'] === '1'
-                && ! str_starts_with($macro['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN);
-        });
         try {
             updateServiceSecretsInVault(
                 $readVaultRepository,
@@ -2939,7 +2653,7 @@ function updateService($service_id = null, $from_MC = false, $params = [])
                 $logger,
                 $vaultPath,
                 (int) $service_id,
-                $updatedPasswordMacros,
+                $service->getFormattedMacros(),
             );
         } catch (Throwable $ex) {
             error_log((string) $ex);
@@ -2988,6 +2702,18 @@ function updateService_MC($service_id = null, $params = [])
     $vaultPath = null;
     if ($vaultConfiguration !== null) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
+    }
+
+    if (isset($ret['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
     }
 
     if (isset($ret['sg_name'])) {
@@ -4213,6 +3939,381 @@ function isCheckCommandDefined(int $serviceId): bool
 // ------ API Configuration calls --------------------------------------------------------
 
 /**
+ * Inserts a new service template into the database.
+ *
+ * @param array $submittedValues
+ *
+ * @throws Exception
+ * @throws LogicException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplate(array $submittedValues = []): int
+{
+    global $isCloudPlatform;
+
+    return $isCloudPlatform
+        ? insertServiceTemplateForCloud($submittedValues)
+        : insertServiceTemplateForOnPremise($submittedValues);
+}
+
+/**
+ * Inserts a new service template into the database for cloud.
+ *
+ * @param array $submittedValues
+ *
+ * @throws Exception
+ * @throws LogicException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplateForCloud(array $submittedValues): int
+{
+    global $centreon, $basePath;
+
+    try {
+        $serviceId = insertServiceTemplateByApi(
+            submittedValues: $submittedValues,
+            isCloudPlatform: true,
+            basePath: $basePath
+        );
+
+        updateServiceHost($serviceId, $submittedValues);
+        updateServiceServiceGroup($serviceId, $submittedValues);
+        signalConfigurationChange('service', $serviceId);
+        $centreon->user->access->updateACL(
+            [
+                'type' => 'SERVICE',
+                'id' => $serviceId,
+                'action' => 'ADD',
+            ]
+        );
+
+        return $serviceId;
+    } catch (Exception $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while creating service template: {$exception->getMessage()}",
+            customContext: ['service template Id' => $serviceId, 'basePath' => $basePath],
+            exception: $exception
+        );
+
+        throw $exception;
+    }
+}
+
+/**
+ * Inserts a new service template into the database for on-premise.
+ *
+ * @param array $submittedValues
+ *
+ * @throws Exception
+ * @throws LogicException
+ * @throws CentreonDbException
+ * @throws PDOException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplateForOnPremise(array $submittedValues = []): int
+{
+    global $centreon, $basePath;
+
+    try {
+        $serviceId = insertServiceTemplateByApi(
+            submittedValues: $submittedValues,
+            isCloudPlatform: false,
+            basePath: $basePath
+        );
+
+        insertServiceTemplateAdditionalOptions($serviceId, $submittedValues);
+        updateServiceContactGroup($serviceId, $submittedValues);
+        updateServiceContact($serviceId, $submittedValues);
+        updateServiceNotifs($serviceId, $submittedValues);
+        updateServiceHost($serviceId, $submittedValues);
+        updateServiceServiceGroup($serviceId, $submittedValues);
+        updateServiceTrap($serviceId, $submittedValues);
+        signalConfigurationChange('service', $serviceId);
+        $centreon->user->access->updateACL(
+            [
+                'type' => 'SERVICE',
+                'id' => $serviceId,
+                'action' => 'ADD',
+            ]
+        );
+
+        return $serviceId;
+    } catch (Exception $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Error while creating service template: {$exception->getMessage()}",
+            customContext: ['service template Id' => $serviceId ?? null, 'basePath' => $basePath],
+            exception: $exception
+        );
+
+        throw $exception;
+    }
+}
+
+/**
+ * Inserts a new service template into the database by calling the API.
+ *
+ * @param array $submittedValues
+ * @param bool $isCloudPlatform
+ * @param string $basePath
+ *
+ * @throws Exception
+ * @throws LogicException
+ * @throws PDOException
+ * @throws TransportExceptionInterface
+ * @throws RedirectionExceptionInterface
+ * @throws ClientExceptionInterface
+ * @throws ServerExceptionInterface
+ *
+ * @return int
+ */
+function insertServiceTemplateByApi(
+    array $submittedValues = [],
+    bool $isCloudPlatform = false,
+    string $basePath,
+): int {
+    $kernel = Kernel::createForWeb();
+    $router = $kernel->getContainer()->get(Router::class) ?? throw new LogicException('Router not found');
+
+    if ($isCloudPlatform) {
+        $payload = getServiceTemplatePayload($submittedValues, true);
+    } else {
+        $payload = getServiceTemplatePayload($submittedValues);
+    }
+
+    $url = $router->generate(
+        'AddServiceTemplate',
+        $basePath ? ['base_uri' => $basePath] : [],
+        UrlGeneratorInterface::ABSOLUTE_URL
+    );
+
+    $response = callApi($url, 'POST', $payload);
+    if ($response['status_code'] !== 201) {
+        throw new Exception($response['content']['message'] ?? 'Unexpected return code by API');
+    }
+
+    $serviceId = $response['content']['id'] ?? null;
+    if ($serviceId === null) {
+        throw new Exception('Failed to create service template by API');
+    }
+
+    return $serviceId;
+}
+
+/**
+ * Constructs the payload for a service template.
+ *
+ * @param array $submittedValues
+ * @param bool $isCloudPlatform
+ *
+ * @throws PDOException
+ *
+ * @return array
+ */
+function getServiceTemplatePayload(
+    array $submittedValues,
+    bool $isCloudPlatform = false,
+): array {
+    global $form, $pearDB;
+
+    $service = new CentreonService($pearDB);
+
+    $name = '';
+    if (isset($submittedValues['service_description'])) {
+        $name = preg_replace('/\s{2,}/', ' ', $service->checkIllegalChar($submittedValues['service_description']));
+    }
+
+    if (! $isCloudPlatform && isset($submittedValues['command_command_id_arg2'])) {
+        $submittedValues['command_command_id_arg2'] = str_replace(
+            ['\n', '\t', '\r'],
+            ['//BR//', '//T//', '//R//'],
+            $submittedValues['command_command_id_arg2']
+        );
+    }
+
+    $submittedValues['command_command_id_arg'] = getCommandArgs($_POST, $submittedValues);
+
+    if (isset($submittedValues['esi_icon_image']) && strrchr('REP_', (string) $submittedValues['esi_icon_image'])) {
+        $submittedValues['esi_icon_image'] = null;
+    }
+
+    $payload = [
+        'service_template_id' => $submittedValues['service_template_model_stm_id']
+            && is_numeric($submittedValues['service_template_model_stm_id'])
+            && (int) $submittedValues['service_template_model_stm_id'] > 0
+                ? (int) $submittedValues['service_template_model_stm_id']
+                : null,
+        'check_command_id' => $submittedValues['command_command_id']
+            && is_numeric($submittedValues['command_command_id'])
+            && (int) $submittedValues['command_command_id'] > 0
+                ? (int) $submittedValues['command_command_id']
+                : null,
+        'check_timeperiod_id' => $submittedValues['timeperiod_tp_id']
+            && is_numeric($submittedValues['timeperiod_tp_id'])
+            && (int) $submittedValues['timeperiod_tp_id'] > 0
+                ? (int) $submittedValues['timeperiod_tp_id']
+                : null,
+        'event_handler_command_id' => $submittedValues['command_command_id2']
+            && is_numeric($submittedValues['command_command_id2'])
+            && (int) $submittedValues['command_command_id2'] > 0
+                ? (int) $submittedValues['command_command_id2']
+                : null,
+        'name' => $name,
+        'alias' => $submittedValues['service_alias'] ?? null,
+        'max_check_attempts' => $submittedValues['service_max_check_attempts']
+            ? (int) $submittedValues['service_max_check_attempts']
+            : null,
+        'normal_check_interval' => $submittedValues['service_normal_check_interval']
+            ? (int) $submittedValues['service_normal_check_interval']
+            : null,
+        'retry_check_interval' => $submittedValues['service_retry_check_interval']
+            ? (int) $submittedValues['service_retry_check_interval'] : null,
+        'event_handler_enabled' => isset($submittedValues['service_event_handler_enabled']['service_event_handler_enabled'])
+            && $submittedValues['service_event_handler_enabled']['service_event_handler_enabled'] != 2
+                ? (int) $submittedValues['service_event_handler_enabled']['service_event_handler_enabled']
+                : 2,
+        'check_command_args' => ! empty($submittedValues['command_command_id_arg'])
+            ? array_values(array_filter(
+                explode('!', $submittedValues['command_command_id_arg']),
+                function ($value) {
+                    return $value !== '';
+                }
+            ))
+            : [],
+        'severity_id' => $submittedValues['criticality_id']
+            && is_numeric($submittedValues['criticality_id'])
+            && (int) $submittedValues['criticality_id'] > 0
+                ? (int) $submittedValues['criticality_id']
+                : null,
+        'action_url' => ! empty($submittedValues['esi_action_url']) ? $submittedValues['esi_action_url'] : null,
+        'icon_id' => $submittedValues['esi_icon_image']
+            && is_numeric($submittedValues['esi_icon_image'])
+            && (int) $submittedValues['esi_icon_image'] > 0
+                ? (int) $submittedValues['esi_icon_image']
+                : null,
+        'note' => ! empty($submittedValues['esi_notes']) ? $submittedValues['esi_notes'] : null,
+        'note_url' => ! empty($submittedValues['esi_notes_url']) ? $submittedValues['esi_notes_url'] : null,
+        'service_categories' => isset($submittedValues['service_categories'])
+            ? array_map('intval', $submittedValues['service_categories'])
+            : CentreonUtils::mergeWithInitialValues($form, 'service_categories'),
+    ];
+
+    if (! $isCloudPlatform) {
+        $additionalFields = [
+            'notification_timeperiod_id' => $submittedValues['timeperiod_tp_id2']
+                && is_numeric($submittedValues['timeperiod_tp_id2'])
+                && (int) $submittedValues['timeperiod_tp_id2'] > 0
+                    ? (int) $submittedValues['timeperiod_tp_id2']
+                    : null,
+            'volatility_enabled' => isset($submittedValues['service_is_volatile']['service_is_volatile'])
+                && $submittedValues['service_is_volatile']['service_is_volatile'] != 2
+                    ? (int) $submittedValues['service_is_volatile']['service_is_volatile']
+                    : 2,
+            'active_check_enabled' => isset($submittedValues['service_active_checks_enabled']['service_active_checks_enabled'])
+                && $submittedValues['service_active_checks_enabled']['service_active_checks_enabled'] != 2
+                    ? (int) $submittedValues['service_active_checks_enabled']['service_active_checks_enabled']
+                    : 2,
+            'passive_check_enabled' => isset($submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'])
+                && $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled'] != 2
+                    ? (int) $submittedValues['service_passive_checks_enabled']['service_passive_checks_enabled']
+                    : 2,
+            'freshness_checked' => isset($submittedValues['service_check_freshness']['service_check_freshness'])
+                && $submittedValues['service_check_freshness']['service_check_freshness'] != 2
+                    ? (int) $submittedValues['service_check_freshness']['service_check_freshness']
+                    : 2,
+            'freshness_threshold' => $submittedValues['service_freshness_threshold']
+                ? (int) $submittedValues['service_freshness_threshold']
+                : null,
+            'low_flap_threshold' => $submittedValues['service_low_flap_threshold']
+                ? (int) $submittedValues['service_low_flap_threshold']
+                : null,
+            'high_flap_threshold' => $submittedValues['service_high_flap_threshold']
+                ? (int) $submittedValues['service_high_flap_threshold']
+                : null,
+            'flap_detection_enabled' => isset($submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled'])
+                && $submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled'] != 2
+                    ? (int) $submittedValues['service_flap_detection_enabled']['service_flap_detection_enabled']
+                    : 2,
+            'notification_interval' => $submittedValues['service_notification_interval']
+                ? (int) $submittedValues['service_notification_interval']
+                : null,
+            'notification_enabled' => isset($submittedValues['service_notifications_enabled']['service_notifications_enabled'])
+                && $submittedValues['service_notifications_enabled']['service_notifications_enabled'] != 2
+                    ? (int) $submittedValues['service_notifications_enabled']['service_notifications_enabled']
+                    : 2,
+            'is_contact_additive_inheritance' => isset($submittedValues['contact_additive_inheritance']) ? true : false,
+            'is_contact_group_additive_inheritance' => isset($submittedValues['cg_additive_inheritance']) ? true : false,
+            'first_notification_delay' => $submittedValues['service_first_notification_delay']
+                ? (int) $submittedValues['service_first_notification_delay']
+                : null,
+            'recovery_notification_delay' => $submittedValues['service_recovery_notification_delay']
+                ? (int) $submittedValues['service_recovery_notification_delay']
+                : null,
+            'comment' => ! empty($submittedValues['service_comment']) ? $submittedValues['service_comment'] : null,
+            'event_handler_command_args' => ! empty($submittedValues['command_command_id_arg2'])
+                ? array_values(array_filter(
+                    explode('!', $submittedValues['command_command_id_arg2']),
+                    function ($value) {
+                        return $value !== '';
+                    }
+                ))
+                : [],
+            'acknowledgement_timeout' => $submittedValues['service_acknowledgement_timeout']
+                ? (int) $submittedValues['service_acknowledgement_timeout']
+                : null,
+            'icon_alternative' => ! empty($submittedValues['esi_icon_image_alt'])
+                ? $submittedValues['esi_icon_image_alt']
+                : null,
+            'graph_template_id' => $submittedValues['graph_id']
+                && is_numeric($submittedValues['graph_id'])
+                && (int) $submittedValues['graph_id'] > 0
+                    ? (int) $submittedValues['graph_id']
+                    : null,
+        ];
+
+        $payload = array_merge($payload, $additionalFields);
+    }
+
+    if (isset($submittedValues['macroInput'], $submittedValues['macroValue'])) {
+        $macroDescription = [];
+        foreach ($submittedValues as $name => $value) {
+            if (preg_match_all("/^macroDescription_(\w+)$/", $name, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $macroDescription[$match[1]] = $value;
+                }
+            }
+        }
+
+        foreach ($submittedValues['macroInput'] as $key => $macroName) {
+            $payload['macros'][] = [
+                'name' => $macroName,
+                'value' => $submittedValues['macroValue'][$key] ?? null,
+                'is_password' => isset($submittedValues['macroPassword'][$key]) ? true : false,
+                'description' => $macroDescription[$key] ?? null,
+            ];
+        }
+    }
+
+    return $payload;
+}
+
+/**
  * @param array<int, int> $services The list of service IDs to delete (Ids are the keys)
  *
  * @throws Exception
@@ -4249,7 +4350,7 @@ function deleteServiceByApi(array $services = []): void
 
     if ($servicesWithError !== []) {
         CentreonLog::create()->error(
-            CentreonLog::LEVEL_ERROR,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while deleting services',
             ['service_ids' => $servicesWithError]
         );
@@ -4293,7 +4394,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
 
     if ($serviceTemplatesWithError !== []) {
         CentreonLog::create()->error(
-            CentreonLog::LEVEL_ERROR,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while deleting service templates',
             ['service_ids' => $serviceTemplatesWithError]
         );
@@ -4321,7 +4422,7 @@ function callApi(string $url, string $httpMethod, array $payload): array
         [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+                'Cookie' => CentreonSession::resolveSessionCookie(),
             ],
             'body' => json_encode($payload),
         ]

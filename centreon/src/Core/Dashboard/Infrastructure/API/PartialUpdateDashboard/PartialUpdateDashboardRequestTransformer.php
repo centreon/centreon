@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\PartialUpdateDashboard;
@@ -46,7 +47,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return PartialUpdateDashboardRequest
      */
     public static function transform(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): PartialUpdateDashboardRequest {
         $name = empty($dashboardInputValidator->name) ? new NoValue() : $dashboardInputValidator->name;
         $description = $dashboardInputValidator->description ?? new NoValue(
@@ -67,7 +68,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return ThumbnailRequestDto|NoValue
      */
     private static function createThumbnailDto(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): ThumbnailRequestDto|NoValue {
         if ($dashboardInputValidator->thumbnail === null) {
             return new NoValue();
@@ -88,7 +89,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return RefreshRequestDto|NoValue
      */
     private static function createRefreshDto(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): RefreshRequestDto|NoValue {
         if ($dashboardInputValidator->refresh === null) {
             return new NoValue();
@@ -110,7 +111,7 @@ abstract readonly class PartialUpdateDashboardRequestTransformer
      * @return PanelRequestDto[]|NoValue
      */
     private static function createPanelDto(
-        PartialUpdateDashboardInput $dashboardInputValidator
+        PartialUpdateDashboardInput $dashboardInputValidator,
     ): array|NoValue {
         if ($dashboardInputValidator->panels === null) {
             return new NoValue();

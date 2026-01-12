@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -132,7 +117,7 @@ class CentreonHost
         }
         $listHost = [];
         while ($row = $stmt->fetch()) {
-            $listHost[$row['host_id']] = $row['host_name'];
+            $listHost[$row['host_id']] = htmlspecialchars($row['host_name'], ENT_QUOTES, 'UTF-8');
         }
 
         return $listHost;
@@ -158,7 +143,7 @@ class CentreonHost
         $dbResult->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $dbResult->execute();
         while ($multiTp = $dbResult->fetch()) {
-            $mTp[$multiTp['host_tpl_id']] = $multiTp['host_name'];
+            $mTp[$multiTp['host_tpl_id']] = htmlspecialchars($multiTp['host_name'], ENT_QUOTES, 'UTF-8');
         }
 
         return $mTp;
@@ -176,7 +161,7 @@ class CentreonHost
         $freePp = ['applications-databases-mysql', 'applications-monitoring-centreon-central', 'applications-monitoring-centreon-database', 'applications-monitoring-centreon-poller', 'base-generic', 'hardware-printers-standard-rfc3805-snmp', 'hardware-ups-standard-rfc1628-snmp', 'network-cisco-standard-snmp', 'operatingsystems-linux-snmp', 'operatingsystems-windows-snmp'];
         $ppList = [];
         $dbResult = $this->db->query('SELECT `name` FROM modules_informations WHERE `name` = "centreon-pp-manager"');
-        if (empty($dbResult->fetch()) || true === $this->isAllowed()) {
+        if (empty($dbResult->fetch()) || $this->isAllowed() === true) {
             return $ppList;
         }
         $dbResult = $this->db->query(
@@ -683,7 +668,7 @@ class CentreonHost
               FROM host
               LEFT JOIN ns_host_relation ns
                 ON ns.host_host_id = host.host_id
-              WHERE host_id = :hostId 
+              WHERE host_id = :hostId
               LIMIT 1';
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':hostId', (int) $hostParam, PDO::PARAM_INT);
@@ -800,10 +785,10 @@ class CentreonHost
         $macroPassword = [],
         $macroDescription = [],
         $isMassiveChange = false,
-        $cmdId = false
+        $cmdId = false,
     ): void {
 
-        if (false === $isMassiveChange) {
+        if ($isMassiveChange === false) {
             $query = 'DELETE FROM on_demand_macro_host WHERE host_host_id = :hostId';
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':hostId', $hostId, PDO::PARAM_INT);
@@ -890,7 +875,7 @@ class CentreonHost
         $i = 0;
 
         if ($hostId) {
-            $sSql = 'SELECT host_macro_name, host_macro_value, is_password, description '
+            $sSql = 'SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description '
                 . 'FROM on_demand_macro_host '
                 . 'WHERE host_host_id = :hostId '
                 . 'ORDER BY macro_order ASC';
@@ -903,6 +888,7 @@ class CentreonHost
 
             while ($row = $stmt->fetch()) {
                 if (preg_match('/\$_HOST(.*)\$$/', $row['host_macro_name'], $matches)) {
+                    $arr[$i]['macroId_#index#'] = $row['host_macro_id'];
                     $arr[$i]['macroInput_#index#'] = $matches[1];
                     $arr[$i]['macroValue_#index#'] = $row['host_macro_value'];
                     $arr[$i]['macroPassword_#index#'] = $row['is_password'] ? 1 : null;
@@ -931,7 +917,7 @@ class CentreonHost
         $i = 0;
 
         if (! isset($_REQUEST['macroInput']) && $hostId) {
-            $sSql = 'SELECT host_macro_name, host_macro_value, is_password, description '
+            $sSql = 'SELECT host_macro_id, host_macro_name, host_macro_value, is_password, description '
                 . 'FROM on_demand_macro_host '
                 . 'WHERE host_host_id = :hostId '
                 . 'ORDER BY macro_order ASC';
@@ -943,6 +929,7 @@ class CentreonHost
             }
             while ($row = $stmt->fetch()) {
                 if (preg_match('/\$_HOST(.*)\$$/', $row['host_macro_name'], $matches)) {
+                    $arr[$i]['macroId_#index#'] = $row['host_macro_id'];
                     $arr[$i]['macroInput_#index#'] = $matches[1];
                     $arr[$i]['macroValue_#index#'] = $row['host_macro_value'];
                     $arr[$i]['macroPassword_#index#'] = $row['is_password'] ? 1 : null;
@@ -957,6 +944,7 @@ class CentreonHost
                 if ($realKeys) {
                     $index = $key;
                 }
+                $arr[$index]['macroId_#index#'] = $_REQUEST['macroId'][$key] ?? null;
                 $arr[$index]['macroInput_#index#'] = $val;
                 $arr[$index]['macroValue_#index#'] = $_REQUEST['macroValue'][$key];
                 $arr[$index]['macroPassword_#index#'] = isset($_REQUEST['macroPassword'][$key]) ? 1 : null;
@@ -1093,7 +1081,7 @@ class CentreonHost
                 if ($hId == $templateId) {
                     return false;
                 }
-                if (false === $this->hasNoInfiniteLoop($hId, $templateId, $antiTplLoop)) {
+                if ($this->hasNoInfiniteLoop($hId, $templateId, $antiTplLoop) === false) {
                     return false;
                 }
             }
@@ -1117,7 +1105,7 @@ class CentreonHost
         &$macroInput,
         &$macroValue,
         &$macroPassword,
-        $cmdId = false
+        $cmdId = false,
     ): void {
         $aTemplates = $this->getTemplateChain($host_id, [], -1, true, 'host_name,host_id,command_command_id');
 
@@ -1329,6 +1317,9 @@ class CentreonHost
             }
 
             foreach ($aMacroTemplate as $key => $macr) {
+                if ($macr['macroPassword_#index#'] === 1) {
+                    $macr['macroValue_#index#'] = '**********';
+                }
                 $macr['macroOldValue_#index#'] = $macr['macroValue_#index#'];
                 $macr['macroFrom_#index#'] = 'fromTpl';
                 $macr['source'] = 'fromTpl';
@@ -1403,7 +1394,7 @@ class CentreonHost
         $alreadyProcessed = [],
         $depth = -1,
         $allFields = false,
-        $fields = []
+        $fields = [],
     ) {
         $templates = [];
         if (($depth == -1) || ($depth > 0)) {
@@ -1493,7 +1484,7 @@ class CentreonHost
         $alreadyProcessed = [],
         $depth = -1,
         $fields = [],
-        $values = []
+        $values = [],
     ) {
         if ($depth != 0) {
             $depth--;
@@ -1604,7 +1595,7 @@ class CentreonHost
         &$macroArray,
         &$form,
         $fromKey,
-        $macrosArrayToCompare = null
+        $macrosArrayToCompare = null,
     ): void {
         if (isset($form['macroInput']['#index#'])) {
             unset($form['macroInput']['#index#']);
@@ -2431,7 +2422,7 @@ class CentreonHost
      */
     private function getHostChain(
         $hostId,
-        &$alreadyProcessed
+        &$alreadyProcessed,
     ): void {
         if (! in_array($hostId, $alreadyProcessed)) {
             $alreadyProcessed[$hostId] = $hostId;

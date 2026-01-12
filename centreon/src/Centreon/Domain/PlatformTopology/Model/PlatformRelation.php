@@ -1,14 +1,13 @@
 <?php
 
 /*
- *
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -108,7 +107,7 @@ class PlatformRelation
     public function setRelation(?string $relation): self
     {
         // Set relation to normal if invalid relation type is given to be able to compute the relation
-        if (null !== $relation && ! in_array($relation, self::AVAILABLE_RELATIONS)) {
+        if ($relation !== null && ! in_array($relation, self::AVAILABLE_RELATIONS)) {
             $this->relation = self::NORMAL_RELATION;
         } else {
             $this->relation = $relation;

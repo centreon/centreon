@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
         int $brokerId,
         int $inputOutputId,
         BrokerInputOutput|NewBrokerInputOutput $inputOutput,
-        array $fields
+        array $fields,
     ): void {
         $query = <<<'SQL'
             INSERT INTO `:db`.`cfg_centreonbroker_info` (
@@ -161,7 +161,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
      */
     private function getInsertQueries(
         array $fields,
-        array $values
+        array $values,
     ): array {
         $inserts = [];
         $bindValues = [];
@@ -176,7 +176,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                     if (
                         ! isset($values[$composedName])
                         || ! is_array($values[$composedName])
-                        || [] === $values[$composedName]
+                        || $values[$composedName] === []
                     ) {
                         // multiselect values not provided, skip field.
                         continue;
@@ -193,7 +193,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                     $multiselectBindValues[":value_{$index}"] = '';
 
                     foreach ($values[$composedName] as $subIndex => $subValue) {
-                        if (! is_string($subValue) || '' === $subValue) {
+                        if (! is_string($subValue) || $subValue === '') {
                             // multiselect value not provied, skip value.
                             continue;
                         }
@@ -227,7 +227,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                 } else {
                     // grouped fields
 
-                    if (! isset($values[$fieldName]) || ! is_array($values[$fieldName]) || [] === $values[$fieldName]) {
+                    if (! isset($values[$fieldName]) || ! is_array($values[$fieldName]) || $values[$fieldName] === []) {
                         // group not provided, skip grouped fields.
                         continue;
                     }
@@ -246,7 +246,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                             if (
                                 ! isset($groupedValues[$groupedFieldName])
                                 || ! is_string($groupedValues[$groupedFieldName])
-                                || '' === $groupedValues[$groupedFieldName]
+                                || $groupedValues[$groupedFieldName] === ''
                             ) {
                                 if ($groupFieldInfo->getListDefault()) {
                                     // value not provided, setting to default.
@@ -280,7 +280,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                             ++$groupedFieldIndex;
                         }
 
-                        if ([] === array_diff(['value', 'name'], $empty)) {
+                        if (array_diff(['value', 'name'], $empty) === []) {
                             // both values 'name' and 'value' not provided or empty, skip group.
                             continue;
                         }
@@ -290,7 +290,7 @@ class DbWriteBrokerInputOutputRepository extends AbstractRepositoryRDB implement
                     }
                 }
             } else {
-                if (! isset($values[$fieldName]) || ! is_scalar($values[$fieldName]) || '' === $values[$fieldName]) {
+                if (! isset($values[$fieldName]) || ! is_scalar($values[$fieldName]) || $values[$fieldName] === '') {
                     if ($fieldInfo->getListDefault()) {
                         // value not provided, setting to default.
                         $values[$fieldName] = $fieldInfo->getListDefault();

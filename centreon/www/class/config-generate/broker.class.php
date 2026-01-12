@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -36,6 +21,7 @@
 
 use App\Kernel;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
 use Pimple\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -133,6 +119,8 @@ class Broker extends AbstractObjectJSON
     /** @var object|null */
     protected $readVaultConfigurationRepository = null;
 
+    private ReadMonitoringServerRepositoryInterface $readMonitoringServerRepository;
+
     /**
      * Broker constructor
      *
@@ -151,10 +139,9 @@ class Broker extends AbstractObjectJSON
         $this->readVaultConfigurationRepository = $kernel->getContainer()->get(
             Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface::class
         );
-
-        if (! $this->isVaultEnabled) {
-            $this->getVaultConfigurationStatus();
-        }
+        $this->readMonitoringServerRepository = $kernel->getContainer()->get(
+            ReadMonitoringServerRepositoryInterface::class
+        );
     }
 
     /**
@@ -220,12 +207,13 @@ class Broker extends AbstractObjectJSON
     /**
      * @param $poller_id
      * @param $localhost
+     * @param mixed $pollerId
      *
      * @throws PDOException
      * @throws RuntimeException
      * @return void
      */
-    private function generate($poller_id, $localhost): void
+    private function generate($pollerId, $localhost): void
     {
         $this->getExternalValues();
 
@@ -237,10 +225,10 @@ class Broker extends AbstractObjectJSON
             AND config_activate = '1'
             ");
         }
-        $this->stmt_broker->bindParam(':poller_id', $poller_id, PDO::PARAM_INT);
+        $this->stmt_broker->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
         $this->stmt_broker->execute();
 
-        $this->getEngineParameters($poller_id);
+        $this->getEngineParameters($pollerId);
 
         if (is_null($this->stmt_broker_parameters)) {
             $this->stmt_broker_parameters = $this->backend_instance->db->prepare("SELECT
@@ -462,6 +450,32 @@ class Broker extends AbstractObjectJSON
                 }
             }
 
+            $shouldBeEncrypted = $this->readMonitoringServerRepository->isEncryptionReady($pollerId);
+            foreach ($object['output'] as &$output) {
+                if (
+                    ($output['type'] === 'sql' || $output['type'] === 'storage')
+                    && array_key_exists('db_password', $output)
+                ) {
+                    $output['db_password'] = $shouldBeEncrypted
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
+                        : $output['db_password'];
+                }
+                if (! isset($output['lua_parameter']) || ! is_array($output['lua_parameter'])) {
+                    continue;
+                }
+
+                foreach ($output['lua_parameter'] as &$luaParameter) {
+                    if (
+                        isset($luaParameter['type'], $luaParameter['value'])
+                        && $luaParameter['type'] === 'password'
+                        && is_string($luaParameter['value'])
+                    ) {
+                        $luaParameter['value'] = $shouldBeEncrypted
+                        ? 'encrypt::' . $this->engineContextEncryption->crypt($luaParameter['value'])
+                        : $luaParameter['value'];
+                    }
+                }
+            }
             // Generate file
             $this->generateFile($object);
             $this->writeFile($this->backend_instance->getPath());
@@ -820,7 +834,7 @@ class Broker extends AbstractObjectJSON
         array &$output,
         string $outputKey,
         string $outputValue,
-        array &$outputReference
+        array &$outputReference,
     ): void {
         $vaultData = $this->readVaultRepository->findFromPath($outputValue);
         $vaultKey = $output['name'] . '_' . $outputKey;
@@ -842,7 +856,7 @@ class Broker extends AbstractObjectJSON
         array &$output,
         string $outputKey,
         array $luaParameters,
-        array &$outputReference
+        array &$outputReference,
     ): void {
         foreach ($luaParameters as $parameterIndex => $luaParameter) {
             if ($luaParameter['type'] === 'password'

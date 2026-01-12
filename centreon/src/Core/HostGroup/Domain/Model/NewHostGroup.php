@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ class NewHostGroup
         $this->comment = trim($this->comment);
         Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$shortName}::comment");
 
-        if (null !== $iconId) {
+        if ($iconId !== null) {
             Assertion::positiveInt($iconId, "{$shortName}::iconId");
         }
     }

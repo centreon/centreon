@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -98,6 +100,7 @@ final class PartialUpdateService
         private readonly bool $isCloudPlatform,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -181,10 +184,10 @@ final class PartialUpdateService
             $this->updateMacros($request, $service);
 
             $newMonitoringServer = $this->readMonitoringServerRepository->findByHost($service->getHostId());
-            if (null !== $newMonitoringServer) {
+            if ($newMonitoringServer !== null) {
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($newMonitoringServer->getId());
             }
-            if (null !== $previousMonitoringServer) {
+            if ($previousMonitoringServer !== null) {
                 // Host change implies a possible monitoring server change, notify previous monitoring server of configuration changes.
                 $this->writeMonitoringServerRepository->notifyConfigurationChange($previousMonitoringServer->getId());
             }
@@ -303,6 +306,16 @@ final class PartialUpdateService
             if ($this->isCloudPlatform === false) {
                 // No assertion on the check command for Saas platform as it will be inherited from the service template.
                 $this->validation->assertIsValidCommand($dto->commandId, $service->getServiceTemplateParentId());
+            }
+            if ($dto->commandId !== null) {
+                $command = $this->readCommandRepository->findById($dto->commandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $service->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
+                    $service->setFreshnessThreshold(120);
+                }
             }
             $service->setCommandId($dto->commandId);
         }
@@ -466,13 +479,13 @@ final class PartialUpdateService
      */
     private function updateMacros(PartialUpdateServiceRequest $dto, Service $service): void
     {
-        $this->info(
+        $this->debug(
             'PartialUpdateService: update macros',
             ['service_id' => $service->getId(), 'macros' => $dto->macros]
         );
 
         if ($dto->macros instanceof NoValue) {
-            $this->info('Macros not provided, nothing to update');
+            $this->debug('Macros not provided, nothing to update');
 
             return;
         }
@@ -605,10 +618,16 @@ final class PartialUpdateService
                 $action === 'INSERT' ? [$macroPrefixName => $macro->getValue()] : [],
                 $action === 'DELETE' ? [$macroPrefixName => $macro->getValue()] : [],
             );
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $vaultPath = $vaultPaths[$macroPrefixName];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPath);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -630,7 +649,7 @@ final class PartialUpdateService
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }
@@ -638,7 +657,7 @@ final class PartialUpdateService
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -105,7 +105,7 @@ try {
 
     // database configuration file
     $fileTpl = __DIR__ . '/../var/databaseTemplate.yaml';
-    if (! file_exists($fileTpl) || 0 === filesize($fileTpl)) {
+    if (! file_exists($fileTpl) || filesize($fileTpl) === 0) {
         $errorMessage = 'Database configuration template is empty or missing';
 
         throw new InvalidArgumentException($errorMessage);
@@ -115,7 +115,7 @@ try {
     $destinationFile = returnFinalFileName(_CENTREON_ETC_ . '/config.d/10-database.yaml');
     file_put_contents($destinationFile, $content);
 
-    if (! file_exists($destinationFile) || 0 === filesize($destinationFile)) {
+    if (! file_exists($destinationFile) || filesize($destinationFile) === 0) {
         $errorMessage = 'Database configuration file is not created properly';
 
         throw new InvalidArgumentException($errorMessage);
@@ -123,7 +123,7 @@ try {
 
     // gorgone configuration file for centreon. Created in the centreon-gorgone folder
     $fileTpl = __DIR__ . '/../var/gorgone/gorgoneCentralTemplate.yaml';
-    if (! file_exists($fileTpl) || 0 === filesize($fileTpl)) {
+    if (! file_exists($fileTpl) || filesize($fileTpl) === 0) {
         $errorMessage = 'Gorgone configuration template is empty or missing';
 
         throw new InvalidArgumentException($errorMessage);
@@ -142,7 +142,7 @@ try {
     }
     file_put_contents($destinationFile, $content);
 
-    if (! file_exists($destinationFile) || 0 === filesize($destinationFile)) {
+    if (! file_exists($destinationFile) || filesize($destinationFile) === 0) {
         $errorMessage = 'Gorgone configuration file is not created properly';
 
         throw new InvalidArgumentException($errorMessage);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -89,6 +91,7 @@ final class PartialUpdateHostTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -101,7 +104,7 @@ final class PartialUpdateHostTemplate
     public function __invoke(
         PartialUpdateHostTemplateRequest $request,
         PresenterInterface $presenter,
-        int $hostTemplateId
+        int $hostTemplateId,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE)) {
@@ -174,7 +177,7 @@ final class PartialUpdateHostTemplate
      */
     private function updatePropertiesInTransaction(
         PartialUpdateHostTemplateRequest $request,
-        HostTemplate $hostTemplate
+        HostTemplate $hostTemplate,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();
@@ -230,10 +233,6 @@ final class PartialUpdateHostTemplate
             );
         }
 
-        if (! $request->snmpCommunity instanceof NoValue) {
-            $hostTemplate->setSnmpCommunity($request->snmpCommunity);
-        }
-
         if (! $request->timezoneId instanceof NoValue) {
             $this->validation->assertIsValidTimezone($request->timezoneId);
             $hostTemplate->setTimezoneId($request->timezoneId);
@@ -244,9 +243,27 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setSeverityId($request->severityId);
         }
 
+        if (! $request->freshnessChecked instanceof NoValue) {
+            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
+        }
+
+        if (! $request->freshnessThreshold instanceof NoValue) {
+            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
         if (! $request->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
             $hostTemplate->setCheckCommandId($request->checkCommandId);
+            if ($request->checkCommandId !== null) {
+                $command = $this->readCommandRepository->findById($request->checkCommandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                    $hostTemplate->setFreshnessThreshold(120);
+                }
+            }
         }
 
         if (! $request->checkCommandArgs instanceof NoValue) {
@@ -323,14 +340,6 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
         }
 
-        if (! $request->freshnessChecked instanceof NoValue) {
-            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
-        }
-
-        if (! $request->freshnessThreshold instanceof NoValue) {
-            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
-        }
-
         if (! $request->flapDetectionEnabled instanceof NoValue) {
             $hostTemplate->setFlapDetectionEnabled(YesNoDefaultConverter::fromScalar($request->flapDetectionEnabled));
         }
@@ -381,19 +390,7 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setComment($request->comment);
         }
 
-        if (
-            $this->writeVaultRepository->isVaultConfigured()
-            && ! $request->snmpCommunity instanceof NoValue
-            && ! $this->isAVaultPath($request->snmpCommunity)
-        ) {
-            $vaultPaths = $this->writeVaultRepository->upsert(
-                $this->uuid ?? null,
-                [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $hostTemplate->getSnmpCommunity()]
-            );
-            $vaultPath = $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY];
-            $this->uuid ??= $this->getUuidFromPath($vaultPath);
-            $hostTemplate->setSnmpCommunity($vaultPath);
-        }
+        $this->updateSnmpCommunity($hostTemplate, $request->snmpCommunity);
 
         $this->writeHostTemplateRepository->update($hostTemplate);
     }
@@ -591,7 +588,7 @@ final class PartialUpdateHostTemplate
     private function retrieveHostUuidFromVault(HostTemplate $hostTemplate): void
     {
         $this->uuid = $this->getUuidFromPath($hostTemplate->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($hostTemplate->getId());
             foreach ($macros as $macro) {
                 if (
@@ -625,9 +622,15 @@ final class PartialUpdateHostTemplate
                 $action === 'DELETE' ? [$macroPrefixedName => $macro->getValue()] : [],
             );
             $vaultPath = $vaultPaths[$macroPrefixedName];
+
+            // No need to update the macro if it is being deleted
+            if ($action === 'DELETE') {
+                return $macro;
+            }
+
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPath);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -649,7 +652,7 @@ final class PartialUpdateHostTemplate
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }
@@ -657,7 +660,7 @@ final class PartialUpdateHostTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
@@ -667,5 +670,56 @@ final class PartialUpdateHostTemplate
         }
 
         return $updatedMacros;
+    }
+
+    /**
+     * Update SNMP community for a host template, handling vault storage and clearing logic.
+     *
+     * @param HostTemplate $hostTemplate
+     * @param NoValue|string $snmpCommunity
+     *
+     * @throws \Throwable
+     */
+    private function updateSnmpCommunity(HostTemplate $hostTemplate, NoValue|string $snmpCommunity): void
+    {
+        if ($snmpCommunity instanceof NoValue) {
+            return;
+        }
+
+        // If vault is not configured, just set the value directly
+        if (! $this->writeVaultRepository->isVaultConfigured()) {
+            $hostTemplate->setSnmpCommunity($snmpCommunity);
+
+            return;
+        }
+
+        // If the value is already a vault path, do nothing
+        if ($this->isAVaultPath($snmpCommunity)) {
+            return;
+        }
+
+        // If the current value is a vault path and we want to clear it
+        if ($this->isAVaultPath($hostTemplate->getSnmpCommunity()) && empty($snmpCommunity)) {
+            $this->writeVaultRepository->upsert(
+                uuid: $this->getUuidFromPath($hostTemplate->getSnmpCommunity()),
+                deletes: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity]
+            );
+            $hostTemplate->setSnmpCommunity($snmpCommunity);
+
+            return;
+        }
+
+        // If the new value is empty, do nothing
+        if (empty($snmpCommunity)) {
+            return;
+        }
+
+        // Otherwise, store in vault and update host template
+        $vaultPaths = $this->writeVaultRepository->upsert(
+            uuid: $this->uuid ?? null,
+            inserts: [VaultConfiguration::HOST_SNMP_COMMUNITY_KEY => $snmpCommunity],
+        );
+        $this->uuid ??= $this->getUuidFromPath($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
+        $hostTemplate->setSnmpCommunity($vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY]);
     }
 }

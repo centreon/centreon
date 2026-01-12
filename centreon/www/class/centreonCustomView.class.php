@@ -1,40 +1,32 @@
 <?php
 
-/**
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * Class
@@ -520,7 +512,7 @@ class CentreonCustomView
         string $layout,
         ?int $public,
         bool $permission,
-        bool $authorized
+        bool $authorized,
     ): int {
         if (! $authorized || ! $permission) {
             throw new CentreonCustomViewException('You are not allowed to edit the custom view');
@@ -594,58 +586,91 @@ class CentreonCustomView
         }
         $isLocked = 1;
         $update = false;
-        $query = 'SELECT custom_view_id, locked, user_id, usergroup_id '
-            . 'FROM custom_view_user_relation '
-            . 'WHERE custom_view_id = :viewLoad '
-            . 'AND '
-            . '(user_id = :userId '
-            . 'OR usergroup_id IN ( '
-            . 'SELECT contactgroup_cg_id FROM contactgroup_contact_relation '
-            . 'WHERE contact_contact_id = :userId '
-            . ') '
-            . ') ORDER BY user_id DESC';
 
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
-        $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-        $dbResult = $stmt->execute();
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
-        if ($row = $stmt->fetch()) {
-            if ($row['locked'] == '0') {
-                $isLocked = $row['locked'];
+        try {
+            $query = <<<'SQL'
+                    SELECT custom_view_id, locked, user_id, usergroup_id
+                    FROM custom_view_user_relation
+                    WHERE custom_view_id = :viewLoad
+                    AND (
+                            user_id = :userId
+                            OR usergroup_id IN (
+                                SELECT contactgroup_cg_id
+                                FROM contactgroup_contact_relation
+                                WHERE contact_contact_id = :userId
+                            )
+                    )
+                    ORDER BY user_id DESC
+                SQL;
+
+            $params = [
+                QueryParameter::int('viewLoad', $viewLoadId),
+                QueryParameter::int('userId', $this->userId),
+            ];
+            $queryParams = QueryParameters::create($params);
+
+            $row = $this->db->fetchAssociative($query, $queryParams);
+
+            if ($row) {
+                if ($row['locked'] == '0') {
+                    $isLocked = $row['locked'];
+                }
+                if (! is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
+                    $update = true;
+                }
             }
-            if (! is_null($row['user_id']) && $row['user_id'] > 0 && is_null($row['usergroup_id'])) {
-                $update = true;
+
+            if ($update) {
+                $query = <<<'SQL'
+                        UPDATE custom_view_user_relation SET is_consumed=1
+                        WHERE custom_view_id = :viewLoad AND user_id = :userId
+                    SQL;
+                $this->db->update($query, $queryParams);
+            } else {
+                $query = <<<'SQL'
+                        SELECT 1
+                        FROM custom_views cv
+                            INNER JOIN custom_view_user_relation cvur
+                                ON cv.custom_view_id = cvur.custom_view_id
+                        WHERE cv.custom_view_id = :viewLoad
+                            AND (
+                                public = 1
+                                OR (
+                                    usergroup_id IN (
+                                        SELECT contactgroup_cg_id
+                                        FROM contactgroup_contact_relation
+                                        WHERE contact_contact_id = :userId
+                                    )
+                                )
+                            )
+                    SQL;
+                $row = $this->db->fetchAssociative($query, $queryParams);
+
+                if (! $row) {
+                    throw new CentreonCustomViewException('Access denied: View not found or not accessible to current user');
+                }
+
+                $query = <<<'SQL'
+                        INSERT INTO custom_view_user_relation (custom_view_id,user_id,is_owner,locked,is_share)
+                        VALUES (:viewLoad, :userId, 0, :isLocked, 1)
+                    SQL;
+                $params[] = QueryParameter::int('isLocked', $isLocked);
+                $queryParams = QueryParameters::create($params);
+                $this->db->insert($query, $queryParams);
             }
-        }
 
-        if ($update) {
-            $query = 'UPDATE custom_view_user_relation SET is_consumed=1 WHERE '
-                . ' custom_view_id = :viewLoad AND user_id = :userId';
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
-            $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-        } else {
-            $query = 'INSERT INTO custom_view_user_relation (custom_view_id,user_id,is_owner,locked,is_share) '
-                . 'VALUES (:viewLoad, :userId, 0, :isLocked, 1)';
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':viewLoad', $viewLoadId, PDO::PARAM_INT);
-            $stmt->bindParam(':userId', $this->userId, PDO::PARAM_INT);
-            $stmt->bindParam(':isLocked', $isLocked, PDO::PARAM_INT);
-        }
-        $dbResult = $stmt->execute();
-        if (! $dbResult) {
-            throw new Exception('An error occured');
-        }
+            // if the view is being added for the first time, we make sure that the widget parameters are going to be set
+            if (! $update) {
+                $this->addPublicViewWidgetParams($viewLoadId, $this->userId);
+            }
 
-        // if the view is being added for the first time, we make sure that the widget parameters are going to be set
-        if (! $update) {
-            $this->addPublicViewWidgetParams($viewLoadId, $this->userId);
+            return $viewLoadId;
+        } catch (ValueObjectException|ConnectionException|CollectionException $e) {
+            throw new CentreonCustomViewException(
+                'An error occurred while loading the custom view: ' . $e->getMessage(),
+                previous: $e
+            );
         }
-
-        return $viewLoadId;
     }
 
     /**
@@ -715,7 +740,7 @@ class CentreonCustomView
         array $unlockedUsergroups,
         int $userId,
         bool $permission,
-        bool $authorized
+        bool $authorized,
     ): void {
         if (! $authorized || ! $permission) {
             throw new CentreonCustomViewException('You are not allowed to share the view');
@@ -1005,8 +1030,8 @@ class CentreonCustomView
             $allowedContactIds = '';
             foreach (array_keys($aclListOfContactIds) as $contactId) {
                 // result concatenation
-                if (false !== filter_var($contactId, FILTER_VALIDATE_INT)) {
-                    if ('' !== $allowedContactIds) {
+                if (filter_var($contactId, FILTER_VALIDATE_INT) !== false) {
+                    if ($allowedContactIds !== '') {
                         $allowedContactIds .= ', ';
                     }
                     $allowedContactIds .= $contactId;
@@ -1072,8 +1097,8 @@ class CentreonCustomView
             $allowedGroupIds = '';
             foreach (array_keys($aclListOfGroupIds) as $groupId) {
                 // result's concatenation
-                if (false !== filter_var($groupId, FILTER_VALIDATE_INT)) {
-                    if ('' !== $allowedGroupIds) {
+                if (filter_var($groupId, FILTER_VALIDATE_INT) !== false) {
+                    if ($allowedGroupIds !== '') {
                         $allowedGroupIds .= ', ';
                     }
                     $allowedGroupIds .= $groupId;

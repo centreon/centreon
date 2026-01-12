@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -228,10 +213,22 @@ if ($canViewAll === false) {
 
 $serviceQuery = <<<SQL
     SELECT SQL_CALC_FOUND_ROWS DISTINCT
-        1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
-        d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
-        d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
-        s.description as service_description {$extraFields}
+        1 AS REALTIME,
+        d.internal_id as internal_downtime_id,
+        d.entry_time,
+        duration,
+        d.author as author_name,
+        d.comment_data,
+        d.fixed as is_fixed,
+        d.start_time as scheduled_start_time,
+        d.end_time as scheduled_end_time,
+        d.started as was_started,
+        d.host_id,
+        d.service_id,
+        h.name as host_name,
+        s.description as service_description,
+        s.display_name as display_name
+        {$extraFields}
     FROM downtimes d
     INNER JOIN services s
         ON d.host_id = s.host_id
@@ -253,7 +250,7 @@ $hostQuery = <<<SQL
         1 AS REALTIME, d.internal_id as internal_downtime_id, d.entry_time, duration,
         d.author as author_name, d.comment_data, d.fixed as is_fixed, d.start_time as scheduled_start_time,
         d.end_time as scheduled_end_time, d.started as was_started, d.host_id, d.service_id, h.name as host_name,
-        '' as service_description {$extraFields}
+        '' as service_description, '' as display_name {$extraFields}
     FROM downtimes d
     INNER JOIN hosts h
         ON d.host_id = h.host_id
@@ -323,7 +320,11 @@ for ($i = 0; ($data = $pearDBO->fetch($downtimesStatement)) !== false; $i++) {
                 $data['host_id'],
                 $data['service_id']
             );
-            $tab_downtime_svc[$i]['service_description'] = $data['service_description'];
+
+            $tab_downtime_svc[$i]['service_description'] = preg_match('/_Module_Meta/', $data['host_name'])
+                ? $data['display_name']
+                : $data['service_description'];
+
             $tab_downtime_svc[$i]['downtime_type'] = 'SVC';
         } else {
             $tab_downtime_svc[$i]['service_description'] = '-';

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
         private readonly ContactInterface $contact,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -225,7 +225,7 @@ class DbWriteHostSeverityActionLogRepository extends AbstractRepositoryRDB imple
      */
     private function getHostSeverityDiff(
         NewHostSeverity $initialSeverity,
-        NewHostSeverity $updatedHostSeverity
+        NewHostSeverity $updatedHostSeverity,
     ): array {
         $diff = [];
         $reflection = new \ReflectionClass($initialSeverity);

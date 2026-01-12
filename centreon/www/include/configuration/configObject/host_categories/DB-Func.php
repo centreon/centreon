@@ -16,6 +16,7 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
 
 if (! isset($centreon)) {

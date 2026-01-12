@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -401,7 +401,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function bindArrayReplacements(string $sql): string
     {
-        if ([] === $this->bindArrayReplacements) {
+        if ($this->bindArrayReplacements === []) {
             return $sql;
         }
 
@@ -418,7 +418,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function concatSelect(): string
     {
-        if ([] === $this->select) {
+        if ($this->select === []) {
             return '';
         }
 
@@ -436,7 +436,7 @@ final class SqlConcatenator implements \Stringable
     {
         $from = (string) $this->from;
 
-        return '' === $from ? ''
+        return $from === '' ? ''
             : self::PREFIX_FROM . $this->from . ' ';
     }
 
@@ -445,7 +445,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function concatJoins(): string
     {
-        return [] === $this->joins ? ''
+        return $this->joins === [] ? ''
             : implode(self::SEPARATOR_JOINS, $this->joins) . ' ';
     }
 
@@ -454,7 +454,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function concatWhere(): string
     {
-        return [] === $this->where ? ''
+        return $this->where === [] ? ''
             : self::PREFIX_WHERE . implode(self::SEPARATOR_CONDITIONS, $this->where) . ' ';
     }
 
@@ -463,7 +463,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function concatGroupBy(): string
     {
-        return [] === $this->groupBy ? ''
+        return $this->groupBy === [] ? ''
             : self::PREFIX_GROUP_BY . implode(self::SEPARATOR_EXPRESSIONS, $this->groupBy) . ' ';
     }
 
@@ -472,7 +472,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function concatHaving(): string
     {
-        return [] === $this->having ? ''
+        return $this->having === [] ? ''
             : self::PREFIX_HAVING . implode(self::SEPARATOR_CONDITIONS, $this->having) . ' ';
     }
 
@@ -481,7 +481,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function concatOrderBy(): string
     {
-        return [] === $this->orderBy ? ''
+        return $this->orderBy === [] ? ''
             : self::PREFIX_ORDER_BY . implode(self::SEPARATOR_EXPRESSIONS, $this->orderBy) . ' ';
     }
 
@@ -490,7 +490,7 @@ final class SqlConcatenator implements \Stringable
      */
     private function concatLimit(): string
     {
-        return '' === $this->limit ? ''
+        return $this->limit === '' ? ''
             : self::PREFIX_LIMIT . $this->limit;
     }
 
@@ -510,7 +510,7 @@ final class SqlConcatenator implements \Stringable
         foreach ($strings as $string) {
             if ($string instanceof \Stringable) {
                 $sanitized[] = $string;
-            } elseif ('' !== $string) {
+            } elseif ($string !== '') {
                 $sanitized[] = (string) preg_replace($regex, '', $string);
             }
         }

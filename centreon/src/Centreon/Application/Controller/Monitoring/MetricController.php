@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,9 @@
  * limitations under the License.
  *
  * For more information : contact@centreon.com
- *Controller
+ *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
@@ -53,7 +54,7 @@ class MetricController extends AbstractController
      */
     public function __construct(
         MetricServiceInterface $metricService,
-        MonitoringServiceInterface $monitoringService
+        MonitoringServiceInterface $monitoringService,
     ) {
         $this->metricService = $metricService;
         $this->monitoringService = $monitoringService;
@@ -73,7 +74,7 @@ class MetricController extends AbstractController
         int $hostId,
         int $serviceId,
         \DateTime $start,
-        \DateTime $end
+        \DateTime $end,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -105,7 +106,7 @@ class MetricController extends AbstractController
         int $hostId,
         int $serviceId,
         \DateTime $start,
-        \DateTime $end
+        \DateTime $end,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -134,7 +135,7 @@ class MetricController extends AbstractController
     public function getServicePerformanceMetrics(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -167,7 +168,7 @@ class MetricController extends AbstractController
     public function getServiceStatusMetrics(
         RequestParametersInterface $requestParameters,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -196,7 +197,7 @@ class MetricController extends AbstractController
      */
     public function getMetaServicePerformanceMetrics(
         RequestParametersInterface $requestParameters,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -234,7 +235,7 @@ class MetricController extends AbstractController
      */
     public function getMetaServiceStatusMetrics(
         RequestParametersInterface $requestParameters,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -348,7 +349,7 @@ class MetricController extends AbstractController
         $end = $requestParameters->getExtraParameter('end') ?: 'now';
 
         foreach (['start' => $start, 'end' => $end] as $param => $value) {
-            if (false === strtotime($value)) {
+            if (strtotime($value) === false) {
                 throw new NotFoundHttpException(sprintf('Invalid date given for parameter "%s".', $param));
             }
         }

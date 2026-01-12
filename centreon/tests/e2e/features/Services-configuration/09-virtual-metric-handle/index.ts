@@ -1,10 +1,8 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable cypress/unsafe-to-chain-command */
-import {Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import vms from '../../../fixtures/services/virtual-metric.json';
 
-const checkFirstVMFromListing = () => {
+const checkFirstVmFromListing = () => {
   cy.navigateTo({
     page: 'Virtual Metrics',
     rootItemNumber: 1,
@@ -59,14 +57,25 @@ When('the user adds a virtual metric', () => {
   });
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
-  cy.addOrUpdateVirtualMetric(vms.default, false);
+  cy.addOrUpdateVirtualMetric(
+    {
+      ...vms.default,
+      warningThreshold: vms.default.warning_threshold,
+      criticalThreshold: vms.default.critical_threshold
+    },
+    false
+  );
 });
 
 Then('all properties are saved', () => {
   cy.getIframeBody().contains(vms.default.name).should('exist');
   cy.getIframeBody().contains(vms.default.name).click();
   cy.wait('@getTimeZone');
-  cy.checkFieldsOfVM(vms.default);
+  cy.checkFieldsOfVm({
+    ...vms.default,
+    warningThreshold: vms.default.warning_threshold,
+    criticalThreshold: vms.default.critical_threshold
+  });
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')
     .should('be.checked');
@@ -75,28 +84,39 @@ Then('all properties are saved', () => {
 Given('an existing virtual metric', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
   cy.navigateTo({
-      page: 'Virtual Metrics',
-      rootItemNumber: 1,
-      subMenu: 'Performances'
+    page: 'Virtual Metrics',
+    rootItemNumber: 1,
+    subMenu: 'Performances'
   });
 });
 
 When('the user changes the properties of the configured virtual metric', () => {
-    cy.getIframeBody().contains(vms.default.name).click();
-    cy.addOrUpdateVirtualMetric(vms.vmForUpdate, false);
+  cy.getIframeBody().contains(vms.default.name).click();
+  cy.addOrUpdateVirtualMetric(
+    {
+      ...vms.vmForUpdate,
+      warningThreshold: vms.default.warning_threshold,
+      criticalThreshold: vms.default.critical_threshold
+    },
+    false
+  );
 });
 
 Then('these properties are updated', () => {
-    cy.getIframeBody().contains(vms.vmForUpdate.name).should('exist');
-    cy.getIframeBody().contains(vms.vmForUpdate.name).click();
-    cy.checkFieldsOfVM(vms.vmForUpdate);
-    cy.getIframeBody()
-      .find('.md-checkbox input[name="vhidden"]')
-      .should('not.be.checked');
+  cy.getIframeBody().contains(vms.vmForUpdate.name).should('exist');
+  cy.getIframeBody().contains(vms.vmForUpdate.name).click();
+  cy.checkFieldsOfVm({
+    ...vms.vmForUpdate,
+    warningThreshold: vms.default.warning_threshold,
+    criticalThreshold: vms.default.critical_threshold
+  });
+  cy.getIframeBody()
+    .find('.md-checkbox input[name="vhidden"]')
+    .should('not.be.checked');
 });
 
 When('the user duplicates the configured virtual metric', () => {
-  checkFirstVMFromListing();
+  checkFirstVmFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -105,14 +125,18 @@ When('the user duplicates the configured virtual metric', () => {
 Then('a new virtual metric is created with identical fields', () => {
   cy.getIframeBody().contains(vms.vmForDuplication.name).should('exist');
   cy.getIframeBody().contains(vms.vmForDuplication.name).click();
-  cy.checkFieldsOfVM(vms.vmForDuplication);
+  cy.checkFieldsOfVm({
+    ...vms.vmForDuplication,
+    warningThreshold: vms.default.warning_threshold,
+    criticalThreshold: vms.default.critical_threshold
+  });
   cy.getIframeBody()
-      .find('.md-checkbox input[name="vhidden"]')
-      .should('not.be.checked');
+    .find('.md-checkbox input[name="vhidden"]')
+    .should('not.be.checked');
 });
 
 When('the user deletes the configured virtual metric', () => {
-  checkFirstVMFromListing();
+  checkFirstVmFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -120,8 +144,8 @@ When('the user deletes the configured virtual metric', () => {
 
 Then('the virtual metric disappears from the Virtual metrics list', () => {
   cy.getIframeBody()
-      .find('table.ListTable')
-      .eq(0)
-      .find('tbody tr') 
-      .should('have.length', 3); 
+    .find('table.ListTable')
+    .eq(0)
+    .find('tbody tr')
+    .should('have.length', 3);
 });

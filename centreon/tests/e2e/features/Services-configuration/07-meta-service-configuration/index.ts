@@ -1,6 +1,4 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import data from '../../../fixtures/services/meta_service.json';
 
@@ -161,7 +159,7 @@ When('the user changes the properties of a meta service', () => {
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
     .clear()
-    .type('2.3522219,48.856614');
+    .type(data.default.geo_coordinates);
   cy.getIframeBody().find('select[name="graph_id"]').select('Memory');
   cy.getIframeBody()
     .find('textarea[name="meta_comment"]')
@@ -216,7 +214,7 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('input[name*="notifications_enabled"][value="2"]')
     .should('be.checked');
-  cy.getIframeBody().find(`li[title=Guest]`).contains('Guest').should('exist');
+  cy.getIframeBody().find('li[title=Guest]').contains('Guest').should('exist');
   cy.getIframeBody()
     .find('li[title="Supervisors"]')
     .contains('Supervisors')
@@ -230,7 +228,7 @@ Then('the properties are updated', () => {
     .should('be.visible');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', '2.3522219,48.856614');
+    .should('have.value', data.default.geoCoordinatesTruncated);
   cy.getIframeBody()
     .find('select[name="graph_id"]')
     .find('option:selected')
@@ -326,7 +324,7 @@ Then('the new meta service has the same properties', () => {
     .should('be.visible');
   cy.getIframeBody()
     .find('input[name="geo_coords"]')
-    .should('have.value', data.default.geo_coordinates);
+    .should('have.value', data.default.geoCoordinatesTruncated);
   cy.getIframeBody()
     .find('select[name="graph_id"]')
     .find('option:selected')

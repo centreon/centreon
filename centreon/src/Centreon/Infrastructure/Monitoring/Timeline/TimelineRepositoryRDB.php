@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Monitoring\Timeline;
@@ -273,7 +274,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     private function prepareQueryForTimelineStatusEvents(
         StatementCollector $collector,
         int $hostId,
-        ?int $serviceId
+        ?int $serviceId,
     ): string {
         $request = $this->translateDbName("SELECT
             l.log_id AS `id`,
@@ -351,7 +352,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     private function prepareQueryForTimelineNotificationEvents(
         StatementCollector $collector,
         int $hostId,
-        ?int $serviceId
+        ?int $serviceId,
     ): string {
         $request = $this->translateDbName("SELECT
             l.log_id AS `id`,
@@ -428,7 +429,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     private function prepareQueryForTimelineDowntimeEvents(
         StatementCollector $collector,
         int $hostId,
-        ?int $serviceId
+        ?int $serviceId,
     ): string {
         $request = $this->translateDbName("SELECT
             d.downtime_id AS `id`,
@@ -469,7 +470,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     private function prepareQueryForTimelineAcknowledgementEvents(
         StatementCollector $collector,
         int $hostId,
-        ?int $serviceId
+        ?int $serviceId,
     ): string {
         $request = $this->translateDbName("SELECT
             a.acknowledgement_id AS `id`,
@@ -509,7 +510,7 @@ final class TimelineRepositoryRDB extends AbstractRepositoryDRB implements Timel
     private function prepareQueryForTimelineCommentEvents(
         StatementCollector $collector,
         int $hostId,
-        ?int $serviceId
+        ?int $serviceId,
     ): string {
         $request = $this->translateDbName("SELECT
             c.comment_id AS `id`,

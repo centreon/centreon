@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryProviderInterface;
@@ -51,6 +52,7 @@ beforeEach(function (): void {
     $this->notificationFactory = $this->createMock(NotificationFactory::class);
     $this->notificationResourceFactory = $this->createMock(NotificationResourceFactory::class);
     $this->contact = $this->createMock(ContactInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->presenter = new UpdateNotificationPresenterStub($this->presenterFormatter);
@@ -65,9 +67,9 @@ beforeEach(function (): void {
         $this->notificationFactory,
         $this->notificationResourceFactory,
         $this->contact,
+        $this->adminResolver,
     );
 });
-
 it('should present a forbidden response when the user is not admin and does not have sufficient ACLs', function (): void {
     $this->contact
         ->expects($this->once())

@@ -10,10 +10,10 @@ export interface Listing<TEntity> {
 }
 
 export interface ListingMap<TEntity> {
-    content: Array<TEntity>;
-    totalPages: number;
-    totalElements: number;
-    size: number;
-    number: number;
-    numberOfElements: number;
+  content: Array<TEntity>;
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
+  numberOfElements: number;
 }

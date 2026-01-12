@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ abstract class SourceAbstract implements SourceInterface
         Module $entity,
         ?string $search = null,
         ?bool $installed = null,
-        ?bool $updated = null
+        ?bool $updated = null,
     ): bool {
         if ($search !== null && stripos($entity->getKeywords() . $entity->getName(), $search) === false) {
             return false;

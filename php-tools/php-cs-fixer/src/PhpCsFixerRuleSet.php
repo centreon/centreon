@@ -70,17 +70,19 @@ class PhpCsFixerRuleSet
             'explicit_string_variable' => true,
             'fully_qualified_strict_types' => true,
             'general_phpdoc_tag_rename' => ['case_sensitive' => true, 'replacements' => ['inheritdoc' => 'inheritDoc']],
-            // 'header_comment' => [
-            //     'header' => self::getLicenseHeaderAsPhpComment(),
-            //     'location' => 'after_open',
-            //     'separate' => 'both',
-            // ],
+            'header_comment' => [
+                'header' => self::getLicenseHeaderAsPhpComment(),
+                'location' => 'after_open',
+                'separate' => 'both',
+                'comment_type' => 'comment',
+            ],
             'heredoc_indentation' => true,
             'heredoc_to_nowdoc' => true,
             'include' => true,
             'lambda_not_used_import' => true,
             'list_syntax' => true,
             'native_function_invocation' => false,
+            'method_argument_space' => ['on_multiline' => 'ignore'],
             'method_chaining_indentation' => true,
             'multiline_whitespace_before_semicolons' => true,
             'no_alias_language_construct_call' => true,
@@ -163,12 +165,15 @@ class PhpCsFixerRuleSet
             'standardize_not_equals' => true,
             'switch_continue_to_break' => true,
             'ternary_to_null_coalescing' => true,
-            'trailing_comma_in_multiline' => true,
+            'trailing_comma_in_multiline' => [
+                'after_heredoc' => true,
+                'elements' => ['array_destructuring', 'arrays', 'match', 'parameters'],
+            ],
             'trim_array_spaces' => true,
             'type_declaration_spaces' => true,
             'types_spaces' => true,
             'whitespace_after_comma_in_array' => true,
-            'yoda_style' => false,
+            'yoda_style' => ['equal' => false, 'identical' => false, 'less_and_greater' => false],
             'ordered_class_elements' => true,
         ];
     }
@@ -212,30 +217,30 @@ class PhpCsFixerRuleSet
         ];
     }
 
-    //    /**
-    //     * This method returns the license header as a PHP comment.
-    //     */
-    //    private static function getLicenseHeaderAsPhpComment(): string
-    //    {
-    //        $year = 2025;
-    //
-    //        return <<<"EOF"
-    //            Copyright 2005 - {$year} Centreon (https://www.centreon.com/)
-    //
-    //            Licensed under the Apache License, Version 2.0 (the "License");
-    //            you may not use this file except in compliance with the License.
-    //            You may obtain a copy of the License at
-    //
-    //            https://www.apache.org/licenses/LICENSE-2.0
-    //
-    //            Unless required by applicable law or agreed to in writing, software
-    //            distributed under the License is distributed on an "AS IS" BASIS,
-    //            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    //            See the License for the specific language governing permissions and
-    //            limitations under the License.
-    //
-    //            For more information : contact@centreon.com
-    //
-    //            EOF;
-    //    }
+    /**
+     * This method returns the license header as a PHP comment.
+     */
+    private static function getLicenseHeaderAsPhpComment(): string
+    {
+        $year = 2025;
+
+        return <<<"EOF"
+            Copyright 2005 - {$year} Centreon (https://www.centreon.com/)
+
+            Licensed under the Apache License, Version 2.0 (the "License");
+            you may not use this file except in compliance with the License.
+            You may obtain a copy of the License at
+
+            https://www.apache.org/licenses/LICENSE-2.0
+
+            Unless required by applicable law or agreed to in writing, software
+            distributed under the License is distributed on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+            See the License for the specific language governing permissions and
+            limitations under the License.
+
+            For more information : contact@centreon.com
+
+            EOF;
+    }
 }

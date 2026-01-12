@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ use Core\Broker\Application\Repository\ReadBrokerInputOutputRepositoryInterface;
 use Core\Broker\Application\Repository\WriteBrokerInputOutputRepositoryInterface;
 use Core\Broker\Domain\Model\BrokerInputOutput;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
@@ -171,8 +172,8 @@ final class MigrateAllCredentials
                 $accs,
             );
             $presenter->presentResponse($this->response);
-        } catch (\Throwable $ex) {
-            $this->error((string) $ex);
+        } catch (\Throwable $e) {
+            ExceptionLogger::create()->log($e);
             $presenter->presentResponse(new ErrorResponse(VaultException::unableToMigrateCredentials()));
         }
     }

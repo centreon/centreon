@@ -4,6 +4,7 @@ import i18next from 'i18next';
 import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
+
 import Page from '../Page';
 import { listTokensEndpoint } from '../api';
 import { listUsers } from '../api/endpoints';
@@ -75,19 +76,25 @@ export const initilize = (): void => {
     timezone: 'Europe/Paris'
   });
 
+  cy.window().then((win) => {
+    cy.stub(win.navigator.clipboard, 'writeText').as('writeText');
+  });
+
   interceptRequests();
 
   cy.mount({
     Component: (
-      <Router>
-        <SnackbarProvider>
-          <TestQueryProvider>
-            <Provider store={store}>
-              <Page />
-            </Provider>
-          </TestQueryProvider>
-        </SnackbarProvider>
-      </Router>
+      <div style={{ height: '90vh' }}>
+        <Router>
+          <SnackbarProvider>
+            <TestQueryProvider>
+              <Provider store={store}>
+                <Page />
+              </Provider>
+            </TestQueryProvider>
+          </SnackbarProvider>
+        </Router>
+      </div>
     )
   });
 };

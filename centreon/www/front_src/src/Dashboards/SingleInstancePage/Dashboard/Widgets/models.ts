@@ -21,7 +21,7 @@ export interface GlobalRefreshInterval {
 
 export interface Resource {
   resourceType: string;
-  resources: Array<SelectEntry>;
+  resources: Array<SelectEntry> | string;
 }
 
 export interface NamedEntity {
@@ -46,6 +46,9 @@ export interface Metric {
   unit: string;
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;
+  serviceId?: number;
+  serviceName?: string;
+  current_value: number;
 }
 
 export enum SortOrder {

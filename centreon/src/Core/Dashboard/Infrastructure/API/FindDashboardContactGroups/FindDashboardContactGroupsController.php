@@ -52,7 +52,7 @@ final class FindDashboardContactGroupsController extends AbstractController
      */
     public function __invoke(
         FindDashboardContactGroups $useCase,
-        StandardPresenter $presenter
+        StandardPresenter $presenter,
     ): Response {
         $response = $useCase();
 

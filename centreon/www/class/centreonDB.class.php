@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -108,7 +108,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function __construct(
         string $dbLabel = self::LABEL_DB_CONFIGURATION,
         int $retry = self::RETRY,
-        ?ConnectionConfig $connectionConfig = null
+        ?ConnectionConfig $connectionConfig = null,
     ) {
         if (is_null($connectionConfig)) {
             $this->connectionConfig = new ConnectionConfig(
@@ -963,6 +963,8 @@ class CentreonDB extends PDO implements ConnectionInterface
      * @param string|null $column - the column name to be checked
      *
      * @return int
+     *
+     * @deprecated use {@see ConnectionInterface::columnExists()} instead
      */
     public function isColumnExist(?string $table = null, ?string $column = null): int
     {
@@ -1200,7 +1202,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         PDOStatement $pdoStatement,
         int|string $paramName,
         mixed $value,
-        int $type = PDO::PARAM_STR
+        int $type = PDO::PARAM_STR,
     ): bool {
         try {
             if (empty($paramName)) {
@@ -1266,7 +1268,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         int|string $paramName,
         mixed &$var,
         int $type = PDO::PARAM_STR,
-        int $maxLength = 0
+        int $maxLength = 0,
     ): bool {
         try {
             if (empty($paramName)) {
@@ -1490,7 +1492,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function executeQuery(
         $query,
         int $fetchMode = PDO::FETCH_ASSOC,
-        array $fetchModeArgs = []
+        array $fetchModeArgs = [],
     ): PDOStatement|false {
         try {
             if (empty($query)) {
@@ -1556,7 +1558,7 @@ class CentreonDB extends PDO implements ConnectionInterface
     public function executePreparedQuery(
         PDOStatement $pdoStatement,
         array $bindParams,
-        bool $withParamType = false
+        bool $withParamType = false,
     ): bool {
         try {
             // here we don't want to use CentreonDbStatement, instead used PDOStatement
@@ -1922,7 +1924,7 @@ class CentreonDB extends PDO implements ConnectionInterface
         string $message,
         array $customContext = [],
         string $query = '',
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     ): void {
         // prepare context of the database exception
         $context = [
@@ -1953,7 +1955,7 @@ class CentreonDB extends PDO implements ConnectionInterface
      */
     private function executeSelectQuery(
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): PDOStatement {
         try {
             $this->validateSelectQuery($query);

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class VmWareV6CredentialMigrator implements AccCredentialMigratorInterface
      */
     public function isValidFor(Type $type): bool
     {
-        return Type::VMWARE_V6 === $type;
+        return $type === Type::VMWARE_V6;
     }
 
     /**
@@ -86,7 +86,7 @@ class VmWareV6CredentialMigrator implements AccCredentialMigratorInterface
     public function updateMigratedCredential(
         Acc $acc,
         CredentialDto $credential,
-        string $vaultPath
+        string $vaultPath,
     ): Acc {
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $acc->getParameters()->getData();

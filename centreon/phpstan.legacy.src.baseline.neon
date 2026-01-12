@@ -248,18 +248,6 @@ parameters:
 			path: src/Centreon/Infrastructure/PlatformInformation/Repository/PlatformInformationRepositoryRDB.php
 
 		-
-			message: '#^Strict comparison using \!\=\= between null and int will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 6
-			path: src/Centreon/Infrastructure/PlatformTopology/Repository/Model/PlatformTopologyFactoryRDB.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between null and int\|string will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 4
-			path: src/Centreon/Infrastructure/PlatformTopology/Repository/Model/PlatformTopologyFactoryRDB.php
-
-		-
 			message: '#^Call to function is_array\(\) with non\-empty\-array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1

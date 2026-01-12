@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Contact;
@@ -116,6 +117,7 @@ class Contact implements UserInterface, ContactInterface
     public const ROLE_MONITORING_RW = 'ROLE_MONITORING_RW';
     public const ROLE_CONFIGURATION_ACC_RW = 'ROLE_CONFIGURATION_CONNECTORS_ADDITIONAL_CONFIGURATIONS_RW';
     public const ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW = 'ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW';
+    public const ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW = 'ROLE_CONFIGURATION_POLLERS_RESOURCES_RW';
 
     /**
      * @var string

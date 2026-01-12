@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ final class FindVaultConfiguration
      */
     public function __construct(
         private readonly ReadVaultConfigurationRepositoryInterface $readVaultConfigurationRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -61,7 +61,7 @@ final class FindVaultConfiguration
             }
 
             if (! $this->readVaultConfigurationRepository->exists()) {
-                $this->error('Vault configuration not found');
+                $this->info('Vault configuration not found');
                 $presenter->presentResponse(
                     new NotFoundResponse('Vault configuration')
                 );

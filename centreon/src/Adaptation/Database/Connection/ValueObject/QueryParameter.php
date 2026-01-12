@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ use Core\Common\Domain\ValueObject\ValueObjectInterface;
  *
  * @class   QueryParameter
  */
-final readonly class QueryParameter implements ValueObjectInterface
+final readonly class QueryParameter implements ValueObjectInterface, \Stringable
 {
     /**
      * QueryParameter constructor.
@@ -44,7 +44,7 @@ final readonly class QueryParameter implements ValueObjectInterface
     private function __construct(
         public string $name,
         public mixed $value,
-        public ?QueryParameterTypeEnum $type = null
+        public ?QueryParameterTypeEnum $type = null,
     ) {
         if (empty($name)) {
             throw new ValueObjectException('Name of QueryParameter cannot be empty');
@@ -70,7 +70,7 @@ final readonly class QueryParameter implements ValueObjectInterface
 
         if (is_object($this->value) && method_exists($this->value, '__toString')) {
             $value = (string) $this->value;
-        } elseif (is_scalar($this->value) || null === $this->value) {
+        } elseif (is_scalar($this->value) || $this->value === null) {
             $value = (string) $this->value;
         } else {
             $value = 'unsupported type';

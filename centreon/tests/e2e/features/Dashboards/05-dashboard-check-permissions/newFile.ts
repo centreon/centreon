@@ -2,6 +2,7 @@ import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
+import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
 
 Given(
   'a non-admin user with the dashboard viewer role is logged in on a platform with dashboards',

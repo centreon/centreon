@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ final class UpdateAgentConfiguration
 
     public function __invoke(
         UpdateAgentConfigurationRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -181,7 +181,7 @@ final class UpdateAgentConfiguration
             $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
             $validPollerIds = $this->readMonitoringServerRepository->existByAccessGroups($pollerIds, $accessGroups);
 
-            if ([] !== array_diff($pollerIds, $validPollerIds)) {
+            if (array_diff($pollerIds, $validPollerIds) !== []) {
                 return null;
             }
         }

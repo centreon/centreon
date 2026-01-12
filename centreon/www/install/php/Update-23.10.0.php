@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 require_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
@@ -296,7 +297,7 @@ $updateTopologyForDashboards = function (CentreonDB $pearDB): void {
             SQL
     );
 
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+    if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `topology`
@@ -327,7 +328,7 @@ $updateTopologyForApiTokens = function (CentreonDb $pearDB): void {
             SQL
     );
 
-    if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+    if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
         $pearDB->query(
             <<<'SQL'
                 INSERT INTO `topology`
@@ -347,7 +348,7 @@ $populateDahsboardTables = function (CentreonDb $pearDB): void {
                 SELECT 1 FROM `dashboard_widgets` WHERE `name` = 'centreon-widget-generictext'
                 SQL
         );
-        if (false === (bool) $statement->fetch(PDO::FETCH_COLUMN)) {
+        if ((bool) $statement->fetch(PDO::FETCH_COLUMN) === false) {
             $pearDB->query(
                 <<<'SQL'
                     INSERT INTO `dashboard_widgets` (`name`, `version`)

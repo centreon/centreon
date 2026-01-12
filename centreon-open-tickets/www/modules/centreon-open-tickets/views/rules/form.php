@@ -1,23 +1,22 @@
 <?php
 
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 // Smarty template initialization
@@ -43,7 +42,7 @@ $tpl->assign('page', $p);
 $tpl->assign('rule_id', $ruleId);
 
 $rule_alias_html = '<input size="30" name="rule_alias" type="text" value="'
-    . ($result_rule['alias'] ?? '') . '" />';
+    . (htmlspecialchars($result_rule['alias'] ?? '', ENT_QUOTES, 'UTF-8')) . '" />';
 $provider_html = '<select id="provider_id" name="provider_id"><option value=""></option>';
 ksort($register_providers);
 foreach ($register_providers as $name => $value) {
@@ -55,7 +54,10 @@ foreach ($register_providers as $name => $value) {
 }
 $provider_html .= '</select>';
 
-$array_rule_form = ['rule_alias' => ['label' => _('Rule name') . $required_field, 'html' => $rule_alias_html], 'rule_provider' => ['label' => _('Provider') . $required_field, 'html' => $provider_html]];
+$array_rule_form = [
+    'rule_alias' => ['label' => _('Rule name') . $required_field, 'html' => $rule_alias_html],
+    'rule_provider' => ['label' => _('Provider') . $required_field, 'html' => $provider_html],
+];
 
 $tpl->assign('form', $array_rule_form);
 

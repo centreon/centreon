@@ -21,7 +21,8 @@ export enum InputType {
   Checkbox = 11,
   CheckboxGroup = 12,
   List = 13,
-  File = 14
+  File = 14,
+  Divider = 15
 }
 
 interface FieldsTableGetRequiredProps {
@@ -61,6 +62,8 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    getOptionLabel?: (option) => string;
+    optionProperty?: string;
     disableSelectAll?: boolean;
     limitTags?: number;
     decoder?;

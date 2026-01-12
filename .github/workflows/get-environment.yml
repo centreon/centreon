@@ -7,13 +7,23 @@ on:
       nightly_manual_trigger:
         required: false
         type: boolean
+      labels:
+        required: false
+        type: string
+        default: ""
     outputs:
       latest_major_version:
         description: "latest major version"
         value: ${{ jobs.get-environment.outputs.latest_major_version }}
+      previous_release_bundle_tag:
+        description: "previous release bundle tag"
+        value: ${{ jobs.get-environment.outputs.previous_release_bundle_tag }}
       is_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-environment.outputs.is_cloud }}
+      delivery_type:
+        description: "context of delivery (feature branch or classic delivery)"
+        value: ${{ jobs.get-environment.outputs.delivery_type }}
       linked_dev_branch:
         description: "linked develop branch"
         value: ${{ jobs.get-environment.outputs.linked_dev_branch }}
@@ -59,7 +69,9 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
+      previous_release_bundle_tag: ${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag }}
       is_cloud: ${{ steps.detect_cloud_version.outputs.isCloud }}
+      delivery_type: ${{ steps.detect_delivery_type.outputs.delivery_type }}
       linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
       linked_stable_branch: ${{ steps.linked_branches.outputs.linked_stable_branch }}
       major_version: ${{ steps.get_version.outputs.major_version }}
@@ -77,7 +89,7 @@ jobs:
     steps:
       - name: Check if PR has skip label
         id: has_skip_label
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             let hasSkipLabel = false;
@@ -99,6 +111,11 @@ jobs:
               } catch (e) {
                 core.warning(`failed to list labels: ${e}`);
               }
+            } else if ('${{ github.event_name }}' === 'workflow_dispatch' && '${{ inputs.labels }}'.length > 0) {
+              labels = '${{ inputs.labels }}'
+                .split(',')
+                .map(label => label.trim())
+                .filter(label => label.length > 0);
             }
 
             core.setOutput('labels', labels);
@@ -106,13 +123,13 @@ jobs:
             return hasSkipLabel;
 
       - name: Checkout sources (current branch)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: develop
           path: centreon-develop
@@ -121,7 +138,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get workflow triggered paths
         id: get_workflow_triggered_paths
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const fs = require('fs');
@@ -152,7 +169,7 @@ jobs:
                 }
 
                 if (hasReadOn && hasReadPullRequest && hasReadPaths) {
-                  const matches = line.match(/^\s{6}-\s['"](.+)['"]\s*$/);
+                  const matches = line.match(/^\s{6}-\s['"]?(.+?)['"]?\s*$/);
                   if (matches) {
                     paths.push(matches[1].trim());
                   } else {
@@ -173,7 +190,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get push changes
         id: get_push_changes
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
         with:
           since_last_remote_commit: true
           json: true
@@ -183,7 +200,7 @@ jobs:
 
       - name: Check if current workflow should be skipped
         id: skip_workflow
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             if (/^bump-.+/.test('${{ github.head_ref || github.ref_name }}')) {
@@ -224,7 +241,7 @@ jobs:
       - if: ${{ github.event_name == 'pull_request' }}
         name: Get nested pull request path
         id: pr_path
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const prPath = ['${{ github.head_ref }}', '${{ github.base_ref }}'];
@@ -251,7 +268,7 @@ jobs:
 
       - name: Get stability
         id: get_stability
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const ref = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
@@ -282,9 +299,14 @@ jobs:
               }
             };
 
-            // Handle tags like centreon-web-XX.YY.z or centreon-pp-manager-XX.YY.z
+            // Handle tags like centreon-web-XX.YY.z or centreon-pp-manager-XX.YY.z FIRST
+            // to allow promote for centreon packages (centreon-web, etc)
+            // Handle tags like release-cloud-YYYYMMNN-XX.YY or release-onprem-YYYYMMNN-XX.YY SECOND
+            // to allow promote for extra packages (lua-curl, libzmq, etc)
             const isStableTag = (tag) => {
-              const matched = /^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag);
+              const matched =
+                /^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag) ||
+                /^release-(cloud|onprem)-\d{8}-\d{2}\.\d{2}$/.test(tag);
               console.log(`Checking if tag '${tag}' matches stable tag pattern: ${matched}`);
               return matched;
             };
@@ -416,7 +438,7 @@ jobs:
         shell: bash
 
       - name: Detect nightly status
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         id: get_nightly_status
         env:
           NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
@@ -437,7 +459,7 @@ jobs:
 
       - name: "Detect cloud version"
         id: detect_cloud_version
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
         with:
@@ -461,7 +483,7 @@ jobs:
             let releaseScope = "unknown";
 
             // in a nightly context, whatever the event_name is, the release context does not matter
-            if ( process.env.IS_NIGHTLY == 'true' ) {
+            if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
               releaseScope = isCloudCandidate ? "cloud" : "onprem";
             } else if ( "${{ github.event_name }}" === "pull_request" ) {
               // handle if triggering event is a pull_request
@@ -577,9 +599,21 @@ jobs:
             core.setOutput("releaseScope", releaseScope);
             core.setOutput("isCloud", isCloud);
 
+      - name: "Detect delivery type"
+        id: detect_delivery_type
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            let delivery_type  = 'classic';
+            if (${{ contains(steps.has_skip_label.outputs.labels, 'delivery-feature') && 'true' || 'false' }}) {
+              delivery_type = 'feature';
+            }
+
+            core.setOutput('delivery_type', delivery_type);
+
       - name: Detect linked dev and stable branches
         id: linked_branches
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             let linkedDevBranch = 'develop';
@@ -591,46 +625,145 @@ jobs:
             core.setOutput('linked_dev_branch', linkedDevBranch);
             core.setOutput('linked_stable_branch', linkedStableBranch);
 
+      - name: Get previous release bundle tag
+        id: get_previous_release_bundle_tag
+        env:
+          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
+          STABILITY: ${{ steps.get_stability.outputs.stability }}
+          MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            if (process.env.STABILITY !== 'testing' && process.env.STABILITY !== 'stable') {
+              core.setOutput('previous_release_bundle_tag', '');
+              return;
+            }
+
+            let execOutput = '';
+            let execError = '';
+            const execOptions = {
+              listeners: {
+                stdout: (data) => {
+                  execOutput += data.toString();
+                },
+                stderr: (data) => {
+                  execError += data.toString();
+                }
+              },
+              silent: true
+            };
+
+            let previousStableBundleSha = '';
+            let previousStableBundleTag = '';
+
+            await exec.exec(
+              `bash -c "git ls-remote --tags origin 'refs/tags/release-${process.env.IS_CLOUD === 'true' && 'cloud' || 'onprem'}-*' | grep -v '{}' | sort -t'-' -k4r,4 -k3r,3"`,
+              [],
+              execOptions
+            );
+
+            for (const line of execOutput.split('\n')) {
+              const tag = line.trim();
+              const matches = tag.match(/^(.+)\s+.+\/(release-(cloud|onprem)-\d{8}-(\d{2}\.\d{2}))$/);
+              if (matches && Number(matches[4]) <= Number(process.env.MAJOR_VERSION)) {
+                previousStableBundleSha = matches[1];
+                previousStableBundleTag = matches[2];
+                break;
+              } else {
+                console.log(`Ignoring non-matching tag: ${tag}`);
+              }
+            }
+
+            console.log(`Previous release bundle tag is: ${previousStableBundleTag} (${previousStableBundleSha})`);
+
+            core.setOutput('previous_release_bundle_tag', previousStableBundleTag);
+
       - name: Detect operating systems and databases to test
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         id: get_os_database_matrix
         with:
           script: |
-            const alma9_mariadb = {
+            const alma9_mariadb_10_11 = {
               "operating_system": "alma9",
               "database": "mariadb:10.11",
               "test_tags": "not @ignore"
             };
-            const alma8_mariadb = {
+            const alma8_mysql_8_0 = {
               "operating_system": "alma8",
-              "database": "mariadb:10.11",
-              "test_tags": "not @ignore and @system"
-            };
-            const bookworm_mysql = {
-              "operating_system": "bookworm",
               "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
-
-            let matrix = {
-              "main": [alma9_mariadb],
-              "operating_systems": [alma9_mariadb],
-              "databases": [alma9_mariadb],
+            const bookworm_mysql_8_4 = {
+              "operating_system": "bookworm",
+              "database": "mysql:8.4",
+              "test_tags": "not @ignore"
             };
 
-            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }}) {
+            const getDailyConfig = (configs) => {
+              const today = new Date();
+              const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
+
+              // If it's weekend, use the default configuration
+              if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return configs[0];
+              }
+
+              // Reference date: January 1, 2025
+              const referenceDate = new Date('2025-01-01');
+
+              // Calculate the number of working days since January 1
+              let workingDays = 0;
+              const currentDate = new Date(referenceDate);
+
+              while (currentDate < today) {
+                const dayOfWeek = currentDate.getDay();
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+                  workingDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+              }
+
+              // Alternating balanced on 3 configurations
+              const configIndex = workingDays % configs.length;
+
+              return configs[configIndex];
+            };
+
+            const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
+
+            const cloud = alma8_mysql_8_0;
+
+            let main = alma9_mariadb_10_11;
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
+              main = cloud;
+            }
+
+            let matrix = {
+              "cloud": [cloud],
+              "main": [main],
+              "operating_systems": [main],
+              "databases": [main],
+            };
+
+            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true') {
+              const dailyConfig = getDailyConfig(configs);
+
               matrix = {
-                ...matrix,
-                "operating_systems": [alma9_mariadb, bookworm_mysql],
-                "databases": [alma9_mariadb, bookworm_mysql],
+                "cloud": [cloud],
+                "main": [dailyConfig],
+                "operating_systems": [dailyConfig],
+                "databases": [dailyConfig],
               };
             }
 
-            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
+            if (
+              ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
+              || ${{ contains(steps.has_skip_label.outputs.labels, 'system') && 'true' || 'false' }}
+            ) {
               matrix = {
                 ...matrix,
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
-                "databases": [alma9_mariadb, bookworm_mysql],
+                "operating_systems": configs,
+                "databases": configs,
               };
             }
 
@@ -639,13 +772,15 @@ jobs:
             return matrix;
 
       - name: Display info in job summary
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const outputTable = [
               [{data: 'Name', header: true}, {data: 'Value', header: true}],
               ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
               ['is_cloud', '${{ steps.detect_cloud_version.outputs.isCloud }}'],
+              ['previous_release_bundle_tag', '${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag || '<em>not found</em>' }}'],
+              ['delivery_type', '${{ steps.detect_delivery_type.outputs.delivery_type }}'],
               ['linked_dev_branch', '${{ steps.linked_branches.outputs.linked_dev_branch }}'],
               ['linked_stable_branch', '${{ steps.linked_branches.outputs.linked_stable_branch }}'],
               ['major_version', '${{ steps.get_version.outputs.major_version }}'],

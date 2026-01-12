@@ -25,6 +25,7 @@ namespace Core\Common\Infrastructure\Routing;
 
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Module\Infrastructure\ModuleInstallationVerifier;
+use Core\Platform\Domain\InstallationVerifierInterface;
 use Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Loader\AttributeFileLoader;
@@ -37,15 +38,25 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         private AttributeFileLoader $loader,
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
-        private ModuleInstallationVerifier $installationVerifier
+        private ModuleInstallationVerifier $moduleInstallationVerifier,
+        private InstallationVerifierInterface $centreonInstallationVerifier,
     ) {
     }
 
     final public function __invoke(): RouteCollection
     {
         $routes = new RouteCollection();
+
+        /**
+         * Dont populate RouteCollection during install / upgrade process to avoid DI of services that could need
+         * some configurations that don't exists at this moment of the lifecycle of the software.
+         */
+        if ($this->centreonInstallationVerifier->isCentreonWebInstallableOrUpgradable()) {
+            return $routes;
+        }
+
         try {
-            if (! $this->installationVerifier->isInstallComplete($this->getModuleName())) {
+            if (! $this->moduleInstallationVerifier->isInstallComplete($this->getModuleName())) {
                 return $routes;
             }
         } catch (\Throwable $ex) {
@@ -62,6 +73,10 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 
         // Modules with only one route will return directly a route collection
         if ($routeCollections instanceof RouteCollection) {
+            $routeCollections->addPrefix('/{base_uri}api/{version}');
+            $routeCollections->addDefaults(['base_uri' => 'centreon/', 'version' => 'latest']);
+            $routeCollections->addRequirements(['base_uri' => '(.+/)|.{0}']);
+
             return $routeCollections;
         }
         foreach ($routeCollections as $routeCollection) {

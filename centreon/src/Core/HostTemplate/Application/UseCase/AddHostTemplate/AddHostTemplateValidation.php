@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class AddHostTemplateValidation
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -80,7 +80,7 @@ class AddHostTemplateValidation
      */
     public function assertIsValidIcon(?int $iconId): void
     {
-        if ($iconId !== null && false === $this->readViewImgRepository->existsOne($iconId)) {
+        if ($iconId !== null && $this->readViewImgRepository->existsOne($iconId) === false) {
             $this->error('Icon does not exist', ['icon_id' => $iconId]);
 
             throw HostTemplateException::idDoesNotExist('iconId', $iconId);
@@ -97,7 +97,7 @@ class AddHostTemplateValidation
      */
     public function assertIsValidTimePeriod(?int $timePeriodId, ?string $propertyName = null): void
     {
-        if ($timePeriodId !== null && false === $this->readTimePeriodRepository->exists($timePeriodId)) {
+        if ($timePeriodId !== null && $this->readTimePeriodRepository->exists($timePeriodId) === false) {
             $this->error('Time period does not exist', ['time_period_id' => $timePeriodId]);
 
             throw HostTemplateException::idDoesNotExist($propertyName ?? 'timePeriodId', $timePeriodId);
@@ -136,7 +136,7 @@ class AddHostTemplateValidation
      */
     public function assertIsValidTimezone(?int $timezoneId): void
     {
-        if ($timezoneId !== null && false === $this->readTimezoneRepository->exists($timezoneId)) {
+        if ($timezoneId !== null && $this->readTimezoneRepository->exists($timezoneId) === false) {
             $this->error('Timezone does not exist', ['timezone_id' => $timezoneId]);
 
             throw HostTemplateException::idDoesNotExist('timezoneId', $timezoneId);
@@ -155,20 +155,20 @@ class AddHostTemplateValidation
     public function assertIsValidCommand(
         ?int $commandId,
         ?CommandType $commandType = null,
-        ?string $propertyName = null
+        ?string $propertyName = null,
     ): void {
         if ($commandId === null) {
             return;
         }
 
-        if ($commandType === null && false === $this->readCommandRepository->exists($commandId)) {
+        if ($commandType === null && $this->readCommandRepository->exists($commandId) === false) {
             $this->error('Command does not exist', ['command_id' => $commandId]);
 
             throw HostTemplateException::idDoesNotExist($propertyName ?? 'commandId', $commandId);
         }
         if (
             $commandType !== null
-            && false === $this->readCommandRepository->existsByIdAndCommandType($commandId, $commandType)
+            && $this->readCommandRepository->existsByIdAndCommandType($commandId, $commandType) === false
         ) {
             $this->error('Command does not exist', ['command_id' => $commandId, 'command_type' => $commandType]);
 

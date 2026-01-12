@@ -1,18 +1,15 @@
-import { useEffect, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 
 import { Event } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, gte, isNil, lt } from 'ramda';
-
-import { margin } from '../../common';
 import { Interval } from '../../models';
 import {
   eventMouseDownAtom,
   eventMouseUpAtom,
   mousePositionAtom
 } from '../interactionWithGraphAtoms';
-
 import { applyingZoomAtomAtom } from './zoomPreviewAtoms';
 
 interface Boundaries {
@@ -28,29 +25,34 @@ interface Props {
   getInterval?: (args: Interval) => void;
   graphWidth: number;
   xScale: ScaleTime<number, number>;
+  graphSvgRef: RefObject<SVGSVGElement | null>;
+  graphMarginLeft: number;
 }
 
 const useZoomPreview = ({
   xScale,
   graphWidth,
-  getInterval
+  getInterval,
+  graphSvgRef,
+  graphMarginLeft
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
+  const [isApplyingZoom, setApplyingZoom] = useAtom(applyingZoomAtomAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
   const eventMouseUp = useAtomValue(eventMouseUpAtom);
   const mousePosition = useAtomValue(mousePositionAtom);
-  const setApplyingZoom = useSetAtom(applyingZoomAtomAtom);
 
-  const mousePointDown = eventMouseDown
-    ? Event.localPoint(eventMouseDown)
-    : null;
+  const mousePointDown =
+    eventMouseDown && graphSvgRef.current
+      ? Event.localPoint(graphSvgRef.current, eventMouseDown)
+      : null;
 
   const mouseDownPositionX = mousePointDown
-    ? mousePointDown.x - margin.left
+    ? mousePointDown.x - graphMarginLeft
     : null;
 
   const movingMousePositionX = mousePosition
-    ? mousePosition[0] - margin.left
+    ? mousePosition[0] - graphMarginLeft
     : null;
 
   const applyZoom = (): void => {
@@ -84,7 +86,6 @@ const useZoomPreview = ({
     }
     applyZoom();
     setApplyingZoom(false);
-    setZoomBoundaries(null);
   }, [eventMouseUp]);
 
   useEffect(() => {
@@ -96,6 +97,13 @@ const useZoomPreview = ({
     }
     setApplyingZoom(true);
   }, [zoomBoundaries]);
+
+  useEffect(() => {
+    if (isApplyingZoom) {
+      return;
+    }
+    setZoomBoundaries(null);
+  }, [isApplyingZoom]);
 
   const zoomBarWidth = Math.abs(
     (zoomBoundaries?.end || 0) - (zoomBoundaries?.start || 0)

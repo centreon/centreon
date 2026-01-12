@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,9 +96,17 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
         // Manage URL Generation for HTTPS and Legacy nested route generation calls
         $context = $this->router->getContext();
-        if ($_SERVER['REQUEST_SCHEME'] === 'https') {
+        $forwardedProtoHeader = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+        if ($forwardedProtoHeader) {
+            // It could be possible that HTTP_X_FORWARDED_PROTO contains multiple comma-separated values e.g "https,http"
+            $proto = mb_strtolower(trim(explode(',', $forwardedProtoHeader)[0]));
+            $scheme = $proto === 'https' ? 'https' : 'http';
+            $context = $this->router->getContext();
+            $context->setScheme($scheme);
+        } elseif ($_SERVER['REQUEST_SCHEME'] === 'https') {
             $context->setScheme($_SERVER['REQUEST_SCHEME']);
         }
+
         if ($_SERVER['SERVER_NAME'] !== 'localhost') {
             $context->setHost($_SERVER['SERVER_NAME']);
         }

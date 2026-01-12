@@ -33,6 +33,7 @@ import {
   labelAllBusinessViewsSelected,
   labelAllHostGroupsSelected,
   labelAllHostsSelected,
+  labelAllImageFoldersSelected,
   labelAllResources,
   labelAllResourcesSelected,
   labelAllServiceGroupsSelected,
@@ -40,6 +41,7 @@ import {
   labelHost,
   labelHostCategory,
   labelHostGroup,
+  labelImageFolder,
   labelMetaService,
   labelPleaseSelectAResource,
   labelSelectResource,
@@ -82,6 +84,11 @@ const resourceTypeOptions = [
     availableResourceTypeOptions: [],
     id: ResourceTypeEnum.BusinessView,
     name: labelBusinessView
+  },
+  {
+    availableResourceTypeOptions: [],
+    id: ResourceTypeEnum.ImageFolder,
+    name: labelImageFolder
   },
   {
     availableResourceTypeOptions: [
@@ -150,7 +157,8 @@ export const resourceTypeBaseEndpoints = {
   [ResourceTypeEnum.MetaService]: '/configuration/metaservices',
   [ResourceTypeEnum.Service]: '/configuration/services',
   [ResourceTypeEnum.ServiceCategory]: '/configuration/services/categories',
-  [ResourceTypeEnum.ServiceGroup]: '/configuration/services/groups'
+  [ResourceTypeEnum.ServiceGroup]: '/configuration/services/groups',
+  [ResourceTypeEnum.ImageFolder]: '/configuration/media/folders'
 };
 
 const searchParametersBySelectedResourceType = {
@@ -189,7 +197,8 @@ const labelsForSelectedResources = {
   [ResourceTypeEnum.Host]: labelAllHostsSelected,
   [ResourceTypeEnum.HostGroup]: labelAllHostGroupsSelected,
   [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroupsSelected,
-  [ResourceTypeEnum.BusinessView]: labelAllBusinessViewsSelected
+  [ResourceTypeEnum.BusinessView]: labelAllBusinessViewsSelected,
+  [ResourceTypeEnum.ImageFolder]: labelAllImageFoldersSelected
 };
 
 const useDatasetFilter = (
@@ -223,6 +232,7 @@ const useDatasetFilter = (
   const lowestResourceTypeReached = (): boolean =>
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.Service) ||
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.MetaService) ||
+    equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.ImageFolder) ||
     equals(last(datasetFilter)?.resourceType, ResourceTypeEnum.BusinessView);
 
   const getResourceTypeOptions = (index: number): Array<SelectEntry> => {
@@ -282,6 +292,7 @@ const useDatasetFilter = (
     equals(resourceType, ResourceTypeEnum.HostGroup) ||
     equals(resourceType, ResourceTypeEnum.Host) ||
     equals(resourceType, ResourceTypeEnum.ServiceGroup) ||
+    equals(resourceType, ResourceTypeEnum.ImageFolder) ||
     equals(resourceType, ResourceTypeEnum.BusinessView);
 
   const getLabelForSelectedResources = (index: number): string => {

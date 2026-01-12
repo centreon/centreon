@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable&\Countable $medias
+                readonly private \Traversable&\Countable $medias,
             ) {
             }
 
@@ -111,6 +111,14 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): \Traversable
+    {
+        return $this->createTraversable($this->dbReadMediaRepository->findByRequestParametersAndAccessGroups($requestParameters, $accessGroups));
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
         return $this->createTraversable($this->dbReadMediaRepository->findByRequestParameters($requestParameters));
@@ -130,7 +138,7 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable $medias
+                readonly private \Traversable $medias,
             ) {
             }
 

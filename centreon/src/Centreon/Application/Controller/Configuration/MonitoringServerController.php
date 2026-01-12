@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Configuration;
@@ -55,7 +56,7 @@ class MonitoringServerController extends AbstractController
      */
     public function __construct(
         private readonly MonitoringServerServiceInterface $monitoringServerService,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -189,7 +190,7 @@ class MonitoringServerController extends AbstractController
     public function generateAndReloadConfiguration(
         GenerateConfiguration $generateConfiguration,
         ReloadConfiguration $reloadConfiguration,
-        int $monitoringServerId
+        int $monitoringServerId,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
@@ -213,7 +214,7 @@ class MonitoringServerController extends AbstractController
      */
     public function generateAndReloadAllConfigurations(
         GenerateAllConfigurations $generateAllConfigurations,
-        ReloadAllConfigurations $reloadAllConfigurations
+        ReloadAllConfigurations $reloadAllConfigurations,
     ): View {
         $this->denyAccessUnlessGrantedForApiConfiguration();
         $this->execute(
@@ -257,8 +258,8 @@ class MonitoringServerController extends AbstractController
             $this->error($ex->getMessage());
 
             throw new MonitoringServerException(
-                'There was an consistency error in the exported files  - please use the legacy export menu to '
-                . 'troubleshoot'
+                'There was an consistency error in the exported files - please use the legacy export menu to troubleshoot',
+                previous: $ex,
             );
         }
     }

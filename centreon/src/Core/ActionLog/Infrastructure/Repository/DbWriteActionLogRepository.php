@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Collection\BatchInsertParameters;
 use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface;
 use Core\ActionLog\Domain\Model\ActionLog;
@@ -54,7 +55,8 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
     public function addAction(ActionLog $actionLog): int
     {
         try {
-            $this->queryBuilder->insert('`:dbstg`.log_action')
+            $query = $this->connection->createQueryBuilder()
+                ->insert('`:dbstg`.log_action')
                 ->values([
                     'action_log_date' => ':creation_date',
                     'object_type' => ':object_type',
@@ -62,10 +64,10 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
                     'object_name' => ':object_name',
                     'action_type' => ':action_type',
                     'log_contact_id' => ':contact_id',
-                ]);
-            $query = $this->translateDbName($this->queryBuilder->getQuery());
+                ])
+                ->getQuery();
 
-            $this->connection->insert($query, QueryParameters::create([
+            $this->connection->insert($this->translateDbName($query), QueryParameters::create([
                 QueryParameter::int('creation_date', $actionLog->getCreationDate()->getTimestamp()),
                 QueryParameter::string('object_type', $actionLog->getObjectType()),
                 QueryParameter::int('object_id', $actionLog->getObjectId()),
@@ -75,7 +77,7 @@ class DbWriteActionLogRepository extends DatabaseRepository implements WriteActi
             ]));
 
             return (int) $this->connection->getLastInsertId();
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $exception) {
             $this->error(
                 "Add action log failed : {$exception->getMessage()}",
                 [

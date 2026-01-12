@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Contact;
@@ -36,6 +37,8 @@ use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 final class ContactRepositoryRDB implements ContactRepositoryInterface
 {
     use SqlMultipleBindTrait;
+    private const MENU_ACCESS_NO_ACCESS = 0;
+    private const MENU_ACCESS_READ_WRITE_ACCESS = 1;
 
     /** @var DatabaseConnection */
     private $db;
@@ -291,12 +294,27 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         $topologies = [];
         $rightsCounter = 0;
         while ($row = $prepare->fetch(\PDO::FETCH_ASSOC)) {
-            $topologies[$row['topology_page']] = [
-                'name' => $row['topology_name'],
-                'right' => (int) $row['access_right'],
-            ];
-            if ($row['access_right'] !== null) {
-                $rightsCounter++;
+            $topologyAccess = (int) $row['access_right'];
+            $topologyPage = $row['topology_page'];
+            $topologyName = $row['topology_name'];
+
+            // No point in adding topology if no access.
+            if ($topologyAccess > self::MENU_ACCESS_NO_ACCESS) {
+                // If topology_page already registered only update the rights when needed (ie: giving more access though menu access)
+                if (isset($topologies[$topologyPage])) {
+                    if (
+                        $topologyAccess === self::MENU_ACCESS_READ_WRITE_ACCESS
+                        && $topologies[$topologyPage]['right'] !== self::MENU_ACCESS_READ_WRITE_ACCESS
+                    ) {
+                        $topologies[$topologyPage]['right'] = self::MENU_ACCESS_READ_WRITE_ACCESS;
+                    }
+                } else {
+                    $topologies[$topologyPage] = [
+                        'name' => $topologyName,
+                        'right' => $topologyAccess,
+                    ];
+                    $rightsCounter++; // increment when a new topology is added
+                }
             }
         }
 
@@ -304,9 +322,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         if ($rightsCounter > 0) {
             foreach ($topologies as $topologyPage => $details) {
                 $originalTopologyPage = $topologyPage;
-                if ($details['right'] === 0) {
-                    continue;
-                }
                 $ruleName = null;
                 $lvl2Name = null;
                 $lvl3Name = null;

@@ -1,40 +1,26 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 require_once __DIR__ . '/../../../../class/centreonContact.class.php';
 
+use Adaptation\Log\LoggerPassword;
 use Centreon\Infrastructure\Event\EventDispatcher;
 
 if (! isset($centreon)) {
@@ -80,8 +66,14 @@ $dbResult->closeCursor();
  */
 try {
     $passwordSecurityPolicy = (new CentreonContact($pearDB))->getPasswordSecurityPolicy();
-    $encodedPasswordPolicy = json_encode($passwordSecurityPolicy);
-} catch (PDOException $e) {
+    $encodedPasswordPolicy = json_encode($passwordSecurityPolicy, JSON_THROW_ON_ERROR);
+} catch (PDOException|JsonException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while retrieving password security policy: ' . $e->getMessage(),
+        exception: $e
+    );
+
     return false;
 }
 
@@ -168,7 +160,7 @@ if (
     && ! empty($cct['contact_ldap_dn'])
 ) {
     $ldap = new CentreonLDAP($pearDB, null, $cct['ar_id']);
-    if (false !== $ldap->connect()) {
+    if ($ldap->connect() !== false) {
         $cgLdap = $ldap->listGroupsForUser($cct['contact_ldap_dn']);
     }
 }
@@ -212,9 +204,17 @@ $form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/**
- * @var Centreon\Domain\Service\ModuleFormManager $moduleFormManager
- */
+// Auth type of the user connected
+$authTypeConnectedUser = $centreon->user->authType;
+$tpl->assign('authTypeConnectedUser', $authTypeConnectedUser);
+// Auth type of the contact edited
+if ($o == MODIFY_CONTACT || $o == WATCH_CONTACT) {
+    $authTypeContact = $cct['contact_auth_type'];
+} else {
+    $authTypeContact = CentreonAuth::AUTH_TYPE_LOCAL;
+}
+$tpl->assign('authTypeContact', $authTypeContact);
+
 if ($o == ADD_CONTACT) {
     $form->addElement('header', 'title', _('Add a User'));
 
@@ -295,32 +295,13 @@ if ($o != MASSIVE_CHANGE) {
     $attrsText['data-testid'] = 'contact_alias';
     $form->addElement('text', 'contact_alias', _('Alias / Login'), $attrsText);
 
-    $form->addElement(
-        'text',
-        'contact_autologin_key',
-        _('Autologin Key'),
-        [
-            'size' => '90',
-            'id' => 'aKey',
-            'data-testid' => 'aKey',
-        ]
-    );
-    $form->addElement(
-        'button',
-        'contact_gen_akey',
-        _('Generate'),
-        [
-            'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
-            'id' => 'generateAutologinKeyButton',
-            'data-testid' => 'generateAutologinKeyButton',
-        ]
-    );
     /**
      * Contact email attributes
      */
     $attrsTextMail['id'] = 'contact_email';
     $attrsTextMail['data-testid'] = 'contact_email';
     $form->addElement('text', 'contact_email', _('Email'), $attrsTextMail);
+
     /**
      * Contact Pager attributes
      */
@@ -405,7 +386,29 @@ $tab[] = $form->createElement(
 );
 $form->addGroup($tab, 'contact_oreon', _('Reach Centreon Front-end'), '&nbsp;');
 
-if ($o !== MASSIVE_CHANGE) {
+$autologinEnabled = ($contactId == $centreon->user->user_id || $centreon->user->admin);
+
+if (
+    $o !== MASSIVE_CHANGE
+    && $authTypeConnectedUser === CentreonAuth::AUTH_TYPE_LOCAL
+    && $authTypeContact !== CentreonAuth::AUTH_TYPE_LDAP
+) {
+
+    // Password Management
+
+    if ($o === MODIFY_CONTACT) {
+        $form->addElement(
+            'password',
+            'current_password',
+            _('Your current password'),
+            [
+                'size' => '30',
+                'autocomplete' => 'off',
+                'id' => 'current_password',
+            ]
+        );
+    }
+
     $form->addElement(
         'password',
         'contact_passwd',
@@ -418,6 +421,7 @@ if ($o !== MASSIVE_CHANGE) {
             'onkeypress' => 'resetPwdType(this);',
         ]
     );
+
     $form->addElement(
         'password',
         'contact_passwd2',
@@ -430,6 +434,7 @@ if ($o !== MASSIVE_CHANGE) {
             'onkeypress' => 'resetPwdType(this);',
         ]
     );
+
     $form->addElement(
         'button',
         'contact_gen_passwd',
@@ -440,6 +445,32 @@ if ($o !== MASSIVE_CHANGE) {
             'data-testid' => 'contact_gen_passwd',
         ]
     );
+
+    // Autologin Management
+
+    if (($o === ADD_CONTACT || $o === MODIFY_CONTACT) && $autologinEnabled) {
+        $form->addElement(
+            'text',
+            'contact_autologin_key',
+            _('Autologin Key'),
+            [
+                'size' => '90',
+                'id' => 'aKey',
+                'data-testid' => 'aKey',
+            ]
+        );
+
+        $form->addElement(
+            'button',
+            'contact_gen_akey',
+            _('Generate'),
+            [
+                'onclick' => "generatePassword('aKey', '{$encodedPasswordPolicy}');",
+                'id' => 'generateAutologinKeyButton',
+                'data-testid' => 'generateAutologinKeyButton',
+            ]
+        );
+    }
 }
 
 // ------------------------ Topoogy ----------------------------
@@ -704,11 +735,11 @@ $form->addElement(
     $attrTimezones
 );
 
-$auth_type = $o != MASSIVE_CHANGE ? [] : [null => null];
+$contactAuthTypeSelect = $o != MASSIVE_CHANGE ? [] : [null => null];
 
-$auth_type['local'] = 'Centreon';
+$contactAuthTypeSelect['local'] = 'Centreon';
 if ($centreon->optGen['ldap_auth_enable'] == 1) {
-    $auth_type['ldap'] = 'LDAP';
+    $contactAuthTypeSelect['ldap'] = 'LDAP';
     /**
      * LDAP Distinguished Name attributes
      */
@@ -731,7 +762,7 @@ $form->addElement(
     'select',
     'contact_auth_type',
     _('Authentication Source'),
-    $auth_type,
+    $contactAuthTypeSelect,
     [
         'id' => 'contact_auth_type',
         'data-testid' => 'contact_auth_type',
@@ -1055,12 +1086,16 @@ if ($o != MASSIVE_CHANGE) {
     }
 
     $form->addRule(['contact_passwd', 'contact_passwd2'], _('Passwords do not match'), 'compare');
-    if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
+    if ($o === ADD_CONTACT) {
         $form->addFormRule('validatePasswordCreation');
-        $form->addFormRule('validateAutologin');
-    }
-    if ($o === MODIFY_CONTACT) {
+        if ($autologinEnabled) {
+            $form->addFormRule('validateAutologin');
+        }
+    } elseif ($o === MODIFY_CONTACT) {
         $form->addFormRule('validatePasswordModification');
+        if ($autologinEnabled) {
+            $form->addFormRule('validateAutologin');
+        }
     }
     $form->registerRule('exist', 'callback', 'testContactExistence');
     $form->addRule('contact_name', "<font style='color: red;'>*</font>&nbsp;" . _('Contact already exists'), 'exist');
@@ -1081,6 +1116,7 @@ if ($o != MASSIVE_CHANGE) {
 }
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
+$tpl->assign('autologinEnabled', $autologinEnabled);
 $tpl->assign(
     'helpattr',
     'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, '
@@ -1150,10 +1186,7 @@ if ($form->validate() && $from_list_menu == false) {
             ]
         );
     } elseif ($form->getSubmitValue('submitC')) {
-        updateContactInDB(
-            contact_id:$cctObj->getValue(),
-            isRemote: $isRemote
-        );
+        updateContactInDB(contact_id: $cctObj->getValue(), isRemote: $isRemote);
 
         $eventDispatcher->notify(
             'contact.form',
@@ -1167,7 +1200,7 @@ if ($form->validate() && $from_list_menu == false) {
         $select = explode(',', $select);
         foreach ($select as $key => $selectedContactId) {
             if ($selectedContactId) {
-                updateContactInDB($selectedContactId, true, $isRemote);
+                updateContactInDB(contact_id: $selectedContactId, from_MC: true, isRemote: $isRemote);
 
                 $eventDispatcher->notify(
                     'contact.form',
@@ -1187,6 +1220,20 @@ if ($form->validate() && $from_list_menu == false) {
 if ($valid) {
     require_once $path . 'listContact.php';
 } else {
+    // Password does not match
+    if (
+        $form->getSubmitValue('submitC')
+        && (
+            $form->getElementError('contact_passwd') === _('Passwords do not match')
+            || $form->getElementError('contact_passwd2') === _('Passwords do not match')
+        )
+    ) {
+        LoggerPassword::create()->warning(
+            reason: 'password confirmation does not match',
+            initiatorId: (int) $centreon->user->get_id(),
+            targetId: (int) $form->getElement('contact_id')->getValue(),
+        );
+    }
     // Apply a template definition
     $contactAuthType = $cct['contact_auth_type'] ?? null;
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
@@ -1200,7 +1247,7 @@ if ($valid) {
     if ($centreon->optGen['ldap_auth_enable']) {
         $tpl->assign('ldap', $centreon->optGen['ldap_auth_enable']);
     }
-    $tpl->assign('auth_type', $contactAuthType);
+    $tpl->assign('contactAuthType', $contactAuthType);
 
     if ($isRemote === false) {
         $tpl->display('formContact.ihtml');

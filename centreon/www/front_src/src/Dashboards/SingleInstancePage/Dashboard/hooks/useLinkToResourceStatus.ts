@@ -8,8 +8,10 @@ import {
 } from '../../../../Resources/Listing/columns';
 import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import { Visualization } from '../../../../Resources/models';
+import { areResourcesFullfilled } from '../Widgets/utils';
 import {
   labelBusinessActivity,
+  labelBusinessView,
   labelResourcesStatus
 } from '../translatedLabels';
 import {
@@ -19,7 +21,7 @@ import {
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;
-  getLinkToResourceStatusPage: (data, name) => string;
+  getLinkToResourceStatusPage: (data, name, options?) => string;
   getPageType: (data) => string | null;
 }
 
@@ -27,13 +29,20 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
   const selectedVisualization = useSetAtom(selectedVisualizationAtom);
   const setSelectedColumnIds = useSetAtom(selectedColumnIdsAtom);
 
-  const getLinkToResourceStatusPage = (data, name, options): string => {
+  const getLinkToResourceStatusPage = (data, name, options?): string => {
+    if (isNil(data)) return '';
     const resourcesInput = Object.entries(data).find(
       ([, value]) =>
         has('resourceType', value?.[0]) && has('resources', value?.[0])
     );
     const resourcesInputKey = resourcesInput?.[0];
-    if (!resourcesInputKey || !data?.[resourcesInputKey]) {
+
+    const hasInvalidResources =
+      !resourcesInputKey ||
+      !data?.[resourcesInputKey] ||
+      !areResourcesFullfilled(data?.[resourcesInputKey]);
+
+    if (hasInvalidResources) {
       return '';
     }
 
@@ -42,13 +51,20 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     // TO FIX when Resources Status will handle BA/BV properly
     const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+    const hasOnlyBV = all(equals('business-view'), resourceTypes);
 
-    if (hasOnlyBA) {
-      return `/monitoring/bam/bas/${resources[0].resources[0].id}`;
+    if (hasOnlyBV) {
+      const id = resources?.[0]?.resources?.[0]?.id;
+      return id ? `/main.php?p=20701&status=all&bv_id=${id}` : '';
     }
 
-    if (data?.resources && isNil(data?.metrics)) {
-      const { statuses } = options;
+    if (hasOnlyBA) {
+      const id = resources?.[0]?.resources?.[0]?.id;
+      return id ? `/monitoring/bam/bas/${id}` : '';
+    }
+
+    if (data[resourcesInputKey] && isNil(data?.metrics)) {
+      const statuses = options?.statuses ?? [];
 
       const linkToResourceStatus = getUrlForResourcesOnlyWidgets({
         resources: resources,
@@ -84,6 +100,11 @@ const useLinkToResourceStatus = (): UseLinkToResourceStatus => {
     // TO FIX when Resources Status will handle BA/BV properly
     const resourceTypes = pluck('resourceType', resources);
     const hasOnlyBA = all(equals('business-activity'), resourceTypes);
+    const hasOnlyBV = all(equals('business-view'), resourceTypes);
+
+    if (hasOnlyBV) {
+      return labelBusinessView;
+    }
 
     if (hasOnlyBA) {
       return labelBusinessActivity;

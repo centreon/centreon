@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -85,6 +87,7 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class)
     );
 
     $this->inheritanceModeOption = new Option();
@@ -192,9 +195,9 @@ beforeEach(function (): void {
     $this->request->templates = $this->parentTemplates;
 
     // Settup macros
-    $this->macroA = new Macro($this->hostTemplateId, 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(null, $this->hostTemplateId, 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->hostTemplateId, 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(null, $this->hostTemplateId, 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Host, 'commandMacroName');
     $this->commandMacros = [
@@ -248,6 +251,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -424,6 +428,7 @@ it('should present a ConflictResponse when a host timezone ID is not valid', fun
 });
 
 it('should present a ConflictResponse when a timeperiod ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -502,6 +507,7 @@ it('should present a ConflictResponse when a command ID is not valid', function 
 });
 
 it('should present a ConflictResponse when the host icon ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -543,6 +549,7 @@ it('should present a ConflictResponse when the host icon ID is not valid', funct
 // Tests for parents templates
 
 it('should present a ConflictResponse when a parent template ID is not valid', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -585,6 +592,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
 });
 
 it('should present a ConflictResponse when a parent template create a circular inheritance', function (): void {
+    $this->request->checkCommandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -639,6 +647,14 @@ it('should present a ConflictResponse when a host category does not exist', func
         ->method('findById')
         ->willReturn($this->originalHostTemplate);
 
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->checkCommandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     // Host template
     $this->optionService
         ->expects($this->once())
@@ -709,6 +725,14 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('findById')
         ->willReturn($this->originalHostTemplate);
 
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->checkCommandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     // Host template
     $this->optionService
         ->expects($this->once())

@@ -62,7 +62,7 @@ class FindResourcesPresenter extends AbstractPresenter implements FindResourcesP
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
         private readonly \Traversable $extraDataNormalizers,
-        private readonly ExceptionLogger $exceptionLogger
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }

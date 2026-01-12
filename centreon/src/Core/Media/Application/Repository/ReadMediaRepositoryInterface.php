@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,9 @@ declare(strict_types=1);
 namespace Core\Media\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Media\Domain\Model\Media;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadMediaRepositoryInterface
 {
@@ -49,11 +51,21 @@ interface ReadMediaRepositoryInterface
     /**
      * @param RequestParametersInterface $requestParameters
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return \Traversable<int, Media>
      */
     public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable;
+
+    /**
+     * @param RequestParametersInterface $requestParameters
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws RepositoryException
+     *
+     * @return \Traversable<int, Media>
+     */
+    public function findByRequestParametersAndAccessGroups(RequestParametersInterface $requestParameters, array $accessGroups): \Traversable;
 
     /**
      * @param int $mediaId

@@ -27,6 +27,7 @@ import { StackValue } from '../../../InteractiveComponents/AnchorPoint/models';
 import { getCurveFactory, getFillColor } from '../../../common';
 import { LineStyle } from '../../../models';
 import Point from '../Point';
+import { ReactElement } from 'react';
 
 interface Props {
   areaTransparency?: number;
@@ -43,6 +44,8 @@ interface Props {
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
   lineStyle: LineStyle | Array<LineStyle>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const StackLines = ({
@@ -51,8 +54,10 @@ const StackLines = ({
   yScale,
   xScale,
   displayAnchor,
-  lineStyle
-}: Props): JSX.Element => {
+  lineStyle,
+  hasSecondUnit,
+  maxLeftAxisCharacters
+}: Props): ReactElement => {
   const curveType = getCurveFactory(
     (equals(type(lineStyle), 'Array')
       ? lineStyle?.[0].curve
@@ -101,6 +106,8 @@ const StackLines = ({
                   transparency={transparency}
                   xScale={xScale}
                   yScale={yScale}
+                  hasSecondUnit={hasSecondUnit}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                 />
               )}
               {style?.showPoints &&
@@ -128,9 +135,9 @@ const StackLines = ({
                   equals(style?.showArea, false)
                     ? 'transparent'
                     : getFillColor({
-                        areaColor: areaColor || lineColor,
-                        transparency: formattedTransparency
-                      })
+                      areaColor: areaColor || lineColor,
+                      transparency: formattedTransparency
+                    })
                 }
                 opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}

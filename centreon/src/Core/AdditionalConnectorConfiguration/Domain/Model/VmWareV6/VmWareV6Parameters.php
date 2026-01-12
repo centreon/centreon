@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class VmWareV6Parameters implements AccParametersInterface
     public function __construct(
         private readonly EncryptionInterface $encryption,
         array $parameters,
-        private readonly bool $isEncrypted = false
+        private readonly bool $isEncrypted = false,
     ) {
         /** @var _VmWareV6ParametersRequest $parameters */
         Assertion::range($parameters['port'], 0, 65535, 'parameters.port');
@@ -100,7 +100,7 @@ class VmWareV6Parameters implements AccParametersInterface
     public static function update(
         EncryptionInterface $encryption,
         AccParametersInterface $currentObj,
-        array $newDatas
+        array $newDatas,
     ): self {
         /** @var _VmWareV6Parameters|_VmWareV6ParametersWithoutCredentials $newDatas */
         /** @var _VmWareV6Parameters $parameters */
@@ -122,14 +122,13 @@ class VmWareV6Parameters implements AccParametersInterface
 
             // Update vcenter
             $updatedVcenter = $requestedVcenters[$vcenter['name']];
-            $updatedVcenter['username'] ??= $vcenter['username'];
             $updatedVcenter['password'] ??= $vcenter['password'];
 
             $parameters['vcenters'][$index] = $updatedVcenter;
             unset($requestedVcenters[$vcenter['name']]);
         }
         // Add new vcenter
-        if ([] !== $requestedVcenters) {
+        if ($requestedVcenters !== []) {
             foreach ($requestedVcenters as $newVcenter) {
                 $parameters['vcenters'][] = $newVcenter;
             }
@@ -161,17 +160,13 @@ class VmWareV6Parameters implements AccParametersInterface
      */
     public function getEncryptedData(): array
     {
-        if (true === $this->isEncrypted) {
+        if ($this->isEncrypted === true) {
             return $this->parameters;
         }
 
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with(
-                $vcenter['username'],
-                VaultConfiguration::VAULT_PATH_PATTERN
-            ) ? $vcenter['username'] : $this->encryption->crypt($vcenter['username']);
             $parameters['vcenters'][$index]['password'] = str_starts_with(
                 $vcenter['password'],
                 VaultConfiguration::VAULT_PATH_PATTERN
@@ -188,17 +183,13 @@ class VmWareV6Parameters implements AccParametersInterface
      */
     public function getDecryptedData(): array
     {
-        if (false === $this->isEncrypted) {
+        if ($this->isEncrypted === false) {
             return $this->parameters;
         }
 
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with(
-                $vcenter['username'],
-                VaultConfiguration::VAULT_PATH_PATTERN
-            ) ? $vcenter['username'] : $this->encryption->decrypt($vcenter['username']) ?? '';
             $parameters['vcenters'][$index]['password'] = str_starts_with(
                 $vcenter['password'],
                 VaultConfiguration::VAULT_PATH_PATTERN
@@ -218,7 +209,6 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = null;
             $parameters['vcenters'][$index]['password'] = null;
         }
 

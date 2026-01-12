@@ -12,12 +12,16 @@
     "phpstan/phpstan-beberlei-assert": "2.0.*",
     "phpstan/phpstan-mockery": "2.0.*",
     "phpstan/phpstan-phpunit": "2.0.*",
-    "rector/rector": "2.1.*"
+    "phpstan/phpstan-symfony": "^2.0",
+    "phpstan/phpstan-webmozart-assert": "^2.0",
+    "rector/rector": "2.1.*",
+    "webmozart/assert": "1.11.*"
   },
   "autoload": {
     "psr-4": {
       "Tools\\PhpStan\\": "phpstan/src/",
-      "Tools\\PhpCsFixer\\": "php-cs-fixer/src/"
+      "Tools\\PhpCsFixer\\": "php-cs-fixer/src/",
+      "Tools\\Rector\\": "rector/src/"
     }
   },
   "config": {

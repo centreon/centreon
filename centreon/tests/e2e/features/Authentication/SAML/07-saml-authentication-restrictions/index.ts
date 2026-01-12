@@ -1,17 +1,17 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { configureProviderAcls } from '../../../../commons';
 import {
-  configureSAML,
-  initializeSAMLUser,
-  navigateToSAMLConfigPage,
+  configureSaml,
+  initializeSamlUser,
+  navigateToSamlConfigPage,
   saveSamlFormIfEnabled
 } from '../common';
-import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
-    initializeSAMLUser();
+    initializeSamlUser();
   });
 });
 
@@ -49,16 +49,16 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the authentication conditions and saves',
   () => {
-    navigateToSAMLConfigPage();
+    navigateToSamlConfigPage();
 
     cy.getByLabel({
       label: 'Enable SAMLv2 authentication',
       tag: 'input'
     }).check();
 
-    configureSAML();
+    configureSaml();
 
-    cy.getByLabel({ label: 'Authentication conditions' }).click();
+    cy.get('[data-testid="Authentication conditions-header"]').click();
 
     cy.getByLabel({
       label: 'Enable conditions on identity provider',

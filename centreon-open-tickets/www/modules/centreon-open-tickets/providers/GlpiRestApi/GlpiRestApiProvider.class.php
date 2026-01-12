@@ -1,27 +1,29 @@
 <?php
 
 /*
- * Copyright 2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
+
+use Centreon\Domain\Log\LoggerTrait;
 
 class GlpiRestApiProvider extends AbstractProvider
 {
+    use LoggerTrait;
     public const GLPI_ENTITY_TYPE = 14;
     public const GLPI_GROUP_TYPE = 15;
     public const GLPI_ITIL_CATEGORY_TYPE = 16;
@@ -115,13 +117,22 @@ class GlpiRestApiProvider extends AbstractProvider
         // set headers
         $info['headers'] = ['App-Token: ' . $info['app_token'], 'Authorization: user_token ' . $info['user_token'], 'Content-Type: application/json'];
 
+        // ssl peer verify
+        $peerVerify = (bool) ($info['peer_verify'] ?? true);
+        $caCertPath = $info['ca_cert_path'] ?? '';
+
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $peerVerify ? 2 : 0);
         curl_setopt($curl, CURLOPT_POST, $info['method']);
         curl_setopt($curl, CURLOPT_TIMEOUT, $info['timeout']);
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+        }
         // execute curl and get status information
         $curlResult = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -1025,21 +1036,41 @@ class GlpiRestApiProvider extends AbstractProvider
             $apiAddress .= preg_match('/.+\?/', $apiAddress) ? '&' : '?';
             $apiAddress .= 'range=' . $offset . '-' . ($offset + self::PAGE_SIZE);
         }
+        // ssl peer verification
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
 
         // initiate our curl options
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $info['headers']);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt($curl, CURLOPT_POST, $info['method']);
         curl_setopt($curl, CURLOPT_TIMEOUT, $this->getFormValue('timeout'));
+        $optionsToLog = [
+            'apiAddress' => $apiAddress,
+            'method' => $info['method'],
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
         // add postData if needed
         if ($info['method']) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, $info['postFields']);
+            $optionsToLog['postFields'] = $info['postFields'];
         }
         // change curl method with a custom one (PUT, DELETE) if needed
         if (isset($info['custom_request'])) {
             curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $info['custom_request']);
+            $optionsToLog['custom_request'] = $info['custom_request'];
         }
 
         // if proxy is set, we add it to curl
@@ -1082,6 +1113,11 @@ class GlpiRestApiProvider extends AbstractProvider
                 return $length;
             });
         }
+
+        // log the curl options
+        $this->debug('GLPI API request options', [
+            'options' => $optionsToLog,
+        ]);
 
         // execute curl and get status information
         $curlResult = json_decode(curl_exec($curl), true);
@@ -1145,40 +1181,6 @@ class GlpiRestApiProvider extends AbstractProvider
     }
 
     /*
-    * get groups from user ID
-    *
-    * @return {array} $this->glpiCallResult['response'] list of groups
-    *
-    * throw \Exception if we can't get groups data
-    */
-    protected function getUserId()
-    {
-        // try to get userID
-        try {
-            $userId = $this->getCache('userId');
-
-            // is there's no userId, we are going to get it from glpi
-            if (is_null($userId)) {
-                // add the api endpoint and method to our info array
-                $info['query_endpoint'] = '/getFullSession';
-                $info['method'] = 0;
-                // set headers
-                $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
-
-                // get user Id from glpi
-                $result = $this->curlQuery($info);
-                $userId = $result['session']['glpiID'];
-                // put user id in cache
-                $this->setCache('userId', $userId, 8 * 3600);
-            }
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-
-        return $userId;
-    }
-
-    /*
     * get groups from glpi
     *
     * @return {array} $this->glpiCallResult['response'] list of groups
@@ -1188,7 +1190,7 @@ class GlpiRestApiProvider extends AbstractProvider
     protected function getGroups()
     {
         // add the api endpoint and method to our info array
-        $info['query_endpoint'] = '/User/' . $this->getUserId() . '/group';
+        $info['query_endpoint'] = '/Group';
         $info['method'] = 0;
         // set headers
         $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
@@ -1301,168 +1303,44 @@ class GlpiRestApiProvider extends AbstractProvider
 
         $fields['input'] = ['name' => $ticketArguments['title'], 'content' => $ticketArguments['content'], 'entities_id' => $ticketArguments['entity'], 'urgency' => $ticketArguments['urgency'], 'itilcategories_id' => $ticketArguments['category'], 'impact' => $ticketArguments['impact'], 'priority' => $ticketArguments['priority']];
 
+        if (isset($ticketArguments['user']) && $ticketArguments['user'] != -1) {
+            $userRole = match ((int) ($ticketArguments['user_role'] ?? 0)) {
+                1 => '_users_id_requester',
+                2 => '_users_id_assign',
+                default => '_users_id_observer',
+            };
+
+            $fields['input'][$userRole] = $ticketArguments['user'];
+        }
+
+        if (isset($ticketArguments['group']) && $ticketArguments['group'] != -1) {
+            $groupRole = match ((int) ($ticketArguments['group_role'] ?? 0)) {
+                1 => '_groups_id_requester',
+                2 => '_groups_id_assign',
+                default => '_groups_id_observer',
+            };
+
+            $fields['input'][$groupRole] = $ticketArguments['group'];
+        }
+
+        if (isset($ticketArguments['supplier']) && $ticketArguments['supplier'] != -1) {
+            $fields['input']['_suppliers_id_assign'] = $ticketArguments['supplier'];
+        }
+
+        if (isset($ticketArguments['requester']) && $ticketArguments['requester'] != -1) {
+            $fields['input']['_users_id_requester'] = $ticketArguments['requester'];
+        }
+
         $info['postFields'] = json_encode($fields);
 
         try {
             $this->glpiCallResult['response'] = $this->curlQuery($info);
             $ticketId = $this->glpiCallResult['response']['id'];
         } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-
-        // assign ticket to a user
-        if (isset($ticketArguments['user']) && $ticketArguments['user'] != -1) {
-            try {
-                $this->assignUserTicketGlpi($ticketId, $ticketArguments);
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage(), $e->getCode());
-            }
-        }
-
-        // assign ticket to a group
-        if (isset($ticketArguments['group']) && $ticketArguments['group'] != -1) {
-            try {
-                $this->assignGroupTicketGlpi($ticketId, $ticketArguments);
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage(), $e->getCode());
-            }
-        }
-
-        // link the ticket to a supplier
-        if (isset($ticketArguments['supplier']) && $ticketArguments['supplier'] != -1) {
-            try {
-                $this->assignSupplierTicketGlpi($ticketId, $ticketArguments);
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage(), $e->getCode());
-            }
-        }
-
-        // assign ticket to a requester
-        if (isset($ticketArguments['requester']) && $ticketArguments['requester'] != -1) {
-            try {
-                $this->assignRequesterTicketGlpi($ticketId, $ticketArguments);
-            } catch (Exception $e) {
-                throw new Exception($e->getMessage(), $e->getCode());
-            }
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
         return $ticketId;
-    }
-
-    /*
-    * assign a user to the ticket
-    *
-    * @params {string} $ticketId id of the tickets
-    * @params {array} $ticketArguments contains all the ticket arguments
-    *
-    * @return void
-    *
-    * throw \Exception if we can't assign the ticket to a user
-    */
-    protected function assignUserTicketGlpi($ticketId, $ticketArguments)
-    {
-        // add the api endpoint and method to our info array
-        $info['query_endpoint'] = '/Ticket/' . $ticketId . '/Ticket_User';
-        $info['method'] = 1;
-        // set headers
-        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
-
-        $fields['input'] = ['type' => $ticketArguments['user_role'], 'users_id' => $ticketArguments['user'], 'tickets_id' => $ticketId];
-
-        $info['postFields'] = json_encode($fields);
-
-        try {
-            $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-    }
-
-    /*
-    * assign a group to the ticket
-    *
-    * @params {string} $ticketId id of the tickets
-    * @params {array} $ticketArguments contains all the ticket arguments
-    *
-    * @return void
-    *
-    * throw \Exception if we can't assign the ticket to a group
-    */
-    protected function assignGroupTicketGlpi($ticketId, $ticketArguments)
-    {
-        // add the api endpoint and method to our info array
-        $info['query_endpoint'] = '/Ticket/' . $ticketId . '/group_ticket';
-        $info['method'] = 1;
-        // set headers
-        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
-
-        $fields['input'] = ['type' => $ticketArguments['group_role'], 'groups_id' => $ticketArguments['group'], 'tickets_id' => $ticketId];
-
-        $info['postFields'] = json_encode($fields);
-
-        try {
-            $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-    }
-
-    /*
-    * assign a supplier to the ticket
-    *
-    * @params {string} $ticketId id of the tickets
-    * @params {array} $ticketArguments contains all the ticket arguments
-    *
-    * @return void
-    *
-    * throw \Exception if we can't assign the ticket to a supplier
-    */
-    protected function assignSupplierTicketGlpi($ticketId, $ticketArguments)
-    {
-        // add the api endpoint and method to our info array
-        $info['query_endpoint'] = '/Ticket/' . $ticketId . '/supplier_ticket';
-        $info['method'] = 1;
-        // set headers
-        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
-
-        $fields['input'] = ['type' => 2, 'suppliers_id' => $ticketArguments['supplier'], 'tickets_id' => $ticketId];
-
-        $info['postFields'] = json_encode($fields);
-
-        try {
-            $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
-    }
-
-    /*
-    * assign a requester to the ticket
-    *
-    * @params {string} $ticketId id of the tickets
-    * @params {array} $ticketArguments contains all the ticket arguments
-    *
-    * @return void
-    *
-    * throw \Exception if we can't assign the ticket to a requester
-    */
-    protected function assignRequesterTicketGlpi($ticketId, $ticketArguments)
-    {
-        // add the api endpoint and method to our info array
-        $info['query_endpoint'] = '/Ticket/' . $ticketId . '/Ticket_User';
-        $info['method'] = 1;
-        // set headers
-        $info['headers'] = ['App-Token: ' . $this->getFormValue('app_token'), 'Content-Type: application/json'];
-
-        $fields['input'] = ['type' => 1, 'users_id' => $ticketArguments['requester'], 'tickets_id' => $ticketId];
-
-        $info['postFields'] = json_encode($fields);
-
-        try {
-            $this->glpiCallResult['response'] = $this->curlQuery($info);
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), $e->getCode());
-        }
     }
 
     /*

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ use CentreonModule\ServiceProvider;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Engine\Application\Repository\EngineRepositoryInterface;
+use Core\Installation\Infrastructure\InstallationHelper;
 use Core\Platform\Application\Repository\ReadUpdateRepositoryInterface;
 use Core\Platform\Application\Repository\ReadVersionRepositoryInterface;
 use Core\Platform\Application\Repository\UpdateLockerRepositoryInterface;
@@ -38,10 +40,11 @@ use Core\Platform\Application\UseCase\UpdateVersions\UpdateVersionsPresenterInte
 use Core\Platform\Application\Validator\RequirementException;
 use Core\Platform\Application\Validator\RequirementValidatorsInterface;
 use Pimple\Container;
+use Security\Interfaces\EncryptionInterface;
 
 beforeEach(function (): void {
     $this->centreonModuleService = $this->createMock(CentreonModuleService::class);
-
+    $this->engineRepository = $this->createMock(EngineRepositoryInterface::class);
     $this->useCase = new UpdateVersions(
         $this->requirementValidators = $this->createMock(RequirementValidatorsInterface::class),
         $this->updateLockerRepository = $this->createMock(UpdateLockerRepositoryInterface::class),
@@ -50,6 +53,12 @@ beforeEach(function (): void {
         $this->writeUpdateRepository = $this->createMock(WriteUpdateRepositoryInterface::class),
         $this->dependencyInjector = new Container([ServiceProvider::CENTREON_MODULE => $this->centreonModuleService]),
         $this->user = $this->createMock(ContactInterface::class),
+        $this->installationHelper = new InstallationHelper(
+            engineRepository: $this->engineRepository,
+            encryption: $this->createMock(EncryptionInterface::class),
+            appSecret:'app_secret'
+        ),
+        $this->engineRepository
     );
 
     $this->presenter = $this->createMock(UpdateVersionsPresenterInterface::class);
@@ -171,6 +180,11 @@ it('should run found updates', function (): void {
         ->expects($this->once())
         ->method('setResponseStatus')
         ->with(new NoContentResponse());
+
+    $this->engineRepository
+        ->expects($this->once())
+        ->method('engineSecretsHasContent')
+        ->willReturn(true);
 
     ($this->useCase)($this->presenter);
 });

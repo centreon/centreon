@@ -1,37 +1,25 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 if (! isset($centreon)) {
     exit();
@@ -42,11 +30,6 @@ include_once './class/centreonUtils.class.php';
 include './include/common/autoNumLimit.php';
 
 $list = $_GET['list'] ?? null;
-
-$aclCond = '';
-if (! $oreon->user->admin) {
-    $aclCond = " AND hostgroup_hg_id IN ({$hgstring}) ";
-}
 
 $search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchHGD'] ?? $_GET['searchHGD'] ?? null
@@ -62,20 +45,82 @@ if (isset($_POST['searchHGD']) || isset($_GET['searchHGD'])) {
 }
 
 // List dependencies
-$rq = 'SELECT SQL_CALC_FOUND_ROWS dep_id, dep_name, dep_description FROM dependency dep '
-    . 'WHERE ((SELECT DISTINCT COUNT(*) FROM dependency_hostgroupParent_relation dhgpr '
-    . "WHERE dhgpr.dependency_dep_id = dep.dep_id {$aclCond}) > 0  OR (SELECT DISTINCT COUNT(*) "
-    . "FROM dependency_hostgroupChild_relation dhgpr WHERE dhgpr.dependency_dep_id = dep.dep_id {$aclCond}) > 0)";
+$qb = $pearDB->createQueryBuilder()
+    ->select('dep.dep_id', 'dep.dep_name', 'dep.dep_description')
+    ->from('dependency', 'dep');
 
-if ($search) {
-    $rq .= " AND (dep_name LIKE '%" . CentreonDB::escape($search) . "%' OR dep_description LIKE '%"
-        . CentreonDB::escape($search) . "%')";
+$subQueryParent = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_parent.dependency_dep_id)')
+    ->from('dependency_hostgroupParent_relation', 'dhgpr_parent')
+    ->where('dhgpr_parent.dependency_dep_id = dep.dep_id');
+
+$subQueryChild = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_child.dependency_dep_id)')
+    ->from('dependency_hostgroupChild_relation', 'dhgpr_child')
+    ->where('dhgpr_child.dependency_dep_id = dep.dep_id');
+
+if (! $oreon->user->admin) {
+    $subQueryParent->andWhere("dhgpr_parent.hostgroup_hg_id IN ({$hgstring})");
+    $subQueryChild->andWhere("dhgpr_child.hostgroup_hg_id IN ({$hgstring})");
 }
 
-$rq .= ' ORDER BY dep_name, dep_description LIMIT ' . $num * $limit . ', ' . $limit;
-$dbResult = $pearDB->query($rq);
+$qb->where('(' . $subQueryParent->getQuery() . ') > 0')
+    ->orWhere('(' . $subQueryChild->getQuery() . ') > 0');
 
-$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
+$params = null;
+if ($search) {
+    $qb->andWhere(
+        $qb->expr()->or(
+            $qb->expr()->like('dep.dep_name', ':search'),
+            $qb->expr()->like('dep.dep_description', ':search')
+        )
+    );
+
+    $params = QueryParameters::create([
+        QueryParameter::string('search', '%' . $search . '%'),
+    ]);
+}
+
+$qb->orderBy('dep.dep_name')
+    ->addOrderBy('dep.dep_description')
+    ->offset($num * $limit)
+    ->limit($limit);
+
+$result = $pearDB->fetchAllAssociative($qb->getQuery(), $params ?? null);
+
+// get rows count with same filters as the select query
+$countQb = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dep.dep_id)')
+    ->from('dependency', 'dep');
+
+$countSubQueryParent = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_parent.dependency_dep_id)')
+    ->from('dependency_hostgroupParent_relation', 'dhgpr_parent')
+    ->where('dhgpr_parent.dependency_dep_id = dep.dep_id');
+
+$countSubQueryChild = $pearDB->createQueryBuilder()
+    ->select('COUNT(DISTINCT dhgpr_child.dependency_dep_id)')
+    ->from('dependency_hostgroupChild_relation', 'dhgpr_child')
+    ->where('dhgpr_child.dependency_dep_id = dep.dep_id');
+
+if (! $oreon->user->admin) {
+    $countSubQueryParent->andWhere("dhgpr_parent.hostgroup_hg_id IN ({$hgstring})");
+    $countSubQueryChild->andWhere("dhgpr_child.hostgroup_hg_id IN ({$hgstring})");
+}
+
+$countQb->where('(' . $countSubQueryParent->getQuery() . ') > 0')
+    ->orWhere('(' . $countSubQueryChild->getQuery() . ') > 0');
+
+if ($search) {
+    $countQb->andWhere(
+        $countQb->expr()->or(
+            $countQb->expr()->like('dep.dep_name', ':search'),
+            $countQb->expr()->like('dep.dep_description', ':search')
+        )
+    );
+}
+
+$rows = $pearDB->fetchOne($countQb->getQuery(), $params ?? null);
 
 include './include/common/checkPagination.php';
 
@@ -103,7 +148,7 @@ $form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
-for ($i = 0; $dep = $dbResult->fetch(); $i++) {
+foreach ($result as $i => $dep) {
     $moptions = '';
     $selectedElements = $form->addElement('checkbox', 'select[' . $dep['dep_id'] . ']');
     $moptions .= '&nbsp;<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57))'

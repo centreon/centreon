@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\PlatformInformation\Repository;
@@ -74,16 +75,16 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
         if ($statement->execute()) {
             while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
                 // Renaming one key to be more explicit
-                if ('authorizedMaster' === $row['key']) {
+                if ($row['key'] === 'authorizedMaster') {
                     $row['key'] = 'centralServerAddress';
                 }
 
                 // Renaming informations.apiCredentials to PlatformInformation encryptedApiCredentials property.
-                if ('apiCredentials' === $row['key']) {
+                if ($row['key'] === 'apiCredentials') {
                     $row['key'] = 'encryptedApiCredentials';
                 }
 
-                if ('isRemote' === $row['key'] || 'apiPeerValidation' === $row['key']) {
+                if ($row['key'] === 'isRemote' || $row['key'] === 'apiPeerValidation') {
                     $row['value'] = $row['value'] === 'yes';
                 }
 
@@ -176,7 +177,7 @@ class PlatformInformationRepositoryRDB extends AbstractRepositoryDRB implements 
     private function prepareInsertQueryString(
         PlatformInformation $platformInformation,
         string &$insertQuery,
-        array &$queryParameters
+        array &$queryParameters,
     ): void {
         $queryValues = [];
         if ($platformInformation->getCentralServerAddress() !== null) {

@@ -54,7 +54,7 @@ const Modal = ({
       TransitionProps={{
         direction: 'up'
       }}
-      className={classes.modal}
+      className={`${classes.modal} gap-6`}
       data-size={size}
       open={open}
       onClose={onClose}

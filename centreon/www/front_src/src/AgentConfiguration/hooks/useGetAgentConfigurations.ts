@@ -12,7 +12,6 @@ import {
   filtersAtom,
   limitAtom,
   pageAtom,
-  searchAtom,
   sortFieldAtom,
   sortOrderAtom
 } from '../atoms';
@@ -20,11 +19,8 @@ import { AgentConfigurationListing } from '../models';
 import { useListingQueryKey } from './useListingQueryKey';
 
 interface UseGetAgentConfigurationsState {
-  data: Array<AgentConfigurationListing>;
+  data;
   isLoading: boolean;
-  hasData: boolean;
-  isDataEmpty: boolean;
-  total: number;
 }
 
 export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
@@ -32,44 +28,62 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
 
   const page = useAtomValue(pageAtom);
   const limit = useAtomValue(limitAtom);
-  const search = useAtomValue(searchAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const sortField = useAtomValue(sortFieldAtom);
   const filters = useAtomValue(filtersAtom);
 
+  const nameCondition = useMemo(
+    () =>
+      filters.name
+        ? [
+            {
+              field: 'name',
+              values: {
+                $rg: filters.name
+              }
+            }
+          ]
+        : [],
+    [filters.name]
+  );
+
   const agentTypesConditions = useMemo(
     () =>
-      !isEmpty(filters.agentTypes)
+      !isEmpty(filters.type)
         ? [
             {
               field: 'type',
               values: {
-                $in: pluck('id', filters.agentTypes)
+                $in: pluck('id', filters.type)
               }
             }
           ]
         : [],
-    [filters.agentTypes]
+    [filters.type]
   );
 
   const pollersConditions = useMemo(
     () =>
-      !isEmpty(filters.pollers)
+      !isEmpty(filters['poller.id'])
         ? [
             {
               field: 'poller.id',
               values: {
-                $in: pluck('id', filters.pollers)
+                $in: pluck('id', filters['poller.id'])
               }
             }
           ]
         : [],
-    [filters.pollers]
+    [filters['poller.id']]
   );
 
-  const conditions = [...agentTypesConditions, ...pollersConditions];
+  const conditions = [
+    ...nameCondition,
+    ...agentTypesConditions,
+    ...pollersConditions
+  ];
 
-  const { data, isLoading } = useFetchQuery<
+  const { data, isFetching } = useFetchQuery<
     ListingModel<AgentConfigurationListing>
   >({
     decoder: agentConfigurationsListingDecoder,
@@ -84,27 +98,19 @@ export const useGetAgentConfigurations = (): UseGetAgentConfigurationsState => {
             [sortField]: sortOrder
           },
           search: {
-            regex: {
-              fields: ['name'],
-              value: search
-            },
-            conditions: isEmpty(conditions) ? undefined : conditions
+            conditions
           }
         }
       }),
     queryOptions: {
-      suspense: false
+      suspense: false,
+      refetchOnMount: false,
+      staleTime: 0
     }
   });
 
-  const agentConfigurations = data?.result || [];
-  const hasData = !!data;
-
   return {
-    data: agentConfigurations,
-    isDataEmpty: isEmpty(agentConfigurations),
-    hasData,
-    isLoading,
-    total: data?.meta.total || 0
+    data,
+    isLoading: isFetching
   };
 };

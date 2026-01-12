@@ -45,6 +45,8 @@ class VariableLengthCustomRule implements Rule
         'id', // Identifier
         'e', // Exception
         'th', // Throwable
+        'qb', // Query Builder
+        'io', // Input Output
     ];
 
     public function getNodeType(): string
@@ -60,7 +62,7 @@ class VariableLengthCustomRule implements Rule
         $varName = $this->getVariableNameFromNode($node);
 
         // This rule does not apply.
-        if (null === $varName || in_array($varName, self::EXEMPTION_LIST, true)) {
+        if ($varName === null || in_array($varName, self::EXEMPTION_LIST, true)) {
             return [];
         }
 
@@ -90,7 +92,7 @@ class VariableLengthCustomRule implements Rule
             $node instanceof Node\Expr\PropertyFetch => is_string($node->name->name ?? null) ? $node->name->name : null,
             $node instanceof Node\Expr\Variable => is_string($node->name) ? $node->name : null,
             $node instanceof Node\Param => is_string($node->var->name ?? null) ? $node->var->name : null,
-            default => null
+            default => null,
         };
     }
 }

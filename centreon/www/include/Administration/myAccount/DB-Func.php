@@ -1,38 +1,31 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Log\LoggerPassword;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 require_once __DIR__ . '/../../../class/centreonContact.class.php';
 require_once __DIR__ . '/../../../class/centreonAuth.class.php';
@@ -74,59 +67,73 @@ function testAliasExistence($alias = null)
 
 }
 
-function updateNotificationOptions($contact_id)
+function updateNotificationOptions($userIdConnected)
 {
     global $form, $pearDB;
 
     $pearDB->query('DELETE FROM contact_param
-        WHERE cp_contact_id = ' . $pearDB->escape($contact_id) . "
+        WHERE cp_contact_id = ' . $pearDB->escape($userIdConnected) . "
         AND cp_key LIKE 'monitoring%notification%'");
     $data = $form->getSubmitValues();
     foreach ($data as $k => $v) {
         if (preg_match('/^monitoring_(host|svc)_notification/', $k)) {
             $query = 'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) '
-                . "VALUES ('" . $pearDB->escape($k) . "', '1', " . $pearDB->escape($contact_id) . ')';
+                . "VALUES ('" . $pearDB->escape($k) . "', '1', " . $pearDB->escape($userIdConnected) . ')';
             $pearDB->query($query);
         } elseif (preg_match('/^monitoring_sound/', $k)) {
             $query = 'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) '
                 . "VALUES ('" . $pearDB->escape($k) . "', '" . $pearDB->escape($v) . "', "
-                . $pearDB->escape($contact_id) . ')';
+                . $pearDB->escape($userIdConnected) . ')';
             $pearDB->query($query);
         }
     }
     unset($_SESSION['centreon_notification_preferences']);
 }
 
-function updateContactInDB($contact_id = null)
+/**
+ * @throws RepositoryException
+ */
+function updateContactByMyAccountInDB(mixed $userIdConnected): void
 {
-    if (! $contact_id) {
-        return;
+    $userIdConnected = (int) $userIdConnected;
+
+    if (! $userIdConnected > 0) {
+        throw new RepositoryException(
+            message: 'Invalid connected user ID provided to update contact from my account page for contact id ' . $userIdConnected,
+            context: ['contact_id' => $userIdConnected]
+        );
     }
-    updateContact($contact_id);
-    updateNotificationOptions($contact_id);
+
+    updateContactByMyAccount($userIdConnected);
+    updateNotificationOptions($userIdConnected);
 }
 
-function updateContact($contactId = null)
+/**
+ * @throws RepositoryException
+ */
+function updateContactByMyAccount(int $userIdConnected): void
 {
     global $form, $pearDB, $centreon;
 
-    if (! $contactId) {
-        return;
+    if (! $userIdConnected > 0) {
+        throw new RepositoryException(
+            message: 'Invalid connected user ID provided to update contact from my account page for contact id ' . $userIdConnected,
+            context: ['contact_id' => $userIdConnected]
+        );
     }
 
-    $ret = [];
-    $ret = $form->getSubmitValues();
+    $submitValues = $form->getSubmitValues();
     // remove illegal chars in data sent by the user
-    $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
-    $ret['contact_alias'] = CentreonUtils::escapeSecure($ret['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
-    $ret['contact_email'] = ! empty($ret['contact_email'])
-        ? CentreonUtils::escapeSecure($ret['contact_email'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
-    $ret['contact_pager'] = ! empty($ret['contact_pager'])
-        ? CentreonUtils::escapeSecure($ret['contact_pager'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
-    $ret['contact_autologin_key'] = ! empty($ret['contact_autologin_key'])
-        ? CentreonUtils::escapeSecure($ret['contact_autologin_key'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
-    $ret['contact_lang'] = ! empty($ret['contact_lang'])
-        ? CentreonUtils::escapeSecure($ret['contact_lang'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_name'] = CentreonUtils::escapeSecure($submitValues['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+    $submitValues['contact_alias'] = CentreonUtils::escapeSecure($submitValues['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
+    $submitValues['contact_email'] = ! empty($submitValues['contact_email'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_email'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_pager'] = ! empty($submitValues['contact_pager'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_pager'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_autologin_key'] = ! empty($submitValues['contact_autologin_key'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_autologin_key'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
+    $submitValues['contact_lang'] = ! empty($submitValues['contact_lang'])
+        ? CentreonUtils::escapeSecure($submitValues['contact_lang'], CentreonUtils::ESCAPE_ILLEGAL_CHARS) : '';
 
     $rq = 'UPDATE contact SET '
           . 'contact_name = :contactName, '
@@ -141,98 +148,217 @@ function updateContact($contactId = null)
           . 'show_deprecated_custom_views = :showDeprecatedCustomViews';
     $rq .= ' WHERE contact_id = :contactId';
 
-    $stmt = $pearDB->prepare($rq);
-    $stmt->bindValue(':contactName', $ret['contact_name'], PDO::PARAM_STR);
-    $stmt->bindValue(':contactAlias', $ret['contact_alias'], PDO::PARAM_STR);
-    $stmt->bindValue(':contactLang', $ret['contact_lang'], PDO::PARAM_STR);
-    $stmt->bindValue(
-        ':contactEmail',
-        ! empty($ret['contact_email']) ? $ret['contact_email'] : null,
-        PDO::PARAM_STR
-    );
-    $stmt->bindValue(
-        ':contactPager',
-        ! empty($ret['contact_pager']) ? $ret['contact_pager'] : null,
-        PDO::PARAM_STR
-    );
-    $stmt->bindValue(
-        ':contactAutologinKey',
-        ! empty($ret['contact_autologin_key']) ? $ret['contact_autologin_key'] : null,
-        PDO::PARAM_STR
-    );
-    $stmt->bindValue(
-        ':contactLocation',
-        ! empty($ret['contact_location']) ? $ret['contact_location'] : null,
-        PDO::PARAM_INT
-    );
-    $stmt->bindValue(':defaultPage', ! empty($ret['default_page']) ? $ret['default_page'] : null, PDO::PARAM_INT);
-    $stmt->bindValue(':showDeprecatedPages', isset($ret['show_deprecated_pages']) ? 1 : 0, PDO::PARAM_STR);
-    $stmt->bindValue(
-        ':showDeprecatedCustomViews',
-        isset($ret['show_deprecated_custom_views']) ? '1' : '0',
-        PDO::PARAM_STR
-    );
-    $stmt->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-    $stmt->execute();
+    try {
+        $stmt = $pearDB->prepare($rq);
+        $stmt->bindValue(':contactName', $submitValues['contact_name'], PDO::PARAM_STR);
+        $stmt->bindValue(':contactAlias', $submitValues['contact_alias'], PDO::PARAM_STR);
+        $stmt->bindValue(':contactLang', $submitValues['contact_lang'], PDO::PARAM_STR);
+        $stmt->bindValue(
+            ':contactEmail',
+            ! empty($submitValues['contact_email']) ? $submitValues['contact_email'] : null,
+            PDO::PARAM_STR
+        );
+        $stmt->bindValue(
+            ':contactPager',
+            ! empty($submitValues['contact_pager']) ? $submitValues['contact_pager'] : null,
+            PDO::PARAM_STR
+        );
+        $stmt->bindValue(
+            ':contactAutologinKey',
+            ! empty($submitValues['contact_autologin_key']) ? $submitValues['contact_autologin_key'] : null,
+            PDO::PARAM_STR
+        );
+        $stmt->bindValue(
+            ':contactLocation',
+            ! empty($submitValues['contact_location']) ? $submitValues['contact_location'] : null,
+            PDO::PARAM_INT
+        );
+        $stmt->bindValue(
+            ':defaultPage',
+            ! empty($submitValues['default_page']) ? $submitValues['default_page'] : null,
+            PDO::PARAM_INT
+        );
+        $stmt->bindValue(':showDeprecatedPages', isset($submitValues['show_deprecated_pages']) ? 1 : 0, PDO::PARAM_STR);
+        $stmt->bindValue(
+            ':showDeprecatedCustomViews',
+            isset($submitValues['show_deprecated_custom_views']) ? '1' : '0',
+            PDO::PARAM_STR
+        );
+        $stmt->bindValue(':contactId', $userIdConnected, PDO::PARAM_INT);
+        $stmt->execute();
+    } catch (PDOException $e) {
+        throw new RepositoryException(
+            message: 'Unable to update contact from my account for contact id ' . $userIdConnected,
+            context: ['userIdConnected' => $userIdConnected],
+            previous: $e
+        );
+    }
 
-    if (isset($ret['contact_passwd']) && ! empty($ret['contact_passwd'])) {
-        $hashedPassword = password_hash($ret['contact_passwd'], CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $contact = new CentreonContact($pearDB);
-        $contact->renewPasswordByContactId($contactId, $hashedPassword);
+    if (isset($submitValues['contact_passwd']) && $submitValues['contact_passwd'] !== '') {
+        $hashedPassword = password_hash($submitValues['contact_passwd'], CentreonAuth::PASSWORD_HASH_ALGORITHM);
+
+        try {
+            $contact = new CentreonContact($pearDB);
+            $contact->renewPasswordByContactId($userIdConnected, $hashedPassword);
+
+            $centreon->user->setPasswd($hashedPassword);
+
+            LoggerPassword::create()->success(
+                initiatorId: $userIdConnected,
+                targetId: $userIdConnected,
+            );
+        } catch (PDOException $e) {
+            LoggerPassword::create()->warning(
+                reason: 'password update failed',
+                initiatorId: $userIdConnected,
+                targetId: $userIdConnected,
+                exception: $e
+            );
+
+            throw new RepositoryException(
+                message: 'Unable to update password from my account for contact id ' . $userIdConnected,
+                context: ['userIdConnected' => $userIdConnected],
+                previous: $e
+            );
+        }
     }
 
     // Update user object..
-    $centreon->user->name = $ret['contact_name'];
-    $centreon->user->alias = $ret['contact_alias'];
-    $centreon->user->lang = $ret['contact_lang'];
-    $centreon->user->email = $ret['contact_email'];
-    $centreon->user->setToken($ret['contact_autologin_key'] ?? "''");
+    $centreon->user->name = $submitValues['contact_name'];
+    $centreon->user->alias = $submitValues['contact_alias'];
+    $centreon->user->lang = $submitValues['contact_lang'];
+    $centreon->user->email = $submitValues['contact_email'];
+    $centreon->user->setToken($submitValues['contact_autologin_key'] ?? "''");
 }
 
 /**
  * @param array<string,mixed> $fields
+ *
+ * @throws InvalidArgumentException
+ *
+ * @return array<string,string>|true
  */
-function validatePasswordModification(array $fields)
+function validatePasswordModification(array $fields): array|true
 {
     global $pearDB, $centreon;
-    $errors = [];
-    $password = $fields['contact_passwd'];
-    $contactId = (int) $centreon->user->get_id();
-    if (empty($password)) {
+    $newPassword = $fields['contact_passwd'];
+    $confirmPassword = $fields['contact_passwd2'];
+    $currentPassword = $fields['current_password'];
+
+    $userIdConnected = (int) $centreon->user->get_id();
+
+    if (! $userIdConnected > 0) {
+        throw new InvalidArgumentException('Invalid connected user ID provided for password modification validation');
+    }
+
+    // If the user does not want to change his password, we do not need to check it
+    if (empty($newPassword) && empty($confirmPassword) && empty($currentPassword)) {
         return true;
+    }
+
+    // If the user only provided a confirmation password, he must provide a new password and a current password
+    if (empty($newPassword) && ! empty($confirmPassword) && empty($currentPassword)) {
+        LoggerPassword::create()->warning(
+            reason: 'new password or current password not provided',
+            initiatorId: $userIdConnected,
+            targetId: $userIdConnected,
+        );
+
+        return ['contact_passwd2' => _('Please fill in all password fields')];
+    }
+
+    // If the user only provided his current password, he must provide a new password
+    if (empty($newPassword) && ! empty($currentPassword)) {
+        LoggerPassword::create()->warning(
+            reason: 'new password not provided',
+            initiatorId: $userIdConnected,
+            targetId: $userIdConnected,
+        );
+
+        return ['current_password' => _('Please fill in all password fields')];
+    }
+
+    // If the user wants to change his password, he must provide his current password
+    if (! empty($newPassword) && empty($currentPassword)) {
+        LoggerPassword::create()->warning(
+            reason: 'current password not provided',
+            initiatorId: $userIdConnected,
+            targetId: $userIdConnected,
+        );
+
+        return ['current_password' => _('Please fill in all password fields')];
+    }
+
+    // If the user provided a current password, we check if it matches the one in the database
+    if (! empty($currentPassword) && password_verify($currentPassword, $centreon->user->passwd) === false) {
+        LoggerPassword::create()->warning(
+            reason: 'current password wrong',
+            initiatorId: $userIdConnected,
+            targetId: $userIdConnected,
+        );
+
+        return ['current_password' => _('Authentication failed')];
     }
 
     try {
         $contact = new CentreonContact($pearDB);
-        $contact->respectPasswordPolicyOrFail($password, $contactId);
-    } catch (Throwable $e) {
-        $errors['contact_passwd'] = $e->getMessage();
-    }
+        $contact->respectPasswordPolicyOrFail($newPassword, $userIdConnected);
 
-    return $errors !== [] ? $errors : true;
+        return true;
+    } catch (Exception $e) {
+        LoggerPassword::create()->warning(
+            reason: 'new password does not respect password policy',
+            initiatorId: $userIdConnected,
+            targetId: $userIdConnected,
+            exception: $e,
+        );
+
+        return ['contact_passwd' => $e->getMessage()];
+    }
 }
 
 /**
  * @param array<string,mixed> $fields
+ *
+ * @throws RepositoryException
+ * @throws InvalidArgumentException
+ *
  * @return array<string,string>|bool
  */
-function checkAutologinValue(array $fields)
+function checkAutologinValue(array $fields): array|true
 {
     global $pearDB, $centreon;
     $errors = [];
 
     if (! empty($fields['contact_autologin_key'])) {
-        $contactId = $centreon->user->get_id();
-        $statement = $pearDB->prepare(
-            'SELECT * FROM `contact_password` WHERE contact_id = :contactId ORDER BY creation_date DESC LIMIT 1'
-        );
-        $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-        $statement->execute();
 
-        if (
-            ($result = $statement->fetch(PDO::FETCH_ASSOC))
-            && password_verify($fields['contact_autologin_key'], $result['password'])
-        ) {
+        $userIdConnected = (int) $centreon->user->get_id();
+
+        if (! $userIdConnected > 0) {
+            throw new InvalidArgumentException('Invalid connected user ID provided for autologin key check');
+        }
+
+        $query = <<<'SQL'
+            SELECT * FROM `contact_password`
+            WHERE contact_id = :contactId
+            ORDER BY creation_date DESC
+            LIMIT 1
+            SQL;
+
+        try {
+            $contactPassword = $pearDB->fetchAssociative(
+                $query,
+                QueryParameters::create([QueryParameter::int('contactId', $userIdConnected)])
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Unable to fetch contact password for contact id ' . $userIdConnected,
+                context: ['userIdConnected' => $userIdConnected],
+                previous: $e
+            );
+        }
+
+        if (password_verify($fields['contact_autologin_key'], $contactPassword['password'])) {
             $errors['contact_autologin_key'] = _('Your autologin key must be different than your current password');
         } elseif (
             ! empty($fields['contact_passwd'])
@@ -241,16 +367,22 @@ function checkAutologinValue(array $fields)
             $errorMessage = _('Your new password and autologin key must be different');
             $errors['contact_passwd'] = $errorMessage;
             $errors['contact_autologin_key'] = $errorMessage;
+
+            LoggerPassword::create()->warning(
+                reason: 'new password and autologin key are the same',
+                initiatorId: $userIdConnected,
+                targetId: $userIdConnected,
+            );
         }
     }
 
     return $errors !== [] ? $errors : true;
 }
-function updateNonLocalContactInDB($contact_id = null): void
+function updateNonLocalContactByMyAccountInDB($userIdConnected = null): void
 {
     global $pearDB, $centreon, $form;
 
-    if (! $contact_id) {
+    if (! $userIdConnected) {
         return;
     }
     $ret = $form->getSubmitValues();
@@ -288,14 +420,9 @@ function updateNonLocalContactInDB($contact_id = null): void
         isset($ret['show_deprecated_custom_views']) ? '1' : '0',
         PDO::PARAM_STR
     );
-    $stmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
+    $stmt->bindValue(':contactId', $userIdConnected, PDO::PARAM_INT);
     $stmt->execute();
     $stmt->closeCursor();
-    if (! empty($ret['contact_passwd'])) {
-        $hashedPassword = password_hash($ret['contact_passwd'], CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $contact = new CentreonContact($pearDB);
-        $contact->renewPasswordByContactId($contact_id, $hashedPassword);
-    }
 
     // Update user object..
     $centreon->user->lang = $ret['contact_lang'];

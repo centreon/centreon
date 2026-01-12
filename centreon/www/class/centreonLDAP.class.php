@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -317,19 +302,6 @@ class CentreonLDAP
     }
 
     /**
-     * Transform user, group name for filter
-     *
-     * @param string $name the atrribute
-     * @return string The string changed
-     */
-    public function replaceFilter($name): string
-    {
-        $name = str_replace('(', '\\(', $name);
-
-        return str_replace(')', '\\)', $name);
-    }
-
-    /**
      * Escape special characters in LDAP filter value for username and group
      * @see https://datatracker.ietf.org/doc/html/rfc4515#section-3
      *
@@ -359,7 +331,7 @@ class CentreonLDAP
      * @param string $username The username
      * @return string|bool The dn string or false if not found
      */
-    public function findUserDn($username): ?string
+    public function findUserDn($username): string|false
     {
         if (trim($this->userSearchInfo['filter']) == '') {
             return false;
@@ -386,13 +358,13 @@ class CentreonLDAP
      * @param string $group The group
      * @return string|bool The dn string or false if not found
      */
-    public function findGroupDn($group): ?string
+    public function findGroupDn($group): string|false
     {
         if (trim($this->groupSearchInfo['filter']) == '') {
             return false;
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $this->escapeLdapFilterSpecialChars($group), $this->groupSearchInfo['filter']);
+        $filter = ldap_escape($group);
         $result = ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         restore_error_handler();
@@ -415,9 +387,10 @@ class CentreonLDAP
             return [];
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->groupSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->groupSearchInfo['filter']);
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
-        if (false === $result) {
+        if ($result === false) {
             restore_error_handler();
 
             return [];
@@ -450,7 +423,8 @@ class CentreonLDAP
             return [];
         }
         $this->setErrorHandler();
-        $filter = preg_replace('/%s/', $pattern, $this->userSearchInfo['filter']);
+        $escapedPattern = ldap_escape($pattern, '*', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedPattern, $this->userSearchInfo['filter']);
         $result = ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         $nbEntries = $entries['count'];
@@ -470,7 +444,7 @@ class CentreonLDAP
      * @param array $attr The list of attribute
      * @return array|bool The list of information, or false in error
      */
-    public function getEntry($dn, $attr = [])
+    public function getEntry($dn, $attr = []): array|false
     {
         $this->setErrorHandler();
         if (! is_array($attr)) {
@@ -520,11 +494,10 @@ class CentreonLDAP
 
             return [];
         }
-        $userdn = str_replace('\\', '\\\\', $userdn);
         $filter = '(&' . preg_replace('/%s/', '*', $this->groupSearchInfo['filter'])
-            . '(' . $this->groupSearchInfo['member'] . '=' . $this->replaceFilter($userdn) . '))';
+            . '(' . $this->groupSearchInfo['member'] . '=' . ldap_escape($userdn, '', LDAP_ESCAPE_FILTER) . '))';
         $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
-        if (false === $result) {
+        if ($result === false) {
             restore_error_handler();
 
             return [];
@@ -554,17 +527,16 @@ class CentreonLDAP
 
             return [];
         }
-        $groupdn = str_replace('\\', '\\\\', $groupdn);
         $list = [];
         if (! empty($this->userSearchInfo['group'])) {
             /**
              * we have specific parameter for user to denote groups he belongs to
              */
             $filter = '(&' . preg_replace('/%s/', '*', $this->userSearchInfo['filter'])
-                . '(' . $this->userSearchInfo['group'] . '=' . $this->replaceFilter($groupdn) . '))';
+                . '(' . $this->userSearchInfo['group'] . '=' . ldap_escape($groupdn) . '))';
             $result = @ldap_search($this->ds, $this->userSearchInfo['base_search'], $filter);
 
-            if (false === $result) {
+            if ($result === false) {
                 restore_error_handler();
 
                 return [];
@@ -582,7 +554,7 @@ class CentreonLDAP
             $filter = preg_replace('/%s/', $this->getCnFromDn($groupdn), $this->groupSearchInfo['filter']);
             $result = @ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
 
-            if (false === $result) {
+            if ($result === false) {
                 restore_error_handler();
 
                 return [];
@@ -884,6 +856,37 @@ class CentreonLDAP
     }
 
     /**
+     * Override the custom errorHandler to avoid false errors in the log,
+     *
+     * @param int $errno The error num
+     * @param string $errstr The error message
+     * @param string $errfile The error file
+     * @param int $errline The error line
+     * @return bool
+     */
+    public function errorLdapHandler($errno, $errstr, $errfile, $errline): bool
+    {
+        if ($errno === 2 && ldap_errno($this->ds) === 4) {
+            /*
+            Silencing : 'size limit exceeded' warnings in the logs
+            As the $searchLimit value needs to be consistent with the ldap server's configuration and
+            as the size limit error thrown is not related with the results.
+                ldap_errno : 4 = LDAP_SIZELIMIT_EXCEEDED
+                $errno     : 2 = PHP_WARNING
+            */
+            $this->debug('LDAP Error : Size limit exceeded error. This error was not added to php log. '
+                . "Kindly, check your LDAP server's configuration and your Centreon's LDAP parameters.");
+
+            return true;
+        }
+
+        // throwing all errors
+        $this->debug('LDAP Error : ' . ldap_error($this->ds));
+
+        return false;
+    }
+
+    /**
      * Load the search information
      *
      * @param null $ldapHostId
@@ -1048,37 +1051,6 @@ class CentreonLDAP
     }
 
     /**
-     * Override the custom errorHandler to avoid false errors in the log,
-     *
-     * @param int $errno The error num
-     * @param string $errstr The error message
-     * @param string $errfile The error file
-     * @param int $errline The error line
-     * @return bool
-     */
-    private function errorLdapHandler($errno, $errstr, $errfile, $errline): bool
-    {
-        if ($errno === 2 && ldap_errno($this->ds) === 4) {
-            /*
-            Silencing : 'size limit exceeded' warnings in the logs
-            As the $searchLimit value needs to be consistent with the ldap server's configuration and
-            as the size limit error thrown is not related with the results.
-                ldap_errno : 4 = LDAP_SIZELIMIT_EXCEEDED
-                $errno     : 2 = PHP_WARNING
-            */
-            $this->debug('LDAP Error : Size limit exceeded error. This error was not added to php log. '
-                . "Kindly, check your LDAP server's configuration and your Centreon's LDAP parameters.");
-
-            return true;
-        }
-
-        // throwing all errors
-        $this->debug('LDAP Error : ' . ldap_error($this->ds));
-
-        return false;
-    }
-
-    /**
      * Set the error handler for LDAP
      * @see errorLdapHandler
      */
@@ -1093,7 +1065,7 @@ class CentreonLDAP
      * @param string $dn
      * @return string|bool
      */
-    private function getCnFromDn($dn)
+    private function getCnFromDn($dn): string|false
     {
         if (preg_match('/(?i:(?<=cn=)).*?(?=,[A-Za-z]{0,2}=|$)/', $dn, $dnArray)) {
             return $dnArray !== [] ? $dnArray[0] : false;

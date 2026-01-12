@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,7 +162,7 @@ it('should present a ConflictResponse when a creator cannot manage user\'s token
 
 it('should present an InvalidArgumentResponse when a field assert failed', function (): void {
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(3))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user
@@ -192,7 +192,7 @@ it('should present an ErrorResponse if the newly created token cannot be retriev
     //     ->method('getId')
     //     ->willReturn(1);
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(4))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user
@@ -234,7 +234,7 @@ it('should return created object on success (API)', function (): void {
         ->method('getId')
         ->willReturn(1);
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user
@@ -279,7 +279,7 @@ it('should return created object on success (CMA)', function (): void {
     $this->validation->expects($this->once())->method('assertIsValidUser');
 
     $this->user
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('getId')
         ->willReturn($this->creator['id']);
     $this->user

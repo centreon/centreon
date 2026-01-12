@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -435,6 +435,7 @@ interface ConnectionInterface
     public function rollBackTransaction(): bool;
 
     // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
+
     /**
      * Checks that the connection instance allows the use of unbuffered queries.
      *
@@ -460,4 +461,13 @@ interface ConnectionInterface
      * @throws ConnectionException
      */
     public function stopUnbufferedQuery(): void;
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    /**
+     * Check if a column exists in a table.
+     *
+     * @throws ConnectionException
+     */
+    public function columnExists(string $dbName, string $tableName, string $columnName): bool;
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
     public function __construct(
         AuthenticationTokenServiceInterface $authenticationTokenService,
         ContactInterface $contact,
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
     ) {
         $this->contact = $contact;
         $this->authenticationTokenService = $authenticationTokenService;
@@ -147,8 +147,8 @@ class MonitoringServerConfigurationRepositoryApi implements MonitoringServerConf
             }
             $providerToken = $authenticationTokens->getProviderToken();
             if (
-                $providerToken->getExpirationDate() === null
-                || $providerToken->getExpirationDate()->getTimestamp() < (new DateTime())->getTimestamp()
+                $providerToken->getExpirationDate() !== null
+                && $providerToken->getExpirationDate()->getTimestamp() < (new DateTime())->getTimestamp()
             ) {
                 throw AuthenticationException::authenticationTokenExpired();
             }

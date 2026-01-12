@@ -119,7 +119,7 @@ class ConnectionException extends DatabaseException
     public static function executeStatementFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing the statement : {$previous->getMessage()}",
@@ -144,7 +144,7 @@ class ConnectionException extends DatabaseException
     public static function insertQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing the insert query : {$previous->getMessage()}",
@@ -173,7 +173,7 @@ class ConnectionException extends DatabaseException
         string $tableName,
         array $columns,
         BatchInsertParameters $batchInsertParameters,
-        string $query = ''
+        string $query = '',
     ): self {
         return new self(
             message: "Error while executing the batch insert query : {$previous->getMessage()}",
@@ -200,7 +200,7 @@ class ConnectionException extends DatabaseException
     public static function updateQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing the update query : {$previous->getMessage()}",
@@ -225,7 +225,7 @@ class ConnectionException extends DatabaseException
     public static function deleteQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing the delete query : {$previous->getMessage()}",
@@ -254,7 +254,7 @@ class ConnectionException extends DatabaseException
         \Throwable $previous,
         string $query,
         ?QueryParameters $queryParameters = null,
-        array $context = []
+        array $context = [],
     ): self {
         $context['query'] = $query;
         $context['query_parameters'] = $queryParameters;
@@ -270,7 +270,7 @@ class ConnectionException extends DatabaseException
     public static function fetchNumericQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing fetch numeric query : {$previous->getMessage()}",
@@ -286,7 +286,7 @@ class ConnectionException extends DatabaseException
     public static function fetchAssociativeQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing fetch associative query : {$previous->getMessage()}",
@@ -302,7 +302,7 @@ class ConnectionException extends DatabaseException
     public static function fetchOneQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing fetch one query : {$previous->getMessage()}",
@@ -334,7 +334,7 @@ class ConnectionException extends DatabaseException
     public static function fetchAllNumericQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing fetch all numeric query : {$previous->getMessage()}",
@@ -350,7 +350,7 @@ class ConnectionException extends DatabaseException
     public static function fetchAllAssociativeQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing fetch all associative query : {$previous->getMessage()}",
@@ -366,7 +366,7 @@ class ConnectionException extends DatabaseException
     public static function fetchAllKeyValueQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing fetch all key value query : {$previous->getMessage()}",
@@ -382,7 +382,7 @@ class ConnectionException extends DatabaseException
     public static function fetchAllAssociativeIndexedQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing fetch all associative indexed query : {$previous->getMessage()}",
@@ -398,7 +398,7 @@ class ConnectionException extends DatabaseException
     public static function iterateNumericQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing iterate numeric query : {$previous->getMessage()}",
@@ -414,7 +414,7 @@ class ConnectionException extends DatabaseException
     public static function iterateAssociativeQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing iterate associative query : {$previous->getMessage()}",
@@ -430,7 +430,7 @@ class ConnectionException extends DatabaseException
     public static function iterateColumnQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing iterate first column query : {$previous->getMessage()}",
@@ -455,7 +455,7 @@ class ConnectionException extends DatabaseException
     public static function iterateKeyValueQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing iterate key value query : {$previous->getMessage()}",
@@ -471,7 +471,7 @@ class ConnectionException extends DatabaseException
     public static function iterateAssociativeIndexedQueryFailed(
         \Throwable $previous,
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): self {
         return new self(
             message: "Error while executing iterate associative indexed query : {$previous->getMessage()}",
@@ -541,7 +541,7 @@ class ConnectionException extends DatabaseException
 
     public static function allowUnbufferedQueryFailed(
         string $nativeConnectionClass,
-        string $currentDriverName
+        string $currentDriverName,
     ): self {
         return new self(
             message: "Unbuffered queries not allowed for native connection class '{$nativeConnectionClass}' with this driver : {$currentDriverName}.",
@@ -559,7 +559,7 @@ class ConnectionException extends DatabaseException
     }
 
     public static function stopUnbufferedQueryFailed(
-        string $message
+        string $message,
     ): self {
         return new self(
             message: "Stopping unbuffered queries failed : {$message}",
@@ -575,6 +575,25 @@ class ConnectionException extends DatabaseException
             message: "Error while closing the query : {$previous->getMessage()}",
             code: self::ERROR_CODE_DATABASE,
             context: ['query' => $query],
+            previous: $previous
+        );
+    }
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    public static function columnExistsFailed(
+        string $message,
+        string $tableName,
+        string $columnName,
+        ?\Exception $previous = null,
+    ): self {
+        return new self(
+            message: "Error while checking if column '{$columnName}' exists in table '{$tableName}' : {$message}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'table_name' => $tableName,
+                'column_name' => $columnName,
+            ],
             previous: $previous
         );
     }

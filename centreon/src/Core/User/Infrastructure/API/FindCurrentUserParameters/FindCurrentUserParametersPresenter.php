@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ class FindCurrentUserParametersPresenter extends DefaultPresenter implements Fin
                 'locale' => $data->locale,
                 'is_admin' => $data->isAdmin,
                 'use_deprecated_pages' => $data->useDeprecatedPages,
+                'use_deprecated_custom_views' => $data->useDeprecatedCustomViews,
                 'is_export_button_enabled' => $data->isExportButtonEnabled,
                 'can_manage_api_tokens' => $data->canManageApiTokens,
                 'theme' => UserThemeConverter::toString($data->theme),

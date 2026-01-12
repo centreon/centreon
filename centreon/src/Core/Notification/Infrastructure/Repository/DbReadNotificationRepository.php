@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -160,7 +160,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<'SQL'
-                    SELECT contact.contact_id, contact.contact_name, contact.contact_email
+                    SELECT contact.contact_id, contact.contact_name, contact.contact_email, contact.contact_alias
                     FROM `:db`.contact
                     LEFT JOIN `:db`.notification_user_relation nur
                         ON nur.user_id = contact.contact_id
@@ -181,13 +181,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
             $users[] = new Contact(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias'],
             );
         }
 
@@ -200,7 +202,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findUsersByNotificationIdUserAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups);
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');
@@ -267,13 +269,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
             $users[] = new Contact(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias'],
             );
         }
 
@@ -282,7 +286,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
     public function findUsersByContactGroupIds(int ...$contactGroupIds): array
     {
-        if ([] === $contactGroupIds) {
+        if ($contactGroupIds === []) {
             return [];
         }
 
@@ -291,7 +295,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<SQL
-                    SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email
+                    SELECT DISTINCT c.contact_id, c.contact_name, c.contact_email, c.contact_alias
                     FROM `:db`.contactgroup_contact_relation cgcr
                     INNER JOIN `:db`.contactgroup cg
                         ON cg.cg_id=cgcr.contactgroup_cg_id
@@ -315,13 +319,15 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
              * @var array{
              *     contact_id: int,
              *     contact_name: string,
-             *     contact_email: string
+             *     contact_email: string,
+             *     contact_alias: string
              * } $result
              */
             $users[$result['contact_id']] = new Contact(
                 $result['contact_id'],
                 $result['contact_name'],
                 $result['contact_email'],
+                $result['contact_alias'],
             );
         }
 
@@ -402,7 +408,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function countContactsByNotificationIdsAndAccessGroup(
         array $notificationIds,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups);
         [$accessGroupBindValues, $accessGroupSubQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');
@@ -411,7 +417,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
         $statement = $this->db->prepare(
             $this->translateDbName(
                 <<<SQL
-                    SELECT result.id, COUNT(result.contact_id)
+                    SELECT result.id, COUNT(DISTINCT result.contact_id)
                     FROM (
                         SELECT notif.id, contact.contact_id
                         FROM `:db`.notification notif
@@ -472,7 +478,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findContactGroupsByNotificationIdAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups);
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');

@@ -370,7 +370,8 @@ jQuery(function() {
 
             jQuery(".onemacro").each(function(idx, elem) {
                 var from = jQuery(elem).find('input[name^=macroFrom]').val();
-                if (from === "fromTpl") {
+                if (from === "direct") {
+                } else if (from === "fromTpl") {
                     jQuery(elem).find("input[name^='macroInput']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
                     jQuery(elem).find("input[name^='macroValue']").css({'background-color' : 'var(--custom-macros-template-background-color)',border : '1px solid var(--custom-macros-template-border-color)',color: 'var(--custom-macros-placeholder-font-color)'});
                 } else {

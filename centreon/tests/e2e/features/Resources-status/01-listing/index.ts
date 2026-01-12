@@ -1,10 +1,10 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { searchInput, setUserFilter } from '../common';
 import {
-  checkServicesAreMonitored,
-  checkMetricsAreMonitored
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
+import { searchInput, setUserFilter } from '../common';
 
 const serviceOk = 'service_test_ok';
 const serviceInDtName = 'service_downtime_1';

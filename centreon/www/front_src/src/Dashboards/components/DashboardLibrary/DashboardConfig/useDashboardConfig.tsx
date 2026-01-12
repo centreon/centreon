@@ -6,6 +6,7 @@ import { createSearchParams, generatePath, useNavigate } from 'react-router';
 
 import { useSnackbar } from '@centreon/ui';
 
+import { useTranslation } from 'react-i18next';
 import routeMap from '../../../../reactRoutes/routeMap';
 import { resetDashboardDerivedAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 import { Dashboard, isDashboard } from '../../../api/models';
@@ -38,6 +39,7 @@ type UseDashboardConfig = {
 };
 
 const useDashboardConfig = (): UseDashboardConfig => {
+  const { t } = useTranslation();
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
 
   const resetDashboard = useSetAtom(resetDashboardDerivedAtom);
@@ -113,7 +115,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
 
   const submitForm = (dashboard: Dashboard): void => {
     submit(dashboard).then(() => {
-      showSuccessMessage(labelDashboardUpdated);
+      showSuccessMessage(t(labelDashboardUpdated));
     });
   };
 

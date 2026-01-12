@@ -1,15 +1,15 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
-} from '../common';
 import { configureProviderAcls } from '../../../../commons';
+import {
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
@@ -55,10 +55,10 @@ When(
       tag: 'input'
     }).check();
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
 
     // authentication conditions section
-    cy.getByLabel({ label: 'Authentication conditions' }).click();
+    cy.get('[data-testid="Authentication conditions-header"]').click();
     cy.getByLabel({ label: 'Blacklist client addresses' }).type(
       '{selectall}{backspace}127.0.0.1{enter}'
     );

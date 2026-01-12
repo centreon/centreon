@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\Provider;
 
+use Security\Domain\Authentication\Exceptions\ProviderException;
+
 interface ProviderAuthenticationFactoryInterface
 {
     /**
-     * @param string $providerType
-     *
-     * @return ProviderAuthenticationInterface
+     * @throws ProviderException
      */
     public function create(string $providerType): ProviderAuthenticationInterface;
 }

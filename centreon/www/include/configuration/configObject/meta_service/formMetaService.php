@@ -1,38 +1,30 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 if (! isset($centreon)) {
     exit();
@@ -58,19 +50,39 @@ if ($oreon->user->admin) {
 
 $initialValues = [];
 $ms = [];
-if (($o == 'c' || $o == 'w') && $meta_id) {
-    $DBRESULT = $pearDB->query("SELECT * FROM meta_service WHERE meta_id = '" . $meta_id . "' LIMIT 1");
-    // Set base value
-    $ms = array_map('myDecode', $DBRESULT->fetchRow());
-    $ms['metric'] = [$ms['metric'] => $ms['metric']];
+try {
+    if (($o == 'c' || $o == 'w') && $meta_id) {
+        $params = QueryParameters::create([
+            QueryParameter::int('meta_id', (int) $meta_id),
+        ]);
+        $DBRESULT = $pearDB->fetchAssociative('SELECT * FROM meta_service WHERE meta_id = :meta_id LIMIT 1', $params);
+        // Set base value
+        $ms = array_map('myDecode', $DBRESULT);
+        $ms['metric'] = [$ms['metric'] => $ms['metric']];
 
-    // Set Service Notification Options
-    $tmp = explode(',', $ms['notification_options']);
-    foreach ($tmp as $key => $value) {
-        $ms['ms_notifOpts'][trim($value)] = 1;
+        if (! isCloudPlatform()) {
+            // Set Service Notification Options
+            $tmp = explode(',', $ms['notification_options']);
+            foreach ($tmp as $key => $value) {
+                $ms['ms_notifOpts'][trim($value)] = 1;
+            }
+        }
     }
-}
+} catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while preparing initial values for meta_service',
+        [
+            'meta_id' => $meta_id,
+        ],
+        $exception
+    );
 
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error while processing meta_service data');
+}
 // Calc Type
 $calType = ['AVE' => _('Average'), 'SOM' => _('Sum'), 'MIN' => _('Min'), 'MAX' => _('Max')];
 
@@ -210,6 +222,7 @@ $form->addElement('textarea', 'meta_comment', _('Comments'), $attrsTextarea);
 $form->registerRule('validate_geo_coords', 'function', 'validateGeoCoords');
 $form->addElement('text', 'geo_coords', _('Geo coordinates'), $attrsText);
 $form->addRule('geo_coords', _('geo coords are not valid'), 'validate_geo_coords');
+$form->applyFilter('geo_coords', 'truncateGeoCoords');
 
 $form->addElement('hidden', 'meta_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -320,6 +333,10 @@ if ($form->validate()) {
     $msObj = $form->getElement('meta_id');
     if ($form->getSubmitValue('submitA')) {
         $msObj->setValue(insertMetaServiceInDB());
+        // Update ACL and meta service string for the next listing
+        $acl = new CentreonACL($centreon->user->get_id(), $centreon->user->admin === '1');
+        $aclDbName = $acl->getNameDBAcl();
+        $metaStr = $acl->getMetaServiceString();
     } elseif ($form->getSubmitValue('submitC')) {
         updateMetaServiceInDB($msObj->getValue());
     }

@@ -37,6 +37,8 @@ import {
 import { rowColorConditions } from '../colors';
 import { type Resource, type SortOrder, Visualization } from '../models';
 import {
+  labelCompact,
+  labelExtended,
   labelForcedCheckCommandSent,
   labelSelectAtLeastOneColumn,
   labelStatus
@@ -289,7 +291,11 @@ const ResourceListing = (): JSX.Element => {
       viewerModeConfiguration={{
         disabled: isPending,
         onClick: changeViewModeTableResources,
-        title: user_interface_density
+        title: t(
+          equals(user_interface_density, 'compact')
+            ? labelCompact
+            : labelExtended
+        )
       }}
       widthToMoveTablePagination={panelWidth}
       onLimitChange={changeLimit}

@@ -59,7 +59,12 @@ const WrapperChart = ({
   legend = {
     display: true,
     mode: 'grid',
-    placement: 'bottom'
+    placement: 'bottom',
+    showCalculations: {
+      min: true,
+      max: true,
+      avg: true
+    }
   },
   header,
   lineStyle,
@@ -70,6 +75,9 @@ const WrapperChart = ({
   getRef,
   transformMatrix,
   additionalLines,
+  min,
+  max,
+  boundariesUnit,
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
@@ -92,6 +100,10 @@ const WrapperChart = ({
         graphHeight={height || 200}
       />
     );
+  }
+
+  if (!adjustedData) {
+    return <div />;
   }
 
   return (
@@ -125,6 +137,9 @@ const WrapperChart = ({
           skipIntersectionObserver={rest.skipIntersectionObserver}
           additionalLines={additionalLines}
           transformMatrix={transformMatrix}
+          min={min}
+          max={max}
+          boundariesUnit={boundariesUnit}
         />
       )}
     </div>

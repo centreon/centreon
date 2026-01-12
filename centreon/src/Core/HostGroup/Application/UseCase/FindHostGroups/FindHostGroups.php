@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
@@ -47,13 +48,14 @@ final class FindHostGroups
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $contact,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
     public function __invoke(): FindHostGroupsResponse|ResponseStatusInterface
     {
         try {
-            return $this->contact->isAdmin()
+            return $this->adminResolver->isAdmin($this->contact)
                 ? $this->findHostGroupAsAdmin()
                 : $this->findHostGroupAsContact();
         } catch (\Throwable $ex) {

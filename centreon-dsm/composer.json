@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "25.09",
+  "version": "26.01",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
@@ -28,15 +28,19 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "symfony/flex": false,
       "pestphp/pest-plugin": true,
-      "symfony/runtime": true
+      "symfony/flex": false,
+      "symfony/runtime": false
     }
   },
   "scripts": {
     "require:check": "../php-tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
+    "rector:diff": "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:diff:fix": "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
-    "rector:legacy:fix": "../php-tools/vendor/bin/rector --config=rector.legacy.php process",
+    "rector:legacy:fix": "../php-tools/vendor/bin/rector process --config=rector.legacy.php",
+    "cs:diff": "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:diff:fix": "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "cs:legacy": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
     "cs:legacy:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
     "stan:legacy": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.neon --memory-limit=512M",

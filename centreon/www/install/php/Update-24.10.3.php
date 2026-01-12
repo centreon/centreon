@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ $insertAgentConfigurationTopology = function (CentreonDB $pearDB) use (&$errorMe
     $isCentral = $statement->fetch(PDO::FETCH_COLUMN);
 
     $errorMessage = 'Unable to insert data into table topology';
-    if (false === $topologyAlreadyExists) {
+    if ($topologyAlreadyExists === false) {
         $constraintStatement = $pearDB->prepareQuery(
             <<<'SQL'
                 INSERT INTO `topology` (`topology_name`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url`, `topology_show`, `is_react`)

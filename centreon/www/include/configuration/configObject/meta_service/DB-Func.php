@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -487,6 +472,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         }
                         $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
                     }
+                    updateAclResourcesMetaRelations($newMetaId);
                 }
             } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
                 CentreonLog::create()->error(
@@ -511,12 +497,18 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
  */
 function updateMetaServiceInDB($metaId = null)
 {
+    global $isCloudPlatform;
+
     if (! $metaId) {
         return;
     }
     updateMetaService($metaId);
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
+    updateAclResourcesMetaRelations($metaId);
 }
 
 /**
@@ -526,9 +518,15 @@ function updateMetaServiceInDB($metaId = null)
  */
 function insertMetaServiceInDB()
 {
+    global $isCloudPlatform;
+
     $metaId = insertMetaService();
-    updateMetaServiceContact($metaId);
-    updateMetaServiceContactGroup($metaId);
+
+    if (! $isCloudPlatform) {
+        updateMetaServiceContact($metaId);
+        updateMetaServiceContactGroup($metaId);
+    }
+    updateAclResourcesMetaRelations($metaId);
 
     return $metaId;
 }
@@ -792,6 +790,7 @@ function updateMetaService($metaId = null)
         ->set('meta_activate', ':meta_activate')
         ->where('meta_id = :meta_id');
     $query = $qb->getQuery();
+    $params = [];
     try {
         $params = [
             QueryParameter::string('meta_name', getParamValue($ret, 'meta_name', sanitize: true)),
@@ -846,7 +845,7 @@ function updateMetaServiceContact($metaId)
     if (! $metaId || ! is_numeric($metaId)) {
         return;
     }
-    global $form, $pearDB;
+    global $form, $pearDB, $centreon;
     $qbDelete = $pearDB->createQueryBuilder();
     $queryPurge = $qbDelete->delete('meta_contact')
         ->where('meta_id = :meta_id')
@@ -866,28 +865,34 @@ function updateMetaServiceContact($metaId)
         );
     }
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
-    if (count($ret)) {
-        // Build a single INSERT query with multiple values
-        $values = [];
-        $params = [];
-        try {
-            foreach ($ret as $key => $contactId) {
-                $values[] = "(:metaId_{$key}, :contactId_{$key})";
-                $params["metaId_{$key}"] = QueryParameter::int("metaId_{$key}", (int) $metaId);
-                $params["contactId_{$key}"] = QueryParameter::int("contactId_{$key}", (int) $contactId);
-            }
-            $queryAddRelation = 'INSERT INTO meta_contact (meta_id, contact_id) VALUES ' . implode(', ', $values);
-            $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error inserting meta_contact relations',
-                [
-                    'metaId' => $metaId,
-                ],
-                $exception
-            );
+    $userId = $centreon->user->get_id();
+    if (! in_array($userId, $ret) && $centreon->user->admin !== '1') {
+        $ret[] = $userId;
+    }
+
+    $values = [];
+    $params = [];
+
+    try {
+        foreach ($ret as $key => $contactId) {
+            $values[] = " (:metaId_{$key}, :contactId_{$key})";
+            $params["metaId_{$key}"] = QueryParameter::int("metaId_{$key}", (int) $metaId);
+            $params["contactId_{$key}"] = QueryParameter::int("contactId_{$key}", (int) $contactId);
         }
+        $valuesString = implode(',', $values);
+        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$valuesString}";
+        if ($values !== []) {
+            $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error updating Meta Service Contact',
+            [
+                'metaId' => $metaId,
+            ],
+            $exception
+        );
     }
 }
 
@@ -957,6 +962,56 @@ function updateMetaServiceContactGroup($metaId = null)
                 $exception
             );
         }
+    }
+}
+
+function updateAclResourcesMetaRelations(int $metaId): void
+{
+    global $pearDB, $centreon;
+    if ($metaId <= 0 || $centreon->user->admin === '1') {
+        return;
+    }
+
+    // get ACL resources IDs for the current user
+    $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+    $selectAclQuery = "SELECT DISTINCT ar.acl_res_id
+            FROM acl_res_group_relations argr
+            INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
+            WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
+    try {
+        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
+        if ($aclResIds !== []) {
+            $aclResIdsImploded = implode(',', array_map(fn ($row) => $row['acl_res_id'], $aclResIds));
+
+            // clean old relations
+            $queryClean = "DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN ({$aclResIdsImploded})";
+            $pearDB->delete($queryClean, QueryParameters::create([
+                QueryParameter::int('metaId', (int) $metaId),
+            ]));
+
+            // insert new relations
+            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
+            $values = [];
+            foreach ($aclResIds as $aclResId) {
+                $values[] = " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
+                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
+            }
+            // update acl_resources_meta_relations
+            if ($values !== []) {
+                $valuesString = implode(',', $values);
+                $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$valuesString}";
+                $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
+            }
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error updating acl_resources_meta_relations',
+            [
+                'metaId' => $metaId,
+            ],
+            $exception
+        );
     }
 }
 
@@ -1092,7 +1147,7 @@ function getParamValue(
     string|null $key = null,
     string|int|null $subKey = null,
     bool $sanitize = false,
-    mixed $default = null
+    mixed $default = null,
 ): mixed {
     // If not an array, return directly (optionally sanitize)
     if (! is_array($params) || $key === null) {
@@ -1100,12 +1155,12 @@ function getParamValue(
     }
 
     // Handle nested parameter (with subkey)
-    if ($subKey !== null && ! empty($params[$key][$subKey])) {
+    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] == 0)) {
         return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
     }
 
     // Handle first-level parameter
-    if (! empty($params[$key])) {
+    if (! empty($params[$key]) || $params[$key] == 0) {
         return $sanitize ? sanitize($params[$key]) : $params[$key];
     }
 

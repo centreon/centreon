@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ abstract class ServerConnectionConfigurationService
     protected int|null $brokerID = null;
 
     public function __construct(
-        protected CentreonDBAdapter $dbAdapter
+        protected CentreonDBAdapter $dbAdapter,
     ) {
     }
 

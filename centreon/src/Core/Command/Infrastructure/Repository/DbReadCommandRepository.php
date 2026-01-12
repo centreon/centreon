@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -240,11 +240,11 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
      */
     public function findByRequestParameterAndTypes(
         RequestParametersInterface $requestParameters,
-        array $commandTypes
+        array $commandTypes,
     ): array {
         $commands = [];
 
-        if ([] === $commandTypes) {
+        if ($commandTypes === []) {
             return $commands;
         }
 
@@ -346,7 +346,7 @@ class DbReadCommandRepository extends AbstractRepositoryRDB implements ReadComma
                 callable $createCommand,
                 callable $findArguments,
                 callable $findMacros,
-                readonly private LoggerInterface $logger
+                readonly private LoggerInterface $logger,
             ) {
                 $this->db = $db;
                 $this->createCommand = $createCommand;

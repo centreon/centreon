@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -91,13 +93,14 @@ final class PartialUpdateServiceTemplate
         private readonly OptionService $optionService,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     public function __invoke(
         PartialUpdateServiceTemplateRequest $request,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             $this->info('Update the service template', ['request' => $request]);
@@ -274,7 +277,7 @@ final class PartialUpdateServiceTemplate
      */
     private function updatePropertiesInTransaction(
         PartialUpdateServiceTemplateRequest $request,
-        ServiceTemplate $serviceTemplate
+        ServiceTemplate $serviceTemplate,
     ): void {
         $this->debug('Start transaction');
         $this->storageEngine->startTransaction();
@@ -419,7 +422,7 @@ final class PartialUpdateServiceTemplate
      */
     private function updateServiceTemplate(
         ServiceTemplate $serviceTemplate,
-        PartialUpdateServiceTemplateRequest $request
+        PartialUpdateServiceTemplateRequest $request,
     ): void {
         $inheritanceMode = $this->optionService->findSelectedOptions(['inheritance_mode']);
         $inheritanceMode = isset($inheritanceMode[0])
@@ -470,10 +473,6 @@ final class PartialUpdateServiceTemplate
             $serviceTemplate->setVolatility(YesNoDefaultConverter::fromInt($request->volatility));
         }
 
-        if (! $request->checkFreshness instanceof NoValue) {
-            $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt($request->checkFreshness));
-        }
-
         if (! $request->eventHandlerEnabled instanceof NoValue) {
             $serviceTemplate->setEventHandlerEnabled(YesNoDefaultConverter::fromInt($request->eventHandlerEnabled));
         }
@@ -512,12 +511,34 @@ final class PartialUpdateServiceTemplate
         }
 
         if (! $request->serviceTemplateParentId instanceof NoValue) {
-            $this->validation->assertIsValidServiceTemplate($request->serviceTemplateParentId);
+            $this->validation->assertIsValidServiceTemplate(
+                $serviceTemplate->getId(),
+                $request->serviceTemplateParentId
+            );
             $serviceTemplate->setServiceTemplateParentId($request->serviceTemplateParentId);
+        }
+
+        if (! $request->freshnessThreshold instanceof NoValue) {
+            $serviceTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
+        if (! $request->checkFreshness instanceof NoValue) {
+            $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt($request->checkFreshness));
         }
 
         if (! $request->commandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->commandId);
+            if ($request->commandId !== null) {
+                $command = $this->readCommandRepository->findById($request->commandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
+                    $serviceTemplate->setFreshnessThreshold(120);
+                }
+            }
+
             $serviceTemplate->setCommandId($request->commandId);
         }
 
@@ -556,10 +577,6 @@ final class PartialUpdateServiceTemplate
 
         if (! $request->retryCheckInterval instanceof NoValue) {
             $serviceTemplate->setRetryCheckInterval($request->retryCheckInterval);
-        }
-
-        if (! $request->freshnessThreshold instanceof NoValue) {
-            $serviceTemplate->setFreshnessThreshold($request->freshnessThreshold);
         }
 
         if (! $request->lowFlapThreshold instanceof NoValue) {
@@ -645,7 +662,7 @@ final class PartialUpdateServiceTemplate
             $vaultPath = $vaultPaths[$macroPrefixName];
             $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPath);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -667,7 +684,7 @@ final class PartialUpdateServiceTemplate
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }
@@ -675,7 +692,7 @@ final class PartialUpdateServiceTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
