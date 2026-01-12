@@ -2401,7 +2401,7 @@
 					"response": []
 				},
 				{
-					"name": "POST /commands - Valid request - HTTP 201 Copy 2",
+					"name": "POST /commands - Valid request - HTTP 201",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -6956,6 +6956,7 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -6965,10 +6966,150 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory1Id",
+			"value": ""
+		},
+		{
+			"key": "CommandId",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate0Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate0Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate0Id",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate4Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate4Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Name",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostCategory2Id",
+			"value": ""
+		},
+		{
+			"key": "HostSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "CommandLine",
+			"value": "$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1"
+		},
+		{
+			"key": "CommandName",
+			"value": "command_by_generic_test"
+		},
+		{
+			"key": "CommandType",
+			"value": "Check"
+		},
+		{
+			"key": "CommandConnector",
+			"value": "/centreon/api/latest/configuration/connectors/1"
+		},
+		{
+			"key": "CommandId",
+			"value": "1",
+			"type": "default"
+		},
+		{
+			"key": "HostTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate4Id",
+			"value": ""
 		}
 	]
 }
