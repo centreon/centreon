@@ -14,6 +14,7 @@ messages:
       If no relevant test exists, respond with [].
 
       The response must be valid single line JSON which is not truncated.
+      Every path must come verbatim from the provided list.
       Each path must be a string and prefix path to "features" directory must be removed.
   - role: user
     content: |
