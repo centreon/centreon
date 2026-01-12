@@ -594,7 +594,7 @@ describe('Api-token', () => {
     cy.waitForRequest('@getListConfiguredUsers');
 
     cy.fixture('apiTokens/creation/configuredUsers.json').then(({ result }) => {
-      cy.findByRole('option', { name: result[0].name })
+      cy.findByRole('option', { name: result[0].alias })
         .should('be.visible')
         .click();
       cy.findByTestId(labelUser).should('have.value', result[0].alias);
