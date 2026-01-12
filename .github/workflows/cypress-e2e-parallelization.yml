@@ -93,6 +93,7 @@ jobs:
         id: detect
         uses: ./.github/actions/detect-e2e-test-list
         with:
+          module-name: ${{ inputs.module_name }}
           feature-directory: ${{ inputs.features_path }}
           tags: ${{ inputs.test_tags }}
           prompt-file: .github/prompts/select-features.prompt.yml
