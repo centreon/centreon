@@ -78,6 +78,8 @@ on:
         required: true
       jira_api_token:
         required: true
+      github_models_token:
+        required: true
 
 jobs:
   cypress-e2e-test-list:
@@ -99,7 +101,7 @@ jobs:
           prompt-file: .github/prompts/select-features.prompt.yml
           model: openai/gpt-4.1
           max-tokens: '1000'
-          github-token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          github-token: ${{ secrets.github_models_token }}
 
       - name: List features
         id: list-features
