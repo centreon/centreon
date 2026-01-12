@@ -5,7 +5,11 @@ import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../../commons';
-import { reloadWebServer, replaceCustomUri, updateWebServerConfig } from '../common';
+import {
+  reloadWebServer,
+  replaceCustomUri,
+  updateWebServerConfig
+} from '../common';
 
 const service = 'Ping';
 const host = 'Centreon-Server';
@@ -80,7 +84,7 @@ Then(
 
     cy.contains(host).parent().get('.MuiChip-root').should('contain', 'h');
 
-    cy.visit(replaceCustomUri(PAGES.configuration.hostsLegacy, "/monitor"))
+    cy.visit(replaceCustomUri(PAGES.configuration.hostsLegacy, '/monitor'));
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -96,7 +100,9 @@ Then(
         .should('be.gte', 21);
     });
 
-    cy.visit(replaceCustomUri(PAGES.configuration.servicesByHostLegacy, "/monitor"));
+    cy.visit(
+      replaceCustomUri(PAGES.configuration.servicesByHostLegacy, '/monitor')
+    );
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -131,7 +137,7 @@ Then(
       }
     ]);
 
-    cy.visit(replaceCustomUri(PAGES.monitoring.resourcesStatus, "/monitor"));
+    cy.visit(replaceCustomUri(PAGES.monitoring.resourcesStatus, '/monitor'));
 
     cy.get('header').parent().children().eq(1).contains('OK').should('exist');
 
