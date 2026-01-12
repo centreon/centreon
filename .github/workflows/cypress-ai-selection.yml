@@ -73,10 +73,12 @@ jobs:
         id: validate
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          echo '${{ steps.ai.outputs.response }}' > ai.json
+          cat <<EOF > ai.json
+${{ steps.ai.outputs.response }}
+EOF
           cat ai.json
 
-          if ! jq -e 'type == "object" and has("specs") and (.specs | type == "array")' ai.json >/dev/null; then
+          if ! jq -e 'type == "object" and has("specs") and (.specs | type == "array")' ai.json >/dev/null 2>&1; then
             echo "mode=fallback" >> $GITHUB_OUTPUT
             exit 0
           fi
