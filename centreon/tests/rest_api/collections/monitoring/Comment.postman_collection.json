@@ -59,7 +59,7 @@
 					"response": []
 				},
 				{
-					"name": "POST /commands - Valid request - HTTP 201 Copy",
+					"name": "POST /commands - Valid request - HTTP 201",
 					"event": [
 						{
 							"listen": "prerequest",
