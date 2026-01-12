@@ -201,17 +201,34 @@ runs:
       id: final
       shell: bash
       run: |
+        DECISION=""
+        SPEC_JSON_RAW=""
+
         if [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
-          echo "decision=AI" >> "$GITHUB_OUTPUT"
-          echo "specs=${{ steps.validate.outputs.specs }}" >> "$GITHUB_OUTPUT"
+          DECISION="AI"
+          SPEC_JSON_RAW='${{ steps.validate.outputs.specs }}'
         elif [ "${{ steps.fallback.outputs.mode }}" = "mapped" ]; then
-          echo "decision=FALLBACK" >> "$GITHUB_OUTPUT"
-          echo "specs=${{ steps.fallback.outputs.specs }}" >> "$GITHUB_OUTPUT"
+          DECISION="FALLBACK"
+          SPEC_JSON_RAW='${{ steps.fallback.outputs.specs }}'
         else
-          SPECS=$(jq -R -s -c 'split("\n")[:-1]' all_features.txt)
-          echo "decision=FULL" >> "$GITHUB_OUTPUT"
-          echo "specs=$SPECS" >> "$GITHUB_OUTPUT"
+          DECISION="FULL"
+          SPEC_JSON_RAW=$(jq -R -s -c 'split("\n") | map(select(length > 0))' all_features.txt)
         fi
+
+        if [ -z "$SPEC_JSON_RAW" ]; then
+          SPEC_JSON_RAW="[]"
+        fi
+
+        if ! printf '%s' "$SPEC_JSON_RAW" | jq -e 'type == "array"' >/dev/null 2>&1; then
+          SPEC_JSON_RAW=$(printf '%s' "$SPEC_JSON_RAW" |
+            tr ',' '\n' |
+            jq -R -s -c 'split("\n") | map(select(length > 0) | gsub("^\\s+|\\s+$"; ""))')
+        else
+          SPEC_JSON_RAW=$(printf '%s' "$SPEC_JSON_RAW" | jq -c 'map(tostring)')
+        fi
+
+        echo "decision=$DECISION" >> "$GITHUB_OUTPUT"
+        echo "specs=$SPEC_JSON_RAW" >> "$GITHUB_OUTPUT"
 
     - name: Summary
       shell: bash
