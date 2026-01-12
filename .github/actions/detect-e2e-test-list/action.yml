@@ -66,6 +66,7 @@ runs:
 
         cd ${{ inputs.module-name }}
         FEATURES_JSON=$(cucumber ${{ inputs.feature-directory }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.feature-directory }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+        echo "features: $FEATURES_JSON"
         echo "features_json=$FEATURES_JSON" >> $GITHUB_OUTPUT
       shell: bash
 
@@ -106,13 +107,22 @@ runs:
           exit 0
         fi
 
+        BASE_DIR="${{ inputs.module-name }}/$(echo "${{ inputs.feature-directory }}" | sed 's#^/*##')"
         ALL_SPECS=$(jq -r '.[]' ai.json)
         if [ -n "$ALL_SPECS" ]; then
           MISSING=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
-            [ -e "$f" ] || echo "$f"
+            [ -z "$f" ] && continue
+            TARGET="$BASE_DIR/${f#/}"
+            if [ ! -e "$TARGET" ]; then
+              echo "${f#/}"
+            fi
           done | paste -sd "," -)
           VALID=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
-            [ -e "$f" ] && echo "$f"
+            [ -z "$f" ] && continue
+            TARGET="$BASE_DIR/${f#/}"
+            if [ -e "$TARGET" ]; then
+              echo "${f#/}"
+            fi
           done | paste -sd "," -)
         else
           MISSING=""
