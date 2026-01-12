@@ -597,7 +597,7 @@ describe('Api-token', () => {
       cy.findByRole('option', { name: result[0].name })
         .should('be.visible')
         .click();
-      cy.findByTestId(labelUser).should('have.value', result[0].name);
+      cy.findByTestId(labelUser).should('have.value', result[0].alias);
     });
 
     cy.findByTestId(labelCancel).should('be.visible');

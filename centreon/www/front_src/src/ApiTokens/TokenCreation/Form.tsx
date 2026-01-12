@@ -70,7 +70,7 @@ const FormCreation = ({
     resetForm
   } = useFormikContext<CreateTokenFormValues>();
 
-  const { token, duration, tokenName, user } = useCreateTokenFormValues({
+  const { token, duration, tokenName } = useCreateTokenFormValues({
     data,
     values
   });
