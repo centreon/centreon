@@ -11,10 +11,8 @@ messages:
       Never invent files, only choose from the "available_features" JSON array.
       Output MUST be valid JSON array representing each impacted feature with the schema:
         ["<path>", ...]
-      Each object must list at most 20 paths, and every path must come verbatim from the provided list.
-      The overall response must be exactly a JSON array of such objects (no surrounding prose).
       If no relevant test exists, respond with [].
-      The response must be valid JSON which is not truncated.
+      The response must be valid single line JSON which is not truncated.
       Each path must be a string and prefix path to "features" directory must be removed.
   - role: user
     content: |
