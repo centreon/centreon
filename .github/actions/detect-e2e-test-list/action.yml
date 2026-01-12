@@ -66,7 +66,7 @@ runs:
 
         cd ${{ inputs.module-name }}
         FEATURES_JSON=$(cucumber ${{ inputs.feature-directory }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.feature-directory }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
-        echo "features=$FEATURES_JSON" >> $GITHUB_OUTPUT
+        echo "features_json=$FEATURES_JSON" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Infer relevant feature files (AI)
