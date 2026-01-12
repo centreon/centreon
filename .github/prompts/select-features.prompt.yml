@@ -9,8 +9,8 @@ messages:
       any feature testing authentication should be considered impacted.
 
       Never invent files, only choose from the "available_features" JSON array.
-      Output MUST be valid JSON containing one or more objects, each with the schema:
-        {"specs":["<path>", ...]}
+      Output MUST be valid JSON containing an array of each impacted feature with the schema:
+        ["<path>", ...]
       Each object must list at most 20 paths, and every path must come verbatim from the provided list.
       The overall response must be exactly a JSON array of such objects (no surrounding prose).
       If no relevant test exists, respond with [].
