@@ -65,18 +65,19 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         private readonly ConnectionConfig $connectionConfig,
     ) {
         try {
+            $options = [
+                \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            ];
+            foreach (DatabaseTLSResolver::getTLSOptions() as $key => $value) {
+                $options[$key] = $value;
+            }
             parent::__construct(
                 $this->connectionConfig->getMysqlDsn(),
                 $this->connectionConfig->getUser(),
                 $this->connectionConfig->getPassword(),
-                array_merge(
-                    [
-                        \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
-                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                    ],
-                    DatabaseTLSResolver::getTLSOptions()
-                )
+                $options
             );
         } catch (\PDOException $exception) {
             $this->writeDbLog(

@@ -129,20 +129,20 @@ class CentreonDB extends PDO implements ConnectionInterface
         $this->centreon_path = _CENTREON_PATH_;
         $this->retry = $retry;
 
-        $this->options = array_merge(
-            [
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_STATEMENT_CLASS => [
-                    CentreonDBStatement::class,
-                    [$this->logger],
-                ],
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
-                PDO::MYSQL_ATTR_LOCAL_INFILE => true,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        $this->options = [
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_STATEMENT_CLASS => [
+                CentreonDBStatement::class,
+                [$this->logger],
             ],
-            DatabaseTLSResolver::getTLSOptions()
-        );
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
+            PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        ];
 
+        foreach (DatabaseTLSResolver::getTLSOptions() as $key => $value) {
+            $this->options[$key] = $value;
+        }
         // Init request statistics
         $this->requestExecuted = 0;
         $this->requestSuccessful = 0;
