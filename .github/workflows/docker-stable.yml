@@ -127,7 +127,7 @@ jobs:
     name: dockerize-web ${{ matrix.distrib }}
 
     steps:
-      - name: Checkout docker files on version ${{ inputs.dev_branch || inputs.release_bundle_tag }}
+      - name: Checkout docker files on tag ${{ inputs.dev_branch || inputs.release_bundle_tag }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.dev_branch || inputs.release_bundle_tag }}
@@ -149,6 +149,7 @@ jobs:
             .version.centreon-open-tickets
             .version.centreon-web
           sparse-checkout-cone-mode: false
+          clean: false
 
       - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -161,6 +162,7 @@ jobs:
             .version.centreon-common
             .version.centreon-gorgone
           sparse-checkout-cone-mode: false
+          clean: false
 
       - name: Export minor versions
         id: export-minor-versions
