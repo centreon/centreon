@@ -113,6 +113,12 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
 FROM web_dependencies AS web_dependencies_collect
 
+ARG COLLECT_MINOR_VERSION
+ARG COMMON_MINOR_VERSION
+ARG GORGONE_MINOR_VERSION
+ARG MAJOR_VERSION
+ARG STABILITY
+
 RUN bash -e <<EOF
 
 apt-get update
