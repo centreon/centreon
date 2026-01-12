@@ -15,9 +15,6 @@ messages:
 
       The response must be valid single line JSON which is not truncated.
       Each path must be a string and prefix path to "features" directory must be removed.
-
-      the response must not include feature files containing a feature with @ignore tag.
-      the response must not include feature files containing all scenarios with @ignore tag.
   - role: user
     content: |
       Modified files: {{changed_files}}
