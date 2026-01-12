@@ -58,9 +58,15 @@ jobs:
           model: openai/gpt-4.1
           prompt-file: .github/prompts/select-features.prompt.md
           input: |
-            changed_files: ${{ steps.check_changes.outputs.changed_files }}
-            available_features: |
-               ${{ steps.features.outputs.features }}
+            Modified files:
+            ```
+            ${{ steps.check_changes.outputs.changed_files }}
+            ```
+
+            Available feature files:
+            ```
+            ${{ steps.features.outputs.features }}
+            ```
         env:
           GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
