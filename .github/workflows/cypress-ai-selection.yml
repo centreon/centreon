@@ -61,6 +61,7 @@ jobs:
           input: |
             changed_files: ${{ steps.check_changes.outputs.changed_files_json }}
             available_features: ${{ steps.features.outputs.features_json }}
+          max-tokens: 1000
         env:
           GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}  # PAT avec repo + workflow
 
