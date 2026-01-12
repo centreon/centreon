@@ -73,17 +73,17 @@ jobs:
         id: validate
         if: steps.check_changes.outputs.changed == 'true'
         run: |
-          cat <<EOF > ai.json
+          cat <<'EOF' > ai.json
           ${{ steps.ai.outputs.response }}
           EOF
           cat ai.json
 
-          if ! jq -e 'type == "object" and has("specs") and (.specs | type == "array")' ai.json >/dev/null 2>&1; then
+          if ! jq -e 'type == "array" and all(.[]; type == "object" and has("specs") and (.specs | type == "array" and length <= 20))' ai.json >/dev/null 2>&1; then
             echo "mode=fallback" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          VALID=$(jq -r '.specs[]?' ai.json | while read f; do
+          VALID=$(jq -r '.[]?.specs[]' ai.json | while read -r f; do
             [ -f "$f" ] && echo "$f"
           done | paste -sd "," -)
 

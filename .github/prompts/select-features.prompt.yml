@@ -9,11 +9,11 @@ messages:
       any feature testing authentication should be considered impacted.
 
       Never invent files, only choose from the "available_features" JSON array.
-      Output MUST be valid minified JSON with the following schema:
+      Output MUST be valid JSON containing one or more objects, each with the schema:
         {"specs":["<path>", ...]}
-      Each path in "specs" must be taken verbatim from the provided list.
-      Output must contain only that JSON object (no surrounding prose).
-      If no relevant test exists, respond with {"specs":[]}.
+      Each object must list at most 20 paths, and every path must come verbatim from the provided list.
+      The overall response must be exactly a JSON array of such objects (no surrounding prose).
+      If no relevant test exists, respond with [].
   - role: user
     content: |
       Modified files:
