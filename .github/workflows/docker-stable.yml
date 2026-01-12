@@ -170,6 +170,8 @@ jobs:
           ls -lah ./${{ inputs.release_bundle_tag }}/
           echo "####################"
           ls -lah ./${{ inputs.dev_branch }}/
+          echo "####################"
+          ls -lah ./${{ inputs.dev_branch }}/.github/
 
           mv .version.* ./centreon-${{ inputs.release_bundle_tag }}/
 
