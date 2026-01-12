@@ -173,7 +173,7 @@ jobs:
           echo "####################"
           ls -lah ./${{ inputs.dev_branch }}/.github/
           echo "####################"
-          cat -lah ./${{ inputs.dev_branch }}/.version.centreon-web
+          cat ./${{ inputs.dev_branch }}/.version.centreon-web
 
           mv ./centreon-collect-${{ inputs.release_bundle_tag }}/.version.* ./${{ inputs.release_bundle_tag }}/
 
