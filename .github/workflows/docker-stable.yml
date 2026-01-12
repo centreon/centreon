@@ -173,12 +173,12 @@ jobs:
           echo "####################"
           ls -lah ./${{ inputs.dev_branch }}/.github/
           echo "####################"
-          ls -lah ./${{ inputs.dev_branch }}/.version.centreon-web
+          cat -lah ./${{ inputs.dev_branch }}/.version.centreon-web
 
           mv ./centreon-collect-${{ inputs.release_bundle_tag }}/.version.* ./${{ inputs.release_bundle_tag }}/
 
           for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
-            source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-${package}
+            source ${{ inputs.release_bundle_tag }}/.version.centreon-${package}
             package="${package//-/_}"
             echo "${package}_minor_version: $MINOR"
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
