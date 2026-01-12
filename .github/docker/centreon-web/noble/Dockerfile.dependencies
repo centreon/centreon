@@ -125,7 +125,7 @@ apt-get update
 
 if [[ "$STABILITY" == "stable" ]]; then
   apt-get install -y \
-      centreon-common=${MAJOR_VERSION}.${COMMON_MINOR_VERSION}-*-0ubuntu.24.04 \
+    centreon-common=${MAJOR_VERSION}.${COMMON_MINOR_VERSION}-*-0ubuntu.24.04 \
     centreon-gorgone=${MAJOR_VERSION}.${GORGONE_MINOR_VERSION}-*-0ubuntu.24.04 \
     centreon-engine=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*-0ubuntu.24.04 \
     centreon-broker-cbd=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*-0ubuntu.24.04 \
