@@ -14,16 +14,19 @@ interface ActionClapi {
 interface ExecuteActionViaClapiProps {
   bodyContent: ActionClapi;
   method?: string;
+  failOnError?: boolean;
 }
 
 Cypress.Commands.add(
   'executeActionViaClapi',
   ({
     bodyContent,
-    method = 'POST'
+    method = 'POST',
+    failOnError = true
   }: ExecuteActionViaClapiProps): Cypress.Chainable => {
     return cy.request({
       body: bodyContent,
+      failOnStatusCode: failOnError,
       headers: {
         'Content-Type': 'application/json',
         'centreon-auth-token': window.localStorage.getItem('userTokenApiV1')
