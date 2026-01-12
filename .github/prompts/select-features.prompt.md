@@ -13,8 +13,8 @@ Rules:
 - Prefer minimal test set
 - Backend changes may impact frontend flows
 - Shared components → include all dependent features
-- Provide files from given list only (path centreon/tests/e2e/*/*.feature)
-- NEVER invent files
+- Provide files from given list only (path centreon/tests/e2e/features/*.feature)
+- NEVER invent files which does not exist, it is really important
 - Provide one path per line
 - Do not provide file with tag @ignore on feature
 - Do not provide file with tag @ignore on all scenarios
@@ -22,7 +22,7 @@ Rules:
 - For instance, if a file in "centreon/src/Security/*/Authentication/" changes, any feature testing authentication should be considered impacted.
 
 Output format (STRICT):
-Return a JSON array of feature file paths.
+Return a JSON array of feature file paths which exist in the given list.
 No explanation.
 No markdown.
 
