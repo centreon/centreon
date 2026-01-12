@@ -68,7 +68,7 @@ jobs:
               echo "Command output: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name')"
               exit 1
             else
-              echo "Release bundle or branch ${{ inputs.release_bundle_tag }} was found on repository $repo."
+              echo "Release bundle ${{ inputs.release_bundle_tag }} was found on repository $repo."
               echo "Information fetched on the tag: $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[]' )"
             fi
           done
