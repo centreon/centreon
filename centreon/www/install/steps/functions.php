@@ -23,6 +23,7 @@ require_once __DIR__ . '/../../../bootstrap.php';
 require_once __DIR__ . '/../../class/centreonAuth.class.php';
 
 use Centreon\Domain\VersionHelper;
+use Core\Infrastructure\Common\DatabaseTLSResolver;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -83,7 +84,7 @@ function myConnect()
         $port = $_SESSION['DB_PORT'];
     }
 
-    return new PDO('mysql:host=' . $host . ';port=' . $port, $user, $pass);
+    return new PDO('mysql:host=' . $host . ';port=' . $port, $user, $pass, DatabaseTLSResolver::getTLSOptions());
 }
 
 /**

@@ -32,6 +32,7 @@ use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Core\Infrastructure\Common\DatabaseTLSResolver;
 use Psr\Log\LogLevel;
 
 /**
@@ -68,11 +69,14 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 $this->connectionConfig->getMysqlDsn(),
                 $this->connectionConfig->getUser(),
                 $this->connectionConfig->getPassword(),
-                [
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
-                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                    \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-                ]
+                array_merge(
+                    [
+                        \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
+                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+                    ],
+                    DatabaseTLSResolver::getTLSOptions()
+                )
             );
         } catch (\PDOException $exception) {
             $this->writeDbLog(

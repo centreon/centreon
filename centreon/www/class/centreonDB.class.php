@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Core\Infrastructure\Common\DatabaseTLSResolver;
 use Psr\Log\LogLevel;
 
 // file centreon.config.php may not exist in test environment
@@ -128,16 +129,19 @@ class CentreonDB extends PDO implements ConnectionInterface
         $this->centreon_path = _CENTREON_PATH_;
         $this->retry = $retry;
 
-        $this->options = [
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_STATEMENT_CLASS => [
-                CentreonDBStatement::class,
-                [$this->logger],
+        $this->options = array_merge(
+            [
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_STATEMENT_CLASS => [
+                    CentreonDBStatement::class,
+                    [$this->logger],
+                ],
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
+                PDO::MYSQL_ATTR_LOCAL_INFILE => true,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             ],
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES {$this->connectionConfig->getCharset()}",
-            PDO::MYSQL_ATTR_LOCAL_INFILE => true,
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        ];
+            DatabaseTLSResolver::getTLSOptions()
+        );
 
         // Init request statistics
         $this->requestExecuted = 0;

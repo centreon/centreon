@@ -27,6 +27,7 @@ use App\Kernel;
 use CentreonModule\ServiceProvider;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
 use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
+use Core\Infrastructure\Common\DatabaseTLSResolver;
 
 $return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];
 
@@ -39,7 +40,8 @@ try {
     $link = new PDO(
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
-        $parameters['root_password']
+        $parameters['root_password'],
+        DatabaseTLSResolver::getTLSOptions()
     );
 } catch (PDOException $e) {
     $return['msg'] = $e->getMessage();
