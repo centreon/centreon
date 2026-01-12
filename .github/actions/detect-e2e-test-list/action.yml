@@ -53,7 +53,14 @@ runs:
           if [ -n "${{ steps.changed.outputs.all_changed_files_json }}" ]; then
             printf 'changed_files_json=%s\n' "${{ steps.changed.outputs.all_changed_files_json }}" >> "$GITHUB_OUTPUT"
           else
-            CHANGED_JSON=$(printf '%s' "${{ steps.changed.outputs.all_changed_files }}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            CHANGED_JSON=$(printf '%s' "${{ steps.changed.outputs.all_changed_files }}" | jq -R -s -c '
+              (split("\n") | map(select(length > 0))) as $lines
+              | if ($lines | length == 1 and ($lines[0] | test(" "))) then
+                  ($lines[0] | split(" ") | map(select(length > 0)))
+                else
+                  $lines
+                end
+            ')
             printf 'changed_files_json=%s\n' "$CHANGED_JSON" >> "$GITHUB_OUTPUT"
           fi
         fi
