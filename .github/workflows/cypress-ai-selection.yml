@@ -74,8 +74,8 @@ jobs:
         if: steps.check_changes.outputs.changed == 'true'
         run: |
           cat <<EOF > ai.json
-${{ steps.ai.outputs.response }}
-EOF
+          ${{ steps.ai.outputs.response }}
+          EOF
           cat ai.json
 
           if ! jq -e 'type == "object" and has("specs") and (.specs | type == "array")' ai.json >/dev/null 2>&1; then
