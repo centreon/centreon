@@ -13,6 +13,7 @@ Rules:
 - Prefer minimal test set
 - Backend changes may impact frontend flows
 - Shared components → include all dependent features
+- Provide files from given list only.
 - Never invent files
 - Provide one path per line
 - Do not provide file with tag @ignore on feature
