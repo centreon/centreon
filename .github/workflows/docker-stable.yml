@@ -14,7 +14,11 @@ on:
         required: true
         default: ''
         type: string
-
+      bypass_checks:
+        description: 'Bypass checks'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   check-inputs:
@@ -56,6 +60,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
+        if: inputs.bypass_checks == false
         run: |
           for repo in "centreon" "centreon-collect"; do
             if [[ -z $(gh api repos/centreon/$repo/tags --paginate -q '[.[] | select(.name | startswith("${{ inputs.release_bundle_tag }}"))] | .[].name') ]]; then
