@@ -20,6 +20,11 @@ messages:
       The response must be valid single line JSON which is not truncated.
       Every path must come verbatim from the provided list.
       Each path must be a string and prefix path to "features" directory must be removed.
+
+      Selected features should cover all changed files as much as possible,
+      while minimizing the total number of selected features.
+      Prioritize features that cover multiple changed files.
+      It is better to select more features to test rather than trying to reduce them as much as possible.
   - role: user
     content: |
       Modified files: {{changed_files}}
