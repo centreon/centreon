@@ -46,7 +46,7 @@ final class UpdateHostGroupRequestTransformer
             geoCoords: $input->geoCoords,
             comment: (string) $input->comment,
             iconId: $input->iconId,
-            hosts: $input->hosts ?? [],
+            hosts: $input->hosts,
             resourceAccessRules: $isCloudPlatform ? $input->resourceAccessRules : []
         );
     }

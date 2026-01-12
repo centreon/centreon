@@ -103,7 +103,9 @@ final class UpdateHostGroup
                 return new NotFoundResponse('Host Group');
             }
             $this->validator->assertNameDoesNotAlreadyExists($existingHostGroup, $request->name);
-            $this->validator->assertHostsExist($request->hosts);
+            if ($request->hosts !== null) {
+                $this->validator->assertHostsExist($request->hosts);
+            }
             if ($request->iconId !== null) {
                 $this->validator->assertIconExists($request->iconId);
             }
@@ -117,7 +119,9 @@ final class UpdateHostGroup
             }
 
             $this->updateHostGroup($request, $existingHostGroup);
-            $this->updateHostLinks($request);
+            if ($request->hosts !== null) {
+                $this->updateHostLinks($request);
+            }
             if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
             }
