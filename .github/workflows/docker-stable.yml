@@ -106,7 +106,8 @@ jobs:
                 DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
               *)
-                DISTRIBS=("alma8" "alma9" "bookworm")
+                echo "::error::Major version has not be properly detected."
+                exit 1
                 ;;
             esac
           fi
