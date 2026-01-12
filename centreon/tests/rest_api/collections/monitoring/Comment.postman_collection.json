@@ -59,6 +59,125 @@
 					"response": []
 				},
 				{
+					"name": "POST /commands - Valid request - HTTP 201 Copy",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
+									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
+									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
+									"        \"is_shell_enabled\": false,\r",
+									"        \"is_activated\": true,\r",
+									"        \"is_from_monitoring_connector\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.property(\"connector\");\r",
+									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"CommandConnector\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the command response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\" },\r",
+									"            \"command_line\": { \"type\": \"string\" },\r",
+									"            \"is_shell_enabled\": { \"type\": \"boolean\" },\r",
+									"            \"is_activated\": { \"type\": \"boolean\" },\r",
+									"            \"is_from_monitoring_connector\": { \"type\": \"boolean\" },\r",
+									"            \"arguments\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"name\", \"description\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"connector\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"command_line\": { \"type\": \"string\" },\r",
+									"                    \"description\": { \"type\": \"string\" },\r",
+									"                    \"is_activated\": { \"type\": \"boolean\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"comment\": { \"type\": \"string\"}          \r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell_enabled\", \"is_activated\", \"is_from_monitoring_connector\", \"connector\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": false,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/commands",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"commands"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Add a host template (successful)",
 					"event": [
 						{
