@@ -13,6 +13,10 @@ Rules:
 - Prefer minimal test set
 - Backend changes may impact frontend flows
 - Shared components → include all dependent features
+- Never invent files
+- Provide one path per line
+- Do not provide file with tag @ignore on feature
+- Do not provide file with tag @ignore on all scenarios
 
 Output format (STRICT):
 Return a JSON array of feature file paths.

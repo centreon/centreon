@@ -84,7 +84,7 @@ jobs:
         id: validate
         if: steps.diff.outputs.diff != ''
         run: |
-          echo '${{ steps.ai.outputs.result }}' > ai.json
+          echo '${{ steps.ai.outputs.response }}' > ai.json
           cat ai.json
 
           if ! jq -e . ai.json >/dev/null; then
@@ -102,6 +102,7 @@ jobs:
             echo "mode=ai" >> $GITHUB_OUTPUT
             echo "specs=$VALID" >> $GITHUB_OUTPUT
           fi
+
 
       # -------------------------------
       # Fallback mapping
