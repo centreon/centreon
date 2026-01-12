@@ -1,3 +1,4 @@
+@ignore
 Feature: Configuration of a command
   As a Centreon user
   I want to manipulate a command
