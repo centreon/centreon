@@ -16,7 +16,7 @@ messages:
   - role: user
     content: |
       Modified files:
-      {{changed_files_json}}
+      {{changed_files}}
 
       Available feature files:
-      {{available_features_json}}
+      {{available_features}}
