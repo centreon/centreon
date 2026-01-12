@@ -131,7 +131,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.dev_branch || inputs.release_bundle_tag }}
-          path: ./centreon-${{ inputs.dev_branch || inputs.release_bundle_tag }}
+          path: ./centreon-${{ inputs.dev_branch || inputs.release_bundle_tag }}/
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/
             .github/docker/centreon-web/init/
@@ -142,7 +142,7 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
-          path: ./centreon-${{ inputs.release_bundle_tag }}
+          path: ./centreon-${{ inputs.release_bundle_tag }}/
           sparse-checkout: |
             .version.centreon-awie
             .version.centreon-dsm
@@ -175,6 +175,12 @@ jobs:
         id: export-minor-versions
         shell: bash
         run: |
+          ls -lah
+          echo "####################"
+          ls -lah ./centreon-${{ inputs.release_bundle_tag }}/
+
+          mv .version.* ./centreon-${{ inputs.release_bundle_tag }}/
+
           for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
             source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-${package}
             package="${package//-/_}"
