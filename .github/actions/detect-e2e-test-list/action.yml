@@ -50,7 +50,12 @@ runs:
         else
           echo "changed=true" >> "$GITHUB_OUTPUT"
           printf 'changed_files=%s\n' "${{ steps.changed.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
-          printf 'changed_files_json=%s\n' "$(printf '%s\n' "${{ steps.changed.outputs.all_changed_files }}" | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ steps.changed.outputs.all_changed_files_json }}" ]; then
+            printf 'changed_files_json=%s\n' "${{ steps.changed.outputs.all_changed_files_json }}" >> "$GITHUB_OUTPUT"
+          else
+            CHANGED_JSON=$(printf '%s' "${{ steps.changed.outputs.all_changed_files }}" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            printf 'changed_files_json=%s\n' "$CHANGED_JSON" >> "$GITHUB_OUTPUT"
+          fi
         fi
 
     - name: List features
@@ -58,8 +63,8 @@ runs:
       run: |
         set -o pipefail
 
-        sudo apt-get update
-        sudo apt-get install -y cucumber
+        sudo apt-get -q update
+        sudo apt-get install -qy cucumber
 
         TEST_TAGS=$(echo "${{ inputs.tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
         echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
