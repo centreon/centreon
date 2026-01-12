@@ -772,7 +772,7 @@ msgid "Add a Monitoring Engine Configuration File"
 msgstr ""
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "Add a Resource"
+msgid "Add a Global macro"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -10835,7 +10835,7 @@ msgid "Lower Limit"
 msgstr ""
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "MACRO Expression"
+msgid "Expression"
 msgstr ""
 
 #: centreon/www/install/smarty_translate.php
@@ -11625,7 +11625,7 @@ msgid "Modify a Monitoring Engine Configuration File"
 msgstr ""
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "Modify a Resource"
+msgid "Modify a Global macro"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/service/formService.php
@@ -19474,7 +19474,7 @@ msgid "View Image"
 msgstr ""
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "View Resource"
+msgid "View Global macro"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
