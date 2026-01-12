@@ -192,6 +192,9 @@ final class UpdateHostGroup
      */
     private function updateHostLinks(UpdateHostGroupRequest $request): void
     {
+        /** @var int[] $hosts */
+        $hosts = $request->hosts;
+
         if ($this->adminResolver->isAdmin($this->user)) {
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
@@ -203,13 +206,13 @@ final class UpdateHostGroup
 
             $hostsToRemove = (new BasicDifference(
                 array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
-                $request->hosts
+                $hosts
             ))->getRemoved();
         }
 
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
-        $this->writeHostGroupRepository->addHostLinks($request->id, $request->hosts);
-        $this->notifyConfigurationChange($request->hosts);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $hosts);
+        $this->notifyConfigurationChange($hosts);
     }
 
     /**
