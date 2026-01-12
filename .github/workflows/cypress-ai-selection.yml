@@ -60,7 +60,7 @@ jobs:
         if: steps.check_changes.outputs.changed == 'true'
         uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e # v2.0.4
         with:
-          model: openai/gpt-4o-mini
+          model: openai/gpt-5-codex
           prompt-file: .github/ai-prompts/select-features.prompt.yml
           input: |
             changed_files: ${{ steps.check_changes.outputs.changed_files }}
