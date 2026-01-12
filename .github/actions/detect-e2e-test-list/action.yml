@@ -9,6 +9,9 @@ inputs:
     description: Path to the AI prompt file used to select feature files.
     required: false
     default: .github/prompts/select-features.prompt.yml
+  module-name:
+    description: Name of the module where feature files are located.
+    required: true
   feature-directory:
     description: Directory containing the Cypress feature files to consider.
     required: true
@@ -58,11 +61,11 @@ runs:
         sudo apt-get update
         sudo apt-get install -y cucumber
 
-        TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+        TEST_TAGS=$(echo "${{ inputs.tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
         echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
-        cd ${{ inputs.module_name }}
-        FEATURES_JSON=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+        cd ${{ inputs.module-name }}
+        FEATURES_JSON=$(cucumber ${{ inputs.feature-directory }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.feature-directory }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
         echo "features=$FEATURES_JSON" >> $GITHUB_OUTPUT
       shell: bash
 
