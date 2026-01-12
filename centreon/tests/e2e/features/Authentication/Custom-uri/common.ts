@@ -33,11 +33,8 @@ const updateWebServerConfig = (): Cypress.Chainable => {
   });
 };
 
-const replaceCustomUri = (
-  url: string,
-  uri: string = '/centreon'
-): string => {
+const replaceCustomUri = (url: string, uri = '/centreon'): string => {
   return url.replace('/centreon', uri);
 };
 
-export { reloadWebServer, updateWebServerConfig, replaceCustomUri};
+export { reloadWebServer, updateWebServerConfig, replaceCustomUri };
