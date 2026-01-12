@@ -13,6 +13,9 @@ permissions:
 
 jobs:
   ai-cypress-selection:
+    permissions:
+      contents: read
+      models: read
     runs-on: ubuntu-latest
 
     steps:
@@ -20,65 +23,57 @@ jobs:
       # Checkout repository
       # -------------------------------
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       # -------------------------------
-      # Compute git diff
+      # Detect changed files
       # -------------------------------
+      # - name: Get changed files
+      #   id: changed
+      #   uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
+
+      # - name: Check if there are changes
+      #   id: check_changes
+      #   run: |
+      #     if [ -z "${{ steps.changed.outputs.all_changed_files }}" ]; then
+      #       echo "changed=false" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "changed=true" >> $GITHUB_OUTPUT
+      #       echo "changed_files=${{ steps.changed.outputs.all_changed_files }}" >> $GITHUB_OUTPUT
+      #     fi
+
       - name: Compute git diff
         id: diff
         run: |
           git fetch origin ${{ github.base_ref }}
-          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
-          echo "diff<<EOF" >> $GITHUB_OUTPUT
-          echo "$DIFF" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      # -------------------------------
-      # Skip if no changes
-      # -------------------------------
-      - name: Check changes
-        id: check
-        run: |
-          if [ -z "${{ steps.diff.outputs.diff }}" ]; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
+          git diff origin/${{ github.base_ref }}...HEAD
 
       # -------------------------------
       # List all feature files
       # -------------------------------
       - name: List available feature files
-        id: features
+        id: list_features
         run: |
           find centreon/tests/e2e/features -type f -name "*.feature" > all_features.txt
-          echo "features<<EOF" >> $GITHUB_OUTPUT
-          cat all_features.txt >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Available feature files:"
+          cat all_features.txt
 
       # -------------------------------
-      # AI inference
+      # AI inference (GitHub Models v2)
       # -------------------------------
       - name: Infer relevant feature files (AI)
         id: ai
-        if: steps.check.outputs.changed == 'true'
-        uses: actions/ai-inference@v2
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e # v2.0.4
         with:
           model: openai/gpt-4.1
-          prompt-file: .github/prompts/select-features.prompt.md
+          prompt-file: .github/prompts/select-features.prompt.yml
           input: |
-            Git diff:
-            ```
-            ${{ steps.diff.outputs.diff }}
-            ```
-
-            Available feature files:
-            ```
-            ${{ steps.features.outputs.features }}
-            ```
+            changed_files: ${{ steps.check_changes.outputs.changed_files }}
+            available_features: |
+              $(cat all_features.txt)
         env:
-          GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}  # PAT avec repo + workflow
 
       # -------------------------------
       # Validate AI output
@@ -86,40 +81,38 @@ jobs:
       - name: Validate AI output
         id: validate
         run: |
-          echo '${{ steps.ai.outputs.result }}' > ai.json
-          cat ai.json
+          echo "${{ steps.ai.outputs.response }}" > ai_raw.txt
+          cat ai_raw.txt
 
-          if ! jq -e . ai.json >/dev/null; then
-            echo "mode=fallback" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          VALID=$(jq -r '.[]' ai.json | while read f; do
-            [ -f "$f" ] && echo "$f"
-          done | paste -sd "," -)
+          VALID=""
+          while read -r spec; do
+            if [ -f "$spec" ] && [[ "$spec" == *.feature ]]; then
+              VALID="$VALID,$spec"
+            fi
+          done < ai_raw.txt
 
           if [ -z "$VALID" ]; then
             echo "mode=fallback" >> $GITHUB_OUTPUT
           else
             echo "mode=ai" >> $GITHUB_OUTPUT
-            echo "specs=$VALID" >> $GITHUB_OUTPUT
+            echo "specs=${VALID#,}" >> $GITHUB_OUTPUT
           fi
 
       # -------------------------------
-      # Fallback mapping
+      # Fallback mapping simple
       # -------------------------------
       - name: Fallback mapping
         id: fallback
         if: steps.validate.outputs.mode == 'fallback'
         run: |
           SPECS=""
-          if echo "${{ steps.diff.outputs.diff }}" | grep -q "www/"; then
+          # Exemple : map fichiers modifiés vers dossiers feature
+          if echo "${{ steps.check_changes.outputs.changed_files }}" | grep -q "^centreon/tests/e2e/features/www/"; then
             SPECS="$SPECS,centreon/tests/e2e/features/www"
           fi
-          if echo "${{ steps.diff.outputs.diff }}" | grep -q "widgets/"; then
+          if echo "${{ steps.check_changes.outputs.changed_files }}" | grep -q "^centreon/tests/e2e/features/widgets/"; then
             SPECS="$SPECS,centreon/tests/e2e/features/widgets"
           fi
-
           if [ -z "$SPECS" ]; then
             echo "mode=full" >> $GITHUB_OUTPUT
           else
@@ -139,8 +132,11 @@ jobs:
           elif [ "${{ steps.fallback.outputs.mode }}" = "mapped" ]; then
             echo "decision=FALLBACK" >> $GITHUB_OUTPUT
             echo "specs=${{ steps.fallback.outputs.specs }}" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.validate.outputs.mode }}" = "skip" ]; then
+            echo "decision=SKIP" >> $GITHUB_OUTPUT
           else
-            SPECS=$(cat all_features.txt | paste -sd "," -)
+            # full run de toutes les features
+            SPECS=$(cat all_features.txt | tr '\n' ',' | sed 's/,$//')
             echo "decision=FULL" >> $GITHUB_OUTPUT
             echo "specs=$SPECS" >> $GITHUB_OUTPUT
           fi
