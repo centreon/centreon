@@ -125,20 +125,32 @@ runs:
         BASE_DIR="${{ inputs.module-name }}/$(echo "${{ inputs.feature-directory }}" | sed 's#^/*##')"
         ALL_SPECS=$(jq -r '.[]' ai.json)
         if [ -n "$ALL_SPECS" ]; then
-          MISSING=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
+          MISSING_LINES=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
             [ -z "$f" ] && continue
             TARGET="$BASE_DIR/${f#/}"
             if [ ! -e "$TARGET" ]; then
-              echo "${f#/}"
+              printf '%s\n' "${f#/}"
             fi
-          done | paste -sd "," -)
-          VALID=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
+          done)
+          VALID_LINES=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
             [ -z "$f" ] && continue
             TARGET="$BASE_DIR/${f#/}"
             if [ -e "$TARGET" ]; then
-              echo "${f#/}"
+              printf '%s\n' "${f#/}"
             fi
-          done | paste -sd "," -)
+          done)
+
+          if [ -n "$MISSING_LINES" ]; then
+            MISSING=$(printf '%s' "$MISSING_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          else
+            MISSING=""
+          fi
+
+          if [ -n "$VALID_LINES" ]; then
+            VALID=$(printf '%s' "$VALID_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          else
+            VALID=""
+          fi
         else
           MISSING=""
           VALID=""
@@ -163,7 +175,7 @@ runs:
       env:
         CHANGED_FILES_JSON: ${{ steps.check_changes.outputs.changed_files_json }}
       run: |
-        SPECS=""
+        SPECS_LINES=""
         if jq -er '.[]' <<<"$CHANGED_FILES_JSON" >/dev/null 2>&1; then
           CHANGED_FILES=$(jq -r '.[]' <<<"$CHANGED_FILES_JSON")
         else
@@ -171,17 +183,18 @@ runs:
         fi
 
         if printf '%s\n' "$CHANGED_FILES" | grep -q 'www/'; then
-          SPECS="$SPECS,centreon/tests/e2e/features/www"
+          SPECS_LINES="${SPECS_LINES}centreon/tests/e2e/features/www\n"
         fi
         if printf '%s\n' "$CHANGED_FILES" | grep -q 'widgets/'; then
-          SPECS="$SPECS,centreon/tests/e2e/features/widgets"
+          SPECS_LINES="${SPECS_LINES}centreon/tests/e2e/features/widgets\n"
         fi
 
-        if [ -z "$SPECS" ]; then
+        if [ -z "$SPECS_LINES" ]; then
           echo "mode=full" >> "$GITHUB_OUTPUT"
         else
+          SPECS_JSON=$(printf '%s' "$SPECS_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "mode=mapped" >> "$GITHUB_OUTPUT"
-          echo "specs=${SPECS#,}" >> "$GITHUB_OUTPUT"
+          echo "specs=$SPECS_JSON" >> "$GITHUB_OUTPUT"
         fi
 
     - name: Resolve final decision
@@ -195,7 +208,7 @@ runs:
           echo "decision=FALLBACK" >> "$GITHUB_OUTPUT"
           echo "specs=${{ steps.fallback.outputs.specs }}" >> "$GITHUB_OUTPUT"
         else
-          SPECS=$(cat all_features.txt | paste -sd "," -)
+          SPECS=$(jq -R -s -c 'split("\n")[:-1]' all_features.txt)
           echo "decision=FULL" >> "$GITHUB_OUTPUT"
           echo "specs=$SPECS" >> "$GITHUB_OUTPUT"
         fi
