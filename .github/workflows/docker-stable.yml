@@ -130,7 +130,6 @@ jobs:
             .github/docker/centreon-web/sql/
             .version.centreon-awie
             .version.centreon-dsm
-            .version.centreon-ha
             .version.centreon-open-tickets
             .version.centreon-web
 
