@@ -12,8 +12,7 @@ messages:
       Output MUST be valid minified JSON with the following schema:
         {"specs":["<path>", ...]}
       Each path in "specs" must be taken verbatim from the provided list.
-      Output must be a single line with no trailing text.
-      Do not truncate output.
+      Output must contain only that JSON object (no surrounding prose).
       If no relevant test exists, respond with {"specs":[]}.
   - role: user
     content: |
