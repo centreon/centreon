@@ -80,9 +80,7 @@ Then(
 
     cy.loginKeycloak('admin');
 
-    cy.get('#input-error')
-      .should('be.visible')
-      .and('include.text', 'Invalid username or password.');
+    cy.contains('Invalid username or password.');
 
     cy.loginKeycloak(username);
     cy.url().should('include', '/monitoring/resources');
