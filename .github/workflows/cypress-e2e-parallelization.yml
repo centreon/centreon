@@ -85,14 +85,14 @@ jobs:
   cypress-e2e-test-list:
     runs-on: ubuntu-24.04
     outputs:
-      features: ${{ steps.list-features.outputs.features }}
+      features: ${{ steps.list-features.outputs.specs }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Detect relevant E2E specs
-        id: detect
+        id: list-features
         uses: ./.github/actions/detect-e2e-test-list
         with:
           module-name: ${{ inputs.module_name }}
@@ -102,21 +102,6 @@ jobs:
           model: openai/gpt-4.1
           max-tokens: '1000'
           github-token: ${{ secrets.github_models_token }}
-
-      - name: List features
-        id: list-features
-        run: |
-          set -o pipefail
-
-          sudo apt-get update
-          sudo apt-get install -y cucumber
-
-          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
-          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
-
-          cd ${{ inputs.module_name }}
-          cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
