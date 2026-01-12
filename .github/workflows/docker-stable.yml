@@ -24,7 +24,35 @@ jobs:
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Check if ${{ inputs.release_bundle_tag }} exists on onprem repositories
+
+      - name: Checkout .version (current branch)
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          path: centreon-current
+          sparse-checkout: .version
+
+      - name: Checkout .version (develop branch)
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: develop
+          path: centreon-develop
+          sparse-checkout: .version
+
+      - name: Check if this workflow is run on a branch in the develop context
+        shell: bash
+        run: |
+          source centreon-current/.version
+          current_version=${MAJOR}
+          source centreon-develop/.version
+          develop_version=${MAJOR}
+          if [[ "${current_version}" != "${develop_version}" ]]; then
+            echo "::error:: Please run this workflow on either develop or a branch that targets develop."
+            exit 1
+          else
+            echo ".version file on the current branch matches the develop version: ${current_version}"
+          fi
+
+      - name: Check if ${{ inputs.release_bundle_tag }} exists on standard repositories
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -45,14 +73,15 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
+          path: centreon-${{ inputs.release_bundle_tag }}
           sparse-checkout: .version
 
       - name: Get parameters from tag
         shell: bash
         id: check_promoted_packages
         run: |
-          source .version
-          major_version=$MAJOR
+          source centreon-${{ inputs.release_bundle_tag }}/.version
+          major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
             DISTRIBS=("el9")
@@ -60,10 +89,10 @@ jobs:
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             case "${major_version}" in
               24.04)
-                DISTRIBS=("alma8" "alma9" "bullseye" "bookworm")
+                DISTRIBS=("alma8" "alma9" "bullseye" "bookworm" "jammy")
                 ;;
               24.10)
-                DISTRIBS=("alma8" "alma9" "bookworm")
+                DISTRIBS=("alma8" "alma9" "bookworm" "noble")
                 ;;
               25.10)
                 DISTRIBS=("alma8" "alma9" "bookworm")
