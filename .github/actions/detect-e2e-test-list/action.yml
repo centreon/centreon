@@ -11,8 +11,11 @@ inputs:
     default: .github/prompts/select-features.prompt.yml
   feature-directory:
     description: Directory containing the Cypress feature files to consider.
-    required: false
-    default: centreon/tests/e2e/features
+    required: true
+  tags:
+    description: Comma-separated list of tags to filter feature files (optional).
+    required: true
+    default: 'not @ignore'
   model:
     description: AI model identifier.
     required: false
@@ -47,13 +50,21 @@ runs:
           printf 'changed_files_json=%s\n' "$(printf '%s\n' "${{ steps.changed.outputs.all_changed_files }}" | jq -R -s -c 'split("\n")[:-1]')" >> "$GITHUB_OUTPUT"
         fi
 
-    - name: List available feature files
+    - name: List features
       id: features
-      shell: bash
       run: |
-        find "${{ inputs.feature-directory }}" -type f -name "*.feature" | sort > all_features.txt
-        FEATURES_JSON=$(cat all_features.txt | jq -R -s -c 'split("\n")[:-1]')
-        echo "features_json=$FEATURES_JSON" >> "$GITHUB_OUTPUT"
+        set -o pipefail
+
+        sudo apt-get update
+        sudo apt-get install -y cucumber
+
+        TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+        echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+
+        cd ${{ inputs.module_name }}
+        FEATURES_JSON=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+        echo "features=$FEATURES_JSON" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Infer relevant feature files (AI)
       id: ai
@@ -80,14 +91,33 @@ runs:
 
         cat ai.json
 
-        if ! jq -e 'type == "array" and all(.[]; type == "object" and has("specs") and (.specs | type == "array" and length <= 20))' ai.json >/dev/null 2>&1; then
+        if ! jq -e 'type == "array"' ai.json >/dev/null 2>&1; then
           echo "mode=fallback" >> "$GITHUB_OUTPUT"
           exit 0
         fi
 
-        VALID=$(jq -r '.[]?.specs[]' ai.json | while read -r f; do
-          [ -f "$f" ] && echo "$f"
-        done | paste -sd "," -)
+        if ! jq -e 'length <= 20 and all(.[]; type == "string" and length > 0)' ai.json >/dev/null 2>&1; then
+          echo "mode=fallback" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        ALL_SPECS=$(jq -r '.[]' ai.json)
+        if [ -n "$ALL_SPECS" ]; then
+          MISSING=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
+            [ -e "$f" ] || echo "$f"
+          done | paste -sd "," -)
+          VALID=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
+            [ -e "$f" ] && echo "$f"
+          done | paste -sd "," -)
+        else
+          MISSING=""
+          VALID=""
+        fi
+
+        if [ -n "$MISSING" ]; then
+          echo "mode=fallback" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
 
         if [ -z "$VALID" ]; then
           echo "mode=fallback" >> "$GITHUB_OUTPUT"

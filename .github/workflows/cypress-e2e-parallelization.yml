@@ -89,6 +89,17 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
+      - name: Detect relevant E2E specs
+        id: detect
+        uses: ./.github/actions/detect-e2e-test-list
+        with:
+          feature-directory: ${{ inputs.features_path }}
+          tags: ${{ inputs.test_tags }}
+          prompt-file: .github/prompts/select-features.prompt.yml
+          model: openai/gpt-4.1
+          max-tokens: '1000'
+          github-token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
       - name: List features
         id: list-features
         run: |
