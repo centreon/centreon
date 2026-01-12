@@ -53,17 +53,16 @@ jobs:
       - name: Infer relevant feature files (AI)
         id: ai
         if: steps.check_changes.outputs.changed == 'true'
-        uses: actions/ai-inference@v2
+        uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e # v2.0.4
         with:
-          model: openai/gpt-4.1
-          prompt-file: .github/prompts/select-features.prompt.md
+          model: openai/gpt-4o-mini
+          prompt-file: .github/prompts/select-features.prompt.yml
           input: |
-            modified_files: |
-              ${{ steps.check_changes.outputs.changed_files }}
-            available_feature_files: |
-              ${{ steps.features.outputs.features }}
+            changed_files: ${{ steps.check_changes.outputs.changed_files }}
+            available_features: |
+              $(cat all_features.txt)
         env:
-          GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          GITHUB_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}  # PAT avec repo + workflow
 
       # -------------------------------
       # Validate AI output
