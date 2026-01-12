@@ -17,25 +17,34 @@ jobs:
 
     steps:
       # -------------------------------
-      # Checkout repository
+      # Checkout (FULL history required)
       # -------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # -------------------------------
-      # Compute git diff
+      # Compute git diff (SAFE)
       # -------------------------------
       - name: Compute git diff
         id: diff
         run: |
-          git fetch origin ${{ github.base_ref }}
-          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.sha }}"
+            DIFF=$(git diff "$BASE_SHA...$HEAD_SHA")
+          else
+            # workflow_dispatch fallback
+            DIFF=$(git diff HEAD~1)
+          fi
+
           echo "diff<<EOF" >> $GITHUB_OUTPUT
           echo "$DIFF" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       # -------------------------------
-      # Skip if no changes
+      # Check if changes exist
       # -------------------------------
       - name: Check changes
         id: check
@@ -85,6 +94,7 @@ jobs:
       # -------------------------------
       - name: Validate AI output
         id: validate
+        if: steps.check.outputs.changed == 'true'
         run: |
           echo '${{ steps.ai.outputs.result }}' > ai.json
           cat ai.json
