@@ -193,14 +193,20 @@ When("the user doesn't fill in all the mandatory information", () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-002.crt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type('my-otel-private-key-name-002.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-002.crt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -220,7 +226,10 @@ When("the user doesn't fill in correct type of information", () => {
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-001.txt');
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
@@ -231,7 +240,10 @@ When("the user doesn't fill in correct type of information", () => {
     .type('my-otel-private-key-name-001.txt');
 
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('700000');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-001.txt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
@@ -269,7 +281,10 @@ When('the user fills in the needed information', () => {
   cy.contains('Poller-4').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(0)
     .type('my-otel-certificate-name-001.crt');
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' }).type(
@@ -279,7 +294,10 @@ When('the user fills in the needed information', () => {
     .eq(0)
     .type('my-otel-private-key-name-001.key');
   cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
-  cy.getByLabel({ label: 'Public certificate (.crt, .cert, .cer)', tag: 'input' })
+  cy.getByLabel({
+    label: 'Public certificate (.crt, .cert, .cer)',
+    tag: 'input'
+  })
     .eq(1)
     .type('my-certificate-name-001.crt');
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
