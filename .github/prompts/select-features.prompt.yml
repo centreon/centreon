@@ -16,7 +16,7 @@ messages:
       If no relevant test exists, respond with [].
       Every path must come from the provided list.
       Prefix path to "features" directory must be removed.
-      It is better to select more features rather than trying to reduce them as much as possible.
+      Select features as much as possible, do not be too strict.
   - role: user
     content: |
       Modified files: {{changed_files}}
