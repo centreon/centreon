@@ -26,6 +26,6 @@ jobs:
           module-name: centreon
           feature-directory: tests/e2e/features
           prompt-file: .github/prompts/select-features.prompt.yml
-          model: openai/gpt-4.1
+          model: openai/gpt-4o
           max-tokens: '1000'
           github-token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
