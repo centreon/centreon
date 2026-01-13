@@ -40,6 +40,9 @@ runs:
     - name: Get changed files
       id: changed
       uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
+      with:
+        base_sha: ${{ github.event.pull_request.base.sha }}
+        sha: ${{ github.event.pull_request.head.sha }}
 
     - name: Check if there are changes
       id: check_changes

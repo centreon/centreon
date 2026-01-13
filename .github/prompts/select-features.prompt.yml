@@ -12,7 +12,7 @@ messages:
       any feature testing authentication should be considered impacted.
 
       Never invent files, only choose from the "available_features" JSON array.
-      Output MUST be valid JSON array containing each impacted feature.
+      Output MUST be valid single-line JSON array containing each impacted feature.
       If no relevant test exists, respond with [].
       Every path must come from the provided list.
       Prefix path to "features" directory must be removed.
