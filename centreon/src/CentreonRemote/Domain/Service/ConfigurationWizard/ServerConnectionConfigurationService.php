@@ -137,6 +137,10 @@ abstract class ServerConnectionConfigurationService
 
         $this->insertConfigCentreonBroker($serverID);
 
+        if ($this->shouldInsertBamBrokers && $this->isRemote()) {
+            $this->insertBamBrokers();
+        }
+
         $this->getDbAdapter()->commit();
 
         $kernel = Kernel::createForWeb();
@@ -154,9 +158,6 @@ abstract class ServerConnectionConfigurationService
                 creatorName: $centreon->user->alias,
             );
             $deployAgentConfiguration($request);
-        }
-        if ($this->shouldInsertBamBrokers && $this->isRemote()) {
-            $this->insertBamBrokers();
         }
 
         return $serverID;
