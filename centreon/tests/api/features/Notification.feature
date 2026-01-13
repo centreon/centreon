@@ -71,10 +71,6 @@ Feature:
                       "full_name": "user-name1"
                     },
                     {
-                      "email_address": "user2@mail.com",
-                      "full_name": "user-name2"
-                    },
-                    {
                       "email_address": "admin@centreon.com",
                       "full_name": "admin admin"
                     },
