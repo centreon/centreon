@@ -193,7 +193,7 @@ runs:
                 ticket_board_id = 184
                 squad_name = "DEVSECOPS"
               } else if (["gherkin-lint", "frontend-web-build", "backend-dependencies", "frontend-web-lint", "frontend-unit-test", "frontend-component-test", "backend-unit-test", "backend-lint", "e2e-test", "legacy-e2e-test", "newman-test", "performances-test"].includes(failed_job)) {
-                if (dayjs().isoWeek() % 4 >= 2) {
+                if (isoWeekNumber % 4 >= 2) {
                   ticket_squad_id = 10625
                   ticket_board_id = 213
                   squad_name = "METROPOLIS"
