@@ -27,7 +27,9 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Centreon\Domain\RequestParameters\RequestParameters;
+use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
@@ -78,7 +80,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
     public function findAll(): array
     {
         try {
-            $query = $this->queryBuilder
+            $query = $this->connection->createQueryBuilder()
                 ->select('SQL_CALC_FOUND_ROWS contact_id, contact_name')
                 ->from('contact')
                 ->getQuery();
@@ -115,7 +117,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
             }
 
             return $contactTemplates;
-        } catch (TransformerException|ConnectionException $exception) {
+        } catch (QueryBuilderException|RequestParametersTranslatorException|TransformerException|ConnectionException $exception) {
             throw new RepositoryException(
                 message: 'finding all contact template failed',
                 previous: $exception
@@ -152,7 +154,7 @@ class DbReadContactTemplateRepository extends DatabaseRepository implements Read
             }
 
             return null;
-        } catch (CollectionException|ValueObjectException|ConnectionException $exception) {
+        } catch (QueryBuilderException|CollectionException|ValueObjectException|ConnectionException $exception) {
             throw new RepositoryException(
                 'finding contact template by id failed',
                 ['id' => $id, 'exception' => $exception->getContext()],
