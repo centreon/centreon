@@ -9,8 +9,6 @@ messages:
       Selected features MUST exclusively come from the input "Available feature files" input (do not select any other files).
       Output MUST be valid single-line JSON array containing each impacted feature.
       If no relevant test exists, respond with [].
-      Every path must come from the provided list.
-      Prefix path to "features" directory must be removed.
       Select as many features as needed to cover all changed files.
       If many features are impacted, list them all.
       If install or update codebase is modified, update and upgrade features must be included together.
