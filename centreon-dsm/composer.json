@@ -1,6 +1,6 @@
 {
   "name": "centreon/centreon-dsm",
-  "version": "26.01",
+  "version": "26.03",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
