@@ -43,6 +43,8 @@ runs:
       with:
         use_rest_api: true
         token: ${{ inputs.github-token }}
+        files: |
+          ${{ inputs.module-name }}/**
 
     - name: Check if there are changes
       id: check_changes
@@ -129,16 +131,40 @@ runs:
         if [ -n "$ALL_SPECS" ]; then
           MISSING_LINES=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
             [ -z "$f" ] && continue
-            TARGET="$BASE_DIR/${f#/}"
-            if [ ! -e "$TARGET" ]; then
-              printf '%s\n' "${f#/}"
+            NORMALIZED="${f#/}"
+            TARGET_BASE="$BASE_DIR/$NORMALIZED"
+            case "$NORMALIZED" in
+              *.feature)
+                TARGET_CANDIDATE="$TARGET_BASE"
+                OUTPUT_NAME="$NORMALIZED"
+                ;;
+              *)
+                TARGET_CANDIDATE="${TARGET_BASE}.feature"
+                OUTPUT_NAME="${NORMALIZED}.feature"
+                ;;
+            esac
+
+            if [ ! -e "$TARGET_CANDIDATE" ]; then
+              printf '%s\n' "$OUTPUT_NAME"
             fi
           done)
           VALID_LINES=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
             [ -z "$f" ] && continue
-            TARGET="$BASE_DIR/${f#/}"
-            if [ -e "$TARGET" ]; then
-              printf '%s\n' "${f#/}"
+            NORMALIZED="${f#/}"
+            TARGET_BASE="$BASE_DIR/$NORMALIZED"
+            case "$NORMALIZED" in
+              *.feature)
+                TARGET_CANDIDATE="$TARGET_BASE"
+                OUTPUT_NAME="$NORMALIZED"
+                ;;
+              *)
+                TARGET_CANDIDATE="${TARGET_BASE}.feature"
+                OUTPUT_NAME="${NORMALIZED}.feature"
+                ;;
+            esac
+
+            if [ -e "$TARGET_CANDIDATE" ]; then
+              printf '%s\n' "$OUTPUT_NAME"
             fi
           done)
 

@@ -6,17 +6,14 @@ messages:
       Each feature file tests specific functionalities of the Centreon application.
       Backend code is primarily in PHP, while frontend code is in JavaScript/TypeScript.
 
-      If backend or frontend code referenced in a feature test changes,
-      consider the feature impacted.
-      For instance, if a file in "centreon/src/Security/*/Authentication/" changes,
-      any feature testing authentication should be considered impacted.
-
       Never invent files, only choose from the "available_features" JSON array.
       Output MUST be valid single-line JSON array containing each impacted feature.
       If no relevant test exists, respond with [].
       Every path must come from the provided list.
       Prefix path to "features" directory must be removed.
-      Select features as much as possible, do not be too strict.
+      Select as many features as needed to cover all changed files.
+      If many features are impacted, list them all.
+      update and upgrade features must be included if relevant.
   - role: user
     content: |
       Modified files: {{changed_files}}
