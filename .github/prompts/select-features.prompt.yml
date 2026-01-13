@@ -14,6 +14,7 @@ messages:
       Select as many features as needed to cover all changed files.
       If many features are impacted, list them all.
       If install or update codebase is modified, update and upgrade features must be included together.
+      add to output an explanation of why Logs/06-commands-changes-log is not selected and why Commands/01-commands-configuration is selected where it is not in "Available feature files" input.
   - role: user
     content: |
       Modified files: {{changed_files}}
