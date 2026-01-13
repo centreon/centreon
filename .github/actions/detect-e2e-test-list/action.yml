@@ -80,8 +80,8 @@ runs:
       run: |
         set -o pipefail
 
-        sudo apt-get -q update
-        sudo apt-get install -qy cucumber
+        sudo apt-get -qq update
+        sudo apt-get install -qqy cucumber
 
         TEST_TAGS=$(echo "${{ inputs.tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
         echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
