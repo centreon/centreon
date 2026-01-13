@@ -140,9 +140,6 @@ class CentreonDB extends PDO implements ConnectionInterface
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
 
-        foreach (DatabaseTLSResolver::getTLSOptions() as $key => $value) {
-            $this->options[$key] = $value;
-        }
         // Init request statistics
         $this->requestExecuted = 0;
         $this->requestSuccessful = 0;
@@ -153,7 +150,7 @@ class CentreonDB extends PDO implements ConnectionInterface
                 $this->connectionConfig->getMysqlDsn(),
                 $this->connectionConfig->getUser(),
                 $this->connectionConfig->getPassword(),
-                $this->options
+                array_replace($this->options, DatabaseTLSResolver::getTLSOptions())
             );
         } catch (Exception $e) {
             $this->writeDbLog(

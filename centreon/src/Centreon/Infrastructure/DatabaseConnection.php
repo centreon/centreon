@@ -70,14 +70,11 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
                 \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
             ];
-            foreach (DatabaseTLSResolver::getTLSOptions() as $key => $value) {
-                $options[$key] = $value;
-            }
             parent::__construct(
                 $this->connectionConfig->getMysqlDsn(),
                 $this->connectionConfig->getUser(),
                 $this->connectionConfig->getPassword(),
-                $options
+                array_replace($options, DatabaseTLSResolver::getTLSOptions())
             );
         } catch (\PDOException $exception) {
             $this->writeDbLog(

@@ -54,9 +54,9 @@ final readonly class DatabaseTLSResolver
             'DATABASE_SSL_KEY_PATH'  => \PDO::MYSQL_ATTR_SSL_KEY,
         ];
 
-        foreach ($envToPdoOption as $env => $pdoOption) {
-            if (! empty($_ENV[$env])) {
-                $options[$pdoOption] = $_ENV[$env];
+        foreach ($envToPdoOption as $envKey => $pdoOption) {
+            if (! empty($_ENV[$envKey])) {
+                $options[$pdoOption] = $_ENV[$envKey];
             }
         }
 
