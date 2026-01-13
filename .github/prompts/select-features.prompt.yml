@@ -6,7 +6,7 @@ messages:
       Each feature file tests specific functionalities of the Centreon application.
       Backend code is primarily in PHP, while frontend code is in JavaScript/TypeScript.
 
-      Never invent files, only choose from the "available_features" JSON array.
+      Never invent files, only choose from the "Available feature files" (not "Modified files") JSON array.
       Output MUST be valid single-line JSON array containing each impacted feature.
       If no relevant test exists, respond with [].
       Every path must come from the provided list.

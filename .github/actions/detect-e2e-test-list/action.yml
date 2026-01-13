@@ -46,15 +46,6 @@ runs:
         files: |
           ${{ inputs.module-name }}/**
 
-    - name: Show GitHub rate limits
-      run: |
-        curl -s \
-          -H "Authorization: Bearer ${{ inputs.github-token }}" \
-          -H "Accept: application/vnd.github+json" \
-          https://api.github.com/rate_limit | jq
-      shell: bash
-
-
     - name: Check if there are changes
       id: check_changes
       shell: bash
