@@ -141,7 +141,7 @@ const GraphColumn = ({
       row
     );
 
-    if (isNil(endpoint) && !isHost) {
+    if (isNil(endpoint) && !isHost && (row.status?.name === 'UNKNOWN')) {
       return null;
     }
 
