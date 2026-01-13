@@ -32,7 +32,7 @@ use Core\Service\Application\UseCase\GetService\GetServicePresenterInterface;
 use Core\Service\Application\UseCase\GetService\GetServiceResponse;
 use Core\Service\Infrastructure\Model\NotificationTypeConverter;
 use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
-use Core\Service\Application\UseCase\AddService\MacroDto;
+use Core\Service\Application\UseCase\GetService\MacroDto;
 
 class GetServiceOnPremPresenter extends AbstractPresenter implements GetServicePresenterInterface
 {
