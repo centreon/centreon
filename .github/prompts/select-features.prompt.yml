@@ -6,13 +6,12 @@ messages:
       Each feature file tests specific functionalities of the Centreon application.
       Backend code is primarily in PHP, while frontend code is in JavaScript/TypeScript.
 
-      Selected features MUST exclusively come from the input "Available feature files" input (do not select any other files).
       Output MUST be valid single-line JSON array containing each impacted feature.
       If no relevant test exists, respond with [].
       Select as many features as needed to cover all changed files.
       If many features are impacted, list them all.
       If install or update codebase is modified, update and upgrade features must be included together.
-      add a new line to output with a suggestion of what to add in prompt to only pick features from available features list (not modified files).
+      Ensure selected features exclusively come from the available features list.
   - role: user
     content: |
       Modified files: {{changed_files}}
