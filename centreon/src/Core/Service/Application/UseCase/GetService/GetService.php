@@ -41,7 +41,6 @@ use Core\Macro\Domain\Model\Macro;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use function PHPUnit\Framework\throwException;
 
 final class GetService
 {

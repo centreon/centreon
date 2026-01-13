@@ -30,6 +30,8 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\Service\Application\UseCase\GetService\GetServicePresenterInterface;
 use Core\Service\Application\UseCase\GetService\GetServiceResponse;
+use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
+use Core\Service\Application\UseCase\GetService\MacroDto;
 
 class GetServiceSaasPresenter extends AbstractPresenter implements GetServicePresenterInterface
 {
@@ -47,43 +49,42 @@ class GetServiceSaasPresenter extends AbstractPresenter implements GetServicePre
         if ($response instanceof ResponseStatusInterface) {
             $this->setResponseStatus($response);
         } else {
-            $result = [];
-            foreach ($response->services as $dto) {
-                $result[] = [
-                    'id' => $dto->id,
-                    'name' => $dto->name,
-                    'host' => array_map(fn ($host): array => [
-                        'id' => $host['id'],
-                        'name' => $host['name'],
-                    ], $dto->hosts),
-                    'service_template' => $dto->serviceTemplate
-                        ? ['id' => $dto->serviceTemplate['id'], 'name' => $dto->serviceTemplate['name']]
-                        : null,
-                    'check_timeperiod' => $dto->checkTimePeriod
-                        ? ['id' => $dto->checkTimePeriod['id'], 'name' => $dto->checkTimePeriod['name']]
-                        : null,
-                    'severity' => $dto->severity
-                        ? ['id' => $dto->severity['id'], 'name' => $dto->severity['name']]
-                        : null,
-                    'categories' => array_map(fn ($category): array => [
-                        'id' => $category['id'],
-                        'name' => $category['name'],
-                    ], $dto->categories),
-                    'groups' => array_map(fn ($group): array => [
-                        'id' => $group['id'],
-                        'name' => $group['name'],
-                        'host_id' => $group['hostId'],
-                        'host_name' => $group['hostName'],
-                    ], $dto->groups),
-                    'normal_check_interval' => $dto->normalCheckInterval,
-                    'retry_check_interval' => $dto->retryCheckInterval,
-                    'is_activated' => $dto->isActivated,
-                ];
-            }
-            $this->present([
-                'result' => $result,
-                'meta' => $this->requestParameters->toArray(),
-            ]);
+            $result = [
+                'id' => $response->id,
+                'name' => $response->name,
+                'host_id' => $response->hostId,
+                'service_template_id' => $response->serviceTemplateId,
+                'check_timeperiod_id' => $response->checkTimePeriodId,
+                'max_check_attempts' => $response->maxCheckAttempts,
+                'normal_check_interval' => $response->normalCheckInterval,
+                'retry_check_interval' => $response->retryCheckInterval,
+                'note' => $response->note,
+                'note_url' => $response->noteUrl,
+                'action_url' => $response->actionUrl,
+                'geo_coords' => $response->geoCoords,
+                'icon_id' => $response->iconId,
+                'severity_id' => $response->severityId,
+                'check_command_id' => $response->commandId,
+                'check_command_args' => $response->commandArguments,
+                'event_handler_enabled' => YesNoDefaultConverter::toInt($response->eventHandlerEnabled),
+                'event_handler_command_id' => $response->eventHandlerId,
+                'categories' => array_map(fn ($category): array => [
+                    'id' => $category['id'],
+                    'name' => $category['name'],
+                ], $response->categories),
+                'groups' => array_map(fn ($group): array => [
+                    'id' => $group['id'],
+                    'name' => $group['name'],
+                ], $response->groups),
+                'macros' => array_map(fn (MacroDto $macro): array => [
+                    'name' => $macro->name,
+                    'value' => $macro->isPassword ? null : $macro->value,
+                    'is_password' => $macro->isPassword,
+                    'description' => $macro->description,
+                ], $response->macros),
+            ];
+            
+            $this->present($result);
         }
     }
 }
