@@ -76,14 +76,14 @@ const checkWidth = (orientation): void => {
     cy.get('g[class*="visx-rows"] > line')
       .eq(0)
       .should('have.attr', 'x2')
-      .and('equal', '1145');
+      .and('equal', '1133');
 
     return;
   }
   cy.get('g[class*="visx-rows"] > line')
     .eq(0)
     .should('have.attr', 'x2')
-    .and('equal', '1180');
+    .and('equal', '1168');
 };
 
 describe('Bar chart', () => {
