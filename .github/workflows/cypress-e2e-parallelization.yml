@@ -99,7 +99,7 @@ jobs:
           feature-directory: ${{ inputs.features_path }}
           tags: ${{ inputs.test_tags }}
           prompt-file: .github/prompts/select-features.prompt.yml
-          model: openai/gpt-4.1
+          model: openai/gpt-4o
           max-tokens: '1000'
           github-token: ${{ secrets.github_models_token }}
 
