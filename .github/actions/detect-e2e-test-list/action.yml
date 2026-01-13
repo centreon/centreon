@@ -98,8 +98,7 @@ runs:
           changed_files: ${{ steps.check_changes.outputs.changed_files_json }}
           available_features: ${{ steps.features.outputs.features_json }}
         max-tokens: ${{ inputs.max-tokens }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+        token: ${{ inputs.github-token }}
 
     - name: Validate AI output
       id: validate
