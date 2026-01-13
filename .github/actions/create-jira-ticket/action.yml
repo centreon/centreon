@@ -188,7 +188,7 @@ runs:
               data = data.replace(/@GITHUB_RUN_ID@/g, '${{ github.run_id }}');
               data = data.replace(/@GITHUB_RUN_ATTEMPT@/g, '${{ github.run_attempt }}');
 
-              if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources"].includes(failed_job)) {
+              if (["changes", "get-environment", "check-version-consistency", "package", "dockerize", "deliver-rpm", "deliver-deb", "translation-build", "deliver-sources", "create-xray-test-plan-and-test-execution"].includes(failed_job)) {
                 ticket_squad_id = 10524
                 ticket_board_id = 184
                 squad_name = "DEVSECOPS"
