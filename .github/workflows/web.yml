@@ -719,9 +719,10 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
+          # - package_extension: deb
+          #   image: packaging-nfpm-jammy
+          #   distrib: jammy
+
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
