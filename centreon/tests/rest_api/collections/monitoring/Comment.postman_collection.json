@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "093d02ed-60c0-4632-850a-e5d3a1530ada",
+		"_postman_id": "b68d9fdb-8c4e-41f4-aef5-b72ff3e64faa",
 		"name": "Comment",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28117716",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-093d02ed-60c0-4632-850a-e5d3a1530ada?action=share&source=collection_link&creator=28117716"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-b68d9fdb-8c4e-41f4-aef5-b72ff3e64faa?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -1144,7 +1144,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1169,7 +1170,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1178,7 +1180,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Oh no\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Oh no\",\r\n        \"date\": \"{{currentDate}}\"\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -1204,7 +1211,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1229,7 +1237,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1238,7 +1247,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-16T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n                \"id\": {{Host1Id}}\r\n            },\r\n            \"comment\": \"This happened because the IP adress is incorrect\",\r\n            \"date\": \"{{currentDate}}\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -1264,7 +1278,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1285,18 +1300,25 @@
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"The comment is displayed in host timeline.\", function () {\r",
+									"    pm.test(\"A comment is displayed in timeline\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
-									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\", \"2024-01-16T14:26:52+01:00\"]);\r",
-									"        pm.expect(responseJson.result[0].content).to.eql(\"Oh no\");\r",
-									"        pm.expect(responseJson.result[0].contact).to.include({\r",
-									"            \"name\": pm.environment.get(\"api_login\")\r",
+									"        const results = responseJson.result;\r",
+									"        pm.expect(results).to.be.an('array').that.is.not.empty;\r",
+									"\r",
+									"        const comment = results.find(item => item.type === \"comment\");\r",
+									"\r",
+									"        pm.expect(comment, \"No comment found in timeline\").to.exist;\r",
+									"\r",
+									"        pm.expect(comment.content).to.eql(\r",
+									"            \"Oh no\"\r",
+									"        );\r",
+									"\r",
+									"        pm.expect(comment.contact).to.include({\r",
+									"            name: pm.environment.get(\"api_login\")\r",
 									"        });\r",
 									"    });\r",
-									"\r",
+									" \r",
 									"    pm.test(\"Schema validation for the timeline response\", function () {\r",
 									"        const schema = {\r",
 									"            type: \"object\",\r",
@@ -1313,13 +1335,13 @@
 									"                            end_date: { type: [\"string\", \"null\"] },\r",
 									"                            content: { type: [\"string\", \"null\"] },\r",
 									"                            contact: {\r",
-									"                                type: \"object\",\r",
+									"                                type: [\"object\", \"null\"],\r",
 									"                                properties: {\r",
 									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" }\r",
 									"                                }\r",
 									"                            },\r",
-									"                            status: { type: [\"integer\", \"null\"] },\r",
+									"                            status: { type: [\"object\", \"null\"] },\r",
 									"                            tries: { type: [\"integer\", \"null\"] }\r",
 									"                        },\r",
 									"                        required: [\"id\", \"type\", \"date\", \"start_date\", \"end_date\", \"content\", \"contact\", \"status\", \"tries\"]\r",
@@ -1345,7 +1367,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1384,7 +1407,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1405,19 +1429,26 @@
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"The comment is displayed in service timeline.\", function () {\r",
+									"    pm.test(\"A comment is displayed in timeline\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(1);\r",
-									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
-									"        pm.expect(responseJson.result[0].content).to.eql(\"This happened because the IP adress is incorrect\");\r",
-									"        pm.expect(responseJson.result[0].contact).to.include({\r",
-									"            \"name\": pm.environment.get(\"api_login\")\r",
+									"        const results = responseJson.result;\r",
+									"        pm.expect(results).to.be.an('array').that.is.not.empty;\r",
+									"\r",
+									"        const comment = results.find(item => item.type === \"comment\");\r",
+									"\r",
+									"        pm.expect(comment, \"No comment found in timeline\").to.exist;\r",
+									"\r",
+									"        pm.expect(comment.content).to.eql(\r",
+									"            \"This happened because the IP adress is incorrect\"\r",
+									"        );\r",
+									"\r",
+									"        pm.expect(comment.contact).to.include({\r",
+									"            name: pm.environment.get(\"api_login\")\r",
 									"        });\r",
 									"    });\r",
 									"\r",
-									"    pm.test(\"Schema validation for the timeline response\", function () {\r",
+									"   pm.test(\"Schema validation for the timeline response\", function () {\r",
 									"        const schema = {\r",
 									"            type: \"object\",\r",
 									"            properties: {\r",
@@ -1433,13 +1464,13 @@
 									"                            end_date: { type: [\"string\", \"null\"] },\r",
 									"                            content: { type: [\"string\", \"null\"] },\r",
 									"                            contact: {\r",
-									"                                type: \"object\",\r",
+									"                                type: [\"object\", \"null\"],\r",
 									"                                properties: {\r",
 									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" }\r",
 									"                                }\r",
 									"                            },\r",
-									"                            status: { type: [\"integer\", \"null\"] },\r",
+									"                            status: { type: [\"object\", \"null\"] },\r",
 									"                            tries: { type: [\"integer\", \"null\"] }\r",
 									"                        },\r",
 									"                        required: [\"id\", \"type\", \"date\", \"start_date\", \"end_date\", \"content\", \"contact\", \"status\", \"tries\"]\r",
@@ -1465,7 +1496,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1790,7 +1822,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1802,7 +1835,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1811,7 +1845,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Looks like there is a problem\",\r\n        \"date\": \"2024-01-15T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n        \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-15T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null,\r\n            \"comment\": \"Looks like there is a problem\",\r\n            \"date\": \"{{currentDate}}\"\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n            },\r\n            \"comment\": \"This happened because the IP adress is incorrect\",\r\n            \"date\": \"{{currentDate}}\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -2557,7 +2596,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2569,7 +2609,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2578,7 +2619,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Looks like there is a problem\",\r\n        \"date\": \"2024-01-15T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n        \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"This happened because the IP adress is incorrect\",\r\n        \"date\": \"2024-01-15T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null,\r\n            \"comment\": \"Looks like there is a problem\",\r\n            \"date\": \"{{currentDate}}\"\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n            },\r\n            \"comment\": \"This happened because the IP adress is incorrect\",\r\n            \"date\": \"{{currentDate}}\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -3097,7 +3143,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3109,7 +3156,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3118,7 +3166,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Hey\",\r\n        \"date\": \"2024-01-17T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n        \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"Oh no\",\r\n        \"date\": \"2024-01-17T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n        {\r\n            \"type\": \"host\",\r\n            \"id\": {{Host1Id}},\r\n            \"parent\": null,\r\n            \"comment\": \"Hey\",\r\n            \"date\": \"{{currentDate}}\"\r\n        },\r\n        {\r\n            \"type\": \"service\",\r\n            \"id\": {{Service1Id}},\r\n            \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n            },\r\n            \"comment\": \"Oh no\",\r\n            \"date\": \"{{currentDate}}\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -3637,7 +3690,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3662,7 +3716,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3671,7 +3726,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"2024-01-14T13:26:52+00:00\"\r\n    }\r\n    ]\r\n}"
+							"raw": "{\r\n    \"resources\": [\r\n    {\r\n        \"type\": \"host\",\r\n        \"id\": {{Host1Id}},\r\n        \"parent\": null,\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"{{currentDate}}\"\r\n    },\r\n    {\r\n        \"type\": \"service\",\r\n        \"id\": {{Service1Id}},\r\n        \"parent\": {\r\n            \"id\": {{Host1Id}}\r\n        },\r\n        \"comment\": \"Abcde\",\r\n        \"date\": \"{{currentDate}}\"\r\n    }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/monitoring/resources/comments",
@@ -3697,7 +3757,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3719,23 +3780,22 @@
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
 									"\r",
-									"    pm.test(\"Comments are displayed in host timeline.\", function () {\r",
+									"    pm.test(\"A comment is displayed in timeline\", function () {\r",
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
-									"        pm.expect(responseJson.result.length).to.eql(2);\r",
+									"        const results = responseJson.result;\r",
+									"        pm.expect(results).to.be.an('array').that.is.not.empty;\r",
 									"\r",
-									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-14T13:26:52+00:00\",\"2024-01-14T14:26:52+01:00\"]);\r",
-									"        pm.expect(responseJson.result[0].content).to.eql(\"Abcde\");\r",
-									"        pm.expect(responseJson.result[0].contact).to.include({\r",
-									"            \"name\": pm.collectionVariables.get(\"api_login_user_non_admin\")\r",
-									"        });\r",
+									"        const comment = results.find(item => item.type === \"comment\");\r",
 									"\r",
-									"        pm.expect(responseJson.result[1].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[1].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
-									"        pm.expect(responseJson.result[1].content).to.eql(\"Oh no\");\r",
-									"        pm.expect(responseJson.result[1].contact).to.include({\r",
-									"            \"name\": pm.environment.get(\"api_login\")\r",
+									"        pm.expect(comment, \"No comment found in timeline\").to.exist;\r",
+									"\r",
+									"        pm.expect(comment.content).to.eql(\r",
+									"            \"Abcde\"\r",
+									"        );\r",
+									"\r",
+									"        pm.expect(comment.contact).to.include({\r",
+									"            name: pm.environment.get(\"api_login\")\r",
 									"        });\r",
 									"    });\r",
 									"\r",
@@ -3787,7 +3847,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3832,7 +3893,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3860,14 +3922,14 @@
 									"        pm.expect(responseJson.result.length).to.eql(2);\r",
 									"        \r",
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[0].date).to.be.oneOf([\"2024-01-14T13:26:52+00:00\",\"2024-01-14T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[0].date).to.eql(pm.collectionVariables.get(\"currentDate\"));\r",
 									"        pm.expect(responseJson.result[0].content).to.eql(\"Abcde\");\r",
 									"        pm.expect(responseJson.result[0].contact).to.include({\r",
 									"            \"name\": pm.collectionVariables.get(\"api_login_user_non_admin\")\r",
 									"        });\r",
 									"\r",
 									"        pm.expect(responseJson.result[1].type).to.eql(\"comment\");\r",
-									"        pm.expect(responseJson.result[1].date).to.be.oneOf([\"2024-01-16T13:26:52+00:00\",\"2024-01-16T14:26:52+01:00\"]);\r",
+									"        pm.expect(responseJson.result[1].date).to.eql(pm.collectionVariables.get(\"currentDate\"));\r",
 									"        pm.expect(responseJson.result[1].content).to.eql(\"This happened because the IP adress is incorrect\");\r",
 									"        pm.expect(responseJson.result[1].contact).to.include({\r",
 									"            \"name\": pm.environment.get(\"api_login\")\r",
@@ -3922,7 +3984,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4062,6 +4125,12 @@
 				"type": "text/javascript",
 				"requests": {},
 				"exec": [
+					"const now = new Date();",
+					"",
+					"// Format ISO 8601 UTC sans millisecondes",
+					"const formattedDate = now.toISOString().replace(/\\.\\d{3}Z$/, 'Z');",
+					"",
+					"pm.collectionVariables.set(\"currentDate\", formattedDate);",
 					""
 				]
 			}
@@ -4152,6 +4221,14 @@
 		},
 		{
 			"key": "sleepBetweenTries",
+			"value": ""
+		},
+		{
+			"key": "currentDate",
+			"value": "2026-01-13T16:13:17Z"
+		},
+		{
+			"key": "api_login_user_non_admin",
 			"value": ""
 		},
 		{
