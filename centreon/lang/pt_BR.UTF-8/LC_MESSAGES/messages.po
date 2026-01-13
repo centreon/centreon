@@ -2193,7 +2193,7 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA (.crt,.cer)"
+msgid "CA (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5181,6 +5181,10 @@ msgstr ""
 msgid "Display the password"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Display up to"
 msgstr ""
@@ -5684,6 +5688,10 @@ msgid "Edit name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Edit password"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Edit profile"
 msgstr "Editar perfil"
@@ -5912,6 +5920,14 @@ msgstr "Ativa roteamento"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Ativar shell"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket management"
@@ -13649,8 +13665,8 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt,.cer)"
-msgstr "Certificado público (.crt,.cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
+msgstr "Certificado público (.crt, .cert, .cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -14398,6 +14414,10 @@ msgstr ""
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Return to list"
 msgstr "Retorna para a lista"
+
+#: centreon/www/install/front_translate.php
+msgid "Revert to previous password"
+msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Review form after save"
