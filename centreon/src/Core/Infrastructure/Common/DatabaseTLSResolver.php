@@ -41,7 +41,7 @@ final readonly class DatabaseTLSResolver
             return $options;
         }
 
-        $verifyServerCert = (bool) $verifyServerCert;
+        $verifyServerCert = filter_var($verifyServerCert, FILTER_VALIDATE_BOOLEAN);
         $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $verifyServerCert;
 
         if ($verifyServerCert === false) {
