@@ -2256,8 +2256,8 @@ msgid "By poller"
 msgstr "Par le collecteur"
 
 #: centreon/www/install/front_translate.php
-msgid "CA (.crt,.cer)"
-msgstr "CA (.crt,.cer)"
+msgid "CA (.crt, .cert, .cer)"
+msgstr "CA (.crt, .cert, .cer)"
 
 #: centreon/www/install/front_translate.php
 msgid "CA Common Name (CN)"
@@ -4869,7 +4869,7 @@ msgstr "Afficher le raccourci de connexion automatique"
 
 #: centreon/www/install/smarty_translate.php
 msgid "Display Chart"
-msgstr "Afficher le graphique"
+msgstr ""
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "Display Finished Downtimes"
@@ -4906,6 +4906,10 @@ msgstr "Afficher les statistiques des collecteurs dans le bandeau"
 #: centreon/www/include/configuration/configObject/host/listHost.php
 msgid "Display all Services for this host"
 msgstr "Afficher tous les services de cet hôte"
+
+#: centreon/www/install/smarty_translate.php
+msgid "Display anyway"
+msgstr "Afficher quand même"
 
 #: centreon/www/install/front_translate.php
 msgid "Display as"
@@ -5000,6 +5004,10 @@ msgstr "Afficher le diagramme avec ce statut"
 #: centreon/www/install/front_translate.php
 msgid "Display the password"
 msgstr "Afficher le mot de passe"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr "Afficher les boutons de création de tickets"
 
 #: centreon/www/install/front_translate.php
 msgid "Display up to"
@@ -5523,6 +5531,10 @@ msgid "Edit name"
 msgstr "Modifier le nom"
 
 #: centreon/www/install/front_translate.php
+msgid "Edit password"
+msgstr "Modifier le mot de passe"
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Edit profile"
 msgstr "Editer le profil"
@@ -5751,6 +5763,14 @@ msgstr "Active le routage des traps"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Activer le shell"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr "Activer la création de tickets pour les hôtes"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
+msgstr "Activer la création de tickets pour les services"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket management"
@@ -8159,11 +8179,11 @@ msgstr "Cacher les graphiques des services sélectionnés"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Down host"
-msgstr "Masquer les services dont l'hôte est Indisponible"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Unreachable host"
-msgstr "Masquer les services dont l'hôte est Injoignable"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Hide the password"
@@ -10258,7 +10278,7 @@ msgstr "Logs"
 
 #: centreon/www/include/Administration/parameters/debug/form.php
 msgid "Logs Directory"
-msgstr "Répertoire d'enregistrement des jounraux"
+msgstr "Répertoire d'enregistrement des journaux"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Logs for "
@@ -13310,8 +13330,8 @@ msgid "Public certificate"
 msgstr "Certificat public"
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt,.cer)"
-msgstr "Certificat public (.crt,cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
+msgstr "Certificat public (.crt, .cert, .cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -14063,6 +14083,10 @@ msgstr "Délai de réessai (en secondes)"
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Return to list"
 msgstr "Retourner à la liste"
+
+#: centreon/www/install/front_translate.php
+msgid "Revert to previous password"
+msgstr "Rétablir le mot de passe précédent"
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Review form after save"
@@ -17422,6 +17446,12 @@ msgstr "Les jetons sont obligatoires"
 #: centreon/www/install/front_translate.php
 msgid "Too many elements to be displayed (>{{graphsCapNumber}})"
 msgstr ""
+
+#: centreon/www/include/views/graphs/graphs.php
+msgid "Too many metrics (X). More than 20 may cause performance issues."
+msgstr ""
+"Trop de métriques (X). Plus de 20 peuvent provoquer des problèmes de "
+"performance."
 
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Tools"
@@ -21811,6 +21841,14 @@ msgstr "Centre des services"
 #: unknown
 msgid "Here is a self-explanatory image."
 msgstr "Ici, une image d'explication."
+
+#: unknown
+msgid "Hide services with Down hosts"
+msgstr "Masquer les services dont l'hôte est Indisponible"
+
+#: unknown
+msgid "Hide services with Unreachable hosts"
+msgstr "Masquer les services dont l'hôte est Injoignable"
 
 #: unknown
 msgid "Host / Service Data Source"

@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
 
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
@@ -98,12 +98,9 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
-        `bash -e <<EOF
-          curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --os-type=rhel --skip-check-installed --skip-maxscale --os-version=${osMatches[1]} --mariadb-server-version="mariadb-10.5"
-EOF`,
+        'dnf module enable -y mariadb:10.11',
         'dnf install -y mariadb-server mariadb'
       ],
       name: 'web'
@@ -159,7 +156,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
         `dnf install -y centreon-web-${version}`,
         'dnf install -y centreon-broker-cbd',
         "echo 'date.timezone = Europe/Paris' > /etc/php.d/centreon.ini",
-        '/etc/init.d/mysql start',
+        'systemctl start mariadb',
         'mkdir -p /run/php-fpm',
         'systemctl restart php-fpm',
         'systemctl restart httpd',
@@ -201,9 +198,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
       `centreon-perl-libs='${packageVersionSuffix}'`
     ];
     if (
-      Number(versionMatches[1]) < 24
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7)
+      Number(versionMatches[1]) < 24 ||
+      (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) ||
+      (Number(versionMatches[1]) === 24 &&
+        Number(versionMatches[2]) === 10 &&
+        Number(versionMatches[3]) < 7)
     ) {
       packagesToInstall.push(`centreon-common=${packageVersionSuffix}`);
     }

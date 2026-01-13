@@ -59,17 +59,18 @@ const MemoizedGroup = ({
         const linesBar = isStackedBar
           ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].lines
           : (notStackedLines.find(({ metric_id }) =>
-              equals(metric_id, Number(bar.key))
-            ) as Line);
+            equals(metric_id, Number(bar.key))
+          ) as Line);
         const timeSeriesBar = isStackedBar
           ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].timeSeries
           : notStackedTimeSeries.map((timeSerie) => ({
-              timeTick: timeSerie.timeTick,
-              [bar.key]: timeSerie[Number(bar.key)]
-            }));
+            timeTick: timeSerie.timeTick,
+            [bar.key]: timeSerie[Number(bar.key)]
+          }));
 
         return isStackedBar ? (
           <BarStack
+            isStacked
             key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             barIndex={barGroup.index}
             barPadding={isHorizontal ? bar.x : bar.y}
@@ -79,7 +80,7 @@ const MemoizedGroup = ({
             isTooltipHidden={isTooltipHidden}
             lines={linesBar as Array<Line>}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[bar.key.split('-')[1] || undefined]}
+            yScale={yScalesPerUnit[bar.key.split('-')[1] ?? undefined]}
             neutralValue={neutralValue}
           />
         ) : (
@@ -93,7 +94,7 @@ const MemoizedGroup = ({
             isTooltipHidden={isTooltipHidden}
             lines={[linesBar as Line]}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[(linesBar as Line).unit]}
+            yScale={yScalesPerUnit[(linesBar as Line).unit ?? undefined]}
             neutralValue={neutralValue}
           />
         );

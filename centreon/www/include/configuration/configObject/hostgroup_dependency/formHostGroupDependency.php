@@ -19,6 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+
 if (! isset($centreon)) {
     exit();
 }
@@ -29,24 +32,39 @@ if (! isset($centreon)) {
 $dep = [];
 $initialValues = [];
 if (($o == MODIFY_DEPENDENCY || $o == WATCH_DEPENDENCY) && $depId) {
-    $DBRESULT = $pearDB->query("SELECT * FROM dependency WHERE dep_id = '" . $depId . "' LIMIT 1");
+    $qb = $pearDB->createQueryBuilder()
+        ->select('*')
+        ->from('dependency')
+        ->where('dep_id = :depId')
+        ->limit(1)
+        ->getQuery();
+    $params = QueryParameters::create([
+        QueryParameter::int('depId', (int) $depId),
+    ]);
+    $result = $pearDB->fetchAssociative($qb, $params);
 
-    // Set base value
-    $dep = array_map('myDecode', $DBRESULT->fetchRow());
+    if ($result !== false) {
+        // Set base value
+        $dep = array_map('myDecode', $result);
 
-    // Set Notification Failure Criteria
-    $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
-    foreach ($dep['notification_failure_criteria'] as $key => $value) {
-        $dep['notification_failure_criteria'][trim($value)] = 1;
+        // Set Notification Failure Criteria
+        $dep['notification_failure_criteria'] = explode(',', $dep['notification_failure_criteria']);
+        foreach ($dep['notification_failure_criteria'] as $key => $value) {
+            $dep['notification_failure_criteria'][trim($value)] = 1;
+        }
+
+        // Set Execution Failure Criteria
+        $dep['execution_failure_criteria'] = explode(',', $dep['execution_failure_criteria']);
+        foreach ($dep['execution_failure_criteria'] as $key => $value) {
+            $dep['execution_failure_criteria'][trim($value)] = 1;
+        }
+    } else {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Dependency not found',
+            ['depId' => $depId]
+        );
     }
-
-    // Set Execution Failure Criteria
-    $dep['execution_failure_criteria'] = explode(',', $dep['execution_failure_criteria']);
-    foreach ($dep['execution_failure_criteria'] as $key => $value) {
-        $dep['execution_failure_criteria'][trim($value)] = 1;
-    }
-
-    $DBRESULT->closeCursor();
 }
 
 // Var information to format the element
@@ -199,6 +217,10 @@ $form->addRule('dep_hgChilds', _('Circular Definition'), 'cycle');
 $form->registerRule('exist', 'callback', 'testHostGroupDependencyExistence');
 $form->addRule('dep_name', _('Name is already in use'), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
+
+if ($o === ADD_DEPENDENCY || $o === MODIFY_DEPENDENCY) {
+    $form->addFormRule('validateParentChildAreNotCircular');
+}
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);

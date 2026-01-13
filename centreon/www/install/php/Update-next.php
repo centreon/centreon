@@ -33,7 +33,37 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-// TODO add your functions here
+/** -------------------------------------- Host Group Topology -------------------------------------- */
+$fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix duplicate Host Groups topology';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [topology] Fixing duplicate Host Groups menu entries",
+    );
+
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_url` = '/configuration/hosts/groups',
+                `is_react` = '1',
+                `topology_show` = '1'
+            WHERE `topology_page` = 60102
+            SQL
+    );
+
+    // Remove duplicate topology entry 60105 introduced by 25.05 migration
+    $pearDB->delete(
+        <<<'SQL'
+            DELETE FROM `topology`
+            WHERE `topology_page` = 60105
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [topology] Successfully removed duplicate Host Groups topology entry",
+    );
+};
 
 try {
     // DDL statements for real time database
@@ -47,7 +77,7 @@ try {
         $pearDB->startTransaction();
     }
 
-    // TODO add your function calls to update the configuration database data here
+    $fixDuplicateHostGroupTopology();
 
     $pearDB->commitTransaction();
 

@@ -72,15 +72,15 @@ export const useBarStack = ({
 
   const commonBarStackProps = isHorizontal
     ? {
-      x: (d) => d.timeTick,
-      xScale,
-      yScale
-    }
+        x: (d) => d.timeTick,
+        xScale,
+        yScale
+      }
     : {
-      xScale: yScale,
-      y: (d) => d.timeTick,
-      yScale: xScale
-    };
+        xScale: yScale,
+        y: (d) => d.timeTick,
+        yScale: xScale
+      };
 
   const hoverBar = useCallback(
     ({ highlightedMetric, barIndex }: HoverBarProps) =>

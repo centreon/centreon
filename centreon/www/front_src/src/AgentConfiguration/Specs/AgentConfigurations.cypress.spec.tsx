@@ -588,6 +588,7 @@ describe('Agent configurations modal', () => {
         type: 'centreon-agent',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           agent_initiated: true,
           poller_initiated: false,
           tokens: [{ name: 'token 1', creator_id: 1 }],
@@ -719,6 +720,7 @@ describe('Agent configurations modal', () => {
         connection_mode: 'secure',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
           poller_initiated: true,
@@ -838,6 +840,9 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelPublicCertificate).should('not.exist');
     cy.findAllByLabelText(labelCaCertificate).should('not.exist');
     cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
 
     cy.contains(labelByPoller).click();
     cy.contains('Enable').click();
@@ -845,7 +850,9 @@ describe('Agent configurations modal', () => {
     cy.findByLabelText(labelSelectHost).click();
     cy.contains('central').click();
     cy.findByLabelText(labelCACommonName).should('not.exist');
-    cy.findByLabelText(labelSelectExistingCMATokens).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
 
     cy.makeSnapshot();
 
@@ -858,9 +865,10 @@ describe('Agent configurations modal', () => {
         connection_mode: 'no-tls',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           agent_initiated: true,
           poller_initiated: true,
-          tokens: [],
+          tokens: [{ name: 'token 1', creator_id: 1 }],
           otel_ca_certificate: null,
           otel_public_certificate: null,
           otel_private_key: null,
@@ -871,7 +879,7 @@ describe('Agent configurations modal', () => {
               port: 4317,
               poller_ca_name: null,
               poller_ca_certificate: null,
-              token: null
+              token: { name: 'token 1', creator_id: 1 }
             }
           ]
         }
@@ -1008,6 +1016,7 @@ describe('Agent configurations modal', () => {
         connection_mode: 'insecure',
         poller_ids: [1],
         configuration: {
+          port: 4317,
           tokens: [{ name: 'token 1', creator_id: 1 }],
           agent_initiated: true,
           poller_initiated: true,

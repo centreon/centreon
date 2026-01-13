@@ -102,6 +102,10 @@ const WrapperChart = ({
     );
   }
 
+  if (!adjustedData) {
+    return <div />;
+  }
+
   return (
     <div
       ref={ref}

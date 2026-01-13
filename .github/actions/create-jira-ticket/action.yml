@@ -24,13 +24,9 @@ runs:
   steps:
     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-    - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+    - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
       with:
         node-version: 20
-
-    - name: Install DayJS
-      run: npm install dayjs@1.11.18
-      shell: bash
 
     - if: inputs.ticket_reason_for_creation == 'Nightly'
       name: Create nightly epic if it does not exist already
@@ -42,8 +38,8 @@ runs:
         script: |
           const fs = require('fs');
           const { execSync } = require('child_process');
-          const dayjs = require('dayjs');
-          const month = dayjs().format('YYYY-MM');
+          const now = new Date();
+          const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
           const path = './epic-payload.json';
 
           let ticket_summary = `centreon-oss nightly incidents on ${month}`
@@ -80,6 +76,7 @@ runs:
 
             let response = execSync(
               `curl --request POST \
+                --write-out "%{http_code}" \
                 --url "${{ inputs.jira_base_url }}/rest/api/3/issue" \
                 --user "${{ inputs.jira_user_email }}:${{ inputs.jira_api_token }}" \
                 --header 'Accept: application/json' \
@@ -88,6 +85,13 @@ runs:
               `,
               { encoding: 'utf8' }
             );
+
+            console.log(`response: ${response}`);
+
+            if (response.slice(-3) !== "201") {
+              core.setFailed(`❌ The epic has not been properly created. Exiting.`);
+              return;
+            }
 
             nightly_epic_id = JSON.parse(response).id;
             nightly_epic_key = JSON.parse(response).key;
@@ -114,11 +118,22 @@ runs:
         script: |
           const fs = require('fs');
           const { execSync } = require('child_process');
-          const dayjs = require('dayjs');
-          const isoWeek = require('dayjs/plugin/isoWeek');
-          dayjs.extend(isoWeek);
-
-          const date = dayjs().format('YYYY-MM-DD');
+          function formatDate(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          }
+          function getIsoWeek(date) {
+            const temp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNumber = temp.getUTCDay() || 7;
+            temp.setUTCDate(temp.getUTCDate() + 4 - dayNumber);
+            const yearStart = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1));
+            return Math.ceil((((temp - yearStart) / 86400000) + 1) / 7);
+          }
+          const now = new Date();
+          const date = formatDate(now);
+          const isoWeekNumber = getIsoWeek(now);
+          const nightly_epic_id = ${{ steps.get_nightly_epic.outputs.nightly_epic_id }}
+          const nightly_epic_key = "${{ steps.get_nightly_epic.outputs.nightly_epic_key }}"
+          const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const path = './ticket-payload.json';
           let contents, data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, ticket_data, ticket_key, JSON_TEMPLATE_FILE, parent_epic_id, parent_epic_key;
 

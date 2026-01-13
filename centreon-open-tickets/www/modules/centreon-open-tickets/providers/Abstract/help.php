@@ -19,24 +19,8 @@
  *
  */
 
-declare(strict_types=1);
-
-namespace CentreonOpenTickets\Providers\Domain\Model;
-
-enum ProviderType
-{
-    case Mail;
-    case Glpi;
-    case Otrs;
-    case Simple;
-    case BmcItsm;
-    case Serena;
-    case BmcFootprints11;
-    case EasyvistaSoap;
-    case ServiceNow;
-    case Jira;
-    case GlpiRestApi;
-    case RequestTracker2;
-    case Itop;
-    case EasyVistaRest;
-}
+$help = [];
+$help['ca_cert_path'] = dgettext(
+    'help',
+    'Shall only be available when SSL Verify Peer option is enabled.'
+);

@@ -18,7 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-if (! isset($centreon)) {
-    exit();
-}

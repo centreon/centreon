@@ -121,10 +121,9 @@ jobs:
         with:
           github_ref_name: ${{ github.ref_name }}
           jira_project_id: ${{ secrets.JIRA_PROJECT_ID }}
-          jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-          jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+          jira_user_email: ${{ secrets.JIRA_RELEASE_USER }}
+          jira_api_token: ${{ secrets.JIRA_RELEASE_TOKEN }}
           jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-          jira_webhook_url: ${{ secrets.JIRA_RELEASE_WEBHOOK }}
           release_number: ${{ inputs.release_number }}
           release_type: ${{ inputs.release_type }}
           release_scope: ${{ inputs.release_scope }}

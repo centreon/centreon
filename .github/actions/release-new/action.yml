@@ -13,9 +13,6 @@ inputs:
   jira_project_id:
     description: "Jira project id to create release"
     required: true
-  jira_webhook_url:
-    description: "Jira release webhook"
-    required: true
   jira_base_url:
     description: "Jira base url"
     required: true
@@ -209,6 +206,12 @@ runs:
         git tag -a "${{ inputs.release_bundle_tag }}" -m "${{ inputs.release_bundle_tag }}"
         git push origin "${{ inputs.release_bundle_tag }}"
 
+        # Update old special tag "latest" to target the new release bundle tag
+        # Will create it if not existing, will update it if existing
+        echo "::notice::Updating special latest tag to target ${{ inputs.release_bundle_tag }}."
+        git tag -f "$NEW_MAJOR_VERSION-latest" ${{ inputs.release_bundle_tag }}^{}
+        git push origin "$NEW_MAJOR_VERSION-latest" -f
+
         # Add new component release tags on release branch for each release component
         # Abort if no tags or existing tag
         echo "Creating component release tags on branch ${{ inputs.release_branch }}."
@@ -292,8 +295,6 @@ runs:
         set -eu
 
         # Call JIRA to provide new jira versions to create
-        # Webhook url
-        JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
 
         # Rebuild NEW_STABLE_TAGS as an array
         for i in ${NEW_STABLE_TAGS[@]}; do
@@ -340,43 +341,4 @@ runs:
             exit 1
           fi
         done
-      shell: bash
-
-    - name: Trigger release communication for new releases
-      run: |
-        set -eu
-
-        MAJOR_VERSION=$PREVIOUS_STABLE_BRANCH_MAJOR_VERSION
-
-        # Webhook url
-        JIRA_INCOMING_WEBHOOK="${{ inputs.jira_webhook_url }}"
-
-        # Rebuild NEW_STABLE_TAGS as an array (required to build a proper json)
-        for i in ${NEW_STABLE_TAGS[@]}; do
-          if [ -n "$i" ]; then
-            NEW_RELEASE_TAGS+=("$i")
-          else
-            echo "::error::Release tag $i was empty, exiting."
-            exit 1
-          fi
-        done
-
-        # Build JSON structure with released versions
-        JSON_TAGS=$(jq -n '{componentList:$ARGS.positional}' --args "${NEW_RELEASE_TAGS[@]}")
-        JSON_VERSION_INFO=$(jq -n --arg majorVersion "$MAJOR_VERSION" --arg scopeVersion "$SCOPE_VERSION" '$ARGS.named' )
-        RELEASE_JSON=$(echo "$JSON_VERSION_INFO" | jq -c --argjson json_tags "$JSON_TAGS" '. += $json_tags')
-
-        # DEBUG
-        echo "JSON_TAGS: \r\n$JSON_TAGS"
-        echo "JSON_VERSION_INFO: $JSON_VERSION_INFO"
-        echo "Sending to JIRA automation: \r\n$RELEASE_JSON"
-
-        # Call jira webhook to trigger the communication workflow
-        # and provide versions data for communication
-        curl \
-          "$JIRA_INCOMING_WEBHOOK" \
-          -X POST \
-          -H 'Content-type: application/json' \
-          --data "$RELEASE_JSON"
-
       shell: bash
