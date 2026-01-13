@@ -714,7 +714,7 @@ describe('Lines and bars', () => {
     cy.findByLabelText('B').click();
 
     cy.findAllByTestId('unit-selector').eq(0).should('have.value', 'B');
-    cy.contains('8.79 KB').should('be.visible');
+    cy.contains('8.79 KiB').should('be.visible');
 
     cy.findAllByTestId('unit-selector').eq(1).parent().click();
     cy.findByLabelText('%').click();
