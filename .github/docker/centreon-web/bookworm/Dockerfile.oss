@@ -27,4 +27,5 @@ for MODULE in "centreon-dsm" "centreon-awie" "centreon-open-tickets"; do
 done
 EOT
 
+chmod +x /usr/share/centreon/container.d/81-oss.sh
 EOF
