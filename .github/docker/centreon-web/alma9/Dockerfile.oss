@@ -1,0 +1,30 @@
+ARG REGISTRY_URL=docker.centreon.com/centreon
+ARG FROM_IMAGE_VERSION=develop
+
+FROM ${REGISTRY_URL}/centreon-web-alma9:${FROM_IMAGE_VERSION}
+
+ARG MAJOR_VERSION
+ARG AWIE_MINOR_VERSION
+ARG DSM_MINOR_VERSION
+ARG OPEN_TICKETS_MINOR_VERSION
+ARG STABILITY
+
+RUN bash -e <<EOF
+
+if [[ "$STABILITY" == "stable" ]]; then
+  dnf install -y \
+    centreon-awie-${MAJOR_VERSION}.${AWIE_MINOR_VERSION} \
+    centreon-dsm-${MAJOR_VERSION}.${DSM_MINOR_VERSION} \
+    centreon-open-tickets-${MAJOR_VERSION}.${OPEN_TICKETS_MINOR_VERSION}
+else
+  dnf install -y /tmp/packages-centreon/centreon-*.rpm
+fi
+
+cat <<EOT >> /usr/share/centreon/container.d/81-oss.sh
+#!/bin/sh
+for MODULE in "centreon-dsm" "centreon-awie" "centreon-open-tickets"; do
+  su apache -s /bin/bash -c "/tmp/install-centreon-module.php -b /usr/share/centreon/bootstrap.php -m $MODULE"
+fi
+EOT
+
+EOF

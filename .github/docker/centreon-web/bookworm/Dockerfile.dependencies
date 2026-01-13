@@ -1,9 +1,10 @@
-ARG VERSION
+ARG MAJOR_VERSION
 
 FROM debian:bookworm AS web_dependencies
 
-ARG VERSION
+ARG MAJOR_VERSION
 ARG STABILITY
+ARG APT_AUTH_CONF_FILE="/etc/apt/auth.conf.d/centreon-${MAJOR_VERSION}-internal-${STABILITY}.conf"
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -37,10 +38,11 @@ VERSION_CODENAME=\$(
 echo "deb https://packages.sury.org/php/ \$VERSION_CODENAME main" | tee /etc/apt/sources.list.d/sury-php.list
 wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1
 
-echo "deb https://packages.centreon.com/apt-standard-${VERSION}-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
-echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${VERSION}-testing-hotfix main" | tee -a /etc/apt/sources.list.d/centreon-testing-hotfix.list
-echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${VERSION}-testing-release main" | tee -a /etc/apt/sources.list.d/centreon-testing-release.list
-echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${VERSION}-unstable main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+echo "deb https://packages.centreon.com/apt-standard-${MAJOR_VERSION}-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-stable.list
+echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${MAJOR_VERSION}-testing-hotfix main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${MAJOR_VERSION}-testing-release main" | tee -a /etc/apt/sources.list.d/centreon-testing.list
+echo "deb https://packages.centreon.com/apt-standard/ \$VERSION_CODENAME-${MAJOR_VERSION}-unstable main" | tee -a /etc/apt/sources.list.d/centreon-unstable.list
+
 echo "deb https://packages.centreon.com/apt-plugins-stable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-stable.list
 echo "deb https://packages.centreon.com/apt-plugins-testing/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-testing.list
 echo "deb https://packages.centreon.com/apt-plugins-unstable/ \$VERSION_CODENAME main" | tee -a /etc/apt/sources.list.d/centreon-plugins-unstable.list
@@ -113,17 +115,33 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
 FROM web_dependencies AS web_dependencies_collect
 
+ARG COLLECT_MINOR_VERSION
+ARG COMMON_MINOR_VERSION
+ARG GORGONE_MINOR_VERSION
+ARG MAJOR_VERSION
+ARG STABILITY
+
 RUN bash -e <<EOF
 
 apt-get update
 
-apt-get install -y \
-  centreon-common \
-  centreon-gorgone \
-  centreon-engine \
-  centreon-broker-cbmod \
-  centreon-broker-cbd \
-  centreon-connector
+if [[ "$STABILITY" == "stable" ]]; then
+  apt-get install -y \
+    centreon-common=${MAJOR_VERSION}.${COMMON_MINOR_VERSION}-*+deb12u1 \
+    centreon-gorgone=${MAJOR_VERSION}.${GORGONE_MINOR_VERSION}-*+deb12u1 \
+    centreon-engine=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-broker-cbd=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-broker-cbmod=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1 \
+    centreon-connector=${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}-*+deb12u1
+else
+  apt-get install -y \
+    centreon-common \
+    centreon-gorgone \
+    centreon-engine \
+    centreon-broker-cbmod \
+    centreon-broker-cbd \
+    centreon-connector
+fi
 
 apt-get clean
 
