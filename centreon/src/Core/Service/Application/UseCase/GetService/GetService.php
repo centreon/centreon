@@ -26,11 +26,9 @@ namespace Core\Service\Application\UseCase\GetService;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
@@ -38,13 +36,12 @@ use Core\Service\Domain\Model\Service;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
-use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
-use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use function PHPUnit\Framework\throwException;
 
 final class GetService
 {
@@ -56,13 +53,9 @@ final class GetService
     public function __construct(
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
-        private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
-        private readonly RequestParametersInterface $requestParameters,
         private readonly ContactInterface $user,
-        private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
-        private readonly ReadCommandRepositoryInterface $readCommandRepository,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
     ) {
     }
@@ -89,25 +82,37 @@ final class GetService
                 return;
             }
 
-            $service= null;
+            $service = null;
+            $serviceCategories = [];
+            $serviceGroups = [];
+            $macros = [];
             if ($this->user->isAdmin()) {
                 $service = $this->readServiceRepository->findById($serviceId);
                 $serviceCategories = $this->readServiceCategoryRepository->findByService($serviceId);
                 $serviceGroups = $this->readServiceGroupRepository->findByService($serviceId);
+                $macros = $this->readServiceMacroRepository->findByServiceIds($serviceId);
 
             } else {
+                
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 if ($this->readServiceRepository->existsByAccessGroups($serviceId, $this->accessGroups)) {
                     $service = $this->readServiceRepository->findById($serviceId);
+                    
                     $serviceCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
                             $serviceId,
                             $this->accessGroups
                     );
+                    
+                    
                     $serviceGroups = $this->readServiceGroupRepository->findByServiceAndAccessGroups(
                         $serviceId,
                         $this->accessGroups
                     );
+                    
+                    
+                    $macros = $this->readServiceMacroRepository->findByServiceIds($serviceId); 
                 }
+                    
             }
 
             if (! $service) {
@@ -119,8 +124,8 @@ final class GetService
 
                 return;
             }
-
-            $presenter->presentResponse($this->createResponse($service, $serviceCategories, $serviceGroups));
+        
+            $presenter->presentResponse($this->createResponse($service, $serviceCategories, $serviceGroups, $macros));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -136,15 +141,16 @@ final class GetService
      * @param Service $service
      * @param ServiceCategory[] $serviceCategories
      * @param array<array{relation:ServiceGroupRelation,serviceGroup:ServiceGroup}> $serviceGroups
+     * @param Macro[] $macros
      *
      * @throws \Throwable
      *
      *
      * @return GetServiceResponse
      */
-    private function createResponse(Service $service, array $serviceCategories, array $serviceGroups): GetServiceResponse
+    private function createResponse(Service $service, array $serviceCategories, array $serviceGroups, array $macros): GetServiceResponse
     {
-        $macros = $this->readServiceMacroRepository->findByServiceIds($service->getId());
+        
 
         $response = new GetServiceResponse();
         $response->id = $service->getId();
