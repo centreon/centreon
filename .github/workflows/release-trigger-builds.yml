@@ -66,7 +66,7 @@ jobs:
           if [[ "${{ inputs.dispatch_content }}" == "FULL" ]]; then
             echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows."
             for COMPONENT in "${COMPONENTS_OSS_FULL[@]}"; do
-              case COMPONENT in
+              case $COMPONENT in
                 web)
                   gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }} -f labels="system,skip-all-tests"
                 ;;
@@ -76,7 +76,7 @@ jobs:
             done
             echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows and extra docker builders and libs."
             for COMPONENT in "${COMPONENTS_OSS_EXTRA[@]}"; do
-              case COMPONENT in
+              case $COMPONENT in
                 web)
                   gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }} -f labels="system,skip-all-tests"
                 ;;
