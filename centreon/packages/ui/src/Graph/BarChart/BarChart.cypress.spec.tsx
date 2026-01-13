@@ -100,7 +100,7 @@ describe('Bar chart', () => {
     cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
       'be.visible'
     );
-    cy.contains('7.47 KB').should('be.visible');
+    cy.contains('7.47 KiB').should('be.visible');
 
     cy.makeSnapshot();
   });
