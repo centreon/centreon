@@ -4,7 +4,7 @@
 		"name": "Service_Monitoring",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "28117716",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-99d32667-8b2f-45bc-ac76-6024edbee4d8?action=share&source=collection_link&creator=28117716"
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-99d32667-8b2f-45bc-ac76-6024edbee4d8?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -59,8 +59,19 @@
 					"response": []
 				},
 				{
-					"name": "Add a command",
+					"name": "POST /commands - Valid request - HTTP 201",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
@@ -76,10 +87,10 @@
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"CommandNameSuperAdministrator\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
 									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
 									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
-									"        \"is_shell_enabled\": true,\r",
+									"        \"is_shell_enabled\": false,\r",
 									"        \"is_activated\": true,\r",
 									"        \"is_from_monitoring_connector\": false\r",
 									"    });\r",
@@ -133,29 +144,20 @@
 								"packages": {},
 								"requests": {}
 							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"Command1Name\", \"command_1\");\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": true,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": false,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
