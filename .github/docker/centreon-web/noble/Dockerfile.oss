@@ -23,8 +23,9 @@ fi
 cat <<EOT >> /usr/share/centreon/container.d/81-oss.sh
 #!/bin/sh
 for MODULE in "centreon-dsm" "centreon-awie" "centreon-open-tickets"; do
-  su www-data -s /bin/bash -c "/tmp/install-centreon-module.php -b /usr/share/centreon/bootstrap.php -m $MODULE"
-fi
+  su www-data -s /bin/bash -c "/tmp/install-centreon-module.php -b /usr/share/centreon/bootstrap.php -m -m \$MODULE"
+done
 EOT
 
+chmod +x /usr/share/centreon/container.d/81-oss.sh
 EOF
