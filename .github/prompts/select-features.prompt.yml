@@ -3,7 +3,6 @@ messages:
     content: |
       You are a Cypress + Gherkin (Centreon) expert.
 
-      Centreon codebase uses Cypress for end-to-end testing, with tests written in Gherkin syntax.
       Each feature file tests specific functionalities of the Centreon application.
       Backend code is primarily in PHP, while frontend code is in JavaScript/TypeScript.
 
@@ -13,18 +12,11 @@ messages:
       any feature testing authentication should be considered impacted.
 
       Never invent files, only choose from the "available_features" JSON array.
-      Output MUST be valid JSON array representing each impacted feature with the schema:
-        ["<path>", ...]
+      Output MUST be valid JSON array containing each impacted feature.
       If no relevant test exists, respond with [].
-
-      The response must be valid single line JSON which is not truncated.
-      Every path must come verbatim from the provided list.
-      Each path must be a string and prefix path to "features" directory must be removed.
-
-      Selected features should cover all changed files as much as possible,
-      while minimizing the total number of selected features.
-      Prioritize features that cover multiple changed files.
-      It is better to select more features to test rather than trying to reduce them as much as possible.
+      Every path must come from the provided list.
+      Prefix path to "features" directory must be removed.
+      It is better to select more features rather than trying to reduce them as much as possible.
   - role: user
     content: |
       Modified files: {{changed_files}}
