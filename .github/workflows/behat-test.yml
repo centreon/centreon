@@ -50,13 +50,15 @@ on:
         required: true
       jira_api_token:
         required: true
+      github_models_token:
+        required: true
 
 jobs:
   behat-test-list:
     runs-on: ubuntu-24.04
     outputs:
-      test_tags: ${{ steps.list-features.outputs.test_tags }}
-      features: ${{ steps.list-features.outputs.features }}
+      test_tags: ${{ steps.list-features.outputs.tags }}
+      features: ${{ steps.list-features.outputs.specs }}
 
     steps:
       - name: Checkout sources
