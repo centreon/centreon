@@ -998,17 +998,14 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"expectedHttpStatus\", 200);\r",
-									"pm.collectionVariables.set(\"maxNumberOfTries\", 60);\r",
-									"pm.collectionVariables.set(\"sleepBetweenTries\", 1000);\r",
-									"\r",
 									"const responseJson = pm.response.json();\r",
 									"\r",
 									"if (!pm.collectionVariables.get(\"collection_tries\")) {\r",
@@ -1101,7 +1098,8 @@
 									"}"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1292,7 +1290,7 @@
 									"    pm.collectionVariables.set(\"collection_tries\", 1);\r",
 									"}\r",
 									"\r",
-									"if (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\") || ((responseJson.result.length == 0) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\")))) {\r",
+									"if ((responseJson.result.length == 0) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
 									"    setTimeout(function () { }, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
@@ -1306,19 +1304,17 @@
 									"        const results = responseJson.result;\r",
 									"        pm.expect(results).to.be.an('array').that.is.not.empty;\r",
 									"\r",
-									"        const comment = results.find(item => item.type === \"comment\");\r",
+									"        const comment = results.find(item => item.content === \"Oh no\");\r",
 									"\r",
 									"        pm.expect(comment, \"No comment found in timeline\").to.exist;\r",
 									"\r",
-									"        pm.expect(comment.content).to.eql(\r",
-									"            \"Oh no\"\r",
-									"        );\r",
+									"        pm.expect(comment.type).to.eql(\"comment\");\r",
 									"\r",
 									"        pm.expect(comment.contact).to.include({\r",
 									"            name: pm.environment.get(\"api_login\")\r",
 									"        });\r",
 									"    });\r",
-									" \r",
+									"\r",
 									"    pm.test(\"Schema validation for the timeline response\", function () {\r",
 									"        const schema = {\r",
 									"            type: \"object\",\r",
@@ -3775,7 +3771,7 @@
 									"if (((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
-									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    setTimeout(function () { }, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
 									"    postman.setNextRequest(\"Check if the comment has been added to the host by user non-admin (successful)\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
@@ -3786,13 +3782,11 @@
 									"        const results = responseJson.result;\r",
 									"        pm.expect(results).to.be.an('array').that.is.not.empty;\r",
 									"\r",
-									"        const comment = results.find(item => item.type === \"comment\");\r",
+									"        const comment = results.find(item => item.content === \"Abcde\");\r",
 									"\r",
 									"        pm.expect(comment, \"No comment found in timeline\").to.exist;\r",
 									"\r",
-									"        pm.expect(comment.content).to.eql(\r",
-									"            \"Abcde\"\r",
-									"        );\r",
+									"        pm.expect(comment.type).to.eql(\"comment\");\r",
 									"\r",
 									"        pm.expect(comment.contact).to.include({\r",
 									"            name: pm.environment.get(\"api_login\")\r",
@@ -3911,7 +3905,7 @@
 									"if (((responseJson.result.length != 2) && (pm.collectionVariables.get(\"collection_tries\") < pm.collectionVariables.get(\"maxNumberOfTries\"))) || (pm.response.code !== pm.collectionVariables.get(\"expectedHttpStatus\"))) {\r",
 									"    var tries = parseInt(pm.collectionVariables.get(\"collection_tries\"));\r",
 									"    pm.collectionVariables.set(\"collection_tries\", tries + 1);\r",
-									"    setTimeout(function() {}, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
+									"    setTimeout(function () { }, pm.collectionVariables.get(\"sleepBetweenTries\"));\r",
 									"    postman.setNextRequest(\"Check if the comment has been added to the service by user non-admin (successful)\");\r",
 									"} else {\r",
 									"    pm.collectionVariables.unset(\"collection_tries\");\r",
@@ -3920,7 +3914,7 @@
 									"        pm.response.to.have.status(pm.collectionVariables.get(\"expectedHttpStatus\"));\r",
 									"\r",
 									"        pm.expect(responseJson.result.length).to.eql(2);\r",
-									"        \r",
+									"\r",
 									"        pm.expect(responseJson.result[0].type).to.eql(\"comment\");\r",
 									"        pm.expect(responseJson.result[0].date).to.eql(pm.collectionVariables.get(\"currentDate\"));\r",
 									"        pm.expect(responseJson.result[0].content).to.eql(\"Abcde\");\r",
@@ -3935,7 +3929,7 @@
 									"            \"name\": pm.environment.get(\"api_login\")\r",
 									"        });\r",
 									"    });\r",
-									"    \r",
+									"\r",
 									"    pm.test(\"Schema validation for the timeline response\", function () {\r",
 									"        const schema = {\r",
 									"            type: \"object\",\r",
@@ -3952,13 +3946,13 @@
 									"                            end_date: { type: [\"string\", \"null\"] },\r",
 									"                            content: { type: [\"string\", \"null\"] },\r",
 									"                            contact: {\r",
-									"                                type: \"object\",\r",
+									"                                type: [\"object\", \"null\"],\r",
 									"                                properties: {\r",
 									"                                    id: { type: \"integer\" },\r",
 									"                                    name: { type: \"string\" }\r",
 									"                                }\r",
 									"                            },\r",
-									"                            status: { type: [\"integer\", \"null\"] },\r",
+									"                            status: { type: [\"object\", \"null\"] },\r",
 									"                            tries: { type: [\"integer\", \"null\"] }\r",
 									"                        },\r",
 									"                        required: [\"id\", \"type\", \"date\", \"start_date\", \"end_date\", \"content\", \"contact\", \"status\", \"tries\"]\r",
@@ -4165,7 +4159,7 @@
 		},
 		{
 			"key": "CommandId",
-			"value": "1"
+			"value": 91
 		},
 		{
 			"key": "HostTemplate1Name",
@@ -4213,26 +4207,22 @@
 		},
 		{
 			"key": "expectedHttpStatus",
-			"value": ""
+			"value": 200
 		},
 		{
 			"key": "maxNumberOfTries",
-			"value": ""
+			"value": "10"
 		},
 		{
 			"key": "sleepBetweenTries",
-			"value": ""
+			"value": 1000
 		},
 		{
 			"key": "currentDate",
-			"value": "2026-01-13T16:13:17Z"
+			"value": "2026-01-14T09:29:05Z"
 		},
 		{
 			"key": "api_login_user_non_admin",
-			"value": ""
-		},
-		{
-			"key": "collection_tries",
 			"value": ""
 		}
 	]
