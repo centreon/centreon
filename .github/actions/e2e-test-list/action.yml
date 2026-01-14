@@ -173,11 +173,11 @@ runs:
         validate() {
           jq -e 'type=="array" and length>0 and length<=20 and all(.[]; type=="string")' <<<"$1" >/dev/null || return 1
 
-          jq -r '.[]' <<<"$1" | while read -r f; do
+          while read -r f; do
             f="${f#/}"
             [[ "$f" != *.feature ]] && f="$f.feature"
             [ -e "$BASE_DIR/$f" ] || return 1
-          done
+          done < <(jq -r '.[]' <<<"$1")
         }
 
         PRIMARY='${{ steps.ai_primary.outputs.response }}'
