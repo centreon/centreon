@@ -13,6 +13,11 @@ on:
         required: true
         default: false
         type: boolean
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
@@ -69,6 +74,7 @@ jobs:
     with:
       version_file: centreon/www/install/insertBaseConf.sql
       nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
+      labels: ${{ inputs.labels || '' }}
 
   changes:
     if: |
@@ -243,7 +249,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
@@ -266,7 +277,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
@@ -301,7 +317,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
@@ -720,9 +741,10 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
+          # - package_extension: deb
+          #   image: packaging-nfpm-jammy
+          #   distrib: jammy
+
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
@@ -1224,34 +1246,33 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
-        with:
-          version: 9
-          run_install: false
-
       - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
-          node-version: 20
+          node-version: 24
 
-      - name: Install redocly cli
-        run: pnpm add -g @redocly/cli@1.25.9
-        shell: bash
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          version: 10
+          run_install: |
+            cwd: "centreon/doc/API"
+            args: [--ignore-scripts, --frozen-lockfile]
 
       - name: Build openapi documentation
         run: |
-          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
-          elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
-          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
+          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon-cloud-api.yaml" ]]; then
+            OPENAPI_FILE="centreon-cloud-api.yaml"
+          elif [[ -f "centreon-api.yaml" ]]; then
+            OPENAPI_FILE="centreon-api.yaml"
+          elif [[ -f "centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
+            OPENAPI_FILE="centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
           else
             echo "::error::openapi file not found"
             exit 1
           fi
 
           echo "Building API doc from $OPENAPI_FILE"
-          redocly build-docs --theme.openapi.hideDownloadButton=true $OPENAPI_FILE -o index.html
+          pnpm run build $OPENAPI_FILE
+        working-directory: centreon/doc/API
         shell: bash
 
       - name: Setup awscli
@@ -1279,7 +1300,7 @@ jobs:
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-environment.outputs.major_version }}"
           fi
 
-          aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
+          aws s3 cp "centreon/doc/API/index.html" "${BUCKET_PATH}/index.html"
           aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
         shell: bash
 
@@ -1292,8 +1313,8 @@ jobs:
         with:
           name: openapi-doc
           path: |
-            index.html
-            centreon-logo.png
+            centreon/doc/API/index.html
+            centreon/doc/API/centreon-logo.png
           retention-days: 1
 
   deliver-rpm:

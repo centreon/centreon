@@ -58,3 +58,10 @@ export interface Filters {
   'poller.id': Array<number>;
   type: Array<string>;
 }
+
+export enum PasswordActionState {
+  Invisble = 'Invisble',
+  Disabled = 'Disabled',
+  Reset = 'Reset',
+  Editing = 'Editing'
+}

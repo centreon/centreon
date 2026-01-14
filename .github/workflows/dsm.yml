@@ -6,6 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".github/workflows/dsm.yml"
@@ -35,6 +41,7 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+      labels: ${{ inputs.labels || '' }}
 
   check-version-consistency:
     runs-on: ubuntu-24.04
@@ -200,9 +207,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
+          # - package_extension: deb
+          #   image: packaging-nfpm-jammy
+          #   distrib: jammy
 
     runs-on: ubuntu-24.04
 

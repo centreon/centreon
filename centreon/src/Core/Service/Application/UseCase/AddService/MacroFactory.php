@@ -56,6 +56,7 @@ final class MacroFactory
         }
 
         $macro = new Macro(
+            null,
             $serviceId,
             $dto->name,
             $macroValue,

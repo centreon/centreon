@@ -32,6 +32,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
@@ -85,6 +87,7 @@ beforeEach(closure: function (): void {
         $this->optionService = $this->createMock(OptionService::class),
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
     );
 });
 
@@ -391,6 +394,11 @@ it('should present a NoContentResponse when everything has gone well for an admi
         ->method('linkToHosts')
         ->with($request->id, $request->hostTemplates);
 
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(id: $request->commandId, name: 'cmd_name', commandLine: 'cmd_line'));
+
     $this->user
         ->expects($this->exactly(2))
         ->method('isAdmin')
@@ -428,10 +436,10 @@ it('should present a NoContentResponse when everything has gone well for an admi
         ->method('findParents')
         ->willReturn($serviceTemplateInheritances);
 
-    $macroA = new Macro($serviceTemplate->getId(), 'MACROA', 'A');
+    $macroA = new Macro(null, $serviceTemplate->getId(), 'MACROA', 'A');
     $macroA->setDescription('');
 
-    $macroB = new Macro($serviceTemplate->getId(), 'MACROB', 'B');
+    $macroB = new Macro(null, $serviceTemplate->getId(), 'MACROB', 'B');
     $macroB->setDescription('');
 
     $this->readServiceMacroRepository
@@ -449,7 +457,7 @@ it('should present a NoContentResponse when everything has gone well for an admi
     $this->writeServiceMacroRepository
         ->expects($this->once())
         ->method('update')
-        ->with(new Macro($serviceTemplate->getId(), 'MACROB', 'B1'));
+        ->with(new Macro(null, $serviceTemplate->getId(), 'MACROB', 'B1'));
 
     $this->writeServiceMacroRepository
         ->expects($this->never())
