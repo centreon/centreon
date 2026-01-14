@@ -19,14 +19,19 @@ inputs:
     description: Comma-separated list of tags to filter feature files (optional).
     required: true
     default: 'not @ignore'
-  model:
-    description: AI model identifier.
+  model-primary:
+    description: Primary AI model identifier.
     required: false
-    default: openai/gpt-4.1
+    default: openai/gpt-4o
+  model-fallback:
+    description: Fallback AI model identifier.
+    required: false
+    default: openai/gpt-4o-mini
   max-tokens:
     description: Maximum tokens for the AI inference call.
     required: false
     default: '1000'
+
 outputs:
   decision:
     description: Final selection decision (AI, FALLBACK, or FULL).
@@ -34,235 +39,166 @@ outputs:
   specs:
     description: JSON array of feature files or directories selected for execution.
     value: ${{ steps.final.outputs.specs }}
+
 runs:
   using: composite
   steps:
-    - name: Get changed files
-      id: changed
-      uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
-      with:
-        use_rest_api: true
-        token: ${{ inputs.github-token }}
-        files: |
-          ${{ inputs.module-name }}/**
 
-    - name: Check if there are changes
-      id: check_changes
-      shell: bash
-      run: |
-        if [ -z "${{ steps.changed.outputs.all_changed_files }}" ]; then
-          echo "changed=false" >> "$GITHUB_OUTPUT"
-        else
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-          printf 'changed_files=%s\n' "${{ steps.changed.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
-          CHANGED_JSON=$(printf '%s' "${{ steps.changed.outputs.all_changed_files }}" |
-            tr '\n' ' ' |
-            awk '{
-              n = split($0, arr, /[[:space:]]+/);
-              printed = 0;
-              printf("[");
-              for (i = 1; i <= n; ++i) {
-                if (arr[i] == "") {
-                  continue;
-                }
-                gsub(/\\/, "\\\\", arr[i]);
-                gsub(/"/, "\\\"", arr[i]);
-                printf("%s\"%s\"", (printed++ ? "," : ""), arr[i]);
-              }
-              printf("]");
-            }'
-          )
-          printf 'changed_files_json=%s\n' "$CHANGED_JSON" >> "$GITHUB_OUTPUT"
-        fi
+  # --------------------------------------------------
+  # Changed files
+  # --------------------------------------------------
+  - name: Get changed files
+    id: changed
+    uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
+    with:
+      token: ${{ inputs.github-token }}
+      files: |
+        ${{ inputs.module-name }}/**
 
-    - name: List features
-      id: features
-      run: |
-        set -o pipefail
+  - name: Normalize changed files
+    id: changes
+    shell: bash
+    run: |
+      CHANGED_JSON=$(printf '%s\n' "${{ steps.changed.outputs.all_changed_files }}" \
+        | jq -R -s -c 'split("\n") | map(select(length>0))')
 
-        sudo apt-get -qq update
-        sudo apt-get install -qqy cucumber
+      if jq -e 'length>0' <<<"$CHANGED_JSON" >/dev/null; then
+        echo "changed=true" >> "$GITHUB_OUTPUT"
+      else
+        echo "changed=false" >> "$GITHUB_OUTPUT"
+      fi
 
-        TEST_TAGS=$(echo "${{ inputs.tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
-        echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+      echo "changed_files_json=$CHANGED_JSON" >> "$GITHUB_OUTPUT"
 
-        cd ${{ inputs.module-name }}
-        FEATURES_JSON=$(cucumber ${{ inputs.feature-directory }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.feature-directory }}/*##g' | sed -e 's#\.feature$##' | sort | jq -R -s -c 'split("\n")[:-1]')
-        echo "features: $FEATURES_JSON"
-        echo "features_json=$FEATURES_JSON" >> $GITHUB_OUTPUT
-      shell: bash
+  # --------------------------------------------------
+  # List available features
+  # --------------------------------------------------
+  - name: List features
+    id: features
+    shell: bash
+    run: |
+      sudo apt-get -qq update
+      sudo apt-get install -qqy cucumber jq
 
-    - name: Infer relevant feature files (AI)
-      id: ai
-      if: steps.check_changes.outputs.changed == 'true'
-      uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
-      with:
-        model: ${{ inputs.model }}
-        prompt-file: ${{ inputs.prompt-file }}
-        input: |
-          changed_files: ${{ steps.check_changes.outputs.changed_files_json }}
-          available_features: ${{ steps.features.outputs.features_json }}
-        max-tokens: ${{ inputs.max-tokens }}
-        token: ${{ inputs.github-token }}
+      TAGS=$(echo "${{ inputs.tags }}" | sed 's/not /~/g; s/ and /&&/g')
 
-    - name: Validate AI output
-      id: validate
-      if: steps.check_changes.outputs.changed == 'true'
-      shell: bash
-      run: |
-        cat <<'EOF' > ai.json
-        ${{ steps.ai.outputs.response }}
-        EOF
+      cd "${{ inputs.module-name }}"
 
-        cat ai.json
+      cucumber "${{ inputs.feature-directory }}" --tags "$TAGS" -f json \
+        | jq -r '.[].uri' \
+        | sed -e "s#^${{ inputs.feature-directory }}/##" -e 's#\.feature$##' \
+        | sort -u \
+        | jq -R -s -c 'split("\n") | map(select(length>0))' \
+        > features.json
 
-        if ! jq -e 'type == "array"' ai.json >/dev/null 2>&1; then
-          echo "mode=fallback" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
+      echo "features_json=$(cat features.json)" >> "$GITHUB_OUTPUT"
 
-        if ! jq -e 'length <= 20 and all(.[]; type == "string" and length > 0)' ai.json >/dev/null 2>&1; then
-          echo "mode=fallback" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
+  # --------------------------------------------------
+  # AI PRIMARY (non bloquant)
+  # --------------------------------------------------
+  - name: Infer features (primary model)
+    id: ai_primary
+    if: steps.changes.outputs.changed == 'true'
+    continue-on-error: true
+    uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
+    with:
+      model: ${{ inputs.model-primary }}
+      prompt-file: ${{ inputs.prompt-file }}
+      input: |
+        changed_files: ${{ steps.changes.outputs.changed_files_json }}
+        available_features: ${{ steps.features.outputs.features_json }}
+      max-tokens: ${{ inputs.max-tokens }}
+      token: ${{ inputs.github-token }}
 
-        BASE_DIR="${{ inputs.module-name }}/$(echo "${{ inputs.feature-directory }}" | sed 's#^/*##')"
-        ALL_SPECS=$(jq -r '.[]' ai.json)
-        if [ -n "$ALL_SPECS" ]; then
-          MISSING_LINES=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
-            [ -z "$f" ] && continue
-            NORMALIZED="${f#/}"
-            TARGET_BASE="$BASE_DIR/$NORMALIZED"
-            case "$NORMALIZED" in
-              *.feature)
-                TARGET_CANDIDATE="$TARGET_BASE"
-                OUTPUT_NAME="$NORMALIZED"
-                ;;
-              *)
-                TARGET_CANDIDATE="${TARGET_BASE}.feature"
-                OUTPUT_NAME="${NORMALIZED}.feature"
-                ;;
-            esac
+  # --------------------------------------------------
+  # AI FALLBACK (uniquement si primary a échoué)
+  # --------------------------------------------------
+  - name: Infer features (fallback model)
+    id: ai_fallback
+    if: >
+      steps.changes.outputs.changed == 'true' &&
+      steps.ai_primary.conclusion == 'failure'
+    continue-on-error: true
+    uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
+    with:
+      model: ${{ inputs.model-fallback }}
+      prompt-file: ${{ inputs.prompt-file }}
+      input: |
+        changed_files: ${{ steps.changes.outputs.changed_files_json }}
+        available_features: ${{ steps.features.outputs.features_json }}
+      max-tokens: ${{ inputs.max-tokens }}
+      token: ${{ inputs.github-token }}
 
-            if [ ! -e "$TARGET_CANDIDATE" ]; then
-              printf '%s\n' "$OUTPUT_NAME"
-            fi
-          done)
-          VALID_LINES=$(printf '%s\n' "$ALL_SPECS" | while read -r f; do
-            [ -z "$f" ] && continue
-            NORMALIZED="${f#/}"
-            TARGET_BASE="$BASE_DIR/$NORMALIZED"
-            case "$NORMALIZED" in
-              *.feature)
-                TARGET_CANDIDATE="$TARGET_BASE"
-                OUTPUT_NAME="$NORMALIZED"
-                ;;
-              *)
-                TARGET_CANDIDATE="${TARGET_BASE}.feature"
-                OUTPUT_NAME="${NORMALIZED}.feature"
-                ;;
-            esac
+  # --------------------------------------------------
+  # Validate AI output (primary first, then fallback)
+  # --------------------------------------------------
+  - name: Validate AI result
+    id: validate
+    shell: bash
+    run: |
+      BASE_DIR="${{ inputs.module-name }}/$(echo "${{ inputs.feature-directory }}" | sed 's#^/*##')"
 
-            if [ -e "$TARGET_CANDIDATE" ]; then
-              printf '%s\n' "$OUTPUT_NAME"
-            fi
-          done)
+      validate() {
+        jq -e 'type=="array" and length>0 and length<=20 and all(.[]; type=="string")' <<<"$1" >/dev/null || return 1
 
-          if [ -n "$MISSING_LINES" ]; then
-            MISSING=$(printf '%s' "$MISSING_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          else
-            MISSING="[]"
-          fi
+        jq -r '.[]' <<<"$1" | while read -r f; do
+          f="${f#/}"
+          [[ "$f" != *.feature ]] && f="$f.feature"
+          [ -e "$BASE_DIR/$f" ] || return 1
+        done
+      }
 
-          if [ -n "$VALID_LINES" ]; then
-            VALID=$(printf '%s' "$VALID_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          else
-            VALID="[]"
-          fi
-        else
-          MISSING="[]"
-          VALID="[]"
-        fi
+      PRIMARY='${{ steps.ai_primary.outputs.response }}'
+      FALLBACK='${{ steps.ai_fallback.outputs.response }}'
 
-        if [ -n "$MISSING_LINES" ]; then
-          echo "mode=fallback" >> "$GITHUB_OUTPUT"
-          exit 0
-        fi
+      if validate "$PRIMARY"; then
+        echo "mode=ai" >> "$GITHUB_OUTPUT"
+        echo "specs=$PRIMARY" >> "$GITHUB_OUTPUT"
+        exit 0
+      fi
 
-        if [ "$VALID" = "[]" ]; then
-          echo "mode=fallback" >> "$GITHUB_OUTPUT"
-        else
-          echo "mode=ai" >> "$GITHUB_OUTPUT"
-          echo "specs=$VALID" >> "$GITHUB_OUTPUT"
-        fi
+      if validate "$FALLBACK"; then
+        echo "mode=ai" >> "$GITHUB_OUTPUT"
+        echo "specs=$FALLBACK" >> "$GITHUB_OUTPUT"
+        exit 0
+      fi
 
-    - name: Fallback mapping
-      id: fallback
-      if: steps.validate.outputs.mode == 'fallback'
-      shell: bash
-      env:
-        CHANGED_FILES_JSON: ${{ steps.check_changes.outputs.changed_files_json }}
-      run: |
-        SPECS_LINES=""
-        if jq -er '.[]' <<<"$CHANGED_FILES_JSON" >/dev/null 2>&1; then
-          CHANGED_FILES=$(jq -r '.[]' <<<"$CHANGED_FILES_JSON")
-        else
-          CHANGED_FILES=""
-        fi
+      echo "mode=fallback" >> "$GITHUB_OUTPUT"
 
-        if printf '%s\n' "$CHANGED_FILES" | grep -q 'www/'; then
-          SPECS_LINES="${SPECS_LINES}centreon/tests/e2e/features/www\n"
-        fi
-        if printf '%s\n' "$CHANGED_FILES" | grep -q 'widgets/'; then
-          SPECS_LINES="${SPECS_LINES}centreon/tests/e2e/features/widgets\n"
-        fi
+  # --------------------------------------------------
+  # Static fallback mapping
+  # --------------------------------------------------
+  - name: Fallback mapping
+    id: fallback
+    if: steps.validate.outputs.mode == 'fallback'
+    shell: bash
+    run: |
+      SPECS=$(jq -r '.[]' <<<"${{ steps.changes.outputs.changed_files_json }}" | {
+        grep -q 'www/' && echo "www"
+        grep -q 'widgets/' && echo "widgets"
+      } | jq -R -s -c 'split("\n") | map(select(length>0))')
 
-        if [ -z "$SPECS_LINES" ]; then
-          echo "mode=full" >> "$GITHUB_OUTPUT"
-        else
-          SPECS_JSON=$(printf '%s' "$SPECS_LINES" | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "mode=mapped" >> "$GITHUB_OUTPUT"
-          echo "specs=$SPECS_JSON" >> "$GITHUB_OUTPUT"
-        fi
+      if [ "$SPECS" = "[]" ]; then
+        echo "mode=full" >> "$GITHUB_OUTPUT"
+      else
+        echo "mode=mapped" >> "$GITHUB_OUTPUT"
+        echo "specs=$SPECS" >> "$GITHUB_OUTPUT"
+      fi
 
-    - name: Resolve final decision
-      id: final
-      shell: bash
-      run: |
-        DECISION=""
-        SPEC_JSON_RAW=""
-
-        if [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
-          DECISION="AI"
-          SPEC_JSON_RAW='${{ steps.validate.outputs.specs }}'
-        elif [ "${{ steps.fallback.outputs.mode }}" = "mapped" ]; then
-          DECISION="FALLBACK"
-          SPEC_JSON_RAW='${{ steps.fallback.outputs.specs }}'
-        else
-          DECISION="FULL"
-          SPEC_JSON_RAW=$(jq -R -s -c 'split("\n") | map(select(length > 0))' all_features.txt)
-        fi
-
-        if [ -z "$SPEC_JSON_RAW" ]; then
-          SPEC_JSON_RAW="[]"
-        fi
-
-        if ! printf '%s' "$SPEC_JSON_RAW" | jq -e 'type == "array"' >/dev/null 2>&1; then
-          SPEC_JSON_RAW=$(printf '%s' "$SPEC_JSON_RAW" |
-            sed -e 's/^\[\s*//' -e 's/\s*\]$//' |
-            tr ',\n' '\n' |
-            awk 'NF { gsub(/^ +| +$/,"", $0); print }' |
-            jq -R -s -c 'split("\n") | map(select(length > 0))')
-        fi
-
-        SPEC_JSON_RAW=$(printf '%s' "$SPEC_JSON_RAW" | jq -c 'map(tostring)')
-
-        echo "decision=$DECISION" >> "$GITHUB_OUTPUT"
-        echo "specs=$SPEC_JSON_RAW" >> "$GITHUB_OUTPUT"
-
-    - name: Summary
-      shell: bash
-      run: |
-        echo "### Cypress AI Feature Selection Result" >> "$GITHUB_STEP_SUMMARY"
-        echo "- Decision: ${{ steps.final.outputs.decision }}" >> "$GITHUB_STEP_SUMMARY"
-        echo "- Specs: ${{ steps.final.outputs.specs || 'N/A' }}" >> "$GITHUB_STEP_SUMMARY"
+  # --------------------------------------------------
+  # Final decision
+  # --------------------------------------------------
+  - name: Resolve final decision
+    id: final
+    shell: bash
+    run: |
+      if [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
+        echo "decision=AI" >> "$GITHUB_OUTPUT"
+        echo "specs=${{ steps.validate.outputs.specs }}" >> "$GITHUB_OUTPUT"
+      elif [ "${{ steps.fallback.outputs.mode }}" = "mapped" ]; then
+        echo "decision=FALLBACK" >> "$GITHUB_OUTPUT"
+        echo "specs=${{ steps.fallback.outputs.specs }}" >> "$GITHUB_OUTPUT"
+      else
+        echo "decision=FULL" >> "$GITHUB_OUTPUT"
+        echo "specs=${{ steps.features.outputs.features_json }}" >> "$GITHUB_OUTPUT"
+      fi
