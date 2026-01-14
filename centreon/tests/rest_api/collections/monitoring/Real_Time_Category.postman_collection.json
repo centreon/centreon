@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "5a82d4a8-0a27-4f69-994b-2eabf3e64767",
+		"_postman_id": "51a70546-5cf4-48c5-a9a4-bfa95bc2fe76",
 		"name": "Real_Time_Category",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-51a70546-5cf4-48c5-a9a4-bfa95bc2fe76?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -58,18 +59,44 @@
 					"response": []
 				},
 				{
-					"name": "Add a command",
+					"name": "POST /commands - Valid request - HTTP 201",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new command \r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
 									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
+									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
+									"        \"is_shell_enabled\": false,\r",
+									"        \"is_activated\": true,\r",
+									"        \"is_from_monitoring_connector\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.property(\"connector\");\r",
+									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"CommandConnector\"));\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the command response\", function () {\r",
@@ -78,12 +105,11 @@
 									"        \"properties\": {\r",
 									"            \"id\": { \"type\": \"integer\" },\r",
 									"            \"name\": { \"type\": \"string\" },\r",
-									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"type\": { \"type\": \"string\" },\r",
 									"            \"command_line\": { \"type\": \"string\" },\r",
-									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_shell_enabled\": { \"type\": \"boolean\" },\r",
 									"            \"is_activated\": { \"type\": \"boolean\" },\r",
-									"            \"is_locked\": { \"type\": \"boolean\" },\r",
-									"            \"argument_example\": { \"type\": [\"string\", \"null\"], },\r",
+									"            \"is_from_monitoring_connector\": { \"type\": \"boolean\" },\r",
 									"            \"arguments\": {\r",
 									"                \"type\": \"array\",\r",
 									"                \"items\": {\r",
@@ -95,67 +121,43 @@
 									"                    \"required\": [\"name\", \"description\"]\r",
 									"                }\r",
 									"            },\r",
-									"            \"macros\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"string\" },\r",
-									"                        \"description\": { \"type\": \"string\" }\r",
-									"                    },\r",
-									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
-									"                }\r",
-									"            },\r",
 									"            \"connector\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
+									"                \"type\": \"object\",\r",
 									"                \"properties\": {\r",
 									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"command_line\": { \"type\": \"string\" },\r",
+									"                    \"description\": { \"type\": \"string\" },\r",
+									"                    \"is_activated\": { \"type\": \"boolean\" }\r",
 									"                },\r",
 									"                \"required\": [\"id\", \"name\"]\r",
 									"            },\r",
-									"            \"grap_template\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
-									"                \"properties\": {\r",
-									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
-									"                },\r",
-									"                \"required\": [\"id\", \"name\"]\r",
-									"            }\r",
-									"                        \r",
+									"            \"comment\": { \"type\": \"string\"}          \r",
 									"        },\r",
-									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell_enabled\", \"is_activated\", \"is_from_monitoring_connector\", \"connector\"]\r",
 									"    };\r",
 									"    \r",
 									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"Command1Name\", \"command_1\");\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\",\r\n    \"is_shell\": false\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": false,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -282,7 +284,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -290,11 +293,11 @@
 							"script": {
 								"exec": [
 									"pm.collectionVariables.set(\"HostTemplate1Name\", \"host_template_1\");\r",
-									"pm.collectionVariables.set(\"HostTemplate1Alias\", \"I'm the first host template created by admin\");\r",
-									""
+									"pm.collectionVariables.set(\"HostTemplate1Alias\", \"I'm the first host template created by admin\");"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -306,7 +309,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"name\": \"{{HostTemplate1Name}}\",\r\n\"alias\": \"{{HostTemplate1Alias}}\",\r\n\"check_command_id\": {{CommandId}},\r\n\"max_check_attempts\": 1\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{HostTemplate1Name}}\",\r\n    \"alias\": \"{{HostTemplate1Alias}}\",\r\n    \"check_command_id\": {{CommandId}},\r\n    \"max_check_attempts\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -490,7 +493,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -502,7 +506,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -514,7 +519,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n\"name\": \"{{ServiceTemplate1Name}}\",\r\n\"alias\": \"{{ServiceTemplate1Alias}}\",\r\n\"check_command_id\": {{CommandId}}\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{ServiceTemplate1Name}}\",\r\n    \"alias\": \"{{ServiceTemplate1Alias}}\",\r\n    \"check_command_id\": {{CommandId}}\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -547,7 +552,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -588,7 +594,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -597,7 +604,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{HostCategory1Name}}\",\r\n    \"alias\":\"{{HostCategory1Alias}}\",\r\n    \"is_activated\": true,\r\n    \"comment\":\"I look like a category\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{HostCategory1Name}}\",\r\n    \"alias\": \"{{HostCategory1Alias}}\",\r\n    \"is_activated\": true,\r\n    \"comment\": \"I look like a category\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -625,7 +637,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -666,7 +679,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -675,7 +689,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{HostCategory2Name}}\",\r\n    \"alias\":\"{{HostCategory2Alias}}\",\r\n    \"is_activated\": true,\r\n    \"comment\":\"I look like a category\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{HostCategory2Name}}\",\r\n    \"alias\": \"{{HostCategory2Alias}}\",\r\n    \"is_activated\": true,\r\n    \"comment\": \"I look like a category\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -703,7 +722,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -744,7 +764,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -753,7 +774,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{HostCategory3Name}}\",\r\n    \"alias\":\"{{HostCategory3Alias}}\",\r\n    \"is_activated\": false,\r\n    \"comment\":\"I look like a category\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{HostCategory3Name}}\",\r\n    \"alias\": \"{{HostCategory3Alias}}\",\r\n    \"is_activated\": false,\r\n    \"comment\": \"I look like a category\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts/categories",
@@ -781,7 +807,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -820,7 +847,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -829,7 +857,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{ServiceCategory1Name}}\",\r\n    \"alias\":\"{{ServiceCategory1Alias}}\",\r\n    \"is_activated\": true\r\n}"
+							"raw": "{\r\n    \"name\": \"{{ServiceCategory1Name}}\",\r\n    \"alias\": \"{{ServiceCategory1Alias}}\",\r\n    \"is_activated\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -857,7 +890,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -895,7 +929,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -904,7 +939,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{ServiceCategory2Name}}\",\r\n    \"alias\":\"{{ServiceCategory2Alias}}\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{ServiceCategory2Name}}\",\r\n    \"alias\": \"{{ServiceCategory2Alias}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -932,7 +972,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -970,7 +1011,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -979,7 +1021,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\":\"{{ServiceCategory3Name}}\",\r\n    \"alias\":\"{{ServiceCategory3Alias}}\"\r\n}"
+							"raw": "{\r\n    \"name\": \"{{ServiceCategory3Name}}\",\r\n    \"alias\": \"{{ServiceCategory3Alias}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services/categories",
@@ -1006,7 +1053,8 @@
 									"pm.collectionVariables.set(\"Host1Alias\", \"I'm the first host created by admin\");"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1187,7 +1235,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1196,7 +1245,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"999.99.99.99\",\r\n    \"monitoring_server_id\": 1,\r\n    \"normal_check_interval\": 3,\r\n    \"categories\": [ {{HostCategory1Id}}, {{HostCategory2Id}} ],\r\n    \"templates\": [ {{HostTemplate1Id}} ]\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{Host1Name}}\",\r\n    \"alias\": \"{{Host1Alias}}\",\r\n    \"address\": \"999.99.99.99\",\r\n    \"monitoring_server_id\": 1,\r\n    \"normal_check_interval\": 3,\r\n    \"categories\": [\r\n        {{HostCategory1Id}},\r\n        {{HostCategory2Id}}\r\n    ],\r\n    \"templates\": [\r\n        {{HostTemplate1Id}}\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/hosts",
@@ -1222,7 +1276,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1389,7 +1444,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1398,7 +1454,12 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Service1Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"service_categories\": [ {{ServiceCategory1Id}},  {{ServiceCategory3Id}}],\r\n    \"max_check_attempts\": 1\r\n}"
+							"raw": "{\r\n    \"name\": \"{{Service1Name}}\",\r\n    \"host_id\": {{Host1Id}},\r\n    \"service_template_id\": {{ServiceTemplate1Id}},\r\n    \"service_categories\": [\r\n        {{ServiceCategory1Id}},\r\n        {{ServiceCategory3Id}}\r\n    ],\r\n    \"max_check_attempts\": 1\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/services",
@@ -1720,7 +1781,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1729,7 +1792,9 @@
 								"exec": [
 									"pm.collectionVariables.set(\"api_login_user_non_admin\", \"user-non-admin\");"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1744,7 +1809,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};{{api_login_user_non_admin}};{{api_login_user_non_admin}}@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
+							"raw": "{\r\n    \"action\": \"add\",\r\n    \"object\": \"CONTACT\",\r\n    \"values\": \"{{api_login_user_non_admin}};{{api_login_user_non_admin}};{{api_login_user_non_admin}}@localhost;Centreon!123;0;1;en_US;local\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1769,7 +1834,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1780,7 +1847,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1795,7 +1864,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};reach_api;1\"\r\n}",
+							"raw": "{\r\n    \"action\": \"setparam\",\r\n    \"object\": \"CONTACT\",\r\n    \"values\": \"{{api_login_user_non_admin}};reach_api;1\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1820,7 +1889,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1831,7 +1902,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1846,7 +1919,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"setparam\",\r\n  \"object\": \"CONTACT\",\r\n  \"values\": \"{{api_login_user_non_admin}};reach_api_rt;1\"\r\n}",
+							"raw": "{\r\n    \"action\": \"setparam\",\r\n    \"object\": \"CONTACT\",\r\n    \"values\": \"{{api_login_user_non_admin}};reach_api_rt;1\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1871,7 +1944,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1882,7 +1957,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1897,7 +1974,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;ACL-non-admin\"\r\n}",
+							"raw": "{\r\n    \"action\": \"add\",\r\n    \"object\": \"ACLGROUP\",\r\n    \"values\": \"ACL-non-admin;ACL-non-admin\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1922,7 +1999,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1933,7 +2012,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1948,7 +2029,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addcontact\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;{{api_login_user_non_admin}}\"\r\n}",
+							"raw": "{\r\n    \"action\": \"addcontact\",\r\n    \"object\": \"ACLGROUP\",\r\n    \"values\": \"ACL-non-admin;{{api_login_user_non_admin}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1973,7 +2054,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1984,7 +2067,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1999,7 +2084,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RS;RS\"\r\n}",
+							"raw": "{\r\n    \"action\": \"add\",\r\n    \"object\": \"ACLMENU\",\r\n    \"values\": \"RS;RS\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2024,7 +2109,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2035,7 +2122,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2050,7 +2139,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n\"values\": \"RS;1;Monitoring\"\r\n}",
+							"raw": "{\r\n    \"action\": \"grantrw\",\r\n    \"object\": \"ACLMENU\",\r\n    \"values\": \"RS;1;Monitoring\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2075,7 +2164,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2086,7 +2177,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2101,7 +2194,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addmenu\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;RS\"\r\n}",
+							"raw": "{\r\n    \"action\": \"addmenu\",\r\n    \"object\": \"ACLGROUP\",\r\n    \"values\": \"ACL-non-admin;RS\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2126,7 +2219,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2137,7 +2232,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2152,7 +2249,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addresource\",\r\n  \"object\": \"ACLGROUP\",\r\n  \"values\": \"ACL-non-admin;All Resources\"\r\n}",
+							"raw": "{\r\n    \"action\": \"addresource\",\r\n    \"object\": \"ACLGROUP\",\r\n    \"values\": \"ACL-non-admin;All Resources\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2177,7 +2274,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2188,7 +2287,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2203,7 +2304,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"raw": "{\r\n    \"action\": \"reload\",\r\n    \"object\": \"ACL\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2319,7 +2420,9 @@
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2331,7 +2434,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"raw": "{\r\n    \"security\": {\r\n        \"credentials\": {\r\n            \"login\": \"{{api_login_user_non_admin}}\",\r\n            \"password\": \"Centreon!123\"\r\n        }\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2684,7 +2787,9 @@
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2696,7 +2801,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"raw": "{\r\n    \"security\": {\r\n        \"credentials\": {\r\n            \"login\": \"{{api_login}}\",\r\n            \"password\": \"{{api_password}}\"\r\n        }\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2725,7 +2830,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2737,7 +2843,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2752,7 +2859,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addfilter_hostcategory\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;{{HostCategory2Name}}\"\r\n}",
+							"raw": "{\r\n    \"action\": \"addfilter_hostcategory\",\r\n    \"object\": \"ACLRESOURCE\",\r\n    \"values\": \"All Resources;{{HostCategory2Name}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2778,7 +2885,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2790,7 +2898,8 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2805,7 +2914,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"addfilter_servicecategory\",\r\n  \"object\": \"ACLRESOURCE\",\r\n  \"values\": \"All Resources;{{ServiceCategory3Name}}\"\r\n}",
+							"raw": "{\r\n    \"action\": \"addfilter_servicecategory\",\r\n    \"object\": \"ACLRESOURCE\",\r\n    \"values\": \"All Resources;{{ServiceCategory3Name}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2830,7 +2939,9 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2841,7 +2952,9 @@
 									"  pm.response.to.have.status(200);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2856,7 +2969,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"action\": \"reload\",\r\n  \"object\": \"ACL\"\r\n}",
+							"raw": "{\r\n    \"action\": \"reload\",\r\n    \"object\": \"ACL\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2967,7 +3080,9 @@
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2979,7 +3094,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user_non_admin}}\",\r\n      \"password\": \"Centreon!123\"\r\n    }\r\n  }\r\n}\r\n\r\n",
+							"raw": "{\r\n    \"security\": {\r\n        \"credentials\": {\r\n            \"login\": \"{{api_login_user_non_admin}}\",\r\n            \"password\": \"Centreon!123\"\r\n        }\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3312,17 +3427,7 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
-				"exec": [
-					"if (!pm.request.headers.has('Content-Type')) {",
-					"    pm.request.headers.add({ key: 'Content-Type', value: 'application/json' });",
-					"}"
-				]
-			}
-		},
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -3332,10 +3437,33 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "CommandLine",
+			"value": "$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1"
+		},
+		{
+			"key": "CommandName",
+			"value": "command_by_generic_test"
+		},
+		{
+			"key": "CommandType",
+			"value": "Check"
+		},
+		{
+			"key": "CommandConnector",
+			"value": "/centreon/api/latest/configuration/connectors/1"
+		},
+		{
+			"key": "CommandId",
+			"value": "1"
 		}
 	]
 }
