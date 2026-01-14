@@ -5125,10 +5125,6 @@ msgid "Display properties"
 msgstr "Propriedades de Exibição"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Display ticket creation buttons"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
 msgid "Display resources"
 msgstr ""
 
@@ -5162,6 +5158,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Display the password"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -5893,6 +5893,14 @@ msgstr "Ativa roteamento"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Ativar shell"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket management"
@@ -8261,11 +8269,11 @@ msgid "Hide graphs of selected Services"
 msgstr "Oculta gráficos dos serviços selecionados"
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Hide services with Down hosts"
+msgid "Hide services with Down host"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
-msgid "Hide services with Unreachable hosts"
+msgid "Hide services with Unreachable host"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -23555,9 +23563,3 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
-
-# msgid "Enable ticket creation for hosts"
-# msgstr ""
-
-# msgid "Enable ticket creation for services"
-# msgstr ""
