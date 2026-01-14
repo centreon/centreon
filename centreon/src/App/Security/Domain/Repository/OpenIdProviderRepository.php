@@ -28,4 +28,8 @@ use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 interface OpenIdProviderRepository
 {
     public function getConfiguration(): OpenIdConfiguration;
+
+    public function delete(): void;
+
+    public function update(OpenIdConfiguration $configuration): void;
 }

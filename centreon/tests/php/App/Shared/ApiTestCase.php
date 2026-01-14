@@ -32,9 +32,9 @@ abstract class ApiTestCase extends SymfonyApiTestCase
 {
     protected static ?bool $alwaysBootKernel = true;
 
-    private Client $client;
+    protected ?string $token = null;
 
-    private ?string $token = null;
+    private Client $client;
 
     protected function setUp(): void
     {
@@ -62,8 +62,8 @@ abstract class ApiTestCase extends SymfonyApiTestCase
         $connection = static::getContainer()->get('doctrine.dbal.default_connection');
 
         $this->token = base64_encode(random_bytes(48));
-
         $qb = $connection->createQueryBuilder();
+        /** @var string|false $contact */
         $contact = $qb->select('contact_id')
             ->from('contact')
             ->where('contact_alias = :login')
@@ -75,6 +75,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             self::createApiUser($login, admin: false);
 
             $qb = $connection->createQueryBuilder();
+            /** @var string $contact */
             $contact = $qb->select('contact_id')
                 ->from('contact')
                 ->where('contact_alias = :login')

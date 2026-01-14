@@ -43,7 +43,7 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
     public function get(string $token): Token
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('rst.id', 'sat.token', 'sat.token_type AS type', 'st.expiration_date AS expiresAt', 'pc.name AS pc_name')
+        $qb->select('st.id', 'sat.token', 'sat.token_type AS type', 'st.expiration_date AS expiresAt', 'pc.name AS pc_name')
             ->from('security_authentication_tokens', 'sat')
             ->join('sat', 'security_token', 'st', 'sat.provider_token_id = st.id')
             ->join('sat', 'provider_configuration', 'pc', 'sat.provider_configuration_id = pc.id')

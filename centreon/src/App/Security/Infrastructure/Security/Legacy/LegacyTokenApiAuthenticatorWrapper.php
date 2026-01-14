@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Security\Legacy;
+namespace App\Security\Infrastructure\Security\Legacy;
 
 use App\Shared\Infrastructure\Legacy\LegacyContainer;
 use Security\TokenAPIAuthenticator;
@@ -42,8 +42,7 @@ final readonly class LegacyTokenApiAuthenticatorWrapper implements Authenticator
     public function __construct(
         LegacyContainer $legacyContainer,
         private readonly RouterInterface $router,
-    )
-    {
+    ) {
         $legacyAuthenticator = $legacyContainer->get('security.provider.tokenapi');
         Assert::isInstanceOf($legacyAuthenticator, TokenAPIAuthenticator::class);
 

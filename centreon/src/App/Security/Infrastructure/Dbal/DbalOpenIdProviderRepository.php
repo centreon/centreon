@@ -73,4 +73,45 @@ final readonly class DbalOpenIdProviderRepository extends DbalRepository impleme
 
         return $this->transformer->transform($row);
     }
+
+    public function delete(): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->delete(self::TABLE_NAME)
+            ->where('type = :tokenIdp')
+            ->setParameter('tokenIdp', TokenIdpEnum::OpenId->value);
+
+        $qb->executeStatement();
+    }
+
+    public function update(OpenIdConfiguration $configuration): void
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $customConfiguration = [
+            'base_url' => $configuration->baseUrl->value,
+            'redirect_url' => $configuration->redirectUrl?->value,
+            'client_id' => $configuration->clientId->value,
+            'client_secret' => $configuration->clientSecret->value,
+            'login_claim' => $configuration->loginClaim->value,
+            'token_endpoint' => $configuration->tokenEndpoint->value,
+            'userinfo_endpoint' => $configuration->userInfoEndpoint?->value,
+            'authentication_type' => $configuration->authenticationType->value,
+            'endsession_endpoint' => $configuration->endSessionEndpoint?->value,
+            'authorization_endpoint' => $configuration->authorizationEndpoint->value,
+            'introspection_token_endpoint' => $configuration->introspectionTokenEndpoint?->value,
+            'connection_scopes' => array_map(fn ($scope): string => $scope->value, $configuration->connectionScopes),
+            'should_verify_peer' => $configuration->shouldVerifyPeer,
+        ];
+        $qb->update(self::TABLE_NAME)
+            ->set('custom_configuration', ':custom_configuration')
+            ->set('is_active', ':is_active')
+            ->set('is_forced', ':is_forced')
+            ->where('type = :type')
+            ->setParameter('custom_configuration', json_encode($customConfiguration, JSON_THROW_ON_ERROR))
+            ->setParameter('is_active', (int) $configuration->isActive)
+            ->setParameter('is_forced', (int) $configuration->isForced)
+            ->setParameter('type', TokenIdpEnum::OpenId->value);
+
+        $qb->executeStatement();
+    }
 }
