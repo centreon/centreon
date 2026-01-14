@@ -181,12 +181,12 @@ runs:
         }
 
         PRIMARY=$(cat <<'EOF'
-${{ steps.ai_primary.outputs.response }}
-EOF
+        ${{ steps.ai_primary.outputs.response }}
+        EOF
         )
         FALLBACK=$(cat <<'EOF'
-${{ steps.ai_fallback.outputs.response }}
-EOF
+        ${{ steps.ai_fallback.outputs.response }}
+        EOF
         )
 
         if validate "$PRIMARY"; then
@@ -210,7 +210,7 @@ EOF
       id: final
       shell: bash
       run: |
-        if [ "${{ github.event_name == 'pull_request' }}" = "true" ] && [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
+        if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
           echo "::notice::E2E test selection decision: AI inference used."
           echo "decision=AI" >> "$GITHUB_OUTPUT"
           cat >> "$GITHUB_OUTPUT" <<'EOF'
