@@ -6,9 +6,9 @@ centreon/tests/rest_api/behat-collections/rest_api.postman_environment.json:gene
 centreon/cypress/fixtures/login/loginPageCustomization.json:aws-access-token:5
 centreon/check-centreon-gpg-key.sh:generic-api-key:20
 centreon/check-centreon-gpg-key.sh:generic-api-key:17
-.github/docker/.env:generic-api-key:23
-.github/docker/.env:generic-api-key:14
+.github/docker/.env:generic-api-key:22
 .github/docker/.env:generic-api-key:13
+.github/docker/.env:generic-api-key:12
 centreon-ha/ocf-scripts/mariadb-centreon-common.sh:generic-api-key:55
 centreon-ha/ocf-scripts/mariadb-centreon-common.sh:generic-api-key:46
 centreon/www/install/insertBaseConf.sql:generic-api-key:581

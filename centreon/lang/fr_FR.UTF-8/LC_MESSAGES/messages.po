@@ -5003,6 +5003,10 @@ msgstr "Afficher le diagramme avec ce statut"
 msgid "Display the password"
 msgstr "Afficher le mot de passe"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr "Afficher les boutons de création de tickets"
+
 #: centreon/www/install/front_translate.php
 msgid "Display up to"
 msgstr "Afficher jusqu'à"
@@ -5757,6 +5761,14 @@ msgstr "Active le routage des traps"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Activer le shell"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr "Activer la création de tickets pour les hôtes"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
+msgstr "Activer la création de tickets pour les services"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket management"
@@ -8165,11 +8177,11 @@ msgstr "Cacher les graphiques des services sélectionnés"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Down host"
-msgstr "Masquer les services dont l'hôte est Indisponible"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Unreachable host"
-msgstr "Masquer les services dont l'hôte est Injoignable"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Hide the password"
@@ -21828,6 +21840,14 @@ msgstr "Centre des services"
 #: unknown
 msgid "Here is a self-explanatory image."
 msgstr "Ici, une image d'explication."
+
+#: unknown
+msgid "Hide services with Down hosts"
+msgstr "Masquer les services dont l'hôte est Indisponible"
+
+#: unknown
+msgid "Hide services with Unreachable hosts"
+msgstr "Masquer les services dont l'hôte est Injoignable"
 
 #: unknown
 msgid "Host / Service Data Source"
