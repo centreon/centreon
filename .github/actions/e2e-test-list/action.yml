@@ -214,11 +214,11 @@ runs:
           echo "::notice::E2E test selection decision: AI inference used."
           echo "decision=AI" >> "$GITHUB_OUTPUT"
           cat >> "$GITHUB_OUTPUT" <<'EOF'
-specs=${{ steps.validate.outputs.specs }}
-EOF
+        specs=${{ steps.validate.outputs.specs }}
+        EOF
         else
           echo "decision=FULL" >> "$GITHUB_OUTPUT"
           cat >> "$GITHUB_OUTPUT" <<'EOF'
-specs=${{ steps.features.outputs.features_json }}
-EOF
+        specs=${{ steps.features.outputs.features_json }}
+        EOF
         fi
