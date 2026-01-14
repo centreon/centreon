@@ -20,26 +20,26 @@ on:
         type: string
   schedule:
     - cron: "0 3 * * 1-5"
-  # pull_request:
-  #   paths:
-  #     - ".github/workflows/web.yml"
-  #     - ".version"
-  #     - ".version.centreon-web"
-  #     - "centreon/**"
+  pull_request:
+    paths:
+      - ".github/workflows/web.yml"
+      - ".version"
+      - ".version.centreon-web"
+      - "centreon/**"
   push:
-    # branches:
-    #   - develop
-    #   - dev-[2-9][0-9].[0-9][0-9].x
-    #   - master
-    #   - "[2-9][0-9].[0-9][0-9].x"
-    #   - "release-[2-9][0-9].[0-9][0-9]-next"
-    #   - "hotfix-[2-9][0-9].[0-9][0-9]-next"
-    # paths:
-    #   - ".version"
-    #   - ".version.centreon-web"
-    #   - "centreon/**"
-    # tags:
-    #   - "centreon-web-*"
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+      - "release-[2-9][0-9].[0-9][0-9]-next"
+      - "hotfix-[2-9][0-9].[0-9][0-9]-next"
+    paths:
+      - ".version"
+      - ".version.centreon-web"
+      - "centreon/**"
+    tags:
+      - "centreon-web-*"
 
 env:
   base_directory: centreon
