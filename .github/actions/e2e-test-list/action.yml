@@ -17,7 +17,7 @@ inputs:
     required: true
   tags:
     description: Tags to filter feature files (optional).
-    required: true
+    required: false
     default: 'not @ignore'
   use_ai:
     description: Whether to use AI inference for test selection.
