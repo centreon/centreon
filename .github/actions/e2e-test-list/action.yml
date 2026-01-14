@@ -134,7 +134,7 @@ runs:
         github.event_name == 'pull_request' &&
         inputs.use_ai == 'true' &&
         steps.changes.outputs.changed == 'true' &&
-        steps.ai_primary.conclusion == 'failure'
+        steps.ai_primary.outcome == 'failure'
       run: |
         echo "::warning::AI primary model inference failed. Falling back to secondary model: ${{ inputs.model_fallback }}."
       shell: bash
@@ -148,7 +148,7 @@ runs:
         github.event_name == 'pull_request' &&
         inputs.use_ai == 'true' &&
         steps.changes.outputs.changed == 'true' &&
-        steps.ai_primary.conclusion == 'failure'
+        steps.ai_primary.outcome == 'failure'
       continue-on-error: true
       uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
       with:

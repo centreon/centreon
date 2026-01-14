@@ -116,6 +116,7 @@ function parseStatsFile($statfile)
     if (str_contains($statfile, '..')) {
         throw new Exception('Path traversal found');
     }
+
     $jsonc_content = file_get_contents($statfile);
     $json_stats = json_decode($jsonc_content, true);
 
