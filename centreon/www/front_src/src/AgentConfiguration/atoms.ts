@@ -57,7 +57,6 @@ export const deleteFilterEntryAtom = atom(
   (get, set, { field, entryToDelete }: DeleteFilterProps) => {
     const fieldEntries = get(filtersAtom)[field];
 
-
     const entryToDeleteIndex = findIndex(
       ({ id }) => equals(entryToDelete.id, id),
       fieldEntries
