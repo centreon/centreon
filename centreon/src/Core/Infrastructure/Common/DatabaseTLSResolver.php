@@ -36,12 +36,10 @@ final readonly class DatabaseTLSResolver
 
         (new Dotenv())->loadEnv(_CENTREON_PATH_ . '/.env');
         $verifyServerCert = $_ENV['DATABASE_VERIFY_SERVER_CERT'] ?? null;
-
         if ($verifyServerCert === null) {
             return $options;
         }
-
-        $verifyServerCert = filter_var($verifyServerCert, FILTER_VALIDATE_BOOLEAN);
+        $verifyServerCert = (bool) $verifyServerCert;
         $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $verifyServerCert;
 
         if ($verifyServerCert === false) {
