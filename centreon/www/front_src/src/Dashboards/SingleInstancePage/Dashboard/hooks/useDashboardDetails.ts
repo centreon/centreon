@@ -107,7 +107,7 @@ const useDashboardDetails = ({
     getQueryKey: () => [resource.dashboard, dashboardId],
     queryOptions: {
       enabled: !!(playlistHash || dashboardId),
-      refetchInterval: 30000,
+      refetchInterval: 30000
     }
   });
 

@@ -20,7 +20,7 @@ export const portRegex = /:[0-9]+$/;
 export const keyFilenameRegexp = /^[a-zA-Z0-9-_.]+(?<!\.key)$/;
 
 const invalidPath = /^(?!.*\/\/).+$/;
-const validCertificateExtensionRegex = /\.(crt|cer)$/;
+const validCertificateExtensionRegex = /\.(crt|cert|cer)$/;
 const validFileExtensionRegex = /\.key$/;
 const relativePathRegex = /^\.{1,2}\//;
 
@@ -75,6 +75,16 @@ export const useValidationSchema = (): Schema<AgentConfigurationForm> => {
   };
 
   const CMAConfigurationSchema = {
+    port: number()
+      .min(1, t(labelPortMustStartFrom1))
+      .max(65535, t(labelPortExpectedAtMost))
+      .when('agentInitiated', {
+        is: true,
+        // biome-ignore lint/suspicious/noThenProperty: <explanation>
+        then: (schema) => schema.required(t(labelRequired)),
+        otherwise: (schema) => schema.nullable().notRequired()
+      }),
+
     agentInitiated: boolean(),
     pollerInitiated: boolean(),
     tokens: array().when(['$type', 'agentInitiated'], {

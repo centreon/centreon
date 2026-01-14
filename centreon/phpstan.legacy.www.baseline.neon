@@ -199,12 +199,6 @@ parameters:
 			path: www/class/config-generate-remote/Relations/BrokerInfo.php
 
 		-
-			message: '#^Undefined variable\: \$serviceId$#'
-			identifier: variable.undefined
-			count: 1
-			path: www/class/config-generate-remote/Relations/HostPollerRelation.php
-
-		-
 			message: '#^Class ConfigGenerateRemote\\Relations\\TrapsGroupRelation referenced with incorrect case\: ConfigGenerateRemote\\Relations\\trapsGroupRelation\.$#'
 			identifier: class.nameCase
 			count: 1

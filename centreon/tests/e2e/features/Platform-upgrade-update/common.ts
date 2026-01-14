@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
 
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
@@ -98,7 +98,6 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
         'dnf module enable -y mariadb:10.11',
@@ -199,9 +198,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
       `centreon-perl-libs='${packageVersionSuffix}'`
     ];
     if (
-      Number(versionMatches[1]) < 24
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7)
+      Number(versionMatches[1]) < 24 ||
+      (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) ||
+      (Number(versionMatches[1]) === 24 &&
+        Number(versionMatches[2]) === 10 &&
+        Number(versionMatches[3]) < 7)
     ) {
       packagesToInstall.push(`centreon-common=${packageVersionSuffix}`);
     }
