@@ -89,8 +89,10 @@ runs:
     id: features
     shell: bash
     run: |
+      echo "::group::Install dependencies"
       sudo apt-get -qq update
       sudo apt-get install -qqy cucumber jq
+      echo "::endgroup::"
 
       TAGS=$(echo "${{ inputs.tags }}" | sed 's/not /~/g; s/ and /&&/g')
 
@@ -191,27 +193,6 @@ runs:
       echo "mode=fallback" >> "$GITHUB_OUTPUT"
 
   # --------------------------------------------------
-  # Static fallback mapping
-  # --------------------------------------------------
-  - name: Fallback mapping
-    id: fallback
-    if: steps.validate.outputs.mode == 'fallback'
-    shell: bash
-    run: |
-      # Read the JSON of changed files
-      CHANGED_JSON="${{ steps.changes.outputs.changed_files_json }}"
-
-      # if empty list → FULL
-      if [ "$CHANGED_JSON" = "[]" ]; then
-        echo "mode=full" >> "$GITHUB_OUTPUT"
-        exit 0
-      fi
-
-      # Otherwise, return the list as is for the fallback
-      echo "mode=fallback" >> "$GITHUB_OUTPUT"
-      echo "specs=$CHANGED_JSON" >> "$GITHUB_OUTPUT"
-
-  # --------------------------------------------------
   # Final decision
   # --------------------------------------------------
   - name: Resolve final decision
@@ -222,9 +203,6 @@ runs:
         echo "::notice::E2E test selection decision: AI inference used."
         echo "decision=AI" >> "$GITHUB_OUTPUT"
         echo "specs=${{ steps.validate.outputs.specs }}" >> "$GITHUB_OUTPUT"
-      elif [ "${{ steps.fallback.outputs.mode }}" = "mapped" ]; then
-        echo "decision=FALLBACK" >> "$GITHUB_OUTPUT"
-        echo "specs=${{ steps.fallback.outputs.specs }}" >> "$GITHUB_OUTPUT"
       else
         echo "decision=FULL" >> "$GITHUB_OUTPUT"
         echo "specs=${{ steps.features.outputs.features_json }}" >> "$GITHUB_OUTPUT"
