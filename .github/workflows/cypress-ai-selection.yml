@@ -25,6 +25,6 @@ jobs:
         with:
           module_name: centreon
           feature_directory: tests/e2e/features
-          use_ai: 'false'
+          use_ai: 'true'
           prompt_file: .github/prompts/select-features.prompt.yml
           github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
