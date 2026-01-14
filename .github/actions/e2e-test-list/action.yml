@@ -1,5 +1,5 @@
 name: e2e-test-list
-description: Detect relevant Cypress E2E feature files based on repository changes and AI inference.
+description: Detect relevant E2E feature files based on repository changes and AI inference.
 
 inputs:
   github_token:
@@ -13,7 +13,7 @@ inputs:
     description: Name of the module where feature files are located.
     required: true
   feature_directory:
-    description: Directory containing the Cypress feature files to consider.
+    description: Directory containing the Gherkin feature files to consider.
     required: true
   tags:
     description: Comma-separated list of tags to filter feature files (optional).
@@ -38,7 +38,7 @@ inputs:
 
 outputs:
   decision:
-    description: Final selection decision (AI, FALLBACK, or FULL).
+    description: Final selection decision (AI or FULL).
     value: ${{ steps.final.outputs.decision }}
   specs:
     description: JSON array of feature files or directories selected for execution.
@@ -56,7 +56,7 @@ runs:
     - name: Get changed files
       id: changed
       if: github.event_name == 'pull_request'
-      uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
+      uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
       with:
         token: ${{ inputs.github_token }}
         use_rest_api: 'true'
@@ -110,7 +110,7 @@ runs:
         echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
 
     # --------------------------------------------------
-    # AI PRIMARY (non bloquant)
+    # AI PRIMARY (non-blocking)
     # --------------------------------------------------
     - name: Infer features (primary model)
       id: ai_primary
@@ -171,7 +171,7 @@ runs:
         BASE_DIR="${{ inputs.module_name }}/$(echo "${{ inputs.feature_directory }}" | sed 's#^/*##')"
 
         validate() {
-          jq -e 'type=="array" and length>0 and length<=20 and all(.[]; type=="string")' <<<"$1" >/dev/null || return 1
+          jq -e 'type=="array" and length>0 and all(.[]; type=="string")' <<<"$1" >/dev/null || return 1
 
           while read -r f; do
             f="${f#/}"
