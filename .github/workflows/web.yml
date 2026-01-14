@@ -20,12 +20,12 @@ on:
         type: string
   schedule:
     - cron: "0 3 * * 1-5"
-  pull_request:
-    paths:
-      - ".github/workflows/web.yml"
-      - ".version"
-      - ".version.centreon-web"
-      - "centreon/**"
+  # pull_request:
+  #   paths:
+  #     - ".github/workflows/web.yml"
+  #     - ".version"
+  #     - ".version.centreon-web"
+  #     - "centreon/**"
   push:
     branches:
       - develop

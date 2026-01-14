@@ -12,6 +12,7 @@ messages:
       If many features are impacted, list them all.
       If install or update codebase is modified, update and upgrade features must be included together.
       Ensure selected features exclusively come from the available features list.
+      Do not be too selective; when in doubt, include the feature.
   - role: user
     content: |
       Modified files: {{changed_files}}
