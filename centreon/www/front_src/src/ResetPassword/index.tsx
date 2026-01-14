@@ -48,7 +48,6 @@ const initialValues = {
 const ResetPassword = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
-
   const navigate = router.useNavigate();
 
   const passwordResetInformations = useAtomValue(passwordResetInformationsAtom);

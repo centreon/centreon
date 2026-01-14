@@ -13,7 +13,6 @@ import useWidgetForm from './useWidgetModal';
 const AddWidgetPanel = (): JSX.Element => {
   const { t } = useTranslation();
 
-
   const isEditing = useAtomValue(isEditingAtom);
 
   const { classes } = useAddWidgetPanelStyles();
