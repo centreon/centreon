@@ -66,15 +66,19 @@ runs:
     id: changes
     shell: bash
     run: |
-      CHANGED_JSON=$(printf '%s\n' "${{ steps.changed.outputs.all_changed_files }}" \
-        | jq -R -s -c 'split("\n") | map(select(length>0))')
+      RAW="${{ steps.changed.outputs.all_changed_files }}"
 
-      if jq -e 'length>0' <<<"$CHANGED_JSON" >/dev/null; then
-        echo "changed=true" >> "$GITHUB_OUTPUT"
-      else
+      if [ -z "$RAW" ]; then
         echo "changed=false" >> "$GITHUB_OUTPUT"
+        echo "changed_files_json=[]" >> "$GITHUB_OUTPUT"
+        exit 0
       fi
 
+      CHANGED_JSON=$(printf '%s' "$RAW" \
+        | tr ' ' '\n' \
+        | jq -R -s -c 'split("\n") | map(select(length>0))')
+
+      echo "changed=true" >> "$GITHUB_OUTPUT"
       echo "changed_files_json=$CHANGED_JSON" >> "$GITHUB_OUTPUT"
 
   # --------------------------------------------------
@@ -119,6 +123,15 @@ runs:
         available_features: ${{ steps.features.outputs.features_json }}
       max-tokens: ${{ inputs.max_tokens }}
       token: ${{ inputs.github_token }}
+
+  - name: Display warning if AI primary failed
+    if: |
+      inputs.use_ai == 'true' &&
+      steps.changes.outputs.changed == 'true' &&
+      steps.ai_primary.conclusion == 'failure'
+    run: |
+      echo "::warning::AI primary model inference failed. Falling back to secondary model: ${{ inputs.model_fallback }}."
+    shell: bash
 
   # --------------------------------------------------
   # AI FALLBACK (only if primary fails)
