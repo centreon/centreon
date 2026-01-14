@@ -150,9 +150,7 @@ const Listing = ({
           isOnPublicPage
         ]}
         columnConfiguration={{
-          selectedColumnIds: isOnPublicPage
-            ? undefined
-            : selectedColumnIds || defaultSelectedColumnIds,
+          selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
         }}
         columns={columns}
