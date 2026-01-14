@@ -60,3 +60,5 @@ parameters:
             - Centreon\Domain\Exception\EntityNotFoundException
         App\Shared\Infrastructure\Legacy\LegacyVaultWrapper:
             - Core\Common\Application\Repository\ReadVaultRepositoryInterface
+        App\Security\Infrastructure\Security\Legacy\LegacyTokenApiAuthenticatorWrapper:
+            - Security\TokenAPIAuthenticator

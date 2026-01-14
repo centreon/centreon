@@ -26,6 +26,7 @@ namespace App\Security\Infrastructure\Idp;
 use App\Security\Domain\Aggregate\Provider\OpenId\AuthenticationTypeEnum;
 use App\Security\Domain\Aggregate\Provider\OpenId\ConnectionScope;
 use App\Security\Domain\Aggregate\Token;
+use App\Security\Domain\Exception\TokenRefreshException;
 use App\Security\Domain\Repository\OpenIdProviderRepository;
 use App\Security\Domain\Repository\TokenRepository;
 use Psr\Log\LoggerInterface;
@@ -49,7 +50,7 @@ final readonly class OpenIdIdp implements IdpInterface
         $refreshToken = $this->tokenRepository->getRefreshToken($token->token);
 
         if ($refreshToken->isExpired()) {
-            throw new \RuntimeException('Refresh token is expired.');
+            throw new TokenRefreshException('Refresh token is expired.');
         }
 
         $result = $this->callRefreshTokenApi($refreshToken);
@@ -131,15 +132,16 @@ final readonly class OpenIdIdp implements IdpInterface
             return $responseAsArray;
         } catch (HttpExceptionInterface $e) {
 
+            $errorDescription = ($response->toArray(false)['error_description'] ?? '');
             $this->authenticationLogger->error('OpenID token refresh failed: {content}', [
                 'status_code' => $response->getStatusCode(),
-                'content' => 'Refresh Token Request Error:', $response->toArray(false)['error_description'] ?? '',
+                'content' => 'Refresh Token Request Error: ' . (is_string($errorDescription) ? $errorDescription : ''),
                 'datetime' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
                 'ip_address' => $this->requestStack->getMainRequest()?->getClientIp(),
                 'exception' => $e,
             ]);
 
-            throw new \RuntimeException('Failed to refresh token via OpenID provider API.', $e->getCode(), previous: $e);
+            throw new TokenRefreshException('Failed to refresh token via OpenID provider API.', $e->getCode(), previous: $e);
         }
     }
 

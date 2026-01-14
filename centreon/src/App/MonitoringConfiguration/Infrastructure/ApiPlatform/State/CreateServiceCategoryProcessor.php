@@ -57,8 +57,8 @@ final readonly class CreateServiceCategoryProcessor implements ProcessorInterfac
         Assert::notNull($data->name);
         Assert::notNull($data->alias);
 
-        /** @var CredentialUser $credentialUser */
         $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $command = new CreateServiceCategoryCommand(
             name: new ServiceCategoryName($data->name),

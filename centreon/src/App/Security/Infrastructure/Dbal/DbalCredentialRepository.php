@@ -69,8 +69,11 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
             ->from(self::TABLE_NAME, 'c')
             ->join('c', 'security_authentication_tokens', 'sat', 'c.contact_id = sat.user_id')
             ->join('sat', 'security_token', 'st', 'sat.provider_token_id = st.id')
-            ->where('sat.token = :token OR st.token = :token')
-            ->andWhere('sat.is_revoked = 0')
+            ->where('sat.is_revoked = 0')
+            ->andWhere($qb->expr()->or(
+                $qb->expr()->eq('sat.token', ':token'),
+                $qb->expr()->eq('st.token', ':token')
+            ))
             ->setParameter('token', $token)
             ->setMaxResults(1);
 
@@ -231,11 +234,20 @@ final readonly class DbalCredentialRepository extends DbalRepository implements 
 
         foreach ($rows as $row) {
             $topologyPage = (int) $row['topology_page'];
+            $accessRight = $row['access_right'] !== null ? (int) $row['access_right'] : null;
+            if (isset($topologies[$topologyPage])) {
+                if ($accessRight === self::MENU_ACCESS_READ_WRITE) {
+                    $topologies[$topologyPage]['access_right'] = self::MENU_ACCESS_READ_WRITE;
+                } elseif ($topologies[$topologyPage]['access_right'] === null) {
+                    $topologies[$topologyPage]['access_right'] = $accessRight;
+                }
+                continue;
+            }
             $topologies[$topologyPage] = [
                 'name' => $row['topology_name'],
                 'page' => $topologyPage,
                 'parent' => $row['topology_parent'] !== null ? (int) $row['topology_parent'] : null,
-                'access_right' => $row['access_right'] !== null ? (int) $row['access_right'] : null,
+                'access_right' => $accessRight,
             ];
         }
 

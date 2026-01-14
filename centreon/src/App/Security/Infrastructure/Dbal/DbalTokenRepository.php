@@ -43,7 +43,7 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
     public function get(string $token): Token
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('rst.id', 'sat.token', 'sat.token_type AS type', 'st.expiration_date AS expiresAt', 'pc.name AS pc_name')
+        $qb->select('st.id', 'sat.token', 'sat.token_type AS type', 'st.expiration_date AS expiresAt', 'pc.name AS pc_name')
             ->from('security_authentication_tokens', 'sat')
             ->join('sat', 'security_token', 'st', 'sat.provider_token_id = st.id')
             ->join('sat', 'provider_configuration', 'pc', 'sat.provider_configuration_id = pc.id')
@@ -63,7 +63,7 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
     public function getRefreshToken(string $token): Token
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->select('rst.id', 'sat.token', 'sat.token_type AS type', 'rst.expiration_date AS expiresAt', 'pc.name AS pc_name')
+        $qb->select('rst.id', 'rst.token', 'sat.token_type AS type', 'rst.expiration_date AS expiresAt', 'pc.name AS pc_name')
             ->from('security_authentication_tokens', 'sat')
             ->join('sat', 'security_token', 'rst', 'sat.provider_token_refresh_id = rst.id')
             ->join('sat', 'provider_configuration', 'pc', 'sat.provider_configuration_id = pc.id')
@@ -83,32 +83,42 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
     public function update(Token $token): void
     {
         $qb = $this->connection->createQueryBuilder();
-        $qb->update('security_authentication_tokens')
-            ->set('token_type', ':type')
-            ->where('token = :token')
-            ->setParameter('type', $token->auto ? 'auto' : 'manual')
-            ->setParameter('token', $token->token)
-            ->executeStatement();
+        try {
+            $this->connection->beginTransaction();
+            $qb->update('security_authentication_tokens')
+                ->set('token_type', ':type')
+                ->where('token = :token')
+                ->setParameter('type', $token->auto ? 'auto' : 'manual')
+                ->setParameter('token', $token->token)
+                ->executeStatement();
 
-        $qb = $this->connection->createQueryBuilder();
-        $providerTokenId = $qb->select('provider_token_id')
-            ->from('security_authentication_tokens')
-            ->where('token = :token')
-            ->setParameter('token', $token->token)
-            ->executeQuery()
-            ->fetchOne();
+            $qb = $this->connection->createQueryBuilder();
+            $providerTokenId = $qb->select('provider_token_id')
+                ->from('security_authentication_tokens')
+                ->where('token = :token')
+                ->setParameter('token', $token->token)
+                ->executeQuery()
+                ->fetchOne();
 
-        if ($providerTokenId === false) {
-            return;
+            if ($providerTokenId === false) {
+                return;
+            }
+
+            $qb = $this->connection->createQueryBuilder();
+            $qb->update('security_token')
+                ->set('expiration_date', ':expiresAt')
+                ->where('id = :id')
+                ->setParameter('expiresAt', $token->expiresAt->getTimestamp())
+                ->setParameter('id', $providerTokenId)
+                ->executeStatement();
+
+            $this->connection->commit();
+        } catch (\Exception $ex) {
+            $this->connection->rollBack();
+
+            throw $ex;
         }
 
-        $qb = $this->connection->createQueryBuilder();
-        $qb->update('security_token')
-            ->set('expiration_date', ':expiresAt')
-            ->where('id = :id')
-            ->setParameter('expiresAt', $token->expiresAt->getTimestamp())
-            ->setParameter('id', $providerTokenId)
-            ->executeStatement();
     }
 
     public function getTokenExpirationShift(): int

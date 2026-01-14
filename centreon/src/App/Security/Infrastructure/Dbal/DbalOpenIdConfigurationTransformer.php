@@ -68,10 +68,13 @@ final readonly class DbalOpenIdConfigurationTransformer implements TransformerIn
     {
         /** @var OpenIdConfigurationTypeAlias $jsonConfiguration */
         $jsonConfiguration = json_decode($from['custom_configuration'], true, flags: JSON_THROW_ON_ERROR);
-        if ($jsonConfiguration['base_url'] === null) {
-            throw new \InvalidArgumentException('Invalid Configuration');
+        $requiredKeys = ['base_url', 'client_id', 'client_secret', 'login_claim', 'token_endpoint', 'authorization_endpoint'];
+        foreach ($requiredKeys as $key) {
+            if (empty($jsonConfiguration[$key])) {
+                throw new \InvalidArgumentException("Required OpenIdConfiguration parameter '{$key}' is null or empty");
+            }
         }
-        if ($jsonConfiguration['client_secret'] !== null && str_starts_with($jsonConfiguration['client_secret'], 'secret::')) {
+        if (str_starts_with($jsonConfiguration['client_secret'], 'secret::')) {
             /**
              * @var array{
              *      _OPENID_CLIENT_ID: string,
@@ -84,29 +87,34 @@ final readonly class DbalOpenIdConfigurationTransformer implements TransformerIn
         }
 
         return new OpenIdConfiguration(
-            baseUrl: $this->createValueObject(
+            baseUrl: $this->createRequiredValueObject(
                 $jsonConfiguration['base_url'],
                 AbsoluteUrl::class,
+                'base_url',
             ),
             redirectUrl: $this->createValueObject(
                 $jsonConfiguration['redirect_url'] ?? null,
                 Url::class,
             ),
-            clientId: $this->createValueObject(
+            clientId: $this->createRequiredValueObject(
                 $jsonConfiguration['client_id'],
                 ClientId::class,
+                'client_id',
             ),
-            clientSecret: $this->createValueObject(
+            clientSecret: $this->createRequiredValueObject(
                 $jsonConfiguration['client_secret'],
                 ClientSecret::class,
+                'client_secret',
             ),
-            loginClaim: $this->createValueObject(
+            loginClaim: $this->createRequiredValueObject(
                 $jsonConfiguration['login_claim'],
                 LoginClaim::class,
+                'login_claim',
             ),
-            tokenEndpoint: $this->createValueObject(
+            tokenEndpoint: $this->createRequiredValueObject(
                 $jsonConfiguration['token_endpoint'],
                 Url::class,
+                'token_endpoint',
             ),
             userInfoEndpoint: $this->createValueObject(
                 $jsonConfiguration['userinfo_endpoint'] ?? null,
@@ -117,9 +125,10 @@ final readonly class DbalOpenIdConfigurationTransformer implements TransformerIn
                 $jsonConfiguration['endsession_endpoint'] ?? null,
                 Url::class,
             ),
-            authorizationEndpoint: $this->createValueObject(
+            authorizationEndpoint: $this->createRequiredValueObject(
                 $jsonConfiguration['authorization_endpoint'],
                 Url::class,
+                'authorization_endpoint',
             ),
             introspectionTokenEndpoint: $this->createValueObject(
                 $jsonConfiguration['introspection_token_endpoint'] ?? null,
@@ -133,6 +142,26 @@ final readonly class DbalOpenIdConfigurationTransformer implements TransformerIn
             isActive: (bool) $from['is_active'],
             isForced: (bool) $from['is_forced'],
         );
+    }
+
+    /**
+     * Create a required value object (non-nullable).
+     *
+     * @template T of object
+     *
+     * @param class-string<T> $className
+     *
+     * @throws \InvalidArgumentException When the required value is null or empty
+     *
+     * @return T
+     */
+    private function createRequiredValueObject(mixed $value, string $className, string $parameterName): object
+    {
+        if ($value === null || $value === '') {
+            throw new \InvalidArgumentException("Required OpenIdConfiguration parameter '{$parameterName}' is null or empty");
+        }
+
+        return new $className($value);
     }
 
     /**

@@ -44,7 +44,7 @@ final class Collection implements \IteratorAggregate, \Countable
     /**
      * @param array<T>|\Closure(): array<T> $elements
      * @param class-string<T> $className
-     * @param \Closure(T, T): bool $compare
+     * @param null|\Closure(T, T): bool $compare
      */
     public function __construct(
         array|\Closure $elements,

@@ -31,7 +31,6 @@ use Tests\App\Shared\ApiTestCase;
 
 final class CreateServiceCategoryProcessorTest extends ApiTestCase
 {
-    #[\PHPUnit\Framework\Attributes\Group('wip')]
     public function testCreateServiceCategory(): void
     {
         /** @var ServiceCategoryRepository $repository */

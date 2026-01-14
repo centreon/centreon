@@ -31,10 +31,10 @@ final readonly class AbsoluteUrl
 
     public function __construct(string $value)
     {
-        Assert::notEmpty($value);
-        Assert::startsWith($value, 'http', 'The URL must start with "http://" or "https://"');
-
-        $this->value = $this->normalize($value);
+        $normalized = $this->normalize($value);
+        Assert::notEmpty($normalized);
+        Assert::regex($normalized, '#^https?://#', 'The URL must start with "http://" or "https://"');
+        $this->value = $normalized;
     }
 
     private function normalize(string $value): string

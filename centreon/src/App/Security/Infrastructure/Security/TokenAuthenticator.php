@@ -70,7 +70,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): null
     {
         try {
-            $token = $this->tokenRepository->get($request->headers->get('X-AUTH-TOKEN') ?? '');
+            $apiToken = $this->tokenRepository->get($request->headers->get('X-AUTH-TOKEN') ?? '');
         } catch (TokenDoesNotExistException) {
             return null;
         }
@@ -79,7 +79,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
             'event' => 'usage',
             'status' => 'success',
             'datetime' => new \DateTimeImmutable(),
-            'token' => $token->token,
+            'token' => mb_substr($apiToken->token, -10),
             'token_type' => 'api',
             'endpoint' => $request->getRequestUri(),
             'httpMethod' => $request->getMethod(),
@@ -122,6 +122,10 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
             $token = $this->tokenRepository->get($tokenString);
         } catch (TokenDoesNotExistException) {
             return;
+        }
+
+        if ($token->isExpired()) {
+            throw new AuthenticationCredentialsNotFoundException('Token expired.');
         }
 
         if (! $token->auto) {

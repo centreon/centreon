@@ -24,12 +24,22 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\Security\Domain\Aggregate\Credential;
+use App\Security\Domain\Exception\CredentialDoesNotExistException;
 
 interface CredentialRepository
 {
+    /**
+     * @throws CredentialDoesNotExistException
+     */
     public function getByToken(string $token): Credential;
 
+    /**
+     * @throws CredentialDoesNotExistException
+     */
     public function getBySession(string $sessionId): Credential;
 
+    /**
+     * @throws CredentialDoesNotExistException
+     */
     public function getByUsername(string $username): Credential;
 }

@@ -23,8 +23,15 @@ when@dev:
             authentication:
                 type: stream
                 path: "%kernel.logs_dir%/login.log"
-                level: debug
+                level: info
                 channels: ["authentication"]
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            token:
+                type: stream
+                path: "%kernel.logs_dir%/dev.token.log"
+                level: debug
+                channels: ["token"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
 
@@ -78,7 +85,14 @@ when@prod:
             authentication:
                 type: stream
                 path: "%kernel.logs_dir%/login.log"
-                level: debug
+                level: info
                 channels: ["authentication"]
+                formatter: monolog.formatter.line
+                date_format: !php/const DateTimeInterface::RFC3339
+            token:
+                type: stream
+                path: "%kernel.logs_dir%/prod.token.log"
+                level: info
+                channels: ["token"]
                 formatter: monolog.formatter.line
                 date_format: !php/const DateTimeInterface::RFC3339
