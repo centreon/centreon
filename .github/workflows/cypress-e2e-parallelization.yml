@@ -59,6 +59,11 @@ on:
       is_nightly:
         required: true
         type: string
+      labels:
+        description: "The list of PR labels"
+        required: false
+        type: string
+        default: ''
     secrets:
       registry_username:
         required: true
@@ -93,15 +98,13 @@ jobs:
 
       - name: Detect relevant E2E specs
         id: list-features
-        uses: ./.github/actions/detect-e2e-test-list
+        uses: ./.github/actions/e2e-test-list
         with:
-          module-name: ${{ inputs.module_name }}
-          feature-directory: ${{ inputs.features_path }}
+          module_name: ${{ inputs.module_name }}
+          feature_directory: ${{ inputs.features_path }}
           tags: ${{ inputs.test_tags }}
-          prompt-file: .github/prompts/select-features.prompt.yml
-          model: openai/gpt-4o
-          max-tokens: '1000'
-          github-token: ${{ secrets.github_models_token }}
+          use_ai: ${{ contains(inputs.labels, 'experimental-ai-e2e-test-list-generation') && 'true' || 'false' }}
+          github_token: ${{ secrets.github_models_token }}
 
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}

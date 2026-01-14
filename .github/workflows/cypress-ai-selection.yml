@@ -21,9 +21,10 @@ jobs:
 
       - name: Detect relevant E2E specs
         id: detect
-        uses: ./.github/actions/detect-e2e-test-list
+        uses: ./.github/actions/e2e-test-list
         with:
-          module-name: centreon
-          feature-directory: tests/e2e/features
-          prompt-file: .github/prompts/select-features.prompt.yml
-          github-token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          module_name: centreon
+          feature_directory: tests/e2e/features
+          use_ai: 'false'
+          prompt_file: .github/prompts/select-features.prompt.yml
+          github_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}

@@ -27,19 +27,19 @@ on:
   #     - ".version.centreon-web"
   #     - "centreon/**"
   push:
-    branches:
-      - develop
-      - dev-[2-9][0-9].[0-9][0-9].x
-      - master
-      - "[2-9][0-9].[0-9][0-9].x"
-      - "release-[2-9][0-9].[0-9][0-9]-next"
-      - "hotfix-[2-9][0-9].[0-9][0-9]-next"
-    paths:
-      - ".version"
-      - ".version.centreon-web"
-      - "centreon/**"
-    tags:
-      - "centreon-web-*"
+    # branches:
+    #   - develop
+    #   - dev-[2-9][0-9].[0-9][0-9].x
+    #   - master
+    #   - "[2-9][0-9].[0-9][0-9].x"
+    #   - "release-[2-9][0-9].[0-9][0-9]-next"
+    #   - "hotfix-[2-9][0-9].[0-9][0-9]-next"
+    # paths:
+    #   - ".version"
+    #   - ".version.centreon-web"
+    #   - "centreon/**"
+    # tags:
+    #   - "centreon-web-*"
 
 env:
   base_directory: centreon
@@ -1059,38 +1059,39 @@ jobs:
   #     jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
   #     jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  # legacy-e2e-test:
-  #   needs: [get-environment, changes, dockerize]
-  #   if: |
-  #     needs.changes.outputs.trigger_e2e_testing == 'true' &&
-  #     needs.get-environment.outputs.skip_workflow == 'false' &&
-  #     ! cancelled() &&
-  #     ! contains(needs.*.result, 'failure') &&
-  #     ! contains(needs.*.result, 'cancelled') &&
-  #     needs.get-environment.outputs.stability != 'stable' &&
-  #     github.repository == 'centreon/centreon'
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
-  #   name: legacy-e2e-test ${{ matrix.operating_system }}-${{ matrix.database }}
-  #   uses: ./.github/workflows/behat-test.yml
-  #   with:
-  #     name: legacy-e2e
-  #     module_name: centreon
-  #     database_image: bitnamilegacy/${{ matrix.database }}
-  #     image_name: centreon-web
-  #     os: ${{ matrix.operating_system }}
-  #     features_path: features
-  #     test_tags: ${{ matrix.test_tags }}
-  #     is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
-  #   secrets:
-  #     registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-  #     registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-  #     composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-  #     jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-  #     jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-  #     jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+  legacy-e2e-test:
+    needs: [get-environment, changes, dockerize]
+    if: |
+      needs.changes.outputs.trigger_e2e_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      github.repository == 'centreon/centreon'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).operating_systems }}
+    name: legacy-e2e-test ${{ matrix.operating_system }}-${{ matrix.database }}
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: legacy-e2e
+      module_name: centreon
+      database_image: bitnamilegacy/${{ matrix.database }}
+      image_name: centreon-web
+      os: ${{ matrix.operating_system }}
+      features_path: features
+      test_tags: ${{ matrix.test_tags }}
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      labels: ${{ needs.get-environment.outputs.labels }}
+    secrets:
+      registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+      registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
   e2e-test:
     needs:
@@ -1134,6 +1135,7 @@ jobs:
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      labels: ${{ needs.get-environment.outputs.labels }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
