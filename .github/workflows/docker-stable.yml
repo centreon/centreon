@@ -28,7 +28,6 @@ jobs:
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
     runs-on: ubuntu-24.04
     steps:
-
       - name: Checkout .version (current branch)
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
@@ -103,7 +102,7 @@ jobs:
                 DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
               *)
-                echo "::error::Major version has not be properly detected."
+                echo "::error::Major version has not been properly detected."
                 exit 1
                 ;;
             esac
