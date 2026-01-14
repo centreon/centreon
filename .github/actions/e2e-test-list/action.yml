@@ -180,8 +180,14 @@ runs:
           done < <(jq -r '.[]' <<<"$1")
         }
 
-        PRIMARY='${{ steps.ai_primary.outputs.response }}'
-        FALLBACK='${{ steps.ai_fallback.outputs.response }}'
+        PRIMARY=$(cat <<'EOF'
+${{ steps.ai_primary.outputs.response }}
+EOF
+        )
+        FALLBACK=$(cat <<'EOF'
+${{ steps.ai_fallback.outputs.response }}
+EOF
+        )
 
         if validate "$PRIMARY"; then
           echo "mode=ai" >> "$GITHUB_OUTPUT"
