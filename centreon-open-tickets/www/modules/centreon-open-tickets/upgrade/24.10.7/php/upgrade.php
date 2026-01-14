@@ -26,7 +26,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../providers/register.php';
 
-$version = '24.10.6';
+$version = '24.10.7';
 
 $errorMessage = '';
 
