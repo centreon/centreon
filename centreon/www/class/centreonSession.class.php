@@ -203,4 +203,42 @@ class CentreonSession
         }
         return $row['user_id'];
     }
+
+    public static function resolveSessionCookie(): string
+    {
+        // Build session cookie name/value robustly to support subdomains (e.g., PHPSESSID_{SITE})
+        $sessionName = session_name();
+        if ($sessionName === '' || $sessionName === false) {
+            $iniSessionName = ini_get('session.name');
+            $sessionName = is_string($iniSessionName) && $iniSessionName !== '' ? $iniSessionName : 'PHPSESSID';
+        }
+
+        $sessionId = session_id();
+        if ($sessionId === '' || $sessionId === false) {
+            // Fallback: try cookie matching the current session name
+            if (isset($_COOKIE[$sessionName]) && is_string($_COOKIE[$sessionName])) {
+                $sessionId = $_COOKIE[$sessionName];
+            } else {
+                // Last resort: find any cookie starting with PHPSESSID (e.g., PHPSESSID_{SITE})
+                foreach ($_COOKIE as $cookieKey => $cookieVal) {
+                    if (is_string($cookieKey) && str_starts_with($cookieKey, 'PHPSESSID') && is_string($cookieVal)) {
+                        $sessionName = $cookieKey;
+                        $sessionId = $cookieVal;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (empty($sessionId)) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Unable to resolve session cookie: no valid session ID found'
+            );
+
+            throw new RuntimeException('Unable to resolve session cookie: no valid session ID found');
+        }
+
+        return $sessionName . '=' . $sessionId;
+    }
 }
