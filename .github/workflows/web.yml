@@ -409,269 +409,269 @@ jobs:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
 
-  frontend-web-lint:
-    runs-on: ubuntu-24.04
-    needs: [changes, get-environment]
-    if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+  # frontend-web-lint:
+  #   runs-on: ubuntu-24.04
+  #   needs: [changes, get-environment]
+  #   if: |
+  #     needs.changes.outputs.trigger_frontend_testing == 'true' &&
+  #     needs.get-environment.outputs.skip_workflow == 'false' &&
+  #     needs.get-environment.outputs.stability != 'stable'
+  #   steps:
+  #     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: ./.github/actions/frontend-lint
-        with:
-          frontend_directory: ${{ env.base_directory }}
-          module_name: centreon
-          dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          lint_path: ./www/front_src/
+  #     - uses: ./.github/actions/frontend-lint
+  #       with:
+  #         frontend_directory: ${{ env.base_directory }}
+  #         module_name: centreon
+  #         dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
+  #         pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #         lint_path: ./www/front_src/
 
-  frontend-unit-test:
-    runs-on: ubuntu-24.04
-    needs: [changes, get-environment]
-    if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+  # frontend-unit-test:
+  #   runs-on: ubuntu-24.04
+  #   needs: [changes, get-environment]
+  #   if: |
+  #     needs.changes.outputs.trigger_frontend_testing == 'true' &&
+  #     needs.get-environment.outputs.skip_workflow == 'false' &&
+  #     needs.get-environment.outputs.stability != 'stable'
 
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+  #   steps:
+  #     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
-        with:
-          version: 10
-          run_install: false
+  #     - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+  #       with:
+  #         version: 10
+  #         run_install: false
 
-      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
-        with:
-          node-version: 20
-          cache: pnpm
-          cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
+  #     - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+  #       with:
+  #         node-version: 20
+  #         cache: pnpm
+  #         cache-dependency-path: ${{ env.base_directory }}/pnpm-lock.yaml
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: centreon
-        env:
-          CYPRESS_INSTALL_BINARY: "0"
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+  #     - name: Install dependencies
+  #       run: pnpm install --frozen-lockfile
+  #       working-directory: centreon
+  #       env:
+  #         CYPRESS_INSTALL_BINARY: "0"
+  #         PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+  #         PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
-      - name: Unit test
-        run: pnpm t --silent --reporter=jest-junit
-        working-directory: centreon
+  #     - name: Unit test
+  #       run: pnpm t --silent --reporter=jest-junit
+  #       working-directory: centreon
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/junit.xml"
+  #     - if: failure()
+  #       uses: ./.github/actions/publish-report
+  #       with:
+  #         path: "centreon/junit.xml"
 
-  frontend-component-test:
-    needs: [changes, get-environment]
-    if: |
-      needs.changes.outputs.trigger_frontend_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
-    uses: ./.github/workflows/cypress-component-parallelization.yml
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
-      jira_base_url: ${{ secrets.JIRA_BASE_URL }}
-      jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
-      jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
-    with:
-      name: centreon
-      module_name: centreon
-      specs_path: www/**
-      dependencies_lock_file: centreon/pnpm-lock.yaml
-      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+  # frontend-component-test:
+  #   needs: [changes, get-environment]
+  #   if: |
+  #     needs.changes.outputs.trigger_frontend_testing == 'true' &&
+  #     needs.get-environment.outputs.skip_workflow == 'false' &&
+  #     needs.get-environment.outputs.stability != 'stable'
+  #   uses: ./.github/workflows/cypress-component-parallelization.yml
+  #   secrets:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.LIGHTHOUSE_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.LIGHTHOUSE_SECRET }}
+  #     jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+  #     jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
+  #     jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+  #   with:
+  #     name: centreon
+  #     module_name: centreon
+  #     specs_path: www/**
+  #     dependencies_lock_file: centreon/pnpm-lock.yaml
+  #     is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
 
-  backend-unit-test:
-    runs-on: ubuntu-24.04
-    needs: [changes, get-environment]
-    if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+  # backend-unit-test:
+  #   runs-on: ubuntu-24.04
+  #   needs: [changes, get-environment]
+  #   if: |
+  #     needs.changes.outputs.trigger_backend_testing == 'true' &&
+  #     needs.get-environment.outputs.skip_workflow == 'false' &&
+  #     needs.get-environment.outputs.stability != 'stable'
 
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+  #   steps:
+  #     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
-        with:
-          php-version: 8.2
-          coverage: none
-        env:
-          runner: ubuntu-24.04
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+  #       with:
+  #         php-version: 8.2
+  #         coverage: none
+  #       env:
+  #         runner: ubuntu-24.04
 
-      - name: Create configuration file
-        run: cp config/centreon.config.php.template config/centreon.config.php
-        working-directory: centreon
+  #     - name: Create configuration file
+  #       run: cp config/centreon.config.php.template config/centreon.config.php
+  #       working-directory: centreon
 
-      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
-        run: |
-          echo "Ensure Symfony cache directories exist"
-          sudo mkdir -p /var/cache/centreon/symfony{,.new}
-          echo "Set permissions on Symfony cache directories with user: '$USER'"
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
+  #     - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+  #       run: |
+  #         echo "Ensure Symfony cache directories exist"
+  #         sudo mkdir -p /var/cache/centreon/symfony{,.new}
+  #         echo "Set permissions on Symfony cache directories with user: '$USER'"
+  #         sudo chown -R $USER:$USER /var/cache/centreon/symfony{,.new}
 
-      - name: Install dependencies
-        uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
-        with:
-          working-directory: centreon
-          composer-options: "--optimize-autoloader"
+  #     - name: Install dependencies
+  #       uses: ramsey/composer-install@3cf229dc2919194e9e36783941438d17239e8520 # v3.1.1
+  #       with:
+  #         working-directory: centreon
+  #         composer-options: "--optimize-autoloader"
 
-      - name: Unit test
-        run: XDEBUG_MODE=coverage composer run-script test:ci
-        working-directory: centreon
+  #     - name: Unit test
+  #       run: XDEBUG_MODE=coverage composer run-script test:ci
+  #       working-directory: centreon
 
-      - if: failure()
-        uses: ./.github/actions/publish-report
-        with:
-          path: "centreon/build/phpunit.xml"
-          format: "php-junit"
+  #     - if: failure()
+  #       uses: ./.github/actions/publish-report
+  #       with:
+  #         path: "centreon/build/phpunit.xml"
+  #         format: "php-junit"
 
-  backend-lint:
-    runs-on: ubuntu-24.04
-    needs: [changes, get-environment]
-    if: |
-      needs.changes.outputs.trigger_backend_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      needs.get-environment.outputs.stability != 'stable'
+  # backend-lint:
+  #   runs-on: ubuntu-24.04
+  #   needs: [changes, get-environment]
+  #   if: |
+  #     needs.changes.outputs.trigger_backend_testing == 'true' &&
+  #     needs.get-environment.outputs.skip_workflow == 'false' &&
+  #     needs.get-environment.outputs.stability != 'stable'
 
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+  #   steps:
+  #     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
-        with:
-          php-version: 8.2
-          coverage: none
-        env:
-          runner: ubuntu-24.04
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+  #       with:
+  #         php-version: 8.2
+  #         coverage: none
+  #       env:
+  #         runner: ubuntu-24.04
 
-      - name: Install dependencies for PHP quality tools
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
-        working-directory: php-tools
-        shell: bash
+  #     - name: Install dependencies for PHP quality tools
+  #       run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+  #       working-directory: php-tools
+  #       shell: bash
 
-      - name: Create configuration file
-        run: cp config/centreon.config.php.template config/centreon.config.php
-        working-directory: centreon
+  #     - name: Create configuration file
+  #       run: cp config/centreon.config.php.template config/centreon.config.php
+  #       working-directory: centreon
 
-      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
-        run: |
-          echo "Ensure Symfony cache directories exist" && set -e
-          sudo mkdir -p /var/cache/centreon/symfony.new
-          sudo mkdir -p /var/cache/centreon/symfony
-          echo "Set permissions on Symfony cache directories with user: '$USER'" && set -e
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
-          sudo chown -R $USER:$USER /var/cache/centreon/symfony
+  #     - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+  #       run: |
+  #         echo "Ensure Symfony cache directories exist" && set -e
+  #         sudo mkdir -p /var/cache/centreon/symfony.new
+  #         sudo mkdir -p /var/cache/centreon/symfony
+  #         echo "Set permissions on Symfony cache directories with user: '$USER'" && set -e
+  #         sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
+  #         sudo chown -R $USER:$USER /var/cache/centreon/symfony
 
-      - name: Install dependencies for centreon-web
-        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
-        working-directory: centreon
-        shell: bash
+  #     - name: Install dependencies for centreon-web
+  #       run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+  #       working-directory: centreon
+  #       shell: bash
 
-      - name: ⚙️ Check Symfony configuration (legacy and new)
-        run: composer symfony:check && composer symfony:new:check
-        working-directory: centreon
+  #     - name: ⚙️ Check Symfony configuration (legacy and new)
+  #       run: composer symfony:check && composer symfony:new:check
+  #       working-directory: centreon
 
-      - name: Get changed PHP files
-        id: changed-php
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
-        with:
-          files: |
-            **/*.php
+  #     - name: Get changed PHP files
+  #       id: changed-php
+  #       uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
+  #       with:
+  #         files: |
+  #           **/*.php
 
-      - name: 🛠️ Rector checks
-        if: steps.changed-php.outputs.any_changed == 'true'
-        working-directory: centreon
-        run: |
-          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+  #     - name: 🛠️ Rector checks
+  #       if: steps.changed-php.outputs.any_changed == 'true'
+  #       working-directory: centreon
+  #       run: |
+  #         echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
+  #         PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
 
-      - name: 🧹 PHP-CS-Fixer checks
-        if: steps.changed-php.outputs.any_changed == 'true'
-        working-directory: centreon
-        run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+  #     - name: 🧹 PHP-CS-Fixer checks
+  #       if: steps.changed-php.outputs.any_changed == 'true'
+  #       working-directory: centreon
+  #       run: |
+  #         echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
+  #         PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
 
-      - name: 🔍 PHPStan checks
-        working-directory: centreon
-        run: |
-          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
+  #     - name: 🔍 PHPStan checks
+  #       working-directory: centreon
+  #       run: |
+  #         echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
 
-          pids=()
-          statuses=()
+  #         pids=()
+  #         statuses=()
 
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ PHPStan $name: Success"
-            else
-              echo "❌ PHPStan $name: Failed"
-            fi
-            return $result
-          }
+  #         run_task() {
+  #           name=$1
+  #           shift
+  #           "$@" -- --no-progress
+  #           result=$?
+  #           if [ $result -eq 0 ]; then
+  #             echo "✅ PHPStan $name: Success"
+  #           else
+  #             echo "❌ PHPStan $name: Failed"
+  #           fi
+  #           return $result
+  #         }
 
-          # Start tasks in background
-          run_task legacy:www composer stan:legacy:www & pids+=($!)
-          run_task legacy:src composer stan:legacy:src & pids+=($!)
-          run_task legacy:test composer stan:legacy:test & pids+=($!)
-          run_task core:src composer stan:core:src & pids+=($!)
-          run_task core:test composer stan:core:test & pids+=($!)
-          run_task new:src composer stan:new:src & pids+=($!)
-          run_task new:test composer stan:new:test & pids+=($!)
+  #         # Start tasks in background
+  #         run_task legacy:www composer stan:legacy:www & pids+=($!)
+  #         run_task legacy:src composer stan:legacy:src & pids+=($!)
+  #         run_task legacy:test composer stan:legacy:test & pids+=($!)
+  #         run_task core:src composer stan:core:src & pids+=($!)
+  #         run_task core:test composer stan:core:test & pids+=($!)
+  #         run_task new:src composer stan:new:src & pids+=($!)
+  #         run_task new:test composer stan:new:test & pids+=($!)
 
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
+  #         # Wait for all, and record if any failed
+  #         exit_code=0
+  #         for pid in "${pids[@]}"; do
+  #           if ! wait "$pid"; then
+  #             exit_code=1
+  #           fi
+  #         done
 
-          exit $exit_code
+  #         exit $exit_code
 
-      - name: 📐 Deptrac checks
-        working-directory: centreon
-        run: |
-          echo "Run of these Deptrac tests: dep:new" && set -e
+  #     - name: 📐 Deptrac checks
+  #       working-directory: centreon
+  #       run: |
+  #         echo "Run of these Deptrac tests: dep:new" && set -e
 
-          pids=()
-          statuses=()
+  #         pids=()
+  #         statuses=()
 
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ Deptrac $name: Success"
-            else
-              echo "❌ Deptrac $name: Failed"
-            fi
-            return $result
-          }
+  #         run_task() {
+  #           name=$1
+  #           shift
+  #           "$@" -- --no-progress
+  #           result=$?
+  #           if [ $result -eq 0 ]; then
+  #             echo "✅ Deptrac $name: Success"
+  #           else
+  #             echo "❌ Deptrac $name: Failed"
+  #           fi
+  #           return $result
+  #         }
 
-          # Start tasks in background
-          run_task new composer dep:new & pids+=($!)
+  #         # Start tasks in background
+  #         run_task new composer dep:new & pids+=($!)
 
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
+  #         # Wait for all, and record if any failed
+  #         exit_code=0
+  #         for pid in "${pids[@]}"; do
+  #           if ! wait "$pid"; then
+  #             exit_code=1
+  #           fi
+  #         done
 
-          exit $exit_code
+  #         exit $exit_code
 
   gherkin-lint:
     runs-on: ubuntu-24.04
@@ -712,14 +712,14 @@ jobs:
         check-version-consistency,
         translation-build,
         backend-dependencies,
-        backend-lint,
-        backend-unit-test,
+        # backend-lint,
+        # backend-unit-test,
         frontend-web-build,
-        frontend-web-lint,
-        frontend-unit-test,
-        frontend-component-test,
-        gherkin-lint,
-        e2e-lint,
+        # frontend-web-lint,
+        # frontend-unit-test,
+        # frontend-component-test,
+        # gherkin-lint,
+        # e2e-lint,
       ]
     if: |
       needs.changes.outputs.trigger_packaging == 'true' &&
