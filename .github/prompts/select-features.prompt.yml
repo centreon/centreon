@@ -13,6 +13,10 @@ messages:
       If install or update codebase is modified, update and upgrade features must be included together.
       Ensure selected features exclusively come from the available features list.
       Do not be too selective; when in doubt, include the feature.
+      Main features to consider:
+      - User authentication and authorization
+      - Monitoring functionality: resource status, dashboards, widgets
+      - Configuration management: hosts, services, templates, commands
   - role: user
     content: |
       Modified files: {{changed_files}}
