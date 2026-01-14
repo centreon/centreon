@@ -208,8 +208,8 @@ runs:
       if [ "${{ github.event_name == 'pull_request' }}" = "true" ] && [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
         echo "::notice::E2E test selection decision: AI inference used."
         echo "decision=AI" >> "$GITHUB_OUTPUT"
-        echo "specs=${{ steps.validate.outputs.specs }}" >> "$GITHUB_OUTPUT"
+        echo 'specs=${{ steps.validate.outputs.specs }}' >> "$GITHUB_OUTPUT"
       else
         echo "decision=FULL" >> "$GITHUB_OUTPUT"
-        echo "specs=${{ steps.features.outputs.features_json }}" >> "$GITHUB_OUTPUT"
+        echo 'specs=${{ steps.features.outputs.features_json }}' >> "$GITHUB_OUTPUT"
       fi
