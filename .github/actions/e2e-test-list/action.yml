@@ -50,166 +50,165 @@ outputs:
 runs:
   using: composite
   steps:
+    # --------------------------------------------------
+    # Changed files
+    # --------------------------------------------------
+    - name: Get changed files
+      id: changed
+      if: github.event_name == 'pull_request'
+      uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
+      with:
+        token: ${{ inputs.github_token }}
+        use_rest_api: 'true'
+        files: |
+          ${{ inputs.module_name }}/**
 
-  # --------------------------------------------------
-  # Changed files
-  # --------------------------------------------------
-  - name: Get changed files
-    id: changed
-    if: github.event_name == 'pull_request'
-    uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62
-    with:
-      token: ${{ inputs.github_token }}
-      use_rest_api: 'true'
-      files: |
-        ${{ inputs.module_name }}/**
+    - name: Normalize changed files
+      id: changes
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: |
+        RAW="${{ steps.changed.outputs.all_changed_files }}"
 
-  - name: Normalize changed files
-    id: changes
-    if: github.event_name == 'pull_request'
-    shell: bash
-    run: |
-      RAW="${{ steps.changed.outputs.all_changed_files }}"
+        if [ -z "$RAW" ]; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "changed_files_json=[]" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
 
-      if [ -z "$RAW" ]; then
-        echo "changed=false" >> "$GITHUB_OUTPUT"
-        echo "changed_files_json=[]" >> "$GITHUB_OUTPUT"
-        exit 0
-      fi
+        CHANGED_JSON=$(printf '%s' "$RAW" \
+          | tr ' ' '\n' \
+          | jq -R -s -c 'split("\n") | map(select(length>0))')
 
-      CHANGED_JSON=$(printf '%s' "$RAW" \
-        | tr ' ' '\n' \
-        | jq -R -s -c 'split("\n") | map(select(length>0))')
+        echo "changed=true" >> "$GITHUB_OUTPUT"
+        echo "changed_files_json=$CHANGED_JSON" >> "$GITHUB_OUTPUT"
 
-      echo "changed=true" >> "$GITHUB_OUTPUT"
-      echo "changed_files_json=$CHANGED_JSON" >> "$GITHUB_OUTPUT"
+    # --------------------------------------------------
+    # List available features
+    # --------------------------------------------------
+    - name: List features
+      id: features
+      shell: bash
+      run: |
+        echo "::group::Install dependencies"
+        sudo apt-get -qq update
+        sudo apt-get install -qqy cucumber jq
+        echo "::endgroup::"
 
-  # --------------------------------------------------
-  # List available features
-  # --------------------------------------------------
-  - name: List features
-    id: features
-    shell: bash
-    run: |
-      echo "::group::Install dependencies"
-      sudo apt-get -qq update
-      sudo apt-get install -qqy cucumber jq
-      echo "::endgroup::"
+        TAGS=$(echo "${{ inputs.tags }}" | sed 's/not /~/g; s/ and /&&/g')
 
-      TAGS=$(echo "${{ inputs.tags }}" | sed 's/not /~/g; s/ and /&&/g')
+        cd "${{ inputs.module_name }}"
 
-      cd "${{ inputs.module_name }}"
+        cucumber "${{ inputs.feature_directory }}" --tags "$TAGS" -f json \
+          | jq -r '.[].uri' \
+          | sed -e "s#^${{ inputs.feature_directory }}/##" -e 's#\.feature$##' \
+          | sort -u \
+          | jq -R -s -c 'split("\n") | map(select(length>0))' \
+          > features.json
 
-      cucumber "${{ inputs.feature_directory }}" --tags "$TAGS" -f json \
-        | jq -r '.[].uri' \
-        | sed -e "s#^${{ inputs.feature_directory }}/##" -e 's#\.feature$##' \
-        | sort -u \
-        | jq -R -s -c 'split("\n") | map(select(length>0))' \
-        > features.json
+        echo "features_json=$(cat features.json)" >> "$GITHUB_OUTPUT"
+        echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
 
-      echo "features_json=$(cat features.json)" >> "$GITHUB_OUTPUT"
-      echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+    # --------------------------------------------------
+    # AI PRIMARY (non bloquant)
+    # --------------------------------------------------
+    - name: Infer features (primary model)
+      id: ai_primary
+      if: |
+        github.event_name == 'pull_request' &&
+        inputs.use_ai == 'true' &&
+        steps.changes.outputs.changed == 'true'
+      continue-on-error: true
+      uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
+      with:
+        model: ${{ inputs.model_primary }}
+        prompt-file: ${{ inputs.prompt_file }}
+        input: |
+          changed_files: ${{ steps.changes.outputs.changed_files_json }}
+          available_features: ${{ steps.features.outputs.features_json }}
+        max-tokens: ${{ inputs.max_tokens }}
+        token: ${{ inputs.github_token }}
 
-  # --------------------------------------------------
-  # AI PRIMARY (non bloquant)
-  # --------------------------------------------------
-  - name: Infer features (primary model)
-    id: ai_primary
-    if: |
-      github.event_name == 'pull_request' &&
-      inputs.use_ai == 'true' &&
-      steps.changes.outputs.changed == 'true'
-    continue-on-error: true
-    uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
-    with:
-      model: ${{ inputs.model_primary }}
-      prompt-file: ${{ inputs.prompt_file }}
-      input: |
-        changed_files: ${{ steps.changes.outputs.changed_files_json }}
-        available_features: ${{ steps.features.outputs.features_json }}
-      max-tokens: ${{ inputs.max_tokens }}
-      token: ${{ inputs.github_token }}
+    - name: Display warning if AI primary failed
+      if: |
+        github.event_name == 'pull_request' &&
+        inputs.use_ai == 'true' &&
+        steps.changes.outputs.changed == 'true' &&
+        steps.ai_primary.conclusion == 'failure'
+      run: |
+        echo "::warning::AI primary model inference failed. Falling back to secondary model: ${{ inputs.model_fallback }}."
+      shell: bash
 
-  - name: Display warning if AI primary failed
-    if: |
-      github.event_name == 'pull_request' &&
-      inputs.use_ai == 'true' &&
-      steps.changes.outputs.changed == 'true' &&
-      steps.ai_primary.conclusion == 'failure'
-    run: |
-      echo "::warning::AI primary model inference failed. Falling back to secondary model: ${{ inputs.model_fallback }}."
-    shell: bash
+    # --------------------------------------------------
+    # AI FALLBACK (only if primary fails)
+    # --------------------------------------------------
+    - name: Infer features (fallback model)
+      id: ai_fallback
+      if: |
+        github.event_name == 'pull_request' &&
+        inputs.use_ai == 'true' &&
+        steps.changes.outputs.changed == 'true' &&
+        steps.ai_primary.conclusion == 'failure'
+      continue-on-error: true
+      uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
+      with:
+        model: ${{ inputs.model_fallback }}
+        prompt-file: ${{ inputs.prompt_file }}
+        input: |
+          changed_files: ${{ steps.changes.outputs.changed_files_json }}
+          available_features: ${{ steps.features.outputs.features_json }}
+        max-tokens: ${{ inputs.max_tokens }}
+        token: ${{ inputs.github_token }}
 
-  # --------------------------------------------------
-  # AI FALLBACK (only if primary fails)
-  # --------------------------------------------------
-  - name: Infer features (fallback model)
-    id: ai_fallback
-    if: |
-      github.event_name == 'pull_request' &&
-      inputs.use_ai == 'true' &&
-      steps.changes.outputs.changed == 'true' &&
-      steps.ai_primary.conclusion == 'failure'
-    continue-on-error: true
-    uses: actions/ai-inference@334892bb203895caaed82ec52d23c1ed9385151e
-    with:
-      model: ${{ inputs.model_fallback }}
-      prompt-file: ${{ inputs.prompt_file }}
-      input: |
-        changed_files: ${{ steps.changes.outputs.changed_files_json }}
-        available_features: ${{ steps.features.outputs.features_json }}
-      max-tokens: ${{ inputs.max_tokens }}
-      token: ${{ inputs.github_token }}
+    # --------------------------------------------------
+    # Validate AI output (primary first, then fallback)
+    # --------------------------------------------------
+    - name: Validate AI result
+      id: validate
+      if: github.event_name == 'pull_request'
+      shell: bash
+      run: |
+        BASE_DIR="${{ inputs.module_name }}/$(echo "${{ inputs.feature_directory }}" | sed 's#^/*##')"
 
-  # --------------------------------------------------
-  # Validate AI output (primary first, then fallback)
-  # --------------------------------------------------
-  - name: Validate AI result
-    id: validate
-    if: github.event_name == 'pull_request'
-    shell: bash
-    run: |
-      BASE_DIR="${{ inputs.module_name }}/$(echo "${{ inputs.feature_directory }}" | sed 's#^/*##')"
+        validate() {
+          jq -e 'type=="array" and length>0 and length<=20 and all(.[]; type=="string")' <<<"$1" >/dev/null || return 1
 
-      validate() {
-        jq -e 'type=="array" and length>0 and length<=20 and all(.[]; type=="string")' <<<"$1" >/dev/null || return 1
+          jq -r '.[]' <<<"$1" | while read -r f; do
+            f="${f#/}"
+            [[ "$f" != *.feature ]] && f="$f.feature"
+            [ -e "$BASE_DIR/$f" ] || return 1
+          done
+        }
 
-        jq -r '.[]' <<<"$1" | while read -r f; do
-          f="${f#/}"
-          [[ "$f" != *.feature ]] && f="$f.feature"
-          [ -e "$BASE_DIR/$f" ] || return 1
-        done
-      }
+        PRIMARY='${{ steps.ai_primary.outputs.response }}'
+        FALLBACK='${{ steps.ai_fallback.outputs.response }}'
 
-      PRIMARY='${{ steps.ai_primary.outputs.response }}'
-      FALLBACK='${{ steps.ai_fallback.outputs.response }}'
+        if validate "$PRIMARY"; then
+          echo "mode=ai" >> "$GITHUB_OUTPUT"
+          echo "specs=$PRIMARY" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
 
-      if validate "$PRIMARY"; then
-        echo "mode=ai" >> "$GITHUB_OUTPUT"
-        echo "specs=$PRIMARY" >> "$GITHUB_OUTPUT"
-        exit 0
-      fi
+        if validate "$FALLBACK"; then
+          echo "mode=ai" >> "$GITHUB_OUTPUT"
+          echo "specs=$FALLBACK" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
 
-      if validate "$FALLBACK"; then
-        echo "mode=ai" >> "$GITHUB_OUTPUT"
-        echo "specs=$FALLBACK" >> "$GITHUB_OUTPUT"
-        exit 0
-      fi
+        echo "mode=fallback" >> "$GITHUB_OUTPUT"
 
-      echo "mode=fallback" >> "$GITHUB_OUTPUT"
-
-  # --------------------------------------------------
-  # Final decision
-  # --------------------------------------------------
-  - name: Resolve final decision
-    id: final
-    shell: bash
-    run: |
-      if [ "${{ github.event_name == 'pull_request' }}" = "true" ] && [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
-        echo "::notice::E2E test selection decision: AI inference used."
-        echo "decision=AI" >> "$GITHUB_OUTPUT"
-        echo 'specs=${{ steps.validate.outputs.specs }}' >> "$GITHUB_OUTPUT"
-      else
-        echo "decision=FULL" >> "$GITHUB_OUTPUT"
-        echo 'specs=${{ steps.features.outputs.features_json }}' >> "$GITHUB_OUTPUT"
-      fi
+    # --------------------------------------------------
+    # Final decision
+    # --------------------------------------------------
+    - name: Resolve final decision
+      id: final
+      shell: bash
+      run: |
+        if [ "${{ github.event_name == 'pull_request' }}" = "true" ] && [ "${{ steps.validate.outputs.mode }}" = "ai" ]; then
+          echo "::notice::E2E test selection decision: AI inference used."
+          echo "decision=AI" >> "$GITHUB_OUTPUT"
+          echo 'specs=${{ steps.validate.outputs.specs }}' >> "$GITHUB_OUTPUT"
+        else
+          echo "decision=FULL" >> "$GITHUB_OUTPUT"
+          echo 'specs=${{ steps.features.outputs.features_json }}' >> "$GITHUB_OUTPUT"
+        fi
