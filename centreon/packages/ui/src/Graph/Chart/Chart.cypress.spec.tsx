@@ -157,7 +157,7 @@ const checkGraphWidth = (): void => {
     .and('equal', '392');
 
   cy.findByTestId('graph-interaction-zone').then((graph) => {
-    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1170);
+    expect(Number(graph[0].attributes.width.value)).to.be.greaterThan(1167);
   });
 };
 
@@ -180,8 +180,8 @@ describe('Line chart', () => {
 
       cy.contains('06/18/2023').should('be.visible');
 
-      cy.contains('0.4 s').should('be.visible');
-      cy.contains('73.65%').should('be.visible');
+      cy.contains('0.44 s').should('be.visible');
+      cy.contains('75.19%').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -235,7 +235,7 @@ describe('Line chart', () => {
 
       cy.contains('Min: 70.31').should('be.visible');
 
-      cy.findByTestId('graph-interaction-zone').realMouseMove(1170, 100);
+      cy.findByTestId('graph-interaction-zone').realMouseMove(1100, 100);
 
       cy.get('[data-metric="querytime"]').should('be.visible');
       cy.get('[data-metric="hitratio"]').should('be.visible');
@@ -533,8 +533,8 @@ describe('Line chart', () => {
 
       checkGraphWidth();
       cy.contains(':00 AM').should('be.visible');
-      cy.get('circle[cx="248.33333333333334"]').should('be.visible');
-      cy.get('circle[cy="267.9948393443889"]').should('be.visible');
+      cy.get('circle[cx="245.83333333333334"]').should('be.visible');
+      cy.get('circle[cy="256.7205013298516"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -592,7 +592,7 @@ describe('Line chart', () => {
       cy.get('path.visx-area-closed')
         .should('have.attr', 'stroke-dasharray')
         .and('equals', '5 4');
-      cy.get('circle[cx="33.11111111111111"]').should('be.visible');
+      cy.get('circle[cx="32.77777777777778"]').should('be.visible');
 
       cy.makeSnapshot();
     });
@@ -714,7 +714,7 @@ describe('Lines and bars', () => {
     cy.findByLabelText('B').click();
 
     cy.findAllByTestId('unit-selector').eq(0).should('have.value', 'B');
-    cy.contains('8.79 KB').should('be.visible');
+    cy.contains('8.79 KiB').should('be.visible');
 
     cy.findAllByTestId('unit-selector').eq(1).parent().click();
     cy.findByLabelText('%').click();
@@ -748,10 +748,10 @@ describe('Lines and bars', () => {
     checkGraphWidth();
 
     cy.get(
-      'path[d="M7.501377410468319,289.92398616599974 h56.51239669421488 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-56.51239669421488 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
+      'path[d="M7.435261707988982,289.92398616599974 h55.91735537190083 h1v1 v100.07601383400026 a1,1 0 0 1 -1,1 h-55.91735537190083 a1,1 0 0 1 -1,-1 v-100.07601383400026 v-1h1z"]'
     ).should('be.visible');
     cy.get(
-      'path[d="M24.05509641873278,73.57899638721061 h23.404958677685954 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,17.553719008264462 v137.44495707537567 v17.553719008264462h-17.553719008264462 h-23.404958677685954 h-17.553719008264462v-17.553719008264462 v-137.44495707537567 a17.553719008264462,17.553719008264462 0 0 1 17.553719008264462,-17.553719008264462z"]'
+      'path[d="M23.81046831955923,235.36727985204413 h23.166942148760334 a17.37520661157025,17.37520661157025 0 0 1 17.37520661157025,17.37520661157025 v19.806293090815103 v17.37520661157025h-17.37520661157025 h-23.166942148760334 h-17.37520661157025v-17.37520661157025 v-19.806293090815103 a17.37520661157025,17.37520661157025 0 0 1 17.37520661157025,-17.37520661157025z"]'
     ).should('be.visible');
 
     cy.makeSnapshot();
