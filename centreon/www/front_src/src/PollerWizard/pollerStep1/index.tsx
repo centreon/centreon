@@ -38,6 +38,7 @@ const PollerWizardStepOne = ({
 }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
+
   const [waitList, setWaitList] = useState<Array<WaitList> | null>(null);
   const [initialized, setInitialized] = useState(false);
   const [inputTypeManual, setInputTypeManual] = useState(true);
