@@ -16,7 +16,7 @@ inputs:
     description: Directory containing the Gherkin feature files to consider.
     required: true
   tags:
-    description: Comma-separated list of tags to filter feature files (optional).
+    description: Tags to filter feature files (optional).
     required: true
     default: 'not @ignore'
   use_ai:
