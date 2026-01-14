@@ -4066,7 +4066,7 @@
 		},
 		{
 			"key": "maxNumberOfTries",
-			"value": "50"
+			"value": "100"
 		},
 		{
 			"key": "sleepBetweenTries",
