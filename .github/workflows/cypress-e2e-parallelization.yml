@@ -59,6 +59,11 @@ on:
       is_nightly:
         required: true
         type: string
+      labels:
+        description: "The list of PR labels"
+        required: false
+        type: string
+        default: ''
     secrets:
       registry_username:
         required: true
@@ -78,31 +83,28 @@ on:
         required: true
       jira_api_token:
         required: true
+      github_models_token:
+        required: true
 
 jobs:
   cypress-e2e-test-list:
     runs-on: ubuntu-24.04
     outputs:
-      features: ${{ steps.list-features.outputs.features }}
+      features: ${{ steps.list-features.outputs.specs }}
 
     steps:
       - name: Checkout sources
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: List features
+      - name: Detect relevant E2E specs
         id: list-features
-        run: |
-          set -o pipefail
-
-          sudo apt-get update
-          sudo apt-get install -y cucumber
-
-          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
-          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
-
-          cd ${{ inputs.module_name }}
-          cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+        uses: ./.github/actions/e2e-test-list
+        with:
+          module_name: ${{ inputs.module_name }}
+          feature_directory: ${{ inputs.features_path }}
+          tags: ${{ inputs.test_tags }}
+          use_ai: ${{ contains(inputs.labels, 'experimental-ai-e2e-test-list-generation') && 'true' || 'false' }}
+          github_token: ${{ secrets.github_models_token }}
 
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
@@ -209,7 +211,7 @@ jobs:
       - name: Cypress end-to-end testing
         uses: cypress-io/github-action@e65cba2e7319696fc0fdc4d5a319b737aec4ba1c # v6.10.3
         with:
-          command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }} --env tags="${{ inputs.test_tags }}"
+          command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }}.feature --env tags="${{ inputs.test_tags }}"
           install: false
           working-directory: ${{ inputs.module_name }}/tests/e2e
         env:
