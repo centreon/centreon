@@ -1,22 +1,23 @@
-import { RefCallback, memo, useEffect } from 'react';
+import dayjs from "dayjs";
+import { memo, type RefCallback, useEffect } from "react";
+import "dayjs/locale/en";
+import "dayjs/locale/es";
+import "dayjs/locale/fr";
+import "dayjs/locale/pt";
+import localizedFormat from "dayjs/plugin/localizedFormat";
+import timezonePlugin from "dayjs/plugin/timezone";
+import utcPlugin from "dayjs/plugin/utc";
+import { useTranslation } from "react-i18next";
 
-import dayjs from 'dayjs';
-import 'dayjs/locale/en';
-import 'dayjs/locale/es';
-import 'dayjs/locale/fr';
-import 'dayjs/locale/pt';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import Loading from '../../LoadingSkeleton';
-import type { LineChartData, Thresholds } from '../common/models';
-
-import useResizeObserver from 'use-resize-observer';
-import Chart from './Chart';
-import { useChartStyles } from './Chart.styles';
-import LoadingSkeleton from './LoadingSkeleton';
-import type { GlobalAreaLines, LineChartProps } from './models';
-import useChartData from './useChartData';
+import useResizeObserver from "use-resize-observer";
+import Loading from "../../LoadingSkeleton";
+import NoData from "../common/Error/NoData";
+import type { LineChartData, Thresholds } from "../common/models";
+import Chart from "./Chart";
+import { useChartStyles } from "./Chart.styles";
+import LoadingSkeleton from "./LoadingSkeleton";
+import type { GlobalAreaLines, LineChartProps } from "./models";
+import useChartData from "./useChartData";
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -52,19 +53,19 @@ const WrapperChart = ({
   loading,
   timeShiftZones,
   tooltip = {
-    mode: 'all',
-    sortOrder: 'name'
+    mode: "all",
+    sortOrder: "name",
   },
   annotationEvent,
   legend = {
     display: true,
-    mode: 'grid',
-    placement: 'bottom',
+    mode: "grid",
+    placement: "bottom",
     showCalculations: {
       min: true,
       max: true,
-      avg: true
-    }
+      avg: true,
+    },
   },
   header,
   lineStyle,
@@ -81,12 +82,12 @@ const WrapperChart = ({
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
-
+  const { t } = useTranslation();
   const { adjustedData } = useChartData({ data, end, start });
   const {
     ref,
     width: responsiveWidth,
-    height: responsiveHeight
+    height: responsiveHeight,
   } = useResizeObserver();
 
   useEffect(() => {
@@ -103,7 +104,7 @@ const WrapperChart = ({
   }
 
   if (!adjustedData) {
-    return <div />;
+    return <NoData />;
   }
 
   return (
@@ -112,7 +113,7 @@ const WrapperChart = ({
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
       {!responsiveHeight ? (
-        <Loading height={height || '100%'} width={width} />
+        <Loading height={height || "100%"} width={width} />
       ) : (
         <Chart
           annotationEvent={annotationEvent}

@@ -7,3 +7,4 @@ export const labelDowntime = 'Downtime';
 export const labelMin = 'Min';
 export const labelMax = 'Max';
 export const labelAvg = 'Avg';
+export const labelNoDataForThisPeriod = 'No data for this period';

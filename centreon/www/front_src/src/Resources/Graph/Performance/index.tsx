@@ -30,6 +30,7 @@ import { Skeleton, Typography } from '@mui/material';
 
 import {
   type LineChartData,
+  NoData,
   ParentSize,
   getData,
   timeFormat,
@@ -121,12 +122,6 @@ const useStyles = makeStyles<MakeStylesProps>()(
     loadingContainer: {
       height: theme.spacing(2),
       width: theme.spacing(2)
-    },
-    noDataContainer: {
-      alignItems: 'center',
-      display: 'flex',
-      height: '100%',
-      justifyContent: 'center'
     },
     title: {
       maxWidth: '100%',
@@ -263,13 +258,7 @@ const PerformanceGraph = <T,>({
   }
 
   if (isEmpty(timeSeries) || isEmpty(lineData)) {
-    return (
-      <div className={classes.noDataContainer}>
-        <Typography align="center" variant="body1">
-          {t(labelNoDataForThisPeriod)}
-        </Typography>
-      </div>
-    );
+    return <NoData />;
   }
 
   const getLineByMetric = (metric): LineModel => {

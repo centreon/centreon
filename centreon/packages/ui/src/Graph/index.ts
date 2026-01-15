@@ -1,5 +1,6 @@
 export type { ParentSizeProps } from '@visx/responsive/lib/components/ParentSize';
 export { default as LineChart } from './Chart';
+export { default as NoData } from './common/Error/NoData';
 export { default as ThresholdLines } from './Chart/BasicComponents/Lines/Threshold';
 export { default as useLineChartData } from './Chart/useChartData';
 export { default as BarChart } from './BarChart/BarChart';
