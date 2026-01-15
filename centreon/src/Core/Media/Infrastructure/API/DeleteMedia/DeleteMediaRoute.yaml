@@ -1,0 +1,7 @@
+DeleteMedia:
+  methods: DELETE
+  path: /configuration/medias/{mediaId}
+  requirements:
+    mediaId: '\d+'
+  controller: 'Core\Media\Infrastructure\API\DeleteMedia\DeleteMediaController'
+  condition: "request.attributes.get('version') >= 25.10"

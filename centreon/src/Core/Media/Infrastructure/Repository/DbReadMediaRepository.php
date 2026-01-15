@@ -440,4 +440,57 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             null
         );
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(
+        int $mediaId,
+        array $accessGroups,
+    ): bool {
+
+        if ($accessGroups === []) {
+            $this->logger->debug('Access groups array empty');
+
+            return false;
+        }
+
+        $accessGroupIds = array_map(
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    `img`.img_id,
+                    `img`.img_path,
+                    `img`.img_comment,
+                    `dir`.dir_name
+                FROM `:db`.`view_img` img
+                INNER JOIN `:db`.`view_img_dir_relation` rel
+                    ON rel.img_img_id = img.img_id
+                INNER JOIN `:db`.`view_img_dir` dir
+                    ON dir.dir_id = rel.dir_dir_parent_id
+                INNER JOIN `:db`.acl_resources_image_folder_relations amdr
+                    ON amdr.dir_id = dir.dir_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = amdr.acl_res_id
+                    AND argr.acl_group_id IN ({$bindQuery})
+                WHERE `img`.img_id = :mediaId
+                SQL
+        ));
+
+        $statement->bindValue(':mediaId', $mediaId, \PDO::PARAM_INT);
+        foreach ($bindValues as $bindKey => $bindValue) {
+                $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+            }
+
+
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
 }

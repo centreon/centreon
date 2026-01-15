@@ -1,0 +1,22 @@
+get:
+  tags:
+    - Media
+  summary: "Get a media"
+  description: |
+    Get an existing media.
+
+  parameters:
+    - $ref: 'QueryParameter/mediaId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/GetMediaResponse.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
