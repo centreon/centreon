@@ -173,13 +173,10 @@ afterEach(() => {
   });
 });
 
-Given(
-  "a dashboard exists in the dashboard administrator's library",
-  () => {
-    cy.insertDashboard({ ...dashboards.default });
-    cy.visitDashboard(dashboards.default.name);
-  }
-);
+Given("a dashboard exists in the dashboard administrator's library", () => {
+  cy.insertDashboard({ ...dashboards.default });
+  cy.visitDashboard(dashboards.default.name);
+});
 
 When(
   'the dashboard administrator user selects the option to add a new widget',

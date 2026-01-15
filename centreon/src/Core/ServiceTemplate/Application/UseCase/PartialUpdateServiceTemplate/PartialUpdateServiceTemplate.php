@@ -35,6 +35,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -91,6 +93,7 @@ final class PartialUpdateServiceTemplate
         private readonly OptionService $optionService,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -470,10 +473,6 @@ final class PartialUpdateServiceTemplate
             $serviceTemplate->setVolatility(YesNoDefaultConverter::fromInt($request->volatility));
         }
 
-        if (! $request->checkFreshness instanceof NoValue) {
-            $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt($request->checkFreshness));
-        }
-
         if (! $request->eventHandlerEnabled instanceof NoValue) {
             $serviceTemplate->setEventHandlerEnabled(YesNoDefaultConverter::fromInt($request->eventHandlerEnabled));
         }
@@ -519,8 +518,27 @@ final class PartialUpdateServiceTemplate
             $serviceTemplate->setServiceTemplateParentId($request->serviceTemplateParentId);
         }
 
+        if (! $request->freshnessThreshold instanceof NoValue) {
+            $serviceTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
+        if (! $request->checkFreshness instanceof NoValue) {
+            $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt($request->checkFreshness));
+        }
+
         if (! $request->commandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->commandId);
+            if ($request->commandId !== null) {
+                $command = $this->readCommandRepository->findById($request->commandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $serviceTemplate->setCheckFreshness(YesNoDefaultConverter::fromInt(1));
+                    $serviceTemplate->setFreshnessThreshold(120);
+                }
+            }
+
             $serviceTemplate->setCommandId($request->commandId);
         }
 
@@ -559,10 +577,6 @@ final class PartialUpdateServiceTemplate
 
         if (! $request->retryCheckInterval instanceof NoValue) {
             $serviceTemplate->setRetryCheckInterval($request->retryCheckInterval);
-        }
-
-        if (! $request->freshnessThreshold instanceof NoValue) {
-            $serviceTemplate->setFreshnessThreshold($request->freshnessThreshold);
         }
 
         if (! $request->lowFlapThreshold instanceof NoValue) {
