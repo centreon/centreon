@@ -44,11 +44,12 @@ use Security\Interfaces\EncryptionInterface;
  *  type:string,
  *  name:string,
  *  description:null|string,
- *  parameters:string,
  *  created_at:int,
  *  updated_at:int,
  *  created_by:null|int,
- *  updated_by:null|int
+ *  updated_by:null|int,
+ *  port?:int,
+ *  config_id?:int
  * }
  */
 class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccRepositoryInterface
@@ -88,22 +89,25 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
     public function find(int $accId): ?Acc
     {
         $sql = <<<'SQL'
-            SELECT *
+            SELECT acc.*, conf.port, conf.id as config_id,
+                   item.name as vcenter_name, item.url as vcenter_url,
+                   item.username as vcenter_username, item.password as vcenter_password
             FROM `:db`.`additional_connector_configuration` acc
+            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
+            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
             WHERE acc.`id` = :id
             SQL;
 
-        // Prepare SQL + bind values
         $statement = $this->db->prepare($this->translateDbName($sql));
         $statement->bindValue(':id', $accId, \PDO::PARAM_INT);
         $statement->execute();
 
-        if ($result = $statement->fetch()) {
-            /** @var _Acc $result */
-            return $this->createFromArray($result);
+        $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+        if (empty($rows)) {
+            return null;
         }
 
-        return null;
+        return $this->createFromRows($rows);
     }
 
     /**
@@ -112,19 +116,28 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
     public function findAll(): array
     {
         $sql = <<<'SQL'
-            SELECT *
+            SELECT acc.*, conf.port, conf.id as config_id,
+                item.name as vcenter_name, item.url as vcenter_url,
+                item.username as vcenter_username, item.password as vcenter_password
             FROM `:db`.`additional_connector_configuration` acc
+            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
+            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
             SQL;
 
-        // Prepare SQL + bind values
         $statement = $this->db->prepare($this->translateDbName($sql));
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
+        $allRows = $statement->fetchAll();
+
+        $groupedByAcc = [];
+        foreach ($allRows as $row) {
+            $groupedByAcc[$row['id']][] = $row;
+        }
+
         $additionalConnectors = [];
-        foreach ($statement as $result) {
-            /** @var _Acc $result */
-            $additionalConnectors[] = $this->createFromArray($result);
+        foreach ($groupedByAcc as $rows) {
+            $additionalConnectors[] = $this->createFromRows($rows);
         }
 
         return $additionalConnectors;
@@ -206,9 +219,32 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             'poller.name' => 'ns.name',
         ]);
 
-        $request = <<<'SQL_WRAP'
-            SELECT SQL_CALC_FOUND_ROWS
-                acc.*
+        // Count query for total
+        $countRequest = <<<'SQL_WRAP'
+            SELECT COUNT(DISTINCT acc.id)
+            FROM `:db`.`additional_connector_configuration` acc
+            LEFT JOIN `:db`.`acc_poller_relation` rel
+                ON  acc.id = rel.acc_id
+            INNER JOIN `:db`.`nagios_server` ns
+                ON rel.poller_id = ns.id
+            SQL_WRAP;
+        $countRequest .= $sqlTranslator->translateSearchParameterToSql();
+
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $countStatement->bindValue($key, $value, $type);
+            }
+        }
+        $countStatement->execute();
+        $total = (int) $countStatement->fetchColumn();
+        $sqlTranslator->getRequestParameters()->setTotal($total);
+
+        // First query: Get paginated ACC IDs only
+        $idsRequest = <<<'SQL_WRAP'
+            SELECT DISTINCT acc.id
             FROM `:db`.`additional_connector_configuration` acc
             LEFT JOIN `:db`.`acc_poller_relation` rel
                 ON  acc.id = rel.acc_id
@@ -217,41 +253,66 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             SQL_WRAP;
 
         // Search
-        $request .= $sqlTranslator->translateSearchParameterToSql();
-        $request .= ' GROUP BY acc.name';
+        $idsRequest .= $sqlTranslator->translateSearchParameterToSql();
 
         // Sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();
-        $request .= ! is_null($sortRequest)
+        $idsRequest .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY acc.id ASC';
 
         // Pagination
-        $request .= $sqlTranslator->translatePaginationToSql();
+        $idsRequest .= $sqlTranslator->translatePaginationToSql();
 
-        $statement = $this->db->prepare($this->translateDbName($request));
+        $idsStatement = $this->db->prepare($this->translateDbName($idsRequest));
 
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {
             $type = key($data);
             if ($type !== null) {
                 $value = $data[$type];
-                $statement->bindValue($key, $value, $type);
+                $idsStatement->bindValue($key, $value, $type);
             }
+        }
+
+        $idsStatement->execute();
+        $accIds = $idsStatement->fetchAll(\PDO::FETCH_COLUMN);
+
+        if (empty($accIds)) {
+            return [];
+        }
+
+        // Second query: Fetch full data for the paginated ACC IDs
+        [$bindValues, $idsQuery] = $this->createMultipleBindQuery($accIds, ':acc_id_');
+
+        $dataRequest = <<<SQL
+            SELECT acc.*, conf.port, conf.id as config_id,
+                item.name as vcenter_name, item.url as vcenter_url,
+                item.username as vcenter_username, item.password as vcenter_password
+            FROM `:db`.`additional_connector_configuration` acc
+            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
+            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
+            WHERE acc.id IN ({$idsQuery})
+            ORDER BY acc.id ASC
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($dataRequest));
+        foreach ($bindValues as $bindKey => $accId) {
+            $statement->bindValue($bindKey, $accId, \PDO::PARAM_INT);
         }
 
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        $allRows = $statement->fetchAll();
+
+        $groupedByAcc = [];
+        foreach ($allRows as $row) {
+            $groupedByAcc[$row['id']][] = $row;
         }
 
         $additionalConnectors = [];
-        foreach ($statement as $result) {
-            /** @var _Acc $result */
-            $additionalConnectors[] = $this->createFromArray($result);
+        foreach ($groupedByAcc as $rows) {
+            $additionalConnectors[] = $this->createFromRows($rows);
         }
 
         return $additionalConnectors;
@@ -290,9 +351,51 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             ':acl_'
         );
 
-        $request = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS
-                acc.*
+        // Count query for total
+        $countRequest = <<<SQL
+            SELECT COUNT(DISTINCT acc.id)
+            FROM `:db`.`additional_connector_configuration` acc
+            INNER JOIN `:db`.`acc_poller_relation` rel
+                ON  acc.id = rel.acc_id
+            INNER JOIN `:db`.`nagios_server` ns
+                ON rel.poller_id = ns.id
+            INNER JOIN `:db`.acl_resources_poller_relations arpr
+                ON ns.id = arpr.poller_id
+            INNER JOIN `:db`.acl_res_group_relations argr
+                ON argr.acl_res_id = arpr.acl_res_id
+                AND argr.acl_group_id IN ({$accessGroupIdsQuery})
+            SQL;
+
+        $countRequest .= $search = $sqlTranslator->translateSearchParameterToSql();
+        $countRequest .= $search !== null
+            ? ' AND '
+            : ' WHERE ';
+        $countRequest .= ' acc.id NOT IN (
+            SELECT rel.acc_id
+            FROM `acc_poller_relation` rel
+            LEFT JOIN acl_resources_poller_relations arpr ON rel.poller_id = arpr.poller_id
+            LEFT JOIN acl_res_group_relations argr ON argr.acl_res_id = arpr.acl_res_id
+            WHERE argr.acl_group_id IS NULL
+        )';
+
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            $type = key($data);
+            if ($type !== null) {
+                $value = $data[$type];
+                $countStatement->bindValue($key, $value, $type);
+            }
+        }
+        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
+            $countStatement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+        $countStatement->execute();
+        $total = (int) $countStatement->fetchColumn();
+        $sqlTranslator->getRequestParameters()->setTotal($total);
+
+        // First query: Get paginated ACC IDs only
+        $idsRequest = <<<SQL
+            SELECT DISTINCT acc.id
             FROM `:db`.`additional_connector_configuration` acc
             INNER JOIN `:db`.`acc_poller_relation` rel
                 ON  acc.id = rel.acc_id
@@ -306,54 +409,78 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             SQL;
 
         // Search
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
-        $request .= $search !== null
+        $idsRequest .= $search = $sqlTranslator->translateSearchParameterToSql();
+        $idsRequest .= $search !== null
             ? ' AND '
             : ' WHERE ';
-        $request .= ' acc.id NOT IN (
+        $idsRequest .= ' acc.id NOT IN (
             SELECT rel.acc_id
             FROM `acc_poller_relation` rel
             LEFT JOIN acl_resources_poller_relations arpr ON rel.poller_id = arpr.poller_id
             LEFT JOIN acl_res_group_relations argr ON argr.acl_res_id = arpr.acl_res_id
             WHERE argr.acl_group_id IS NULL
         )';
-        $request .= ' GROUP BY acc.name';
 
         // Sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();
-        $request .= ! is_null($sortRequest)
+        $idsRequest .= ! is_null($sortRequest)
             ? $sortRequest
             : ' ORDER BY acc.id ASC';
 
         // Pagination
-        $request .= $sqlTranslator->translatePaginationToSql();
+        $idsRequest .= $sqlTranslator->translatePaginationToSql();
 
-        $statement = $this->db->prepare($this->translateDbName($request));
+        $idsStatement = $this->db->prepare($this->translateDbName($idsRequest));
 
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {
             $type = key($data);
             if ($type !== null) {
                 $value = $data[$type];
-                $statement->bindValue($key, $value, $type);
+                $idsStatement->bindValue($key, $value, $type);
             }
         }
         foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
-            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+            $idsStatement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
+        }
+
+        $idsStatement->execute();
+        $accIds = $idsStatement->fetchAll(\PDO::FETCH_COLUMN);
+
+        if (empty($accIds)) {
+            return [];
+        }
+
+        [$bindValues, $idsQuery] = $this->createMultipleBindQuery($accIds, ':acc_id_');
+
+        $dataRequest = <<<SQL
+            SELECT acc.*, conf.port, conf.id as config_id,
+                item.name as vcenter_name, item.url as vcenter_url,
+                item.username as vcenter_username, item.password as vcenter_password
+            FROM `:db`.`additional_connector_configuration` acc
+            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
+            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
+            WHERE acc.id IN ({$idsQuery})
+            ORDER BY acc.id ASC
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($dataRequest));
+        foreach ($bindValues as $bindKey => $accId) {
+            $statement->bindValue($bindKey, $accId, \PDO::PARAM_INT);
         }
 
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+        $allRows = $statement->fetchAll();
+
+        $groupedByAcc = [];
+        foreach ($allRows as $row) {
+            $groupedByAcc[$row['id']][] = $row;
         }
 
         $additionalConnectors = [];
-        foreach ($statement as $result) {
-            /** @var _Acc $result */
-            $additionalConnectors[] = $this->createFromArray($result);
+        foreach ($groupedByAcc as $rows) {
+            $additionalConnectors[] = $this->createFromRows($rows);
         }
 
         return $additionalConnectors;
@@ -367,13 +494,16 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT
-                    acc.*
+                    acc.*, conf.port, conf.id as config_id,
+                    item.name as vcenter_name, item.url as vcenter_url,
+                    item.username as vcenter_username, item.password as vcenter_password
                 FROM `:db`.`additional_connector_configuration` acc
+                LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
+                LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
                 JOIN `:db`.`acc_poller_relation` rel
                     ON acc.id = rel.acc_id
                 WHERE rel.poller_id = :poller_id
                 AND  acc.type = :type
-                LIMIT 1
                 SQL
         ));
 
@@ -382,24 +512,28 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         $statement->setFetchMode(\PDO::FETCH_ASSOC);
         $statement->execute();
 
-        foreach ($statement as $result) {
-            /** @var _Acc $result */
-            return $this->createFromArray($result);
+        $rows = $statement->fetchAll();
+        if (empty($rows)) {
+            return null;
         }
 
-        return null;
+        return $this->createFromRows($rows);
     }
 
     /**
-     * @param _Acc $row
+     * @param array<_Acc> $rows
      *
      * @return Acc
      */
-    private function createFromArray(array $row): Acc
+    private function createFromRows(array $rows): Acc
     {
-        /** @var array<string,mixed> $parameters */
-        $parameters = json_decode(json: $row['parameters'], associative: true, flags: JSON_OBJECT_AS_ARRAY);
+        $row = $rows[0];
         $type = Type::from($row['type']);
+
+        $parameters = match ($type->value) {
+            Type::VMWARE_V6->value => $this->buildVmwareParameters($rows),
+            default => [],
+        };
 
         return new Acc(
             id: $row['id'],
@@ -414,5 +548,39 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
                 Type::VMWARE_V6->value => (new VmWareV6Parameters($this->encryption, $parameters, true)),
             }
         );
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $rows
+     *
+     * @return array<string, mixed>
+     */
+    private function buildVmwareParameters(array $rows): array
+    {
+        $port = (int) ($rows[0]['port'] ?? 443);
+        $vcenters = [];
+
+        foreach ($rows as $row) {
+            $vcenterName = $row['vcenter_name'] ?? '';
+            $vcenterUrl = $row['vcenter_url'] ?? '';
+            $vcenterUsername = $row['vcenter_username'] ?? '';
+            $vcenterPassword = $row['vcenter_password'] ?? '';
+
+            if (empty($vcenterName) || empty($vcenterUrl) || empty($vcenterUsername) || empty($vcenterPassword)) {
+                continue;
+            }
+
+            $vcenters[] = [
+                'name' => $vcenterName,
+                'url' => $vcenterUrl,
+                'username' => $vcenterUsername,
+                'password' => $vcenterPassword,
+            ];
+        }
+
+        return [
+            'port' => $port,
+            'vcenters' => $vcenters,
+        ];
     }
 }
