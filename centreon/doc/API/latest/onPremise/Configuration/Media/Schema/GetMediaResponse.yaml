@@ -3,7 +3,7 @@ type: object
 properties:
   id:
     type: integer
-    nullable: true
+    nullable: false
     example: 1
   filename:
     type: string

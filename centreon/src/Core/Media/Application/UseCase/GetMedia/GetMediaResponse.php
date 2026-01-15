@@ -44,8 +44,6 @@ final class GetMediaResponse implements StandardResponseInterface
     #[Groups(['Media:Get'])]
     public string $md5;
 
-    private mixed $body;
-
     /**
      * @param Media $media
      */
