@@ -1,0 +1,23 @@
+get:
+  tags:
+    - Host
+  summary: "Get a host"
+  description: |
+    Get an existing host.
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
+  parameters:
+    - $ref: 'QueryParameter/HostId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/GetHostResponse.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
