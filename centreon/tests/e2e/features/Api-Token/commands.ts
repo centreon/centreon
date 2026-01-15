@@ -7,13 +7,7 @@ Cypress.Commands.add('visitApiTokens', () => {
     url: '/centreon/api/latest/administration/tokens?*'
   }).as('getTokens');
 
-  cy.url().then((url) => {
-    if (url.includes('/administration/authentication-token')) {
-      cy.visit(PAGES.configuration.authenticationTokens);
-    } else {
-      cy.visit(PAGES.configuration.authenticationTokens);
-    }
-  });
+  cy.visit(PAGES.configuration.authenticationTokens);
 
   cy.wait('@getTokens');
 

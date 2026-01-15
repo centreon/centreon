@@ -137,7 +137,7 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('visitContactsPage', (_index: number) => {
+Cypress.Commands.add('visitContactsPage', () => {
   cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
@@ -153,7 +153,7 @@ declare global {
         jsonName: string,
         login: string
       ) => Cypress.Chainable;
-      visitContactsPage: (index: number) => Cypress.Chainable;
+      visitContactsPage: () => Cypress.Chainable;
     }
   }
 }

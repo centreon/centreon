@@ -28,7 +28,7 @@ Given('an admin user is logged in', () => {
 });
 
 When('the admin user accesses the backup page', () => {
-  cy.visit(PAGES.configuration.backupParameters);
+  cy.visit(PAGES.configuration.backupParametersLegacy);
   cy.wait('@userTimeZone');
 });
 
