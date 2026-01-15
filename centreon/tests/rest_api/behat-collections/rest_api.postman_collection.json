@@ -49682,7 +49682,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantrw\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;checks\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_check_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -49736,7 +49736,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantro\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;checks\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_check_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -49790,7 +49790,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};1;configuration;commands;checks\"\n}"
+							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_check_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -49844,7 +49844,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantrw\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;notifications\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_notification_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -49898,7 +49898,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantro\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;notifications\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_notification_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -49952,7 +49952,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};1;configuration;commands;notifications\"\n}"
+							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_notification_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -50006,7 +50006,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantrw\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;discovery\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_discovery_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -50060,7 +50060,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantro\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;discovery\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_discovery_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -50114,7 +50114,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};1;configuration;commands;discovery\"\n}"
+							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_discovery_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -50168,7 +50168,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantrw\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;miscellaneous\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_miscellaneous_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -50222,7 +50222,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"grantro\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};0;configuration;commands;miscellaneous\"\n}"
+							"raw": "{\n  \"action\": \"grant\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_miscellaneous_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
@@ -50276,7 +50276,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclmenu\",\n  \"values\": \"{{aclmenu_name}};1;configuration;commands;miscellaneous\"\n}"
+							"raw": "{\n  \"action\": \"revoke\",\n  \"object\": \"aclaction\",\n  \"values\": \"{{aclmenu_name}};manage_miscellaneous_commands\"\n}"
 						},
 						"url": {
 							"raw": "http://{{url}}/centreon/api/index.php?action=action&object=centreon_clapi",
