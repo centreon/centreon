@@ -7,7 +7,6 @@ import "dayjs/locale/pt";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import timezonePlugin from "dayjs/plugin/timezone";
 import utcPlugin from "dayjs/plugin/utc";
-import { useTranslation } from "react-i18next";
 
 import useResizeObserver from "use-resize-observer";
 import Loading from "../../LoadingSkeleton";
@@ -82,7 +81,6 @@ const WrapperChart = ({
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
-  const { t } = useTranslation();
   const { adjustedData } = useChartData({ data, end, start });
   const {
     ref,
