@@ -88,11 +88,11 @@ function testContactExistence(?string $name = null, ?bool $preventLog = false): 
         );
     }
 
-    if ($contact && $contact['contact_id'] === (int) $id) {
+    if ($contact && $contact['contact_id'] == $id) {
         return true;
     }
 
-    return ! ($contact && $contact['contact_id'] !== (int) $id);
+    return ! ($contact && $contact['contact_id'] != $id);
 }
 
 /**
@@ -137,11 +137,11 @@ function testAliasExistence(?string $alias = null, ?bool $preventLog = false): b
         );
     }
 
-    if ($contact && $contact['contact_id'] === (int) $id) {
+    if ($contact && $contact['contact_id'] == $id) {
         return true;
     }
 
-    return ! ($contact && $contact['contact_id'] !== (int) $id);
+    return ! ($contact && $contact['contact_id'] != $id);
 }
 
 /**
@@ -490,7 +490,7 @@ function deleteContactInDB(array $contacts = []): void
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         try {
-            if ($ownTransaction && $pearDB->isTransactionActive()) {
+            if (($ownTransaction ?? false) && $pearDB->isTransactionActive()) {
                 $pearDB->rollBackTransaction();
             }
         } catch (ConnectionException $rollbackException) {

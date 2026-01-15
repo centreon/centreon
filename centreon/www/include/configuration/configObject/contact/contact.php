@@ -91,7 +91,9 @@ $handleCsrfOrFail = static function (): bool {
 */
 $contactId = $sanitizeInt($fromRequest('contact_id'));
 $selectFromRequest = $fromRequest('select');
-$select = $sanitizeArray(is_array($selectFromRequest) ? $selectFromRequest : explode(',', (string) $selectFromRequest));
+$select = is_array($selectFromRequest)
+    ? $sanitizeArray($selectFromRequest)
+    : array_filter($sanitizeArray(explode(',', (string) $selectFromRequest)));
 $dupNbr = $sanitizeArray($fromRequest('dupNbr'));
 
 // Path to the configuration dir
