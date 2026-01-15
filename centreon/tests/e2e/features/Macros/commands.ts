@@ -1,15 +1,15 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
 
-Cypress.Commands.add('visitHostTemplatesListing', (_index: number) => {
+Cypress.Commands.add('visitHostTemplatesListing', () => {
   cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
-Cypress.Commands.add('visitServiceTemplatesListing', (_index: number) => {
+Cypress.Commands.add('visitServiceTemplatesListing', () => {
   cy.visit(PAGES.configuration.servicesTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
 
-Cypress.Commands.add('visitServicesListing', (_index: number) => {
+Cypress.Commands.add('visitServicesListing', () => {
   cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
 });
@@ -117,9 +117,9 @@ declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
-      visitServiceTemplatesListing: (index: number) => Cypress.Chainable;
-      visitServicesListing: (index: number) => Cypress.Chainable;
-      visitHostTemplatesListing: (index: number) => Cypress.Chainable;
+      visitServiceTemplatesListing: () => Cypress.Chainable;
+      visitServicesListing: () => Cypress.Chainable;
+      visitHostTemplatesListing: () => Cypress.Chainable;
       fillMacros: (
         isUpdate: boolean,
         normalMacro: Macro,

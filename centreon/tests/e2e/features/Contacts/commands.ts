@@ -130,6 +130,11 @@ Cypress.Commands.add(
   }
 );
 
+Cypress.Commands.add('visitContactsPage', () => {
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
+  cy.wait('@getTimeZone');
+});
+
 declare global {
   // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
@@ -141,6 +146,7 @@ declare global {
         jsonName: string,
         login: string
       ) => Cypress.Chainable;
+      visitContactsPage: () => Cypress.Chainable;
     }
   }
 }

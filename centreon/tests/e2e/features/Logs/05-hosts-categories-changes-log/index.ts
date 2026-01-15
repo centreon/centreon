@@ -46,7 +46,7 @@ Then('a new host category is displayed on the host categories page', () => {
 Then(
   'a new "Added" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -101,7 +101,7 @@ When('an apiV2 call is made to "Delete" the configured host category', () => {
 Then(
   'a new "Deleted" line of log is getting added to the page Administration > Log',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -129,7 +129,7 @@ When('an APIv2 call is made to "Update" the configured host category', () => {
 Then(
   'a new "Changed" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -202,7 +202,7 @@ When('an APIv2 call is made to "Disable" the configured host category', () => {
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -237,7 +237,7 @@ When('an APIv2 call is made to "Enable" the disabled host category', () => {
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

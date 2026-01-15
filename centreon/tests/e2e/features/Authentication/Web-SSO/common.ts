@@ -11,7 +11,7 @@ const initializeWebSsoUserAndGetLoginPage = (): Cypress.Chainable => {
 };
 
 const removeWebSsoContact = (): Cypress.Chainable => {
-  return cy.setUserTokenApiV1s().then(() => {
+  return cy.setUserTokenApiV1().then(() => {
     cy.executeActionViaClapi({
       bodyContent: {
         action: 'DEL',
