@@ -2648,7 +2648,6 @@ CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
   `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6',
   `name` varchar(255) NOT NULL,
   `description` text,
-  `parameters` JSON NOT NULL,
   `created_by` int(11) DEFAULT NULL,
   `updated_by` int(11) DEFAULT NULL,
   `created_at` int(11) NOT NULL,
@@ -2674,6 +2673,39 @@ CREATE TABLE IF NOT EXISTS `acc_poller_relation` (
     FOREIGN KEY (`poller_id`)
     REFERENCES `nagios_server` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+/** vmware configuration */
+CREATE TABLE IF NOT EXISTS `acc_configuration` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the ACC configuration',
+  `acc_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to additional_connector_configuration',
+  `port` INT UNSIGNED NOT NULL DEFAULT 443 COMMENT 'Port number for VMware connector (default 443)',
+  `created_at` INT NOT NULL COMMENT 'Creation timestamp',
+  `updated_at` INT NOT NULL COMMENT 'Last update timestamp',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `acc_id_unique` (`acc_id`),
+  CONSTRAINT `fk_config_acc`
+    FOREIGN KEY (`acc_id`)
+    REFERENCES `additional_connector_configuration` (`id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/** ACC configuration items for VMware vCenter - stores individual vCenter connection details  */
+CREATE TABLE IF NOT EXISTS `acc_configuration_item` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the vCenter configuration item',
+  `acc_conf_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to acc_configuration',
+  `name` VARCHAR(255) NOT NULL COMMENT 'Name of the vCenter',
+  `url` VARCHAR(255) NOT NULL COMMENT 'vCenter server URL',
+  `username` VARCHAR(255) NOT NULL COMMENT 'Username for vCenter authentication',
+  `password` VARCHAR(255) NOT NULL COMMENT 'Encrypted password for vCenter authentication',
+  `created_at` INT NOT NULL COMMENT 'Creation timestamp',
+  `updated_at` INT NOT NULL COMMENT 'Last update timestamp',
+  PRIMARY KEY (`id`),
+  KEY `idx_acc_conf` (`acc_conf_id`),
+  UNIQUE KEY `name_config_unique` (`acc_conf_id`, `name`),
+  CONSTRAINT `fk_acc_conf`
+    FOREIGN KEY (`acc_conf_id`)
+    REFERENCES `acc_configuration` (`id`)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='VMware vCenter connection details for ACC';
 
 CREATE TABLE IF NOT EXISTS `dashboard_thumbnail_relation` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID of the relation',
