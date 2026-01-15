@@ -277,7 +277,7 @@ jobs:
                 case /(^release.+)|(^hotfix.+)/.test(refName):
                   console.log(`Matched 'testing' pattern`);
                   return 'testing';
-                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(refName):
+                case /(^master$)|(^\d{2}\.\d{2}\.x$)|(^tun-release-hf-20251102-2404$)/.test(refName):
                   console.log(`Matched 'stable' pattern`);
                   return 'stable';
                 default:
