@@ -139,4 +139,12 @@ class ApiReadMediaRepository implements ReadMediaRepositoryInterface
             null
         );
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $mediaId, array $accessGroups): bool
+    {
+        throw new RepositoryException('Not yet implemented');
+    }
 }

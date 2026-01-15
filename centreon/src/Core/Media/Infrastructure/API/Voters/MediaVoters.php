@@ -35,13 +35,14 @@ final class MediaVoters extends Voter
 {
     public const CREATE_MEDIA = 'create_media';
     public const UPDATE_MEDIA = 'update_media';
+    public const DELETE_MEDIA = 'delete_media';
 
     /**
      * {@inheritDoc}
      */
     protected function supports(string $attribute, $subject): bool
     {
-        return in_array($attribute, [self::CREATE_MEDIA, self::UPDATE_MEDIA], true);
+        return in_array($attribute, [self::CREATE_MEDIA, self::UPDATE_MEDIA, self::DELETE_MEDIA], true);
     }
 
     /**
@@ -56,7 +57,7 @@ final class MediaVoters extends Voter
         }
 
         return match ($attribute) {
-            self::CREATE_MEDIA, self::UPDATE_MEDIA => $user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW),
+            self::CREATE_MEDIA, self::UPDATE_MEDIA, self::DELETE_MEDIA => $user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_PARAMETERS_IMAGES_RW),
             default => throw new \LogicException('Action on media not handled'),
         };
     }
