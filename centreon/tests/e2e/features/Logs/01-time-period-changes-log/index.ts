@@ -41,7 +41,7 @@ Then('a new time period is displayed on the time periods page', () => {
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -117,7 +117,7 @@ When(
 Then(
   'a new "Changed" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -176,7 +176,7 @@ When(
 Then(
   'a new "Deleted" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
