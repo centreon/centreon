@@ -43,68 +43,64 @@ class GetHostSaasPresenter extends AbstractPresenter implements GetHostPresenter
             $this->setResponseStatus($response);
         } else {
 
-            $this->present(
-                new CreatedResponse(
-                    $response->id,
-                    [
-                        'id' => $response->id,
-                        'monitoring_server_id' => $response->monitoringServerId,
-                        'name' => $response->name,
-                        'address' => $response->address,
-                        'snmp_version' => $response->snmpVersion,
-                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
-                        'geo_coords' => $response->geoCoords,
-                        'icon_id' => $response->iconId,
-                        'alias' => $this->emptyStringAsNull($response->alias),
-                        'max_check_attempts' => $response->maxCheckAttempts,
-                        'normal_check_interval' => $response->normalCheckInterval,
-                        'retry_check_interval' => $response->retryCheckInterval,
-                        'note_url' => $this->emptyStringAsNull($response->noteUrl),
-                        'note' => $this->emptyStringAsNull($response->note),
-                        'action_url' => $this->emptyStringAsNull($response->actionUrl),
-                        'timezone_id' => $response->timezoneId,
-                        'severity_id' => $response->severityId,
-                        'check_timeperiod_id' => $response->checkTimeperiodId,
-                        'event_handler_enabled' => $response->eventHandlerEnabled,
-                        'event_handler_command_args' => $response->eventHandlerCommandArgs,
-                        'check_command_id' => $response->checkCommandId,
-                        'check_command_args' => $response->checkCommandArgs,
-                        'categories' => array_map(
-                            fn (array $category) => [
-                                'id' => $category['id'],
-                                'name' => $category['name'],
-                            ],
-                            $response->categories
-                        ),
-                        'groups' => array_map(
-                            fn (array $group) => [
-                                'id' => $group['id'],
-                                'name' => $group['name'],
-                            ],
-                            $response->groups
-                        ),
-                        'templates' => array_map(
-                            fn (array $template) => [
-                                'id' => $template['id'],
-                                'name' => $template['name'],
-                            ],
-                            $response->templates
-                        ),
-                        'macros' => array_map(
-                            fn (array $macro) => [
-                                'id' => $macro['id'],
-                                'name' => $macro['name'],
-                                'value' => $macro['isPassword'] ? null : $macro['value'],
-                                'is_password' => $macro['isPassword'],
-                                'description' => $this->emptyStringAsNull($macro['description']),
-                            ],
-                            $response->macros
-                        ),
-                    ]
-                )
-            );
-
-            // NOT setting location as required route does not currently exist
+            $result = [
+                'id' => $response->id,
+                'monitoring_server_id' => $response->monitoringServerId,
+                'name' => $response->name,
+                'address' => $response->address,
+                'snmp_version' => $response->snmpVersion,
+                'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
+                'geo_coords' => $response->geoCoords,
+                'icon_id' => $response->iconId,
+                'alias' => $this->emptyStringAsNull($response->alias),
+                'max_check_attempts' => $response->maxCheckAttempts,
+                'normal_check_interval' => $response->normalCheckInterval,
+                'retry_check_interval' => $response->retryCheckInterval,
+                'note_url' => $this->emptyStringAsNull($response->noteUrl),
+                'note' => $this->emptyStringAsNull($response->note),
+                'action_url' => $this->emptyStringAsNull($response->actionUrl),
+                'timezone_id' => $response->timezoneId,
+                'severity_id' => $response->severityId,
+                'check_timeperiod_id' => $response->checkTimeperiodId,
+                'event_handler_enabled' => $response->eventHandlerEnabled,
+                'event_handler_command_args' => $response->eventHandlerCommandArgs,
+                'check_command_id' => $response->checkCommandId,
+                'check_command_args' => $response->checkCommandArgs,
+                'categories' => array_map(
+                    fn (array $category) => [
+                        'id' => $category['id'],
+                        'name' => $category['name'],
+                    ],
+                    $response->categories
+                ),
+                'groups' => array_map(
+                    fn (array $group) => [
+                        'id' => $group['id'],
+                        'name' => $group['name'],
+                    ],
+                    $response->groups
+                ),
+                'templates' => array_map(
+                    fn (array $template) => [
+                        'id' => $template['id'],
+                        'name' => $template['name'],
+                    ],
+                    $response->templates
+                ),
+                'macros' => array_map(
+                    fn (array $macro) => [
+                        'id' => $macro['id'],
+                        'name' => $macro['name'],
+                        'value' => $macro['isPassword'] ? null : $macro['value'],
+                        'is_password' => $macro['isPassword'],
+                        'description' => $this->emptyStringAsNull($macro['description']),
+                    ],
+                    $response->macros
+                ),
+                'is_activated' => $response->isActivated,
+            ];
+               
+            $this->present($result);
         }
     }
 }
