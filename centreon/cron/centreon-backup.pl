@@ -111,11 +111,27 @@ my $PROGNAME = $0;
 my $VERSION = "1.0";
 my $CENTREONDIR = "@INSTALL_DIR_CENTREON@";
 
+# Prepare DB URI depending on configured RDBMS
+my $rdbms_kind = $centreon_config->{rdbms_kind};
+my $dbh_prefix = "";
+if (!defined($rdbms_kind)) {
+  die "Error : RDBMS kind not defined. Please set rdbms_kind in @CENTREON_ETC@/conf.pm\n";
+}
+if ($rdbms_kind eq "mysql") {
+  $dbh_prefix = "DBI:mysql";
+}
+elsif ($rdbms_kind eq "mariadb") {
+  $dbh_prefix = "DBI:MariaDB";
+}
+else {
+  die "Error : RDBMS kind not supported. Please check configuration in @CENTREON_ETC@/conf.pm\n";
+}
+
 ##########################################
 # Get backup configuration from database #
 ##########################################
 
-my $dbh = DBI->connect("DBI:mysql:database=" . $mysql_database_oreon . ";host=" . $mysql_host . ";port=" . $mysql_port, $mysql_user, $mysql_passwd, { 'RaiseError' => 0, 'PrintError' => 0 });
+my $dbh = DBI->connect($dbh_prefix . ":database=" . $mysql_database_oreon . ";host=" . $mysql_host . ";port=" . $mysql_port, $mysql_user, $mysql_passwd, { 'RaiseError' => 1, 'PrintError' => 1 });
 if (!$dbh) {
     print STDERR "Couldn't connect: " . $DBI::errstr . "\n";
     exit 1;
@@ -476,7 +492,7 @@ sub databasesBackup() {
         }
     } elsif (grep $_ == $dayOfWeek, @fullBackupDays) {
         my $mysql_database_ndo;
-        my $dbh = DBI->connect("DBI:mysql:database=" . $mysql_database_oreon . ";host=" . $mysql_host . ";port=" . $mysql_port, $mysql_user, $mysql_passwd, { 'RaiseError' => 0, 'PrintError' => 0 });
+        my $dbh = DBI->connect($dbh_prefix . ":database=" . $mysql_database_oreon . ";host=" . $mysql_host . ";port=" . $mysql_port, $mysql_user, $mysql_passwd, { 'RaiseError' => 0, 'PrintError' => 0 });
         if (!$dbh) {
             print STDERR sprintf("Couldn't connect: %s", $DBI::errstr) . "\n";
         }
@@ -645,7 +661,7 @@ sub centralBackup() {
 
     # Try to Centreon logs directory
     my $centreon_log_path = "";
-    my $dbh = DBI->connect("DBI:mysql:database=" . $mysql_database_oreon . ";host=" . $mysql_host . ";port=" . $mysql_port, $mysql_user, $mysql_passwd, { 'RaiseError' => 0, 'PrintError' => 0 });
+    my $dbh = DBI->connect($dbh_prefix . ":database=" . $mysql_database_oreon . ";host=" . $mysql_host . ";port=" . $mysql_port, $mysql_user, $mysql_passwd, { 'RaiseError' => 0, 'PrintError' => 0 });
     if (!$dbh) {
         print STDERR sprintf("Couldn't connect: %s", $DBI::errstr) . "\n";
     }

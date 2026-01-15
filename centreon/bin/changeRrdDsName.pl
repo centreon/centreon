@@ -60,11 +60,27 @@ sub get_ds_name {
     return $ds_name;
 }
 
+# Prepare DB URI depending on configured RDBMS
+my $rdbms_kind = $centreon_config->{rdbms_kind};
+my $dbh_prefix = "";
+if (!defined($rdbms_kind)) {
+  die "Error : RDBMS kind not defined. Please set rdbms_kind in @CENTREON_ETC@/conf.pm\n";
+}
+if ($rdbms_kind eq "mysql") {
+  $dbh_prefix = "DBI:mysql";
+}
+elsif ($rdbms_kind eq "mariadb") {
+  $dbh_prefix = "DBI:MariaDB";
+}
+else {
+  die "Error : RDBMS kind not supported. Please check configuration in @CENTREON_ETC@/conf.pm\n";
+}
+
 my $dbh = DBI->connect(
-    "DBI:mysql:database=" . $centreon_config->{centstorage_db} . ";host=" . $centreon_config->{db_host},
+    $dbh_prefix . ":database=" . $centreon_config->{centstorage_db} . ";host=" . $centreon_config->{db_host},
     $centreon_config->{db_user},
     $centreon_config->{db_passwd},
-    { 'RaiseError' => 0, 'PrintError' => 0, 'AutoCommit' => 1}
+    { 'RaiseError' => 1, 'PrintError' => 1, 'AutoCommit' => 1}
     );
 
 # Get path to metrics file
