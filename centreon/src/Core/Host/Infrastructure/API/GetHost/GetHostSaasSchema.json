@@ -118,20 +118,35 @@
         "categories": {
             "type": "array",
             "items": {
-                "type": "integer"
+                "type": "object",
+                "required": ["id", "name"],
+                "properties": {
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" }
+                }
             }
         },
         "groups": {
             "type": "array",
             "items": {
-                "type": "integer"
+                "type": "object",
+                "required": ["id", "name"],
+                "properties": {
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" }
+                }
             },
             "minItems": 1
         },
         "templates": {
             "type": "array",
             "items": {
-                "type": "integer"
+                "type": "object",
+                "required": ["id", "name"],
+                "properties": {
+                    "id": { "type": "integer" },
+                    "name": { "type": "string" }
+                }
             }
         },
         "event_handler_enabled": {

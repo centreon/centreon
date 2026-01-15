@@ -130,7 +130,7 @@ final class GetHost
             }
 
             if (! $host) {
-                 $this->error(
+                 $this->info(
                     'Host not found',
                     ['host_id' => $hostId]
                 );
@@ -244,12 +244,12 @@ final class GetHost
 
 
      /**
-     * @param int[] $templateIds
+     * `@param` int $hostId
      *
-     * @throws HostException
-     * @throws \Throwable
+     * `@throws` HostException
+     * `@throws` \Throwable
      *
-     * @return array<array{id:int,name:string}>
+     * `@return` array<array{id:int,name:string}>
      */
     private function findParentTemplates($hostId): array
     {
@@ -259,6 +259,9 @@ final class GetHost
 
         $parentTemplates = [];
         foreach ($templateIds as $templateId) {
+            if (!isset($templateNames[$templateId])) {
+                continue;
+            }
             $parentTemplates[] = [
                 'id' => $templateId,
                 'name' => $templateNames[$templateId],

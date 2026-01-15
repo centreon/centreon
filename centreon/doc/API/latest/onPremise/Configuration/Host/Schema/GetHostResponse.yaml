@@ -2,7 +2,7 @@ type: object
 properties:
   id:
     type: integer
-    description: "Host template ID"
+    description: "Host ID"
     example: 1
   monitoring_server_id:
     type: integer
@@ -10,7 +10,7 @@ properties:
     example: 1
   name:
     type: string
-    description: "Host template name"
+    description: "Host name"
     example: "generic-active-host"
   address:
     type: string
@@ -18,7 +18,7 @@ properties:
     example: "127.0.0.1"
   alias:
     type: string
-    description: "Host template alias"
+    description: "Host alias"
     example: "generic-active-host"
     nullable: true
   snmp_version:
@@ -169,7 +169,7 @@ properties:
       Indicates whether the flap detection is enabled or not
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   low_flap_threshold:
     type: integer
     nullable: true
@@ -224,10 +224,10 @@ properties:
   comment:
     type: string
     nullable: true
-    description: "Host template comments"
+    description: "Host comments"
   is_activated:
     type: boolean
-    description: "Indicates whether the host template is activated or not"
+    description: "Indicates whether the host is activated or not"
   categories:
     type: array
     items:
