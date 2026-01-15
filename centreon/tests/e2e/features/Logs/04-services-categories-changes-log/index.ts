@@ -51,7 +51,7 @@ Then(
 Then(
   'a new "ADDED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -108,7 +108,7 @@ When(
 Then(
   'a new "DELETED" line of log is getting added to the page Administration > Log',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -145,7 +145,7 @@ When('the user changes some properties of the configured service category from U
 Then(
   'a new "CHANGED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -211,7 +211,7 @@ When(
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -253,7 +253,7 @@ When(
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

@@ -51,7 +51,7 @@ Then(
 Then(
   'a new "Added" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -109,7 +109,7 @@ When(
 Then(
   'a new "Deleted" line of log is getting added to the page Administration > Log',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
         '#main-content',
@@ -137,7 +137,7 @@ When('an APIv2 call is made to "Update" the configured host category', () => {
 Then(
   'a new "Changed" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
         '#main-content',
@@ -195,7 +195,7 @@ When(
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
         '#main-content',
@@ -233,7 +233,7 @@ When(
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.visit(PAGES.configuration.logsLgacy);
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
         '#main-content',
