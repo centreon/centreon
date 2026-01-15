@@ -107,13 +107,13 @@ allOf:
         description: |
           Only used when notification inheritance for hosts and services is set to vertical inheritance only.
 
-          When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
+          When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
       is_contact_group_additive_inheritance:
         type: boolean
         description: |
           Only used when notification inheritance for hosts and services is set to vertical inheritance only.
 
-          When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
+          When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
       notification_interval:
         type: integer
         nullable: true
