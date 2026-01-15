@@ -52,6 +52,7 @@ class GetHostSaasPresenter extends AbstractPresenter implements GetHostPresenter
                         'name' => $response->name,
                         'address' => $response->address,
                         'snmp_version' => $response->snmpVersion,
+                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'geo_coords' => $response->geoCoords,
                         'icon_id' => $response->iconId,
                         'alias' => $this->emptyStringAsNull($response->alias),
