@@ -74,7 +74,7 @@ if ($o == MACRO_ADD) {
 } elseif ($o == MACRO_MODIFY) {
     $form->addElement('header', 'title', _('Modify a global macro'));
 } elseif ($o == MACRO_WATCH) {
-    $form->addElement('header', 'title', _('View a global macro'));
+    $form->addElement('header', 'title', _('View global macro'));
 }
 
 $isPassword = isset($rs['is_password']) && $rs['is_password'];
