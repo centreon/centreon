@@ -52,6 +52,7 @@ class GetHostOnPremPresenter extends AbstractPresenter implements GetHostPresent
                         'address' => $response->address,
                         'alias' => $this->emptyStringAsNull($response->alias),
                         'snmp_version' => $response->snmpVersion,
+                        'snmp_community' => $this->emptyStringAsNull($response->snmpCommunity),
                         'geo_coords' => $response->geoCoords,
                         'note_url' => $this->emptyStringAsNull($response->noteUrl),
                         'note' => $this->emptyStringAsNull($response->note),
