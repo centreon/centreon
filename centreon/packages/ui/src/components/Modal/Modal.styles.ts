@@ -67,14 +67,6 @@ const useStyles = makeStyles<{
     padding: theme.spacing(1, 0, 0, 0),
     right: 0,
     zIndex: theme.zIndex.modal
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    svg: {
-      opacity: 0.6
-    },
-    top: theme.spacing(1)
   }
 }));
 
