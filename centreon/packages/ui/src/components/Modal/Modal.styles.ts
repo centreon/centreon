@@ -51,7 +51,7 @@ const useStyles = makeStyles<{
     },
     '&[data-size="xlarge"] .MuiDialog-paper': {
       maxWidth: '900px',
-      width: 'calc(100% - 64px)'
+      width: 'calc(100% - 78px)'
     }
   },
   modalActions: {
