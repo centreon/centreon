@@ -452,7 +452,7 @@ overrides:
       - php-json
       - php-process
       - openssl
-      - perl-DBD-MySQL
+      - (perl-DBD-MySQL or perl-DBD-MariaDB)
       - perl-DBI
       - perl-HTML-Parser
       - perl(File::Which)
