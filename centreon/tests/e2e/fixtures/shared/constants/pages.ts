@@ -26,6 +26,7 @@ export const PAGES = {
     backupParametersLegacy: '/centreon/main.php?p=50165&o=backup',
     cloudNotifications: '/centreon/configuration/notifications',
     timePeriodsLegacy: '/centreon/main.php?p=60304',
+    commandsConnectorsLegacy: '/centreon/main.php?p=60806',
     commands: '/centreon/configuration/commands',
     servicesTemplatesLegacy: '/centreon/main.php?p=60206',
     servicesByHostLegacy: '/centreon/main.php?p=60201',
