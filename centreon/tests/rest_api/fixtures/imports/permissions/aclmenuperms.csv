@@ -166,5 +166,3 @@ ACLMENU;GRANTRW;customer_editor_menu_access;0;Configuration;Connectors;Additiona
 ACLMENU;GRANTRW;customer_editor_menu_access;0;Configuration;Pollers;Agent Configurations;
 ACLMENU;GRANTRW;customer_editor_menu_access;0;Configuration;Notifications;Rules;
 ACLMENU;GRANTRW;customer_editor_menu_access;0;Configuration;Notifications;Create Ticket;
-ACLMENU;GRANTRW;customer_admin_menu_access;0;Configuration;Commands;Miscellaneous;
-ACLMENU;GRANTRW;customer_editor_menu_access;0;Configuration;Commands;Miscellaneous;
