@@ -56,6 +56,7 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
+    createHostAuto: JsonDecoder.optional(JsonDecoder.boolean),
     port: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.number)),
     tokens: JsonDecoder.optional(
       JsonDecoder.array(
@@ -110,7 +111,8 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
     pollerInitiated: 'poller_initiated',
     otelPrivateKey: 'otel_private_key',
     otelPublicCertificate: 'otel_public_certificate',
-    otelCaCertificate: 'otel_ca_certificate'
+    otelCaCertificate: 'otel_ca_certificate',
+    createHostAuto: 'create_host_auto'
   }
 );
 
