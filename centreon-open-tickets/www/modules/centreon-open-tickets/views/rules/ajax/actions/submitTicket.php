@@ -19,21 +19,39 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
+
 function get_contact_information()
 {
     global $db, $centreon_bg;
 
     $result = ['alias' => '', 'email' => '', 'name' => ''];
-    $dbResult = $db->query(
-        "SELECT
-            contact_name as `name`,
-            contact_alias as `alias`,
-            contact_email as email
-        FROM contact
-        WHERE contact_id = '" . $centreon_bg->user_id . "' LIMIT 1"
-    );
-    if (($row = $dbResult->fetch())) {
-        $result = $row;
+    $query = <<<'SQL'
+            SELECT
+                contact_name as `name`,
+                contact_alias as `alias`,
+                contact_email as email
+            FROM contact
+            WHERE contact_id = :contact_id LIMIT 1
+        SQL;
+
+    try {
+        $row = $db->fetchAssociative($query, QueryParameters::create([
+            QueryParameter::int('contact_id', (int) $centreon_bg->user_id)
+        ]));
+        if ($row) {
+            $result = $row;
+        }
+    } catch (ConnectionException|CollectionException|ValueObjectException $e) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error while fetching contact information: ' . $e->getMessage(),
+            exception: $e
+        );
     }
 
     return $result;
@@ -107,25 +125,32 @@ function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
  * @param string $type the type of object (can be host or service)
  * @param string $macroName the name of the macro (usually TICKET_ID)
  * @param int $objectId the id of the host or service
- * 
+ * @throws CollectionException|ConnectionException|ValueObjectException
  * @return int|null the id of the macro if directly linked to the host or service
  */
 function getTicketMacroId(string $type, string $macroName, int $objectId): ?int {
     global $db;
 
     if ($type === 'host') {
-        $query = "SELECT host_macro_id AS macro_id FROM on_demand_macro_host WHERE host_host_id = :object_id AND host_macro_name = :macro_name";
+        $query = <<<'SQL'
+                SELECT host_macro_id AS macro_id
+                FROM on_demand_macro_host
+                WHERE host_host_id = :object_id AND host_macro_name = :macro_name
+            SQL;
     } else {
-        $query = "SELECT svc_macro_id AS macro_id FROM on_demand_macro_service WHERE svc_svc_id = :object_id AND svc_macro_name = :macro_name";
+        $query = <<<'SQL'
+                SELECT svc_macro_id AS macro_id
+                FROM on_demand_macro_service
+                WHERE svc_svc_id = :object_id AND svc_macro_name = :macro_name
+            SQL;
     }
 
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-    $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
-    $stmt->execute();
+    $row = $db->fetchAssociative($query, QueryParameters::create([
+        QueryParameter::int('object_id', $objectId),
+        QueryParameter::string('macro_name', $macroName)
+    ]));
 
-
-    if ($row = $stmt->fetch()) {
+    if ($row) {
         return (int) $row['macro_id'];
     }
 
@@ -138,22 +163,30 @@ function getTicketMacroId(string $type, string $macroName, int $objectId): ?int 
  * @param string $type the type of object (can be host or service)
  * @param string $macroValue the value that is going to be updated
  * @param int $macroId the id of the macro that needs to be updated
- * 
+ * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
 function updateMacroValue(string $type, string $macroValue, int $macroId): void {
     global $db;
 
     if ($type === 'host') {
-        $query = "UPDATE on_demand_macro_host SET host_macro_value = :ticket_id WHERE host_macro_id = :macro_id";
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_host
+                SET host_macro_value = :ticket_id
+                WHERE host_macro_id = :macro_id
+            SQL;
     } else {
-        $query = "UPDATE on_demand_macro_service SET svc_macro_value = :ticket_id WHERE svc_macro_id = :macro_id";
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_service
+                SET svc_macro_value = :ticket_id
+                WHERE svc_macro_id = :macro_id
+            SQL;
     }
 
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':ticket_id', $macroValue, PDO::PARAM_STR);
-    $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
-    $stmt->execute();
+    $db->update($query, QueryParameters::create([
+        QueryParameter::string('ticket_id', $macroValue),
+        QueryParameter::int('macro_id', $macroId)
+    ]));
 }
 
 /**
@@ -161,23 +194,31 @@ function updateMacroValue(string $type, string $macroValue, int $macroId): void 
  * 
  * @param string $type the type of object (must be host or service)
  * @param int $objectId the id of the service or the host
- * 
+ * @throws CollectionException|ConnectionException|ValueObjectException
  * @return int the next available order number
  */
 function getMaxOrder(string $type, int $objectId): int {
     global $db;
 
     if ($type === 'host') {
-        $query = "SELECT MAX(macro_order) AS max FROM on_demand_macro_host WHERE host_host_id = :object_id";
+        $query = <<<'SQL'
+                SELECT MAX(macro_order) AS max
+                FROM on_demand_macro_host
+                WHERE host_host_id = :object_id
+            SQL;
     } else {
-        $query = "SELECT MAX(macro_order) AS max FROM on_demand_macro_service WHERE svc_svc_id = :object_id";
+        $query = <<<'SQL'
+                SELECT MAX(macro_order) AS max
+                FROM on_demand_macro_service
+                WHERE svc_svc_id = :object_id
+            SQL;
     }
 
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-    $stmt->execute();
+    $row = $db->fetchAssociative($query, QueryParameters::create([
+        QueryParameter::int('object_id', $objectId)
+    ]));
 
-    if ($row = $stmt->fetch()) {
+    if ($row) {
         return is_null($row['max']) ? 0 : (int)$row['max'] + 1;
     }
 
@@ -191,7 +232,7 @@ function getMaxOrder(string $type, int $objectId): int {
  * @param string $macroName the name of the macro
  * @param string $macroValue the value of the macro
  * @param int $objectId the id of the service or the host
- * 
+ * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
 function insertNewMacroValue(string $type, string $macroName, string $macroValue, int $objectId): void {
@@ -199,51 +240,57 @@ function insertNewMacroValue(string $type, string $macroName, string $macroValue
     $macroOrder = getMaxOrder($type, $objectId);
 
     if ($type === 'host') {
-        $query = "INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)";
+        $query = <<<'SQL'
+                INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order)
+                VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
+            SQL;
     } else {
-        $query = "INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order) VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)";
+        $query = <<<'SQL'
+                INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order)
+                VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
+            SQL;
     }
 
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':ticket_id', $macroValue, PDO::PARAM_STR);
-    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-    $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
-    $stmt->bindParam(':macro_order', $macroOrder, PDO::PARAM_INT);
-    $stmt->execute();
+    $db->insert($query, QueryParameters::create([
+        QueryParameter::string('ticket_id', $macroValue),
+        QueryParameter::int('object_id', $objectId),
+        QueryParameter::string('macro_name', $macroName),
+        QueryParameter::int('macro_order', $macroOrder)
+    ]));
 }
 
 /**
  * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
  * 
  * @param int $serviceId the id of the service
- * 
+ * @throws CollectionException|ConnectionException|ValueObjectException
  * @return bool
  */
 function isServiceUnique(int $serviceId): bool {
     global $db;
-    $query = <<<SQL
-        SELECT count(*) AS duplicated_service 
-        FROM (
-            (
-                SELECT 1 
-                FROM host_service_relation 
-                WHERE service_service_id = :service_id
-                    AND hostgroup_hg_id IS NOT NULL
-            ) UNION (
-                SELECT 1 
-                FROM host_service_relation 
-                WHERE service_service_id = :service_id
-                    AND host_host_id IS NOT NULL
-                GROUP BY service_service_id HAVING COUNT(service_service_id) > 1
-            )
-        ) AS relation;
-    SQL;
+    $query = <<<'SQL'
+            SELECT count(*) AS duplicated_service
+            FROM (
+                (
+                    SELECT 1
+                    FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                        AND hostgroup_hg_id IS NOT NULL
+                ) UNION (
+                    SELECT 1
+                    FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                        AND host_host_id IS NOT NULL
+                    GROUP BY service_service_id HAVING COUNT(service_service_id) > 1
+                )
+            ) AS relation
+        SQL;
 
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-    $stmt->execute();
+    $row = $db->fetchAssociative($query, QueryParameters::create([
+        QueryParameter::int('service_id', $serviceId)
+    ]));
 
-    if ($row = $stmt->fetch()) {
+    if ($row) {
         return (int) $row['duplicated_service'] === 0;
     }
 
@@ -340,6 +387,11 @@ try {
         $method_external_name = 'set_process_command';
         if (method_exists($external_cmd, $method_external_name) == false) {
             $method_external_name = 'setProcessCommand';
+        }
+
+        $ownTransaction = ! $db->isTransactionActive();
+        if ($ownTransaction) {
+            $db->startTransaction();
         }
 
         foreach ($selected['host_selected'] as $value) {
@@ -460,10 +512,31 @@ try {
         }
 
         $external_cmd->write();
+        if ($ownTransaction) {
+            $db->commitTransaction();
+        }
     }
 
     $centreon_provider->clearUploadFiles();
-} catch (Exception $e) {
+} catch (CollectionException|ConnectionException|ValueObjectException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while submitting tickets: ' . $e->getMessage(),
+        exception: $e
+    );
+
+    try {
+        if (($ownTransaction ?? false) && $db->isTransactionActive()) {
+            $db->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Failed to roll back transaction while submitting tickets: ' . $e->getMessage(),
+            exception: $rollbackException
+        );
+    }
+
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();
 }

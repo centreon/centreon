@@ -19,32 +19,44 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * updateHostMacro updates ticket custom macro value to an empty value to fully remove the ticket
  * 
  * @param string $macroName name of the macro that must be updated
  * @param int $hostId id of host
- * 
+ * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
 function updateHostMacro(string $macroName, int $hostId): void {
     global $db;
 
     // check if host has the macro set up
-    $query = "SELECT host_macro_id FROM on_demand_macro_host WHERE host_macro_name = :macro_name AND host_host_id = :host_id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
-    $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
-    $stmt->execute();
+    $query = <<<'SQL'
+            SELECT host_macro_id
+            FROM on_demand_macro_host
+            WHERE host_macro_name = :macro_name AND host_host_id = :host_id
+        SQL;
+    $row = $db->fetchAssociative($query, QueryParameters::create([
+        QueryParameter::string('macro_name', $macroName),
+        QueryParameter::int('host_id', $hostId)
+    ]));
 
-    if ($row = $stmt->fetch()) {
+    if ($row) {
         $macroId = (int) $row['host_macro_id'];
-        $query = "UPDATE on_demand_macro_host SET host_macro_value = '' WHERE host_macro_id = :macro_id";
-        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
-        $stmt = $db->prepare($query);
-        $stmt->execute();
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_host
+                SET host_macro_value = ''
+                WHERE host_macro_id = :macro_id
+            SQL;
+        $db->update($query, QueryParameters::create([
+            QueryParameter::int('macro_id', $macroId)
+        ]));
     }
 }
 
@@ -52,26 +64,34 @@ function updateHostMacro(string $macroName, int $hostId): void {
  * updateServiceMacro updates ticket custom macro value to an empty value to fully remove the ticket
  * 
  * @param string $macroName name of the macro that must be updated
- * @param int $serviceId id of host
- * 
+ * @param int $serviceId id of service
+ * @throws CollectoinException|ConnectionException|ValueObjectException
  * @return void
  */
 function updateServiceMacro(string $macroName, int $serviceId): void {
     global $db;
 
     // check if service has the macro set up
-    $query = "SELECT svc_macro_id FROM on_demand_macro_service WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
-    $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-    $stmt->execute();
+    $query = <<<'SQL'
+            SELECT svc_macro_id
+            FROM on_demand_macro_service
+            WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id
+        SQL;
+    $row = $db->fetchAssociative($query, QueryParameters::create([
+        QueryParameter::string('macro_name', $macroName),
+        QueryParameter::int('service_id', $serviceId)
+    ]));
 
-    if ($row = $stmt->fetch()) {
+    if ($row) {
         $macroId = (int) $row['svc_macro_id'];
-        $query = "UPDATE on_demand_macro_service SET svc_macro_value = '' WHERE svc_macro_id = :macro_id";
-        $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
-        $stmt = $db->prepare($query);
-        $stmt->execute();
+        $query = <<<'SQL'
+                UPDATE on_demand_macro_service
+                SET svc_macro_value = ''
+                WHERE svc_macro_id = :macro_id
+            SQL;
+        $db->update($query, QueryParameters::create([
+            QueryParameter::int('macro_id', $macroId)
+        ]));
     }
 }
 
@@ -222,6 +242,11 @@ try {
     $error_msg = [];
     $macroName = $centreon_provider->getMacroTicketId();
 
+    $ownTransaction = ! $db->isTransactionActive();
+    if ($ownTransaction) {
+        $db->startTransaction();
+    }
+
     foreach ($problems as $row) {
         // an error in ticket close
         if (isset($tickets[$row['ticket_value']]) && $tickets[$row['ticket_value']]['status'] == -1) {
@@ -270,10 +295,30 @@ try {
     }
 
     $external_cmd->write();
-} catch (Exception $e) {
+    if ($ownTransaction) {
+        $db->commitTransaction();
+    }
+} catch (CollectionException|ConnectionException|ValueObjectException $e) {
+    CentreonLog::create()->error(
+        CentreonLog::TYPE_SQL,
+        'Error while closing tickets: ' . $e->getMessage(),
+        exception: $e
+    );
+
+    try {
+        if (($ownTransaction ?? false) && $db->isTransactionActive()) {
+            $db->rollBackTransaction();
+        }
+    } catch (ConnectionException $rollbackException) {
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Failed to roll back transaction while closing tickets: ' . $e->getMessage(),
+            exception: $rollbackException
+        );
+    }
+
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();
-    $db->rollback();
 }
 
 $resultat['msg'] = '
