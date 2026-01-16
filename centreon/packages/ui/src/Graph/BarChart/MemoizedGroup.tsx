@@ -80,7 +80,7 @@ const MemoizedGroup = ({
             isTooltipHidden={isTooltipHidden}
             lines={linesBar as Array<Line>}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[bar.key.split('-')[1] ?? undefined]}
+            yScale={yScalesPerUnit[bar.key.split('-')[1] || undefined]}
             neutralValue={neutralValue}
           />
         ) : (
