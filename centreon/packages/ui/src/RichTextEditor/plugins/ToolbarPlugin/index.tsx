@@ -1,5 +1,6 @@
 import { Divider } from '@mui/material';
 
+import { ReactElement } from 'react';
 import AlignPicker from './AlignPicker';
 import BlockButtons from './BlockButtons';
 import FormatButtons from './FormatButtons';
@@ -7,7 +8,6 @@ import LinkButton from './LinkButton';
 import ListButton from './ListButton';
 import MacrosButton from './MacrosButton';
 import UndoRedoButtons from './UndoRedoButtons';
-import { ReactElement } from 'react';
 
 interface Props {
   className?: string;

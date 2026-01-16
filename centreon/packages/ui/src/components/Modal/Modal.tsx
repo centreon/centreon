@@ -47,7 +47,6 @@ const Modal = ({
   const { classes } = useStyles(fullscreenMargins);
 
   const isFullscreen = equals(size, 'fullscreen');
-  console.log(fullscreenMargins);
 
   return (
     <MuiDialog

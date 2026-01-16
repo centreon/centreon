@@ -5,11 +5,11 @@ import Title from '../../../../components/Title';
 import { labelDatasetSelection } from '../../translatedLabels';
 
 import { FormikValues, useFormikContext } from 'formik';
+import { ReactElement } from 'react';
 import { getDataProperty } from './Inputs/utils';
 import SubInputs from './SubInputs';
 import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
-import { ReactElement } from 'react';
 
 const WidgetData = (): ReactElement => {
   const { t } = useTranslation();
