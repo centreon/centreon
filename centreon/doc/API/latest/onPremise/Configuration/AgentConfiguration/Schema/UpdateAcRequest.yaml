@@ -44,24 +44,32 @@ properties:
     - title: Configuration for `centreon-agent`
       type: object
       required:
-        - is_reverse
+        - poller_initiated
         - port
+        - create_host_auto
+        - agent_initiated
         - otel_public_certificate
         - otel_ca_certificate
         - otel_private_key
         - tokens
         - hosts
       properties:
-        is_reverse:
+        agent_initiated:
           type: boolean
-          description: Whether the connection is initiated by pollers.
+          description: Connection initiated by agent.
           example: true
-
+        poller_initiated:
+            type: boolean
+            description: Connection initiated by poller.
+            example: true
         port:
           type: integer
           description: Port used for connection (mandatory for agent initiated connection).
           nullable: true
-
+        create_host_auto:
+          type: boolean
+          description: Whether to automatically create host (in agent initiated mode).
+          example: false
         otel_public_certificate:
           type: [string, null]
           description: |
@@ -107,7 +115,6 @@ properties:
               creator_id:
                 type: integer
                 example: 42
-
         hosts:
           type: array
           description: Hosts that will initiate the connection.
@@ -125,27 +132,22 @@ properties:
                 type: integer
                 description: Unique ID of the host.
                 example: 1001
-
               address:
                 type: string
                 description: IP or DNS address of the host.
                 example: 192.168.1.20
-
               port:
                 type: integer
                 description: Port number for host connection.
                 example: 1443
-
               poller_ca_certificate:
                 type: [string, null]
                 description: Path to poller's CA certificate.
                 example: poller-ca.crt
-
               poller_ca_name:
                 type: [string, null]
                 description: CA name expected by the host.
                 example: CentreonCA
-
               token:
                 type: [object, null]
                 description: Token used for this host.
@@ -156,9 +158,11 @@ properties:
                   creator_id:
                     type: integer
                     example: 88
-
       example:
-        is_reverse: true
+        poller_initiated: true
+        create_host_auto: false
+        port: 1234
+        agent_initiated: true
         otel_public_certificate: otel-cert.crt
         otel_ca_certificate: ca.crt
         otel_private_key: otel.key
