@@ -92,17 +92,15 @@ const WrapperChart = ({
 
   const combinedRef = (element: HTMLDivElement | null) => {
     if (containerRef.current !== element) {
-      (containerRef as React.MutableRefObject<HTMLDivElement | null>).current =
-        element;
+      (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = element;
+
+      if (element) {
+        getRef?.(containerRef);
+      }
     }
     resizeObserverRef(element);
   };
 
-  useEffect(() => {
-    if (containerRef.current) {
-      getRef?.(containerRef);
-    }
-  }, [getRef]);
 
   if (loading && !adjustedData) {
     return (
