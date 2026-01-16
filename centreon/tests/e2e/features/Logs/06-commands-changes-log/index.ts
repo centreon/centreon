@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import commands from '../../../fixtures/commands/command-api.json';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -39,11 +40,7 @@ When(
 Then(
   'a new {string} command is displayed on the {string} commands page',
   (type: string) => {
-    cy.navigateTo({
-      page: 'Commands',
-      rootItemNumber: 3,
-      subMenu: 'Commands'
-    });
+    cy.visit(PAGES.configuration.commands);
     cy.wait('@getCommandsList');
     switch (type) {
       case 'NOTIFICATION': {
@@ -75,10 +72,7 @@ Then(
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

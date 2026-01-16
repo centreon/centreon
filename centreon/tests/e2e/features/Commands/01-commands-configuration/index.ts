@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/commands/command.json';
 
 let hostId = 0;
@@ -63,11 +64,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('the admin user is on the commands Configuration page', () => {
-  cy.navigateTo({
-    page: 'Commands',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commands);
   cy.wait('@getCommandsList');
 });
 
@@ -174,11 +171,7 @@ Then(
 );
 
 Given('a service being configured', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   // Click on the "Add" button
   cy.getIframeBody().contains('a', 'Add').click();
   // Wait for the "Service description" to be in the DOM
@@ -228,11 +221,7 @@ Given('a host being configured', () => {
 });
 
 When('the admin user selects a check command on the host form', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.waitForElementInIframe(
     '#main-content',
     'a:contains("generic-active-host")'
@@ -279,11 +268,7 @@ Given('a check command is configured', () => {
 });
 
 Given('a service is configured', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   // Wait for the "Configured Service" to be in the DOM
   cy.waitForElementInIframe('#main-content', 'a:contains("service2")');
@@ -316,11 +301,7 @@ When('the admin user saves the configuration', () => {
 Then(
   'the "Service uses" column for the check command is updated accordingly',
   () => {
-    cy.navigateTo({
-      page: 'Commands',
-      rootItemNumber: 3,
-      subMenu: 'Commands'
-    });
+    cy.visit(PAGES.configuration.commands);
 
     // Search for the command
     cy.searchForCommandsByName(data.check.name);
@@ -329,11 +310,7 @@ Then(
 );
 
 Given('a host is configured', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.waitForElementInIframe(
     '#main-content',
     'a:contains("generic-active-host")'
@@ -355,11 +332,7 @@ When(
 Then(
   'the "Host uses" column for the check command is updated accordingly',
   () => {
-    cy.navigateTo({
-      page: 'Commands',
-      rootItemNumber: 3,
-      subMenu: 'Commands'
-    });
+    cy.visit(PAGES.configuration.commands);
 
     // Search for the command
     cy.searchForCommandsByName(data.check.name);
