@@ -74,10 +74,6 @@ const ChartGraph = ({
     setGraphRef(ref);
   };
 
-  console.log("ChartGraph render", {
-    ref: graphRef,
-  });
-
   const graphActions = graphTimeParameters && (
     <MemoizedGraphActions
       end={graphTimeParameters.end}
