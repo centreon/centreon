@@ -41,9 +41,6 @@ final class FindUsers
 {
     use LoggerTrait;
 
-    /** @var AccessGroup[] */
-    private array $accessGroups = [];
-
     public function __construct(
         private readonly ReadUserRepositoryInterface $readUserRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
@@ -85,7 +82,7 @@ final class FindUsers
                     return;
                 }
                 $users = $this->readUserRepository->findByAccessGroupsAndRequestParameters(
-                    $this->accessGroups,
+                    $accessGroups,
                     $this->requestParameters
                 );
             }
