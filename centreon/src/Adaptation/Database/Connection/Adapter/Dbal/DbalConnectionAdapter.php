@@ -32,6 +32,7 @@ use Adaptation\Database\Connection\Trait\ConnectionTrait;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Domain\Exception\UnexpectedValueException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Core\Infrastructure\Common\DatabaseTLSResolver;
 use Doctrine\DBAL\Connection as DoctrineDbalConnection;
 use Doctrine\DBAL\DriverManager as DoctrineDbalDriverManager;
 use Psr\Log\LogLevel;
@@ -84,7 +85,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'charset' => $connectionConfig->getCharset(),
             'driver' => $connectionConfig->getDriver()->value,
         ];
-
+        $dbalConnectionConfig = $dbalConnectionConfig + DatabaseTLSResolver::getTLSOptions();
         try {
             $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
             $dbalConnectionAdapter = new self($dbalConnection, $connectionConfig);

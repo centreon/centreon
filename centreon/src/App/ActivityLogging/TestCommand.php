@@ -46,15 +46,15 @@ class TestCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $pdo = new \PDO(
-            'mysql:host=db;dbname=centreon',
-            'centreon',
-            'centreon',
-            [\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true, \PDO::MYSQL_ATTR_SSL_CA => '/tmp/test']
-        );
-        $result = $pdo->query('SELECT 1');
-        dump($result->fetchAll(\PDO::FETCH_ASSOC));
-        dump($this->connection->getNativeConnection());
+        /* $pdo = new \PDO( */
+        /*     'mysql:host=db;dbname=centreon', */
+        /*     'centreon', */
+        /*     'centreon', */
+        /*     [\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true, \PDO::MYSQL_ATTR_SSL_CA => '/tmp/test'] */
+        /* ); */
+        /* $result = $pdo->query('SELECT 1'); */
+        /* dump($result->fetchAll(\PDO::FETCH_ASSOC)); */
+        /* dd($this->connection->getNativeConnection()); */
         dump($this->connection->getParams());
         $result = $this->connection->executeQuery('SELECT 1');
         dump($result->fetchAllAssociative());
