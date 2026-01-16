@@ -321,7 +321,7 @@ Then(
       rootItemNumber: 3,
       subMenu: 'Commands'
     });
-    cy.wait('@getCommandsList');
+    //cy.wait('@getCommandsList');
     // Search for the command
     cy.searchForCommandsByName(data.check.name);
     cy.contains('p', '1 (0)').should('be.visible');
@@ -360,7 +360,7 @@ Then(
       rootItemNumber: 3,
       subMenu: 'Commands'
     });
-    cy.wait('@getCommandsList');
+    //cy.wait('@getCommandsList');
     // Search for the command
     cy.searchForCommandsByName(data.check.name);
     cy.get('p.MuiTypography-root')
