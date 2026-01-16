@@ -4,7 +4,7 @@ import { PAGES } from 'fixtures/shared/constants/pages';
 import vms from '../../../fixtures/services/virtual-metric.json';
 
 const checkFirstVmFromListing = () => {
-  cy.visit(PAGES.monitoring.virtuelMetricsLegacy);
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -47,7 +47,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user adds a virtual metric', () => {
-  cy.visit(PAGES.monitoring.virtuelMetricsLegacy);
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateVirtualMetric(
@@ -76,7 +76,7 @@ Then('all properties are saved', () => {
 
 Given('an existing virtual metric', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
-  cy.visit(PAGES.monitoring.virtuelMetricsLegacy);
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
 });
 
 When('the user changes the properties of the configured virtual metric', () => {
