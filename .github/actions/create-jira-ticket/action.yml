@@ -104,6 +104,7 @@ runs:
 
           if (nightly_epic_id == undefined || nightly_epic_key == undefined) {
             core.setFailed(`❌ Variables nightly_epic_id or nightly_epic_key have not been properly defined.`);
+            return;
           } else {
             core.setOutput('nightly_epic_id', nightly_epic_id);
             core.setOutput('nightly_epic_key', nightly_epic_key);
@@ -135,7 +136,7 @@ runs:
           const nightly_epic_key = "${{ steps.get_nightly_epic.outputs.nightly_epic_key }}"
           const JSON_TEMPLATE_FILE = "./.github/actions/create-jira-ticket/nightly-ticket-template.json";
           const path = './ticket-payload.json';
-          let contents, data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, ticket_data, ticket_key, JSON_TEMPLATE_FILE, parent_epic_id, parent_epic_key;
+          let contents, data, ticket_summary, ticket_squad_id, ticket_board_id, squad_name, ticket_labels, current_sprint, ticket_data, ticket_key, parent_epic_id, parent_epic_key;
 
           let failed_jobs = JSON.parse(execSync(
             `gh run view ${{ github.run_id }} --json jobs -q '[.jobs[] | select(.conclusion == "failure") | .name | split(" ")[0] ] | unique'`,
