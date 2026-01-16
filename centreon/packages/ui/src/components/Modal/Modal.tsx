@@ -47,6 +47,7 @@ const Modal = ({
   const { classes } = useStyles(fullscreenMargins);
 
   const isFullscreen = equals(size, 'fullscreen');
+  console.log(fullscreenMargins);
 
   return (
     <MuiDialog
@@ -61,7 +62,7 @@ const Modal = ({
       {...attr}
     >
       {hasCloseButton && (
-        <div className={classes.modalCloseButton}>
+        <div className="absolute top-2 right-4 opacity-60">
           <IconButton
             aria-label="close"
             icon={<CloseIcon />}

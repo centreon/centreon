@@ -12,7 +12,12 @@ const useStyles = makeStyles<{
       padding: theme.spacing(2.5)
     },
     '&[data-size="fullscreen"]': {
-      zIndex: 0
+      zIndex: 0,
+      margin: 0,
+      marginLeft: props?.left ?? 0,
+      marginRight: props?.right ?? 0,
+      marginTop: props?.top ?? 0,
+      marginBottom: props?.bottom ?? 0
     },
     '&[data-size="fullscreen"] .MuiBackdrop-root': {
       display: 'none'
@@ -20,18 +25,18 @@ const useStyles = makeStyles<{
     '&[data-size="fullscreen"] .MuiDialog-container': {
       alignItems: 'flex-end',
       height: '100vh',
-      justifyContent: 'flex-end'
+      justifyContent: 'flex-end',
+      position: 'relative'
     },
     '&[data-size="fullscreen"] .MuiDialog-paper': {
-      bottom: props?.bottom ?? 0,
-      height: 'calc(100vh - 90px)',
-      left: props?.left ?? 0,
+      bottom: 0,
+      left: 0,
       margin: 0,
       maxWidth: 'unset',
       paddingBottom: theme.spacing(8),
       position: 'absolute',
-      right: props?.right ?? 0,
-      top: props?.top ?? 0,
+      right: 0,
+      top: 0,
       transition: theme.transitions.create('left')
     },
     '&[data-size="large"] .MuiDialog-paper': {
@@ -51,10 +56,8 @@ const useStyles = makeStyles<{
   },
   modalActions: {
     '&[data-fixed="true"]': {
-      background: theme.palette.background.paper,
       padding: theme.spacing(1, 2.5, 2.5, 0),
-      position: 'fixed',
-      width: '100%'
+      position: 'fixed'
     },
     bottom: 0,
     display: 'flex',
