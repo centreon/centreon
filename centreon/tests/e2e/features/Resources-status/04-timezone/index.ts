@@ -5,6 +5,7 @@ import {
   When
 } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import {
   checkMetricsAreMonitored,
   checkServicesAreMonitored
@@ -170,11 +171,7 @@ Given('the platform is configured with at least one resource', () => {
 });
 
 When('the user clicks on Timezone field in his profile menu', () => {
-  cy.navigateTo({
-    page: 'My Account',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  }).wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('span[aria-labelledby="select2-contact_location-container"]')
@@ -254,10 +251,7 @@ Given('a user with a custom timezone set in his profile', function _() {
 });
 
 When('the user creates a downtime on a resource', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 
   cy.contains(serviceInDtName)
     .parent()
@@ -325,10 +319,7 @@ Then(
 );
 
 When('the user creates an acknowledgement on a resource', () => {
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
 
   cy.submitResults([
     {
@@ -522,11 +513,7 @@ When('the user opens a chart from Monitoring>Performances>Graphs', () => {
     }
   ]);
 
-  cy.navigateTo({
-    page: 'Graphs',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  }).wait('@getTimeZone');
+  cy.visit(PAGES.monitoring.performancesGraphsLegacy).wait('@getTimeZone');
 });
 
 When('the user selects a chart', () => {
