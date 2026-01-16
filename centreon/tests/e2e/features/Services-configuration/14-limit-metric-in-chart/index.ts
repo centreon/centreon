@@ -49,7 +49,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 Given('many virtual metrics are linked to a configured service', () => {
-  cy.visit(PAGES.monitoring.virtuelMetricsLegacy);
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Virtual metrics' is visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchVM"]');
