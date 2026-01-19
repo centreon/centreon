@@ -41,7 +41,7 @@ function get_contact_information()
 
     try {
         $row = $db->fetchAssociative($query, QueryParameters::create([
-            QueryParameter::int('contact_id', (int) $centreon_bg->user_id)
+            QueryParameter::int('contact_id', (int) $centreon_bg->user_id),
         ]));
         if ($row) {
             $result = $row;
@@ -121,14 +121,15 @@ function do_chain_rules($rule_list, $db_storage, $contact_infos, $selected)
 
 /**
  * getMacroId : returns the id of a macro if it is sets directly on the host or service
- * 
+ *
  * @param string $type the type of object (can be host or service)
  * @param string $macroName the name of the macro (usually TICKET_ID)
  * @param int $objectId the id of the host or service
  * @throws CollectionException|ConnectionException|ValueObjectException
  * @return int|null the id of the macro if directly linked to the host or service
  */
-function getTicketMacroId(string $type, string $macroName, int $objectId): ?int {
+function getTicketMacroId(string $type, string $macroName, int $objectId): ?int
+{
     global $db;
 
     if ($type === 'host') {
@@ -147,7 +148,7 @@ function getTicketMacroId(string $type, string $macroName, int $objectId): ?int 
 
     $row = $db->fetchAssociative($query, QueryParameters::create([
         QueryParameter::int('object_id', $objectId),
-        QueryParameter::string('macro_name', $macroName)
+        QueryParameter::string('macro_name', $macroName),
     ]));
 
     if ($row) {
@@ -159,14 +160,15 @@ function getTicketMacroId(string $type, string $macroName, int $objectId): ?int 
 
 /**
  * updateMacroValue when a ticket is created it needs to also be stored in the on_demand_macro_xxx table
- * 
+ *
  * @param string $type the type of object (can be host or service)
  * @param string $macroValue the value that is going to be updated
  * @param int $macroId the id of the macro that needs to be updated
  * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
-function updateMacroValue(string $type, string $macroValue, int $macroId): void {
+function updateMacroValue(string $type, string $macroValue, int $macroId): void
+{
     global $db;
 
     if ($type === 'host') {
@@ -185,19 +187,20 @@ function updateMacroValue(string $type, string $macroValue, int $macroId): void 
 
     $db->update($query, QueryParameters::create([
         QueryParameter::string('ticket_id', $macroValue),
-        QueryParameter::int('macro_id', $macroId)
+        QueryParameter::int('macro_id', $macroId),
     ]));
 }
 
 /**
  * getMaxOrder gets the order number for the next custom macro
- * 
+ *
  * @param string $type the type of object (must be host or service)
  * @param int $objectId the id of the service or the host
  * @throws CollectionException|ConnectionException|ValueObjectException
  * @return int the next available order number
  */
-function getMaxOrder(string $type, int $objectId): int {
+function getMaxOrder(string $type, int $objectId): int
+{
     global $db;
 
     if ($type === 'host') {
@@ -215,11 +218,11 @@ function getMaxOrder(string $type, int $objectId): int {
     }
 
     $row = $db->fetchAssociative($query, QueryParameters::create([
-        QueryParameter::int('object_id', $objectId)
+        QueryParameter::int('object_id', $objectId),
     ]));
 
     if ($row) {
-        return is_null($row['max']) ? 0 : (int)$row['max'] + 1;
+        return is_null($row['max']) ? 0 : (int) $row['max'] + 1;
     }
 
     return 0;
@@ -227,7 +230,7 @@ function getMaxOrder(string $type, int $objectId): int {
 
 /**
  * insertNewMacroValue add a new macro on the object (service/host)
- * 
+ *
  * @param string $type the type of object (must be host or service)
  * @param string $macroName the name of the macro
  * @param string $macroValue the value of the macro
@@ -235,7 +238,8 @@ function getMaxOrder(string $type, int $objectId): int {
  * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
-function insertNewMacroValue(string $type, string $macroName, string $macroValue, int $objectId): void {
+function insertNewMacroValue(string $type, string $macroName, string $macroValue, int $objectId): void
+{
     global $db;
     $macroOrder = getMaxOrder($type, $objectId);
 
@@ -255,18 +259,19 @@ function insertNewMacroValue(string $type, string $macroName, string $macroValue
         QueryParameter::string('ticket_id', $macroValue),
         QueryParameter::int('object_id', $objectId),
         QueryParameter::string('macro_name', $macroName),
-        QueryParameter::int('macro_order', $macroOrder)
+        QueryParameter::int('macro_order', $macroOrder),
     ]));
 }
 
 /**
  * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
- * 
+ *
  * @param int $serviceId the id of the service
  * @throws CollectionException|ConnectionException|ValueObjectException
  * @return bool
  */
-function isServiceUnique(int $serviceId): bool {
+function isServiceUnique(int $serviceId): bool
+{
     global $db;
     $query = <<<'SQL'
             SELECT count(*) AS duplicated_service
@@ -287,7 +292,7 @@ function isServiceUnique(int $serviceId): bool {
         SQL;
 
     $row = $db->fetchAssociative($query, QueryParameters::create([
-        QueryParameter::int('service_id', $serviceId)
+        QueryParameter::int('service_id', $serviceId),
     ]));
 
     if ($row) {
@@ -396,10 +401,10 @@ try {
 
         foreach ($selected['host_selected'] as $value) {
             $fullMacroName = '$_HOST' . $macroName . '$';
-            $macroId = getTicketMacroId('host', $fullMacroName,  $value['host_id']);
+            $macroId = getTicketMacroId('host', $fullMacroName, $value['host_id']);
 
-            if (!is_null($macroId)) {
-                updateMacroValue('host', $resultat['result']['ticket_id'],  $macroId);
+            if (! is_null($macroId)) {
+                updateMacroValue('host', $resultat['result']['ticket_id'], $macroId);
             } else {
                 insertNewMacroValue('host', $fullMacroName, $resultat['result']['ticket_id'], $value['host_id']);
             }
@@ -452,11 +457,11 @@ try {
         }
         foreach ($selected['service_selected'] as $value) {
             $fullMacroName = '$_SERVICE' . $macroName . '$';
-            $macroId = getTicketMacroId('service', $fullMacroName,  $value['service_id']);
+            $macroId = getTicketMacroId('service', $fullMacroName, $value['service_id']);
 
-            if (!is_null($macroId)) {
-                updateMacroValue('service', $resultat['result']['ticket_id'],  $macroId);
-            // need to avoid creating macros on services linked to multiple hosts or to hg otherwise we can create many open ticket bugs
+            if (! is_null($macroId)) {
+                updateMacroValue('service', $resultat['result']['ticket_id'], $macroId);
+                // need to avoid creating macros on services linked to multiple hosts or to hg otherwise we can create many open ticket bugs
             } elseif (isServiceUnique($value['service_id'])) {
                 insertNewMacroValue('service', $fullMacroName, $resultat['result']['ticket_id'], $value['service_id']);
             }
@@ -526,7 +531,7 @@ try {
     );
 
     try {
-        if (($ownTransaction ?? false) && $db->isTransactionActive()) {
+        if ($ownTransaction && $db->isTransactionActive()) {
             $db->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {

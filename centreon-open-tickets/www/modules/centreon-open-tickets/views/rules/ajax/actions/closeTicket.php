@@ -27,13 +27,14 @@ use Core\Common\Domain\Exception\ValueObjectException;
 
 /**
  * updateHostMacro updates ticket custom macro value to an empty value to fully remove the ticket
- * 
+ *
  * @param string $macroName name of the macro that must be updated
  * @param int $hostId id of host
  * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
-function updateHostMacro(string $macroName, int $hostId): void {
+function updateHostMacro(string $macroName, int $hostId): void
+{
     global $db;
 
     // check if host has the macro set up
@@ -44,7 +45,7 @@ function updateHostMacro(string $macroName, int $hostId): void {
         SQL;
     $row = $db->fetchAssociative($query, QueryParameters::create([
         QueryParameter::string('macro_name', $macroName),
-        QueryParameter::int('host_id', $hostId)
+        QueryParameter::int('host_id', $hostId),
     ]));
 
     if ($row) {
@@ -55,20 +56,21 @@ function updateHostMacro(string $macroName, int $hostId): void {
                 WHERE host_macro_id = :macro_id
             SQL;
         $db->update($query, QueryParameters::create([
-            QueryParameter::int('macro_id', $macroId)
+            QueryParameter::int('macro_id', $macroId),
         ]));
     }
 }
 
 /**
  * updateServiceMacro updates ticket custom macro value to an empty value to fully remove the ticket
- * 
+ *
  * @param string $macroName name of the macro that must be updated
  * @param int $serviceId id of service
  * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
-function updateServiceMacro(string $macroName, int $serviceId): void {
+function updateServiceMacro(string $macroName, int $serviceId): void
+{
     global $db;
 
     // check if service has the macro set up
@@ -79,7 +81,7 @@ function updateServiceMacro(string $macroName, int $serviceId): void {
         SQL;
     $row = $db->fetchAssociative($query, QueryParameters::create([
         QueryParameter::string('macro_name', $macroName),
-        QueryParameter::int('service_id', $serviceId)
+        QueryParameter::int('service_id', $serviceId),
     ]));
 
     if ($row) {
@@ -90,7 +92,7 @@ function updateServiceMacro(string $macroName, int $serviceId): void {
                 WHERE svc_macro_id = :macro_id
             SQL;
         $db->update($query, QueryParameters::create([
-            QueryParameter::int('macro_id', $macroId)
+            QueryParameter::int('macro_id', $macroId),
         ]));
     }
 }
@@ -306,7 +308,7 @@ try {
     );
 
     try {
-        if (($ownTransaction ?? false) && $db->isTransactionActive()) {
+        if ($ownTransaction && $db->isTransactionActive()) {
             $db->rollBackTransaction();
         }
     } catch (ConnectionException $rollbackException) {
