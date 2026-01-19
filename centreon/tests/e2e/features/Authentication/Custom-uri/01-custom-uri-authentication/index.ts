@@ -1,10 +1,15 @@
 import { Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../../commons';
-import { reloadWebServer, updateWebServerConfig } from '../common';
+import {
+  reloadWebServer,
+  replaceCustomUri,
+  updateWebServerConfig
+} from '../common';
 
 const service = 'Ping';
 const host = 'Centreon-Server';
@@ -83,11 +88,7 @@ Then(
 
     cy.contains(host).parent().get('.MuiChip-root').should('contain', 'h');
 
-    cy.navigateTo({
-      page: 'Hosts',
-      rootItemNumber: 3,
-      subMenu: 'Hosts'
-    });
+    cy.visit(replaceCustomUri(PAGES.configuration.hostsLegacy, '/monitor'));
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -103,11 +104,9 @@ Then(
         .should('be.gte', 21);
     });
 
-    cy.navigateTo({
-      page: 'Services by host',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(
+      replaceCustomUri(PAGES.configuration.servicesByHostLegacy, '/monitor')
+    );
 
     cy.wait('@getTimeZone').then(() => {
       cy.getIframeBody()
@@ -142,10 +141,7 @@ Then(
       }
     ]);
 
-    cy.navigateTo({
-      page: 'Resources Status',
-      rootItemNumber: 1
-    });
+    cy.visit(replaceCustomUri(PAGES.monitoring.resourcesStatus, '/monitor'));
 
     cy.get('header').parent().children().eq(1).contains('OK').should('exist');
 
