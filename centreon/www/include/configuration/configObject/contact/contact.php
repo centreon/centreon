@@ -261,7 +261,7 @@ try {
     }
 } catch (RepositoryException $exception) {
     CentreonLog::create()->error(
-        CentreonLog::TYPE_SQL,
+        CentreonLog::TYPE_BUSINESS_LOG,
         'Error while processing contacts: ' . $exception->getMessage(),
         exception: $exception
     );

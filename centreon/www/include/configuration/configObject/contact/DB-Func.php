@@ -74,7 +74,7 @@ function testContactExistence(?string $name = null, ?bool $preventLog = false): 
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         if ($preventLog !== true) {
             CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
+                CentreonLog::TYPE_BUSINESS_LOG,
                 'Error while executing testContactExistence: ' . $exception->getMessage(),
                 ['contact_name' => $contactName],
                 exception: $exception,
@@ -123,7 +123,7 @@ function testAliasExistence(?string $alias = null, ?bool $preventLog = false): b
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         if ($preventLog !== true) {
             CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
+                CentreonLog::TYPE_BUSINESS_LOG,
                 'Error while executing testAliasExistence: ' . $exception->getMessage(),
                 ['contact_alias' => $alias],
                 exception: $exception,
@@ -193,7 +193,7 @@ function keepOneContactAtLeast(string|int|null $ct_id = null, bool $log = true):
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         if ($log) {
             CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
+                CentreonLog::TYPE_BUSINESS_LOG,
                 'Error while checking remaining active Centreon contacts: ' . $exception->getMessage(),
                 ['contact_id' => $contactId],
                 exception: $exception,
@@ -1337,7 +1337,7 @@ function updateContactHostCommands(int $contactId, array $fields = []): bool
         return true;
     } catch (Throwable $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and host commands',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -1357,7 +1357,7 @@ function updateContactHostCommands_MC(int $contactId): bool
 
     if ($contactId <= 0) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId],
         );
@@ -1405,7 +1405,7 @@ function updateContactHostCommands_MC(int $contactId): bool
         return true;
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating contact host commands by massive change',
             ['contact_id' => $contactId],
             $exception
@@ -1464,7 +1464,7 @@ function updateContactServiceCommands(int $contactId, array $fields = []): bool
         return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and service commands',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -1485,7 +1485,7 @@ function updateContactServiceCommands_MC(int $contactId): bool
 
     if ($contactId <= 0) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
             ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId],
         );
@@ -1533,7 +1533,7 @@ function updateContactServiceCommands_MC(int $contactId): bool
         return true;
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating contact service commands by massive change',
             ['contact_id' => $contactId],
             $exception
@@ -1607,7 +1607,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): bool
         }
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and contact groups',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -1620,7 +1620,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): bool
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}",
             ['contact_id' => $contactId],
             $e
@@ -1677,7 +1677,7 @@ function updateContactContactGroup_MC(int $contactId): bool
         }
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and contact groups by massive change',
             ['contact_id' => $contactId],
             $e
@@ -1690,7 +1690,7 @@ function updateContactContactGroup_MC(int $contactId): bool
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}",
             ['contact_id' => $contactId],
             $e
@@ -1868,7 +1868,7 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): bool
         }
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and acl groups',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -1931,7 +1931,7 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): bool
         return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and acl groups by massive change',
             ['contact_id' => $contactId, 'flag' => $flag],
             $e
