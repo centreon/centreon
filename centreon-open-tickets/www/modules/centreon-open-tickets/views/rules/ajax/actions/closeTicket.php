@@ -210,7 +210,7 @@ try {
     $dbResult = $db_storage->fetchAllAssociative($query);
 } catch (ConnectionException $e) {
     CentreonLog::create()->error(
-        CentreonLog::TYPE_SQL,
+        CentreonLog::TYPE_BUSINESS_LOG,
         'Error while fetching tickets to close: ' . $e->getMessage(),
         exception: $e
     );
@@ -302,7 +302,7 @@ try {
     }
 } catch (CollectionException|ConnectionException|ValueObjectException $e) {
     CentreonLog::create()->error(
-        CentreonLog::TYPE_SQL,
+        CentreonLog::TYPE_BUSINESS_LOG,
         'Error while closing tickets: ' . $e->getMessage(),
         exception: $e
     );
@@ -313,7 +313,7 @@ try {
         }
     } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Failed to roll back transaction while closing tickets: ' . $rollbackException->getMessage(),
             exception: $rollbackException
         );

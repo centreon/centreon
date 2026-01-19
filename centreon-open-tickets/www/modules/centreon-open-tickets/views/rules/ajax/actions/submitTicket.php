@@ -48,7 +48,7 @@ function get_contact_information()
         }
     } catch (ConnectionException|CollectionException|ValueObjectException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while fetching contact information: ' . $e->getMessage(),
             exception: $e
         );
@@ -525,7 +525,7 @@ try {
     $centreon_provider->clearUploadFiles();
 } catch (CollectionException|ConnectionException|ValueObjectException $e) {
     CentreonLog::create()->error(
-        CentreonLog::TYPE_SQL,
+        CentreonLog::TYPE_BUSINESS_LOG,
         'Error while submitting tickets: ' . $e->getMessage(),
         exception: $e
     );
@@ -536,7 +536,7 @@ try {
         }
     } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Failed to roll back transaction while submitting tickets: ' . $rollbackException->getMessage(),
             exception: $rollbackException
         );
