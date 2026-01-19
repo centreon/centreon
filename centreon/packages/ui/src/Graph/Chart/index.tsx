@@ -92,8 +92,7 @@ const WrapperChart = ({
 
   const combinedRef = (element: HTMLDivElement | null) => {
     if (containerRef.current !== element) {
-      (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = element;
-
+      containerRef.current = element;
       if (element) {
         getRef?.(containerRef);
       }
