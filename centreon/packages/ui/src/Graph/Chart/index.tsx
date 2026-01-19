@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { memo, useEffect, useRef } from "react";
+import { memo, useRef } from "react";
 import "dayjs/locale/en";
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
