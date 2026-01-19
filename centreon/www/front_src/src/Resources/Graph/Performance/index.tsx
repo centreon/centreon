@@ -32,7 +32,6 @@ import {
   useRef,
   useState,
 } from "react";
-import { useTranslation } from "react-i18next";
 import { makeStyles } from "tss-react/mui";
 
 import type { CommentParameters } from "../../Actions/api";
