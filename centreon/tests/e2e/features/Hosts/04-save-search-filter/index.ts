@@ -1,15 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const searchWordOnHostTemplate = 'generic-host';
 const searchWordOnTraps = 'ccm';
-
-const navigateToSpecificPage = (subMenu, index, page) => {
-  cy.navigateTo({
-    page,
-    rootItemNumber: index,
-    subMenu
-  });
-};
 
 beforeEach(() => {
   cy.startContainers();
@@ -35,7 +28,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('a search on the host template listing', () => {
-  navigateToSpecificPage('Hosts', 3, 'Templates');
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchHT"]');
   cy.getIframeBody()
     .find('input[name="searchHT"]')
@@ -45,11 +38,11 @@ Given('a search on the host template listing', () => {
 });
 
 When('the user changes page', () => {
-  navigateToSpecificPage('Hosts', 3, 'Categories');
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
 });
 
 When('the user goes back to the host template listing', () => {
-  navigateToSpecificPage('Hosts', 3, 'Templates');
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
 });
 
 Then(
@@ -63,7 +56,7 @@ Then(
 );
 
 Given('a search on the traps listing', () => {
-  navigateToSpecificPage('SNMP Traps', 3, 'SNMP Traps');
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody()
     .find('input[name="searchT"]')
@@ -73,7 +66,7 @@ Given('a search on the traps listing', () => {
 });
 
 When('the user goes back to the traps listing', () => {
-  navigateToSpecificPage('SNMP Traps', 3, 'SNMP Traps');
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
 });
 
 Then('the search on the traps page is filled with the previous search', () => {

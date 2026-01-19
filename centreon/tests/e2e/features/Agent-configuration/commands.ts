@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 Cypress.Commands.add('fillCmaMandatoryFields', (body: Cma) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
@@ -152,10 +154,7 @@ Cypress.Commands.add('addCmaToken', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Authentication Tokens',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.configuration.authenticationTokens);
   cy.getByLabel({ label: 'create' }).click();
   cy.contains('Create authentication token').should('be.visible');
   cy.get('#Name').type('CMA-Token-001');
@@ -210,5 +209,3 @@ declare global {
     }
   }
 }
-
-export {};
