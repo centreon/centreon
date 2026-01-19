@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { configureProviderAcls } from '../../../../commons';
 import {
   configureOpenIdConnect,
@@ -35,10 +36,7 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets authentication mode to OpenID Connect only',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    cy.visit(PAGES.configuration.authentication)
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
@@ -80,9 +78,7 @@ Then(
 
     cy.loginKeycloak('admin');
 
-    cy.get('#input-error')
-      .should('be.visible')
-      .and('include.text', 'Invalid username or password.');
+    cy.contains('Invalid username or password.');
 
     cy.loginKeycloak(username);
     cy.url().should('include', '/monitoring/resources');

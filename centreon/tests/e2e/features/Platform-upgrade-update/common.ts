@@ -1,7 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
+import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
@@ -98,7 +99,6 @@ const getCentreonStableMinorVersions = (
 
 const installDatabase = (): void => {
   if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
-    const osMatches = Cypress.env('WEB_IMAGE_OS').match(/alma(\d+)/);
     cy.execInContainer({
       command: [
         'dnf module enable -y mariadb:10.11',
@@ -199,9 +199,11 @@ const installCentreon = (version: string): Cypress.Chainable => {
       `centreon-perl-libs='${packageVersionSuffix}'`
     ];
     if (
-      Number(versionMatches[1]) < 24
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10)
-      || (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) === 10 && Number(versionMatches[3]) < 7)
+      Number(versionMatches[1]) < 24 ||
+      (Number(versionMatches[1]) === 24 && Number(versionMatches[2]) < 10) ||
+      (Number(versionMatches[1]) === 24 &&
+        Number(versionMatches[2]) === 10 &&
+        Number(versionMatches[3]) < 7)
     ) {
       packagesToInstall.push(`centreon-common=${packageVersionSuffix}`);
     }
@@ -250,9 +252,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   }).as('cacheGeneration');
 
   // Step 1
-  cy.visit('/centreon/install/install.php')
-    .get('th.step-wrapper span')
-    .contains(1);
+  cy.visit(PAGES.configuration.install).get('th.step-wrapper span').contains(1);
   cy.get('#next').click();
 
   // Step 2
@@ -624,7 +624,7 @@ Then(
 );
 
 Then('legacy services grid page should still work', () => {
-  cy.visit('/centreon/main.php?p=20204&o=svcOV_pb').wait('@getTimeZone');
+  cy.visit(PAGES.configuration.servicesGridLegacy).wait('@getTimeZone');
 
   cy.waitUntil(() => {
     cy.get('iframe#main-content')

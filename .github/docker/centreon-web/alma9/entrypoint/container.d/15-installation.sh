@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Controls database partitioning during Centreon installation.
+# Default to "1" (enabled) to preserve the standard installation behavior
+# when DATABASE_PARTITIONING is not explicitly set.
+DATABASE_PARTITIONING=${DATABASE_PARTITIONING:-1}
+
 # Avoid to display mysql warning: Using a password on the command line interface can be insecure.
 export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
 
@@ -8,19 +13,34 @@ sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/databas
 if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/install ]; then
   cd /usr/share/centreon/www/install/steps/process
 
+  echo "Creating Centreon configuration files..."
+  su apache -s /bin/bash -c "php configFileSetup.php"
+
   if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e \
-      "SELECT count(*) from information_schema.tables WHERE \
-          table_schema='centreon' and table_name='nagios_server'") -eq 1 ]; then
-      echo "Centreon is already installed."
-      su apache -s /bin/bash -c "php configFileSetup.php"
-      su apache -s /bin/bash -c "php createDbUser.php"
-  else
-    su apache -s /bin/bash -c "php configFileSetup.php"
-    su apache -s /bin/bash -c "php installConfigurationDb.php"
-    su apache -s /bin/bash -c "php installStorageDb.php"
+    "SELECT count(*) from information_schema.tables WHERE \
+        table_schema='centreon' and table_name='nagios_server'") -eq 1
+  ]; then
+    echo "Centreon is already installed."
+
+    echo "Creating Centreon database user..."
     su apache -s /bin/bash -c "php createDbUser.php"
+  else
+    echo "Installing Centreon configuration database..."
+    su apache -s /bin/bash -c "php installConfigurationDb.php"
+
+    echo "Installing Centreon storage database..."
+    su apache -s /bin/bash -c "php installStorageDb.php"
+
+    echo "Creating Centreon database user..."
+    su apache -s /bin/bash -c "php createDbUser.php"
+
+    echo "Inserting base configuration ..."
     su apache -s /bin/bash -c "SERVER_ADDR='127.0.0.1' php insertBaseConf.php"
-    su apache -s /bin/bash -c "php partitionTables.php"
+
+    if [ "$DATABASE_PARTITIONING" = "1" ]; then
+      echo "DATABASE_PARTITIONING environment variable is set, creating partition tables..."
+      su apache -s /bin/bash -c "php partitionTables.php"
+    fi
 
     mysql -h${MYSQL_HOST} -uroot centreon -e "UPDATE cfg_centreonbroker_info SET config_value = '${MYSQL_HOST}' WHERE config_key = 'db_host'"
     mysql -h${MYSQL_HOST} -uroot -e "GRANT ALL ON *.* to 'centreon'@'%' WITH GRANT OPTION"
@@ -35,8 +55,16 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     fi
   fi
 
+  echo "Creating engine context configuration..."
   su apache -s /bin/bash -c "php createEngineContextConfiguration.php"
+
+  echo "Generating Centreon cache..."
   su apache -s /bin/bash -c "php generationCache.php"
+
+  echo "Disabling statistics collection..."
+  mysql -h${MYSQL_HOST} -uroot centreon -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
+  mysql -h${MYSQL_HOST} -uroot centreon -e "INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
+
   cd -
 fi
 
