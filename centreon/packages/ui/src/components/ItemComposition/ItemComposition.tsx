@@ -50,7 +50,7 @@ export const ItemComposition = ({
         )}
       </div>
       <div
-        className={`flex justify-between items-center w-full ${isAddButtonSticky && 'bg-background-paper position-sticky bottom-0'} ${addButtonClassName}`}
+        className={`flex justify-between items-center w-full ${isAddButtonSticky && 'bg-background-paper sticky bottom-0'} ${addButtonClassName}`}
       >
         {!addButtonHidden && (
           <Button
