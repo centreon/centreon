@@ -20,11 +20,10 @@ class TLSConnectionFactoryDecorator extends ConnectionFactory
     public function createConnection(array $params, Configuration|null $config = null, EventManager|null $eventManager = null, array $mappingTypes = [])
     {
         $tlsOptions = DatabaseTLSResolver::getTLSOptions();
-        $params['driver'] = 'mysqli';
         if (!empty($tlsOptions)) {
-            $params['ssl_ca'] = $tlsOptions[\PDO::MYSQL_ATTR_SSL_CA] ?? null;
-            $params['ssl_cert'] = $tlsOptions[\PDO::MYSQL_ATTR_SSL_CERT] ?? null;
-            $params['ssl_key'] = $tlsOptions[\PDO::MYSQL_ATTR_SSL_KEY] ?? null;
+            foreach ($tlsOptions as $optionKey => $optionValue) {
+                $params['driverOptions'][$optionKey] = $optionValue;
+            }
         }
 
         return $this->inner->createConnection($params, $config, $eventManager, $mappingTypes);
