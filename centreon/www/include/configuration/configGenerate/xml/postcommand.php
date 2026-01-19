@@ -33,7 +33,11 @@
  *
  */
 
-if (!isset($_POST['poller'])) {
+use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
+use Core\Contact\Domain\AdminResolver;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+
+if (! isset($_POST['poller'])) {
     exit();
 }
 
@@ -42,30 +46,49 @@ require_once _CENTREON_PATH_ . '/www/class/centreonDB.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonXML.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonInstance.class.php';
 require_once _CENTREON_PATH_ . '/www/class/centreonSession.class.php';
+require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
 require_once _CENTREON_PATH_ . 'bootstrap.php';
 
 
 $db = new CentreonDB();
-
-/* Check Session */
+$kernel = App\Kernel::createForWeb();
 CentreonSession::start(1);
-if (!CentreonSession::checkSession(session_id(), $db)) {
-    print "Bad Session";
+
+$readAccessGroupRepository = $kernel->getContainer()->get(ReadAccessGroupRepositoryInterface::class);
+$isCloudPlatform = $kernel->getContainer()->getParameter('env(IS_CLOUD_PLATFORM)');
+$adminResolver = new AdminResolver($readAccessGroupRepository, $isCloudPlatform);
+$readContactRepository = $kernel->getContainer()->get(ContactRepositoryInterface::class);
+$contact = $readContactRepository->findBySession(session_id());
+// Check Session
+if (
+    ! CentreonSession::checkSession(session_id(), $db)
+    || $contact === null
+    || (! $adminResolver->isAdmin($contact) && ! $contact->hasRole('ROLE_GENERATE_CONFIGURATION'))
+) {
+    echo 'Bad Session';
+
     exit();
 }
+
+// Check CSRF token
+if (! isset($_POST['centreon_token']) || ! isCSRFTokenValid()) {
+    echo json_encode(['error' => 'Invalid security token']);
+
+    exit;
+}
+purgeCSRFToken();
 
 $pollers = explode(',', $_POST['poller']);
 
 $xml = new CentreonXML();
-$kernel = App\Kernel::createForWeb();
-$gorgoneService = $kernel->getContainer()->get(\Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface::class);
+$gorgoneService = $kernel->getContainer()->get(Centreon\Domain\Gorgone\Interfaces\GorgoneServiceInterface::class);
 
 $res = $db->query("SELECT `id` FROM `nagios_server` WHERE `localhost` = '1'");
 $idCentral = (int)$res->fetch(\PDO::FETCH_COLUMN);
 
-$res = $db->query("SELECT `name`, `id`, `localhost` 
-    FROM `nagios_server` 
-    WHERE `ns_activate` = '1' 
+$res = $db->query("SELECT `name`, `id`, `localhost`
+    FROM `nagios_server`
+    WHERE `ns_activate` = '1'
     ORDER BY `name` ASC");
 $xml->startElement('response');
 $str = sprintf("<br/><b>%s</b><br/>", _("Post execution command results"));
