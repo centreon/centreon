@@ -102,8 +102,10 @@ final class UpdateHostGroup
             if ($existingHostGroup === null) {
                 return new NotFoundResponse('Host Group');
             }
-            $this->validator->assertNameIsValid($existingHostGroup, $request->name);
-            $this->validator->assertHostsExist($request->hosts);
+            $this->validator->assertNameDoesNotAlreadyExists($existingHostGroup, $request->name);
+            if ($request->hosts !== null) {
+                $this->validator->assertHostsExist($request->hosts);
+            }
             if ($request->iconId !== null) {
                 $this->validator->assertIconExists($request->iconId);
             }
@@ -117,7 +119,9 @@ final class UpdateHostGroup
             }
 
             $this->updateHostGroup($request, $existingHostGroup);
-            $this->updateHostLinks($request);
+            if ($request->hosts !== null) {
+                $this->updateHostLinks($request);
+            }
             if ($this->isCloudPlatform) {
                 $this->updateResourceAccess($request);
             }
@@ -188,6 +192,9 @@ final class UpdateHostGroup
      */
     private function updateHostLinks(UpdateHostGroupRequest $request): void
     {
+        /** @var int[] $hosts */
+        $hosts = $request->hosts;
+
         if ($this->adminResolver->isAdmin($this->user)) {
             $existingHosts = $this->readHostRepository->findByHostGroup($request->id);
             $hostsToRemove = array_map(fn (SimpleEntity $host): int => $host->getId(), $existingHosts);
@@ -199,13 +206,13 @@ final class UpdateHostGroup
 
             $hostsToRemove = (new BasicDifference(
                 array_map(fn (SmallHost $host) => $host->getId(), $reachableHosts),
-                $request->hosts
+                $hosts
             ))->getRemoved();
         }
 
         $this->writeHostGroupRepository->deleteHostLinks($request->id, $hostsToRemove);
-        $this->writeHostGroupRepository->addHostLinks($request->id, $request->hosts);
-        $this->notifyConfigurationChange($request->hosts);
+        $this->writeHostGroupRepository->addHostLinks($request->id, $hosts);
+        $this->notifyConfigurationChange($hosts);
     }
 
     /**

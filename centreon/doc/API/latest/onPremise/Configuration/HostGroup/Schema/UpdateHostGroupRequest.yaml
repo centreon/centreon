@@ -30,6 +30,8 @@ properties:
   hosts:
     type: array
     description: "Hosts linked to this host group"
+    nullable: true
+    example: [1, 2, 3]
     items:
       type: integer
       description: "Host ID"

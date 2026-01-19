@@ -131,18 +131,27 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
   });
 
   it('copies the command to the clipboard when the button is clicked', () => {
+    cy.wrap(
+      Cypress.automation('remote:debugger:protocol', {
+        command: 'Browser.grantPermissions',
+        params: {
+          permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+          origin: window.location.origin
+        }
+      })
+    );
+    cy.window()
+      .its('navigator.clipboard')
+      .then((clipboard) => {
+        cy.spy(clipboard, 'writeText').as('writeText');
+      });
+
     initialize({
       text: `# a simple command
 echo "hello" | grep "hel"`,
       language: 'bash',
       commandToCopy: 'echo "hello" | grep "hel"'
     });
-
-    cy.window()
-      .its('navigator.clipboard')
-      .then((clipboard) => {
-        cy.spy(clipboard, 'writeText').as('writeText');
-      });
 
     cy.findByTestId('Copy command').click();
 
