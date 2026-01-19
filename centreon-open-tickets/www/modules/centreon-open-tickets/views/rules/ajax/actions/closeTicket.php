@@ -65,7 +65,7 @@ function updateHostMacro(string $macroName, int $hostId): void {
  * 
  * @param string $macroName name of the macro that must be updated
  * @param int $serviceId id of service
- * @throws CollectoinException|ConnectionException|ValueObjectException
+ * @throws CollectionException|ConnectionException|ValueObjectException
  * @return void
  */
 function updateServiceMacro(string $macroName, int $serviceId): void {
@@ -312,7 +312,7 @@ try {
     } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
-            'Failed to roll back transaction while closing tickets: ' . $e->getMessage(),
+            'Failed to roll back transaction while closing tickets: ' . $rollbackException->getMessage(),
             exception: $rollbackException
         );
     }
@@ -331,7 +331,7 @@ $resultat['msg'] = '
             . join(',', array_keys($removed_tickets)) . '.</td>
     </tr>';
 
-if ($centreon_provider->doCloseTicket() && count($error_msg) > 0) {
+if ($centreon_provider->doCloseTicket() && $error_msg !== []) {
     $resultat['msg'] .= '<tr>
         <td class="FormRowField" style="padding-left:15px; color: red">Issue to close tickets: '
             . join('<br/>', $error_msg) . '.</td>

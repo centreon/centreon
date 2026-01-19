@@ -532,7 +532,7 @@ try {
     } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
-            'Failed to roll back transaction while submitting tickets: ' . $e->getMessage(),
+            'Failed to roll back transaction while submitting tickets: ' . $rollbackException->getMessage(),
             exception: $rollbackException
         );
     }
