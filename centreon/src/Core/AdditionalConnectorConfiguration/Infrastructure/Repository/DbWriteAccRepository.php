@@ -27,8 +27,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Core\AdditionalConnectorConfiguration\Application\Repository\WriteAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\NewAcc;
-use Core\Broker\Domain\Model\Type;
-use Core\Common\Domain\Exception\RepositoryException;
+use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 
@@ -181,13 +180,13 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
 
             // delete removed vcenters
             $toDelete = array_diff(array_keys($existingVcenters), $incomingNames);
-            if (! empty($toDelete)) {
-                $idsToDelete = array_map(fn($name) => $existingVcenters[$name]['id'], $toDelete);
+            if ($toDelete !== []) {
+                $idsToDelete = array_map(fn ($name) => $existingVcenters[$name]['id'], $toDelete);
                 $placeholders = implode(',', array_fill(0, count($idsToDelete), '?'));
                 $deleteStatement = $this->db->prepare($this->translateDbName(
                     <<<SQL
-                    DELETE FROM `:db`.`acc_configuration_item` WHERE id IN ({$placeholders})
-                    SQL
+                        DELETE FROM `:db`.`acc_configuration_item` WHERE id IN ({$placeholders})
+                        SQL
                 ));
                 $deleteStatement->execute($idsToDelete);
             }
@@ -198,7 +197,7 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
                     $configId,
                     $incomingVcenters,
                     $acc->getUpdatedAt()->getTimestamp(),
-                    $existingVcenters
+                    $existingVcenters,
                 );
             }
         }
@@ -257,9 +256,21 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
         $statement->execute();
     }
 
-    private function insertConfigurationItems(int $configId, array $vcenters, int $createdAt, int $updatedAt): void
-    {
-        if (empty($vcenters)) {
+    /**
+     * Insert configuration items (vcenters) for a given ACC configuration.
+     *
+     * @param int $configId
+     * @param array<array{name:string,url:string,username:null,password:null}> $vcenters
+     * @param int $createdAt
+     * @param int $updatedAt
+     */
+    private function insertConfigurationItems(
+        int $configId,
+        array $vcenters,
+        int $createdAt,
+        int $updatedAt,
+    ): void {
+        if ($vcenters === []) {
             return;
         }
 
@@ -299,13 +310,21 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
         $statement->execute($params);
     }
 
+    /**
+     * Update or insert configuration items (vcenters) for a given ACC configuration.
+     *
+     * @param int $configId
+     * @param array<array{name:string,url:string,username:null,password:null}> $vcenters
+     * @param int $updatedAt
+     * @param array<string, array{id:int, name:string, url:string, username:string, password:string, created_at:int}> $existingVcenters
+     */
     private function upsertConfigurationItems(
         int $configId,
         array $vcenters,
         int $updatedAt,
-        array $existingVcenters
+        array $existingVcenters,
     ): void {
-        if (empty($vcenters)) {
+        if ($vcenters === []) {
             return;
         }
 

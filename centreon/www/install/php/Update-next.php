@@ -153,7 +153,7 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
 
         $parameters = json_decode($acc['parameters'], true);
 
-        if (!is_array($parameters)) {
+        if (! is_array($parameters)) {
             CentreonLog::create()->warning(
                 logTypeId: CentreonLog::TYPE_UPGRADE,
                 message: "UPGRADE - {$version}: [acc] Skipping ACC ID {$acc['id']} - invalid JSON parameters",
