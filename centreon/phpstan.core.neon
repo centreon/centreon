@@ -117,7 +117,7 @@ parameters:
                 - src/Core/Security/Authentication/Domain/Provider/OpenIdProvider.php
                 - src/Core/Security/ProviderConfiguration/Domain/SecurityAccess/SecurityAccessInterface.php
                 - src/Core/Security/User/Domain/Model/UserPasswordFactory.php
-
+                - src/Core/Contact/Domain/AdminResolver.php
           # 👇👇 Software architecture problem MUST be fixed !!! Only here as a baseline 👇👇
         - # [CENTREON-RULE]: The interface is not in the right namespace.
             reportUnmatched: false
