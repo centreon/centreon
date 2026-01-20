@@ -93,46 +93,44 @@ const AddWidgetModal = (): JSX.Element | null => {
           size="fullscreen"
         >
           <Modal.Header variant="h6">{t(getTitle())}</Modal.Header>
-          <>
-            <Modal.Body>
-              {isSmallDisplay ? (
-                <div className={classes.smallContainer}>
+          <Modal.Body>
+            {isSmallDisplay ? (
+              <div className={classes.smallContainer}>
+                <WidgetSelection />
+                <Paper className={classes.preview}>
+                  <Preview />
+                </Paper>
+                <div className={classes.smallWidgetProperties}>
+                  <WidgetProperties />
+                </div>
+                <WidgetData />
+              </div>
+            ) : (
+              <div className={classes.container}>
+                <div className={classes.widgetProperties}>
                   <WidgetSelection />
+                  <div className={classes.widgetPropertiesContentContainer}>
+                    <div className={classes.widgetPropertiesContent}>
+                      <WidgetProperties />
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-rows-[360px_1fr]">
                   <Paper className={classes.preview}>
                     <Preview />
                   </Paper>
-                  <div className={classes.smallWidgetProperties}>
-                    <WidgetProperties />
-                  </div>
                   <WidgetData />
+                  <WidgetMessage />
                 </div>
-              ) : (
-                <div className={classes.container}>
-                  <div className={classes.widgetProperties}>
-                    <WidgetSelection />
-                    <div className={classes.widgetPropertiesContentContainer}>
-                      <div className={classes.widgetPropertiesContent}>
-                        <WidgetProperties />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="grid grid-rows-[360px_1fr]">
-                    <Paper className={classes.preview}>
-                      <Preview />
-                    </Paper>
-                    <WidgetData />
-                    <WidgetMessage />
-                  </div>
-                </div>
-              )}
-            </Modal.Body>
-            <Actions closeModal={askBeforeCloseModal} />
-            <UnsavedChanges
-              closeDialog={() => setAskingBeforeCloseModal(false)}
-              discard={discardChanges}
-              opened={askingBeforeCloseModal}
-            />
-          </>
+              </div>
+            )}
+          </Modal.Body>
+          <Actions closeModal={askBeforeCloseModal} />
+          <UnsavedChanges
+            closeDialog={() => setAskingBeforeCloseModal(false)}
+            discard={discardChanges}
+            opened={askingBeforeCloseModal}
+          />
         </Modal>
       )}
     </Formik>
