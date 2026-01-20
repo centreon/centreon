@@ -28,7 +28,9 @@ properties:
     example: "This is a comment"
   hosts:
     type: array
+    nullable: true
     description: "Hosts linked to this host group"
+    example: [1, 2, 3]
     items:
       type: integer
       description: "Host ID"

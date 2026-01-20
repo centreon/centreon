@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
 import {
   UpdateTrapsSnmpConfiguration,
@@ -27,11 +28,7 @@ Given('a user is logged in Centreon', () => {
 When(
   'the user adds a new SNMP trap definition with an advanced matching rule',
   () => {
-    cy.navigateTo({
-      page: 'SNMP Traps',
-      rootItemNumber: 3,
-      subMenu: 'SNMP Traps'
-    });
+    cy.visit(PAGES.configuration.snmpTrapsLegacy);
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().find('a.bt_success').contains('Add').click();
     trapsSnmpConfiguration({
@@ -102,11 +99,7 @@ When(
       name: data.snmp2.service_templates,
       template: 'generic-service'
     });
-    cy.navigateTo({
-      page: 'SNMP Traps',
-      rootItemNumber: 3,
-      subMenu: 'SNMP Traps'
-    });
+    cy.visit(PAGES.configuration.snmpTrapsLegacy);
     cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
     cy.getIframeBody().find('a.bt_success').contains('Add').click();
     trapsSnmpConfiguration({
@@ -238,11 +231,7 @@ Then('all changes are saved', () => {
 
 // Scenario: Duplicate SNMP trap definition
 When('the user has duplicated one existing SNMP trap definition', () => {
-  cy.navigateTo({
-    page: 'SNMP Traps',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   trapsSnmpConfiguration({
@@ -294,11 +283,7 @@ Then('all SNMP trap properties are unchanged except the name', () => {
 
 // Scenario: Delete SNMP trap definition
 When('the user has deleted one existing SNMP trap definition', () => {
-  cy.navigateTo({
-    page: 'SNMP Traps',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   trapsSnmpConfiguration({
