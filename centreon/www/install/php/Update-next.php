@@ -238,9 +238,6 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
                     CentreonLog::create()->warning(
                         logTypeId: CentreonLog::TYPE_UPGRADE,
                         message: "UPGRADE - {$version}: [acc] Skipping vcenter for ACC ID {$acc['id']} - missing mandatory fields",
-                        customContext: [
-                            'vcenter' => $vcenter,
-                        ]
                     );
                     continue;
                 }
@@ -269,14 +266,24 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
     $expectedCount = $initialCount + $migratedCount;
 
     if ($finalCount !== $expectedCount) {
+        $leftOutData = array_map(function ($acc) {
+            $params = json_decode($acc['parameters'], true);
+            if (is_array($params) && isset($params['vcenters'])) {
+                foreach ($params['vcenters'] as &$vcenter) {
+                    unset($vcenter['password']);
+                }
+                $acc['parameters'] = json_encode($params);
+            }
+            return $acc;
+        }, array_filter($accRecords, function ($acc) use ($leftOutAccs) {
+            return in_array($acc['id'], $leftOutAccs, true);
+        }));
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: [acc] Migration verification failed for acc_configuration table",
             customContext: [
                 'left_out_acc_ids' => $leftOutAccs,
-                'left_out_acc_data' => array_filter($accRecords, function ($acc) use ($leftOutAccs) {
-                    return in_array($acc['id'], $leftOutAccs, true);
-                }),
+                'left_out_acc_data' => $leftOutData,
             ]
         );
     }

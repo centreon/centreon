@@ -106,9 +106,9 @@ class VmWareV6Parameters implements AccParametersInterface
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $currentObj->getDecryptedData();
 
-        $requestedVcenters = [];
-        foreach ($newDatas['vcenters'] as $index => $vcenter) {
-            $requestedVcenters[$vcenter['name']] = $vcenter;
+        $existingVcentersByName = [];
+        foreach ($parameters['vcenters'] as $vcenter) {
+            $existingVcentersByName[$vcenter['name']] = $vcenter;
         }
 
         $parameters['port'] = $newDatas['port'];
@@ -116,8 +116,8 @@ class VmWareV6Parameters implements AccParametersInterface
         $newVcenters = [];
         foreach ($newDatas['vcenters'] as $index => $incomingVcenter) {
             if ($incomingVcenter['password'] === null
-                && isset($parameters['vcenters'][$index]['password'])) {
-                $incomingVcenter['password'] = $parameters['vcenters'][$index]['password'];
+                && isset($existingVcentersByName[$incomingVcenter['name']]['password'])) {
+                $incomingVcenter['password'] = $existingVcentersByName[$incomingVcenter['name']]['password'];
             }
             $newVcenters[] = $incomingVcenter;
         }
