@@ -24650,11 +24650,11 @@ msgstr "Bienvenue sur la page Commandes"
 msgid "Commands are used by the monitoring engine to run plugins to perform actions. While most commands come ready-to-use via Monitoring Connectors, you can also create custom commands for specific needs."
 msgstr "Les commandes sont utilisées par le moteur de supervision pour exécuter des plugins qui effectuent des actions. Bien que la plupart des commandes soient prêtes à l'emploi via les connecteurs de supervision, vous pouvez également créer des commandes personnalisées pour des besoins spécifiques."
 
-msgid "Service uses"
-msgstr "Services utilisés"
+msgid "Used by services"
+msgstr "Utilisée (services)"
 
-msgid "Host uses"
-msgstr "Hôtes utilisés"
+msgid "Used by hosts"
+msgstr "Utilisée (hôtes)"
 
 msgid "Command type"
 msgstr "Type de commande"

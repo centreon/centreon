@@ -299,7 +299,7 @@ When('the admin user saves the configuration', () => {
 });
 
 Then(
-  'the "Service uses" column for the check command is updated accordingly',
+  'the "Used by services" column for the check command is updated accordingly',
   () => {
     cy.visit(PAGES.configuration.commands);
 
@@ -330,7 +330,7 @@ When(
 );
 
 Then(
-  'the "Host uses" column for the check command is updated accordingly',
+  'the "Used by hosts" column for the check command is updated accordingly',
   () => {
     cy.visit(PAGES.configuration.commands);
 

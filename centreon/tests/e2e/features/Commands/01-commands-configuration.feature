@@ -57,7 +57,7 @@ Feature: Configuration of a command
     When the admin user opens the service in edit mode
     And the admin user sets the configured check command as the check command of the service
     And the admin user saves the configuration
-    Then the "Service uses" column for the check command is updated accordingly
+    Then the "Used by services" column for the check command is updated accordingly
 
   Scenario: Displaying the number of hosts using a check command
     Given a check command is configured
@@ -65,4 +65,4 @@ Feature: Configuration of a command
     When the admin user opens the host in edit mode
     And the admin user sets the configured check command as the check command of the host
     And the admin user saves the configuration
-    Then the "Host uses" column for the check command is updated accordingly
+    Then the "Used by hosts" column for the check command is updated accordingly
