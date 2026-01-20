@@ -257,8 +257,8 @@ export const RowDirection: Story = {
 export const RowDirectionSmall: Story = {
   args: {
     data: dataLastWeek,
-    size: 'small',
     direction: 'row',
+    size: 'small',
     textWidth: 70,
     thresholds: {
       critical: [

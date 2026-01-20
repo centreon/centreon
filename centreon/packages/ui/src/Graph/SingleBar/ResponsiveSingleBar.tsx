@@ -196,14 +196,14 @@ const ResponsiveSingleBar = ({
               {thresholds.enabled && (
                 <Thresholds
                   barHeight={realBarHeight}
+                  direction={direction}
                   hideTooltip={hideTooltip}
                   isSmall={isSmall}
                   showTooltip={showTooltip}
                   size={size}
+                  textWidth={textWidth}
                   thresholds={thresholds}
                   xScale={xScale}
-                  direction={direction}
-                  textWidth={textWidth}
                 />
               )}
             </Group.Group>

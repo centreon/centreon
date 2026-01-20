@@ -44,7 +44,7 @@ const buildListingEndpoint = ({
       ]
     });
   }
-  
+
   return buildEndpoint({
     baseEndpoint,
     queryParameters: [

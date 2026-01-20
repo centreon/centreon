@@ -30,33 +30,33 @@ const Thresholds = ({
     {thresholds.warning.map(({ value, label }) => (
       <ThresholdLine
         barHeight={barHeight}
+        direction={direction}
         hideTooltip={hideTooltip}
         isSmall={isSmall}
         key={`warning-${value.toString()}`}
         label={label}
         showTooltip={showTooltip}
         size={size}
+        textWidth={textWidth}
         thresholdType="warning"
         value={value}
         xScale={xScale}
-        direction={direction}
-        textWidth={textWidth}
       />
     ))}
     {thresholds.critical.map(({ value, label }) => (
       <ThresholdLine
         barHeight={barHeight}
+        direction={direction}
         hideTooltip={hideTooltip}
         isSmall={isSmall}
         key={`critical-${value.toString()}`}
         label={label}
         showTooltip={showTooltip}
         size={size}
+        textWidth={textWidth}
         thresholdType="critical"
         value={value}
         xScale={xScale}
-        direction={direction}
-        textWidth={textWidth}
       />
     ))}
   </>
