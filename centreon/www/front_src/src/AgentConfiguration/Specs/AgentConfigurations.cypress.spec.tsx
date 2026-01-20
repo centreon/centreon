@@ -492,6 +492,8 @@ describe('Agent configurations modal', () => {
 
     cy.findByTestId('By agent selected').should('be.visible');
     cy.findByTestId('By poller selected').should('not.exist');
+
+    cy.findByTestId('modal-body').scrollTo('bottom');
     cy.contains(labelConnectionInitiated);
     cy.contains(labelOTLPReceiver).should('be.visible');
     cy.findByLabelText(labelPublicCertificate).should('have.value', '');
