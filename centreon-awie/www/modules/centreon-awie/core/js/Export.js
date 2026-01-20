@@ -25,8 +25,6 @@ function selectFilter(selected) {
 
 function submitForm() {
     var data = jQuery("#exportForm").serializeArray();
-    var csrfToken = jQuery('#centreon_token').val();
-    data.push({name: 'centreon_token', value: csrfToken});
     jQuery(".loadingWrapper").css('display', 'block');
     jQuery.ajax({
         type: "POST",
