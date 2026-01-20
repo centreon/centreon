@@ -1179,6 +1179,7 @@ msgstr "Fréquence d'agrégation"
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/common-Func.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Alert"
 msgstr "Alerte"
 
@@ -5033,6 +5034,15 @@ msgid ""
 msgstr ""
 "Affiche une vue détaillée du statut actuel des ressources sélectionnées sous "
 "la forme d'un graphique."
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days "
+"until saturation, and evolution of usage since the past day."
+msgstr ""
+"Affiche une liste des espaces de stockage dont la saturation est prévisible, "
+"l'utilisation actuelle, le nombre de jours avant la saturation et "
+"l'évolution de l'utilisation depuis la veille."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -15611,6 +15621,10 @@ msgstr "Afficher les seuils"
 msgid "Show time zone"
 msgstr "Afficher le fuseau horaire"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Show value label"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Show value labels"
 msgstr "Afficher les étiquettes de valeur"
@@ -16167,6 +16181,10 @@ msgstr "Nom de la base de données de stockage"
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Storage folders"
 msgstr "Dossiers de Sauvegarde"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
+msgstr "Stockage jusqu’à saturation"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Store LDAP password"
@@ -24538,6 +24556,10 @@ msgid "d/m/Y H:i"
 msgstr "d/m/Y H:i"
 
 #: unknown
+msgid "days before saturation"
+msgstr "jours avant saturation"
+
+#: unknown
 msgid "default"
 msgstr "défaut"
 
@@ -24632,6 +24654,10 @@ msgstr "resource.cfg"
 #: unknown
 msgid "resources"
 msgstr "ressources"
+
+#: unknown
+msgid "row"
+msgstr "ligne"
 
 #: unknown
 msgid "service"

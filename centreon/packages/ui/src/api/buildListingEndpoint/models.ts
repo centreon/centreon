@@ -4,6 +4,7 @@ export interface BuildListingEndpointParameters {
   baseEndpoint?: string;
   customQueryParameters?: Array<QueryParameter>;
   parameters: Parameters;
+  isCustomEndpoint?: boolean;
 }
 
 export interface SearchMatch {

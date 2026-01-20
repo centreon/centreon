@@ -26,11 +26,25 @@ const buildEndpoint = ({ baseEndpoint, queryParameters }): string => {
   return `${baseEndpoint}?${toRawQueryParameters(queryParameters)}`;
 };
 
+const buildCustomEndpoint = ({ baseEndpoint, queryParameters }): string => {
+  return `${baseEndpoint}&${toRawQueryParameters(queryParameters)}`;
+};
+
 const buildListingEndpoint = ({
   baseEndpoint,
   parameters,
-  customQueryParameters
+  customQueryParameters,
+  isCustomEndpoint = false
 }: BuildListingEndpointParameters): string => {
+  if (isCustomEndpoint) {
+    return buildCustomEndpoint({
+      baseEndpoint,
+      queryParameters: [
+        ...getQueryParameters({ ...parameters, customQueryParameters })
+      ]
+    });
+  }
+  
   return buildEndpoint({
     baseEndpoint,
     queryParameters: [

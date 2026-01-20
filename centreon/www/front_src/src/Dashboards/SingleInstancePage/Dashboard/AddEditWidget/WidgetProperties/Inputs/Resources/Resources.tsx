@@ -79,7 +79,7 @@ const Resources = ({
     propertyName,
     required,
     restrictedResourceTypes,
-    useAdditionalResources
+    selectType
   });
 
   const { getDefaultDisabledSelectType, getDefaultRequiredSelectType } =

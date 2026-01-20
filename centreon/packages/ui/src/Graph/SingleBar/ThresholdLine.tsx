@@ -3,7 +3,9 @@ import { useTheme } from '@mui/material';
 import { equals } from 'ramda';
 
 import { margins } from '../common/margins';
+import { useMemo } from 'react';
 import { groupMargin } from './Thresholds';
+import { SingleBarProps } from './models';
 
 export const barHeights = {
   medium: 72,
@@ -11,12 +13,12 @@ export const barHeights = {
 };
 export const margin = 40;
 
-const lineMargins = {
+export const lineMargins = {
   medium: 10,
   small: 5
 };
 
-interface Props {
+interface Props extends Pick<SingleBarProps, 'direction'> {
   barHeight: number;
   hideTooltip: () => void;
   isSmall: boolean;
@@ -26,6 +28,7 @@ interface Props {
   thresholdType: string;
   value: number;
   xScale: (value: number) => number;
+  textWidth?: number;
 }
 
 export const ThresholdLine = ({
@@ -37,11 +40,13 @@ export const ThresholdLine = ({
   hideTooltip,
   size,
   barHeight,
-  isSmall
+  isSmall,
+  direction,
+  textWidth
 }: Props): JSX.Element => {
   const theme = useTheme();
 
-  const scaledValue = xScale(value) || 0;
+  const scaledValue = xScale(value) + (textWidth || 0) || 0;
 
   const lineMargin = lineMargins[size];
 
@@ -54,47 +59,49 @@ export const ThresholdLine = ({
     ? theme.palette.warning.main
     : theme.palette.error.main;
 
+  const lineY1 = useMemo(() => {
+    if (direction === 'row') {
+      return 0;
+    }
+    return isSmall
+      ? groupMargin - lineMargin
+      : groupMargin + lineMargin + margins.top;
+  }, [direction, isSmall, groupMargin, lineMargin, margins]);
+
+  const lineY2 = useMemo(() => {
+    if (direction === 'row') {
+      return barHeight + lineMargin;
+    }
+    return isSmall
+      ? barHeight + groupMargin - lineMargin + margins.top - 6
+      : barHeight + groupMargin + lineMargin + 2 * margins.top;
+  }, [direction, isSmall, groupMargin, lineMargin, margins]);
+
   return (
     <>
       <line
         data-testid={`${thresholdType}-line-${value}`}
         stroke={lineColor}
-        strokeDasharray="6, 6"
+        strokeDasharray="6, 5"
         strokeWidth={2}
         x1={scaledValue}
         x2={scaledValue + 1}
-        y1={
-          isSmall
-            ? groupMargin - lineMargin
-            : groupMargin + lineMargin + margins.top
-        }
-        y2={
-          isSmall
-            ? barHeight + groupMargin - lineMargin + margins.top - 6
-            : barHeight + groupMargin + lineMargin + 2 * margins.top
-        }
+        y1={lineY1}
+        y2={lineY2}
       />
       {
         // biome-ignore lint/a11y/noStaticElementInteractions: need it
         <line
-          data-testid={`${thresholdType}-line-${value}-tooltip`}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={hideTooltip}
-          stroke="transparent"
-          strokeWidth={5}
-          x1={scaledValue}
-          x2={scaledValue + 1}
-          y1={
-            isSmall
-              ? groupMargin - lineMargin
-              : groupMargin + lineMargin + margins.top
-          }
-          y2={
-            isSmall
-              ? barHeight + groupMargin - lineMargin + margins.top - 6
-              : barHeight + groupMargin + lineMargin + 2 * margins.top
-          }
-        />
+        data-testid={`${thresholdType}-line-${value}-tooltip`}
+        stroke="transparent"
+        strokeWidth={5}
+        x1={scaledValue}
+        x2={scaledValue + 1}
+        y1={lineY1}
+        y2={lineY2}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={hideTooltip}
+      />
       }
     </>
   );

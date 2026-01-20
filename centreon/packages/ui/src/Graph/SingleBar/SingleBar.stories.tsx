@@ -11,7 +11,7 @@ export default meta;
 type Story = StoryObj<typeof SingleBar>;
 
 const Template = (props): JSX.Element => (
-  <div style={{ height: '500px', width: '500px' }}>
+  <div style={{ height: '500px', width: '200px' }}>
     <SingleBar {...props} />
   </div>
 );
@@ -228,4 +228,53 @@ export const smallDisplay: Story = {
     }
   },
   render: SmallTemplate
+};
+
+export const RowDirection: Story = {
+  args: {
+    data: dataLastWeek,
+    direction: 'row',
+    textWidth: 100,
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: Template
+};
+
+export const RowDirectionSmall: Story = {
+  args: {
+    data: dataLastWeek,
+    size: 'small',
+    direction: 'row',
+    textWidth: 70,
+    thresholds: {
+      critical: [
+        {
+          label: 'Critical',
+          value: 0.6
+        }
+      ],
+      enabled: true,
+      warning: [
+        {
+          label: 'Warning',
+          value: 0.5
+        }
+      ]
+    }
+  },
+  render: Template
 };

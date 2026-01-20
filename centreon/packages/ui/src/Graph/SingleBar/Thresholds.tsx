@@ -1,9 +1,10 @@
 import type { Thresholds as ThresholdsModel } from '../common/models';
+import { SingleBarProps } from './models';
 import { ThresholdLine } from './ThresholdLine';
 
 export const groupMargin = 25;
 
-interface Props {
+interface Props extends Pick<SingleBarProps, 'direction'> {
   barHeight: number;
   hideTooltip: () => void;
   isSmall: boolean;
@@ -11,6 +12,7 @@ interface Props {
   size: 'small' | 'medium';
   thresholds: ThresholdsModel;
   xScale: (value: number) => number;
+  textWidth?: number;
 }
 
 const Thresholds = ({
@@ -20,7 +22,9 @@ const Thresholds = ({
   hideTooltip,
   size,
   barHeight,
-  isSmall
+  isSmall,
+  direction,
+  textWidth
 }: Props): JSX.Element => (
   <>
     {thresholds.warning.map(({ value, label }) => (
@@ -35,6 +39,8 @@ const Thresholds = ({
         thresholdType="warning"
         value={value}
         xScale={xScale}
+        direction={direction}
+        textWidth={textWidth}
       />
     ))}
     {thresholds.critical.map(({ value, label }) => (
@@ -49,6 +55,8 @@ const Thresholds = ({
         thresholdType="critical"
         value={value}
         xScale={xScale}
+        direction={direction}
+        textWidth={textWidth}
       />
     ))}
   </>

@@ -239,7 +239,8 @@ const useResources = ({
   excludedResourceTypes,
   allowRegexOnResourceTypes,
   forcedResourceType,
-  defaultResourceTypes
+  defaultResourceTypes,
+  selectType
 }: Pick<
   WidgetPropertyProps,
   | 'propertyName'
@@ -250,6 +251,7 @@ const useResources = ({
   | 'allowRegexOnResourceTypes'
   | 'forcedResourceType'
   | 'defaultResourceTypes'
+  | 'selectType'
 >): UseResourcesState => {
   const [isValidatingResources, setIsValidatingResources] = useState(false);
 
@@ -637,13 +639,18 @@ const useResources = ({
           }
         : { conditions: searchConditions, lists: searchLists };
 
+      const isSearchBypass = !!selectType?.defaultResourceType.find(
+        (type) =>
+          type.resourceType === resourceType && type.isSearchBypass === true
+      );
+
       return buildListingEndpoint({
         baseEndpoint: endpoint,
         customQueryParameters: customParameters,
         parameters: {
           ...parameters,
           limit: 30,
-          search
+          search: isSearchBypass ? {} : search
         }
       });
     };
