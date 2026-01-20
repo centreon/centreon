@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import { configureKb, getMediaWikiContainerPort } from '../common';
 
 const kbUrl = 'http://mediawiki';

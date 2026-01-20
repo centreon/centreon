@@ -1,7 +1,3 @@
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
-import { ReactElement } from 'react';
-
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
@@ -9,11 +5,11 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
+import { ReactElement } from 'react';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
-import { PanelOptions } from '../models';
-
 import { openTicketAtom } from '../atom';
+import { PanelOptions } from '../models';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';

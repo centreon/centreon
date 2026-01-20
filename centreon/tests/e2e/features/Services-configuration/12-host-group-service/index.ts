@@ -1,10 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import serviceCategories from '../../../fixtures/services/category.json';
 import data from '../../../fixtures/services/host_group.json';
 import servicesData from '../../../fixtures/services/service.json';
-
-import { PAGES } from 'fixtures/shared/constants/pages';
 import htmldata from './data.json';
 
 const services = {

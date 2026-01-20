@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/notifications/escalation.json';
 import metaServices from '../../../fixtures/services/meta_service.json';
 import servicesData from '../../../fixtures/services/service.json';

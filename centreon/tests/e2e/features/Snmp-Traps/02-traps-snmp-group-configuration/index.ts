@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
 import { CreateOrUpdateTrapGroup } from '../common';
 

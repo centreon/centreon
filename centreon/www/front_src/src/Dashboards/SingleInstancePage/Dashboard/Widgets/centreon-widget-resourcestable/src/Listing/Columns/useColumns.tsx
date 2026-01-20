@@ -23,6 +23,7 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import { openTicketAtom } from '../../atom';
 import { DisplayType } from '../models';
 import {
   labelAction,
@@ -48,8 +49,6 @@ import {
   labelTries
 } from '../translatedLabels';
 import CloseTicket from './CloseTicket/CloseTicket';
-
-import { openTicketAtom } from '../../atom';
 import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
 import { TicketLink } from './OpenTicket/TicketLink';

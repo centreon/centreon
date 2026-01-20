@@ -1,4 +1,5 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
 
 interface Dashboard {

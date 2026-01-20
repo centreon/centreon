@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
-import { Contact, Token, columnsFromLabels, durationMap } from '../common';
+
+import { Contact, columnsFromLabels, durationMap, Token } from '../common';
 
 interface FilterOptions {
   creationDate:

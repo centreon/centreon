@@ -1,11 +1,11 @@
+import { useTheme } from '@mui/material';
+
+import { ComponentColumnProps, IconButton } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, or } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useTheme } from '@mui/material';
-
-import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import { openTicketAtom, resourcesToOpenTicketAtom } from '../../../atom';
 import {

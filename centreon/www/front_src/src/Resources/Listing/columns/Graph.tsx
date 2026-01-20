@@ -1,8 +1,3 @@
-import dayjs from 'dayjs';
-import { path, isNil, not } from 'ramda';
-import { ReactElement, Suspense, useState } from 'react';
-import { makeStyles } from 'tss-react/mui';
-
 import IconGraph from '@mui/icons-material/BarChart';
 import { Paper } from '@mui/material';
 
@@ -24,12 +19,9 @@ import { makeStyles } from 'tss-react/mui';
 import FederatedComponent from '../../../components/FederatedComponents';
 import { graphsCapNumber } from '../../constants';
 import type { ResourceDetails } from '../../Details/models';
-import { graphsCapNumber } from '../../constants';
 import type { Resource } from '../../models';
 import TooManyElementsCard from '../../TooManyElementsCard';
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
-
-import TooManyElementsCard from '../../TooManyElementsCard';
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
 

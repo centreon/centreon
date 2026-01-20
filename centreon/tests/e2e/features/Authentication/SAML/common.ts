@@ -1,4 +1,5 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import { ActionClapi } from '../../../commons';
 
 interface SamlConfigValues {

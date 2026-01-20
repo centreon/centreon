@@ -288,10 +288,6 @@ export const adaptSAMLConfigurationToAPI = ({
   logout_from: logoutFrom,
   logout_from_url: logoutFromUrl,
   remote_login_url: remoteLoginUrl,
-  roles_mapping: adaptSAMLRolesMapping(rolesMapping),
-  requested_authn_context_comparison:
-    requestedAuthnContextComparison ||
-    RequestedAuthnContextComparisonValue.Minimum,
   requested_authn_context: requestedAuthnContext,
   requested_authn_context_comparison:
     requestedAuthnContextComparison ||

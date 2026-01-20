@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import periods from '../../../fixtures/time-periods/time-period.json';
 
 beforeEach(() => {

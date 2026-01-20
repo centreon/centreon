@@ -1,8 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
-
-import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();

@@ -16,6 +16,7 @@ import {
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
+import { openTicketAtom } from '../atom';
 import {
   acknowledgeEndpoint,
   checkEndpoint,
@@ -42,7 +43,6 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
-import { openTicketAtom } from '../atom';
 import {
   columnsForViewByHost,
   columnsForViewByService,

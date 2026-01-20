@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import vms from '../../../fixtures/services/virtual-metric.json';
 
 const checkFirstVmFromListing = () => {

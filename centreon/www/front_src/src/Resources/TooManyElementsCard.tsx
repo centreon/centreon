@@ -5,9 +5,6 @@ import { Header } from '@centreon/ui';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Header } from '@centreon/ui';
-import { Box, Typography } from '@mui/material';
-
 import { graphsCapNumber } from './constants';
 import { labelTooManyGraphsToDisplay } from './translatedLabels';
 
