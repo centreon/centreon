@@ -1,22 +1,22 @@
-import dayjs from "dayjs";
-import { memo, useRef } from "react";
-import "dayjs/locale/en";
-import "dayjs/locale/es";
-import "dayjs/locale/fr";
-import "dayjs/locale/pt";
-        
-import localizedFormat from "dayjs/plugin/localizedFormat";
-import timezonePlugin from "dayjs/plugin/timezone";
-import utcPlugin from "dayjs/plugin/utc";
-import useResizeObserver from "use-resize-observer";
-        
-import Loading from "../../LoadingSkeleton";
-import type { LineChartData, Thresholds } from "../common/models";
-import Chart from "./Chart";
-import { useChartStyles } from "./Chart.styles";
-import LoadingSkeleton from "./LoadingSkeleton";
-import type { GlobalAreaLines, LineChartProps } from "./models";
-import useChartData from "./useChartData";
+import dayjs from 'dayjs';
+import { memo, useRef } from 'react';
+import 'dayjs/locale/en';
+import 'dayjs/locale/es';
+import 'dayjs/locale/fr';
+import 'dayjs/locale/pt';
+
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import useResizeObserver from 'use-resize-observer';
+
+import Loading from '../../LoadingSkeleton';
+import type { LineChartData, Thresholds } from '../common/models';
+import Chart from './Chart';
+import { useChartStyles } from './Chart.styles';
+import LoadingSkeleton from './LoadingSkeleton';
+import type { GlobalAreaLines, LineChartProps } from './models';
+import useChartData from './useChartData';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -52,19 +52,19 @@ const WrapperChart = ({
   loading,
   timeShiftZones,
   tooltip = {
-    mode: "all",
-    sortOrder: "name",
+    mode: 'all',
+    sortOrder: 'name'
   },
   annotationEvent,
   legend = {
     display: true,
-    mode: "grid",
-    placement: "bottom",
+    mode: 'grid',
+    placement: 'bottom',
     showCalculations: {
       avg: true,
       max: true,
       min: true
-    },
+    }
   },
   header,
   lineStyle,
@@ -89,7 +89,7 @@ const WrapperChart = ({
   const {
     ref: resizeObserverRef,
     width: responsiveWidth,
-    height: responsiveHeight,
+    height: responsiveHeight
   } = useResizeObserver();
 
   const combinedRef = (element: HTMLDivElement | null) => {
@@ -101,7 +101,6 @@ const WrapperChart = ({
     }
     resizeObserverRef(element);
   };
-
 
   if (loading && !adjustedData) {
     return (
@@ -118,12 +117,11 @@ const WrapperChart = ({
 
   return (
     <div
-      ref={combinedRef}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
-      ref={ref}
+      ref={combinedRef}
     >
       {!responsiveHeight ? (
-        <Loading height={height || "100%"} width={width} />
+        <Loading height={height || '100%'} width={width} />
       ) : (
         <Chart
           additionalLines={additionalLines}
