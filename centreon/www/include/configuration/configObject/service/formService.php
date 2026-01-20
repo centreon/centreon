@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ if (($o === SERVICE_MODIFY || $o === SERVICE_WATCH) && $service_id) {
             ON esi.service_service_id = service_id
         WHERE service_id = :service_id LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
 
     // Set base value
@@ -252,7 +252,7 @@ if (($o === SERVICE_MODIFY || $o === SERVICE_WATCH) && $service_id) {
         WHERE scr.service_service_id = :service_id AND sc.level IS NOT NULL
         ORDER BY sc.level ASC LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     if ($statement->rowCount()) {
         $cr = $statement->fetch();
@@ -414,11 +414,10 @@ if ($o === SERVICE_MASSIVE_CHANGE) {
 
 $form->addElement('text', 'command_command_id_arg', _('Args'), $attrsText);
 
-
 $serviceEHE = [
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
 ];
 $form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
 if ($o !== SERVICE_MASSIVE_CHANGE) {
@@ -426,17 +425,16 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
 }
 
 $eventHandlerSelect = $form->addElement(
-        'select2',
-        'command_command_id2',
-        _('Event Handler'),
-        [],
-        $attributes['event_handlers']
+    'select2',
+    'command_command_id2',
+    _('Event Handler'),
+    [],
+    $attributes['event_handlers']
 );
 $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
 );
-
 
 if (! $isCloudPlatform) {
     $serviceIV = [
@@ -521,7 +519,7 @@ if (! $isCloudPlatform) {
                 null,
                 _('Default'),
                 '2'
-            )
+            ),
         ];
         $form->addGroup($contactAdditive, 'mc_contact_additive_inheritance', _('Contact additive inheritance'), '&nbsp;');
 
@@ -534,7 +532,7 @@ if (! $isCloudPlatform) {
                 null,
                 _('Default'),
                 '2'
-            )
+            ),
         ];
         $form->addGroup(
             $contactGroupAdditive,
@@ -723,6 +721,12 @@ $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attribu
 
 $cloneSetMacro = [
     $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#']
+    ),
+    $form->addElement(
         'text',
         'macroInput[#index#]',
         _('Name'),
@@ -765,10 +769,8 @@ if ($isCloudPlatform) {
 // Acknowledgement timeout.
 $form->addElement('text', 'service_acknowledgement_timeout', _('Acknowledgement timeout'), $attrsText2);
 
-
 // Further information
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
-
 
 //
 // # Sort 2 - Service Relations
@@ -800,7 +802,7 @@ if ($form_service_type === 'BYHOST') {
             $defaultDataset = ($hostsBounded !== [])
                 ? ['0' => $hostsBounded[0]]
                 : [];
-        };
+        }
         $form->addElement(
             'select2',
             'service_hPars',
@@ -809,7 +811,7 @@ if ($form_service_type === 'BYHOST') {
             array_merge($attributes['hosts_cloud_specific'], ['defaultDataset' => $defaultDataset])
         );
         if ($o !== SERVICE_MASSIVE_CHANGE) {
-            $form->addRule('service_hPars', _("Host / Service Required"), 'required');
+            $form->addRule('service_hPars', _('Host / Service Required'), 'required');
         }
     } else {
         if (isset($service['service_hPars']) && count($service['service_hPars']) > 1) {
@@ -832,11 +834,10 @@ if ($form_service_type === 'BYHOSTGROUP') {
 
 // Service relations
 if ($isCloudPlatform) {
-    $form->addElement('header', 'classification', _("Classification"));
+    $form->addElement('header', 'classification', _('Classification'));
 } else {
     $form->addElement('header', 'links', _('Relations'));
 }
-
 
 if ($o === SERVICE_MASSIVE_CHANGE) {
     $mc_mod_sgs = [];
@@ -959,6 +960,7 @@ $form->addElement('select', 'esi_icon_image', _('Icon'), $extImg, [
 $form->registerRule('validate_geo_coords', 'function', 'validateGeoCoords');
 $form->addElement('text', 'geo_coords', _('Geographic coordinates'), $attrsText);
 $form->addRule('geo_coords', _('geo coords are not valid'), 'validate_geo_coords');
+$form->applyFilter('geo_coords', 'truncateGeoCoords');
 
 // Criticality
 $criticality = new CentreonCriticality($pearDB);
@@ -1029,9 +1031,7 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
     $form->addRule('service_description', _('Compulsory Name'), 'required');
     // If we are using a Template, no need to check the value, we hope there are in the Template
     if (! $form->getSubmitValue('service_template_model_stm_id')) {
-        if (! $isCloudPlatform) {
-            $form->addRule('command_command_id', _('Compulsory Command'), 'required');
-        }
+        $form->addRule('command_command_id', _('Compulsory Command'), 'required');
         if (! $form->getSubmitValue('service_hPars') && $serviceHgParsFieldIsAdded) {
             $form->addRule('service_hgPars', _('HostGroup or Host Required'), 'required');
         }
@@ -1039,9 +1039,7 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
             $form->addRule('service_hPars', _('HostGroup or Host Required'), 'required');
         }
     } else {
-        if (! $isCloudPlatform) {
-            $form->addFormRule('checkServiceTemplateHasCommand');
-        }
+        $form->addFormRule('checkServiceTemplateHasCommand');
     }
     if (! $form->getSubmitValue('service_hPars') && $serviceHgParsFieldIsAdded) {
         $form->addRule('service_hgPars', _('HostGroup or Host Required'), 'required');

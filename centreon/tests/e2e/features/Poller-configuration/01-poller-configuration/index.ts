@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
+import { checkIfConfigurationIsExported } from '../../../commons';
 import {
   breakSomePollers,
   checkIfConfigurationIsNotExported,
@@ -12,7 +14,6 @@ import {
   testHostName,
   waitPollerListToLoad
 } from '../common';
-import { checkIfConfigurationIsExported } from '../../../commons';
 
 let dateBeforeLogin: Date;
 
@@ -77,11 +78,7 @@ Given('some post-generation commands are configured for each poller', () => {
 });
 
 When('I visit the export configuration page', () => {
-  cy.navigateTo({
-    page: 'Pollers',
-    rootItemNumber: 0,
-    subMenu: 'Pollers'
-  })
+  cy.visit(PAGES.configuration.pollersLegacy)
     .wait('@getTimeZone')
     .then(() => {
       cy.url().should('include', '/centreon/main.php?p=60901');
@@ -113,7 +110,7 @@ When('I click on the Export configuration button', () => {
 });
 
 Then('I am redirected to generate page', () => {
-  cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.url().should('include', '/centreon/main.php?p=60902&poller=');
 });
 
 Then('the selected poller names are displayed', () => {
@@ -186,8 +183,8 @@ Then('the configuration is generated on selected pollers', () => {
   checkIfConfigurationIsExported({ dateBeforeLogin, hostName: testHostName });
 });
 
-Then('the selected pollers are {string}', (poller_action: string) => {
-  checkIfMethodIsAppliedToPollers(poller_action);
+Then('the selected pollers are {string}', (pollerAction: string) => {
+  checkIfMethodIsAppliedToPollers(pollerAction);
 
   cy.logout();
 

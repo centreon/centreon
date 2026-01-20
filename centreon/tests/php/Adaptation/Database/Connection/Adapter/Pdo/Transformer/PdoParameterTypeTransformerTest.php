@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTrans
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Core\Common\Domain\Exception\TransformerException;
 
-it('transform from query parameters', function (QueryParameterTypeEnum $queryType, int $pdoType) {
+it('transform from query parameters', function (QueryParameterTypeEnum $queryType, int $pdoType): void {
     $type = PdoParameterTypeTransformer::transformFromQueryParameterType($queryType);
     expect($type)->toBeInt()->toBe($pdoType);
 })->with([
@@ -38,7 +38,7 @@ it('transform from query parameters', function (QueryParameterTypeEnum $queryTyp
     [QueryParameterTypeEnum::BOOLEAN, \PDO::PARAM_BOOL],
 ]);
 
-it('reverse to query parameters', function (int $pdoType, QueryParameterTypeEnum $queryType) {
+it('reverse to query parameters', function (int $pdoType, QueryParameterTypeEnum $queryType): void {
     $type = PdoParameterTypeTransformer::reverseToQueryParameterType($pdoType);
     expect($type)->toBe($queryType);
 })->with([
@@ -49,6 +49,6 @@ it('reverse to query parameters', function (int $pdoType, QueryParameterTypeEnum
     [\PDO::PARAM_BOOL, QueryParameterTypeEnum::BOOLEAN],
 ]);
 
-it('reverse to query parameters with a bad pdo type', function () {
+it('reverse to query parameters with a bad pdo type', function (): void {
     $type = PdoParameterTypeTransformer::reverseToQueryParameterType(999999);
 })->throws(TransformerException::class);

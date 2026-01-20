@@ -1,15 +1,17 @@
-Cypress.Commands.add("getClosestVersionFile", (currentVersion, versionDir) => {
-  const path = require("path");
+Cypress.Commands.add('getClosestVersionFile', (currentVersion, versionDir) => {
+  const path = require('path');
 
   const pattern = /^Update-(\d+\.\d+(\.\d+)?(?:-\S+)?)\.php$/; // Updated regex to handle versions with suffixes like .beta, .rc, etc.
 
   // Use cy.task() to read the files in the directory
-  cy.task("listFilesInDirectory", versionDir).then((files) => {
+  cy.task('listFilesInDirectory', versionDir).then((files) => {
     // Filter files that match the pattern
-    const versionFiles = files.filter((file) => pattern.test(file));
+    const versionFiles = (files || []).filter(
+      (file): file is string => typeof file === 'string' && pattern.test(file)
+    );
 
     if (versionFiles.length === 0) {
-      throw new Error("No version files found in the directory.");
+      throw new Error('No version files found in the directory.');
     }
 
     // Extract the versions from the files
@@ -18,7 +20,7 @@ Cypress.Commands.add("getClosestVersionFile", (currentVersion, versionDir) => {
         const match = file.match(pattern);
         return match ? match[1] : null;
       })
-      .filter(Boolean); // Clean out nulls
+      .filter((v): v is string => v !== null); // Ensure versions is string[]
 
     cy.log(`Looking for a version close to: ${currentVersion}`);
 
@@ -26,18 +28,20 @@ Cypress.Commands.add("getClosestVersionFile", (currentVersion, versionDir) => {
     if (versions.includes(currentVersion)) {
       const versionFilePath = path.join(
         versionDir,
-        `Update-${currentVersion}.php`,
+        `Update-${currentVersion}.php`
       );
-      const version =
-        currentVersion.split(".")[0] + "." + currentVersion.split(".")[1]; // Extract the desired version
+      const version = `${currentVersion.split('.')[0]}.${currentVersion.split('.')[1]}`; // Extract the desired version
       cy.log(`Found exact version file: ${versionFilePath}`);
       return cy.wrap(version); // Only return the version, not the path
     }
 
     // If the version doesn't exist, find the closest version
-    const closestVersion = versions.reduce((closest, version) => {
-      const current = currentVersion.split(".").map(Number);
-      const fileVersion = version.split(".").map(Number);
+    const closestVersionObj = versions.reduce<{
+      version: string;
+      diff: number;
+    } | null>((closest, version) => {
+      const current = currentVersion.split('.').map(Number);
+      const fileVersion = version.split('.').map(Number);
 
       const currentDiff =
         Math.abs(current[0] - fileVersion[0]) * 100 +
@@ -50,29 +54,26 @@ Cypress.Commands.add("getClosestVersionFile", (currentVersion, versionDir) => {
       return closest;
     }, null);
 
-    if (closestVersion) {
+    if (closestVersionObj) {
       const versionFilePath = path.join(
         versionDir,
-        `Update-${closestVersion.version}.php`,
+        `Update-${closestVersionObj.version}.php`
       );
-      const closestVersionString =
-        closestVersion.version.split(".")[0] +
-        "." +
-        closestVersion.version.split(".")[1]; // Extract the closest version
+      const closestVersionString = `${closestVersionObj.version.split('.')[0]}.${closestVersionObj.version.split('.')[1]}`; // Extract the closest version
       cy.log(`Closest version file: ${versionFilePath}`);
       return cy.wrap(closestVersionString); // Only return the closest version
-    } else {
-      throw new Error("No closest version found.");
     }
+    throw new Error('No closest version found.');
   });
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       getClosestVersionFile(
         currentVersion: string,
-        versionDir: string,
+        versionDir: string
       ): Cypress.Chainable<string>;
     }
   }

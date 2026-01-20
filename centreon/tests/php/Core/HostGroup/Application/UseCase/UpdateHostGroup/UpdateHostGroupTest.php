@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
-use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
-use Core\Domain\Exception\InvalidGeoCoordException;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
@@ -68,7 +63,8 @@ beforeEach(function (): void {
         $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class),
         $this->writeResourceAccessRepository = $this->createMock(WriteResourceAccessRepositoryInterface::class),
         $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
-        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class)
+        $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
     $this->updateHostGroupRequest = new UpdateHostGroupRequest(
@@ -85,10 +81,11 @@ beforeEach(function (): void {
 it(
     'should present a NotFoundResponse when the hostgroup does not exists',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
+
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findOne')
@@ -104,10 +101,11 @@ it(
 it(
     'should return an InvalidArgumentResponse When an hostgroup already exists with this name',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
+
         $this->readHostGroupRepository
             ->expects($this->once())
             ->method('findOne')
@@ -121,7 +119,7 @@ it(
 
         $this->validator
             ->expects($this->once())
-            ->method('assertNameDoesNotAlreadyExists')
+            ->method('assertNameIsValid')
             ->willThrowException(HostGroupException::nameAlreadyExists($this->updateHostGroupRequest->name));
 
         $response = ($this->useCase)($this->updateHostGroupRequest);
@@ -134,9 +132,46 @@ it(
 );
 
 it(
-    "should return an InvalidArgumentResponse When a given host doesn't exist",
+    'should return an InvalidArgumentResponse When a hostgroup name contains unauthorized characters',
     function (): void {
-        $this->user
+        $this->updateHostGroupRequest->name = 'HG~1!';
+
+        $this->adminResolver
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOne')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+
+        $this->validator
+            ->expects($this->once())
+            ->method('assertNameIsValid')
+            ->willThrowException(
+                new \Assert\InvalidArgumentException('[HostGroup::name] The value contains unauthorized characters: ~!', 0)
+            );
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($response->getMessage())
+            ->toBe('[HostGroup::name] The value contains unauthorized characters: ~!');
+    }
+);
+
+it(
+    "Should return an InvalidArgumentResponse When a given host doesn't exist",
+    function (): void {
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -167,7 +202,7 @@ it(
 it(
     'should return an InvalidArgumentResponse When a given resource access rule does not exist',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
@@ -198,7 +233,7 @@ it(
 it(
     'should update the host group configuration',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -234,7 +269,7 @@ it(
 it(
     'should update the hosts of the host group',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -265,7 +300,7 @@ it(
         $this->writeHostGroupRepository
             ->expects($this->once())
             ->method('addHostLinks')
-            ->with($this->updateHostGroupRequest->id, [1,2]);
+            ->with($this->updateHostGroupRequest->id, [1, 2]);
 
         $response = ($this->useCase)($this->updateHostGroupRequest);
 
@@ -277,7 +312,7 @@ it(
 it(
     'should update the resource access rules of the host group',
     function (): void {
-        $this->user
+        $this->adminResolver
             ->expects($this->any())
             ->method('isAdmin')
             ->willReturn(true);
@@ -295,7 +330,7 @@ it(
             ->expects($this->once())
             ->method('existByTypeAndResourceId')
             ->willReturn([
-                1,2,3
+                1, 2, 3,
             ]);
 
         $this->readResourceAccessRepository
@@ -309,7 +344,7 @@ it(
                         parentId: null,
                         resourceAccessGroupId: 1,
                         aclGroupId: 1,
-                        resourceIds: [1,2,3]
+                        resourceIds: [1, 2, 3]
                     ),
                     new DatasetFilterRelation(
                         datasetFilterId: 2,
@@ -317,7 +352,7 @@ it(
                         parentId: null,
                         resourceAccessGroupId: 2,
                         aclGroupId: 2,
-                        resourceIds: [1,5,6]
+                        resourceIds: [1, 5, 6]
                     ),
                 ],
                 []

@@ -6,7 +6,8 @@
     "required": [
         "name",
         "address",
-        "monitoring_server_id"
+        "monitoring_server_id",
+        "groups"
     ],
     "properties": {
         "name": {
@@ -124,7 +125,8 @@
             "type": "array",
             "items": {
                 "type": "integer"
-            }
+            },
+            "minItems": 1
         },
         "templates": {
             "type": "array",
@@ -159,6 +161,12 @@
                     "description"
                 ],
                 "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
                     "name": {
                         "type": "string"
                     },
@@ -194,5 +202,3 @@
         }
     }
 }
-
-

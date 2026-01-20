@@ -1,4 +1,3 @@
-import { renderHook } from '@testing-library/react';
 import { Provider, createStore, useAtomValue } from 'jotai';
 
 import {
@@ -7,8 +6,8 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { renderHook } from '@testing-library/react';
 import { PlatformVersions } from '../api/models';
-
 import About from './About';
 import { contributors } from './Sections/Contibutors';
 import { developers } from './Sections/Developers';
@@ -36,8 +35,12 @@ const externalLinks = [
 
 const platformVersion: PlatformVersions = {
   modules: {},
+  widgets: {},
   web: {
-    version: '23.04.0'
+    version: '23.04.0',
+    fix: '0',
+    major: '23',
+    minor: '04'
   }
 };
 

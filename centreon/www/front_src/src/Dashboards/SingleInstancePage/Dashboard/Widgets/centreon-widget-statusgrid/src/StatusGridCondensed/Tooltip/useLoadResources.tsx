@@ -2,6 +2,7 @@ import { equals, flatten } from 'ramda';
 
 import { useInfiniteScrollListing } from '@centreon/ui';
 import { Resource } from '../../../../models';
+import { isResourceString } from '../../../../utils';
 import { tooltipPageAtom } from '../../StatusGridStandard/Tooltip/atoms';
 import { ResourceStatus } from '../../StatusGridStandard/models';
 import {
@@ -61,6 +62,14 @@ export const useLoadResources = ({
 
   const resourcesSearchConditions = resourcesToApplyToSearch.map(
     ({ resourceType: type, resources: resourcesToApply }) => {
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
       return resourcesToApply.map((resource) => ({
         field: type,
         values: {

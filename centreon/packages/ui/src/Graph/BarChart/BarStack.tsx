@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { ReactElement, memo } from 'react';
 
 import { ScaleType, scaleBand } from '@visx/scale';
 import { BarRounded } from '@visx/shape';
@@ -22,6 +22,7 @@ interface Props extends Omit<UseBarStackProps, 'xScale'> {
   barWidth: number;
   isTooltipHidden: boolean;
   neutralValue: number;
+  isStacked?: boolean;
 }
 
 const getPadding = ({ padding, size, isNegativeValue }): number => {
@@ -83,8 +84,9 @@ const BarStack = ({
   barIndex,
   isTooltipHidden,
   barStyle = { opacity: 1, radius: 0.2 },
-  neutralValue
-}: Props): JSX.Element => {
+  neutralValue,
+  isStacked
+}: Props): ReactElement => {
   const {
     BarStackComponent,
     commonBarStackProps,
@@ -117,6 +119,15 @@ const BarStack = ({
               style: barStyle,
               metricId: Number(bar.key)
             }) as BarStyle;
+
+            const barY =
+              isNegativeValue && isStacked && !shouldApplyRadiusOnBottom
+                ? getPadding({
+                    isNegativeValue,
+                    padding: bar.y,
+                    size: bar.height
+                  })
+                : bar.y;
 
             return (
               <BarRounded
@@ -151,7 +162,7 @@ const BarStack = ({
                         size: bar.width
                       })
                 }
-                y={isHorizontal ? bar.y : barPadding}
+                y={isHorizontal ? barY : barPadding}
                 onMouseEnter={
                   isTooltipHidden
                     ? undefined

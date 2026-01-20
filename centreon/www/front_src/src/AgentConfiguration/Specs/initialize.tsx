@@ -107,7 +107,7 @@ const mockRequest = (isListingEmpty): void => {
         otel_private_key: 'test.key',
         conf_server_port: 9090,
         conf_certificate: '/sub/test.crt',
-        conf_private_key: 'test.crt'
+        conf_private_key: 'test.key'
       }
     }
   });

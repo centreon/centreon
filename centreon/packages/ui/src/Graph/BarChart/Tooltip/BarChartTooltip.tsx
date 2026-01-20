@@ -36,7 +36,7 @@ const BarChartTooltip = ({
   sortOrder
 }: Props): JSX.Element | null => {
   const { classes } = useBarChartTooltipStyles();
-  const { toDate, toTime } = useLocaleDateTimeFormat();
+  const { format } = useLocaleDateTimeFormat();
   const tooltipData = useAtomValue(tooltipDataAtom);
 
   if (isNil(tooltipData)) {
@@ -48,7 +48,7 @@ const BarChartTooltip = ({
   }
 
   const date = timeSeries[tooltipData.index].timeTick;
-  const formattedDateTime = `${toDate(date)} / ${toTime(date)}`;
+  const formattedDateTime = format({ date, formatString: 'L LTS' });
 
   const isSingleMode = equals(mode, 'single');
 

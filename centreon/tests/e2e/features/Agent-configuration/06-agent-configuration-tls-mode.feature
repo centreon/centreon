@@ -6,8 +6,9 @@ Feature: Create and update a new Agent Configuration without TLS
 
   @TEST_MON-167666
   Scenario: Create a CMA agent without TLS
-    Given a non-admin user is on the Agents Configuration page
-    When the user clicks on the "Add poller/agent configuration" button
+    Given a CMA Token is configured
+    And a non-admin user is on the Agents Configuration page
+    When the user clicks on the "Add agent configuration" button
     Then a pop-up form is displayed
     When the user selects "CMA" as the agent type
     And the user selects "No TLS" as the encryption level

@@ -23,27 +23,27 @@ declare(strict_types=1);
 
 namespace Tests\CentreonRemote;
 
-use CentreonACL;
-use CentreonRestHttp;
-use Pimple\Container;
-use Pimple\Psr11\ServiceLocator;
-use Centreon\Test\Mock\CentreonDB;
-use CentreonRemote\ServiceProvider;
-use CentreonRemote\Domain\Service\TaskService;
-use CentreonRemote\Domain\Service\InformationsService;
-use CentreonRemote\Domain\Service\NotifyMasterService;
-use Centreon\Domain\Service\BrokerConfigurationService;
-use CentreonRemote\Infrastructure\Service\ExportService;
-use Centreon\Infrastructure\Service\CentcoreConfigService;
-use CentreonRemote\Infrastructure\Service\ExporterService;
 use Centreon\Domain\Repository\CfgCentreonBrokerRepository;
+use Centreon\Domain\Service\BrokerConfigurationService;
+use Centreon\Infrastructure\Service\CentcoreConfigService;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
+use Centreon\Test\Mock\CentreonDB;
+use CentreonACL;
 use CentreonRemote\Domain\Exporter\ConfigurationExporter;
-use CentreonRemote\Infrastructure\Service\ExporterCacheService;
 use CentreonRemote\Domain\Service\ConfigurationWizard\LinkedPollerConfigurationService;
 use CentreonRemote\Domain\Service\ConfigurationWizard\PollerConfigurationRequestBridge;
 use CentreonRemote\Domain\Service\ConfigurationWizard\PollerConnectionConfigurationService;
 use CentreonRemote\Domain\Service\ConfigurationWizard\RemoteConnectionConfigurationService;
+use CentreonRemote\Domain\Service\InformationsService;
+use CentreonRemote\Domain\Service\NotifyMasterService;
+use CentreonRemote\Domain\Service\TaskService;
+use CentreonRemote\Infrastructure\Service\ExporterCacheService;
+use CentreonRemote\Infrastructure\Service\ExporterService;
+use CentreonRemote\Infrastructure\Service\ExportService;
+use CentreonRemote\ServiceProvider;
+use CentreonRestHttp;
+use Pimple\Container;
+use Pimple\Psr11\ServiceLocator;
 
 beforeEach(function (): void {
     $this->provider = new ServiceProvider();
@@ -56,13 +56,13 @@ beforeEach(function (): void {
     $this->container['rest_http'] = $this->createMock(CentreonRestHttp::class);
     $locator = new ServiceLocator($this->container, ['realtime_db', 'configuration_db']);
     $this->container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new CentreonDBManagerService($locator);
-    $this->container[\Centreon\ServiceProvider::CENTREON_WEBSERVICE] = new class {
+    $this->container[\Centreon\ServiceProvider::CENTREON_WEBSERVICE] = new class () {
         public function add(): self
         {
             return $this;
         }
     };
-    $this->container[\Centreon\ServiceProvider::CENTREON_CLAPI] = new class {
+    $this->container[\Centreon\ServiceProvider::CENTREON_CLAPI] = new class () {
         public function add(): self
         {
             return $this;
@@ -79,7 +79,7 @@ beforeEach(function (): void {
     $this->provider->register($this->container);
 });
 
-it('check services by list', function () {
+it('check services by list', function (): void {
     $checkList = [
         'centreon.notifymaster' => NotifyMasterService::class,
         'centreon.taskservice' => TaskService::class,
@@ -104,7 +104,7 @@ it('check services by list', function () {
     }
 });
 
-it('check exporters by list', function () {
+it('check exporters by list', function (): void {
     $checkList = [
         ConfigurationExporter::class,
     ];
@@ -125,7 +125,7 @@ it('check exporters by list', function () {
     }
 });
 
-it ('test provider order', function () {
+it('test provider order', function (): void {
     expect($this->provider::order())->toBeGreaterThanOrEqual(1);
     expect($this->provider::order())->toBeLessThanOrEqual(20);
 });

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\MetaServiceConfiguration\Model;
@@ -39,71 +40,52 @@ class MetaServiceConfiguration
     public const MAX_REGEXP_STRING_LENGTH = 254;
     public const MAX_WARNING_LENGTH = 254;
     public const MAX_CRITICAL_LENGTH = 254;
-
     public const AVAILABLE_DATA_SOURCE_TYPES = ['gauge', 'counter', 'derive', 'absolute'];
     public const AVAILABLE_CALCULATION_TYPES = ['average', 'minimum', 'maximum', 'sum'];
     public const META_SELECT_MODE_LIST = 1;
     public const META_SELECT_MODE_SQL_REGEXP = 2;
 
-    /**
-     * @var int ID of the Meta Service
-     */
+    /** @var int ID of the Meta Service */
     private $id;
 
-    /**
-     * @var string Name used to identity the Meta Service
-     */
+    /** @var string Name used to identity the Meta Service */
     private $name;
 
-    /**
-     * @var string|null Define the output displayed by the Meta Service
-     */
+    /** @var string|null Define the output displayed by the Meta Service */
     private $output;
 
-    /**
-     * @var string Define the function to be applied to calculate the Meta Service status
-     */
+    /** @var string Define the function to be applied to calculate the Meta Service status */
     private $calculationType;
 
     /**
      * @var string Define the data source type of the Meta Service
-     * 0 - GAUGE
-     * 1 - COUNTER
-     * 2 - DERIVE
-     * 3 - ABSOLUTE
+     *             0 - GAUGE
+     *             1 - COUNTER
+     *             2 - DERIVE
+     *             3 - ABSOLUTE
      */
     private $dataSourceType = 'gauge';
 
     /**
      * @var int Selection mode for services to be considered for this meta service.
-     * 0 - In service list mode, mark selected services in the options on meta service list.
-     * 1 - In SQL matching mode, specify a search string to be used in an SQL query.
+     *          0 - In service list mode, mark selected services in the options on meta service list.
+     *          1 - In SQL matching mode, specify a search string to be used in an SQL query.
      */
     private $metaSelectMode = 1;
 
-    /**
-     * @var string|null Search string to be used in a SQL LIKE query for service selection
-     */
+    /** @var string|null Search string to be used in a SQL LIKE query for service selection */
     private $regexpString;
 
-    /**
-     * @var string|null Select the metric to measure for meta service status.
-     */
+    /** @var string|null select the metric to measure for meta service status */
     private $metric;
 
-    /**
-     * @var string|null Absolute value for warning level (low threshold).
-     */
+    /** @var string|null absolute value for warning level (low threshold) */
     private $warning;
 
-    /**
-     * @var string|null Absolute value for critical level (high threshold).
-     */
+    /** @var string|null absolute value for critical level (high threshold) */
     private $critical;
 
-    /**
-     * @var bool Indicates whether this Meta Service is enabled or not (TRUE by default)
-     */
+    /** @var bool Indicates whether this Meta Service is enabled or not (TRUE by default) */
     private $isActivated = true;
 
     /**
@@ -134,6 +116,7 @@ class MetaServiceConfiguration
     public function setId(int $id): MetaServiceConfiguration
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -147,14 +130,15 @@ class MetaServiceConfiguration
 
     /**
      * @param string $name
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public function setName(string $name): MetaServiceConfiguration
     {
         Assertion::minLength($name, self::MIN_NAME_LENGTH, 'MetaServiceConfiguration::name');
         Assertion::maxLength($name, self::MAX_NAME_LENGTH, 'MetaServiceConfiguration::name');
         $this->name = $name;
+
         return $this;
     }
 
@@ -173,6 +157,7 @@ class MetaServiceConfiguration
     public function setActivated(bool $isActivated): MetaServiceConfiguration
     {
         $this->isActivated = $isActivated;
+
         return $this;
     }
 
@@ -186,17 +171,18 @@ class MetaServiceConfiguration
 
     /**
      * @param string $calculationType
-     * @return MetaServiceConfiguration
      * @throws InvalidArgumentException
+     * @return MetaServiceConfiguration
      */
     public function setCalculationType(string $calculationType): MetaServiceConfiguration
     {
-        if (!in_array($calculationType, self::AVAILABLE_CALCULATION_TYPES)) {
+        if (! in_array($calculationType, self::AVAILABLE_CALCULATION_TYPES)) {
             throw new InvalidArgumentException(
                 sprintf(_('Calculation method provided not supported (%s)'), $calculationType)
             );
         }
         $this->calculationType = $calculationType;
+
         return $this;
     }
 
@@ -210,15 +196,16 @@ class MetaServiceConfiguration
 
     /**
      * @param string|null $output
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public function setOutput(?string $output): MetaServiceConfiguration
     {
-        if (!is_null($output)) {
+        if (! is_null($output)) {
             Assertion::maxLength($output, self::MAX_OUTPUT_LENGTH, 'MetaServiceConfiguration::output');
         }
         $this->output = $output;
+
         return $this;
     }
 
@@ -236,12 +223,13 @@ class MetaServiceConfiguration
      */
     public function setDataSourceType(string $dataSourceType): MetaServiceConfiguration
     {
-        if (!in_array($dataSourceType, self::AVAILABLE_DATA_SOURCE_TYPES)) {
+        if (! in_array($dataSourceType, self::AVAILABLE_DATA_SOURCE_TYPES)) {
             throw new InvalidArgumentException(
                 sprintf(_('Data source type provided not supported (%s)'), $dataSourceType)
             );
         }
         $this->dataSourceType = $dataSourceType;
+
         return $this;
     }
 
@@ -260,6 +248,7 @@ class MetaServiceConfiguration
     public function setMetaSelectMode(int $metaSelectMode): MetaServiceConfiguration
     {
         $this->metaSelectMode = $metaSelectMode;
+
         return $this;
     }
 
@@ -273,12 +262,12 @@ class MetaServiceConfiguration
 
     /**
      * @param string|null $regexpString
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public function setRegexpString(?string $regexpString): MetaServiceConfiguration
     {
-        if (!is_null($regexpString)) {
+        if (! is_null($regexpString)) {
             Assertion::maxLength(
                 $regexpString,
                 self::MAX_REGEXP_STRING_LENGTH,
@@ -286,6 +275,7 @@ class MetaServiceConfiguration
             );
         }
         $this->regexpString = $regexpString;
+
         return $this;
     }
 
@@ -299,15 +289,16 @@ class MetaServiceConfiguration
 
     /**
      * @param string|null $metric
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public function setMetric(?string $metric): MetaServiceConfiguration
     {
-        if (!is_null($metric)) {
+        if (! is_null($metric)) {
             Assertion::maxLength($metric, self::MAX_METRIC_LENGTH, 'MetaServiceConfiguration::metric');
         }
         $this->metric = $metric;
+
         return $this;
     }
 
@@ -321,15 +312,16 @@ class MetaServiceConfiguration
 
     /**
      * @param string|null $warning
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public function setWarning(?string $warning): MetaServiceConfiguration
     {
-        if (!is_null($warning)) {
+        if (! is_null($warning)) {
             Assertion::maxLength($warning, self::MAX_WARNING_LENGTH, 'MetaServiceConfiguration::warning');
         }
         $this->warning = $warning;
+
         return $this;
     }
 
@@ -343,15 +335,16 @@ class MetaServiceConfiguration
 
     /**
      * @param string|null $critical
-     * @return MetaServiceConfiguration
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceConfiguration
      */
     public function setCritical(?string $critical): MetaServiceConfiguration
     {
-        if (!is_null($critical)) {
+        if (! is_null($critical)) {
             Assertion::maxLength($critical, self::MAX_CRITICAL_LENGTH, 'MetaServiceConfiguration::critical');
         }
         $this->critical = $critical;
+
         return $this;
     }
 }

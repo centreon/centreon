@@ -7,13 +7,23 @@ on:
       nightly_manual_trigger:
         required: false
         type: boolean
+      labels:
+        required: false
+        type: string
+        default: ""
     outputs:
       latest_major_version:
         description: "latest major version"
         value: ${{ jobs.get-environment.outputs.latest_major_version }}
+      previous_release_bundle_tag:
+        description: "previous release bundle tag"
+        value: ${{ jobs.get-environment.outputs.previous_release_bundle_tag }}
       is_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-environment.outputs.is_cloud }}
+      delivery_type:
+        description: "context of delivery (feature branch or classic delivery)"
+        value: ${{ jobs.get-environment.outputs.delivery_type }}
       linked_dev_branch:
         description: "linked develop branch"
         value: ${{ jobs.get-environment.outputs.linked_dev_branch }}
@@ -59,7 +69,9 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
-      is_cloud: ${{ steps.detect_cloud_version.outputs.result }}
+      previous_release_bundle_tag: ${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag }}
+      is_cloud: ${{ steps.detect_cloud_version.outputs.isCloud }}
+      delivery_type: ${{ steps.detect_delivery_type.outputs.delivery_type }}
       linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
       linked_stable_branch: ${{ steps.linked_branches.outputs.linked_stable_branch }}
       major_version: ${{ steps.get_version.outputs.major_version }}
@@ -77,7 +89,7 @@ jobs:
     steps:
       - name: Check if PR has skip label
         id: has_skip_label
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             let hasSkipLabel = false;
@@ -99,6 +111,11 @@ jobs:
               } catch (e) {
                 core.warning(`failed to list labels: ${e}`);
               }
+            } else if ('${{ github.event_name }}' === 'workflow_dispatch' && '${{ inputs.labels }}'.length > 0) {
+              labels = '${{ inputs.labels }}'
+                .split(',')
+                .map(label => label.trim())
+                .filter(label => label.length > 0);
             }
 
             core.setOutput('labels', labels);
@@ -106,13 +123,13 @@ jobs:
             return hasSkipLabel;
 
       - name: Checkout sources (current branch)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: develop
           path: centreon-develop
@@ -121,7 +138,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get workflow triggered paths
         id: get_workflow_triggered_paths
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const fs = require('fs');
@@ -152,7 +169,7 @@ jobs:
                 }
 
                 if (hasReadOn && hasReadPullRequest && hasReadPaths) {
-                  const matches = line.match(/^\s{6}-\s['"](.+)['"]\s*$/);
+                  const matches = line.match(/^\s{6}-\s['"]?(.+?)['"]?\s*$/);
                   if (matches) {
                     paths.push(matches[1].trim());
                   } else {
@@ -173,7 +190,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get push changes
         id: get_push_changes
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
         with:
           since_last_remote_commit: true
           json: true
@@ -183,7 +200,7 @@ jobs:
 
       - name: Check if current workflow should be skipped
         id: skip_workflow
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             if (/^bump-.+/.test('${{ github.head_ref || github.ref_name }}')) {
@@ -221,10 +238,10 @@ jobs:
           echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
         shell: bash
 
-      - if: ${{ contains(fromJSON('["pull_request"]') , github.event_name) }}
+      - if: ${{ github.event_name == 'pull_request' }}
         name: Get nested pull request path
         id: pr_path
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const prPath = ['${{ github.head_ref }}', '${{ github.base_ref }}'];
@@ -251,31 +268,70 @@ jobs:
 
       - name: Get stability
         id: get_stability
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
-            const getStability = (branchName) => {
+            const ref = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
+            const refType = process.env.GITHUB_REF_TYPE; // 'branch' or 'tag'
+            const eventName = process.env.GITHUB_EVENT_NAME;
+
+            console.log(`Ref: ${ref}`);
+            console.log(`Ref Type: ${refType}`);
+            console.log(`Event Name: ${eventName}`);
+
+            const getStability = (ref) => {
+              const refName = ref.replace(/^refs\/(heads|tags)\//, '');
+              console.log(`Determining stability for refName: ${refName}`);
+
               switch (true) {
-                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(branchName):
+                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(refName):
+                  console.log(`Matched 'unstable' pattern`);
                   return 'unstable';
-                case /(^release.+)|(^hotfix.+)/.test(branchName):
+                case /(^release.+)|(^hotfix.+)/.test(refName):
+                  console.log(`Matched 'testing' pattern`);
                   return 'testing';
-                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(branchName):
+                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(refName):
+                  console.log(`Matched 'stable' pattern`);
                   return 'stable';
                 default:
+                  console.log(`No match found, defaulting to 'canary'`);
                   return 'canary';
               }
             };
 
-            core.setOutput('stability', getStability('${{ github.head_ref || github.ref_name }}'));
+            // Handle tags like centreon-web-XX.YY.z or centreon-pp-manager-XX.YY.z FIRST
+            // to allow promote for centreon packages (centreon-web, etc)
+            // Handle tags like release-cloud-YYYYMMNN-XX.YY or release-onprem-YYYYMMNN-XX.YY SECOND
+            // to allow promote for extra packages (lua-curl, libzmq, etc)
+            const isStableTag = (tag) => {
+              const matched =
+                /^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag) ||
+                /^release-(cloud|onprem)-\d{8}-\d{2}\.\d{2}$/.test(tag);
+              console.log(`Checking if tag '${tag}' matches stable tag pattern: ${matched}`);
+              return matched;
+            };
+
+            let stability;
+            if (eventName === 'push' && refType === 'tag') {
+              console.log(`Push event on a tag detected.`);
+              stability = isStableTag(ref) ? 'stable' : getStability(ref);
+            } else {
+              stability = getStability(ref);
+            }
+
+            console.log(`Final stability: ${stability}`);
+            core.setOutput('stability', stability);
 
             let isTargetingFeatureBranch = false;
+
             if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+              console.log(`Evaluating pull request target path for feature branch detection`);
               let targetStability = 'canary';
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               prPath.shift(); // remove current branch
 
               if (prPath.length && getStability(prPath[0]) === 'canary') {
+                console.log(`First target branch is canary — flagging as targeting feature branch`);
                 isTargetingFeatureBranch = true;
               }
 
@@ -284,12 +340,14 @@ jobs:
                 targetStability = getStability(branchName);
 
                 if (targetStability !== 'canary') {
+                  console.log(`Found a non-canary target: ${branchName}, stop checking`);
                   return false;
                 }
 
                 return true;
               });
 
+              console.log(`Final target stability: ${targetStability}`);
               core.setOutput('target_stability', targetStability);
             }
 
@@ -298,7 +356,7 @@ jobs:
       - name: Get version from ${{ inputs.version_file }}
         id: get_version
         run: |
-          if [[ "${{ inputs.version_file }}" == */.version ]]; then
+          if [[ "${{ inputs.version_file }}" == *.version* ]]; then
             . .version
             . ${{ inputs.version_file }}
             VERSION="$MAJOR.$MINOR"
@@ -346,61 +404,41 @@ jobs:
       - name: "Get release type: hotfix, release or not defined if not a release"
         id: get_release_type
         run: |
-          RELEASE_TYPE=$(echo "${{ github.head_ref || github.ref_name }}" | cut -d '-' -f 1)
-          if [[ "$RELEASE_TYPE" == "hotfix" || "$RELEASE_TYPE" == "release" ]]; then
+          # Set REF_NAME (branch or tag)
+          REF_NAME="${{ github.head_ref || github.ref_name }}"
+
+          # Get ref type (branch or tag)
+          REF_TYPE="${{ github.ref_type }}"  # 'branch' or 'tag'
+          RELEASE_TYPE=""
+
+          # Get release type based on ref type
+          # if ref_type is a branch => use prefix of branch name
+          # if ref_type is a tag => use comment associated to the tag
+          if [[ "$REF_TYPE" == "branch" ]]; then
+            BASE=$(echo "$REF_NAME" | cut -d '-' -f 1)
+            if [[ "$BASE" == "hotfix" || "$BASE" == "release" ]]; then
+              RELEASE_TYPE="$BASE"
+            fi
+          elif [[ "$REF_TYPE" == "tag" ]]; then
+            # Get tag message (requires fetch of tags and history for annotated tags)
+            git fetch --tags --force
+            TAG_MSG=$(git for-each-ref refs/tags/"$REF_NAME" --format='%(contents)')
+            if echo "$TAG_MSG" | grep -q -i 'hotfix'; then
+              RELEASE_TYPE="hotfix"
+            elif echo "$TAG_MSG" | grep -q -i 'release'; then
+              RELEASE_TYPE="release"
+            fi
+          fi
+
+          if [[ -n "$RELEASE_TYPE" ]]; then
+            echo "ref_type is: $REF_TYPE"
+            echo "release_type is: $RELEASE_TYPE"
             echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
           fi
         shell: bash
 
-      - name: "Detect cloud version"
-        id: detect_cloud_version
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            if ("${{ github.ref_name }}" === "master") {
-              return true;
-            }
-
-            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
-              const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
-              const finalTargetBranch = prPath.pop();
-              if (['develop', 'master'].includes(finalTargetBranch)) {
-                return true;
-              } else if (/\d{2}\.\d{2}\.x$/.test(finalTargetBranch)) {
-                return false;
-              }
-            }
-
-            const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
-            const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
-
-            if (Number(currentMajorVersion) >= Number(developMajorVersion)) {
-              return true;
-            }
-
-            // If month number is not 04 or 10, it is a cloud version
-            if (! currentMajorVersion.match(/\.(04|10)$/)) {
-              return true;
-            }
-
-            return false;
-
-      - name: Detect linked dev and stable branches
-        id: linked_branches
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: |
-            let linkedDevBranch = 'develop';
-            let linkedStableBranch = 'master';
-            if ('${{ steps.detect_cloud_version.outputs.result }}' === 'false') {
-              linkedDevBranch = 'dev-' + '${{ steps.get_version.outputs.major_version }}' + '.x';
-              linkedStableBranch = '${{ steps.get_version.outputs.major_version }}' + '.x';
-            }
-            core.setOutput('linked_dev_branch', linkedDevBranch);
-            core.setOutput('linked_stable_branch', linkedStableBranch);
-
       - name: Detect nightly status
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         id: get_nightly_status
         env:
           NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
@@ -419,46 +457,313 @@ jobs:
 
             core.setOutput('is_nightly', getNightlyInput());
 
+      - name: "Detect cloud version"
+        id: detect_cloud_version
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          IS_NIGHTLY: ${{ steps.get_nightly_status.outputs.is_nightly }}
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const eventName = process.env.GITHUB_EVENT_NAME;
+            const ref = process.env.GITHUB_REF;         // full ref like refs/heads/develop or refs/tags/...
+            const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
+            const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
+            const isNightly = process.env.IS_NIGHTLY;
+
+            const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
+            const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+            // if major version is higher than develop major version => it is a cloud version
+            // if month number is not 04 or 10 => it is a cloud version
+            // anything else => onprem
+            const isCloudCandidate =
+              Number(currentMajorVersion) >= Number(developMajorVersion) ||
+              !currentMajorVersion.match(/\.(04|10)$/);
+
+            let releaseScope = "unknown";
+
+            // in a nightly context, whatever the event_name is, the release context does not matter
+            if ( process.env.IS_NIGHTLY == 'true' || eventName === "workflow_run" ) {
+              releaseScope = isCloudCandidate ? "cloud" : "onprem";
+            } else if ( "${{ github.event_name }}" === "pull_request" ) {
+              // handle if triggering event is a pull_request
+              // finalTargetBranch can be develop, dev-XX.YY.x, release-XX.YY-next, hotfix-XX.YY-next
+              const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
+              const finalTargetBranch = prPath.pop();
+              console.log(`finalTargetBranch is: ${finalTargetBranch}`)
+
+              // if finalTarget branch is develop => it is a cloud version
+              if (['develop'].includes(finalTargetBranch)) {
+                releaseScope = "cloud";
+              } else {
+                releaseScope = isCloudCandidate ? "cloud" : "onprem";
+              }
+            }
+            // handle if triggering event is a push_tag of a release
+            else if (eventName === "push" && ref.startsWith("refs/tags/")) {
+              console.log(`🏷️ Tag pushed: ${refName}`);
+              // Extract scope (cloud on onprem) from tag description
+              // Format expected: "release-cloud-20270800-27.08 or release-onprem-20270800-24.10"
+
+              // get release bundle
+              // Get the commit SHA that this tag points to
+              const tagRef = await github.rest.git.getRef({
+                owner,
+                repo,
+                ref: `tags/${refName}`
+              });
+
+              let targetSha = tagRef.data.object.sha;
+
+              // Resolve to commit SHA (if annotated tag)
+              if (tagRef.data.object.type === "tag") {
+                const tagObj = await github.rest.git.getTag({
+                  owner,
+                  repo,
+                  tag_sha: targetSha,
+                });
+                targetSha = tagObj.data.object.sha;
+              }
+              console.log(`📌 Commit SHA from tag: ${targetSha}`);
+
+              const releaseTags = await github.paginate(
+                github.rest.git.listMatchingRefs,
+                {
+                  owner,
+                  repo,
+                  ref: "tags/release-",
+                }
+              );
+              console.log(`🔍 Found ${releaseTags.length} release-* tags`);
+
+              let matchingTag = null;
+
+              // Find all refs/tags and filter to find the matching release-* tags
+              const tags = await github.paginate(github.rest.git.listMatchingRefs, {
+                owner,
+                repo,
+                ref: "tags/"
+              });
+
+              for (const tag of releaseTags) {
+                let tagSha = tag.object.sha;
+                if (tag.object.type === "tag") {
+                  const tagObj = await github.rest.git.getTag({
+                    owner,
+                    repo,
+                    tag_sha: tagSha,
+                  });
+                  tagSha = tagObj.data.object.sha;
+                }
+
+                console.log(`🧷 Tag ${tag.ref} -> commit SHA: ${tagSha}`);
+
+                if (tagSha === targetSha) {
+                  matchingTag = tag.ref;
+                  break;
+                }
+              }
+
+              if (!matchingTag) {
+                core.setFailed(`❌ No matching release-* tag found on commit: ${targetSha}`);
+                return;
+              }
+
+              const bundleTag = matchingTag.replace("refs/tags/", "");
+              const scope = bundleTag.split("-")[1];
+
+              if (!["cloud", "onprem"].includes(scope)) {
+                core.setFailed(`❌ Unknown scope in bundle tag: ${bundleTag}`);
+                return;
+              }
+
+              releaseScope = scope;
+            }
+            // handle if triggering event is a push
+            else if (ref.startsWith("refs/heads/") && (eventName === "push" || eventName === "workflow_dispatch")) {
+              const branch = ref.replace("refs/heads/", "");
+              console.log(`🚀 ${eventName} on branch: ${branch}`);
+
+              releaseScope = isCloudCandidate ? "cloud" : "onprem";
+            }
+            // in any other case, fail the run
+            else {
+              core.setFailed(`❌ Unsupported event: ${eventName}`);
+              return;
+            }
+
+            // Set isCloud if releaseScope value is "cloud"
+            const isCloud = releaseScope === "cloud";
+
+            console.log(`📦 releaseScope: ${releaseScope}`);
+            core.setOutput("releaseScope", releaseScope);
+            core.setOutput("isCloud", isCloud);
+
+      - name: "Detect delivery type"
+        id: detect_delivery_type
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            let delivery_type  = 'classic';
+            if (${{ contains(steps.has_skip_label.outputs.labels, 'delivery-feature') && 'true' || 'false' }}) {
+              delivery_type = 'feature';
+            }
+
+            core.setOutput('delivery_type', delivery_type);
+
+      - name: Detect linked dev and stable branches
+        id: linked_branches
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            let linkedDevBranch = 'develop';
+            let linkedStableBranch = 'master';
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' === 'false') {
+              linkedDevBranch = 'dev-' + '${{ steps.get_version.outputs.major_version }}' + '.x';
+              linkedStableBranch = '${{ steps.get_version.outputs.major_version }}' + '.x';
+            }
+            core.setOutput('linked_dev_branch', linkedDevBranch);
+            core.setOutput('linked_stable_branch', linkedStableBranch);
+
+      - name: Get previous release bundle tag
+        id: get_previous_release_bundle_tag
+        env:
+          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
+          STABILITY: ${{ steps.get_stability.outputs.stability }}
+          MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            if (process.env.STABILITY !== 'testing' && process.env.STABILITY !== 'stable') {
+              core.setOutput('previous_release_bundle_tag', '');
+              return;
+            }
+
+            let execOutput = '';
+            let execError = '';
+            const execOptions = {
+              listeners: {
+                stdout: (data) => {
+                  execOutput += data.toString();
+                },
+                stderr: (data) => {
+                  execError += data.toString();
+                }
+              },
+              silent: true
+            };
+
+            let previousStableBundleSha = '';
+            let previousStableBundleTag = '';
+
+            await exec.exec(
+              `bash -c "git ls-remote --tags origin 'refs/tags/release-${process.env.IS_CLOUD === 'true' && 'cloud' || 'onprem'}-*' | grep -v '{}' | sort -t'-' -k4r,4 -k3r,3"`,
+              [],
+              execOptions
+            );
+
+            for (const line of execOutput.split('\n')) {
+              const tag = line.trim();
+              const matches = tag.match(/^(.+)\s+.+\/(release-(cloud|onprem)-\d{8}-(\d{2}\.\d{2}))$/);
+              if (matches && Number(matches[4]) <= Number(process.env.MAJOR_VERSION)) {
+                previousStableBundleSha = matches[1];
+                previousStableBundleTag = matches[2];
+                break;
+              } else {
+                console.log(`Ignoring non-matching tag: ${tag}`);
+              }
+            }
+
+            console.log(`Previous release bundle tag is: ${previousStableBundleTag} (${previousStableBundleSha})`);
+
+            core.setOutput('previous_release_bundle_tag', previousStableBundleTag);
+
       - name: Detect operating systems and databases to test
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         id: get_os_database_matrix
         with:
           script: |
-            const alma9_mariadb = {
+            const alma9_mariadb_10_11 = {
               "operating_system": "alma9",
               "database": "mariadb:10.11",
               "test_tags": "not @ignore"
             };
-            const alma8_mariadb = {
+            const alma8_mysql_8_0 = {
               "operating_system": "alma8",
-              "database": "mariadb:10.11",
-              "test_tags": "not @ignore and @system"
-            };
-            const bookworm_mysql = {
-              "operating_system": "bookworm",
               "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
-
-            let matrix = {
-              "main": [alma9_mariadb],
-              "operating_systems": [alma9_mariadb],
-              "databases": [alma9_mariadb],
+            const bookworm_mysql_8_4 = {
+              "operating_system": "bookworm",
+              "database": "mysql:8.4",
+              "test_tags": "not @ignore"
             };
 
-            if (${{ contains(github.event.pull_request.labels.*.name, 'database') && 'true' || 'false' }}) {
+            const getDailyConfig = (configs) => {
+              const today = new Date();
+              const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
+
+              // If it's weekend, use the default configuration
+              if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return configs[0];
+              }
+
+              // Reference date: January 1, 2025
+              const referenceDate = new Date('2025-01-01');
+
+              // Calculate the number of working days since January 1
+              let workingDays = 0;
+              const currentDate = new Date(referenceDate);
+
+              while (currentDate < today) {
+                const dayOfWeek = currentDate.getDay();
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+                  workingDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+              }
+
+              // Alternating balanced on 3 configurations
+              const configIndex = workingDays % configs.length;
+
+              return configs[configIndex];
+            };
+
+            const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
+
+            const cloud = alma8_mysql_8_0;
+
+            let main = alma9_mariadb_10_11;
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
+              main = cloud;
+            }
+
+            let matrix = {
+              "cloud": [cloud],
+              "main": [main],
+              "operating_systems": [main],
+              "databases": [main],
+            };
+
+            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true') {
+              const dailyConfig = getDailyConfig(configs);
+
               matrix = {
-                ...matrix,
-                "operating_systems": [alma9_mariadb, bookworm_mysql],
-                "databases": [alma9_mariadb, bookworm_mysql],
+                "cloud": [cloud],
+                "main": [dailyConfig],
+                "operating_systems": [dailyConfig],
+                "databases": [dailyConfig],
               };
             }
 
-            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true' || ${{ contains(github.event.pull_request.labels.*.name, 'system') && 'true' || 'false' }}) {
+            if (
+              ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
+              || ${{ contains(steps.has_skip_label.outputs.labels, 'system') && 'true' || 'false' }}
+            ) {
               matrix = {
                 ...matrix,
-                "operating_systems": [alma9_mariadb, alma8_mariadb, bookworm_mysql],
-                "databases": [alma9_mariadb, bookworm_mysql],
+                "operating_systems": configs,
+                "databases": configs,
               };
             }
 
@@ -467,13 +772,15 @@ jobs:
             return matrix;
 
       - name: Display info in job summary
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const outputTable = [
               [{data: 'Name', header: true}, {data: 'Value', header: true}],
               ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
-              ['is_cloud', '${{ steps.detect_cloud_version.outputs.result }}'],
+              ['is_cloud', '${{ steps.detect_cloud_version.outputs.isCloud }}'],
+              ['previous_release_bundle_tag', '${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag || '<em>not found</em>' }}'],
+              ['delivery_type', '${{ steps.detect_delivery_type.outputs.delivery_type }}'],
               ['linked_dev_branch', '${{ steps.linked_branches.outputs.linked_dev_branch }}'],
               ['linked_stable_branch', '${{ steps.linked_branches.outputs.linked_stable_branch }}'],
               ['major_version', '${{ steps.get_version.outputs.major_version }}'],
@@ -493,7 +800,7 @@ jobs:
               .addHeading(`${context.workflow} environment outputs`)
               .addTable(outputTable);
 
-            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+            if ("${{ github.event_name }}" === "pull_request") {
               const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
               const mainBranchName = prPath.pop();
               let codeBlock = `

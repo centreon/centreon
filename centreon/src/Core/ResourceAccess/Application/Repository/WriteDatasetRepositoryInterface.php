@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\Repository;
+
+use Core\Common\Domain\Exception\RepositoryException;
 
 interface WriteDatasetRepositoryInterface
 {
@@ -29,6 +31,8 @@ interface WriteDatasetRepositoryInterface
      * @param int $ruleId
      * @param int $datasetId
      * @param int[] $resourceIds
+     *
+     * @throws RepositoryException
      */
     public function linkResourcesToDataset(int $ruleId, int $datasetId, array $resourceIds): void;
 
@@ -43,6 +47,8 @@ interface WriteDatasetRepositoryInterface
      * @param int $ruleId
      * @param int $datasetId
      * @param bool $fullAccess
+     *
+     * @throws RepositoryException
      */
     public function updateDatasetAccess(int $ruleId, int $datasetId, bool $fullAccess): void;
 }

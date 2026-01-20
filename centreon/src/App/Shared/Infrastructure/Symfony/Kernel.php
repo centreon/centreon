@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,11 +16,18 @@ declare(strict_types=1);
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
+
+declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Symfony;
 
+use App\Shared\Application\Command\AsCommandHandler;
+use App\Shared\Domain\Event\AsEventHandler;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\DependencyInjection\ChildDefinition;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
@@ -40,6 +45,11 @@ final class Kernel extends BaseKernel
         return '/var/log/centreon/symfony.new';
     }
 
+    public function getProjectDir(): string
+    {
+        return \dirname(__DIR__, 5);
+    }
+
     protected function configureContainer(ContainerConfigurator $container): void
     {
         $configDir = $this->getConfigDir();
@@ -50,9 +60,17 @@ final class Kernel extends BaseKernel
         $container->import($configDir . '/{services}/' . $this->environment . '/*.php');
     }
 
-    public function getProjectDir(): string
+    protected function build(ContainerBuilder $container): void
     {
-        return \dirname(__DIR__, 5);
+        parent::build($container);
+
+        $container->registerAttributeForAutoconfiguration(AsCommandHandler::class, static function (ChildDefinition $definition): void {
+            $definition->addTag('messenger.message_handler', ['bus' => 'command.bus']);
+        });
+
+        $container->registerAttributeForAutoconfiguration(AsEventHandler::class, static function (ChildDefinition $definition): void {
+            $definition->addTag('messenger.message_handler', ['bus' => 'event.bus']);
+        });
     }
 
     private function getConfigDir(): string

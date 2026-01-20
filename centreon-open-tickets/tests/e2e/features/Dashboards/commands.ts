@@ -30,7 +30,8 @@ Cypress.Commands.add(
     cy.waitUntil(
       () =>
         cy.get(iframeSelector).then(($iframe) => {
-          const iframeBody = $iframe[0].contentDocument.body;
+          const iframeBody = ($iframe[0] as HTMLIFrameElement).contentDocument
+            ?.body;
           if (iframeBody) {
             const $element = Cypress.$(iframeBody).find(elementSelector);
 
@@ -141,6 +142,7 @@ Cypress.Commands.add('applyAcl', () => {
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       editDashboard: (name: string) => Cypress.Chainable;

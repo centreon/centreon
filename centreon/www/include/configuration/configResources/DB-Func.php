@@ -1,38 +1,25 @@
-<?php declare(strict_types=1);
+<?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
+
+declare(strict_types=1);
 
 if (! isset($centreon)) {
     exit();
@@ -41,12 +28,14 @@ if (! isset($centreon)) {
 require_once _CENTREON_PATH_ . 'www/include/common/vault-functions.php';
 
 use App\Kernel;
+use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacroName;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
+
 /**
  * Indicates if the resource name has already been used.
  *
@@ -99,9 +88,9 @@ function testExistence($name = null, $instanceId = null)
     }
 
     return ! ($total >= 1 && $result['resource_id'] !== $id);
-        /**
-         * In case of duplicate.
-         */
+    /**
+     * In case of duplicate.
+     */
 }
 
 /**
@@ -286,7 +275,7 @@ function updateResource(int $resourceId, array $submitedValues): void
             $submitedValues['resource_line'] = $vaultPath ?? $submitedValues['resource_line'];
         } else {
             $oldResourceStatement = $pearDB->prepareQuery(
-                <<<SQL
+                <<<'SQL'
                     SELECT resource_name, resource_line
                     FROM cfg_resource
                     WHERE resource_id = :resource_id
@@ -486,7 +475,7 @@ function getFromVault(string $vaultPath): array
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
-        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
         try {
             return $readVaultRepository->findFromPath($vaultPath);
@@ -499,7 +488,8 @@ function getFromVault(string $vaultPath): array
     return [];
 }
 
-function saveInVault(string $key, string $value): ?string {
+function saveInVault(string $key, string $value): ?string
+{
     global $pearDB;
 
     $kernel = Kernel::createForWeb();
@@ -511,9 +501,9 @@ function saveInVault(string $key, string $value): ?string {
     );
     $vaultConfiguration = $readVaultConfigurationRepository->find();
     if ($vaultConfiguration !== null) {
-        /**@var ReadVaultRepositoryInterface $readVaultRepository */
+        /** @var ReadVaultRepositoryInterface $readVaultRepository */
         $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-        /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+        /** @var WriteVaultRepositoryInterface $writeVaultRepository */
         $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
         $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
         try {
@@ -536,13 +526,14 @@ function saveInVault(string $key, string $value): ?string {
 /**
  * @param array{resource_line:string,resource_name:string} $data
  */
-function deleteFromVault(array $data): void {
+function deleteFromVault(array $data): void
+{
     if (str_starts_with($data['resource_line'], VaultConfiguration::VAULT_PATH_PATTERN)) {
         $uuid = preg_match(
-                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-                $data['resource_line'],
-                $matches
-            )
+            '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+            $data['resource_line'],
+            $matches
+        )
             && isset($matches[2]) ? $matches[2] : null;
 
         $kernel = Kernel::createForWeb();
@@ -555,9 +546,9 @@ function deleteFromVault(array $data): void {
 
         $vaultConfiguration = $readVaultConfigurationRepository->find();
         if ($vaultConfiguration !== null) {
-            /**@var ReadVaultRepositoryInterface $readVaultRepository */
+            /** @var ReadVaultRepositoryInterface $readVaultRepository */
             $readVaultRepository = $kernel->getContainer()->get(ReadVaultRepositoryInterface::class);
-            /**@var WriteVaultRepositoryInterface $writeVaultRepository */
+            /** @var WriteVaultRepositoryInterface $writeVaultRepository */
             $writeVaultRepository = $kernel->getContainer()->get(WriteVaultRepositoryInterface::class);
             $writeVaultRepository->setCustomPath(AbstractVaultRepository::POLLER_MACRO_VAULT_PATH);
             try {
@@ -574,4 +565,9 @@ function deleteFromVault(array $data): void {
             }
         }
     }
+}
+
+function validateName(string $name): bool
+{
+    return (bool) preg_match(GlobalMacroName::NAMING_VALIDATION_REGEX, $name);
 }

@@ -7,12 +7,14 @@ get:
 
     The available parameters to **search** / **sort_by** are:
     AND
-    * hostgroup.id
-    * hostcategory.id
-    * host.id
-    * servicegroup.id
-    * servicecategory.id
-    * service.name
+    * hostgroup.id (search operator allowed: $in)
+    * hostcategory.id (search operator allowed: $in)
+    * host.id (search operator allowed: $in)
+    * servicegroup.id (search operator allowed: $in)
+    * servicecategory.id (search operator allowed: $in)
+    * service.name (search operator allowed: $in, $rg)
+  parameters:
+    - $ref: '../../Common/QueryParameter/Search.yaml'
   responses:
     "200":
       description: "OK"

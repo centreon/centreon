@@ -10,6 +10,7 @@ import {
   labelAllBusinessViews,
   labelAllHostGroups,
   labelAllHosts,
+  labelAllImageFolders,
   labelAllServiceGroups
 } from '../../../translatedLabels';
 
@@ -23,7 +24,8 @@ const allOfResourceTypeLabels = {
   [ResourceTypeEnum.HostGroup]: labelAllHostGroups,
   [ResourceTypeEnum.Host]: labelAllHosts,
   [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroups,
-  [ResourceTypeEnum.BusinessView]: labelAllBusinessViews
+  [ResourceTypeEnum.BusinessView]: labelAllBusinessViews,
+  [ResourceTypeEnum.ImageFolder]: labelAllImageFolders
 };
 
 export const useAllOfResourceTypeCheckbox = (

@@ -1,33 +1,19 @@
 <?php
+
 /*
- * Copyright 2005-2014 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -51,18 +37,18 @@ use PDO;
 use PDOException;
 use Pimple\Container;
 
-require_once "centreonObject.class.php";
-require_once "centreonHost.class.php";
-require_once "centreonService.class.php";
-require_once "Centreon/Object/Dependency/Dependency.php";
-require_once "Centreon/Object/Host/Host.php";
-require_once "Centreon/Object/Host/Group.php";
-require_once "Centreon/Object/Service/Group.php";
-require_once "Centreon/Object/Meta/Service.php";
-require_once "Centreon/Object/Relation/Dependency/Parent/Host.php";
-require_once "Centreon/Object/Relation/Dependency/Parent/Hostgroup.php";
-require_once "Centreon/Object/Relation/Dependency/Parent/Servicegroup.php";
-require_once "Centreon/Object/Relation/Dependency/Parent/Metaservice.php";
+require_once 'centreonObject.class.php';
+require_once 'centreonHost.class.php';
+require_once 'centreonService.class.php';
+require_once 'Centreon/Object/Dependency/Dependency.php';
+require_once 'Centreon/Object/Host/Host.php';
+require_once 'Centreon/Object/Host/Group.php';
+require_once 'Centreon/Object/Service/Group.php';
+require_once 'Centreon/Object/Meta/Service.php';
+require_once 'Centreon/Object/Relation/Dependency/Parent/Host.php';
+require_once 'Centreon/Object/Relation/Dependency/Parent/Hostgroup.php';
+require_once 'Centreon/Object/Relation/Dependency/Parent/Servicegroup.php';
+require_once 'Centreon/Object/Relation/Dependency/Parent/Metaservice.php';
 
 /**
  * Class
@@ -98,7 +84,7 @@ class CentreonDependency extends CentreonObject
         parent::__construct($dependencyInjector);
         $this->serviceObj = new CentreonService($dependencyInjector);
         $this->object = new Centreon_Object_Dependency($dependencyInjector);
-        $this->action = "DEP";
+        $this->action = 'DEP';
         $this->insertParams = ['dep_name', 'dep_description', 'type', 'parents'];
         $this->nbOfCompulsoryParams = count($this->insertParams);
     }
@@ -113,10 +99,10 @@ class CentreonDependency extends CentreonObject
     {
         $filters = [];
         if (isset($parameters)) {
-            $filters = [$this->object->getUniqueLabelField() => "%" . $parameters . "%"];
+            $filters = [$this->object->getUniqueLabelField() => '%' . $parameters . '%'];
         }
         $params = ['dep_id', 'dep_name', 'dep_description', 'inherits_parent', 'execution_failure_criteria', 'notification_failure_criteria'];
-        $paramString = str_replace("dep_", "", implode($this->delim, $params));
+        $paramString = str_replace('dep_', '', implode($this->delim, $params));
         echo $paramString . "\n";
         $elements = $this->object->getList(
             $params,
@@ -136,9 +122,9 @@ class CentreonDependency extends CentreonObject
      *
      * @param null $parameters
      *
-     * @return void
      * @throws CentreonClapiException
      * @throws PDOException
+     * @return void
      */
     public function add($parameters = null): void
     {
@@ -181,12 +167,148 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
+     * @param null $parameters
+     * @throws CentreonClapiException
+     * @return array
+     */
+    public function initUpdateParameters($parameters = null)
+    {
+        $params = explode($this->delim, $parameters);
+        if (count($params) < self::NB_UPDATE_PARAMS) {
+            throw new CentreonClapiException(self::MISSINGPARAMETER);
+        }
+
+        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
+        if ($objectId != 0) {
+            if (in_array($params[1], ['comment', 'name', 'description']) && ! preg_match('/^dep_/', $params[1])) {
+                $params[1] = 'dep_' . $params[1];
+            }
+            $params[2] = str_replace('<br/>', "\n", $params[2]);
+            $updateParams = [$params[1] => htmlentities($params[2], ENT_QUOTES, 'UTF-8')];
+            $updateParams['objectId'] = $objectId;
+
+            return $updateParams;
+        }
+
+        throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ':' . $params[self::ORDER_UNIQUENAME]);
+    }
+
+    /**
+     * List dependencies
+     *
+     * @param string $parameters | dependency name
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function listdep($parameters): void
+    {
+        $type = $this->getDependencyType($parameters);
+
+        if ($type == '') {
+            throw new CentreonClapiException('Could not define type of dependency');
+        }
+
+        $depId = $this->getObjectId($parameters);
+
+        // header
+        echo implode($this->delim, ['parents', 'children']) . "\n";
+
+        switch ($type) {
+            case self::DEP_TYPE_HOST:
+                $this->listhostdep($depId);
+                break;
+            case self::DEP_TYPE_HOSTGROUP:
+                $this->listhostgroupdep($depId);
+                break;
+            case self::DEP_TYPE_SERVICE:
+                $this->listservicedep($depId);
+                break;
+            case self::DEP_TYPE_SERVICEGROUP:
+                $this->listservicegroupdep($depId);
+                break;
+            case self::DEP_TYPE_META:
+                $this->listmetadep($depId);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function delparent($parameters): void
+    {
+        $this->deleteRelations($parameters, 'parent');
+    }
+
+    /**
+     * Delete child
+     *
+     * @param string $parameters | dep_name;children_to_delete
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function delchild($parameters): void
+    {
+        $this->deleteRelations($parameters, 'child');
+    }
+
+    /**
+     * Add parent
+     *
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     */
+    public function addparent($parameters): void
+    {
+        $this->addRelations($parameters, 'parent');
+    }
+
+    /**
+     * Add child
+     *
+     * @param $parameters
+     *
+     * @throws CentreonClapiException
+     * @throws PDOException
+     * @return void
+     */
+    public function addchild($parameters): void
+    {
+        $this->addRelations($parameters, 'child');
+    }
+
+    /**
+     * Export
+     *
+     * @param $filterName
+     *
+     * @return void
+     */
+    public function export($filterName = null): void
+    {
+        $this->exportHostDep();
+        $this->exportServiceDep();
+        $this->exportHostgroupDep();
+        $this->exportServicegroupDep();
+        $this->exportMetaDep();
+    }
+
+    /**
      * Return the type of dependency
      *
      * @param string $dependencyName
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     protected function getDependencyType($dependencyName)
     {
@@ -216,23 +338,25 @@ class CentreonDependency extends CentreonObject
             AND d.dep_name = :name";
         $res = $this->db->query($sql, [':name' => $dependencyName]);
         $row = $res->fetch();
-        return $row['type'] ?? "";
+
+        return $row['type'] ?? '';
     }
 
     /**
      * @param int $dependencyId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     protected function getDependencyName(int $dependencyId): string
     {
-        $sql = "SELECT `dep_name` FROM `dependency` WHERE `dep_id` = :depId";
+        $sql = 'SELECT `dep_name` FROM `dependency` WHERE `dep_id` = :depId';
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':depId', $dependencyId, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch();
-        return $row['dep_name'] ?? "";
+
+        return $row['dep_name'] ?? '';
     }
 
     /**
@@ -244,8 +368,8 @@ class CentreonDependency extends CentreonObject
      * @param string $parentString
      * @param Centreon_Object_Relation $relationObj
      *
-     * @return void
      * @throws CentreonClapiException
+     * @return void
      */
     protected function insertDependency($name, $description, $parentObj, $parentString, $relationObj)
     {
@@ -257,7 +381,7 @@ class CentreonDependency extends CentreonObject
                 [$parent]
             );
             // make sure that all parents exist
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find %s', $parent));
             }
             $parentIds[] = $idTab[0];
@@ -268,7 +392,7 @@ class CentreonDependency extends CentreonObject
             ['dep_name' => $name, 'dep_description' => $description]
         );
         if (is_null($depId)) {
-            throw new CentreonClapiException(sprintf("Could not insert dependency %s", $name));
+            throw new CentreonClapiException(sprintf('Could not insert dependency %s', $name));
         }
 
         // insert relations
@@ -336,7 +460,7 @@ class CentreonDependency extends CentreonObject
             $host = $tmp[0];
             $service = $tmp[1];
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
             $parentIds[] = $idTab;
@@ -347,12 +471,12 @@ class CentreonDependency extends CentreonObject
             ['dep_name' => $params['dep_name'], 'dep_description' => $params['dep_description']]
         );
         if (is_null($depId)) {
-            throw new CentreonClapiException(sprintf("Could not insert dependency %s", $name));
+            throw new CentreonClapiException(sprintf('Could not insert dependency %s', $name));
         }
 
         // insert relations
-        $sql = "INSERT INTO dependency_serviceParent_relation
-            (dependency_dep_id, host_host_id, service_service_id) VALUES (?, ?, ?)";
+        $sql = 'INSERT INTO dependency_serviceParent_relation
+            (dependency_dep_id, host_host_id, service_service_id) VALUES (?, ?, ?)';
         foreach ($parentIds as $parentId) {
             $this->db->query($sql, [$depId, $parentId[0], $parentId[1]]);
         }
@@ -399,74 +523,6 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     * @param null $parameters
-     * @return array
-     * @throws CentreonClapiException
-     */
-    public function initUpdateParameters($parameters = null)
-    {
-        $params = explode($this->delim, $parameters);
-        if (count($params) < self::NB_UPDATE_PARAMS) {
-            throw new CentreonClapiException(self::MISSINGPARAMETER);
-        }
-
-        $objectId = $this->getObjectId($params[self::ORDER_UNIQUENAME]);
-        if ($objectId != 0) {
-            if (in_array($params[1], ['comment', 'name', 'description']) && !preg_match("/^dep_/", $params[1])) {
-                $params[1] = "dep_" . $params[1];
-            }
-            $params[2] = str_replace("<br/>", "\n", $params[2]);
-            $updateParams = [$params[1] => htmlentities($params[2], ENT_QUOTES, "UTF-8")];
-            $updateParams['objectId'] = $objectId;
-            return $updateParams;
-        } else {
-            throw new CentreonClapiException(self::OBJECT_NOT_FOUND . ":" . $params[self::ORDER_UNIQUENAME]);
-        }
-    }
-
-    /**
-     * List dependencies
-     *
-     * @param string $parameters | dependency name
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function listdep($parameters): void
-    {
-        $type = $this->getDependencyType($parameters);
-
-        if ($type == '') {
-            throw new CentreonClapiException('Could not define type of dependency');
-        }
-
-        $depId = $this->getObjectId($parameters);
-
-        /* header */
-        echo implode($this->delim, ['parents', 'children']) . "\n";
-
-        switch ($type) {
-            case self::DEP_TYPE_HOST:
-                $this->listhostdep($depId);
-                break;
-            case self::DEP_TYPE_HOSTGROUP:
-                $this->listhostgroupdep($depId);
-                break;
-            case self::DEP_TYPE_SERVICE:
-                $this->listservicedep($depId);
-                break;
-            case self::DEP_TYPE_SERVICEGROUP:
-                $this->listservicegroupdep($depId);
-                break;
-            case self::DEP_TYPE_META:
-                $this->listmetadep($depId);
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
      * List host group dependency
      *
      * @param int $depId
@@ -475,11 +531,11 @@ class CentreonDependency extends CentreonObject
      */
     protected function listhostgroupdep($depId)
     {
-        /* Parents */
-        $sql = "SELECT hg_name
+        // Parents
+        $sql = 'SELECT hg_name
             FROM hostgroup hg, dependency_hostgroupParent_relation rel
             WHERE hg.hg_id = rel.hostgroup_hg_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $parents = [];
@@ -487,11 +543,11 @@ class CentreonDependency extends CentreonObject
             $parents[] = $row['hg_name'];
         }
 
-        /* Children */
-        $sql = "SELECT hg_name
+        // Children
+        $sql = 'SELECT hg_name
             FROM hostgroup hg, dependency_hostgroupChild_relation rel
             WHERE hg.hg_id = rel.hostgroup_hg_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $children = [];
@@ -501,7 +557,7 @@ class CentreonDependency extends CentreonObject
 
         $str = implode('|', $parents) . $this->delim;
         $str .= implode('|', $children);
-        echo str_replace("||", "|", $str) . "\n";
+        echo str_replace('||', '|', $str) . "\n";
     }
 
     /**
@@ -513,12 +569,12 @@ class CentreonDependency extends CentreonObject
      */
     protected function listservicedep($depId)
     {
-        /* Parents */
-        $sql = "SELECT host_name, service_description
+        // Parents
+        $sql = 'SELECT host_name, service_description
             FROM host h, service s, dependency_serviceParent_relation rel
             WHERE h.host_id = rel.host_host_id
             AND rel.service_service_id = s.service_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $parents = [];
@@ -526,11 +582,11 @@ class CentreonDependency extends CentreonObject
             $parents[] = $row['host_name'] . ',' . $row['service_description'];
         }
 
-        /* Host children */
-        $sql = "SELECT host_name
+        // Host children
+        $sql = 'SELECT host_name
             FROM host h, dependency_hostChild_relation rel
             WHERE h.host_id = rel.host_host_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $hostChildren = [];
@@ -538,12 +594,12 @@ class CentreonDependency extends CentreonObject
             $hostChildren[] = $row['host_name'];
         }
 
-        /* Service children */
-        $sql = "SELECT host_name, service_description
+        // Service children
+        $sql = 'SELECT host_name, service_description
             FROM host h, service s, dependency_serviceChild_relation rel
             WHERE h.host_id = rel.host_host_id
             AND rel.service_service_id = s.service_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $serviceChildren = [];
@@ -552,9 +608,9 @@ class CentreonDependency extends CentreonObject
         }
 
         $strParents = implode('|', $parents) . $this->delim;
-        $strChildren = implode('|', $hostChildren) . "|";
+        $strChildren = implode('|', $hostChildren) . '|';
         $strChildren .= implode('|', $serviceChildren);
-        echo str_replace("||", "|", $strParents . trim($strChildren, "|")) . "\n";
+        echo str_replace('||', '|', $strParents . trim($strChildren, '|')) . "\n";
     }
 
     /**
@@ -566,11 +622,11 @@ class CentreonDependency extends CentreonObject
      */
     protected function listservicegroupdep($depId)
     {
-        /* Parents */
-        $sql = "SELECT sg_name
+        // Parents
+        $sql = 'SELECT sg_name
             FROM servicegroup sg, dependency_servicegroupParent_relation rel
             WHERE sg.sg_id = rel.servicegroup_sg_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $parents = [];
@@ -578,11 +634,11 @@ class CentreonDependency extends CentreonObject
             $parents[] = $row['sg_name'];
         }
 
-        /* Children */
-        $sql = "SELECT sg_name
+        // Children
+        $sql = 'SELECT sg_name
             FROM servicegroup sg, dependency_servicegroupChild_relation rel
             WHERE sg.sg_id = rel.servicegroup_sg_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $children = [];
@@ -592,7 +648,7 @@ class CentreonDependency extends CentreonObject
 
         $str = implode('|', $parents) . $this->delim;
         $str .= implode('|', $children);
-        echo str_replace("||", "|", trim($str, "|")) . "\n";
+        echo str_replace('||', '|', trim($str, '|')) . "\n";
     }
 
     /**
@@ -604,11 +660,11 @@ class CentreonDependency extends CentreonObject
      */
     protected function listmetadep($depId)
     {
-        /* Parents */
-        $sql = "SELECT meta_name
+        // Parents
+        $sql = 'SELECT meta_name
             FROM meta_service m, dependency_metaserviceParent_relation rel
             WHERE m.meta_id = rel.meta_service_meta_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $parents = [];
@@ -616,11 +672,11 @@ class CentreonDependency extends CentreonObject
             $parents[] = $row['meta_name'];
         }
 
-        /* Children */
-        $sql = "SELECT meta_name
+        // Children
+        $sql = 'SELECT meta_name
             FROM meta_service m, dependency_metaserviceChild_relation rel
             WHERE m.meta_id = rel.meta_service_meta_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $children = [];
@@ -630,7 +686,7 @@ class CentreonDependency extends CentreonObject
 
         $str = implode('|', $parents) . $this->delim;
         $str .= implode('|', $children);
-        echo str_replace("||", "|", trim($str, "|")) . "\n";
+        echo str_replace('||', '|', trim($str, '|')) . "\n";
     }
 
     /**
@@ -642,11 +698,11 @@ class CentreonDependency extends CentreonObject
      */
     protected function listhostdep($depId)
     {
-        /* Parents */
-        $sql = "SELECT host_name
+        // Parents
+        $sql = 'SELECT host_name
             FROM host h, dependency_hostParent_relation rel
             WHERE h.host_id = rel.host_host_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $parents = [];
@@ -654,11 +710,11 @@ class CentreonDependency extends CentreonObject
             $parents[] = $row['host_name'];
         }
 
-        /* Host children */
-        $sql = "SELECT host_name
+        // Host children
+        $sql = 'SELECT host_name
             FROM host h, dependency_hostChild_relation rel
             WHERE h.host_id = rel.host_host_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $hostChildren = [];
@@ -666,12 +722,12 @@ class CentreonDependency extends CentreonObject
             $hostChildren[] = $row['host_name'];
         }
 
-        /* Service children */
-        $sql = "SELECT host_name, service_description
+        // Service children
+        $sql = 'SELECT host_name, service_description
             FROM host h, service s, dependency_serviceChild_relation rel
             WHERE h.host_id = rel.host_host_id
             AND rel.service_service_id = s.service_id
-            AND rel.dependency_dep_id = ?";
+            AND rel.dependency_dep_id = ?';
         $res = $this->db->query($sql, [$depId]);
         $rows = $res->fetchAll();
         $serviceChildren = [];
@@ -680,9 +736,9 @@ class CentreonDependency extends CentreonObject
         }
 
         $strParents = implode('|', $parents) . $this->delim;
-        $strChildren = implode('|', $hostChildren) . "|";
+        $strChildren = implode('|', $hostChildren) . '|';
         $strChildren .= implode('|', $serviceChildren);
-        echo str_replace("||", "|", $strParents . trim($strChildren, "|")) . "\n";
+        echo str_replace('||', '|', $strParents . trim($strChildren, '|')) . "\n";
     }
 
     /**
@@ -703,7 +759,7 @@ class CentreonDependency extends CentreonObject
 
         // get dependency id
         $depId = $this->getObjectId($param[0]);
-        if (!$depId) {
+        if (! $depId) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND);
         }
 
@@ -742,10 +798,10 @@ class CentreonDependency extends CentreonObject
      */
     protected function addHostgroupRelations($depId, $objectToInsert, $relType)
     {
-        $table = "dependency_hostgroup" . ucfirst($relType) . "_relation";
+        $table = 'dependency_hostgroup' . ucfirst($relType) . '_relation';
         $obj = new Centreon_Object_Host_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), [$objectToInsert]);
-        if (!count($ids)) {
+        if (! count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find host group %s', $objectToInsert));
         }
         $dataField = ['dependency_dep_id' => $depId, 'hostgroup_hg_id' => $ids[0]];
@@ -775,10 +831,10 @@ class CentreonDependency extends CentreonObject
      */
     protected function addServicegroupRelations($depId, $objectToInsert, $relType)
     {
-        $table = "dependency_servicegroup" . ucfirst($relType) . "_relation";
+        $table = 'dependency_servicegroup' . ucfirst($relType) . '_relation';
         $obj = new Centreon_Object_Service_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), [$objectToInsert]);
-        if (!count($ids)) {
+        if (! count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find service group %s', $objectToInsert));
         }
         $dataField = ['dependency_dep_id' => $depId, 'servicegroup_sg_id' => $ids[0]];
@@ -808,10 +864,10 @@ class CentreonDependency extends CentreonObject
      */
     protected function addMetaRelations($depId, $objectToInsert, $relType)
     {
-        $table = "dependency_metaservice" . ucfirst($relType) . "_relation";
+        $table = 'dependency_metaservice' . ucfirst($relType) . '_relation';
         $obj = new Centreon_Object_Meta_Service($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), [$objectToInsert]);
-        if (!count($ids)) {
+        if (! count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find meta service %s', $objectToInsert));
         }
         $dataField = ['dependency_dep_id' => $depId, 'meta_service_meta_id' => $ids[0]];
@@ -844,7 +900,7 @@ class CentreonDependency extends CentreonObject
         if ($relType == 'parent') {
             $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), [$objectToInsert]);
-            if (!count($hostIds)) {
+            if (! count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToInsert));
             }
             $dataField = ['dependency_dep_id' => $depId, 'host_host_id' => $hostIds[0]];
@@ -857,22 +913,22 @@ class CentreonDependency extends CentreonObject
                     )
                 );
             }
-            $sql = "INSERT INTO dependency_hostParent_relation (dependency_dep_id, host_host_id)
-                    VALUES (:depId, :hostId)";
+            $sql = 'INSERT INTO dependency_hostParent_relation (dependency_dep_id, host_host_id)
+                    VALUES (:depId, :hostId)';
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
             $stmt->bindParam(':hostId', $hostIds[0], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child' && strstr($objectToInsert, ',')) { // service child
-            [$host, $service] = explode(",", $objectToInsert);
+            [$host, $service] = explode(',', $objectToInsert);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
             $dataField = [
                 'dependency_dep_id' => $depId,
                 'host_host_id' => $idTab[0],
-                'service_service_id' => $idTab[1]
+                'service_service_id' => $idTab[1],
             ];
             if ($this->isExistingDependency('dependency_serviceChild_relation', $dataField)) {
                 throw new CentreonClapiException(
@@ -884,8 +940,8 @@ class CentreonDependency extends CentreonObject
                     )
                 );
             }
-            $sql = "INSERT INTO dependency_serviceChild_relation (dependency_dep_id, host_host_id, service_service_id)
-                    VALUES (:depId, :hostId, :svcId)";
+            $sql = 'INSERT INTO dependency_serviceChild_relation (dependency_dep_id, host_host_id, service_service_id)
+                    VALUES (:depId, :hostId, :svcId)';
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
             $stmt->bindParam(':hostId', $idTab[0], PDO::PARAM_INT);
@@ -894,7 +950,7 @@ class CentreonDependency extends CentreonObject
         } elseif ($relType == 'child') { // host child
             $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), [$objectToInsert]);
-            if (!count($hostIds)) {
+            if (! count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToInsert));
             }
             $dataField = ['dependency_dep_id' => $depId, 'host_host_id' => $hostIds[0]];
@@ -907,8 +963,8 @@ class CentreonDependency extends CentreonObject
                     )
                 );
             }
-            $sql = "INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
-                    VALUES (:depId, :hostId)";
+            $sql = 'INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
+                    VALUES (:depId, :hostId)';
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
             $stmt->bindParam(':hostId', $hostIds[0], PDO::PARAM_INT);
@@ -927,18 +983,18 @@ class CentreonDependency extends CentreonObject
     protected function addServiceRelations($depId, $objectToInsert, $relType)
     {
         if ($relType == 'parent') {
-            if (!strstr($objectToInsert, ',')) {
+            if (! strstr($objectToInsert, ',')) {
                 throw new CentreonClapiException('Invalid service definition');
             }
-            [$host, $service] = explode(",", $objectToInsert);
+            [$host, $service] = explode(',', $objectToInsert);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
             $dataField = [
                 'dependency_dep_id' => $depId,
                 'host_host_id' => $idTab[0],
-                'service_service_id' => $idTab[1]
+                'service_service_id' => $idTab[1],
             ];
             if ($this->isExistingDependency('dependency_serviceParent_relation', $dataField)) {
                 throw new CentreonClapiException(
@@ -950,17 +1006,17 @@ class CentreonDependency extends CentreonObject
                     )
                 );
             }
-            $sql = "INSERT INTO dependency_serviceParent_relation (dependency_dep_id, host_host_id, service_service_id)
-                VALUES (:depId, :hostId, :svcId)";
+            $sql = 'INSERT INTO dependency_serviceParent_relation (dependency_dep_id, host_host_id, service_service_id)
+                VALUES (:depId, :hostId, :svcId)';
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
             $stmt->bindParam(':hostId', $idTab[0], PDO::PARAM_INT);
             $stmt->bindParam(':svcId', $idTab[1], PDO::PARAM_INT);
             $stmt->execute();
         } elseif ($relType == 'child' && strstr($objectToInsert, ',')) { // service child
-            [$host, $service] = explode(",", $objectToInsert);
+            [$host, $service] = explode(',', $objectToInsert);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(
                     sprintf('Could not find service %s on host %s', $depId, $service, $host)
                 );
@@ -968,7 +1024,7 @@ class CentreonDependency extends CentreonObject
             $dataField = [
                 'dependency_dep_id' => $depId,
                 'host_host_id' => $idTab[0],
-                'service_service_id' => $idTab[1]
+                'service_service_id' => $idTab[1],
             ];
             if ($this->isExistingDependency('dependency_serviceChild_relation', $dataField)) {
                 throw new CentreonClapiException(
@@ -980,8 +1036,8 @@ class CentreonDependency extends CentreonObject
                     )
                 );
             }
-            $sql = "INSERT INTO dependency_serviceChild_relation (dependency_dep_id, host_host_id, service_service_id)
-                VALUES (:depId, :hostId, :svcId)";
+            $sql = 'INSERT INTO dependency_serviceChild_relation (dependency_dep_id, host_host_id, service_service_id)
+                VALUES (:depId, :hostId, :svcId)';
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
             $stmt->bindParam(':hostId', $idTab[0], PDO::PARAM_INT);
@@ -990,7 +1046,7 @@ class CentreonDependency extends CentreonObject
         } elseif ($relType == 'child') { // host child
             $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), [$objectToInsert]);
-            if (!count($hostIds)) {
+            if (! count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToInsert));
             }
             $dataField = ['dependency_dep_id' => $depId, 'host_host_id' => $hostIds[0]];
@@ -1003,8 +1059,8 @@ class CentreonDependency extends CentreonObject
                     )
                 );
             }
-            $sql = "INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
-                    VALUES (:depId, :hostId)";
+            $sql = 'INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
+                    VALUES (:depId, :hostId)';
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':depId', $depId, PDO::PARAM_INT);
             $stmt->bindParam(':hostId', $hostIds[0], PDO::PARAM_INT);
@@ -1028,7 +1084,7 @@ class CentreonDependency extends CentreonObject
 
         // get dependency id
         $depId = $this->getObjectId($param[0]);
-        if (!$depId) {
+        if (! $depId) {
             throw new CentreonClapiException(self::OBJECT_NOT_FOUND);
         }
 
@@ -1061,8 +1117,8 @@ class CentreonDependency extends CentreonObject
      * @param string $table
      * @param array $dataField
      *
-     * @return bool
      * @throws PDOException
+     * @return bool
      */
     protected function isExistingDependency(string $table, array $dataField): bool
     {
@@ -1071,10 +1127,11 @@ class CentreonDependency extends CentreonObject
         foreach ($dataField as $field => $value) {
             $sql .= " {$field} = {$value} AND";
         }
-        $sql = rtrim($sql, "AND");
+        $sql = rtrim($sql, 'AND');
         $res = $this->db->query($sql);
         $row = $res->fetch();
-        return !empty($row['dependency_dep_id']);
+
+        return ! empty($row['dependency_dep_id']);
     }
 
     /**
@@ -1087,13 +1144,13 @@ class CentreonDependency extends CentreonObject
      */
     protected function delHostgroupRelations($depId, $objectToDelete, $relType)
     {
-        $table = "dependency_hostgroup" . ucfirst($relType) . "_relation";
+        $table = 'dependency_hostgroup' . ucfirst($relType) . '_relation';
         $sql = "DELETE FROM {$table}
             WHERE dependency_dep_id = ?
             AND hostgroup_hg_id = ?";
         $obj = new Centreon_Object_Host_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), [$objectToDelete]);
-        if (!count($ids)) {
+        if (! count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find host group %s', $objectToDelete));
         }
         $this->db->query($sql, [$depId, $ids[0]]);
@@ -1109,13 +1166,13 @@ class CentreonDependency extends CentreonObject
      */
     protected function delServicegroupRelations($depId, $objectToDelete, $relType)
     {
-        $table = "dependency_servicegroup" . ucfirst($relType) . "_relation";
+        $table = 'dependency_servicegroup' . ucfirst($relType) . '_relation';
         $sql = "DELETE FROM {$table}
             WHERE dependency_dep_id = ?
             AND servicegroup_sg_id = ?";
         $obj = new Centreon_Object_Service_Group($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), [$objectToDelete]);
-        if (!count($ids)) {
+        if (! count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find service group %s', $objectToDelete));
         }
         $this->db->query($sql, [$depId, $ids[0]]);
@@ -1131,14 +1188,14 @@ class CentreonDependency extends CentreonObject
      */
     protected function delMetaRelations($depId, $objectToDelete, $relType)
     {
-        $table = "dependency_metaservice" . ucfirst($relType) . "_relation";
+        $table = 'dependency_metaservice' . ucfirst($relType) . '_relation';
 
         $sql = "DELETE FROM {$table}
             WHERE dependency_dep_id = ?
             AND meta_service_meta_id = ?";
         $obj = new Centreon_Object_Meta_Service($this->dependencyInjector);
         $ids = $obj->getIdByParameter($obj->getUniqueLabelField(), [$objectToDelete]);
-        if (!count($ids)) {
+        if (! count($ids)) {
             throw new CentreonClapiException(sprintf('Could not find meta service %s', $objectToDelete));
         }
         $this->db->query($sql, [$depId, $ids[0]]);
@@ -1155,33 +1212,33 @@ class CentreonDependency extends CentreonObject
     protected function delHostRelations($depId, $objectToDelete, $relType)
     {
         if ($relType == 'parent') {
-            $sql = "DELETE FROM dependency_hostParent_relation
+            $sql = 'DELETE FROM dependency_hostParent_relation
                 WHERE dependency_dep_id = ?
-                AND host_host_id = ?";
+                AND host_host_id = ?';
             $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), [$objectToDelete]);
-            if (!count($hostIds)) {
+            if (! count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToDelete));
             }
             $params = [$depId, $hostIds[0]];
         } elseif ($relType == 'child' && strstr($objectToDelete, ',')) { // service child
-            $sql = "DELETE FROM dependency_serviceChild_relation
+            $sql = 'DELETE FROM dependency_serviceChild_relation
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?
-                AND service_service_id = ?";
-            [$host, $service] = explode(",", $objectToDelete);
+                AND service_service_id = ?';
+            [$host, $service] = explode(',', $objectToDelete);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
             $params = [$depId, $idTab[0], $idTab[1]];
         } elseif ($relType == 'child') { // host child
-            $sql = "DELETE FROM dependency_hostChild_relation
+            $sql = 'DELETE FROM dependency_hostChild_relation
                 WHERE dependency_dep_id = ?
-                AND host_host_id = ?";
+                AND host_host_id = ?';
             $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), [$objectToDelete]);
-            if (!count($hostIds)) {
+            if (! count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToDelete));
             }
             $params = [$depId, $hostIds[0]];
@@ -1200,37 +1257,37 @@ class CentreonDependency extends CentreonObject
     protected function delServiceRelations($depId, $objectToDelete, $relType)
     {
         if ($relType == 'parent') {
-            $sql = "DELETE FROM dependency_serviceParent_relation
+            $sql = 'DELETE FROM dependency_serviceParent_relation
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?
-                AND service_service_id = ?";
-            if (!strstr($objectToDelete, ',')) {
+                AND service_service_id = ?';
+            if (! strstr($objectToDelete, ',')) {
                 throw new CentreonClapiException('Invalid service definition');
             }
-            [$host, $service] = explode(",", $objectToDelete);
+            [$host, $service] = explode(',', $objectToDelete);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
             $params = [$depId, $idTab[0], $idTab[1]];
         } elseif ($relType == 'child' && strstr($objectToDelete, ',')) { // service child
-            $sql = "DELETE FROM dependency_serviceChild_relation
+            $sql = 'DELETE FROM dependency_serviceChild_relation
                 WHERE dependency_dep_id = ?
                 AND host_host_id = ?
-                AND service_service_id = ?";
-            [$host, $service] = explode(",", $objectToDelete);
+                AND service_service_id = ?';
+            [$host, $service] = explode(',', $objectToDelete);
             $idTab = $this->serviceObj->getHostAndServiceId($host, $service);
-            if (!count($idTab)) {
+            if (! count($idTab)) {
                 throw new CentreonClapiException(sprintf('Could not find service %s on host %s', $service, $host));
             }
             $params = [$depId, $idTab[0], $idTab[1]];
         } elseif ($relType == 'child') { // host child
-            $sql = "DELETE FROM dependency_hostChild_relation
+            $sql = 'DELETE FROM dependency_hostChild_relation
                 WHERE dependency_dep_id = ?
-                AND host_host_id = ?";
+                AND host_host_id = ?';
             $hostObj = new Centreon_Object_Host($this->dependencyInjector);
             $hostIds = $hostObj->getIdByParameter($hostObj->getUniqueLabelField(), [$objectToDelete]);
-            if (!count($hostIds)) {
+            if (! count($hostIds)) {
                 throw new CentreonClapiException(sprintf('Could not find host %s', $objectToDelete));
             }
             $params = [$depId, $hostIds[0]];
@@ -1239,84 +1296,17 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
      * @throws PDOException
-     */
-    public function delparent($parameters): void
-    {
-        $this->deleteRelations($parameters, 'parent');
-    }
-
-    /**
-     * Delete child
-     *
-     * @param string $parameters | dep_name;children_to_delete
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function delchild($parameters): void
-    {
-        $this->deleteRelations($parameters, 'child');
-    }
-
-    /**
-     * Add parent
-     *
-     * @param $parameters
-     *
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function addparent($parameters): void
-    {
-        $this->addRelations($parameters, 'parent');
-    }
-
-    /**
-     * Add child
-     *
-     * @param $parameters
-     *
      * @return void
-     * @throws CentreonClapiException
-     * @throws PDOException
-     */
-    public function addchild($parameters): void
-    {
-        $this->addRelations($parameters, 'child');
-    }
-
-    /**
-     * Export
-     *
-     * @param $filterName
-     *
-     * @return void
-     */
-    public function export($filterName = null): void
-    {
-        $this->exportHostDep();
-        $this->exportServiceDep();
-        $this->exportHostgroupDep();
-        $this->exportServicegroupDep();
-        $this->exportMetaDep();
-    }
-
-    /**
-     * @return void
-     * @throws PDOException
      */
     protected function exportHostDep()
     {
-        $sql = "SELECT dep_id, dep_name, dep_description, inherits_parent,
+        $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, host_name
             FROM dependency d, dependency_hostParent_relation rel, host h
             WHERE d.dep_id = rel.dependency_dep_id
             AND rel.host_host_id = h.host_id
-            ORDER BY dep_name";
+            ORDER BY dep_name';
         $res = $this->db->query($sql);
         $rows = $res->fetchAll();
         $previous = 0;
@@ -1329,7 +1319,7 @@ class CentreonDependency extends CentreonObject
                         [$this->action, 'ADD', $row['dep_name'], $row['dep_description'], self::DEP_TYPE_HOST, $row['host_name']]
                     ) . "\n";
                 foreach ($row as $k => $v) {
-                    if (!in_array($k, $paramArr)) {
+                    if (! in_array($k, $paramArr)) {
                         continue;
                     }
                     // setparam
@@ -1340,10 +1330,10 @@ class CentreonDependency extends CentreonObject
                         ) . "\n";
                 }
                 // add host children
-                $childSql = "SELECT host_name
+                $childSql = 'SELECT host_name
                     FROM host h, dependency_hostChild_relation rel
                     WHERE h.host_id = rel.host_host_id
-                    AND rel.dependency_dep_id = ?";
+                    AND rel.dependency_dep_id = ?';
                 $res = $this->db->query($childSql, [$row['dep_id']]);
                 $childRows = $res->fetchAll();
                 foreach ($childRows as $childRow) {
@@ -1355,11 +1345,11 @@ class CentreonDependency extends CentreonObject
                 }
 
                 // add service children
-                $childSql = "SELECT host_name, service_description
+                $childSql = 'SELECT host_name, service_description
                     FROM host h, service s, dependency_serviceChild_relation rel
                     WHERE h.host_id = rel.host_host_id
                     AND rel.service_service_id = s.service_id
-                    AND rel.dependency_dep_id = ?";
+                    AND rel.dependency_dep_id = ?';
                 $res = $this->db->query($childSql, [$row['dep_id']]);
                 $childRows = $res->fetchAll();
                 foreach ($childRows as $childRow) {
@@ -1382,18 +1372,18 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportServiceDep()
     {
-        $sql = "SELECT dep_id, dep_name, dep_description, inherits_parent,
+        $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, host_name, service_description
             FROM dependency d, dependency_serviceParent_relation rel, host h, service s
             WHERE d.dep_id = rel.dependency_dep_id
             AND h.host_id = rel.host_host_id
             AND rel.service_service_id = s.service_id
-            ORDER BY dep_name";
+            ORDER BY dep_name';
         $res = $this->db->query($sql);
         $rows = $res->fetchAll();
         $previous = 0;
@@ -1406,7 +1396,7 @@ class CentreonDependency extends CentreonObject
                         [$this->action, 'ADD', $row['dep_name'], $row['dep_description'], self::DEP_TYPE_SERVICE, $row['host_name'] . ',' . $row['service_description']]
                     ) . "\n";
                 foreach ($row as $k => $v) {
-                    if (!in_array($k, $paramArr)) {
+                    if (! in_array($k, $paramArr)) {
                         continue;
                     }
                     // setparam
@@ -1414,14 +1404,14 @@ class CentreonDependency extends CentreonObject
                     echo
                         implode(
                             $this->delim,
-                            [$this->action, 'SETPARAM', $row['dep_name'], $k, html_entity_decode($v, ENT_QUOTES, "UTF-8")]
+                            [$this->action, 'SETPARAM', $row['dep_name'], $k, html_entity_decode($v, ENT_QUOTES, 'UTF-8')]
                         ) . "\n";
                 }
                 // add host children
-                $childSql = "SELECT host_name
+                $childSql = 'SELECT host_name
                     FROM host h, dependency_hostChild_relation rel
                     WHERE h.host_id = rel.host_host_id
-                    AND rel.dependency_dep_id = ?";
+                    AND rel.dependency_dep_id = ?';
                 $res = $this->db->query($childSql, [$row['dep_id']]);
                 $childRows = $res->fetchAll();
                 foreach ($childRows as $childRow) {
@@ -1433,11 +1423,11 @@ class CentreonDependency extends CentreonObject
                 }
 
                 // add service children
-                $childSql = "SELECT host_name, service_description
+                $childSql = 'SELECT host_name, service_description
                     FROM host h, service s, dependency_serviceChild_relation rel
                     WHERE h.host_id = rel.host_host_id
                     AND rel.service_service_id = s.service_id
-                    AND rel.dependency_dep_id = ?";
+                    AND rel.dependency_dep_id = ?';
                 $res = $this->db->query($childSql, [$row['dep_id']]);
                 $childRows = $res->fetchAll();
                 foreach ($childRows as $childRow) {
@@ -1460,17 +1450,17 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportHostgroupDep()
     {
-        $sql = "SELECT dep_id, dep_name, dep_description, inherits_parent,
+        $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, hg_name
             FROM dependency d, dependency_hostgroupParent_relation rel, hostgroup hg
             WHERE d.dep_id = rel.dependency_dep_id
             AND rel.hostgroup_hg_id = hg.hg_id
-            ORDER BY dep_name";
+            ORDER BY dep_name';
         $res = $this->db->query($sql);
         $rows = $res->fetchAll();
         $previous = 0;
@@ -1483,7 +1473,7 @@ class CentreonDependency extends CentreonObject
                         [$this->action, 'ADD', $row['dep_name'], $row['dep_description'], self::DEP_TYPE_HOSTGROUP, $row['hg_name']]
                     ) . "\n";
                 foreach ($row as $k => $v) {
-                    if (!in_array($k, $paramArr)) {
+                    if (! in_array($k, $paramArr)) {
                         continue;
                     }
                     // setparam
@@ -1494,10 +1484,10 @@ class CentreonDependency extends CentreonObject
                         ) . "\n";
                 }
                 // add children
-                $childSql = "SELECT hg_name
+                $childSql = 'SELECT hg_name
                     FROM hostgroup hg, dependency_hostgroupChild_relation rel
                     WHERE hg.hg_id = rel.hostgroup_hg_id
-                    AND rel.dependency_dep_id = ?";
+                    AND rel.dependency_dep_id = ?';
                 $res = $this->db->query($childSql, [$row['dep_id']]);
                 $childRows = $res->fetchAll();
                 foreach ($childRows as $childRow) {
@@ -1520,17 +1510,17 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportServicegroupDep()
     {
-        $sql = "SELECT dep_id, dep_name, dep_description, inherits_parent,
+        $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, sg_name
             FROM dependency d, dependency_servicegroupParent_relation rel, servicegroup sg
             WHERE d.dep_id = rel.dependency_dep_id
             AND rel.servicegroup_sg_id = sg.sg_id
-            ORDER BY dep_name";
+            ORDER BY dep_name';
         $res = $this->db->query($sql);
         $rows = $res->fetchAll();
         $previous = 0;
@@ -1543,7 +1533,7 @@ class CentreonDependency extends CentreonObject
                         [$this->action, 'ADD', $row['dep_name'], $row['dep_description'], self::DEP_TYPE_SERVICEGROUP, $row['sg_name']]
                     ) . "\n";
                 foreach ($row as $k => $v) {
-                    if (!in_array($k, $paramArr)) {
+                    if (! in_array($k, $paramArr)) {
                         continue;
                     }
                     // setparam
@@ -1554,10 +1544,10 @@ class CentreonDependency extends CentreonObject
                         ) . "\n";
                 }
                 // add children
-                $childSql = "SELECT sg_name
+                $childSql = 'SELECT sg_name
                     FROM servicegroup sg, dependency_servicegroupChild_relation rel
                     WHERE sg.sg_id = rel.servicegroup_sg_id
-                    AND rel.dependency_dep_id = ?";
+                    AND rel.dependency_dep_id = ?';
                 $res = $this->db->query($childSql, [$row['dep_id']]);
                 $childRows = $res->fetchAll();
                 foreach ($childRows as $childRow) {
@@ -1580,17 +1570,17 @@ class CentreonDependency extends CentreonObject
     }
 
     /**
-     * @return void
      * @throws PDOException
+     * @return void
      */
     protected function exportMetaDep()
     {
-        $sql = "SELECT dep_id, dep_name, dep_description, inherits_parent,
+        $sql = 'SELECT dep_id, dep_name, dep_description, inherits_parent,
             execution_failure_criteria, notification_failure_criteria, dep_comment, meta_name
             FROM dependency d, dependency_metaserviceParent_relation rel, meta_service m
             WHERE d.dep_id = rel.dependency_dep_id
             AND rel.meta_service_meta_id = m.meta_id
-            ORDER BY dep_name";
+            ORDER BY dep_name';
         $res = $this->db->query($sql);
         $rows = $res->fetchAll();
         $previous = 0;
@@ -1603,7 +1593,7 @@ class CentreonDependency extends CentreonObject
                         [$this->action, 'ADD', $row['dep_name'], $row['dep_description'], self::DEP_TYPE_META, $row['meta_name']]
                     ) . "\n";
                 foreach ($row as $k => $v) {
-                    if (!in_array($k, $paramArr)) {
+                    if (! in_array($k, $paramArr)) {
                         continue;
                     }
                     // setparam
@@ -1614,10 +1604,10 @@ class CentreonDependency extends CentreonObject
                         ) . "\n";
                 }
                 // add children
-                $childSql = "SELECT meta_name
+                $childSql = 'SELECT meta_name
                     FROM meta_service m, dependency_metaserviceChild_relation rel
                     WHERE m.meta_id = rel.meta_service_meta_id
-                    AND rel.dependency_dep_id = ?";
+                    AND rel.dependency_dep_id = ?';
                 $res = $this->db->query($childSql, [$row['dep_id']]);
                 $childRows = $res->fetchAll();
                 foreach ($childRows as $childRow) {

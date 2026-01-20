@@ -1,7 +1,6 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/services/meta_service.json';
 
 beforeEach(() => {
@@ -32,27 +31,54 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('some meta services are configured', () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.wait('@getTimeZone');
-  cy.addMetaService(data.metaService1);
-  cy.addMetaService(data.metaService2);
-  cy.addMetaService(data.metaService3);
+  cy.addMetaService({
+    ...data.metaService1,
+    maxCheckAttempts: data.metaService1.max_check_attempts
+  });
+  cy.addMetaService({
+    ...data.metaService2,
+    maxCheckAttempts: data.metaService2.max_check_attempts
+  });
+  cy.addMetaService({
+    ...data.metaService3,
+    maxCheckAttempts: data.metaService3.max_check_attempts
+  });
 });
 
 Given('a meta service dependency is configured', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
-  cy.addMSDependency(data.defaultMetaServiceDep);
+  cy.addMetaserviceDependency({
+    ...data.defaultMetaServiceDep,
+    parentRelationship: data.defaultMetaServiceDep.parent_relationship,
+    executionFailsOnOk: data.defaultMetaServiceDep.execution_fails_on_ok,
+    executionFailsOnWarning:
+      data.defaultMetaServiceDep.execution_fails_on_warning,
+    executionFailsOnUnknown:
+      data.defaultMetaServiceDep.execution_fails_on_unknown,
+    executionFailsOnCritical:
+      data.defaultMetaServiceDep.execution_fails_on_critical,
+    executionFailsOnPending:
+      data.defaultMetaServiceDep.execution_fails_on_pending,
+    executionFailsOnNone: data.defaultMetaServiceDep.execution_fails_on_none,
+    notificationFailsOnNone:
+      data.defaultMetaServiceDep.notification_fails_on_none,
+    notificationFailsOnOk: data.defaultMetaServiceDep.notification_fails_on_ok,
+    notificationFailsOnWarning:
+      data.defaultMetaServiceDep.notification_fails_on_warning,
+    notificationFailsOnUnknown:
+      data.defaultMetaServiceDep.notification_fails_on_unknown,
+    notificationFailsOnCritical:
+      data.defaultMetaServiceDep.notification_fails_on_critical,
+    notificationFailsOnPending:
+      data.defaultMetaServiceDep.notification_fails_on_pending,
+    metaServicesNames: data.defaultMetaServiceDep.metaServicesNames,
+    dependentMetaServicesNames: data.defaultMetaServiceDep.dependentMSNames
+  });
 });
 
 When(
@@ -63,7 +89,29 @@ When(
       `a:contains("${data.defaultMetaServiceDep.name}")`
     );
     cy.getIframeBody().contains(data.defaultMetaServiceDep.name).click();
-    cy.updateMSDependency(data.MetaServiceDep1);
+    cy.updateMetaserviceDependency({
+      ...data.MetaServiceDep1,
+      parentRelationship: data.MetaServiceDep1.parent_relationship,
+      executionFailsOnOk: data.MetaServiceDep1.execution_fails_on_ok,
+      executionFailsOnWarning: data.MetaServiceDep1.execution_fails_on_warning,
+      executionFailsOnUnknown: data.MetaServiceDep1.execution_fails_on_unknown,
+      executionFailsOnCritical:
+        data.MetaServiceDep1.execution_fails_on_critical,
+      executionFailsOnPending: data.MetaServiceDep1.execution_fails_on_pending,
+      executionFailsOnNone: data.MetaServiceDep1.execution_fails_on_none,
+      notificationFailsOnNone: data.MetaServiceDep1.notification_fails_on_none,
+      notificationFailsOnOk: data.MetaServiceDep1.notification_fails_on_ok,
+      notificationFailsOnWarning:
+        data.MetaServiceDep1.notification_fails_on_warning,
+      notificationFailsOnUnknown:
+        data.MetaServiceDep1.notification_fails_on_unknown,
+      notificationFailsOnCritical:
+        data.MetaServiceDep1.notification_fails_on_critical,
+      notificationFailsOnPending:
+        data.MetaServiceDep1.notification_fails_on_pending,
+      metaServicesNames: data.MetaServiceDep1.metaServicesNames,
+      dependentMetaServicesNames: data.MetaServiceDep1.dependentMSNames
+    });
   }
 );
 
@@ -127,7 +175,7 @@ Then(
       .should('have.length', 2)
       .then((options) => {
         const selectedTexts = Array.from(options).map((option) =>
-          option.text.trim()
+          (option.textContent || '').trim()
         );
         expect(selectedTexts).to.include.members([
           data.metaService1.name,

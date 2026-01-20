@@ -11,8 +11,12 @@ services:
       MYSQL_HOST: db
       GLPI_HOST: glpi
       VAULT_HOST: vault
+      OPENID_HOST: sso-proxy
+      SAML_HOST: saml
+      LDAP_HOST: openldap
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
+      DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
@@ -23,7 +27,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnami/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
     deploy:
       resources:
@@ -48,7 +52,7 @@ services:
   glpi:
     env_file:
       - .env
-    image: "${GLPI_IMAGE:-docker.centreon.com/centreon/glpi:24.11}"
+    image: "${GLPI_IMAGE:-docker.centreon.com/centreon/glpi:26.01}"
     ports: ["80"]
     depends_on:
       - db
@@ -57,7 +61,7 @@ services:
       MYSQL_HOST: db
 
   vault:
-    image: "${VAULT_IMAGE:-docker.centreon.com/centreon/vault:24.11}"
+    image: "${VAULT_IMAGE:-docker.centreon.com/centreon/vault:26.01}"
     env_file:
       - .env
     ports: ["8200"]
@@ -66,21 +70,21 @@ services:
   openid:
     env_file:
       - .env
-    image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
-    ports: ["8080:8080"]
+    image: "${OPENID_IMAGE:-docker.centreon.com/centreon/keycloak:26.01}"
+    ports: []
     profiles: ["openid"]
 
   saml:
     env_file:
       - .env
-    image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:24.07}"
+    image: "${SAML_IMAGE:-docker.centreon.com/centreon/keycloak:26.01}"
     ports: ["8080:8080"]
     profiles: ["saml"]
 
   openldap:
     image: docker.centreon.com/centreon/mon-openldap:latest
     ports: ["389"]
-    profiles: ["openldap"]
+    profiles: ["openldap", "ldap"]
 
   squid-simple:
     image: docker.centreon.com/centreon/mon-squid-simple:latest
@@ -96,3 +100,35 @@ services:
     image: docker.centreon.com/centreon/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
+
+  sso-proxy:
+    image: nginx:stable-alpine
+    depends_on:
+      - openid
+    ports:
+      - "8080:8080"
+    profiles: ["openid"]
+    configs:
+      - source: sso_nginx_conf
+        target: /etc/nginx/conf.d/default.conf
+configs:
+  sso_nginx_conf:
+    name: sso_nginx_conf
+    content: |
+      server {
+        listen 8080;
+        server_name sso-proxy;
+
+        location / {
+            proxy_pass http://openid:8080;
+            proxy_set_header Host $$http_host;
+            proxy_set_header X-Forwarded-Host $$http_host;
+            proxy_set_header X-Forwarded-Port $$server_port;
+            proxy_set_header X-Forwarded-Proto $$scheme;
+            proxy_set_header X-Forwarded-For $$remote_addr;
+
+            # fix redirects to include port
+            proxy_redirect http://sso-proxy/ http://sso-proxy:8080/;
+            proxy_redirect https://sso-proxy/ https://sso-proxy:8080/;
+        }
+      }

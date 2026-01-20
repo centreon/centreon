@@ -10,10 +10,10 @@ import {
   resourceAccessRulesEndpoint
 } from '../api/endpoints';
 import {
+  labelAdditionalInformation,
   labelAlias,
   labelApplyResourceAccessRule,
   labelComments,
-  labelExtendedInformation,
   labelGeneralInformation,
   labelGeographicCoordinates,
   labelGroupMembers,
@@ -63,7 +63,7 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
           }
         ]
       : []),
-    { name: t(labelExtendedInformation), order: 4, titleAttributes }
+    { name: t(labelAdditionalInformation), order: 4, titleAttributes }
   ];
 
   const inputs = [
@@ -118,12 +118,13 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
       fieldName: 'resourceAccessRules',
       group: t(labelResourceAccessRule),
       label: t(labelApplyResourceAccessRule),
+      required: canEdit,
       getDisabled: () => !canEdit,
       type: InputType.MultiConnectedAutocomplete
     },
     {
       type: InputType.Grid,
-      group: t(labelExtendedInformation),
+      group: t(labelAdditionalInformation),
       grid: {
         columns: [
           {
@@ -142,7 +143,7 @@ const useFormInputs = ({ canEdit }: { canEdit: boolean }): FormInputsState => {
     },
     {
       fieldName: 'comment',
-      group: t(labelExtendedInformation),
+      group: t(labelAdditionalInformation),
       label: t(labelComments),
       getDisabled: () => !canEdit,
       text: {

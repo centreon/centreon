@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ final class FindMetricsByService
         private ContactInterface $user,
         private ReadMetricRepositoryInterface $metricRepository,
         private ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private RequestParametersInterface $requestParameters
+        private RequestParametersInterface $requestParameters,
     ) {
     }
 
@@ -58,7 +58,7 @@ final class FindMetricsByService
     public function __invoke(
         int $hostId,
         int $serviceId,
-        FindMetricsByServicePresenterInterface $presenter
+        FindMetricsByServicePresenterInterface $presenter,
     ): void {
         try {
             $this->info('Finding metrics for service', ['id' => $serviceId]);
@@ -74,7 +74,7 @@ final class FindMetricsByService
                 );
             }
 
-            if ([] === $metrics) {
+            if ($metrics === []) {
                 $presenter->presentResponse(new NotFoundResponse('metrics'));
             } else {
                 $presenter->presentResponse($this->createResponse($metrics));

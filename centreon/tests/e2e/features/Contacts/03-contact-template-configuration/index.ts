@@ -1,14 +1,10 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import contactTemplates from '../../../fixtures/users/contact.json';
 
 const checkFirstContactTemplateFromListing = () => {
-  cy.navigateTo({
-    page: 'Contact Templates',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactTemplatesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -52,21 +48,25 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact template is configured', () => {
-  cy.navigateTo({
-    page: 'Contact Templates',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactTemplatesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
-  cy.addOrUpdateContactTemplate(contactTemplates.defaultTemplate);
+  cy.addOrUpdateContactTemplate({
+    ...contactTemplates.defaultTemplate,
+    usedContactTemplate: contactTemplates.defaultTemplate.usedCTemplate,
+    notCommands: contactTemplates.defaultTemplate.NotCommands
+  });
 });
 
 When(
   'the user updates the properties of the configured contact template',
   () => {
     cy.getIframeBody().contains(contactTemplates.defaultTemplate.alias).click();
-    cy.addOrUpdateContactTemplate(contactTemplates.templateForUpdate);
+    cy.addOrUpdateContactTemplate({
+      ...contactTemplates.templateForUpdate,
+      usedContactTemplate: contactTemplates.templateForUpdate.usedCTemplate,
+      notCommands: contactTemplates.templateForUpdate.NotCommands
+    });
   }
 );
 
@@ -103,7 +103,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands,
@@ -123,7 +123,7 @@ Then('the properties are updated', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands,
@@ -170,7 +170,7 @@ Then('a new contact template is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands
@@ -185,7 +185,7 @@ Then('a new contact template is created with identical properties', () => {
     .find('option:selected')
     .then(($selectedOptions) => {
       const selectedTexts = Array.from($selectedOptions).map(
-        (option) => option.text
+        (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
         contactTemplates.defaultTemplate.NotCommands

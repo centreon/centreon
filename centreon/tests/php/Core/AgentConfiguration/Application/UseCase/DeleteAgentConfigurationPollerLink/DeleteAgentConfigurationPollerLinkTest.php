@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,8 +147,8 @@ it('should present an ErrorResponse when the poller is the only one linked to th
             AgentConfigurationException::onlyOnePoller(
                 $this->pollerId,
                 $this->testedAcId
-                )->getMessage()
-            );
+            )->getMessage()
+        );
 });
 
 it('should present a NoContentResponse on success', function (): void {

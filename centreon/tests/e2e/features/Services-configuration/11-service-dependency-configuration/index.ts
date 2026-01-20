@@ -1,7 +1,6 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/services/dependency.json';
 import servicesData from '../../../fixtures/services/service.json';
 
@@ -87,14 +86,41 @@ Given('some hosts and services and service groups are configured', () => {
 });
 
 Given('a service dependency is configured', () => {
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.servicesDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
-  cy.addServiceDependency(data.default);
+  cy.addServiceDependency({
+    dependency: {
+      name: data.default.dependency.name,
+      description: data.default.dependency.description,
+      parentRelationship: data.default.dependency.parent_relationship,
+      executionFailsOnOk: data.default.dependency.execution_fails_on_ok,
+      executionFailsOnWarning:
+        data.default.dependency.execution_fails_on_warning,
+      executionFailsOnUnknown:
+        data.default.dependency.execution_fails_on_unknown,
+      executionFailsOnCritical:
+        data.default.dependency.execution_fails_on_critical,
+      executionFailsOnPending:
+        data.default.dependency.execution_fails_on_pending,
+      executionFailsOnNone: data.default.dependency.execution_fails_on_none,
+      notificationFailsOnNone:
+        data.default.dependency.notification_fails_on_none,
+      notificationFailsOnOk: data.default.dependency.notification_fails_on_ok,
+      notificationFailsOnWarning:
+        data.default.dependency.notification_fails_on_warning,
+      notificationFailsOnUnknown:
+        data.default.dependency.notification_fails_on_unknown,
+      notificationFailsOnCritical:
+        data.default.dependency.notification_fails_on_critical,
+      notificationFailsOnPending:
+        data.default.dependency.notification_fails_on_pending,
+      comment: data.default.dependency.comment
+    },
+    services: data.default.services,
+    dependentServices: data.default.dependentServices,
+    dependentHosts: data.default.dependentHosts
+  });
 });
 
 When('the user changes the properties of a service dependency', () => {
@@ -105,7 +131,38 @@ When('the user changes the properties of a service dependency', () => {
   cy.getIframeBody().contains(data.default.dependency.name).click();
   cy.wait('@getTopCounter');
   cy.wait('@getTimeZone');
-  cy.updateServiceDependency(data.ServDependency1);
+  cy.updateServiceDependency({
+    ...data.ServDependency1,
+    dependency: {
+      name: data.ServDependency1.dependency.name,
+      description: data.ServDependency1.dependency.description,
+      parentRelationship: data.ServDependency1.dependency.parent_relationship,
+      executionFailsOnOk: data.ServDependency1.dependency.execution_fails_on_ok,
+      executionFailsOnWarning:
+        data.ServDependency1.dependency.execution_fails_on_warning,
+      executionFailsOnUnknown:
+        data.ServDependency1.dependency.execution_fails_on_unknown,
+      executionFailsOnCritical:
+        data.ServDependency1.dependency.execution_fails_on_critical,
+      executionFailsOnPending:
+        data.ServDependency1.dependency.execution_fails_on_pending,
+      executionFailsOnNone:
+        data.ServDependency1.dependency.execution_fails_on_none,
+      notificationFailsOnNone:
+        data.ServDependency1.dependency.notification_fails_on_none,
+      notificationFailsOnOk:
+        data.ServDependency1.dependency.notification_fails_on_ok,
+      notificationFailsOnWarning:
+        data.ServDependency1.dependency.notification_fails_on_warning,
+      notificationFailsOnUnknown:
+        data.ServDependency1.dependency.notification_fails_on_unknown,
+      notificationFailsOnCritical:
+        data.ServDependency1.dependency.notification_fails_on_critical,
+      notificationFailsOnPending:
+        data.ServDependency1.dependency.notification_fails_on_pending,
+      comment: data.ServDependency1.dependency.comment
+    }
+  });
 });
 
 Then('the properties are updated', () => {
@@ -217,14 +274,45 @@ Then('the deleted service dependency is not displayed in the list', () => {
 });
 
 Given('a service group dependency is configured', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.serviceGroupsDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
-  cy.addServiceGroupDependency(data.defaultSGDependency);
+  cy.addServiceGroupDependency({
+    ...data.defaultSGDependency,
+    dependency: {
+      name: data.defaultSGDependency.dependency.name,
+      description: data.defaultSGDependency.dependency.description,
+      parentRelationship:
+        data.defaultSGDependency.dependency.parent_relationship,
+      executionFailsOnOk:
+        data.defaultSGDependency.dependency.execution_fails_on_ok,
+      executionFailsOnWarning:
+        data.defaultSGDependency.dependency.execution_fails_on_warning,
+      executionFailsOnUnknown:
+        data.defaultSGDependency.dependency.execution_fails_on_unknown,
+      executionFailsOnCritical:
+        data.defaultSGDependency.dependency.execution_fails_on_critical,
+      executionFailsOnPending:
+        data.defaultSGDependency.dependency.execution_fails_on_pending,
+      executionFailsOnNone:
+        data.defaultSGDependency.dependency.execution_fails_on_none,
+      notificationFailsOnNone:
+        data.defaultSGDependency.dependency.notification_fails_on_none,
+      notificationFailsOnOk:
+        data.defaultSGDependency.dependency.notification_fails_on_ok,
+      notificationFailsOnWarning:
+        data.defaultSGDependency.dependency.notification_fails_on_warning,
+      notificationFailsOnUnknown:
+        data.defaultSGDependency.dependency.notification_fails_on_unknown,
+      notificationFailsOnCritical:
+        data.defaultSGDependency.dependency.notification_fails_on_critical,
+      notificationFailsOnPending:
+        data.defaultSGDependency.dependency.notification_fails_on_pending,
+      comment: data.defaultSGDependency.dependency.comment
+    },
+    serviceGroups: data.defaultSGDependency.service_groups,
+    dependentServiceGroups: data.defaultSGDependency.dependent_service_groups
+  });
 });
 
 When('the user changes the properties of a service group dependency', () => {
@@ -235,7 +323,40 @@ When('the user changes the properties of a service group dependency', () => {
   cy.getIframeBody().contains(data.defaultSGDependency.dependency.name).click();
   cy.wait('@getTopCounter');
   cy.wait('@getTimeZone');
-  cy.updateServiceGroupDependency(data.SGDependency1);
+  cy.updateServiceGroupDependency({
+    ...data.SGDependency1,
+    dependency: {
+      name: data.SGDependency1.dependency.name,
+      description: data.SGDependency1.dependency.description,
+      parentRelationship: data.SGDependency1.dependency.parent_relationship,
+      executionFailsOnOk: data.SGDependency1.dependency.execution_fails_on_ok,
+      executionFailsOnWarning:
+        data.SGDependency1.dependency.execution_fails_on_warning,
+      executionFailsOnUnknown:
+        data.SGDependency1.dependency.execution_fails_on_unknown,
+      executionFailsOnCritical:
+        data.SGDependency1.dependency.execution_fails_on_critical,
+      executionFailsOnPending:
+        data.SGDependency1.dependency.execution_fails_on_pending,
+      executionFailsOnNone:
+        data.SGDependency1.dependency.execution_fails_on_none,
+      notificationFailsOnNone:
+        data.SGDependency1.dependency.notification_fails_on_none,
+      notificationFailsOnOk:
+        data.SGDependency1.dependency.notification_fails_on_ok,
+      notificationFailsOnWarning:
+        data.SGDependency1.dependency.notification_fails_on_warning,
+      notificationFailsOnUnknown:
+        data.SGDependency1.dependency.notification_fails_on_unknown,
+      notificationFailsOnCritical:
+        data.SGDependency1.dependency.notification_fails_on_critical,
+      notificationFailsOnPending:
+        data.SGDependency1.dependency.notification_fails_on_pending,
+      comment: data.SGDependency1.dependency.comment
+    },
+    serviceGroups: data.SGDependency1.service_groups,
+    dependentServiceGroups: data.SGDependency1.dependent_service_groups
+  });
 });
 
 Then('the properties of the service group dependency are updated', () => {

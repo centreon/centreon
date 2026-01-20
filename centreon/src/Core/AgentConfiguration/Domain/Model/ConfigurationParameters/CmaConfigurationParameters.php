@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,20 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Centreon\Domain\Common\Assertion\AssertionException;
+use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
-use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 
 /**
  * @phpstan-type _CmaParameters array{
- *	    is_reverse: bool,
+ *	    agent_initiated: bool,
  *		otel_public_certificate: ?string,
  *		otel_private_key: ?string,
  *		otel_ca_certificate: ?string,
  *      tokens: array<array{name:string,creator_id:int}>,
+ *      port: int,
+ *      poller_initiated: bool,
  *		hosts: array<array{
  *			id: int,
  *			address: string,
@@ -54,72 +56,71 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
     public const DEFAULT_EXPORT_PERIOD = 60;
     public const CERTIFICATE_BASE_PATH = '/etc/pki/';
 
-    /** @var _CmaParameters */
-    private array $parameters;
+    /** @var array<string> */
+    private const FORBIDDEN_DIRECTORIES = [
+        '/tmp', '/root', '/proc', '/mnt', '/run', '/snap', '/sys', '/boot',
+    ];
 
     /**
      * @param array<string,mixed> $parameters
-     * @param ConnectionModeEnum $connectionMode
+     * @param bool $fromReadRepository
      *
-     * @throws AssertionFailedException
+     * @throws AssertionException
      */
-    public function __construct(array $parameters, ConnectionModeEnum $connectionMode){
-        /** @var _CmaParameters $parameters */
-        $parameters = $this->normalizeCertificatePaths($parameters);
-
-        $this->validateOptionalCertificate(
-            $parameters['otel_public_certificate'],
-            'configuration.otel_public_certificate'
-        );
-
-        $this->validateOptionalCertificate(
-            $parameters['otel_private_key'],
-            'configuration.otel_private_key'
-        );
-
-        $this->validateOptionalCertificate(
-            $parameters['otel_ca_certificate'],
-            'configuration.otel_ca_certificate'
-        );
-
-        if (! $parameters['is_reverse'] && ! empty($parameters['hosts'])) {
-            $parameters['hosts'] = [];
-        }
-
-        if ($connectionMode !== ConnectionModeEnum::NO_TLS && $parameters['is_reverse'] === false) {
-            Assertion::notEmpty($parameters['tokens'], 'configuration.tokens');
-            foreach ($parameters['tokens'] as $token) {
-                Assertion::notEmptyString($token['name']);
-            }
+    public function __construct(private array $parameters, private readonly bool $fromReadRepository = false)
+    {
+        if ($this->parameters['agent_initiated'] === false) {
+            $this->parameters['otel_public_certificate'] = null;
+            $this->parameters['otel_private_key'] = null;
+            $this->parameters['otel_ca_certificate'] = null;
+            $this->parameters['tokens'] = [];
         } else {
-            $parameters['tokens'] = [];
-        }
+            $this->parameters['otel_public_certificate'] = $this->validateCertificatePath(
+                $this->parameters['otel_public_certificate'],
+                'configuration.otel_public_certificate'
+            );
+            $this->parameters['otel_private_key'] = $this->validateCertificatePath(
+                $this->parameters['otel_private_key'],
+                'configuration.otel_private_key'
+            );
+            $this->parameters['otel_ca_certificate'] = $this->validateCertificatePath(
+                $this->parameters['otel_ca_certificate'],
+                'configuration.otel_ca_certificate'
+            );
 
-        foreach ($parameters['hosts'] as $index => $host) {
-            if (
-                $connectionMode !== ConnectionModeEnum::NO_TLS
-                && $parameters['is_reverse'] === true
-            ) {
-                Assertion::notNull($host['token'], 'configuration.hosts[].token');
-                Assertion::notEmptyString($host['token']['name'] ?? '');
-                Assertion::positiveInt($host['token']['creator_id'] ?? 0);
-            } else {
-                $parameters['hosts'][$index]['token'] = null;
+            // $fromReadRepository allow configurations created before tokens was mandatoryto be read even without tokens
+            if (! $this->fromReadRepository) {
+                Assertion::notEmpty($this->parameters['tokens'], 'configuration.tokens');
+                foreach ($this->parameters['tokens'] as $token) {
+                    Assertion::notEmptyString($token['name']);
+                }
             }
-            Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
-            Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
-            $this->validateOptionalCertificate(
-                $host['poller_ca_certificate'],
-                'configuration.hosts[].poller_ca_certificate'
-            );
-            $this->validateOptionalCertificate(
-                $host['poller_ca_name'],
-                'configuration.hosts[].poller_ca_name'
-            );
+            if (! isset($this->parameters['port'])) {
+                $this->parameters['port'] = AgentConfiguration::DEFAULT_PORT;
+            }
+            Assertion::range($this->parameters['port'] ?? AgentConfiguration::DEFAULT_PORT, 0, 65535, 'configuration.port');
         }
 
-        /** @var _CmaParameters $parameters */
-        $this->parameters = $parameters;
+        if ($this->parameters['poller_initiated'] === false) {
+            $this->parameters['hosts'] = [];
+        } else {
+            foreach ($this->parameters['hosts'] as $key => $host) {
+                Assertion::positiveInt($host['id'], 'configuration.hosts[].id');
+                Assertion::ipOrDomain($host['address'], 'configuration.hosts[].address');
+                Assertion::range($host['port'], 0, 65535, 'configuration.hosts[].port');
+                $this->parameters['hosts'][$key]['poller_ca_certificate'] = $this->validateCertificatePath(
+                    $host['poller_ca_certificate'],
+                    'configuration.hosts[].poller_ca_certificate'
+                );
+
+                // $fromReadRepository allow configurations created before tokens was mandatoryto be read even without tokens
+                if (! $this->fromReadRepository) {
+                    Assertion::notNull($host['token'], 'configuration.hosts[].token');
+                    Assertion::notEmptyString($host['token']['name'] ?? '');
+                    Assertion::positiveInt($host['token']['creator_id'] ?? 0);
+                }
+            }
+        }
     }
 
     /**
@@ -129,6 +130,7 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
      */
     public function getData(): array
     {
+        /** @var _CmaParameters */
         return $this->parameters;
     }
 
@@ -140,70 +142,81 @@ class CmaConfigurationParameters implements ConfigurationParametersInterface
         return self::BROKER_MODULE_DIRECTIVE;
     }
 
-    /**
-     * Normalizes the certificate paths in the given parameters array.
-     *
-     * @param array<string,mixed> $parameters
-     *
-     * @return array<string, mixed>
-     */
-    private function normalizeCertificatePaths(array $parameters): array
+    private function validateCertificatePath(?string $path, string $field): ?string
     {
-        foreach ($parameters as $key => $value) {
-            if (
-                (
-                    str_ends_with($key, '_certificate')
-                    || str_ends_with($key, '_key')
-                )
-                && (is_string($value) || is_null($value))
-            ) {
-                $parameters[$key] = $this->prependPrefix($value);
-            }
-
-            if ($key === 'hosts' && is_array($value)) {
-                foreach ($value as $hostIndex => $host) {
-                    if (isset($host['poller_ca_certificate']) && is_string($host['poller_ca_certificate'])) {
-                        $parameters[$key][$hostIndex]['poller_ca_certificate'] = $this->prependPrefix(
-                            $host['poller_ca_certificate']
-                        );
-                    }
-                }
-            }
+        if ($path === null || $path === '') {
+            return null;
         }
 
-        return $parameters;
+        $this->assertPathSecurity($path, $field);
+        $normalizedPath = $this->prependPrefix($path);
+        Assertion::maxLength($normalizedPath, self::MAX_LENGTH, $field);
+
+        return $normalizedPath;
     }
 
     /**
-     * Prepends a prefix to a certificate path.
+     * Prepends a prefix to a certificate path if it's a relative path.
      *
-     * @param ?string $path
+     * @param string $path
      *
-     * @return ?string
+     * @return string
      */
-    private function prependPrefix(?string $path): ?string
+    private function prependPrefix(string $path): string
     {
-        if ($path === null || $path === '') {
+        if (str_starts_with($path, '/')) {
             return $path;
         }
 
-        return str_starts_with($path, self::CERTIFICATE_BASE_PATH)
-            ? $path
-            : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
+        return self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
     }
 
     /**
-     * Validates an optional certificate.
+     * Validates that a certificate path is safe and not in a forbidden directory.
      *
-     * @param ?string $certificate
+     * @param string $path
      * @param string $field Used for error reporting
      *
-     * @throws AssertionFailedException
+     * @throws AssertionException
      */
-    private function validateOptionalCertificate(?string $certificate, string $field): void
+    private function assertPathSecurity(string $path, string $field): void
     {
-        if ($certificate !== null && $certificate !== '') {
-            Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+        // Reject relative paths
+        if (
+            str_contains($path, '../')
+            || str_contains($path, '//')
+            || str_contains($path, './')
+            || $path === '.'
+            || $path === '..'
+        ) {
+            throw new AssertionException(
+                sprintf('[%s] The path "%s" contains invalid relative path patterns', $field, $path),
+            );
+        }
+
+        // Reject hidden directories
+        if (preg_match('#/\\.#', $path) || (str_starts_with($path, '.') && ! str_starts_with($path, './'))) {
+            throw new AssertionException(
+                sprintf('[%s] The path "%s" cannot be in a hidden directory', $field, $path),
+            );
+        }
+
+        // Reject forbidden directories
+        foreach (self::FORBIDDEN_DIRECTORIES as $forbiddenDirectory) {
+            if (str_starts_with($path, $forbiddenDirectory . '/') || $path === $forbiddenDirectory) {
+                throw new AssertionException(
+                    sprintf('[%s] The path "%s" cannot be in directory %s', $field, $path, $forbiddenDirectory),
+                );
+            }
+        }
+
+        // Reject forbidden directories : /etc but not /etc/pki
+        if (str_starts_with($path, '/etc/')) {
+            if (! str_starts_with($path, '/etc/pki/') && $path !== '/etc/pki') {
+                throw new AssertionException(
+                    sprintf('[%s] The path "%s" can only be in /etc/pki/ directory', $field, $path),
+                );
+            }
         }
     }
 }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -18,7 +16,10 @@ declare(strict_types=1);
  * limitations under the License.
  *
  * For more information : contact@centreon.com
+ *
  */
+
+declare(strict_types=1);
 
 namespace App\Shared\Infrastructure\Legacy;
 
@@ -60,8 +61,8 @@ final readonly class LegacyKernelWrapper implements HttpKernelInterface
     private function bootstrapLegacy(): void
     {
         global $constants, $conf_centreon, $centreon_path, $classdir;
-
-        $constants = $conf_centreon = [];
+        $constants = [];
+        $conf_centreon = [];
 
         require $this->projectDir . '/config/centreon.config.php';
 

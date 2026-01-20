@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,8 +50,7 @@ final class HostMacroFactory
     ): Macro {
         $macroName = mb_strtoupper($data['name']);
         $macroValue = $data['value'] ?? '';
-        $passwordHasNotChanged = (null === $data['value']) && $data['is_password'];
-        // Note: do not handle vault storage at the moment
+        $passwordHasNotChanged = ($data['value'] === null) && $data['is_password'];
         if ($passwordHasNotChanged) {
             $macroValue = match (true) {
                 // retrieve actual password value
@@ -62,6 +61,7 @@ final class HostMacroFactory
         }
 
         $macro = new Macro(
+            $data['id'] ?? null,
             $hostId,
             $data['name'],
             $macroValue,

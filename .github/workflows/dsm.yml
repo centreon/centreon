@@ -6,13 +6,15 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
     paths:
+      - ".github/workflows/dsm.yml"
       - ".version"
       - ".version.centreon-dsm"
       - "centreon-dsm/**"
@@ -22,10 +24,14 @@ on:
       - dev-[2-9][0-9].[0-9][0-9].x
       - master
       - "[2-9][0-9].[0-9][0-9].x"
+      - 'release-[2-9][0-9].[0-9][0-9]-next'
+      - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
     paths:
       - ".version"
       - ".version.centreon-dsm"
       - "centreon-dsm/**"
+    tags:
+      - "centreon-dsm-*"
 
 env:
   module: dsm
@@ -35,37 +41,157 @@ jobs:
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+      labels: ${{ inputs.labels || '' }}
 
-  backend-lint:
+  check-version-consistency:
     runs-on: ubuntu-24.04
     needs: [get-environment]
     if: |
       needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability == 'testing'
+    env:
+      version: ${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}
+      version_file: .version.centreon-dsm
+      configuration_file: centreon-dsm/www/modules/centreon-dsm/conf.php
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Check ${{ env.version_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.version_file }}
+          version: ${{ env.version }}
+
+      - name: Check ${{ env.configuration_file }}
+        uses: ./.github/actions/check-version-consistency
+        with:
+          file: ${{ env.configuration_file }}
+          version: ${{ env.version }}
+
+  changes:
+    if: |
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable'
+    needs: [get-environment]
+    uses: ./.github/workflows/get-changes-triggers.yml
+    with:
+      backend_production_paths: |
+        ".version"
+        ".version.centreon-dsm"
+        "centreon-dsm/bin/**"
+        "centreon-dsm/cron/**"
+        "centreon-dsm/libinstall/**"
+        "centreon-dsm/packaging/**"
+        "centreon-dsm/www/modules/centreon-dsm/**"
+        "!centreon-dsm/www/modules/centreon-dsm/react/**"
+      frontend_production_paths: |
+        "centreon-dsm/www/modules/centreon-dsm/react/**"
+        "!centreon-dsm/**/cypress/**"
+        "!centreon-dsm/**/*.cypress.*"
+        "!centreon-dsm/**/__mocks__/**"
+      backend_test_paths: |
+        "centreon-dsm/.php-cs-fixer*"
+        "centreon-dsm/composer.*"
+        "centreon-dsm/phpstan.*"
+        "centreon-dsm/rector.*"
+        "centreon-dsm/tests/php/**"
+      is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      base_sha: ${{ needs.get-environment.outputs.previous_release_bundle_tag }}
+      labels: ${{ needs.get-environment.outputs.labels }}
+
+  backend-lint:
+    runs-on: ubuntu-24.04
+    needs: [get-environment, changes]
+    if: |
+      needs.changes.outputs.trigger_backend_testing == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@cf4cade2721270509d5b1c766ab3549210a39a2a # v2.33.0
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
         with:
           php-version: 8.2
           coverage: none
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-dsm
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon-dsm
         shell: bash
 
-      - name: Run of phpstan on /www at level 0
-        run: vendor/bin/phpstan analyse --no-progress --level=0 --configuration=phpstan.neon
+      - name: Get changed PHP files
+        id: changed-php
+        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
+        with:
+          files: |
+            **/*.php
+
+      - name: 🛠️ Rector checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-dsm
+        run: |
+          echo "Run of these Rector tests: rector:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+
+      - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
+        working-directory: centreon-dsm
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-dsm
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+             name=$1
+             shift
+             "$@" -- --no-progress
+             result=$?
+             if [ $result -eq 0 ]; then
+               echo "✅ PHPStan $name: Success"
+             else
+               echo "❌ PHPStan $name: Failed"
+             fi
+             return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer stan:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   package:
-    needs: [get-environment, backend-lint]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' && needs.get-environment.outputs.stability != 'stable' }}
+    needs: [get-environment, changes, check-version-consistency, backend-lint]
+    if: |
+      needs.changes.outputs.trigger_packaging == 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false' &&
+      needs.get-environment.outputs.stability != 'stable' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
 
     strategy:
       fail-fast: true
@@ -81,9 +207,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
+          # - package_extension: deb
+          #   image: packaging-nfpm-jammy
+          #   distrib: jammy
 
     runs-on: ubuntu-24.04
 
@@ -97,11 +223,18 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Change macro
         run: |
-          find ./centreon-dsm -type f | xargs sed -i -f ./centreon-dsm/packaging/src/centreon-macroreplacement.txt
+          MACRO_REPLACEMENT_FILE="centreon-dsm/packaging/src/centreon-macroreplacement.txt"
+          if [[ "${{ matrix.package_extension }}" == "rpm" ]]; then
+            APACHE_USER="apache"
+          else
+            APACHE_USER="www-data"
+          fi
+          echo "s#@WEB_USER@#$APACHE_USER#g" >> $MACRO_REPLACEMENT_FILE
+          find ./centreon-dsm -type f | xargs sed -i -f $MACRO_REPLACEMENT_FILE
         shell: bash
 
       - name: Package
@@ -121,6 +254,7 @@ jobs:
           rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
           rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
           stability: ${{ needs.get-environment.outputs.stability }}
+          upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
   deliver-sources:
     runs-on: centreon-common
@@ -136,7 +270,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -149,11 +283,15 @@ jobs:
           token_download_centreon_com: ${{ secrets.TOKEN_DOWNLOAD_CENTREON_COM }}
 
   deliver-rpm:
-    needs: [get-environment, package]
+    needs: [get-environment, changes, package]
     if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
-      github.repository == 'centreon/centreon'
+      github.repository == 'centreon/centreon' &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: centreon-common
 
     strategy:
@@ -162,7 +300,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -175,14 +313,21 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           release_type: ${{ needs.get-environment.outputs.release_type }}
           is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
+          delivery_type: ${{ needs.get-environment.outputs.delivery_type }}
+          centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
 
   deliver-deb:
-    needs: [get-environment, package]
+    needs: [get-environment, changes, package]
     if: |
+      needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
       contains(fromJson('["testing", "unstable"]'), needs.get-environment.outputs.stability) &&
       github.repository == 'centreon/centreon' &&
-      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable')
+      (needs.get-environment.outputs.is_cloud == 'false' || needs.get-environment.outputs.stability == 'unstable') &&
+      ! cancelled() &&
+      ! contains(needs.*.result, 'failure') &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: centreon-common
 
     strategy:
@@ -190,7 +335,7 @@ jobs:
         distrib: [bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -220,13 +365,13 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
         with:
           artifactory_token: ${{ secrets.ARTIFACTORY_ACCESS_TOKEN }}
-          module: dsm
+          module_name: dsm
           distrib: ${{ matrix.distrib }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
           minor_version: ${{ needs.get-environment.outputs.minor_version }}

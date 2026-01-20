@@ -1,8 +1,8 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-const UIDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
-const DNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';
+const uiDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
+const dNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';
 const ldapLogin = 'centréon-ldap4';
 
 before(() => {
@@ -38,11 +38,7 @@ Given('a user is logged in a Centreon server', () => {
 Given(
   'a LDAP configuration with Users auto import disabled has been created',
   () => {
-    cy.navigateTo({
-      page: 'LDAP',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    });
+    cy.visit(PAGES.configuration.ldapsLegacy);
     cy.wait('@getTimeZone');
     // Click on the default ldap configuration
     cy.getIframeBody().contains('openldap').click();
@@ -73,11 +69,7 @@ Given(
 When(
   'the user searchs a specific user whose alias contains a special character such as an accent',
   () => {
-    cy.navigateTo({
-      page: 'Contacts / Users',
-      rootItemNumber: 3,
-      subMenu: 'Users'
-    });
+    cy.visit(PAGES.configuration.contactsUsersLegacy);
     cy.wait('@getTimeZone');
     // Wait for the button "LDAP Import" to be visible in the DOM
     cy.waitForElementInIframe('#main-content', 'a:contains("LDAP Import")');
@@ -93,7 +85,7 @@ When(
     cy.getIframeBody()
       .find('input[name="ldap_search_filter[1]"]')
       .clear()
-      .type(UIDtoSearchFor);
+      .type(uiDtoSearchFor);
     // Click on the "Search" button
     cy.getIframeBody().find('input[name="ldap_search_button"]').click();
     // Wait for the get Ldaps result request to be done
@@ -109,7 +101,7 @@ Then('the LDAP search result displays the expected alias', () => {
     .find('tbody tr.list_one')
     .should('have.length', 1);
   // Check that the filter return the right value
-  cy.getIframeBody().contains(DNtoSearchFor).should('be.visible');
+  cy.getIframeBody().contains(dNtoSearchFor).should('be.visible');
 });
 
 When('the user imports the searched user', () => {
@@ -132,11 +124,7 @@ Then('the user is added to the contacts listing page', () => {
 });
 
 Given('one ldap user has been manually imported', () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
   // Check that the contact listing contains an imported ldap user
   cy.getIframeBody().contains('a', ldapLogin).should('be.visible');
@@ -151,19 +139,14 @@ Then('this user can log in to Centreon Web', () => {
 });
 
 Given('the ldap user has rights to access the contacts listing page', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
   // Click on the 'All' access group
   cy.getIframeBody().contains('a', 'ALL').click();
   // Wait for the 'Group Name' to be visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="acl_group_name"]');
   // Select the ldap user from the Linked Contacts list
-  cy.getIframeBody().find('select#cg_contacts-f')
-  .select(ldapLogin);
+  cy.getIframeBody().find('select#cg_contacts-f').select(ldapLogin);
   // Add the selected ldap user
   cy.getIframeBody().find('input[name="add"]').eq(0).click();
   // Click on the first 'Save' button
@@ -171,11 +154,7 @@ Given('the ldap user has rights to access the contacts listing page', () => {
   cy.exportConfig();
   // Go to the default page
   cy.visit('/');
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
   // Click on the 'Add' button to add a new menu access
   cy.getIframeBody().contains('a', 'Add').eq(0).click();
@@ -184,35 +163,31 @@ Given('the ldap user has rights to access the contacts listing page', () => {
   // Type a value in the field 'ACL Definition'
   cy.getIframeBody().find('input[name="acl_topo_name"]').type('action');
   // Chose the 'ALL' option from the Linked Groups list
-  cy.getIframeBody().find('select#acl_groups-f')
-  .select('ALL');
+  cy.getIframeBody().find('select#acl_groups-f').select('ALL');
   // Add the select option
   cy.getIframeBody().find('input[name="add"]').eq(0).click();
   // Check the 'Configuration' accessible page
-  cy.getIframeBody().find('input[name="acl_r_topos[6]"]').click({force: true});
-  // Click to open the sub menus 
+  cy.getIframeBody()
+    .find('input[name="acl_r_topos[6]"]')
+    .click({ force: true });
+  // Click to open the sub menus
   cy.getIframeBody().find('#img_3').click();
   // Check the 'Users' accessible page
   cy.getIframeBody().find('#img_3_2').click();
   // Check 'Read/Write' option
-  cy.getIframeBody().find('input[name="acl_r_topos[84]"][value="1"]')
-  .check();
+  cy.getIframeBody().find('input[name="acl_r_topos[84]"][value="1"]').check();
   // Click on the first 'Save' button
   cy.getIframeBody().find('input[name="submitA"]').eq(0).click();
   cy.exportConfig();
 });
 
 When('the ldap user goes to the contacts listing page', () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 0,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
 
 Then('the ldap user cannot update the contact dn', () => {
-  // Click on the ldap user 
+  // Click on the ldap user
   cy.getIframeBody().contains('a', ldapLogin).click();
   cy.wait('@getTimeZone');
   // Wait for the 'Alias / Login' field to be visible in the DOM
@@ -222,8 +197,9 @@ Then('the ldap user cannot update the contact dn', () => {
   // Click outside the form
   cy.get('body').click(0, 0);
   // Check that the 'DN' field is hidden
-  cy.getIframeBody().find('input#contact_ldap_dn')
-  .should('have.attr', 'type', 'hidden');
+  cy.getIframeBody()
+    .find('input#contact_ldap_dn')
+    .should('have.attr', 'type', 'hidden');
 });
 
 Then('the ldap user cannot update the contact password', () => {

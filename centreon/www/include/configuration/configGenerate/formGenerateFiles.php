@@ -1,53 +1,39 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (!$centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
+require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
+
+if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
     require_once _CENTREON_PATH_ . 'www/include/core/errors/alt_error.php';
+
     return null;
 }
 
-/*
- *  Get Poller List
- */
+// Get Poller List
 $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row' => 'name', 'order' => ['name'], 'keys' => ['id'], 'conditions' => ['ns_activate' => 1]]);
-/* Sort the list of poller server */
+// Sort the list of poller server
 $pollersFromUrl = $_GET['poller'] ?? '';
 $pollersId = explode(',', $pollersFromUrl);
 $selectedPollers = [];
@@ -58,67 +44,65 @@ foreach ($tab_nagios_server as $key => $name) {
     }
 }
 
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+// Form begin
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
-$form->addElement('checkbox', 'debug', _("Run monitoring engine debug (-v)"), null, ['id' => 'ndebug']);
-$form->addElement('checkbox', 'gen', _("Generate Configuration Files"), null, ['id' => 'ngen']);
-$form->addElement('checkbox', 'move', _("Move Export Files"), null, ['id' => 'nmove']);
-$form->addElement('checkbox', 'restart', _("Restart Monitoring Engine"), null, ['id' => 'nrestart']);
+$form->addElement('checkbox', 'debug', _('Run monitoring engine debug (-v)'), null, ['id' => 'ndebug']);
+$form->addElement('checkbox', 'gen', _('Generate Configuration Files'), null, ['id' => 'ngen']);
+$form->addElement('checkbox', 'move', _('Move Export Files'), null, ['id' => 'nmove']);
+$form->addElement('checkbox', 'restart', _('Restart Monitoring Engine'), null, ['id' => 'nrestart']);
 $form->addElement('checkbox', 'postcmd', _('Post generation command'), null, ['id' => 'npostcmd']);
 $form->addElement(
     'select',
     'restart_mode',
-    _("Method"),
-    [2 => _("Restart"), 1 => _("Reload")],
+    _('Method'),
+    [2 => _('Restart'), 1 => _('Reload')],
     ['id' => 'nrestart_mode', 'style' => 'width: 220px;']
 );
 $form->setDefaults(['debug' => '1', 'gen' => '1', 'restart_mode' => '1']);
 
-/* Add multiselect for pollers */
+// Add multiselect for pollers
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_poller&action=list';
 $attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => true, 'availableDatasetRoute' => $route, 'multiple' => true];
-$form->addElement('select2', 'nhost', _("Pollers"), ["class" => "required"], $attrPoller);
-$form->addRule('nhost', _("You need to select a least one polling instance."), 'required', null, 'client');
+$form->addElement('select2', 'nhost', _('Pollers'), ['class' => 'required'], $attrPoller);
+$form->addRule('nhost', _('You need to select a least one polling instance.'), 'required', null, 'client');
 
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$csrfToken = createCSRFToken();
+
+$tpl->assign('csrfToken', $csrfToken);
 
 $sub = $form->addElement(
     'button',
     'submit',
-    _("Export"),
+    _('Export'),
     ['id' => 'exportBtn', 'onClick' => 'generationProcess();', 'class' => 'btc bt_success']
 );
 $msg = null;
 $stdout = null;
 
-$tpl->assign("noPollerSelectedLabel", _("Compulsory Poller"));
-$tpl->assign("consoleLabel", _("Console"));
-$tpl->assign("progressLabel", _("Progress"));
+$tpl->assign('noPollerSelectedLabel', _('Compulsory Poller'));
+$tpl->assign('consoleLabel', _('Console'));
+$tpl->assign('progressLabel', _('Progress'));
 $tpl->assign(
-    "helpattr",
-    'TITLE, "' . _("Help") . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, ' .
-    '"orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], ' .
-    'WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
+    'helpattr',
+    'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, '
+    . '"orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], '
+    . 'WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
 );
 
-include_once("help.php");
+include_once 'help.php';
 
-$helptext = "";
+$helptext = '';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
-
-/*
- * Apply a template definition
- */
+$tpl->assign('helptext', $helptext);
+// Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
 $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
@@ -126,7 +110,7 @@ $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 $tpl->assign('o', $o);
 
-$tpl->display("formGenerateFiles.ihtml");
+$tpl->display('formGenerateFiles.ihtml');
 
 ?>
 <script type='text/javascript'>
@@ -144,20 +128,20 @@ $tpl->display("formGenerateFiles.ihtml");
     var postcmdOption;
 
     var tooltip = new CentreonToolTip();
-    var svg = "<?php displaySvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18); ?>"
+    var svg = "<?php displaySvg('www/img/icons/question.svg', 'var(--help-tool-tip-icon-fill-color)', 18, 18); ?>"
     tooltip.setSource(svg);
     var session_id = "<?php echo session_id(); ?>";
     tooltip.render();
     var msgTab = new Array();
 
-    msgTab['start'] = "<?php echo addslashes(_("Preparing environment")); ?>";
-    msgTab['gen'] = "<?php echo addslashes(_("Generating files")); ?>";
-    msgTab['debug'] = "<?php echo addslashes(_("Running debug mode")); ?>";
-    msgTab['move'] = "<?php echo addslashes(_("Moving files")); ?>";
-    msgTab['restart'] = "<?php echo addslashes(_("Restarting engine")); ?>";
-    msgTab['abort'] = "<?php echo addslashes(_("Aborted.")); ?>";
-    msgTab['noPoller'] = "<?php echo addslashes(_("No poller selected")); ?>";
-    msgTab['postcmd'] = "<?php echo addslashes(_("Executing command")); ?>";
+    msgTab['start'] = "<?php echo addslashes(_('Preparing environment')); ?>";
+    msgTab['gen'] = "<?php echo addslashes(_('Generating files')); ?>";
+    msgTab['debug'] = "<?php echo addslashes(_('Running debug mode')); ?>";
+    msgTab['move'] = "<?php echo addslashes(_('Moving files')); ?>";
+    msgTab['restart'] = "<?php echo addslashes(_('Restarting engine')); ?>";
+    msgTab['abort'] = "<?php echo addslashes(_('Aborted.')); ?>";
+    msgTab['noPoller'] = "<?php echo addslashes(_('No poller selected')); ?>";
+    msgTab['postcmd'] = "<?php echo addslashes(_('Executing command')); ?>";
 
     jQuery(function () {
 
@@ -367,7 +351,8 @@ $tpl->display("formGenerateFiles.ihtml");
             type: 'POST',
             dataType: "xml",
             data: {
-                poller: selectedPoller
+                poller: selectedPoller,
+                centreon_token: jQuery("#Form").find('input[name="centreon_token"]').val(),
             },
             success: function (data) {
                 data = $(data);

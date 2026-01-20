@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ final class AddAgentConfiguration
 
     public function __invoke(
         AddAgentConfigurationRequest $request,
-        AddAgentConfigurationPresenterInterface $presenter
+        AddAgentConfigurationPresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -171,7 +171,7 @@ final class AddAgentConfiguration
         NewAgentConfiguration $agentConfiguration,
         array $pollers,
         ?string $module,
-        array $needBrokerDirectives
+        array $needBrokerDirectives,
     ): int {
         try {
             $this->repositoryManager->startTransaction();
@@ -231,7 +231,7 @@ final class AddAgentConfiguration
         $configuration = $agentConfiguration->getConfiguration()->getData();
         if ($agentConfiguration->getType() === Type::CMA) {
             $hostIds = array_map(static fn (array $host): int => $host['id'], $configuration['hosts']);
-            if (! empty($hostIds)) {
+            if ($hostIds !== []) {
                 $hostNamesById = $this->readHostRepository->findNames($hostIds);
                 foreach ($configuration['hosts'] as $index => $host) {
                     $configuration['hosts'][$index]['name'] = $hostNamesById->getName($host['id']);

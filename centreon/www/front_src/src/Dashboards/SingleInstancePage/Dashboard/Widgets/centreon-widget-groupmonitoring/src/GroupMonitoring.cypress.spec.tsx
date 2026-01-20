@@ -35,6 +35,15 @@ const getPanelDataGroups = ({
   ]
 });
 
+const widgetDataRegex: Pick<Data, 'resources'> = {
+  resources: [
+    {
+      resourceType: 'host-group',
+      resources: '^Loa'
+    }
+  ]
+};
+
 const allStatuses = ['1', '2', '4', '5', '6'];
 const defaultStatuses = ['1', '2'];
 
@@ -137,6 +146,22 @@ describe('Public widget', () => {
 });
 
 describe('Group Monitoring', () => {
+  it('handles regex resources when the appropriate data is provided', () => {
+    initialize({
+      panelData: widgetDataRegex,
+      panelOptions: {
+        resourceTypes: allResourceTypes,
+        statuses: defaultStatuses
+      }
+    });
+
+    cy.waitForRequest('@hostGroups').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
+
   it('displays the group monitoring widget with default options and the host group resource type is selected', () => {
     initialize({
       panelOptions: {

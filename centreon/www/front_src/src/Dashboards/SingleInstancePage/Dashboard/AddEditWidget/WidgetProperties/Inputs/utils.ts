@@ -7,6 +7,7 @@ import {
   equals,
   includes,
   isEmpty,
+  isNil,
   pluck,
   split
 } from 'ramda';
@@ -28,6 +29,7 @@ import {
   FederatedWidgetOptionType
 } from '../../../../../../federatedModules/models';
 import {
+  labelMinMustLowerThanMax,
   labelPleaseSelectAMetric,
   labelPleaseSelectAResource,
   labelRequired
@@ -35,6 +37,7 @@ import {
 import {
   type ShowInput,
   type WidgetDataResource,
+  WidgetPropertyProps,
   WidgetResourceType
 } from '../../models';
 
@@ -44,11 +47,6 @@ export const getProperty = <T>({ propertyName, obj }): T | undefined =>
 export const getDataProperty = <T>({ propertyName, obj }): T | undefined =>
   path<T>(['data', ...split('.', propertyName)], obj);
 
-const namedEntitySchema = object().shape({
-  id: mixed().required(),
-  name: string().required()
-});
-
 const metricSchema = object().shape({
   id: number().required(),
   name: string().required(),
@@ -56,9 +54,36 @@ const metricSchema = object().shape({
 });
 
 interface GetYupValidatorTypeProps {
-  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  properties: Pick<
+    WidgetPropertyProps,
+    | 'defaultValue'
+    | 'type'
+    | 'required'
+    | 'requireResourceType'
+    | 'allowEmptyResources'
+  >;
   t: TFunction;
 }
+
+export const boundariesValidationSchema = object()
+  .shape({
+    min: number(),
+    max: number().test(
+      'isMinAboveMax',
+      labelMinMustLowerThanMax,
+      (value, context) => {
+        if (isNil(value) || isNil(context.parent.min)) {
+          return true;
+        }
+        return Number(value || 0) > context.parent.min;
+      }
+    )
+  })
+  .optional();
+
+const getResourcesValidation = (properties) => {
+  return properties.required ? mixed().required() : mixed();
+};
 
 const getYupValidatorType = ({
   t,
@@ -104,10 +129,21 @@ const getYupValidatorType = ({
                   properties.required || properties.requireResourceType
                     ? string().required(t(labelRequired) as string)
                     : string(),
-                resources: properties.required
-                  ? array().of(namedEntitySchema).min(1)
-                  : array()
+                resources: getResourcesValidation(properties)
               })
+              .test(
+                'resource-selection-validation',
+                t(labelPleaseSelectAResource) as string,
+                (value) => {
+                  if (!value || properties.allowEmptyResources) {
+                    return true;
+                  }
+
+                  const { resourceType, resources } = value;
+
+                  return !(resourceType && isEmpty(resources || []));
+                }
+              )
               .optional()
           )
           .min(
@@ -161,11 +197,22 @@ const getYupValidatorType = ({
     [
       equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.tiles),
       always(number().min(1))
+    ],
+    [
+      equals<FederatedWidgetOptionType>(FederatedWidgetOptionType.boundaries),
+      always(boundariesValidationSchema)
     ]
   ])(properties.type);
 
 interface BuildValidationSchemaProps {
-  properties: Pick<FederatedWidgetOption, 'defaultValue' | 'type'>;
+  properties: Pick<
+    FederatedWidgetOption,
+    | 'defaultValue'
+    | 'type'
+    | 'required'
+    | 'requireResourceType'
+    | 'allowEmptyResources'
+  >;
   t: TFunction;
 }
 
@@ -197,7 +244,8 @@ export const resourceTypeQueryParameter = {
   [WidgetResourceType.hostGroup]: 'hostgroup.id',
   [WidgetResourceType.serviceCategory]: 'servicecategory.id',
   [WidgetResourceType.serviceGroup]: 'servicegroup.id',
-  [WidgetResourceType.service]: 'service.name'
+  [WidgetResourceType.service]: 'service.name',
+  [WidgetResourceType.metaService]: 'metaservice.id'
 };
 
 interface ShowInputProps extends ShowInput {
@@ -235,3 +283,10 @@ export const areResourcesFullfilled = (
     ({ resourceType, resources }) =>
       !isEmpty(resourceType) && !isEmpty(resources)
   );
+
+export const buildResourceTypeNameForSearchParameter = (
+  resourceType: WidgetResourceType
+): string =>
+  equals(resourceType, WidgetResourceType.service)
+    ? 'name'
+    : `${resourceType.replace('-', '_')}.name`;

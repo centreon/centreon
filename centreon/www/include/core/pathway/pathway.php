@@ -1,40 +1,25 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -48,9 +33,9 @@ if (isset($url)) {
     $statementSelect = $pearDB->prepare(
         'SELECT topology_url FROM topology WHERE topology_page = :topology_page'
     );
-    $statementSelect->bindValue(':topology_page', $p, \PDO::PARAM_INT);
+    $statementSelect->bindValue(':topology_page', $p, PDO::PARAM_INT);
     if ($statementSelect->execute()) {
-        $result = $statementSelect->fetch(\PDO::FETCH_ASSOC);
+        $result = $statementSelect->fetch(PDO::FETCH_ASSOC);
         if ($result !== false && $result['topology_url'] != $url) {
             /**
              * If urls are not equal we can retrieve the topology page number
@@ -61,10 +46,10 @@ if (isset($url)) {
                 'SELECT topology_page FROM topology '
                 . 'WHERE topology_url = :url'
             );
-            $statement->bindValue(':url', $url, \PDO::PARAM_STR);
+            $statement->bindValue(':url', $url, PDO::PARAM_STR);
             if (
                 $statement->execute()
-                && $result = $statement->fetch(\PDO::FETCH_ASSOC)
+                && $result = $statement->fetch(PDO::FETCH_ASSOC)
             ) {
                 $p = $result['topology_page'];
             }
@@ -93,14 +78,14 @@ $pdoStatement = $pearDB->prepare(
     WHERE topology_parent IS NOT NULL)
     ORDER BY topology_page ASC'
 );
-$pdoStatement->bindValue(':topology_page', (int) $p, \PDO::PARAM_INT);
+$pdoStatement->bindValue(':topology_page', (int) $p, PDO::PARAM_INT);
 
 $breadcrumbData = [];
-$basePath = '/' . trim(explode('main.get.php', $_SERVER['REQUEST_URI'])[0], "/");
+$basePath = '/' . trim(explode('main.get.php', $_SERVER['REQUEST_URI'])[0], '/');
 $basePath = htmlspecialchars($basePath, ENT_QUOTES, 'UTF-8');
 
 if ($pdoStatement->execute()) {
-    while ($result = $pdoStatement->fetch(\PDO::FETCH_ASSOC)) {
+    while ($result = $pdoStatement->fetch(PDO::FETCH_ASSOC)) {
         $isNameAlreadyInserted = array_search(
             $result['topology_name'],
             array_column($breadcrumbData, 'name')
@@ -124,7 +109,7 @@ if ($pdoStatement->execute()) {
             'name' => $result['topology_name'],
             'url' => $result['topology_url'],
             'opt' => $result['topology_url_opt'],
-            'page' => $result['topology_page']
+            'page' => $result['topology_page'],
         ];
     }
 }
@@ -136,15 +121,15 @@ if ($centreon->user->access->page($p)) {
     foreach ($breadcrumbData as $page => $details) {
         echo $flag;
         ?>
-        <a href="<?= $details['is_react'] ? "{$basePath}{$details['url']}" : "main.php?p={$page}{$details["opt"]}" ?>"
-            <?= $details['is_react'] ? ' isreact="isreact"' : '' ?> class="pathWay"><?= _($details["name"]); ?></a>
+        <a href="<?= $details['is_react'] ? "{$basePath}{$details['url']}" : "main.php?p={$page}{$details['opt']}"; ?>"
+            <?= $details['is_react'] ? ' isreact="isreact"' : ''; ?> class="pathWay"><?= _($details['name']); ?></a>
         <?php
         $flag = '<span class="pathWayBracket" >  &nbsp;&#62;&nbsp; </span>';
     }
 
-    if (isset($_GET["host_id"])) {
+    if (isset($_GET['host_id'])) {
         echo '<span class="pathWayBracket" > &nbsp;&#62;&nbsp; </span>';
-        echo HtmlSanitizer::createFromString(getMyHostName((int) $_GET["host_id"]))->sanitize()->getString();
+        echo HtmlSanitizer::createFromString(getMyHostName((int) $_GET['host_id']))->sanitize()->getString();
     }
 }
 ?>

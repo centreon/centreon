@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ class PollerConfigurationRequestBridge
      */
     public function collectDataFromRequest(): void
     {
-        $isRemoteServerWizard = (new ServerWizardIdentity)->requestConfigurationIsRemote();
+        $isRemoteServerWizard = (new ServerWizardIdentity())->requestConfigurationIsRemote();
 
         if ($isRemoteServerWizard) { // configure remote server
             // pollers linked to the remote server
@@ -86,7 +86,7 @@ class PollerConfigurationRequestBridge
      */
     public function collectDataFromAdditionalRemoteServers(): void
     {
-        $isRemoteServerWizard = (new ServerWizardIdentity)->requestConfigurationIsRemote();
+        $isRemoteServerWizard = (new ServerWizardIdentity())->requestConfigurationIsRemote();
 
         $linkedRemotes = [];
         if (! $isRemoteServerWizard && isset($_POST['linked_remote_slaves'])) {
@@ -112,7 +112,7 @@ class PollerConfigurationRequestBridge
 
         if (count($results)) {
             $remoteData = reset($results);
-            $remoteServer = new PollerServer;
+            $remoteServer = new PollerServer();
             $remoteServer->setId($remoteData->id);
             $remoteServer->setName($remoteData->name);
             $remoteServer->setIp($remoteData->ip);

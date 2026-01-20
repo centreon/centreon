@@ -1,8 +1,103 @@
-/* eslint-disable @typescript-eslint/method-signature-style */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable newline-before-return */
-/* eslint-disable @typescript-eslint/no-namespace */
+import { PAGES } from 'fixtures/shared/constants/pages';
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
+
+interface Dashboard {
+  description?: string;
+  name: string;
+}
+
+interface HostDataType {
+  acknowledgementTimeout: number;
+  actionUrl: string;
+  activeCheckEnabled: number;
+  addInheritedContact: boolean;
+  addInheritedContactGroup: boolean;
+  address: string;
+  alias: string;
+  categories: Array<number>;
+  checkCommandArgs: Array<string>;
+  checkCommandId: number;
+  checkTimePeriodId: number;
+  comment: string;
+  eventHandlerCommandArgs: Array<string>;
+  eventHandlerCommandId: number;
+  eventHandlerEnabled: number;
+  firstNotificationDelay: number;
+  flapDetectionEnabled: number;
+  freshnessChecked: number;
+  freshnessThreshold: number;
+  geoCoords: string;
+  groups: Array<number>;
+  highFlapThreshold: number;
+  iconAlternative: string;
+  iconId: number;
+  isActivated: boolean;
+  lowFlapThreshold: number;
+  macros: Array<object>;
+  maxCheckAttempts: number;
+  monitoringServerId: number;
+  name: string;
+  normalCheckInterval: number;
+  note: string;
+  noteUrl: string;
+  notificationEnabled: number;
+  notificationInterval: number;
+  notificationOptions: number;
+  notificationTimePeriodId: number;
+  passiveCheckEnabled: number;
+  recoveryNotificationDelay: number;
+  retryCheckInterval: number;
+  severityId: number;
+  snmpCommunity: string;
+  snmpVersion: string;
+  templates: Array<number>;
+  timezoneId: number;
+}
+
+interface ServiceDataType {
+  acknowledgementTimeout: number;
+  actionUrl: string;
+  activeCheckEnabled: number;
+  checkCommandArgs: Array<string>;
+  checkCommandId: number | null;
+  checkTimePeriodId: number | null;
+  comment: string;
+  eventHandlerCommandArgs: Array<string>;
+  eventHandlerCommandId: number;
+  eventHandlerEnabled: number;
+  firstNotificationDelay: number;
+  flapDetectionEnabled: number;
+  freshnessChecked: number;
+  freshnessThreshold: number;
+  notificationEnabled: number;
+  isContactAdditiveInheritance: boolean;
+  isContactGroupAdditiveInheritance: boolean;
+  notificationInterval: number;
+  notificationTimePeriodId: number;
+  notificationType: number;
+  retryCheckInterval: number;
+  recoveryNotificationDelay: number;
+  lowFlapThreshold: number;
+  passiveCheckEnabled: number;
+  macros: Array<object>;
+  geoCoords: string;
+  name: string;
+  highFlapThreshold: number;
+  normalCheckInterval: number;
+  maxCheckAttempts: number;
+  serviceTemplateId: number | null;
+  graphTemplateId: number | null;
+  note: string;
+  noteUrl: string;
+  hostId: number;
+  iconId: number | null;
+  iconAlternative: string;
+  severityId: number;
+  isActivated: boolean;
+  serviceCategories: Array<number>;
+  serviceGroups: Array<number>;
+  volatilityEnabled: number;
+}
 
 Cypress.Commands.add('enableDashboardFeature', () => {
   cy.execInContainer({
@@ -18,11 +113,11 @@ Cypress.Commands.add('visitDashboards', () => {
     url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
 
-  const dashboardsUrl = '/centreon/home/dashboards/library';
+  const dashboardsUrl = PAGES.monitoring.dashboardsLibrary;
   cy.url().then((url) =>
     url.includes(dashboardsUrl)
       ? cy.visit(dashboardsUrl)
-      : cy.navigateTo({ page: 'Dashboards', rootItemNumber: 0 })
+      : cy.visit(PAGES.monitoring.dashboards)
   );
 
   cy.wait('@listAllDashboards');
@@ -81,10 +176,13 @@ Cypress.Commands.add(
       cy.getByTestId({ testId: accessRightsTestId }).invoke('show').click();
       cy.get('.MuiSelect-select').should('be.visible');
 
-      return cy.get('.MuiSelect-select').should('be.visible').then(($elements) => {
-        cy.getByLabel({ label: 'close', tag: 'button' }).click();
-        return cy.wrap($elements.length === expectedElementCount);
-      });
+      return cy
+        .get('.MuiSelect-select')
+        .should('be.visible')
+        .then(($elements) => {
+          cy.getByLabel({ label: 'close', tag: 'button' }).click();
+          return cy.wrap($elements.length === expectedElementCount);
+        });
     };
 
     return cy.waitUntil(() => openModalAndCheck(), {
@@ -146,10 +244,11 @@ Cypress.Commands.add('waitUntilPingExists', () => {
     () => {
       cy.getByTestId({ testId: 'Select resource' }).eq(0).realClick();
       cy.contains('Centreon-Server').realClick();
+      cy.getByTestId({ testId: 'Select resource' }).eq(0).blur();
       cy.getByTestId({ testId: 'Select resource' }).eq(1).realClick();
 
       return cy.wait('@servicesRequest').then((interception) => {
-        if (interception && interception.response) {
+        if (interception?.response) {
           cy.log('Response Body:', interception.response.body);
           const responseBody = interception.response.body;
           if (
@@ -229,7 +328,7 @@ Cypress.Commands.add(
         method: 'POST',
         url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
       }).then((patchResponse) => {
-        console.log('Widget added successfully:', patchResponse);
+        cy.log('Widget added successfully:', patchResponse);
       });
     });
   }
@@ -289,7 +388,7 @@ Cypress.Commands.add(
         dataToLog[key] = value;
       });
 
-      console.log('FormData before POST:', JSON.stringify(dataToLog, null, 2));
+      cy.log('FormData before POST:', JSON.stringify(dataToLog, null, 2));
 
       cy.request({
         body: formData,
@@ -299,7 +398,7 @@ Cypress.Commands.add(
         method: 'POST',
         url: `/centreon/api/latest/configuration/dashboards/${dashboardId}`
       }).then((patchResponse) => {
-        console.log('Widget added successfully:', patchResponse);
+        cy.log('Widget added successfully:', patchResponse);
       });
     });
   }
@@ -361,15 +460,15 @@ Cypress.Commands.add(
           .then(($aTags) => {
             $aTags.each((i, aTag) => {
               cy.wrap(aTag)
-                .find("div")
-                .invoke("attr", "style")
+                .find('div')
+                .invoke('attr', 'style')
                 .then((style) => {
                   expect(style).to.contain(expectedColors[i]);
                 });
 
               cy.wrap(aTag)
-                .next("p")
-                .invoke("text")
+                .next('p')
+                .invoke('text')
                 .then((text) => {
                   const possibleValues = [expectedValues[i]];
 
@@ -377,7 +476,9 @@ Cypress.Commands.add(
                     possibleValues.push(alternativeValues[i]);
                   }
 
-                  expect(text.trim()).to.match(new RegExp(possibleValues.join("|")));
+                  expect(text.trim()).to.match(
+                    new RegExp(possibleValues.join('|'))
+                  );
                 });
             });
           });
@@ -395,11 +496,13 @@ Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
     macros: [
       {
         description: 'Some text to describe the macro',
+        // biome-ignore lint/style/useNamingConvention: <explanation>
         is_password: false,
         name: 'MacroName',
         value: 'macroValue'
       }
     ],
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     monitoring_server_id: 1,
     name: 'generic-active-host',
     templates: [2]
@@ -436,6 +539,7 @@ Cypress.Commands.add('getServiceIdByName', (serviceName) => {
 
 Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   const patchData = {
+    // biome-ignore lint/style/useNamingConvention: <explanation>
     host_id: hostId
   };
   cy.request({
@@ -451,19 +555,26 @@ Cypress.Commands.add(
   'addNewServiceAndReturnId',
   (hostId: number, serviceData = {}) => {
     const defaultServiceData = {
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       check_command_args: [],
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       check_command_id: null,
       comment: 'string',
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       geo_coords: '48.10,12.5',
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       host_id: hostId,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       max_check_attempts: 1,
       name: 'generic-service',
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       service_template_id: 5
     };
 
     const requestBody = {
       ...defaultServiceData,
       ...serviceData,
+      // biome-ignore lint/style/useNamingConvention: <explanation>
       host_id: hostId
     };
 
@@ -498,6 +609,7 @@ Cypress.Commands.add(
       };
 
       const uniqueServiceData = {
+        // biome-ignore lint/style/useNamingConvention: <explanation>
         geo_coords: '48.10,12.5',
         name: `service-${i + 1}`
       };
@@ -550,105 +662,8 @@ Cypress.Commands.add(
   }
 );
 
-interface Dashboard {
-  description?: string;
-  name: string;
-}
-
-interface HostDataType {
-  acknowledgement_timeout: number;
-  action_url: string;
-  active_check_enabled: number;
-  add_inherited_contact: boolean;
-  add_inherited_contact_group: boolean;
-  address: string;
-  alias: string;
-  categories: Array<number>;
-  check_command_args: Array<string>;
-  check_command_id: number;
-  check_timeperiod_id: number;
-  comment: string;
-  event_handler_command_args: Array<string>;
-  event_handler_command_id: number;
-  event_handler_enabled: number;
-  first_notification_delay: number;
-  flap_detection_enabled: number;
-  freshness_checked: number;
-  freshness_threshold: number;
-  geo_coords: string;
-  groups: Array<number>;
-  high_flap_threshold: number;
-  icon_alternative: string;
-  icon_id: number;
-  is_activated: boolean;
-  low_flap_threshold: number;
-  macros: Array<object>;
-  max_check_attempts: number;
-  monitoring_server_id: number;
-  name: string;
-  normal_check_interval: number;
-  note: string;
-  note_url: string;
-  notification_enabled: number;
-  notification_interval: number;
-  notification_options: number;
-  notification_timeperiod_id: number;
-  passive_check_enabled: number;
-  recovery_notification_delay: number;
-  retry_check_interval: number;
-  severity_id: number;
-  snmp_community: string;
-  snmp_version: string;
-  templates: Array<number>;
-  timezone_id: number;
-}
-
-interface ServiceDataType {
-  acknowledgement_timeout: number;
-  action_url: string;
-  active_check_enabled: number;
-  check_command_args: Array<string>;
-  check_command_id: number | null;
-  check_timeperiod_id: number | null;
-  comment: string;
-  event_handler_command_args: Array<string>;
-  event_handler_command_id: number;
-  event_handler_enabled: number;
-  first_notification_delay: number;
-  flap_detection_enabled: number;
-  freshness_checked: number;
-  freshness_threshold: number;
-  notification_enabled: number;
-  is_contact_additive_inheritance: boolean;
-  is_contact_group_additive_inheritance: boolean;
-  notification_interval: number;
-  notification_timeperiod_id: number;
-  notification_type: number;
-  retry_check_interval: number;
-  recovery_notification_delay: number;
-  low_flap_threshold: number;
-  passive_check_enabled: number;
-  macros: Array<object>;
-  geo_coords: string;
-  name: string;
-  high_flap_threshold: number;
-  normal_check_interval: number;
-  max_check_attempts: number;
-  service_template_id: number | null;
-  graph_template_id: number | null;
-  note: string;
-  note_url: string;
-  host_id: number;
-  icon_id: number | null;
-  icon_alternative: string;
-  severity_id: number;
-  is_activated: boolean;
-  service_categories: Array<number>;
-  service_groups: Array<number>;
-  volatility_enabled: number;
-}
-
 declare global {
+  // biome-ignore lint/style/noNamespace: <explanation>
   namespace Cypress {
     interface Chainable {
       addMultipleHosts(
@@ -669,7 +684,9 @@ declare global {
       getServiceIdByName: (serviceName: string) => Cypress.Chainable;
       insertDashboardWithDoubleWidget: (
         dashboard: Dashboard,
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         patchBody1: Record<string, any>,
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         patchBody2: Record<string, any>,
         widgetName: string,
         widgetType: string
@@ -680,9 +697,11 @@ declare global {
       ) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         patchBody: Record<string, any>,
         widgetName: string,
         widgetType: string
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       ) => Chainable<any>;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;
@@ -707,5 +726,3 @@ declare global {
     }
   }
 }
-
-export {};

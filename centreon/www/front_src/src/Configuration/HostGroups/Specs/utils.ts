@@ -1,6 +1,6 @@
 import { equals } from 'ramda';
 import {
-  labelExtendedInformation,
+  labelAdditionalInformation,
   labelGeneralInformation,
   labelGroupMembers,
   labelResourceAccessRule
@@ -94,7 +94,7 @@ export const getGroups = ({ isCloudPlatform = false }) => [
         }
       ]
     : []),
-  { name: labelExtendedInformation }
+  { name: labelAdditionalInformation }
 ];
 
 export const listImagesResponse = {

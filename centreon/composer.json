@@ -1,110 +1,105 @@
 {
   "name": "centreon/centreon",
   "description": "Centreon - IT and Application monitoring software",
-  "version": "25.07",
+  "version": "26.03",
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
+    "php": "8.2.*",
     "ext-ctype": "*",
     "ext-curl": "*",
+    "ext-filter": "*",
+    "ext-gd": "*",
     "ext-gettext": "*",
     "ext-iconv": "*",
     "ext-intl": "*",
     "ext-json": "*",
     "ext-ldap": "*",
+    "ext-libxml": "*",
+    "ext-mbstring": "*",
     "ext-openssl": "*",
     "ext-pdo": "*",
     "ext-phar": "*",
     "ext-posix": "*",
+    "ext-session": "*",
     "ext-simplexml": "*",
+    "ext-xmlwriter": "*",
     "ext-zip": "*",
-    "amphp/http-client": "^4.6",
-    "beberlei/assert": "^3.3",
-    "curl/curl": "^2.3",
-    "doctrine/annotations": "^1.0",
-    "doctrine/dbal": "^4.2",
-    "doctrine/doctrine-bundle": "^2.15",
-    "dragonmantank/cron-expression": "3.1.0",
-    "enshrined/svg-sanitize": "^0.15",
-    "firebase/php-jwt": "^6.11",
-    "friendsofsymfony/rest-bundle": "^3.0",
-    "jms/serializer-bundle": "^5.4",
-    "justinrainbow/json-schema": "^5.2",
+    "amphp/http-client": "4.6.*",
+    "api-platform/core": "4.1.*",
+    "api-platform/symfony": "*",
+    "beberlei/assert": "3.3.*",
+    "curl/curl": "2.5.*",
+    "doctrine/annotations": "1.14.*",
+    "doctrine/dbal": "4.2.*",
+    "doctrine/doctrine-bundle": "2.15.*",
+    "dragonmantank/cron-expression": "3.1.*",
+    "enshrined/svg-sanitize": "0.15.*",
+    "firebase/php-jwt": "6.11.*",
+    "friendsofsymfony/rest-bundle": "3.8.*",
+    "jms/serializer-bundle": "5.5.*",
+    "justinrainbow/json-schema": "5.3.*",
     "monolog/monolog": "3.7.*",
     "nelmio/cors-bundle": "2.5.*",
-    "onelogin/php-saml": "4.2.*",
+    "onelogin/php-saml": "~4.3.1",
     "openpsa/quickform": "3.3.*",
     "pear/pear-core-minimal": "1.10.*",
     "phpdocumentor/reflection-docblock": "5.4.*",
     "pimple/pimple": "3.5.*",
-    "psr/container": "1.1.*",
+    "psr/container": "2.0.*",
     "smarty-gettext/smarty-gettext": "1.7.*",
     "smarty/smarty": "4.5.*",
-    "symfony/config": "6.4.*",
-    "symfony/console": "6.4.*",
-    "symfony/dependency-injection": "6.4.*",
-    "symfony/dotenv": "6.4.*",
-    "symfony/error-handler": "6.4.*",
-    "symfony/event-dispatcher": "6.4.*",
+    "symfony/asset": "7.3.*",
+    "symfony/config": "7.3.*",
+    "symfony/console": "7.3.*",
+    "symfony/dependency-injection": "7.3.*",
+    "symfony/dotenv": "7.3.*",
+    "symfony/error-handler": "7.3.*",
+    "symfony/event-dispatcher": "7.3.*",
     "symfony/event-dispatcher-contracts": "3.4.*",
-    "symfony/expression-language": "6.4.*",
-    "symfony/filesystem": "6.4.*",
-    "symfony/finder": "6.4.*",
+    "symfony/expression-language": "7.3.*",
+    "symfony/filesystem": "7.3.*",
+    "symfony/finder": "7.3.*",
     "symfony/flex": "2.4.*",
-    "symfony/framework-bundle": "6.4.*",
-    "symfony/http-client": "6.4.*",
-    "symfony/http-foundation": "6.4.*",
-    "symfony/http-kernel": "6.4.*",
-    "symfony/lock": "6.4.*",
-    "symfony/maker-bundle": "1.61.*",
-    "symfony/mime": "6.4.*",
+    "symfony/framework-bundle": "7.3.*",
+    "symfony/http-client": "7.3.*",
+    "symfony/http-foundation": "7.3.*",
+    "symfony/http-kernel": "7.3.*",
+    "symfony/lock": "7.3.*",
+    "symfony/messenger": "7.3.*",
+    "symfony/mime": "7.3.*",
     "symfony/monolog-bundle": "3.10.*",
-    "symfony/options-resolver": "6.4.*",
-    "symfony/property-access": "6.4.*",
-    "symfony/property-info": "6.4.*",
-    "symfony/routing": "6.4.*",
-    "symfony/runtime": "6.4.*",
-    "symfony/security-bundle": "6.4.*",
-    "symfony/security-core": "6.4.*",
-    "symfony/serializer": "6.4.*",
-    "symfony/string": "6.4.*",
-    "symfony/translation": "6.4.*",
-    "symfony/uid": "6.4.*",
-    "symfony/validator": "6.4.*",
-    "symfony/yaml": "6.4.*"
+    "symfony/process": "7.3.*",
+    "symfony/property-info": "7.3.*",
+    "symfony/routing": "7.3.*",
+    "symfony/runtime": "7.3.*",
+    "symfony/security-bundle": "7.3.*",
+    "symfony/serializer": "7.3.*",
+    "symfony/translation-contracts": "3.6.*",
+    "symfony/twig-bundle": "7.3.*",
+    "symfony/uid": "7.3.*",
+    "symfony/validator": "7.3.*",
+    "symfony/yaml": "7.3.*",
+    "webmozart/assert": "1.11.*"
   },
   "require-dev": {
-    "behat/behat": "3.14.*",
     "behat/mink-selenium2-driver": "1.6.*",
     "centreon/centreon-test-lib": "dev-master",
-    "dama/doctrine-test-bundle": "^8.2",
-    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
-    "deptrac/deptrac": "^3.0",
+    "dama/doctrine-test-bundle": "8.2.*",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
-    "friendsofphp/php-cs-fixer": "3.64.*",
     "mockery/mockery": "1.6.*",
-    "pestphp/pest": "1.23.*",
+    "pestphp/pest": "2.36.*",
     "php-vfs/php-vfs": "1.4.*",
-    "phpcompatibility/php-compatibility": "9.3.*",
-    "phpstan/phpstan": "1.12.*",
-    "phpstan/phpstan-beberlei-assert": "1.1.*",
-    "phpstan/phpstan-mockery": "1.1.*",
-    "phpunit/phpunit": "^9.6",
-    "rector/rector": "1.2.*",
+    "phpunit/phpunit": "10.5.*",
     "robertfausk/mink-panther-driver": "1.1.*",
     "squizlabs/php_codesniffer": "3.10.*",
-    "symfony/phpunit-bridge": "6.4.*",
-    "symfony/stopwatch": "6.4.*",
-    "symfony/twig-bundle": "6.4.*",
-    "symfony/var-dumper": "6.4.*",
-    "symfony/web-profiler-bundle": "6.4.*",
-    "twig/twig": "3.14.*",
-    "webmozart/assert": "1.11.*",
+    "symfony/debug-bundle": "7.3.*",
+    "symfony/phpunit-bridge": "7.3.*",
+    "symfony/stopwatch": "7.3.*",
+    "symfony/var-dumper": "7.3.*",
+    "symfony/web-profiler-bundle": "7.3.*",
     "zircote/swagger-php": "4.10.*"
-  },
-  "conflict": {
-    "symfony/symfony": "*"
   },
   "replace": {
     "paragonie/random_compat": "2.*",
@@ -117,9 +112,7 @@
   "autoload": {
     "psr-4": {
       "": "src/",
-      "ConfigGenerateRemote\\": "www/class/config-generate-remote/",
-      "Tests\\": "tests/php/",
-      "Centreon\\Test\\Api\\": "tests/api/"
+      "ConfigGenerateRemote\\": "www/class/config-generate-remote/"
     },
     "classmap": [
       "www/class/",
@@ -143,6 +136,12 @@
       "www/class/centreon-clapi/centreonACL.class.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Centreon\\Test\\Mock\\": "tests/php/mock/",
+      "Tests\\": "tests/php/"
+    }
+  },
   "config": {
     "secure-http": false,
     "sort-packages": true,
@@ -153,36 +152,140 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true,
-      "pestphp/pest-plugin": false,
-      "symfony/flex": false,
+      "pestphp/pest-plugin": true,
+      "symfony/flex": true,
       "symfony/runtime": true
     }
   },
   "scripts": {
+    "auto-scripts": {
+      "cache:clear": "symfony-cmd",
+      "assets:install %PUBLIC_DIR%": "symfony-cmd"
+    },
+    "post-install-cmd": [
+      "@auto-scripts",
+      "@symfony:assets:install:new"
+    ],
+    "post-update-cmd": [
+      "@auto-scripts",
+      "@symfony:assets:install:new"
+    ],
+    "symfony:assets:install": "bin/console assets:install www",
+    "symfony:assets:install:new": "bin/console.new assets:install www",
+    "symfony:update": "composer update symfony/* --with-all-dependencies --no-scripts",
+    "symfony:update:test": "composer update symfony/* --with-all-dependencies --no-scripts --dry-run",
+    "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",
+    "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
+    "symfony:new:check": "php bin/console.new lint:yaml config src --parse-tags && php bin/console.new lint:container",
+    "rector:diff": "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:diff:fix": "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
+    "rector:legacy:fix": "../php-tools/vendor/bin/rector process --config=rector.legacy.php",
+    "rector:core": "../php-tools/vendor/bin/rector process --config=rector.core.php --dry-run",
+    "rector:core:fix": "../php-tools/vendor/bin/rector process --config=rector.core.php",
+    "rector:new": "../php-tools/vendor/bin/rector process --config=rector.new.php --dry-run",
+    "rector:new:fix": "../php-tools/vendor/bin/rector process --config=rector.new.php",
+    "cs:diff": "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:diff:fix": "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:legacy": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
+    "cs:legacy:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
+    "cs:core": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff",
+    "cs:core:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --diff",
+    "cs:new": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --dry-run --diff",
+    "cs:new:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --diff",
+    "stan:legacy:www": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:www:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:src": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:src:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:test": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.test.neon --memory-limit=1G",
+    "stan:legacy": [
+      "@stan:legacy:www",
+      "@stan:legacy:src",
+      "@stan:legacy:test"
+    ],
+    "stan:core:src": "../php-tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G",
+    "stan:core:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.neon --memory-limit=1G",
+    "stan:core:test": "../php-tools/vendor/bin/phpstan analyse -c phpstan.core.test.neon --memory-limit=1G",
+    "stan:core": [
+      "@stan:core:src",
+      "@stan:core:test"
+    ],
+    "stan:new:src": "../php-tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
+    "stan:new:test": "../php-tools/vendor/bin/phpstan analyse -c phpstan.new.test.neon --memory-limit=1G",
+    "stan:new": [
+      "@stan:new:src",
+      "@stan:new:test"
+    ],
+    "dep:new": [
+      "../php-tools/vendor/bin/deptrac analyze --config-file deptrac_bc.yaml --cache-file .deptrac_bc.cache --fail-on-uncovered --report-uncovered",
+      "../php-tools/vendor/bin/deptrac analyze --config-file deptrac_hexa.yaml --cache-file .deptrac_hexa.cache --fail-on-uncovered --report-uncovered"
+    ],
     "test": "pest --do-not-cache-result",
-    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml --no-interaction",
-    "phpcs:strict": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff",
-    "phpcs:unstrict": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
-    "phpcs:strict:exec": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --diff",
-    "phpcs:unstrict:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
-    "phpcs:strict:ci": "@phpcs:strict",
-    "phpcs:unstrict:ci": "@phpcs:unstrict",
-    "phpstan": "phpstan analyse -c phpstan.neon --level=4 --memory-limit=1G --debug",
-    "phpstan:core": "phpstan analyse -c phpstan.core.neon --level=8 --memory-limit=1G --debug",
-    "phpstan:test": "phpstan analyse -c phpstan.test.neon --level=2 --memory-limit=1G --debug",
-    "phpstan:ci": "@phpstan --no-progress",
-    "phpstan:core:ci": "@phpstan:core --no-progress",
-    "phpstan:test:ci": "@phpstan:test --no-progress",
-    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector process --dry-run --debug",
-    "rector:exec": "rector process --debug",
-    "symfony:check:ci": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container"
+    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",
+    "test:new": "./vendor/bin/phpunit --configuration phpunit.new.xml",
+    "test:new:wip": "@test:new --group wip",
+    "rector": [
+      "@rector:legacy",
+      "@rector:core",
+      "@rector:new"
+    ],
+    "rector:fix": [
+      "@rector:legacy:fix",
+      "@rector:core:fix",
+      "@rector:new:fix"
+    ],
+    "cs": [
+      "@cs:legacy",
+      "@cs:core",
+      "@cs:new"
+    ],
+    "cs:fix": [
+      "@cs:legacy:fix",
+      "@cs:core:fix",
+      "@cs:new:fix"
+    ],
+    "stan": [
+      "@stan:legacy",
+      "@stan:core",
+      "@stan:new"
+    ],
+    "dep": [
+      "@dep:new"
+    ],
+    "legacy:check": [
+      "@rector:legacy",
+      "@cs:legacy",
+      "@stan:legacy"
+    ],
+    "core:check": [
+      "@rector:core",
+      "@cs:core",
+      "@stan:core"
+    ],
+    "new:check": [
+      "@rector:new",
+      "@cs:new",
+      "@stan:new",
+      "@dep:new"
+    ],
+    "ci": [
+      "@symfony:check",
+      "@legacy:check",
+      "@core:check",
+      "@new:check",
+      "@test:new",
+      "@test"
+    ]
+  },
+  "conflict": {
+    "symfony/symfony": "*"
   },
   "extra": {
+    "public-dir": "www",
     "symfony": {
       "allow-contrib": true,
-      "require": "6.4.*"
+      "require": "7.3.*",
+      "docker": false
     }
   }
 }

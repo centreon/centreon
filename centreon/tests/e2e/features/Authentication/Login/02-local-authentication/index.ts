@@ -1,17 +1,17 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
-import { When, Then, Given } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  initializeConfigACLAndGetLoginPage,
-  millisecondsValueForSixMonth,
-  millisecondsValueForFourHour,
-  checkDefaultsValueForm
-} from '../common';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { getUserContactId } from '../../../../commons';
+import {
+  checkDefaultsValueForm,
+  initializeConfigAclAndGetLoginPage,
+  millisecondsValueForFourHour,
+  millisecondsValueForSixMonth
+} from '../common';
 
 before(() => {
   cy.startContainers().then(() => {
-    return initializeConfigACLAndGetLoginPage();
+    return initializeConfigAclAndGetLoginPage();
   });
 });
 
@@ -80,10 +80,7 @@ Given('an administrator deploying a new Centreon platform', () =>
   cy
     .loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
 );
 
 When('the administrator opens the authentication configuration menu', () => {
@@ -123,10 +120,7 @@ When(
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: false })
       .wait('@getLastestUserFilters')
-      .navigateTo({
-        page: 'Authentication',
-        rootItemNumber: 4
-      })
+      .visit(PAGES.configuration.authentication)
       .get('div[role="tablist"] button')
       .eq(0)
       .contains('Password security policy');
@@ -166,11 +160,14 @@ Then(
       .isInProfileMenu('Edit profile')
       .should('be.visible');
 
-    cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+    cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
 
     cy.getIframeBody()
       .find('form')
       .within(() => {
+        cy.get('#current_password')
+          .should('be.visible')
+          .type('Centreon!2021User1');
         cy.get('#passwd1').should('be.visible').type('azerty');
         cy.get('#passwd2').should('be.visible').type('azerty');
       });
@@ -197,10 +194,7 @@ Given(
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
       .wait('@getLastestUserFilters')
-      .navigateTo({
-        page: 'Authentication',
-        rootItemNumber: 4
-      });
+      .visit(PAGES.configuration.authentication);
   }
 );
 
@@ -247,7 +241,7 @@ Then('the existing user can not authenticate and is notified about it', () => {
     });
   });
 
-  cy.visit('/centreon/login');
+  cy.visit(PAGES.configuration.login);
 });
 
 Given(
@@ -255,10 +249,7 @@ Given(
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
       .wait('@getLastestUserFilters')
-      .navigateTo({
-        page: 'Authentication',
-        rootItemNumber: 4
-      });
+      .visit(PAGES.configuration.authentication);
   }
 );
 
@@ -299,10 +290,13 @@ Then('user can not change password unless the minimum time has passed', () => {
     .isInProfileMenu('Edit profile')
     .should('be.visible');
 
-  cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
   cy.getIframeBody()
     .find('form')
     .within(() => {
+      cy.get('#current_password')
+        .should('be.visible')
+        .type('Centreon!2021User1');
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
     });
@@ -314,10 +308,13 @@ Then('user can not change password unless the minimum time has passed', () => {
     .find('#validForm input[name="change"]')
     .should('be.visible');
 
-  cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
   cy.getIframeBody()
     .find('#Form')
     .within(() => {
+      cy.get('#current_password')
+        .should('be.visible')
+        .type('@zerty!976=Centreon');
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
     });
@@ -345,10 +342,13 @@ Then('user can not change password unless the minimum time has passed', () => {
 });
 
 Then('user can not reuse the last passwords more than 3 times', () => {
-  cy.visit('/centreon/main.php?p=50104&o=c').wait('@getTimeZone');
+  cy.visit(PAGES.configuration.accountParametersLegacy).wait('@getTimeZone');
   cy.getIframeBody()
     .find('#Form')
     .within(() => {
+      cy.get('#current_password')
+        .should('be.visible')
+        .type('@zerty!976=Centreon');
       cy.get('#passwd1').should('be.visible').type('@zerty!976=Centreon');
       cy.get('#passwd2').should('be.visible').type('@zerty!976=Centreon');
     });
@@ -382,10 +382,7 @@ Then('user can not reuse the last passwords more than 3 times', () => {
 Given('an existing password policy configuration and 2 non admin users', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
     .wait('@getLastestUserFilters')
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    });
+    .visit(PAGES.configuration.authentication);
 });
 
 When(
@@ -434,7 +431,7 @@ Then('the password expiration policy is applied to the removed user', () => {
     .url()
     .should('include', '/reset-password');
 
-  cy.visit('/centreon/login');
+  cy.visit(PAGES.configuration.login);
 });
 
 Then(
@@ -458,10 +455,7 @@ Given(
   () => {
     cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
       .wait('@getLastestUserFilters')
-      .navigateTo({
-        page: 'Authentication',
-        rootItemNumber: 4
-      });
+      .visit(PAGES.configuration.authentication);
   }
 );
 

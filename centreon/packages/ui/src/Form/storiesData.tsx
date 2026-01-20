@@ -157,12 +157,16 @@ export const basicFormGroups: Array<Group> = [
   {
     EndIcon: () => <HelpOutlineIcon />,
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
+    name: 'Third group',
+    order: 3
+  },
+  {
     name: 'Second group',
     order: 2
   },
   {
-    name: 'Third group',
-    order: 3
+    name: 'Fourth group',
+    order: 4
   }
 ];
 
@@ -216,6 +220,12 @@ export const basicFormInputs: Array<InputProps> = [
     type: InputType.Radio
   },
   {
+    fieldName: 'div',
+    group: 'First group',
+    label: 'divider',
+    type: InputType.Divider
+  },
+  {
     additionalLabel: 'Notifications',
     fieldName: '',
     grid: {
@@ -226,12 +236,12 @@ export const basicFormInputs: Array<InputProps> = [
             direction: 'horizontal'
           },
           fieldName: 'notifications.channels',
-          label: 'channels',
+          label: 'mail',
           type: InputType.Checkbox
         },
         {
           fieldName: 'notifications.includeServices',
-          label: 'Iclude services',
+          label: 'Include services for this host',
           type: InputType.Checkbox
         },
         {

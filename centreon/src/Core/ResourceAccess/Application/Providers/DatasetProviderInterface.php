@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\ResourceAccess\Application\Providers;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\ResourceAccess\Domain\Model\DatasetFilter\ResourceNamesById;
 
 interface DatasetProviderInterface
@@ -37,12 +38,16 @@ interface DatasetProviderInterface
     /**
      * @param int[] $resourceIds
      *
+     * @throws RepositoryException
+     *
      * @return int[]
      */
     public function areResourcesValid(array $resourceIds): array;
 
     /**
      * @param int[] $ids
+     *
+     * @throws RepositoryException
      *
      * @return ResourceNamesById
      */

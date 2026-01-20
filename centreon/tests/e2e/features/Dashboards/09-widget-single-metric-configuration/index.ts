@@ -6,11 +6,11 @@ import {
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metrics from '../../../fixtures/dashboards/creation/widgets/metrics.json';
 import singleMetricPayload from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadPl.json';
 import singleMetricPayloadRta from '../../../fixtures/dashboards/creation/widgets/singleMetricPayloadRta.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 before(() => {
   cy.startContainers();
@@ -120,7 +120,7 @@ When(
     cy.getByTestId({ testId: 'Select resource' }).eq(1).click();
     cy.contains('Ping').realClick();
     cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-    cy.contains('rta (ms)').realClick();
+    cy.getByTestId({ testId: 'rta' }).realClick();
   }
 );
 
@@ -202,7 +202,7 @@ Then(
     cy.get('[class*="MuiTypography-h2"]')
       .invoke('text')
       .then((text) => {
-        if (parseFloat(text) !== 0) {
+        if (Number.parseFloat(text) !== 0) {
           expect(text).to.match(/\d+\.\d{2,}/);
         }
       });
@@ -235,7 +235,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a warning state',
   () => {
-    cy.contains(metrics.customValues.warning).should('be.visible');
+    cy.get('[class$="thresholdLabel-warning"] h5').should('contain.text', '40');
   }
 );
 
@@ -255,7 +255,7 @@ When(
 Then(
   'the widget is refreshed to make it look like the metric is in a critical state',
   () => {
-    cy.contains(metrics.customValues.critical).should('be.visible');
+    cy.get('[class$="thresholdLabel-warning"] h5').should('contain.text', '40');
   }
 );
 
@@ -310,7 +310,7 @@ Given('a dashboard featuring two Single Metric widgets', () => {
 
 When('the dashboard administrator user deletes one of the widgets', () => {
   cy.editDashboard(dashboards.default.name);
-  cy.getByTestId({ testId: 'More actions' }).eq(0).click()
+  cy.getByTestId({ testId: 'More actions' }).eq(0).click();
   cy.getByTestId({ testId: 'Delete widget' }).click();
 });
 

@@ -10,12 +10,13 @@ import { Provider } from 'jotai';
 
 import { Box } from '@mui/material';
 
+import Loading from '../../LoadingSkeleton';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
 import { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
 import { LineChartData, Thresholds } from '../common/models';
-import Loading from '../../LoadingSkeleton';
 
+import { ReactElement } from 'react';
 import useResizeObserver from 'use-resize-observer';
 import ResponsiveBarChart from './ResponsiveBarChart';
 import { BarStyle } from './models';
@@ -26,7 +27,20 @@ dayjs.extend(timezonePlugin);
 
 export interface BarChartProps
   extends Partial<
-    Pick<LineChartProps, 'tooltip' | 'legend' | 'height' | 'axis' | 'header'>
+    Pick<
+      LineChartProps,
+      | 'tooltip'
+      | 'legend'
+      | 'height'
+      | 'axis'
+      | 'header'
+      | 'min'
+      | 'max'
+      | 'boundariesUnit'
+      | 'timeShiftZones'
+      | 'zoomPreview'
+      | 'annotationEvent'
+    >
   > {
   barStyle?: BarStyle;
   data?: LineChartData;
@@ -47,7 +61,16 @@ const BarChart = ({
   height = 500,
   tooltip,
   axis,
-  legend,
+  legend = {
+    display: true,
+    mode: 'grid',
+    placement: 'bottom',
+    showCalculations: {
+      min: true,
+      max: true,
+      avg: true
+    }
+  },
   loading,
   limitLegend,
   thresholdUnit,
@@ -58,9 +81,15 @@ const BarChart = ({
     opacity: 1,
     radius: 0.2
   },
-  skipIntersectionObserver
-}: BarChartProps): JSX.Element => {
-  const { adjustedData } = useChartData({ data, end, start });
+  skipIntersectionObserver,
+  min,
+  max,
+  boundariesUnit,
+  zoomPreview,
+  timeShiftZones,
+  annotationEvent
+}: BarChartProps): ReactElement => {
+  const { adjustedData } = useChartData({ data, end, start, min, max });
   const { ref, width, height: responsiveHeight } = useResizeObserver();
 
   if (loading && !adjustedData) {
@@ -70,6 +99,10 @@ const BarChart = ({
         graphHeight={height || 200}
       />
     );
+  }
+
+  if (!adjustedData) {
+    return <div />;
   }
 
   return (
@@ -93,6 +126,14 @@ const BarChart = ({
             tooltip={tooltip}
             width={width || 0}
             skipIntersectionObserver={skipIntersectionObserver}
+            min={min}
+            max={max}
+            boundariesUnit={boundariesUnit}
+            zoomPreview={zoomPreview}
+            timeShiftZones={timeShiftZones}
+            annotationEvent={annotationEvent}
+            start={start}
+            end={end}
           />
         )}
       </Box>

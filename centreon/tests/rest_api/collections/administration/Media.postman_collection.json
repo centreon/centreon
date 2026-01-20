@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "11208b37-db12-4d5e-9fc7-f5cd2e6fe9de",
+		"_postman_id": "fffb8ab1-f939-4948-ab6b-6c5e185e2577",
 		"name": "Media",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "29556865"
 	},
 	"item": [
 		{
@@ -1479,14 +1479,14 @@
 									"    pm.response.to.have.status(200);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new media\r",
-									"    pm.collectionVariables.set(\"Image1Id\", responseJson.result[0].id);\r",
-									"    pm.collectionVariables.set(\"Image1md5\", responseJson.result[0].md5);\r",
+									"    pm.collectionVariables.set(\"imageIdPlantAdmin\", responseJson.result[0].id);\r",
+									"    pm.collectionVariables.set(\"imageMd5PlantAdmin\", responseJson.result[0].md5);\r",
 									"\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Herbizarre.png\",\r",
-									"        \"directory\": \"ppm\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdPlantAdmin\"),\r",
+									"        \"filename\": pm.collectionVariables.get(\"imageNamePokemonPlant\"),\r",
+									"        \"directory\": pm.collectionVariables.get('imageFolderAdmin'),\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5PlantAdmin\")\r",
 									"    });\r",
 									"});\r",
 									"\r",
@@ -1543,11 +1543,11 @@
 									"key": "data",
 									"description": "please use images/[nameFile] on the CI",
 									"type": "file",
-									"src": "images/Herbizarre.png"
+									"src": "{{imageDataPokemonPlant}}"
 								},
 								{
 									"key": "directory",
-									"value": "ppm",
+									"value": "{{imageFolderAdmin}}",
 									"type": "text"
 								}
 							]
@@ -1585,22 +1585,31 @@
 									"/*\r",
 									"/  Check code status\r",
 									"*/\r",
-									"pm.test(\"A list of media has been fetched.\", function () {\r",
+									"pm.test(\"A list of medias has been fetched.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson);\r",
+									"\r",
 									"pm.test(\"The medias retrieved are listed with all their informations\", function () {\r",
+									"    const urlPath = pm.collectionVariables.get(\"urlImagePath\");\r",
+									"    const folderAdmin = pm.collectionVariables.get(\"imageFolderAdmin\");\r",
+									"    const imageNamePlant = pm.collectionVariables.get(\"imageNamePokemonPlant\");\r",
+									"\r",
+									"\r",
+									"    // full URL of image\r",
+									"    const urlImagePlantAdminComplete = `${urlPath}/${folderAdmin}/${imageNamePlant}`;\r",
+									"\r",
 									"    // Check the number of media (1)\r",
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"\r",
 									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Herbizarre.png\",\r",
-									"        \"directory\": \"ppm\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdPlantAdmin\"),\r",
+									"        \"name\": imageNamePlant,\r",
+									"        \"directory\": folderAdmin,\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5PlantAdmin\"),\r",
+									"        \"url\": urlImagePlantAdminComplete\r",
 									"    });\r",
 									"\r",
 									"});\r",
@@ -1615,11 +1624,12 @@
 									"                    \"type\": \"object\",\r",
 									"                    \"properties\": {\r",
 									"                        id: { type: \"integer\" },\r",
-									"                        filename: { type: \"string\" },\r",
+									"                        name: { type: \"string\" },\r",
 									"                        directory: { type: \"string\" },\r",
-									"                        md5: { type: \"string\" }\r",
+									"                        md5: { type: \"string\" },\r",
+									"                        url: { type: \"string\" }\r",
 									"                    },\r",
-									"                    \"required\": [\"id\", \"filename\", \"directory\", \"md5\"]\r",
+									"                    \"required\": [\"id\", \"name\", \"directory\", \"md5\", \"url\"]\r",
 									"                }\r",
 									"            },\r",
 									"            \"meta\": {\r",
@@ -1745,7 +1755,7 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Herbizarre.png"
+									"src": "{{imageDataPokemonPlant}}"
 								}
 							]
 						},
@@ -1821,7 +1831,7 @@
 							"formdata": [
 								{
 									"key": "directory",
-									"value": "ppm",
+									"value": "{{imageFolderAdmin}}",
 									"type": "text"
 								}
 							]
@@ -1898,7 +1908,7 @@
 							"formdata": [
 								{
 									"key": "directory",
-									"value": "ppm",
+									"value": "{{imageFolderAdmin}}",
 									"type": "text"
 								},
 								{
@@ -2078,14 +2088,14 @@
 									"    pm.response.to.have.status(200);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new media\r",
-									"    pm.collectionVariables.set(\"Image2Id\", responseJson.result[0].id);\r",
-									"    pm.collectionVariables.set(\"Image2md5\", responseJson.result[0].md5);\r",
+									"    pm.collectionVariables.set(\"imageIdWaterEditor\", responseJson.result[0].id);\r",
+									"    pm.collectionVariables.set(\"imageMd5WaterEditor\", responseJson.result[0].md5);\r",
 									"\r",
 									"    pm.expect(responseJson.result[0]).to.eql({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image2Id\"),\r",
-									"        \"filename\": \"Carapuce.png\",\r",
-									"        \"directory\": \"user-WR-directory\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image2md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdWaterEditor\"),\r",
+									"        \"filename\": pm.collectionVariables.get(\"imageNamePokemonWater\"),\r",
+									"        \"directory\": pm.collectionVariables.get('imageFolderEditor'),\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5WaterEditor\")\r",
 									"    });\r",
 									"});\r",
 									"\r",
@@ -2141,11 +2151,11 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Carapuce.png"
+									"src": "{{imageDataPokemonWater}}"
 								},
 								{
 									"key": "directory",
-									"value": "user-WR-directory",
+									"value": "{{imageFolderEditor}}",
 									"type": "text"
 								}
 							]
@@ -2188,25 +2198,37 @@
 									"});\r",
 									"\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The medias retrieved are listed with all their informations\", function() {\r",
+									"pm.test(\"The medias retrieved are listed with all their informations\", function () {\r",
+									"    const urlPath = pm.collectionVariables.get(\"urlImagePath\");\r",
+									"    const folderAdmin = pm.collectionVariables.get(\"imageFolderAdmin\");\r",
+									"    const folderEditor = pm.collectionVariables.get(\"imageFolderEditor\");\r",
+									"    const imageNamePlant = pm.collectionVariables.get(\"imageNamePokemonPlant\");\r",
+									"    const imageNameWater = pm.collectionVariables.get(\"imageNamePokemonWater\");\r",
+									"\r",
+									"    // full URL of images\r",
+									"    const urlImagePlantAdminComplete = `${urlPath}/${folderAdmin}/${imageNamePlant}`;\r",
+									"    const urlImageWaterEditorComplete = `${urlPath}/${folderEditor}/${imageNameWater}`;\r",
+									"\r",
 									"    // Check the number of media (2)\r",
 									"    pm.expect(responseJson.result.length).to.eql(2);\r",
 									"\r",
 									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image2Id\"),\r",
-									"        \"filename\": \"Carapuce.png\",\r",
-									"        \"directory\": \"user-WR-directory\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image2md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdWaterEditor\"),\r",
+									"        \"name\": imageNameWater,\r",
+									"        \"directory\": folderEditor,\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5WaterEditor\"),\r",
+									"        \"url\": urlImageWaterEditorComplete\r",
 									"    });\r",
 									"\r",
+									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Herbizarre.png\",\r",
-									"        \"directory\": \"ppm\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdPlantAdmin\"),\r",
+									"        \"name\": imageNamePlant,\r",
+									"        \"directory\": folderAdmin,\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5PlantAdmin\"),\r",
+									"        \"url\": urlImagePlantAdminComplete\r",
 									"    });\r",
-									"    \r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the media listing response\", function () {\r",
@@ -2219,11 +2241,12 @@
 									"                    \"type\": \"object\",\r",
 									"                    \"properties\": {\r",
 									"                        id: { type: \"integer\" },\r",
-									"                        filename: { type: \"string\" },\r",
+									"                        name: { type: \"string\" },\r",
 									"                        directory: { type: \"string\" },\r",
-									"                        md5: { type: \"string\" }\r",
+									"                        md5: { type: \"string\" },\r",
+									"                        url: { type: \"string\" }\r",
 									"                    },\r",
-									"                    \"required\": [\"id\", \"filename\", \"directory\", \"md5\"]\r",
+									"                    \"required\": [\"id\", \"name\", \"directory\", \"md5\", \"url\"]\r",
 									"                }\r",
 									"            },\r",
 									"            \"meta\": {\r",
@@ -2298,7 +2321,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2313,14 +2337,14 @@
 									"    pm.response.to.have.status(200);\r",
 									"\r",
 									"    // Creation of a variable with the ID of the new media\r",
-									"    pm.collectionVariables.set(\"Image3Id\", responseJson.result[0].id);\r",
-									"    pm.collectionVariables.set(\"Image3md5\", responseJson.result[0].md5);\r",
+									"    pm.collectionVariables.set(\"imageIdPlantEditor\", responseJson.result[0].id);\r",
+									"    pm.collectionVariables.set(\"imageMd5PlantEditor\", responseJson.result[0].md5);\r",
 									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image3Id\"),\r",
-									"        \"filename\": \"Herbizarre.png\",\r",
-									"        \"directory\": \"user-WR-directory\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image3md5\")\r",
+									"    pm.expect(responseJson.result[0]).to.eql({\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdPlantEditor\"),\r",
+									"        \"filename\": pm.collectionVariables.get(\"imageNamePokemonPlant\"),\r",
+									"        \"directory\": pm.collectionVariables.get('imageFolderEditor'),\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5PlantEditor\")\r",
 									"    });\r",
 									"});\r",
 									"\r",
@@ -2328,7 +2352,8 @@
 									"    pm.expect(responseJson.errors).to.be.an('Array').that.is.empty;\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2347,11 +2372,11 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Herbizarre.png"
+									"src": "{{imageDataPokemonPlant}}"
 								},
 								{
 									"key": "directory",
-									"value": "user-WR-directory",
+									"value": "{{imageFolderEditor}}",
 									"type": "text"
 								}
 							]
@@ -2378,7 +2403,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2393,35 +2419,88 @@
 									"});\r",
 									"\r",
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The medias retrieved are listed with all their informations\", function() {\r",
+									"pm.test(\"The medias retrieved are listed with all their informations\", function () {\r",
+									"    const urlPath = pm.collectionVariables.get(\"urlImagePath\");\r",
+									"    const folderAdmin = pm.collectionVariables.get(\"imageFolderAdmin\");\r",
+									"    const folderEditor = pm.collectionVariables.get(\"imageFolderEditor\");\r",
+									"    const imageNamePlant = pm.collectionVariables.get(\"imageNamePokemonPlant\");\r",
+									"    const imageNameWater = pm.collectionVariables.get(\"imageNamePokemonWater\");\r",
+									"\r",
+									"    // full URL of images\r",
+									"    const urlImagePlantAdminComplete = `${urlPath}/${folderAdmin}/${imageNamePlant}`;\r",
+									"    const urlImageWaterEditorComplete = `${urlPath}/${folderEditor}/${imageNameWater}`;\r",
+									"    const urlImagePlantEditorComplete = `${urlPath}/${folderEditor}/${imageNamePlant}`;\r",
+									"\r",
 									"    // Check the number of media (3)\r",
 									"    pm.expect(responseJson.result.length).to.eql(3);\r",
 									"\r",
 									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image3Id\"),\r",
-									"        \"filename\": \"Herbizarre.png\",\r",
-									"        \"directory\": \"user-WR-directory\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image3md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdPlantEditor\"),\r",
+									"        \"name\": imageNamePlant,\r",
+									"        \"directory\": folderEditor,\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5PlantEditor\"),\r",
+									"        \"url\": urlImagePlantEditorComplete\r",
 									"    });\r",
 									"\r",
+									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image2Id\"),\r",
-									"        \"filename\": \"Carapuce.png\",\r",
-									"        \"directory\": \"user-WR-directory\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image2md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdWaterEditor\"),\r",
+									"        \"name\": imageNameWater,\r",
+									"        \"directory\": folderEditor,\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5WaterEditor\"),\r",
+									"        \"url\": urlImageWaterEditorComplete\r",
 									"    });\r",
 									"\r",
+									"    // Check the properties of the media\r",
 									"    pm.expect(responseJson.result[2]).to.include({\r",
-									"        \"id\": pm.collectionVariables.get(\"Image1Id\"),\r",
-									"        \"filename\": \"Herbizarre.png\",\r",
-									"        \"directory\": \"ppm\",\r",
-									"        \"md5\": pm.collectionVariables.get(\"Image1md5\")\r",
+									"        \"id\": pm.collectionVariables.get(\"imageIdPlantAdmin\"),\r",
+									"        \"name\": imageNamePlant,\r",
+									"        \"directory\": folderAdmin,\r",
+									"        \"md5\": pm.collectionVariables.get(\"imageMd5PlantAdmin\"),\r",
+									"        \"url\": urlImagePlantAdminComplete\r",
 									"    });\r",
-									"    \r",
-									"})"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the media listing response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        id: { type: \"integer\" },\r",
+									"                        name: { type: \"string\" },\r",
+									"                        directory: { type: \"string\" },\r",
+									"                        md5: { type: \"string\" },\r",
+									"                        url: { type: \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"directory\", \"md5\", \"url\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    }\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2465,7 +2544,7 @@
 					"response": []
 				},
 				{
-					"name": "Add same media in same directory",
+					"name": "Not possible to add same media in same directory",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2473,7 +2552,8 @@
 								"exec": [
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						},
 						{
@@ -2487,15 +2567,15 @@
 									"pm.test(\"The media has not been added, because the directory is mandatory.\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"    pm.expect(responseJson.errors[0]).to.eql({\r",
-									"            \"filename\": \"Herbizarre.png\",\r",
-									"            \"directory\": \"user-WR-directory\",\r",
-									"            \"reason\": \"Media already exists\"\r",
-									"        });\r",
-									"\r",
+									"        \"filename\": pm.collectionVariables.get('imageNamePokemonPlant'),\r",
+									"        \"directory\": pm.collectionVariables.get('imageFolderEditor'),\r",
+									"        \"reason\": \"Media already exists\"\r",
+									"    });\r",
 									"});\r",
 									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -2514,11 +2594,11 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Herbizarre.png"
+									"src": "{{imageDataPokemonPlant}}"
 								},
 								{
 									"key": "directory",
-									"value": "user-WR-directory",
+									"value": "{{imageFolderEditor}}",
 									"type": "text"
 								}
 							]
@@ -2728,11 +2808,11 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Carapuce.png"
+									"src": "{{imageDataPokemonWater}}"
 								},
 								{
 									"key": "directory",
-									"value": "ppm/user",
+									"value": "{{imageFolderOperator}}",
 									"type": "text"
 								}
 							]
@@ -2745,90 +2825,6 @@
 							"path": [
 								"configuration",
 								"medias"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List medias",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The media has not been listed, because the user does not have the correct rights.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to list media\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the media listing response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/medias?sort_by={\"id\":\"DESC\"}&limit=3",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"medias"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
-								},
-								{
-									"key": "limit",
-									"value": "3"
-								}
 							]
 						}
 					},
@@ -3026,11 +3022,11 @@
 								{
 									"key": "data",
 									"type": "file",
-									"src": "images/Carapuce.png"
+									"src": "{{imageDataPokemonWater}}"
 								},
 								{
 									"key": "directory",
-									"value": "ppm/user",
+									"value": "{{imageFolderOperator}}",
 									"type": "text"
 								}
 							]
@@ -3043,90 +3039,6 @@
 							"path": [
 								"configuration",
 								"medias"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List medias",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"/*\r",
-									"/  Check code status\r",
-									"*/\r",
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The media has not been listed, because the user does not have the correct rights.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to list media\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Schema validation test for the media listing response\", function () {\r",
-									"    const schema = {\r",
-									"        \"type\": 'object',\r",
-									"        \"properties\": {\r",
-									"            \"code\": { \"type\": 'integer' },\r",
-									"            \"message\": { \"type\": 'string' }\r",
-									"        },\r",
-									"        \"required\": ['code', 'message']\r",
-									"    };\r",
-									"\r",
-									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/medias?sort_by={\"id\":\"DESC\"}&limit=3",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"medias"
-							],
-							"query": [
-								{
-									"key": "sort_by",
-									"value": "{\"id\":\"DESC\"}"
-								},
-								{
-									"key": "limit",
-									"value": "3"
-								}
 							]
 						}
 					},
@@ -3246,6 +3158,96 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user_RW",
+			"value": "user_with_RW_rights"
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": "user_with_R_rights"
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": "user_nothing"
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "urlImagePath",
+			"value": "/centreon/img/media",
+			"type": "string"
+		},
+		{
+			"key": "imageNamePokemonPlant",
+			"value": "Herbizarre.png",
+			"type": "string"
+		},
+		{
+			"key": "imageNamePokemonWater",
+			"value": "Carapuce.png",
+			"type": "string"
+		},
+		{
+			"key": "imageDataPokemonPlant",
+			"value": "images/{{imageNamePokemonPlant}}",
+			"type": "string"
+		},
+		{
+			"key": "imageDataPokemonWater",
+			"value": "images/{{imageNamePokemonWater}}",
+			"type": "string"
+		},
+		{
+			"key": "imageFolderAdmin",
+			"value": "img-pokemon-admin",
+			"type": "default"
+		},
+		{
+			"key": "imageFolderEditor",
+			"value": "img-pokemon-editor",
+			"type": "default"
+		},
+		{
+			"key": "imageFolderOperator",
+			"value": "img-pokemon-operator",
+			"type": "string"
+		},
+		{
+			"key": "imageIdPlantAdmin",
+			"value": ""
+		},
+		{
+			"key": "imageMd5PlantAdmin",
+			"value": ""
+		},
+		{
+			"key": "imageIdWaterEditor",
+			"value": ""
+		},
+		{
+			"key": "imageMd5WaterEditor",
+			"value": ""
+		},
+		{
+			"key": "imageIdPlantEditor",
+			"value": ""
+		},
+		{
+			"key": "imageMd5PlantEditor",
+			"value": ""
 		}
 	]
 }

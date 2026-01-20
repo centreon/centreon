@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,8 +83,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP Account and User info.
      *
-     * @return array<string,mixed> with Account/User info
      * @throws PDOException
+     * @return array<string,mixed> with Account/User info
      */
     public function getCeipInfo(): array
     {
@@ -92,8 +92,8 @@ class CentreonCeip extends CentreonWebService
             ? [
                 'visitor' => $this->getVisitorInformation(),
                 'account' => $this->getAccountInformation(),
-                'agent' => $this->getAgentInformation(),
                 'excludeAllText' => true,
+                'agents' => $this->getAgentInformation(),
                 'ceip' => true,
             ]
             // Don't compute data if CEIP is disabled
@@ -103,13 +103,66 @@ class CentreonCeip extends CentreonWebService
     }
 
     /**
+     * Fetch Agents info.
+     *
+     * @throws PDOException
+     * @return array{
+     *   poller_id: int,
+     *   nb_agents: int
+     * }
+     */
+    private function getAgentInformation(): array
+    {
+        $agents = [];
+        try {
+            $query = <<<'SQL'
+                    SELECT `poller_id`, `enabled`, `infos`
+                    FROM `centreon_storage`.`agent_information`
+                SQL;
+            $statement = $this->pearDB->executeStatement($query);
+
+            $rows = $this->pearDB->fetchAllAssociative($statement);
+            foreach ($rows as $row) {
+                /** @var array{poller_id:int,enabled:int,infos:string} $row */
+                if ((bool) $row['enabled'] === false) {
+                    continue;
+                }
+
+                $decodedInfos = json_decode($row['infos'], true);
+                if (! is_array($decodedInfos)) {
+                    CentreonLog::create()->error(
+                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                        message: "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
+                        customContext: ['agent_data' => $row]
+                    );
+
+                    continue;
+                }
+
+                $agents[] = [
+                    'poller_id' => $row['poller_id'],
+                    'nb_agents' => array_sum(array_map(static fn (array $info): int => $info['nb_agent'] ?? 0, $decodedInfos)),
+                ];
+            }
+        } catch (Throwable $exception) {
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
+        }
+
+        return $agents;
+    }
+
+    /**
      * Get the type of the Centreon server.
      *
+     * @throws PDOException
      * @return array{
      *     type: 'central'|'remote',
      *     platform: 'on_premise'|'centreon_cloud',
      * } the type of the server
-     * @throws PDOException
      */
     private function getServerType(): array
     {
@@ -162,7 +215,7 @@ class CentreonCeip extends CentreonWebService
             $dependencyInjector = LegacyContainer::getInstance();
             $licenseService = $dependencyInjector['lm.license'];
 
-            if($licenseService->isTrial()) {
+            if ($licenseService->isTrial()) {
                 $email = $this->user->email;
             }
         } else {
@@ -172,7 +225,7 @@ class CentreonCeip extends CentreonWebService
                 : 'user';
 
             // If user have access to monitoring configuration, it's an operator
-            if (0 !== strcmp($role, 'admin') && $this->user->access->page('601') > 0) {
+            if (strcmp($role, 'admin') !== 0 && $this->user->access->page('601') > 0) {
                 $role = 'editor';
             }
         }
@@ -186,6 +239,7 @@ class CentreonCeip extends CentreonWebService
         if (isset($email)) {
             $visitorInformation['email'] = $email;
         }
+
         return $visitorInformation;
     }
 
@@ -235,7 +289,7 @@ class CentreonCeip extends CentreonWebService
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
         }
 
-        if (!empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
+        if (! empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
             $accountInformation['LACCESS'] = $laccess;
         }
 
@@ -253,11 +307,22 @@ class CentreonCeip extends CentreonWebService
          * Getting License information.
          */
         $dependencyInjector = LegacyContainer::getInstance();
-        $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
-
         $productLicense = 'Open Source';
+        if (
+            ! class_exists('\\CentreonLicense\\ServiceProvider', false)
+            || ! $dependencyInjector->offsetExists('lm.license')
+        ) {
+            return [
+                'companyName' => '',
+                'licenseType' => $productLicense,
+                'platformEnvironment' => 'demo',
+            ];
+        }
+
         $licenseClientName = '';
         try {
+            $fingerprintService = $dependencyInjector[ServiceProvider::LM_FINGERPRINT];
+
             $centreonModules = ['epp', 'bam', 'map', 'mbi'];
 
             /** @var LicenseService $licenseObject */
@@ -287,12 +352,12 @@ class CentreonCeip extends CentreonWebService
                         'Y-m-d',
                         $licenseInformation[$module]['licensing']['end']
                     ) ?: throw new Exception('Invalid date format');
-                    $licenseDurationInMonths = $licenseEnd->diff($licenseStart)->m;
+                    $licenseDurationInDays = (int) ($licenseEnd->diff($licenseStart)->days ?? 0);
                     if ($module === 'epp') {
                         $productLicense = 'IT Edition';
                         if ($licenseInformation[$module]['licensing']['type'] === 'IT100') {
                             $productLicense = 'IT-100 Edition';
-                        } else if ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        } elseif ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
                             $productLicense = 'MSP Edition';
                             $fingerprint = $fingerprintService->calculateFingerprint();
                         }
@@ -300,7 +365,7 @@ class CentreonCeip extends CentreonWebService
                     if (in_array($module, ['mbi', 'bam', 'map'], true)) {
                         $productLicense = 'Business Edition';
                         $fingerprint = $fingerprintService->calculateFingerprint();
-                        if ((int) $hostsLimitation === -1 && $licenseDurationInMonths > 3) {
+                        if ((int) $hostsLimitation === -1 && $licenseDurationInDays > 90) {
                             $productLicense = 'MSP Edition';
                         }
                         break;
@@ -311,7 +376,11 @@ class CentreonCeip extends CentreonWebService
         } catch (UnknownIdentifierException) {
             // The licence does not exist, 99.99% chance we are on Open source. No need to log.
         } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
         }
 
         $licenseInformation = [
@@ -338,9 +407,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get the major and minor versions of Centreon web.
      *
-     * @return array{major: string, minor: string} with major and minor versions
      * @throws PDOException
-     *
+     * @return array{major: string, minor: string} with major and minor versions
      */
     private function getCentreonVersion(): array
     {
@@ -354,106 +422,39 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP status.
      *
-     * @return bool the status of CEIP
      * @throws PDOException
-     *
+     * @return bool the status of CEIP
      */
     private function isCeipActive(): bool
     {
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'send_statistics' LIMIT 1";
 
-        return '1' === $this->sqlFetchValue($sql);
-    }
-
-    /**
-     * Fetch CEIP Agent info.
-     *
-     * @return array{
-     *   id: int,
-     *   enabled: bool,
-     *   infos: array{
-     *       agentMajor: string,
-     *       agentMinor: string,
-     *       agentPatch: int|null,
-     *       reverse: bool,
-     *       os: string,
-     *       osVersion: string,
-     *       nbAgent: int|null
-     *   }
-     * }
-     *
-     * @throws PDOException
-     */
-    private function getAgentInformation(): array
-    {
-        $agents = [];
-        try {
-            $pearDBO = new CentreonDB(CentreonDB::LABEL_DB_REALTIME);
-            $query = <<<'SQL'
-                        SELECT `poller_id`, `enabled`, `infos`
-                        FROM `agent_information`
-                    SQL;
-            $statement = $pearDBO->executeQuery($query);
-
-            while (is_array($row = $pearDBO->fetch($statement))) {
-                /** @var array{poller_id:int,enabled:int,infos:string} $row */
-                $decodedInfos = json_decode($row['infos'], true);
-                if (! is_array($decodedInfos)) {
-                    $this->logger->warning(
-                        "Invalid JSON format in agent_information table for poller_id {$row['poller_id']}",
-                        ['context' => $row]
-                    );
-
-                    continue;
-                }
-
-                $agents[] = [
-                    'id' => $row['poller_id'],
-                    'enabled' => (bool) $row['enabled'],
-                    'infos' => array_map(function ($info) {
-                        return [
-                            'agentMajor' => $info['agent_major'] ?? '',
-                            'agentMinor' => $info['agent_minor'] ?? '',
-                            'agentPatch' => $info['agent_patch'] ?? null,
-                            'reverse' => $info['reverse'],
-                            'os' => $info['os'] ?? '',
-                            'osVersion' => $info['os_version'] ?? '',
-                            'nbAgent' => $info['nb_agent'] ?? null,
-                        ];
-                    }, $decodedInfos),
-                ];
-            }
-        } catch (Throwable $exception) {
-            $this->logger->error(
-                context: ['context' => $exception],
-                message: $exception->getMessage(),
-            );
-        }
-
-        return $agents;
+        return $this->sqlFetchValue($sql) === '1';
     }
 
     /**
      * Get LACCESS to complete the connection between Pendo and Salesforce.
      *
-     * @return string LACCESS value from options table.
-     *
      * @throws PDOException
-     *
+     * @return string LACCESS value from options table
      */
     private function getLaccess(): string
     {
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'impCompanyToken' LIMIT 1";
         $impCompanyToken = (string) $this->sqlFetchValue($sql);
+        if ($impCompanyToken === '') {
+            return '';
+        }
 
         $decodedToken = json_decode($impCompanyToken, true);
-        if (is_array($decodedToken) && isset($decodedToken['token'])) {
+        if (is_array($decodedToken) && is_string($decodedToken['token'] ?? null)) {
             return $decodedToken['token'];
         }
 
-        $this->logger->error(
-            "Invalid JSON format in options table for key 'impCompanyToken'",
-            ['context' => $impCompanyToken]
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: "Invalid JSON format in options table for key 'impCompanyToken'",
+            customContext: ['context' => $impCompanyToken]
         );
 
         return '';
@@ -480,7 +481,11 @@ class CentreonCeip extends CentreonWebService
 
             return is_string($value) || is_int($value) || is_float($value) ? $value : null;
         } catch (PDOException $exception) {
-            $this->logger->error($exception->getMessage(), ['context' => $exception]);
+            CentreonLog::create()->error(
+                logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                message: $exception->getMessage(),
+                customContext: ['context' => $exception]
+            );
 
             return null;
         }

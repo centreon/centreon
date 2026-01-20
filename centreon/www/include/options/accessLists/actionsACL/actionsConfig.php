@@ -1,40 +1,25 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,27 +29,25 @@ $aclActionId = filter_var(
 ) ?: null;
 
 $select = filter_var_array(
-    $_GET["select"] ?? $_POST["select"] ?? [],
+    $_GET['select'] ?? $_POST['select'] ?? [],
     FILTER_VALIDATE_INT
 );
 
 $dupNbr = filter_var_array(
-    $_GET["dupNbr"] ?? $_POST["dupNbr"] ?? [],
+    $_GET['dupNbr'] ?? $_POST['dupNbr'] ?? [],
     FILTER_VALIDATE_INT
 );
 
-/*
- * PHP functions
- */
-require_once __DIR__ .  "/DB-Func.php";
-require_once "./include/common/common-Func.php";
+// PHP functions
+require_once __DIR__ . '/DB-Func.php';
+require_once './include/common/common-Func.php';
 
-if (isset($_POST["o1"]) && isset($_POST["o2"])) {
-    if ($_POST["o1"] != "") {
-        $o = $_POST["o1"];
+if (isset($_POST['o1'], $_POST['o2'])) {
+    if ($_POST['o1'] != '') {
+        $o = $_POST['o1'];
     }
-    if ($_POST["o2"] != "") {
-        $o = $_POST["o2"];
+    if ($_POST['o2'] != '') {
+        $o = $_POST['o2'];
     }
 }
 
@@ -82,8 +65,8 @@ switch ($o) {
     case ACL_ACTION_ADD:
     case ACL_ACTION_WATCH:
     case ACL_ACTION_MODIFY:
-        require_once(__DIR__ .  "/formActionsAccess.php");
-        break; #Modify an Actions Access
+        require_once __DIR__ . '/formActionsAccess.php';
+        break; // Modify an Actions Access
     case ACL_ACTION_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -92,8 +75,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Activate an Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Activate an Actions Access
     case ACL_ACTION_MASSIVE_ACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -102,8 +85,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Activate an Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Activate an Actions Access
     case ACL_ACTION_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -112,8 +95,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Desactivate an an Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Desactivate an an Actions Access
     case ACL_ACTION_MASSIVE_DEACTIVATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -122,8 +105,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Desactivate n Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Desactivate n Actions Access
     case ACL_ACTION_DUPLICATION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -132,8 +115,8 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Duplicate n Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Duplicate n Actions Access
     case ACL_ACTION_DELETION:
         purgeOutdatedCSRFTokens();
         if (isCSRFTokenValid()) {
@@ -142,9 +125,9 @@ switch ($o) {
         } else {
             unvalidFormMessage();
         }
-        require_once(__DIR__ .  "/listsActionsAccess.php");
-        break; #Delete n Actions Access
+        require_once __DIR__ . '/listsActionsAccess.php';
+        break; // Delete n Actions Access
     default:
-        require_once(__DIR__ .  "/listsActionsAccess.php");
+        require_once __DIR__ . '/listsActionsAccess.php';
         break;
 }

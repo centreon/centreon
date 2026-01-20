@@ -1,9 +1,14 @@
-import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import {
+  DataTable,
+  Given,
+  Then,
+  When
+} from '@badeball/cypress-cucumber-preprocessor';
 
 const token = {
   duration: '7 days',
   name: 'myToken',
-  user: 'Guest'
+  user: 'guest'
 };
 
 beforeEach(() => {
@@ -37,10 +42,10 @@ Given('I am on the Authentication tokens page', () => {
 });
 
 When('I click on the "Add" button', () => {
-  cy.getByTestId({ testId: 'Add' }).click();
+  cy.getByLabel({ label: 'create' }).click();
 });
 
-When('I fill in the following required fields', (dataTable: any) => {
+When('I fill in the following required fields', (dataTable: DataTable) => {
   dataTable.hashes().forEach((element) => {
     const field = element.Field;
     const value = element.Value;
@@ -72,14 +77,19 @@ When('I click on the "Generate token" button', () => {
   cy.getByTestId({ testId: 'submit' }).click();
 });
 
-Then('a new basic Authentication token with hidden display is generated', () => {
-  cy.wait('@getTokens');
-  cy.getByTestId({ testId: 'tokenInput' }).as('generatedToken').should('exist');
-  cy.get('@generatedToken').should('have.attr', 'type', 'password');
-});
+Then(
+  'a new basic Authentication token with hidden display is generated',
+  () => {
+    cy.wait('@getTokens');
+    cy.getByTestId({ testId: 'tokenInput' })
+      .as('generatedToken')
+      .should('exist');
+    cy.get('@generatedToken').should('have.attr', 'type', 'password');
+  }
+);
 
 Given('a basic Authentication token is generated', () => {
-  cy.getByTestId({ testId: 'Add' }).click();
+  cy.getByLabel({ label: 'create' }).click();
 
   cy.get('#Name').type(token.name);
 

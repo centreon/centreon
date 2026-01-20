@@ -1,6 +1,6 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 const cmaMessage =
@@ -40,6 +40,14 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/agent-configurations'
   }).as('addorUpdateAgents');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/tokens?*'
+  }).as('getTokens');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/administration/tokens'
+  }).as('addToken');
 });
 
 after(() => {
@@ -51,8 +59,12 @@ Given('a non-admin user is on the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
+});
+
+Given('a CMA Token is configured', () => {
+  cy.addCmaToken();
 });
 
 When('the user clicks on the {string} button', (addBtnName: string) => {
@@ -61,7 +73,7 @@ When('the user clicks on the {string} button', (addBtnName: string) => {
 
 Then('a pop-up form is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Add poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Add agent configuration');
 });
 
 When('the user selects "CMA" as the agent type', () => {
@@ -79,7 +91,7 @@ Then(
   (agentType: string) => {
     cy.get('[class*="warning"]')
       .should('be.visible')
-      .and('contain.text', agentType == 'CMA' ? cmaMessage : telegrafMessage);
+      .and('contain.text', agentType === 'CMA' ? cmaMessage : telegrafMessage);
   }
 );
 
@@ -90,11 +102,11 @@ Then('no certificate fields are shown', () => {
 });
 
 When('the user enables connection initiated by the poller', () => {
-  cy.getByLabel({
-    label: 'Connection initiated by poller',
-    tag: 'input'
-  }).click();
-  cy.get('[class*="Mui-checked Mui-checked"]').should('exist');
+  // Disable the "By agent" mode first
+  cy.getByTestId({ testId: 'enable_agent', tag: 'span' }).click();
+  // Then enable the "By poller" mode
+  cy.contains('div', 'By poller').click();
+  cy.get('input[type="checkbox"]').click();
 });
 
 Then(
@@ -112,6 +124,8 @@ When('the user fills in the mandatory fields', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Poller-1').click();
   cy.contains('Poller-2').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
   cy.getByLabel({ label: 'DNS/IP', tag: 'input' })
@@ -119,6 +133,10 @@ When('the user fills in the mandatory fields', () => {
     .clear()
     .type('10.0.0.0');
   cy.getByTestId({ testId: 'Port' }).eq(0).clear().type('4317');
+  // Always fill the Token field
+  cy.getByTestId({ testId: 'Select existing CMA token' }).click();
+  cy.wait('@getTokens');
+  cy.contains('CMA-Token-001').click();
 });
 
 When('the user clicks "Save"', () => {
@@ -148,6 +166,8 @@ When('the user fills in the mandatory Telegraf fields', () => {
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.contains('Central').click();
+  // Click outside to close the pollers dropdown list
+  cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('1447');
 });
 
@@ -164,8 +184,9 @@ When('the user clicks on the first configured CMA agent', () => {
 });
 
 Then('a pop-up with the agent details is displayed', () => {
+  cy.contains('div', 'By poller').click();
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Update poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Update agent configuration');
   cy.get('#Name').should('contain.value', agentsConfiguration.CMA1.name);
   cy.get('#Agenttype').should('have.value', cmaTypeName);
   cy.get('#Encryptionlevel').should('have.value', 'No TLS');
@@ -200,7 +221,7 @@ When('the user clicks on the second configured Telegraf agent', () => {
 
 Then('a pop-up with the Telegraf agent details is displayed', () => {
   cy.get('*[role="dialog"]').should('be.visible');
-  cy.get('*[role="dialog"]').contains('Update poller/agent configuration');
+  cy.get('*[role="dialog"]').contains('Update agent configuration');
   cy.get('#Name').should('contain.value', agentsConfiguration.telegraf1.name);
   cy.get('#Agenttype').should('have.value', telegrafTypeName);
   cy.get('#Encryptionlevel').should('have.value', 'No TLS');

@@ -1,9 +1,8 @@
-/* eslint-disable no-script-url */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import grps from '../../../fixtures/notifications/data-for-notification.json';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import data from '../../../fixtures/host-groups/dependency.json';
+import grps from '../../../fixtures/notifications/data-for-notification.json';
 
 beforeEach(() => {
   cy.startContainers();
@@ -38,14 +37,28 @@ Given('some hosts groups are configured', () => {
 });
 
 Given('a host group dependency is configured', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.hostGroupsDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
-  cy.addHostGroupDependency(data.default);
+  cy.addHostGroupDependency({
+    name: data.default.name,
+    description: data.default.description,
+    parentRelationship: data.default.parent_relationship,
+    executionFailsOnOk: data.default.execution_fails_on_ok,
+    executionFailsOnDown: data.default.execution_fails_on_down,
+    executionFailsOnUnreachable: data.default.execution_fails_on_unreachable,
+    executionFailsOnPending: data.default.execution_fails_on_pending,
+    executionFailsOnNone: data.default.notification_fails_on_none,
+    notificationFailsOnNone: data.default.notification_fails_on_none,
+    notificationFailsOnOk: data.default.notification_fails_on_ok,
+    notificationFailsOnDown: data.default.notification_fails_on_down,
+    notificationFailsOnUnreachable:
+      data.default.notification_fails_on_unreachable,
+    notificationFailsOnPending: data.default.notification_fails_on_pending,
+    hostGroupsNames: data.default.hostGrpsNames,
+    dependentHostGroupsNames: data.default.dependentHostGrpsNames,
+    comment: data.default.comment
+  });
 });
 
 When('the user changes the properties of a host group dependency', () => {
@@ -54,7 +67,27 @@ When('the user changes the properties of a host group dependency', () => {
     `a:contains("${data.default.name}")`
   );
   cy.getIframeBody().contains(data.default.name).click();
-  cy.updateHostGroupDependency(data.HostGrpDependency1);
+  cy.updateHostGroupDependency({
+    name: data.HostGrpDependency1.name,
+    description: data.HostGrpDependency1.description,
+    parentRelationship: data.HostGrpDependency1.parent_relationship,
+    executionFailsOnOk: data.HostGrpDependency1.execution_fails_on_ok,
+    executionFailsOnDown: data.HostGrpDependency1.execution_fails_on_down,
+    executionFailsOnUnreachable:
+      data.HostGrpDependency1.execution_fails_on_unreachable,
+    executionFailsOnPending: data.HostGrpDependency1.execution_fails_on_pending,
+    executionFailsOnNone: data.HostGrpDependency1.execution_fails_on_none,
+    notificationFailsOnNone: data.HostGrpDependency1.notification_fails_on_none,
+    notificationFailsOnOk: data.HostGrpDependency1.notification_fails_on_ok,
+    notificationFailsOnDown: data.HostGrpDependency1.notification_fails_on_down,
+    notificationFailsOnUnreachable:
+      data.HostGrpDependency1.notification_fails_on_unreachable,
+    notificationFailsOnPending:
+      data.HostGrpDependency1.notification_fails_on_pending,
+    hostGroupsNames: data.HostGrpDependency1.hostGrpsNames,
+    dependentHostGroupsNames: data.HostGrpDependency1.dependentHostGrpsNames,
+    comment: data.HostGrpDependency1.comment
+  });
 });
 
 Then('the properties are updated', () => {
@@ -79,7 +112,7 @@ Then('the properties are updated', () => {
     .should('have.length', 2)
     .then((options) => {
       const selectedTexts = Array.from(options).map((option) =>
-        option.text.trim()
+        (option.textContent || '').trim()
       );
       expect(selectedTexts).to.include.members([
         data.HostGrpDependency1.hostGrpsNames[0],

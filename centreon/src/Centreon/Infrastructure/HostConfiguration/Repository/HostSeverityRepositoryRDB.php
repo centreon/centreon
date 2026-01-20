@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\HostConfiguration\Repository;
@@ -41,9 +42,7 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSeverityReadRepositoryInterface
 {
-    /**
-     * @var SqlRequestParametersTranslator
-     */
+    /** @var SqlRequestParametersTranslator */
     private $sqlRequestTranslator;
 
     public function __construct(DatabaseConnection $db, SqlRequestParametersTranslator $sqlRequestTranslator)
@@ -80,12 +79,44 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHost(Host $host): ?HostSeverity
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                'SELECT hc.*, icon.img_id AS img_id, icon.img_name AS img_name,
+                CONCAT(iconD.dir_name,\'/\',icon.img_path) AS img_path, icon.img_comment AS img_comment
+                FROM `:db`.hostcategories hc
+                LEFT JOIN `:db`.view_img icon
+                    ON icon.img_id = hc.icon_id
+                LEFT JOIN `:db`.view_img_dir_relation iconR
+                    ON iconR.img_img_id = icon.img_id
+                LEFT JOIN `:db`.view_img_dir iconD
+                    ON iconD.dir_id = iconR.dir_dir_parent_id
+                INNER JOIN `:db`.hostcategories_relation hc_rel
+                    ON hc.hc_id = hc_rel.hostcategories_hc_id
+                WHERE hc.level IS NOT NULL
+                AND hc_rel.host_host_id = :host_id'
+            )
+        );
+        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
+        $statement->execute();
+
+        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+            return HostSeverityFactoryRdb::create($result);
+        }
+
+        return null;
+    }
+
+    /**
      * Find a severity by id and contact id.
      *
      * @param int $hostSeverityId Id of the host severity to be found
      * @param int|null $contactId Contact id related to host severity
-     * @return HostSeverity|null
      * @throws AssertionFailedException
+     * @return HostSeverity|null
      */
     private function findByIdRequest(int $hostSeverityId, ?int $contactId): ?HostSeverity
     {
@@ -143,37 +174,7 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
         if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
             return HostSeverityFactoryRdb::create($result);
         }
-        return null;
-    }
 
-    /**
-     * @inheritDoc
-     */
-    public function findByHost(Host $host): ?HostSeverity
-    {
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                'SELECT hc.*, icon.img_id AS img_id, icon.img_name AS img_name,
-                CONCAT(iconD.dir_name,\'/\',icon.img_path) AS img_path, icon.img_comment AS img_comment
-                FROM `:db`.hostcategories hc
-                LEFT JOIN `:db`.view_img icon
-                    ON icon.img_id = hc.icon_id
-                LEFT JOIN `:db`.view_img_dir_relation iconR
-                    ON iconR.img_img_id = icon.img_id
-                LEFT JOIN `:db`.view_img_dir iconD
-                    ON iconD.dir_id = iconR.dir_dir_parent_id
-                INNER JOIN `:db`.hostcategories_relation hc_rel
-                    ON hc.hc_id = hc_rel.hostcategories_hc_id
-                WHERE hc.level IS NOT NULL
-                AND hc_rel.host_host_id = :host_id'
-            )
-        );
-        $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
-        $statement->execute();
-
-        if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            return HostSeverityFactoryRdb::create($result);
-        }
         return null;
     }
 }

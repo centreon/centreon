@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -133,7 +133,7 @@ abstract class Collection implements CollectionInterface
      */
     public function isEmpty(): bool
     {
-        return empty($this->items);
+        return $this->items === [];
     }
 
     /**
@@ -253,7 +253,7 @@ abstract class Collection implements CollectionInterface
                 $this->items = $itemsBackup;
 
                 throw new CollectionException(
-                    sprintf('Collections to merge must be instances of %s, %s given', $this::class, $collection::class)
+                    sprintf('Collections to merge must be instances of %s, %s given', static::class, $collection::class)
                 );
             }
         }

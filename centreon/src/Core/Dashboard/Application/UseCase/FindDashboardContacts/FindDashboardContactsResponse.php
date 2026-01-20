@@ -33,8 +33,7 @@ final class FindDashboardContactsResponse implements ListingResponseInterface
      */
     public function __construct(
         public array $contacts = [],
-    )
-    {
+    ) {
     }
 
     /**

@@ -1,23 +1,22 @@
 {
   "name": "centreon/centreon-awie",
-  "version": "25.07",
+  "version": "26.03",
   "type": "project",
   "license": "Apache-2.0",
-  "require-dev": {
+  "require": {
+    "php": "8.2.*",
     "ext-json": "*",
-    "behat/behat": "3.15.*",
+    "ext-mbstring": "*",
+    "ext-pdo": "*",
+    "ext-zip": "*"
+  },
+  "require-dev": {
     "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
     "centreon/centreon-test-lib": "dev-master",
-    "dealerdirect/phpcodesniffer-composer-installer": "1.0.*",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
-    "friendsofphp/php-cs-fixer": "3.64.*",
-    "phpcompatibility/php-compatibility": "9.3.*",
-    "phpstan/phpstan": "1.12.*",
-    "psr/container": "1.1.*",
-    "rector/rector": "1.2.*",
-    "squizlabs/php_codesniffer": "3.10.*"
+    "psr/container": "2.0.*"
   },
   "repositories": [
     {
@@ -35,25 +34,51 @@
       "*": "dist"
     },
     "allow-plugins": {
+      "pestphp/pest-plugin": true,
       "symfony/flex": false,
-      "dealerdirect/phpcodesniffer-composer-installer": true,
-      "pestphp/pest-plugin": true
+      "symfony/runtime": false
     }
   },
   "scripts": {
-    "phpcs": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
-    "phpcs:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
-    "phpcs:ci": "@phpcs",
-    "phpstan": "phpstan analyse -c phpstan.neon --level=6 --memory-limit=512M --debug",
-    "phpstan:ci": "@phpstan --no-progress",
-    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector --dry-run --debug",
-    "rector:exec": "rector --debug"
+    "require:check": "../php-tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
+    "rector:diff": "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:diff:fix": "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
+    "rector:legacy:fix": "../php-tools/vendor/bin/rector process --config=rector.legacy.php",
+    "cs:diff": "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:diff:fix": "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:legacy": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
+    "cs:legacy:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
+    "stan:legacy": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.neon --memory-limit=512M",
+    "stan:legacy:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.neon --memory-limit=512M",
+    "rector": [
+      "@rector:legacy"
+    ],
+    "rector:fix": [
+      "@rector:legacy:fix"
+    ],
+    "cs": [
+      "@cs:legacy"
+    ],
+    "cs:fix": [
+      "@cs:legacy:fix"
+    ],
+    "stan": [
+      "@stan:legacy"
+    ],
+    "legacy:check": [
+      "@rector:legacy",
+      "@cs:legacy",
+      "@stan:legacy"
+    ],
+    "ci": [
+      "@legacy:check"
+    ]
   },
   "extra": {
     "symfony": {
       "allow-contrib": true,
-      "require": "6.4.*"
+      "require": "7.3.*"
     }
   }
 }

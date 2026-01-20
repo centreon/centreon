@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,20 +139,10 @@ class PollerInteractionService
 
         foreach ($tabServer as $host) {
             if (in_array($host['id'], $pollerIDs)) {
-                $listBrokerFile = glob($centreonBrokerPath . $host['id'] . '/*.{xml,cfg,sql}', GLOB_BRACE);
-
                 passthru("echo 'SENDCFGFILE:{$host['id']}' >> {$centCorePipe}", $return);
 
                 if ($return) {
                     throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                }
-
-                if (count($listBrokerFile) > 0) {
-                    passthru("echo 'SENDCBCFG:" . $host['id'] . "' >> {$centCorePipe}", $return);
-
-                    if ($return) {
-                        throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
-                    }
                 }
             }
         }
@@ -192,7 +182,9 @@ class PollerInteractionService
 
         foreach ($tabServers as $poller) {
             if (isset($poller['localhost']) && $poller['localhost'] == 1) {
-                shell_exec("sudo {$poller['engine_restart_command']}");
+                if ($poller['engine_restart_command'] != '') {
+                    shell_exec(escapeshellcmd("sudo -n -- {$poller['engine_restart_command']}"));
+                }
             } elseif ($fh = @fopen($centCorePipe, 'a+')) {
                 fwrite($fh, 'RESTART:' . $poller['id'] . "\n");
                 fclose($fh);
@@ -200,8 +192,8 @@ class PollerInteractionService
                 throw new Exception(_('Could not write into centcore.cmd. Please check file permissions.'));
             }
 
-            $restartTimeQuery = "UPDATE `nagios_server` 
-                SET `last_restart` = '" . time() . "' 
+            $restartTimeQuery = "UPDATE `nagios_server`
+                SET `last_restart` = '" . time() . "'
                 WHERE `id` = '{$poller['id']}'";
             $this->db->query($restartTimeQuery);
         }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,16 +25,16 @@ namespace Core\Application\Platform\UseCase\FindInstallationStatus;
 
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
+use Core\Platform\Domain\InstallationVerifierInterface;
 
 final class FindInstallationStatus
 {
     use LoggerTrait;
 
     /**
-     * @param ReadPlatformRepositoryInterface $repository
+     * @param InstallationVerifierInterface $centreonInstallationVerifier
      */
-    public function __construct(private ReadPlatformRepositoryInterface $repository)
+    public function __construct(private InstallationVerifierInterface $centreonInstallationVerifier)
     {
     }
 
@@ -44,8 +44,8 @@ final class FindInstallationStatus
     public function __invoke(FindInstallationStatusPresenterInterface $presenter): void
     {
         $this->info('check installation status of centreon web');
-        $isCentreonWebInstalled = $this->repository->isCentreonWebInstalled();
-        $isCentreonWebUpgradeAvailable = $this->repository->isCentreonWebInstallableOrUpgradable();
+        $isCentreonWebInstalled = $this->centreonInstallationVerifier->isCentreonWebInstalled();
+        $isCentreonWebUpgradeAvailable = $this->centreonInstallationVerifier->isCentreonWebInstallableOrUpgradable();
 
         if ($isCentreonWebInstalled === false && $isCentreonWebUpgradeAvailable === false) {
             $this->critical(
@@ -72,7 +72,7 @@ final class FindInstallationStatus
      */
     private function createResponse(
         bool $isCentreonWebInstalled,
-        bool $isCentreonWebUpgradeAvailable
+        bool $isCentreonWebUpgradeAvailable,
     ): FindInstallationStatusResponse {
         $response = new FindInstallationStatusResponse();
         $response->isCentreonWebInstalled = $isCentreonWebInstalled;

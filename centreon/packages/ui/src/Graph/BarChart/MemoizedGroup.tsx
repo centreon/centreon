@@ -12,7 +12,7 @@ interface Props {
   isTooltipHidden: boolean;
   barStyle: BarStyle;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
-  stackedLinesTimeSeriesPerUnit: Record<
+  stackedLinesTimeSeriesPerStackKeyAndUnit: Record<
     string,
     { lines: Array<Line>; timeSeries: Array<TimeValue> }
   >;
@@ -25,7 +25,7 @@ interface Props {
 
 const MemoizedGroup = ({
   barGroup,
-  stackedLinesTimeSeriesPerUnit,
+  stackedLinesTimeSeriesPerStackKeyAndUnit,
   notStackedLines,
   notStackedTimeSeries,
   isHorizontal,
@@ -38,9 +38,7 @@ const MemoizedGroup = ({
   const hasEmptyValues = barGroup.bars.every(({ key, value }) => {
     if (key.startsWith('stacked-')) {
       const timeValueBar =
-        stackedLinesTimeSeriesPerUnit[key.replace('stacked-', '')].timeSeries[
-          barIndex
-        ];
+        stackedLinesTimeSeriesPerStackKeyAndUnit[key].timeSeries[barIndex];
 
       return Object.values(omit(['timeTick'], timeValueBar)).every(
         (value) => !value
@@ -59,20 +57,28 @@ const MemoizedGroup = ({
       {barGroup.bars.map((bar) => {
         const isStackedBar = bar.key.startsWith('stacked-');
         const linesBar = isStackedBar
-          ? stackedLinesTimeSeriesPerUnit[bar.key.replace('stacked-', '')].lines
+          ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].lines
           : (notStackedLines.find(({ metric_id }) =>
               equals(metric_id, Number(bar.key))
             ) as Line);
         const timeSeriesBar = isStackedBar
-          ? stackedLinesTimeSeriesPerUnit[bar.key.replace('stacked-', '')]
-              .timeSeries
+          ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].timeSeries
           : notStackedTimeSeries.map((timeSerie) => ({
               timeTick: timeSerie.timeTick,
               [bar.key]: timeSerie[Number(bar.key)]
             }));
 
+        const unit = isStackedBar
+          ? bar.key.split('-')[1]
+          : (linesBar as Line).unit;
+        const yScale =
+          unit === '' && yScalesPerUnit[unit] === undefined
+            ? yScalesPerUnit[undefined]
+            : yScalesPerUnit[unit];
+
         return isStackedBar ? (
           <BarStack
+            isStacked
             key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             barIndex={barGroup.index}
             barPadding={isHorizontal ? bar.x : bar.y}
@@ -82,7 +88,7 @@ const MemoizedGroup = ({
             isTooltipHidden={isTooltipHidden}
             lines={linesBar as Array<Line>}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[bar.key.replace('stacked-', '')]}
+            yScale={yScale}
             neutralValue={neutralValue}
           />
         ) : (
@@ -96,7 +102,7 @@ const MemoizedGroup = ({
             isTooltipHidden={isTooltipHidden}
             lines={[linesBar as Line]}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[(linesBar as Line).unit]}
+            yScale={yScale}
             neutralValue={neutralValue}
           />
         );
@@ -110,8 +116,8 @@ export default memo(
   (prevProps, nextProps) =>
     equals(prevProps.barGroup, nextProps.barGroup) &&
     equals(
-      prevProps.stackedLinesTimeSeriesPerUnit,
-      nextProps.stackedLinesTimeSeriesPerUnit
+      prevProps.stackedLinesTimeSeriesPerStackKeyAndUnit,
+      nextProps.stackedLinesTimeSeriesPerStackKeyAndUnit
     ) &&
     equals(prevProps.notStackedLines, nextProps.notStackedLines) &&
     equals(prevProps.notStackedTimeSeries, nextProps.notStackedTimeSeries) &&

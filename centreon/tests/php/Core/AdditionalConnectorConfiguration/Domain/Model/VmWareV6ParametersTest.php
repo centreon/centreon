@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,14 +59,14 @@ foreach (
     $tooLong = str_repeat('a', VmWareV6Parameters::MAX_LENGTH + 1);
     it(
         "should throw an exception when a vcenter {$field} is too long",
-        function () use ($field, $tooLong) : void {
+        function () use ($field, $tooLong): void {
             $this->parameters['vcenters'][0][$field] = $tooLong;
             new VmWareV6Parameters($this->encryption, $this->parameters);
         }
     )->throws(
         AssertionException::maxLength(
             $tooLong,
-            VmWareV6Parameters::MAX_LENGTH + 1 ,
+            VmWareV6Parameters::MAX_LENGTH + 1,
             VmWareV6Parameters::MAX_LENGTH,
             "parameters.vcenters[0].{$field}"
         )->getMessage()
@@ -83,7 +83,7 @@ foreach (
 ) {
     it(
         "should throw an exception when a vcenter {$field} is too short",
-        function () use ($field) : void {
+        function () use ($field): void {
             $this->parameters['vcenters'][0][$field] = '';
 
             new VmWareV6Parameters($this->encryption, $this->parameters);
@@ -93,8 +93,9 @@ foreach (
     );
 }
 
-it('should throw an exception when a vcenter URL is invalid',
-    function () : void {
+it(
+    'should throw an exception when a vcenter URL is invalid',
+    function (): void {
         $this->parameters['vcenters'][0]['url'] = 'invalid@xyz';
 
         new VmWareV6Parameters($this->encryption, $this->parameters);

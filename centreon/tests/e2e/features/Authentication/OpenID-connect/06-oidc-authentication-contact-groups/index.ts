@@ -1,15 +1,16 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
-} from '../common';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { configureProviderAcls, getUserContactId } from '../../../../commons';
+import {
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
@@ -45,10 +46,7 @@ Given('an administrator is logged in the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -58,14 +56,15 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Groups mapping and saves',
   () => {
-    configureOpenIDConnect();
-
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
     }).check();
 
-    cy.getByLabel({ label: 'Groups mapping' }).click();
+    configureOpenIdConnect();
+
+    cy.get('[data-testid="Groups mapping-header"]').click();
+
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'

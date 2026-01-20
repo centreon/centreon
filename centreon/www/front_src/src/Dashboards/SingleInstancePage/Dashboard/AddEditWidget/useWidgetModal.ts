@@ -23,7 +23,6 @@ import {
 import { getDefaultValues } from './WidgetProperties/useWidgetSelection';
 import {
   customBaseColorAtom,
-  singleMetricSelectionAtom,
   singleResourceSelectionAtom,
   widgetFormInitialDataAtom,
   widgetPropertiesAtom
@@ -61,7 +60,6 @@ const useWidgetModal = (): UseWidgetModalState => {
   const deletePanel = useSetAtom(removePanelDerivedAtom);
   const setPanelOptions = useSetAtom(setPanelOptionsAndDataDerivedAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
-  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
 
@@ -114,7 +112,6 @@ const useWidgetModal = (): UseWidgetModalState => {
       setWidgetFormInitialDataAtom(null);
       setWidgetProperties(undefined);
       setAskingBeforeCloseModal(false);
-      setSingleMetricSection(undefined);
       setSingleResourceSelection(undefined);
       setCustomBaseColor(undefined);
     });

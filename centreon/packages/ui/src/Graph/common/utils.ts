@@ -4,9 +4,11 @@ import {
   always,
   cond,
   equals,
+  flatten,
   gt,
   gte,
   head,
+  isEmpty,
   isNil,
   last,
   length,
@@ -18,10 +20,12 @@ import {
 
 import { Theme, darken, getLuminance, lighten } from '@mui/material';
 
+import dayjs from 'dayjs';
 import { BarStyle } from '../BarChart/models';
+import { margin } from '../Chart/common';
 import { LineStyle } from '../Chart/models';
 import { Threshold, Thresholds } from './models';
-import { formatMetricValue } from './timeSeries';
+import { formatMetricValueWithUnit } from './timeSeries';
 import { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
@@ -220,23 +224,29 @@ export const getFormattedAxisValues = ({
   lines,
   threshold
 }: GetFormattedAxisValuesProps): Array<string> => {
-  const metricId = (lines.find(({ unit }) => equals(unit, axisUnit)) as Line)
-    ?.metric_id;
+  const filteredMetrics = lines.filter(({ unit }) => equals(unit, axisUnit));
 
-  if (isNil(metricId)) {
+  if (isEmpty(filteredMetrics)) {
     return [];
   }
-  const formattedData = timeSeries.map((data) =>
-    formatMetricValue({
-      value: data[metricId],
-      unit: axisUnit,
-      base
-    })
+
+  const metricIds = pluck('metric_id', filteredMetrics);
+
+  const formattedData = metricIds.map((metricId) =>
+    timeSeries.map((data) =>
+      formatMetricValueWithUnit({
+        value: data[metricId],
+        unit: axisUnit,
+        base
+      })
+    )
   );
+
+  const flattenedFormattedData = flatten(formattedData);
 
   const formattedThresholdValues = equals(thresholdUnit, axisUnit)
     ? threshold.map(({ value }) =>
-        formatMetricValue({
+        formatMetricValueWithUnit({
           value,
           unit: axisUnit,
           base
@@ -244,7 +254,30 @@ export const getFormattedAxisValues = ({
       ) || []
     : [];
 
-  return formattedData
+  return flattenedFormattedData
     .concat(formattedThresholdValues)
     .filter((v) => v) as Array<string>;
+};
+
+interface ComputeGElementMarginLeftProps {
+  maxCharacters: number;
+  hasSecondUnit?: boolean;
+}
+
+export const computeGElementMarginLeft = ({
+  maxCharacters,
+  hasSecondUnit
+}: ComputeGElementMarginLeftProps): number =>
+  maxCharacters * 5 + (hasSecondUnit ? margin.top * 0.8 : margin.top * 0.6);
+
+export const computPixelsToShiftMouse = (xScale): number => {
+  const domain = xScale.domain();
+
+  const hoursDiffInGraph = dayjs(domain[1]).diff(domain[0], 'h');
+
+  if (!hoursDiffInGraph) {
+    return 0;
+  }
+
+  return Math.round(8 / hoursDiffInGraph);
 };

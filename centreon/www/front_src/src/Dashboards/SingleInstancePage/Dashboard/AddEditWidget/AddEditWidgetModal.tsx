@@ -118,7 +118,7 @@ const AddWidgetModal = (): JSX.Element | null => {
                       </div>
                     </div>
                   </div>
-                  <div>
+                  <div className="grid grid-rows-[360px_1fr]">
                     <Paper className={classes.preview}>
                       <Preview />
                     </Paper>

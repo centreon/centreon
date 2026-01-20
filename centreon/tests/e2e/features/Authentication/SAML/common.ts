@@ -1,60 +1,62 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
-
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { ActionClapi } from '../../../commons';
 
 interface SamlConfigValues {
-  entityID: string;
+  entityId: string;
   loginAttribute: string;
-  logoutURL: string;
-  remoteLoginURL: string;
+  logoutUrl: string;
+  remoteLoginUrl: string;
   x509Certificate: string;
 }
 
-const getSamlConfigValues = ({ providerAddress }): SamlConfigValues => {
-  const keycloakURL = `${providerAddress}/realms/Centreon_SSO`;
+const getSamlConfigValues = (): SamlConfigValues => {
+  const keycloakUrl = 'http://localhost:8080/realms/Centreon_SSO';
 
   return {
-    entityID: keycloakURL,
+    entityId: keycloakUrl,
     loginAttribute: 'urn:oid:1.2.840.113549.1.9.1', // email
-    logoutURL: `${keycloakURL}/protocol/saml`,
-    remoteLoginURL: `${keycloakURL}/protocol/saml/clients/centreon`,
+    logoutUrl: `${keycloakUrl}/protocol/saml`,
+    remoteLoginUrl: `${keycloakUrl}/protocol/saml/clients/centreon`,
     x509Certificate:
       'MIICpzCCAY8CBgGFydyVcDANBgkqhkiG9w0BAQsFADAXMRUwEwYDVQQDDAxDZW50cmVvbl9TU08wHhcNMjMwMTE5MTE0NzM0WhcNMzMwMTE5MTE0OTE0WjAXMRUwEwYDVQQDDAxDZW50cmVvbl9TU08wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCCpNndecGJI2xOaNQXDDvwDwo/beQ7Q4HW/ck1BNkE13IgPf5GRpvP2jp/1IZsx92vQ2Ub9g5urNG/jo3nZzsUUIdTICsN9Bq2OIjYU9Uxmc1PpHzklN/SqZWbKXOw8EzqXkQ3YNXHqL9omJJ5JMxe4zg758zlvOUh3I44XhMy6PKgeReJIm+HxYJ8SKeu/XVRI7Uiyav5L2M85ED3kqiI3iPrGfLQzv8zqkTeNfuZIeigqI+M8MqRxR3Qf0UlmWA3ZAzsoxJUU+e0tHnD7MhgyRLfg76FjQ1U7Tv7X/h8uqRthjTbva5v0k0M85z21C85UrHxpS3e/HJFInrkJredAgMBAAEwDQYJKoZIhvcNAQELBQADggEBADQANd/iYhefXpcqXC+co3fEe7IaZ93XelZzJ5S4OAR5dHnhMMlMQnnscW/nH8NAEwWRImJPfOEcKun8rBUphZZJxi2WHHj5ilhGdNtcyZzh0sufyIQav/QMreGmDEj/J/uRfmG15Lj1wJB6mw+O4kuwJj/8DzxK6/sQYPisJuXrSWrDmcpvShvbo59JbVjdYK49WXVDbl++7hrwiOYuCQ/uodQYgvChZnIQbL4O6TbG4OLy+prFd5FBsEQds8ZNXoLWM5bCUz+bz4N68fAqhtPR8+yR+pIrE7/cvRaRCmgnG0s61JBZVxHoT4dbMJUTTSSS4dWCUUNhMCIFtEKL06c='
   };
 };
 
-const configureSAML = (): Cypress.Chainable => {
-  const samlConfigValues = getSamlConfigValues({
-    providerAddress: 'http://localhost:8080'
-  });
+const configureSaml = (): Cypress.Chainable => {
+  const samlConfigValues = getSamlConfigValues();
 
   cy.contains('Enable SAMLv2 authentication').should('be.visible');
 
   cy.getByLabel({ label: 'Identity provider', tag: 'div' }).click();
   cy.getByLabel({ label: 'Remote login URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.remoteLoginURL);
+    .type(`{selectall}{backspace}${samlConfigValues.remoteLoginUrl}`);
 
   cy.getByLabel({ label: 'Issuer (Entity ID) URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.entityID);
+    .type(`{selectall}{backspace}${samlConfigValues.entityId}`);
 
   cy.getByLabel({
     label: 'Copy/paste x.509 certificate',
     tag: 'textarea'
   })
     .should('be.visible')
-    .type(samlConfigValues.x509Certificate);
+    .type(`{selectall}{backspace}${samlConfigValues.x509Certificate}`);
 
   cy.getByLabel({
     label: 'User ID (login) attribute for Centreon user',
     tag: 'input'
   })
     .should('be.visible')
-    .type(samlConfigValues.loginAttribute);
+    .type(`{selectall}{backspace}${samlConfigValues.loginAttribute}`);
 
-  cy.getByLabel({ label: 'Requested authentication context' })
-    .should('be.visible');
+  cy.getByLabel({ label: 'Enable requested authentication context' }).should(
+    'exist'
+  );
+  cy.getByLabel({ label: 'Enable requested authentication context' }).click();
+  cy.getByTestId({
+    testId: 'Comparison rule for the requested authentication context'
+  }).should('exist');
 
   cy.getByLabel({
     label: 'Both identity provider and Centreon UI',
@@ -64,21 +66,32 @@ const configureSAML = (): Cypress.Chainable => {
   return cy
     .getByLabel({ label: 'Logout URL', tag: 'input' })
     .should('be.visible')
-    .type(samlConfigValues.logoutURL);
+    .type(`{selectall}{backspace}${samlConfigValues.logoutUrl}`);
 };
 
-const navigateToSAMLConfigPage = (): Cypress.Chainable => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+const saveSamlFormIfEnabled = () => {
+  return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
+    if ($btn.is(':disabled')) {
+      return;
+    }
+    cy.wrap($btn).click();
+
+    return cy
+      .wait('@updateSAMLProvider')
+      .its('response.statusCode')
+      .should('eq', 204);
+  });
+};
+
+const navigateToSamlConfigPage = (): Cypress.Chainable => {
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
 
   return cy.wait('@getSAMLProvider');
 };
 
-const initializeSAMLUser = (): Cypress.Chainable => {
+const initializeSamlUser = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-SAML/SAML-authentication-user.json')
     .then((fixture: Array<ActionClapi>) => {
@@ -101,8 +114,9 @@ const removeContact = (): Cypress.Chainable => {
 };
 
 export {
-  initializeSAMLUser,
+  initializeSamlUser,
   removeContact,
-  configureSAML,
-  navigateToSAMLConfigPage
+  configureSaml,
+  navigateToSamlConfigPage,
+  saveSamlFormIfEnabled
 };

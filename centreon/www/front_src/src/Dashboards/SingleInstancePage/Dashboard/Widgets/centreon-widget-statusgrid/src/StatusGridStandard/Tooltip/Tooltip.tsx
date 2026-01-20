@@ -2,6 +2,7 @@ import { equals } from 'ramda';
 
 import { ResourceData } from '../models';
 
+import { seeMoreTileId } from '../utils';
 import BATooltipContent from './BATooltipContent';
 import BooleanTooltipContent from './BooleanTooltipContent';
 import HostTooltipContent from './HostTooltipContent';
@@ -29,6 +30,8 @@ export const StatusTooltip = ({ resourceType, data }: Props): JSX.Element => {
 };
 
 export default () =>
-  ({ data }: Pick<Props, 'data'>) => (
-    <StatusTooltip data={data} resourceType={data?.type} />
-  );
+  ({ data, id }: Pick<Props, 'data' | 'id'>) => {
+    return id === seeMoreTileId ? null : (
+      <StatusTooltip data={data} resourceType={data?.type} />
+    );
+  };

@@ -37,7 +37,7 @@ final class ContactsResponseDto
         public int $id = 0,
         public string $name = '',
         public string $email = '',
-        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer
+        public DashboardGlobalRole $mostPermissiveRole = DashboardGlobalRole::Viewer,
     ) {
     }
 }

@@ -25,7 +25,7 @@ use CentreonRemote\Infrastructure\Export\ExportCommitment;
 use CentreonRemote\Infrastructure\Export\ExportManifest;
 use CentreonRemote\Infrastructure\Export\ExportParserJson;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->dumpData = [];
 
     $parser = $this->getMockBuilder(ExportParserJson::class)
@@ -36,7 +36,7 @@ beforeEach(function () {
             return [];
         });
     $parser->method('dump')
-        ->willReturnCallback(function () {
+        ->willReturnCallback(function (): void {
             $args = func_get_args();
             $this->dumpData[$args[1]] = $args[0];
         });
@@ -50,11 +50,11 @@ beforeEach(function () {
         ->willReturn(__FILE__);
 });
 
-test('it returns null for missing data', function () {
+test('it returns null for missing data', function (): void {
     expect($this->manifest->get('missing-data'))->toBeNull();
 });
 
-test('it dumps the correct data', function () {
+test('it dumps the correct data', function (): void {
     $date = date('l jS \of F Y h:i:s A');
     $this->manifest->dump([
         'date' => $date,

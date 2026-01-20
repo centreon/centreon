@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Core\Common\Infrastructure\ExceptionLogger;
@@ -36,7 +37,8 @@ use Psr\Log\LoggerInterface;
  * @class LoggerStub
  * @package Tests\Centreon\Domain\Log
  */
-class LoggerStub implements LoggerInterface {
+class LoggerStub implements LoggerInterface
+{
     use LoggerTrait {
         emergency as traitEmergency;
         alert as traitAlert;
@@ -48,8 +50,10 @@ class LoggerStub implements LoggerInterface {
         debug as traitDebug;
         log as traitLog;
     }
+
     /** @var Logger */
     private Logger $monolog;
+
     /** @var string */
     private string $logPathFileName;
 

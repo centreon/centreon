@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -214,20 +214,20 @@ it('should present a No Content Response when threre are no services to deploy',
         ->method('findParents')
         ->willReturn($hostParents);
 
-        $serviceTemplates = [
-            (new ServiceTemplate(2, 'generic-ping', 'generic-ping')),
-            (new ServiceTemplate(3, 'generic-disk', 'generic-disk')),
-        ];
-        $this->readServiceTemplateRepository
-            ->expects($this->any())
-            ->method('findByHostId')
-            ->willReturn($serviceTemplates);
+    $serviceTemplates = [
+        (new ServiceTemplate(2, 'generic-ping', 'generic-ping')),
+        (new ServiceTemplate(3, 'generic-disk', 'generic-disk')),
+    ];
+    $this->readServiceTemplateRepository
+        ->expects($this->any())
+        ->method('findByHostId')
+        ->willReturn($serviceTemplates);
 
-        $serviceNames = new ServiceNamesByHost(12, ['generic-ping', 'generic-disk']);
-        $this->readServiceRepository
-            ->expects($this->any())
-            ->method('findServiceNamesByHost')
-            ->willReturn($serviceNames);
+    $serviceNames = new ServiceNamesByHost(12, ['generic-ping', 'generic-disk']);
+    $this->readServiceRepository
+        ->expects($this->any())
+        ->method('findServiceNamesByHost')
+        ->willReturn($serviceNames);
 
     $hostId = 15;
     ($this->deployServicesUseCase)($this->useCasePresenter, $hostId);

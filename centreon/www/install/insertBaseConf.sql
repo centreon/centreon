@@ -2,7 +2,7 @@
 -- Insert version
 --
 
-INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '25.07.0');
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '26.03.0');
 
 --
 -- Contenu de la table `contact`
@@ -11,7 +11,7 @@ INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '25.07.0');
 INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`, `contact_enable_notifications`) VALUES(1, 1, 1, '@firstname@ @lastname@', 'admin', 'en_US.UTF-8', 'n', 'n', '@email@', NULL, NULL, '1', '1', 'txt', '1', 'local', NULL, '1');
 INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`) VALUES(17, 1, 1, 'Guest', 'guest', 'en_US.UTF-8', 'n', 'n', 'guest@localhost', NULL, NULL, '0', '0', 'txt', '0', 'local', NULL);
 INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`) VALUES(18, 1, 1, 'User', 'user', 'en_US.UTF-8', 'n', 'n', 'user@localhost', NULL, NULL, '0', '0', 'txt', '0', 'local', NULL);
-INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`, `contact_enable_notifications`) VALUES(4, 1, 1, '@GORGONE_USER@', '@GORGONE_USER@', 'en_US.UTF-8', 'n', 'n', 'gorgone@localhost', NULL, NULL, '0', '1', 'txt', '1', 'local', NULL, '0');
+INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`, `contact_enable_notifications`, `is_service_account`) VALUES(4, 1, 1, '@GORGONE_USER@', '@GORGONE_USER@', 'en_US.UTF-8', 'n', 'n', 'gorgone@localhost', NULL, NULL, '0', '1', 'txt', '1', 'local', NULL, '0', 1);
 
 INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`) VALUES ('@admin_password@', 1, (SELECT UNIX_TIMESTAMP(NOW())));
 INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`) VALUES ('@GORGONE_PASSWORD@', 4, (SELECT UNIX_TIMESTAMP(NOW())));
@@ -153,7 +153,8 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('openid_connect_client_secret', ''),
 ('openid_connect_client_basic_auth', '0'),
 ('openid_connect_verify_peer', '0'),
-('unified_sql_db_type', 'mysql');
+('unified_sql_db_type', 'mysql'),
+('resource_status_search_mode', 1);
 
 --
 -- Contenu de la table `giv_components_template`
@@ -1442,7 +1443,7 @@ VALUES
 ('backup_backup_directory', '/var/cache/centreon/backup'),
 ('backup_tmp_directory', '/tmp/backup'),
 ('backup_retention', '7'),
-('backup_mysql_conf', '/etc/my.cnf.d/centreon.cnf');
+('backup_mysql_conf', '');
 
 -- Insert Centreon Knowledge base conf
 INSERT INTO `options` (`key`, `value`)
@@ -1490,7 +1491,7 @@ INSERT INTO `password_expiration_excluded_users` (provider_configuration_id, use
 VALUES (1, 4);
 
 INSERT INTO provider_configuration (`type`, `name`, `custom_configuration`, `is_active`, `is_forced`)
-VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","requested_authn_context":"minimum","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
+VALUES ('saml', 'SAML', '{"remote_login_url":"","entity_id_url":"","certificate":"","user_id_attribute":"","requested_authn_context":false,"requested_authn_context_comparison":"exact","logout_from":false,"logout_from_url":null,"auto_import":false,"contact_template_id":null,"email_bind_attribute":null,"fullname_bind_attribute":null,"authentication_conditions":{"is_enabled":false,"attribute_path":"","authorized_values":[]},"roles_mapping":{"is_enabled":false,"apply_only_first_role":false,"attribute_path":""},"groups_mapping":{"is_enabled":false,"attribute_path":""}}', 0, 0);
 
 INSERT INTO dashboard_widgets (`name`)
 VALUES ('centreon-widget-generictext');

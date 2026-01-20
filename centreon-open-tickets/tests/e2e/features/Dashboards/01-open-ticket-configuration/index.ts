@@ -1,12 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored,
-  checkMetricsAreMonitored
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../common';
+import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
+import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 const services = {
   serviceCritical: {
@@ -60,7 +60,7 @@ before(() => {
   cy.startContainers({
     moduleName: 'centreon-open-tickets',
     useSlim: false,
-    profiles:['glpi']
+    profiles: ['glpi']
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-notification-permissions.json'
@@ -164,11 +164,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('getDashboard');
   cy.intercept({
     method: 'GET',
@@ -180,7 +180,7 @@ beforeEach(() => {
   }).as('resourceRequest');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('addingDashboard');
   cy.loginByTypeOfUser({
     jsonName: 'user-dashboard-administrator',
@@ -204,7 +204,7 @@ When(
   'the dashboard administrator user selects the option to add a new widget',
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -270,7 +270,7 @@ Then(
       cy.get('td.FormRowField').should('include.text', 'New ticket opened');
     });
     cy.get('[class$="modalCloseButton"]')
-      .find('[data-testid="CloseIcon"]')
+      .find('[aria-label="close"]')
       .eq(1)
       .click();
     cy.getByLabel({ label: 'Resources linked to a ticket' }).click();
@@ -296,7 +296,9 @@ When(
 Then(
   'the ticket should be deleted and the resource should no longer be associated with the ticket',
   () => {
-    cy.waitForElementToBeVisible('[class*="root-emptyDataCell"]');
+    cy.waitForElementToBeVisible(
+      "div.MuiTableCell-root:contains('No result found')"
+    );
     cy.contains('div', 'No result found').should('be.visible');
   }
 );

@@ -4,17 +4,20 @@ import {
   type LineChartData,
   type Parameters,
   type TooltipData,
-  useFetchQuery
-} from '@centreon/ui';
-import { path } from 'ramda';
-import { type MutableRefObject, useState } from 'react';
-import FederatedComponent from '../../../../components/FederatedComponents';
-import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
-import type { Resource } from '../../../models';
-import type { ResourceDetails } from '../../models';
-import Comment from './Comment';
-import { useChartGraphStyles } from './chartGraph.styles';
-import useRetrieveTimeLine from './useRetrieveTimeLine';
+  useFetchQuery,
+} from "@centreon/ui";
+import { path } from "ramda";
+import { type ReactElement, type RefObject, useState } from "react";
+
+import FederatedComponent from "../../../../components/FederatedComponents";
+import { graphsCapNumber } from "../../../constants";
+import MemoizedGraphActions from "../../../Graph/Performance/GraphActions";
+import type { Resource } from "../../../models";
+import TooManyElementsCard from "../../../TooManyElementsCard";
+import type { ResourceDetails } from "../../models";
+import Comment from "./Comment";
+import { useChartGraphStyles } from "./chartGraph.styles";
+import useRetrieveTimeLine from "./useRetrieveTimeLine";
 
 interface Props {
   graphTimeParameters?: Parameters;
@@ -25,48 +28,49 @@ interface Props {
 const ChartGraph = ({
   graphTimeParameters,
   resource,
-  updatedGraphInterval
+  updatedGraphInterval,
 }: Props) => {
   const { classes } = useChartGraphStyles();
 
-  const [graphRef, setGraphRef] = useState<MutableRefObject<HTMLDivElement>>();
+  const [graphRef, setGraphRef] = useState<RefObject<HTMLDivElement | null>>();
+
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const graphEndpoint = path<string>(
-    ['links', 'endpoints', 'performance_graph'],
-    resource
+    ["links", "endpoints", "performance_graph"],
+    resource,
   );
 
   const timelineEndpoint = path<string>(
-    ['links', 'endpoints', 'timeline'],
-    resource
+    ["links", "endpoints", "timeline"],
+    resource,
   );
 
-  const { data } = useFetchQuery<LineChartData>({
+  const { data, isLoading, isFetching } = useFetchQuery<LineChartData>({
     getEndpoint: () =>
       `${graphEndpoint}?start=${graphTimeParameters?.start}&end=${graphTimeParameters?.end}`,
     getQueryKey: () => [
-      'graphPerformance',
+      "graphPerformance",
       graphTimeParameters?.start,
       graphTimeParameters?.end,
-      graphEndpoint
+      graphEndpoint,
     ],
     queryOptions: {
       enabled: !!graphTimeParameters && !!graphEndpoint,
-      suspense: false
-    }
+      suspense: false,
+    },
   });
 
   const timeLineData = useRetrieveTimeLine({
     timelineEndpoint,
-    graphTimeParameters
+    graphTimeParameters,
   });
 
   const getInterval = (interval: Interval): void => {
     updatedGraphInterval(interval);
   };
 
-  const getRef = (ref: MutableRefObject<HTMLDivElement>) => {
+  const getRef = (ref: RefObject<HTMLDivElement | null>) => {
     setGraphRef(ref);
   };
 
@@ -86,6 +90,17 @@ const ChartGraph = ({
 
   const rest = areaThresholdLines ? { shapeLines: areaThresholdLines } : {};
 
+  const metricsCount = data?.metrics?.length ?? 0;
+  if (metricsCount > graphsCapNumber) {
+    return (
+      <TooManyElementsCard
+        actions={graphActions}
+        listing={false}
+        title={data?.global.title}
+      />
+    );
+  }
+
   return (
     <>
       <FederatedComponent
@@ -95,26 +110,27 @@ const ChartGraph = ({
         getShapeLines={getShapeLines}
       />
       <LineChart
+        loading={isFetching || isLoading || !data}
         annotationEvent={{ data: timeLineData }}
         containerStyle={classes.container}
         getRef={getRef}
         data={data}
         end={graphTimeParameters?.end}
         height={280}
-        legend={{ mode: 'grid', placement: 'bottom' }}
+        legend={{ mode: "grid", placement: "bottom" }}
         lineStyle={{ lineWidth: 1 }}
         header={{ extraComponent: graphActions }}
         tooltip={{
           renderComponent: ({
             data,
-            hideTooltip
-          }: TooltipData): JSX.Element => (
+            hideTooltip,
+          }: TooltipData): ReactElement => (
             <Comment
               commentDate={data}
               hideAddCommentTooltip={hideTooltip}
               resource={resource}
             />
-          )
+          ),
         }}
         start={graphTimeParameters?.start}
         timeShiftZones={{ enable: true, getInterval }}

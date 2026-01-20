@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -118,7 +118,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     {
         $this->debug('Check existence of services', ['service_ids' => $serviceIds]);
 
-        if ([] === $serviceIds) {
+        if ($serviceIds === []) {
             return [];
         }
 
@@ -183,7 +183,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -228,15 +228,16 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findMonitoringServerId(int $serviceId): int
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT id
-            FROM `:db`.`nagios_server` ns
-            INNER JOIN `:db`.`ns_host_relation` nshr
-                ON nshr.nagios_server_id = ns.id
-            INNER JOIN `:db`.`host_service_relation` hsr
-                ON hsr.host_host_id = nshr.host_host_id
-            WHERE hsr.service_service_id = :service_id
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT id
+                FROM `:db`.`nagios_server` ns
+                INNER JOIN `:db`.`ns_host_relation` nshr
+                    ON nshr.nagios_server_id = ns.id
+                INNER JOIN `:db`.`host_service_relation` hsr
+                    ON hsr.host_host_id = nshr.host_host_id
+                WHERE hsr.service_service_id = :service_id
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':service_id', $serviceId, \PDO::PARAM_INT);
@@ -250,14 +251,50 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findServiceIdsLinkedToHostId(int $hostId): array
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT service.service_id
-            FROM `:db`.service
-            INNER JOIN `:db`.host_service_relation hsr
-                ON hsr.service_service_id = service.service_id
-            WHERE hsr.host_host_id = :host_id
-                AND service.service_register = '1'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT service.service_id
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceIds = [];
+        while (($serviceId = $statement->fetchColumn()) !== false) {
+            $serviceIds[] = (int) $serviceId;
+        }
+
+        return $serviceIds;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsExclusivelyLinkedToHostId(int $hostId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.host_service_relation hsr
+                INNER JOIN `:db`.host h
+                    ON h.host_id = hsr.host_host_id
+                INNER JOIN (
+                    SELECT service_service_id
+                    FROM `:db`.host_service_relation
+                    GROUP BY service_service_id
+                    HAVING COUNT(*) = 1
+                ) uniq
+                    ON uniq.service_service_id = hsr.service_service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND h.host_register = '1'
+                SQL
         );
 
         $statement = $this->db->prepare($request);
@@ -277,14 +314,15 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findServiceNamesByHost(int $hostId): ?ServiceNamesByHost
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT service.service_description as service_name
-            FROM `:db`.service
-            INNER JOIN `:db`.host_service_relation hsr
-                ON hsr.service_service_id = service.service_id
-            WHERE hsr.host_host_id = :host_id
-                AND service.service_register = '1'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT service.service_description as service_name
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND service.service_register = '1'
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
@@ -466,24 +504,25 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     public function findByRequestParameter(RequestParametersInterface $requestParameters): array
     {
         $concatenator = $this->findServicesRequest();
-        $concatenator->defineSelect(<<<'SQL'
-            SELECT  service.service_id,
-                    service.service_description,
-                    service.timeperiod_tp_id as check_timeperiod_id,
-                    checktp.tp_name as check_timeperiod_name,
-                    service.timeperiod_tp_id2 as notification_timeperiod_id,
-                    notificationtp.tp_name as notification_timeperiod_name,
-                    service.service_activate,
-                    service.service_normal_check_interval,
-                    service.service_retry_check_interval,
-                    service.service_template_model_stm_id as service_template_id,
-                    serviceTemplate.service_description as service_template_name,
-                    GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
-                    GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
-                    GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
-                    GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
-                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
-            SQL
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT  service.service_id,
+                        service.service_description,
+                        service.timeperiod_tp_id as check_timeperiod_id,
+                        checktp.tp_name as check_timeperiod_name,
+                        service.timeperiod_tp_id2 as notification_timeperiod_id,
+                        notificationtp.tp_name as notification_timeperiod_name,
+                        service.service_activate,
+                        service.service_normal_check_interval,
+                        service.service_retry_check_interval,
+                        service.service_template_model_stm_id as service_template_id,
+                        serviceTemplate.service_description as service_template_name,
+                        GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                        GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
+                        GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
+                        GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
+                        GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
+                SQL
         );
         $concatenator->withCalcFoundRows(true);
 
@@ -495,9 +534,8 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findByRequestParameterAndAccessGroup(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
-    ): array
-    {
+        array $accessGroups,
+    ): array {
         if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
 
@@ -505,29 +543,30 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
         $concatenator = $this->findServicesRequest($accessGroupIds);
-        $concatenator->defineSelect(<<<'SQL'
-            SELECT  service.service_id,
-                    service.service_description,
-                    service.timeperiod_tp_id as check_timeperiod_id,
-                    checktp.tp_name as check_timeperiod_name,
-                    service.timeperiod_tp_id2 as notification_timeperiod_id,
-                    notificationtp.tp_name as notification_timeperiod_name,
-                    service.service_activate,
-                    service.service_normal_check_interval,
-                    service.service_retry_check_interval,
-                    service.service_template_model_stm_id as service_template_id,
-                    serviceTemplate.service_description as service_template_name,
-                    GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
-                    GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
-                    GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
-                    GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
-                    GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
-            SQL
+        $concatenator->defineSelect(
+            <<<'SQL'
+                SELECT  service.service_id,
+                        service.service_description,
+                        service.timeperiod_tp_id as check_timeperiod_id,
+                        checktp.tp_name as check_timeperiod_name,
+                        service.timeperiod_tp_id2 as notification_timeperiod_id,
+                        notificationtp.tp_name as notification_timeperiod_name,
+                        service.service_activate,
+                        service.service_normal_check_interval,
+                        service.service_retry_check_interval,
+                        service.service_template_model_stm_id as service_template_id,
+                        serviceTemplate.service_description as service_template_name,
+                        GROUP_CONCAT(DISTINCT severity.sc_id) as severity_id,
+                        GROUP_CONCAT(DISTINCT severity.sc_name) as severity_name,
+                        GROUP_CONCAT(DISTINCT category.sc_id) as category_ids,
+                        GROUP_CONCAT(DISTINCT hsr.host_host_id) AS host_ids,
+                        GROUP_CONCAT(DISTINCT CONCAT(sgr.servicegroup_sg_id, '-', sgr.host_host_id)) as sg_host_concat
+                SQL
         );
         $concatenator->withCalcFoundRows(true);
 
@@ -947,7 +986,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -989,7 +1028,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -1020,7 +1059,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 'f' => NotificationType::Flapping,
                 's' => NotificationType::DowntimeScheduled,
                 'n' => NotificationType::None,
-                default => throw new \Exception("Notification type '{$type}' unknown")
+                default => throw new \Exception("Notification type '{$type}' unknown"),
             };
         }
 
@@ -1115,7 +1154,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         return match ($value) {
             '0' => YesNoDefault::No,
             '1' => YesNoDefault::Yes,
-            default => YesNoDefault::Default
+            default => YesNoDefault::Default,
         };
     }
 }

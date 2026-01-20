@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ class GeoCoords implements \Stringable
 
     /** @var string Full lat,lng string */
     private const REGEX_FULL = '/^' . self::REGEX_LATITUDE . ',\s*' . self::REGEX_LONGITUDE . '$/';
+    private const MAX_DECIMALS = 6;
 
     /**
      * @param numeric-string $latitude
@@ -71,8 +72,9 @@ class GeoCoords implements \Stringable
     public static function fromString(string $coords): self
     {
         $parts = explode(',', $coords);
+        $parts = array_map('trim', $parts);
 
-        if (2 !== \count($parts)) {
+        if (\count($parts) !== 2) {
             throw InvalidGeoCoordException::invalidFormat();
         }
 
@@ -80,6 +82,29 @@ class GeoCoords implements \Stringable
             throw InvalidGeoCoordException::invalidValues();
         }
 
-        return new self($parts[0], $parts[1]);
+        /** @var numeric-string $latitude */
+        $latitude = self::truncateDecimals($parts[0]);
+        /** @var numeric-string $longitude */
+        $longitude = self::truncateDecimals($parts[1]);
+
+        return new self($latitude, $longitude);
+    }
+
+    /**
+     * Truncate decimals count for a coordinate value to MAX_DECIMALS
+     *
+     * @param string $value
+     * @return string
+     */
+    private static function truncateDecimals(string $value): string
+    {
+        if (! str_contains($value, '.')) {
+            return $value;
+        }
+
+        [$intPart, $decimalPart] = explode('.', $value, 2);
+        $decimalPart = mb_substr($decimalPart, 0, self::MAX_DECIMALS);
+
+        return $intPart . '.' . $decimalPart;
     }
 }

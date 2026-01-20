@@ -1,45 +1,31 @@
 <?php
+
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
 // file centreon.config.php may not exist in test environment
-$configFile = realpath(__DIR__ . "/../../config/centreon.config.php");
+$configFile = realpath(__DIR__ . '/../../config/centreon.config.php');
 if ($configFile !== false) {
     include_once $configFile;
 }
 
-require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
+require_once realpath(__DIR__ . '/centreonDBInstance.class.php');
 
 /**
  * Class
@@ -48,20 +34,27 @@ require_once realpath(__DIR__ . "/centreonDBInstance.class.php");
  */
 class CentreonGMT
 {
-    /** @var array|null */
-    protected $timezoneById = null;
-    /** @var array */
-    protected $timezones;
-    /** @var string|null */
-    protected $myGMT = null;
     /** @var int */
     public $use = 1;
+
+    /** @var array|null */
+    protected $timezoneById = null;
+
+    /** @var array */
+    protected $timezones;
+
+    /** @var string|null */
+    protected $myGMT = null;
+
     /** @var array */
     protected $aListTimezone;
+
     /** @var array */
     protected $myTimezone;
+
     /** @var array */
     protected $hostLocations = [];
+
     /** @var array */
     protected $pollerLocations = [];
 
@@ -104,6 +97,7 @@ class CentreonGMT
         if (is_null($this->timezoneById)) {
             $this->getList();
         }
+
         return $this->timezoneById;
     }
 
@@ -114,7 +108,6 @@ class CentreonGMT
     {
         return $this->myGMT;
     }
-
 
     /**
      * This method return timezone of user
@@ -128,19 +121,20 @@ class CentreonGMT
         }
 
         if (is_null($this->myTimezone)) {
-            if (!is_null($this->myGMT) && isset($this->timezoneById[$this->myGMT])) {
+            if (! is_null($this->myGMT) && isset($this->timezoneById[$this->myGMT])) {
                 $this->myTimezone = $this->timezoneById[$this->myGMT];
             } else {
                 $this->getCentreonTimezone();
-                if (!empty($this->sDefaultTimezone) && !empty($this->timezoneById[$this->sDefaultTimezone])) {
+                if (! empty($this->sDefaultTimezone) && ! empty($this->timezoneById[$this->sDefaultTimezone])) {
                     $this->myTimezone = $this->timezoneById[$this->sDefaultTimezone];
-                } else { //if we take the empty PHP
+                } else { // if we take the empty PHP
                     $this->myTimezone = date_default_timezone_get();
                 }
             }
         }
 
         $this->myTimezone = trim($this->myTimezone);
+
         return $this->myTimezone;
     }
 
@@ -149,20 +143,20 @@ class CentreonGMT
      * @param string $date
      * @param string|null $gmt
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getDate($format, $date, $gmt = null)
     {
-        $return = "";
-        if (!$date) {
-            $date = "N/A";
+        $return = '';
+        if (! $date) {
+            $date = 'N/A';
         }
-        if ($date == "N/A") {
+        if ($date == 'N/A') {
             return $date;
         }
 
-        if (!isset($gmt)) {
+        if (! isset($gmt)) {
             $gmt = $this->myGMT;
         }
 
@@ -170,7 +164,7 @@ class CentreonGMT
             $gmt = date_default_timezone_get();
         }
 
-        if (isset($date) && isset($gmt)) {
+        if (isset($date, $gmt)) {
             $sDate = new DateTime();
             $sDate->setTimestamp($date);
             $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($gmt)));
@@ -184,12 +178,12 @@ class CentreonGMT
      * @param string $date
      * @param string|null $gmt
      *
-     * @return int|string
      * @throws Exception
+     * @return int|string
      */
-    public function getCurrentTime($date = "N/A", $gmt = null)
+    public function getCurrentTime($date = 'N/A', $gmt = null)
     {
-        if ($date == "N/A") {
+        if ($date == 'N/A') {
             return $date;
         }
 
@@ -205,23 +199,22 @@ class CentreonGMT
     }
 
     /**
-     *
      * @param string $date
      * @param string|null $gmt
      * @param int $reverseOffset
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getUTCDate($date, $gmt = null, $reverseOffset = 1)
     {
-        $return = "";
-        if (!isset($gmt)) {
+        $return = '';
+        if (! isset($gmt)) {
             $gmt = $this->myGMT;
         }
 
-        if (isset($date) && isset($gmt)) {
-            if (!is_numeric($date)) {
+        if (isset($date, $gmt)) {
+            if (! is_numeric($date)) {
                 $sDate = new DateTime($date);
             } else {
                 $sDate = new DateTime();
@@ -243,14 +236,14 @@ class CentreonGMT
      * @param string|null $gmt
      * @param int $reverseOffset
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getUTCDateFromString($date, $gmt = null, $reverseOffset = 1)
     {
-        $return = "";
+        $return = '';
 
-        if (!isset($gmt)) {
+        if (! isset($gmt)) {
             $gmt = $this->myGMT;
         }
 
@@ -258,8 +251,8 @@ class CentreonGMT
             $gmt = date_default_timezone_get();
         }
 
-        if (isset($date) && isset($gmt)) {
-            if (!is_numeric($date)) {
+        if (isset($date, $gmt)) {
+            if (! is_numeric($date)) {
                 $sDate = new DateTime($date);
             } else {
                 $sDate = new DateTime();
@@ -277,20 +270,19 @@ class CentreonGMT
         return $return;
     }
 
-
     /**
      * @param $gmt
      * @return string
      */
     public function getDelaySecondsForRRD($gmt)
     {
-        $str = "";
+        $str = '';
         if ($gmt) {
             if ($gmt > 0) {
-                $str .= "+";
+                $str .= '+';
             }
         } else {
-            return "";
+            return '';
         }
     }
 
@@ -301,19 +293,19 @@ class CentreonGMT
      */
     public function getMyGMTFromSession($sid = null)
     {
-        if (!isset($sid)) {
+        if (! isset($sid)) {
             return 0;
         }
 
         try {
-            $query = "SELECT `contact_location` FROM `contact`, `session` " .
-                "WHERE `session`.`user_id` = `contact`.`contact_id` " .
-                "AND `session_id` = :session_id LIMIT 1";
+            $query = 'SELECT `contact_location` FROM `contact`, `session` '
+                . 'WHERE `session`.`user_id` = `contact`.`contact_id` '
+                . 'AND `session_id` = :session_id LIMIT 1';
             $statement = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
-            $statement->bindValue(':session_id', $sid, \PDO::PARAM_STR);
+            $statement->bindValue(':session_id', $sid, PDO::PARAM_STR);
             $statement->execute();
-            $this->myGMT = ($info = $statement->fetch()) ? $info["contact_location"] : 0;
-        } catch (\PDOException $e) {
+            $this->myGMT = ($info = $statement->fetch()) ? $info['contact_location'] : 0;
+        } catch (PDOException $e) {
             $this->myGMT = 0;
         }
     }
@@ -326,14 +318,14 @@ class CentreonGMT
      */
     public function getMyGTMFromUser($userId, $DB = null)
     {
-        if (!empty($userId)) {
+        if (! empty($userId)) {
             try {
-                $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query("SELECT `contact_location` FROM `contact` " .
-                    "WHERE `contact`.`contact_id` = " . $userId . " LIMIT 1");
+                $DBRESULT = CentreonDBInstance::getDbCentreonInstance()->query('SELECT `contact_location` FROM `contact` '
+                    . 'WHERE `contact`.`contact_id` = ' . $userId . ' LIMIT 1');
                 $info = $DBRESULT->fetchRow();
                 $DBRESULT->closeCursor();
-                $this->myGMT = $info["contact_location"];
-            } catch (\PDOException $e) {
+                $this->myGMT = $info['contact_location'];
+            } catch (PDOException $e) {
                 $this->myGMT = 0;
             }
         } else {
@@ -347,8 +339,8 @@ class CentreonGMT
      * @param string|int $host_id
      * @param string $date_format
      *
-     * @return DateTime
      * @throws Exception
+     * @return DateTime
      */
     public function getHostCurrentDatetime($host_id, $date_format = 'c')
     {
@@ -356,6 +348,7 @@ class CentreonGMT
         $timezone = $locations[$host_id] ?? '';
         $sDate = new DateTime();
         $sDate->setTimezone(new DateTimeZone($this->getActiveTimezone($timezone)));
+
         return $sDate;
     }
 
@@ -365,8 +358,8 @@ class CentreonGMT
      * @param string $dateFormat
      * @param int $reverseOffset
      *
-     * @return string
      * @throws Exception
+     * @return string
      */
     public function getUTCDateBasedOnHostGMT($date, $hostId, $dateFormat = 'c', $reverseOffset = 1)
     {
@@ -384,8 +377,8 @@ class CentreonGMT
      * @param string|int $hostId
      * @param string $dateFormat
      *
-     * @return float|int|string
      * @throws Exception
+     * @return float|int|string
      */
     public function getUTCTimestampBasedOnHostGMT($date, $hostId, $dateFormat = 'c')
     {
@@ -417,10 +410,10 @@ class CentreonGMT
      */
     public function getList()
     {
-        $queryList = "SELECT timezone_id, timezone_name, timezone_offset FROM timezone ORDER BY timezone_name asc";
+        $queryList = 'SELECT timezone_id, timezone_name, timezone_offset FROM timezone ORDER BY timezone_name asc';
         try {
             $res = CentreonDBInstance::getDbCentreonInstance()->query($queryList);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             return [];
         }
 
@@ -438,8 +431,8 @@ class CentreonGMT
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
@@ -447,19 +440,19 @@ class CentreonGMT
 
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':timezone' . $v . ',';
-                $queryValues['timezone' . $v] = (int)$v;
+                $queryValues['timezone' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected timezones
-        $query = "SELECT timezone_id, timezone_name FROM timezone "
-            . "WHERE timezone_id IN (" . $listValues . ") ORDER BY timezone_name ";
+        // get list of selected timezones
+        $query = 'SELECT timezone_id, timezone_name FROM timezone '
+            . 'WHERE timezone_id IN (' . $listValues . ') ORDER BY timezone_name ';
 
         $stmt = CentreonDBInstance::getDbCentreonInstance()->prepare($query);
 
@@ -495,15 +488,16 @@ class CentreonGMT
         try {
             $res = CentreonDBInstance::getDbCentreonStorageInstance()->query($query);
             while ($row = $res->fetchRow()) {
-                if ($row['timezone'] == "" && isset($this->pollerLocations[$row['instance_id']])) {
+                if ($row['timezone'] == '' && isset($this->pollerLocations[$row['instance_id']])) {
                     $this->hostLocations[$row['host_id']] = $this->pollerLocations[$row['instance_id']];
                 } else {
                     $this->hostLocations[$row['host_id']] = str_replace(':', '', $row['timezone']);
                 }
             }
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             // Nothing to do
         }
+
         return $this->hostLocations;
     }
 
@@ -517,17 +511,17 @@ class CentreonGMT
             return $this->pollerLocations;
         }
 
-        $query = 'SELECT ns.id, t.timezone_name ' .
-            'FROM cfg_nagios cfgn, nagios_server ns, timezone t ' .
-            'WHERE cfgn.nagios_activate = "1" ' .
-            'AND cfgn.nagios_server_id = ns.id ' .
-            'AND cfgn.use_timezone = t.timezone_id ';
+        $query = 'SELECT ns.id, t.timezone_name '
+            . 'FROM cfg_nagios cfgn, nagios_server ns, timezone t '
+            . 'WHERE cfgn.nagios_activate = "1" '
+            . 'AND cfgn.nagios_server_id = ns.id '
+            . 'AND cfgn.use_timezone = t.timezone_id ';
         try {
             $res = CentreonDBInstance::getDbCentreonInstance()->query($query);
             while ($row = $res->fetchRow()) {
                 $this->pollerLocations[$row['id']] = $row['timezone_name'];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Nothing to do
         }
 
@@ -548,12 +542,13 @@ class CentreonGMT
             try {
                 $res = CentreonDBInstance::getDbCentreonInstance()->query($query);
                 $row = $res->fetchRow();
-                $sTimezone = $row["value"];
-            } catch (\Exception $e) {
+                $sTimezone = $row['value'];
+            } catch (Exception $e) {
                 // Nothing to do
             }
             $this->sDefaultTimezone = $sTimezone;
         }
+
         return $this->sDefaultTimezone;
     }
 
@@ -566,7 +561,7 @@ class CentreonGMT
      */
     public function getActiveTimezone($gmt)
     {
-        $sTimezone = "";
+        $sTimezone = '';
         if (is_null($this->timezoneById)) {
             $this->getList();
         }
@@ -577,12 +572,13 @@ class CentreonGMT
             $sTimezone = $this->timezoneById[$gmt];
         } else {
             $this->getCentreonTimezone();
-            if (!empty($this->sDefaultTimezone) && !empty($this->timezones[$this->sDefaultTimezone])) {
+            if (! empty($this->sDefaultTimezone) && ! empty($this->timezones[$this->sDefaultTimezone])) {
                 $sTimezone = $this->timezones[$this->sDefaultTimezone];
-            } else { //if we take the empty PHP
+            } else { // if we take the empty PHP
                 $sTimezone = date_default_timezone_get();
             }
         }
+
         return $sTimezone;
     }
 }

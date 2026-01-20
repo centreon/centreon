@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 
 import { useAtomValue } from 'jotai';
 import { equals, gt, isNil, last, pipe, pluck, reject } from 'ramda';
@@ -40,7 +40,7 @@ import {
   type ResourceStatus,
   type StatusGridProps
 } from './models';
-import { getColor } from './utils';
+import { getColor, seeMoreTileId } from './utils';
 
 const StatusGrid = ({
   globalRefreshInterval,
@@ -51,7 +51,7 @@ const StatusGrid = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery
-}: Omit<StatusGridProps, 'store' | 'queryClient'>): JSX.Element => {
+}: Omit<StatusGridProps, 'store' | 'queryClient'>): ReactElement => {
   const theme = useTheme();
   const { t } = useTranslation();
 
@@ -59,6 +59,7 @@ const StatusGrid = ({
     refreshInterval,
     resourceType,
     sortBy,
+    states,
     statuses,
     tiles,
     refreshIntervalCustom
@@ -125,7 +126,7 @@ const StatusGrid = ({
                 limit: tiles,
                 resources,
                 sortBy,
-                states: [],
+                states,
                 statuses: statusesToUse,
                 type: resourceType
               }),
@@ -138,6 +139,7 @@ const StatusGrid = ({
       'statusgrid',
       resourceType,
       JSON.stringify(statuses),
+      JSON.stringify(states),
       sortBy,
       tiles,
       JSON.stringify(resources),
@@ -216,8 +218,10 @@ const StatusGrid = ({
   const seeMoreTile = hasMoreResources
     ? {
         backgroundColor: theme.palette.background.paper,
-        data: null,
-        id: 'see-more'
+        data: {
+          type: panelOptions.resourceType
+        },
+        id: seeMoreTileId
       }
     : undefined;
 
@@ -227,7 +231,7 @@ const StatusGrid = ({
       tiles={[...resourceTiles, seeMoreTile].filter((v) => v)}
       tooltipContent={isOnPublicPage ? undefined : Tooltip()}
     >
-      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize }) => (
+      {({ isSmallestSize, data: resourceData, tileSize, isMediumSize, id }) => (
         <Tile
           data={resourceData}
           isBAResourceType={isBVResourceType || isBAResourceType}
@@ -237,6 +241,7 @@ const StatusGrid = ({
           type={resourceData?.type}
           tileSize={tileSize}
           isMediumSize={isMediumSize}
+          isSeeMoreTile={id === seeMoreTileId}
         />
       )}
     </HeatMap>

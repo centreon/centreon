@@ -7,7 +7,9 @@ framework:
     session:
         handler_id: null
         cookie_secure: auto
-        cookie_samesite: lax
+        cookie_samesite: null # handled by apache
+        cookie_httponly: false # handled by apache
+        cookie_path: /
 
     php_errors:
         log: true

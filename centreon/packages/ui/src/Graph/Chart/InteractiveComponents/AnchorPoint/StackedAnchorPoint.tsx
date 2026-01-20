@@ -15,7 +15,10 @@ interface Props {
   timeSeries: Array<TimeValue>;
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
+
 interface GetYAnchorPoint {
   stackValues: Array<StackValue>;
   timeTick: Date | null;
@@ -43,7 +46,7 @@ export const getYAnchorPoint = ({
     return null;
   }
 
-  return yScale(timeValue[1] as number);
+  return yScale(timeValue[0] as number);
 };
 
 const StackedAnchorPoint = ({
@@ -51,11 +54,15 @@ const StackedAnchorPoint = ({
   yScale,
   stackValues,
   timeSeries,
-  lineColor
+  lineColor,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
     timeSeries,
-    xScale
+    xScale,
+    hasSecondUnit,
+    maxLeftAxisCharacters
   });
 
   if (isNil(timeTick)) {

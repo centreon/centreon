@@ -1,15 +1,16 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  configureOpenIDConnect,
-  initializeOIDCUserAndGetLoginPage
-} from '../common';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
+import {
+  configureOpenIdConnect,
+  initializeOidcUserAndGetLoginPage
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
     configureProviderAcls();
-    initializeOIDCUserAndGetLoginPage();
+    initializeOidcUserAndGetLoginPage();
   });
 });
 
@@ -45,10 +46,7 @@ Given('an administrator is logged in the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -58,13 +56,16 @@ Given('an administrator is logged in the platform', () => {
 When(
   'the administrator sets valid settings in the Roles mapping and saves',
   () => {
-    configureOpenIDConnect();
-
-    cy.getByLabel({ label: 'Roles mapping' }).click();
+    cy.get('[data-testid="Roles mapping-header"]').click();
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
-    }).check();
+    })
+      .scrollIntoView()
+      .check();
+
+    configureOpenIdConnect();
+
     cy.getByLabel({
       label: 'Enable automatic management',
       tag: 'input'
@@ -84,7 +85,9 @@ When(
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    }).type('{selectall}{backspace}centreon-editor');
+    })
+      .eq(0)
+      .type('{selectall}{backspace}centreon-editor');
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'
@@ -117,7 +120,7 @@ Then(
       url: '/centreon/api/internal.php?object=centreon_topcounter&action=user'
     }).as('getUserInformation');
 
-    cy.contains('Login with openid').should('be.visible').click();
+    cy.get('[data-testid="Login with openid"').should('be.visible').click();
 
     cy.loginKeycloak('user-non-admin-for-OIDC-authentication');
 

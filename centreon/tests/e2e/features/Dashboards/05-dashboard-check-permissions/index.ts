@@ -1,6 +1,7 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import adminUser from '../../../fixtures/users/admin.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
@@ -515,10 +516,7 @@ Given('a non-admin user with the editor role on the dashboard feature', () => {
 });
 
 When('the dashboard editor user creates a new dashboard', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.getByTestId({ testId: 'create-dashboard' }).eq(0).click();
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(
@@ -607,7 +605,7 @@ Given(
 );
 
 When('the dashboard viewer user accesses the dashboards library', () => {
-  cy.visit('/centreon/home/dashboards');
+  cy.visit(PAGES.monitoring.dashboards);
 });
 
 Then(
@@ -666,10 +664,7 @@ Given('a non-admin user with the viewer role on the dashboard feature', () => {
 });
 
 When('the dashboard viewer accesses the dashboards library', () => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 

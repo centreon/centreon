@@ -1,72 +1,55 @@
 <?php
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$user_params = ["log_filter_host" => true, "log_filter_svc" => true, "log_filter_host_down" => true, "log_filter_host_up" => true, "log_filter_host_unreachable" => true, "log_filter_svc_ok" => true, "log_filter_svc_warning" => true, "log_filter_svc_critical" => true, "log_filter_svc_unknown" => true, "log_filter_notif" => false, "log_filter_error" => true, "log_filter_alert" => true, "log_filter_oh" => false, "search_H" => "", "search_S" => "", 'log_filter_period' => "", 'output' => ""];
+$user_params = ['log_filter_host' => true, 'log_filter_svc' => true, 'log_filter_host_down' => true, 'log_filter_host_up' => true, 'log_filter_host_unreachable' => true, 'log_filter_svc_ok' => true, 'log_filter_svc_warning' => true, 'log_filter_svc_critical' => true, 'log_filter_svc_unknown' => true, 'log_filter_notif' => false, 'log_filter_error' => true, 'log_filter_alert' => true, 'log_filter_oh' => false, 'search_H' => '', 'search_S' => '', 'log_filter_period' => '', 'output' => ''];
 
-/*
- * Add QuickSearch ToolBar
- */
+// Add QuickSearch ToolBar
 $FlagSearchService = 1;
 
 // Smarty template initialization
-$tpl = SmartyBC::createSmartyTemplate("./include/eventLogs/template");
+$tpl = SmartyBC::createSmartyTemplate('./include/eventLogs/template');
 
 $getInputs = [
     'engine' => filter_input(INPUT_GET, 'engine', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]),
     'id' => filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT, ['options' => ['default' => 1]]),
-    'h' => isset($_GET['h']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['h']) : null,
-    'hg' => isset($_GET['hg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['hg']) : null,
-    'poller' => isset($_GET['poller']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['poller']) : null,
-    'svc' => isset($_GET['svc']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['svc']) : null,
-    'svcg' => isset($_GET['svcg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['svcg']) : null,
-    'output' => isset($_GET['output']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_GET['output']) : null,
+    'h' => isset($_GET['h']) ? HtmlSanitizer::createFromString($_GET['h'])->sanitize()->getString() : null,
+    'hg' => isset($_GET['hg']) ? HtmlSanitizer::createFromString($_GET['hg'])->sanitize()->getString() : null,
+    'poller' => isset($_GET['poller']) ? HtmlSanitizer::createFromString($_GET['poller'])->sanitize()->getString() : null,
+    'svc' => isset($_GET['svc']) ? HtmlSanitizer::createFromString($_GET['svc'])->sanitize()->getString() : null,
+    'svcg' => isset($_GET['svcg']) ? HtmlSanitizer::createFromString($_GET['svcg'])->sanitize()->getString() : null,
+    'output' => isset($_GET['output']) ? HtmlSanitizer::createFromString($_GET['output'])->sanitize()->getString() : null,
 ];
 
 $postInputs = [
     'engine' => filter_input(INPUT_POST, 'engine', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]),
     'id' => filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT, ['options' => ['default' => 1]]),
-    'h' => isset($_POST['h']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['h']) : null,
-    'hg' => isset($_POST['hg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['hg']) : null,
-    'poller' => isset($_POST['poller']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['poller']) : null,
-    'svc' => isset($_POST['svc']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['svc']) : null,
-    'svcg' => isset($_POST['svcg']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['svcg']) : null,
-    'output' => isset($_POST['output']) ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['output']) : null,
+    'h' => isset($_POST['h']) ? HtmlSanitizer::createFromString($_POST['h'])->sanitize()->getString() : null,
+    'hg' => isset($_POST['hg']) ? HtmlSanitizer::createFromString($_POST['hg'])->sanitize()->getString() : null,
+    'poller' => isset($_POST['poller']) ? HtmlSanitizer::createFromString($_POST['poller'])->sanitize()->getString() : null,
+    'svc' => isset($_POST['svc']) ? HtmlSanitizer::createFromString($_POST['svc'])->sanitize()->getString() : null,
+    'svcg' => isset($_POST['svcg']) ? HtmlSanitizer::createFromString($_POST['svcg'])->sanitize()->getString() : null,
+    'output' => isset($_POST['output']) ? HtmlSanitizer::createFromString($_POST['output'])->sanitize()->getString() : null,
 ];
 
 $serviceGrpArray = [];
@@ -74,7 +57,7 @@ $pollerArray = [];
 
 $defaultHosts = [];
 if (isset($getInputs['h'])) {
-    $h = explode(",", $getInputs['h']);
+    $h = explode(',', $getInputs['h']);
     $hostObj = new CentreonHost($pearDB);
     $hostArray = $hostObj->getHostsNames($h);
     foreach ($hostArray as $defaultHost) {
@@ -84,7 +67,7 @@ if (isset($getInputs['h'])) {
 
 $defaultHostgroups = [];
 if (isset($getInputs['hg'])) {
-    $hg = explode(",", $getInputs['hg']);
+    $hg = explode(',', $getInputs['hg']);
     $hostGrpObj = new CentreonHostgroups($pearDB);
     $hostGrpArray = $hostGrpObj->getHostsgroups($hg);
     foreach ($hostGrpArray as $defaultHostgroup) {
@@ -94,11 +77,18 @@ if (isset($getInputs['hg'])) {
 
 $defaultServices = [];
 if (isset($getInputs['svc'])) {
-    $svc = explode(",", $getInputs['svc']);
+    $services = explode(',', $getInputs['svc']);
+
+    // Verify that each services is a couple hostId_serviceId
+    foreach ($services as $service) {
+        if (! preg_match('/^\d+_\d+$/', $service)) {
+            throw new Exception('Invalid format provided for service. Expected hostId_serviceId');
+        }
+    }
     $serviceObj = new CentreonService($pearDB);
-    $serviceArray = $serviceObj->getServicesDescr($svc);
+    $serviceArray = $serviceObj->getServicesDescr($services);
     foreach ($serviceArray as $defaultService) {
-        if ($defaultService['host_name'] == '_Module_Meta'
+        if ($defaultService['host_name'] === '_Module_Meta'
             && preg_match('/^meta_(\d+)/', $defaultService['description'], $matches)
         ) {
             $defaultService['host_name'] = 'Meta';
@@ -112,7 +102,7 @@ if (isset($getInputs['svc'])) {
 
 $defaultServicegroups = [];
 if (isset($getInputs['svcg'])) {
-    $svcg = explode(",", $getInputs['svcg']);
+    $svcg = explode(',', $getInputs['svcg']);
     $serviceGrpObj = new CentreonServicegroups($pearDB);
     $serviceGrpArray = $serviceGrpObj->getServicesGroups($svcg);
     foreach ($serviceGrpArray as $defaultServicegroup) {
@@ -122,7 +112,7 @@ if (isset($getInputs['svcg'])) {
 
 $defaultPollers = [];
 if (isset($getInputs['poller'])) {
-    $poller = explode(",", $getInputs['poller']);
+    $poller = explode(',', $getInputs['poller']);
     $pollerObj = new CentreonInstance($pearDB, $pearDBO);
     $pollerArray = $pollerObj->getInstancesMonitoring($poller);
     foreach ($pollerArray as $defaultPoller) {
@@ -130,81 +120,79 @@ if (isset($getInputs['poller'])) {
     }
 }
 
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('FormPeriod', 'get', "?p=" . $p);
-$form->addElement('header', 'title', _("Choose the source"));
+// Form begin
+$form = new HTML_QuickFormCustom('FormPeriod', 'get', '?p=' . $p);
+$form->addElement('header', 'title', _('Choose the source'));
 
 $periods = [
-    "" => "",
-    "10800" => _("Last 3 hours"),
-    "21600" => _("Last 6 hours"),
-    "43200" => _("Last 12 hours"),
-    "86400" => _("Last 24 hours"),
-    "172800" => _("Last 2 days"),
-    "302400" => _("Last 4 days"),
-    "604800" => _("Last 7 days"),
-    "1209600" => _("Last 14 days"),
-    "2419200" => _("Last 28 days"),
-    "2592000" => _("Last 30 days"),
-    "2678400" => _("Last 31 days"),
-    "5184000" => _("Last 2 months"),
-    "10368000" => _("Last 4 months"),
-    "15552000" => _("Last 6 months"),
-    "31104000" => _("Last year")
+    '' => '',
+    '10800' => _('Last 3 hours'),
+    '21600' => _('Last 6 hours'),
+    '43200' => _('Last 12 hours'),
+    '86400' => _('Last 24 hours'),
+    '172800' => _('Last 2 days'),
+    '302400' => _('Last 4 days'),
+    '604800' => _('Last 7 days'),
+    '1209600' => _('Last 14 days'),
+    '2419200' => _('Last 28 days'),
+    '2592000' => _('Last 30 days'),
+    '2678400' => _('Last 31 days'),
+    '5184000' => _('Last 2 months'),
+    '10368000' => _('Last 4 months'),
+    '15552000' => _('Last 6 months'),
+    '31104000' => _('Last year'),
 ];
 
 $lang = [
-    "ty" => _("Message Type"),
-    "n" => _("Notifications"),
-    "a" => _("Alerts"),
-    "e" => _("Errors"),
-    "s" => _("Status"),
-    "do" => _("Down"),
-    "up" => _("Up"),
-    "un" => _("Unreachable"),
-    "w" => _("Warning"),
-    "ok" => _("Ok"),
-    "cr" => _("Critical"),
-    "uk" => _("Unknown"),
-    "oh" => _("Hard Only"),
-    "sch" => _("Search")
+    'ty' => _('Message Type'),
+    'n' => _('Notifications'),
+    'a' => _('Alerts'),
+    'e' => _('Errors'),
+    's' => _('Status'),
+    'do' => _('Down'),
+    'up' => _('Up'),
+    'un' => _('Unreachable'),
+    'w' => _('Warning'),
+    'ok' => _('Ok'),
+    'cr' => _('Critical'),
+    'uk' => _('Unknown'),
+    'oh' => _('Hard Only'),
+    'sch' => _('Search'),
 ];
 
-$form->addElement('select', 'period', _("Log Period"), $periods);
+$form->addElement('select', 'period', _('Log Period'), $periods);
 $form->addElement(
     'text',
     'StartDate',
     '',
-    ["id" => "StartDate", "onClick" => "resetPeriod()", "class" => "datepicker", "size" => 8]
+    ['id' => 'StartDate', 'onClick' => 'resetPeriod()', 'class' => 'datepicker', 'size' => 8]
 );
 $form->addElement(
     'text',
     'StartTime',
     '',
-    ["id" => "StartTime", "onChange" => "resetPeriod()", "class" => "timepicker", "size" => 5]
+    ['id' => 'StartTime', 'onChange' => 'resetPeriod()', 'class' => 'timepicker', 'size' => 5]
 );
 $form->addElement(
     'text',
     'EndDate',
     '',
-    ["id" => "EndDate", "onClick" => "resetPeriod()", "class" => "datepicker", "size" => 8]
+    ['id' => 'EndDate', 'onClick' => 'resetPeriod()', 'class' => 'datepicker', 'size' => 8]
 );
 $form->addElement(
     'text',
     'EndTime',
     '',
-    ["id" => "EndTime", "onChange" => "resetPeriod()", "class" => "timepicker", "size" => 5]
+    ['id' => 'EndTime', 'onChange' => 'resetPeriod()', 'class' => 'timepicker', 'size' => 5]
 );
 $form->addElement(
     'text',
     'output',
-    _("Output"),
-    ["id" => "output", "style" => "width: 203px;", "size" => 15, "value" => $user_params['output']]
+    _('Output'),
+    ['id' => 'output', 'style' => 'width: 203px;', 'size' => 15, 'value' => $user_params['output']]
 );
 
-/* adding hidden fields to get the result of datepicker in an unlocalized format */
+// adding hidden fields to get the result of datepicker in an unlocalized format
 $form->addElement(
     'hidden',
     'alternativeDateStartDate',
@@ -218,19 +206,19 @@ $form->addElement(
     ['size' => 10, 'class' => 'alternativeDate']
 );
 
-if (!$getInputs['engine']) {
+if (! $getInputs['engine']) {
     $form->addElement(
         'button',
         'graph',
-        _("Apply period"),
-        ["onclick" => "apply_period()", "class" => "btc bt_success"]
+        _('Apply period'),
+        ['onclick' => 'apply_period()', 'class' => 'btc bt_success']
     );
 } else {
     $form->addElement(
         'button',
         'graph',
-        _("Apply period"),
-        ["onclick" => "apply_period_engine()", "class" => "btc bt_success"]
+        _('Apply period'),
+        ['onclick' => 'apply_period_engine()', 'class' => 'btc bt_success']
     );
 }
 
@@ -239,7 +227,7 @@ $attrHost1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDat
 $form->addElement(
     'select2',
     'host_filter',
-    _("Hosts"),
+    _('Hosts'),
     [],
     $attrHost1
 );
@@ -250,7 +238,7 @@ $attrServicegroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'avai
 $form->addElement(
     'select2',
     'service_group_filter',
-    _("Service Groups"),
+    _('Service Groups'),
     [],
     $attrServicegroup1
 );
@@ -260,7 +248,7 @@ $attrService1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'available
 $form->addElement(
     'select2',
     'service_filter',
-    _("Services"),
+    _('Services'),
     [],
     $attrService1
 );
@@ -270,7 +258,7 @@ $attrHostGroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availab
 $form->addElement(
     'select2',
     'host_group_filter',
-    _("Host Groups"),
+    _('Host Groups'),
     [],
     $attrHostGroup1
 );
@@ -280,13 +268,13 @@ $attrPoller1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableD
 $form->addElement(
     'select2',
     'poller_filter',
-    _("Pollers"),
+    _('Pollers'),
     [],
     $attrPoller1
 );
 
 $form->setDefaults(
-    ["period" => $user_params['log_filter_period']]
+    ['period' => $user_params['log_filter_period']]
 );
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
@@ -295,10 +283,10 @@ $tpl->assign('form', $renderer->toArray());
 $tpl->assign('user_params', $user_params);
 $tpl->assign('lang', $lang);
 
-if (!$getInputs['engine']) {
-    $tpl->display("viewLog.ihtml");
+if (! $getInputs['engine']) {
+    $tpl->display('viewLog.ihtml');
 } else {
-    $tpl->display("viewLogEngine.ihtml");
+    $tpl->display('viewLogEngine.ihtml');
 }
 
 ?>
@@ -336,38 +324,38 @@ if (!$getInputs['engine']) {
         _num = num;
         logsEngine();
     }
-    var _host = <?php echo !empty($user_params["log_filter_host"]) ? $user_params["log_filter_host"] : 'false'; ?>;
-    var _service = <?php echo !empty($user_params["log_filter_svc"]) ? $user_params["log_filter_svc"] : 'false'; ?>;
+    var _host = <?php echo ! empty($user_params['log_filter_host']) ? $user_params['log_filter_host'] : 'false'; ?>;
+    var _service = <?php echo ! empty($user_params['log_filter_svc']) ? $user_params['log_filter_svc'] : 'false'; ?>;
     // Casting engine variable so that it can be properly interpreted in JS
     var _engine = <?php echo (int) $getInputs['engine']; ?>;
 
-    var _down = <?php echo $user_params["log_filter_host_down"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _up = <?php echo $user_params["log_filter_host_up"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _unreachable = <?php echo $user_params["log_filter_host_unreachable"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
+    var _down = <?php echo $user_params['log_filter_host_down']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _up = <?php echo $user_params['log_filter_host_up']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _unreachable = <?php echo $user_params['log_filter_host_unreachable']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
 
-    var _ok = <?php echo $user_params["log_filter_svc_ok"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _warning = <?php echo $user_params["log_filter_svc_warning"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _critical = <?php echo $user_params["log_filter_svc_critical"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
+    var _ok = <?php echo $user_params['log_filter_svc_ok']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _warning = <?php echo $user_params['log_filter_svc_warning']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _critical = <?php echo $user_params['log_filter_svc_critical']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
 
-    var _unknown = <?php echo $user_params["log_filter_svc_unknown"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
+    var _unknown = <?php echo $user_params['log_filter_svc_unknown']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
 
-    <?php $filterNotif = $user_params["log_filter_notif"];?>
-    var _notification = <?php echo !empty($filterNotif) ? $user_params["log_filter_notif"] : 'false';?>;
-    var _error = <?php echo !empty($user_params["log_filter_error"]) ? $user_params["log_filter_error"] : 'false'; ?>;
-    var _alert = <?php echo !empty($user_params["log_filter_alert"]) ? $user_params["log_filter_alert"] : 'false'; ?>;
+    <?php $filterNotif = $user_params['log_filter_notif']; ?>
+    var _notification = <?php echo ! empty($filterNotif) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _error = <?php echo ! empty($user_params['log_filter_error']) ? $user_params['log_filter_error'] : 'false'; ?>;
+    var _alert = <?php echo ! empty($user_params['log_filter_alert']) ? $user_params['log_filter_alert'] : 'false'; ?>;
 
-    var _oh = <?php echo !empty($user_params["log_filter_oh"]) ? $user_params["log_filter_oh"] : 'false'; ?>;
+    var _oh = <?php echo ! empty($user_params['log_filter_oh']) ? $user_params['log_filter_oh'] : 'false'; ?>;
 
-    var _search_H = "<?php echo $user_params["search_H"]; ?>";
-    var _search_S = "<?php echo $user_params["search_S"]; ?>";
-    var _output = "<?php $output; ?>";
+    var _search_H = "<?php echo $user_params['search_H']; ?>";
+    var _search_S = "<?php echo $user_params['search_S']; ?>";
+    var _output = "<?php  ?>";
     // Period
     var currentTime = new Date();
     var period = '';
@@ -524,12 +512,12 @@ if (!$getInputs['engine']) {
                 '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + id
                 <?php
                 if (isset($search) && $search) {
-                    print " + &search_host=" . $search;
+                    echo ' + &search_host=' . $search;
                 }
-                if (isset($search_service) && $search_service) {
-                    print " + &search_service=" . $search_service;
-                }
-                ?>;
+if (isset($search_service) && $search_service) {
+    echo ' + &search_service=' . $search_service;
+}
+?>;
 
             proc.setXml(_addr)
             proc.setXslt(_addrXSL)
@@ -547,13 +535,13 @@ if (!$getInputs['engine']) {
                         '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
                         '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
                         <?php
-                        if (isset($search) && $search) {
-                            print " + &search_host=" . $search;
-                        }
-                        if (isset($search_service) && $search_service) {
-                            print " + &search_service=" . $search_service;
-                        }
-                        ?> +'&export=1';
+        if (isset($search) && $search) {
+            echo ' + &search_host=' . $search;
+        }
+if (isset($search_service) && $search_service) {
+    echo ' + &search_service=' . $search_service;
+}
+?> +'&export=1';
                 } else if (type == 'XML') {
                     var _addr = './include/eventLogs/xml/data.php?output=' + _output + '&oh=' + _oh +
                         '&warning=' + _warning + '&unknown=' + _unknown + '&critical=' + _critical +
@@ -563,14 +551,14 @@ if (!$getInputs['engine']) {
                         '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
                         '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
                         <?php
-                        if (isset($search) && $search) {
-                            print " + &search_host=" . $search;
-                            print "&search_host=" . $search;
-                        }
-                        if (isset($search_service) && $search_service) {
-                            print " + &search_service=" . $search_service;
-                        }
-                        ?> +'&export=1';
+if (isset($search) && $search) {
+    echo ' + &search_host=' . $search;
+    echo '&search_host=' . $search;
+}
+if (isset($search_service) && $search_service) {
+    echo ' + &search_service=' . $search_service;
+}
+?> +'&export=1';
                 }
             } else {
                 var poller_value = jQuery("#poller_filter").val();

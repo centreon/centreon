@@ -40,6 +40,8 @@ interface Props extends GlobalAreaLines {
   xScale: ScaleLinear<number, number>;
   yScalesPerUnit: Record<string, ScaleLinear<number, number>>;
   lineStyle: LineStyle | Array<LineStyle>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const Lines = ({
@@ -56,7 +58,9 @@ const Lines = ({
   areaRegularLines,
   scale,
   scaleLogarithmicBase,
-  lineStyle
+  lineStyle,
+  hasSecondUnit,
+  maxLeftAxisCharacters
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -78,7 +82,9 @@ const Lines = ({
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
-    xScale
+    xScale,
+    hasSecondUnit,
+    maxLeftAxisCharacters
   };
 
   return (
@@ -95,34 +101,48 @@ const Lines = ({
       {(areaStackedLines?.display ?? true) && (
         <>
           {Object.entries(stackedLinesData).map(
-            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
-              <StackedLines
-                lineStyle={lineStyle}
-                key={`stacked-${unit}`}
-                lines={lines}
-                timeSeries={stackedTimeSeries}
-                yScale={yScalesPerUnit[unit]}
-                {...commonStackedLinesProps}
-              />
-            )
+            ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
+              const [, unit] = stackedKey.split('-');
+              const yScale =
+                unit === '' && yScalesPerUnit[unit] === undefined
+                  ? yScalesPerUnit[undefined]
+                  : yScalesPerUnit[unit];
+
+              return (
+                <StackedLines
+                  lineStyle={lineStyle}
+                  key={`stacked-${unit}`}
+                  lines={lines}
+                  timeSeries={stackedTimeSeries}
+                  yScale={yScale}
+                  {...commonStackedLinesProps}
+                />
+              );
+            }
           )}
           {Object.entries(invertedStackedLinesData).map(
-            ([unit, { lines, timeSeries: stackedTimeSeries }]) => (
-              <StackedLines
-                lineStyle={lineStyle}
-                key={`invert-stacked-${unit}`}
-                lines={lines}
-                timeSeries={stackedTimeSeries}
-                yScale={getYScale({
-                  invert: '1',
-                  scale,
-                  scaleLogarithmicBase,
-                  unit,
-                  yScalesPerUnit
-                })}
-                {...commonStackedLinesProps}
-              />
-            )
+            ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
+              const [, unit] = stackedKey.split('-');
+              return (
+                <StackedLines
+                  lineStyle={lineStyle}
+                  key={`invert-stacked-${unit}`}
+                  lines={lines}
+                  timeSeries={stackedTimeSeries}
+                  yScale={getYScale({
+                    invert: '1',
+                    scale,
+                    scaleLogarithmicBase,
+                    unit:
+                      unit === '' && yScalesPerUnit[unit] === undefined
+                        ? undefined
+                        : unit,
+                    yScalesPerUnit
+                  })}
+                  {...commonStackedLinesProps}
+                />
+              );
+            }
           )}
         </>
       )}
@@ -192,6 +212,8 @@ const Lines = ({
                       transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
+                      hasSecondUnit={hasSecondUnit}
                     />
                   )}
                   {style?.showPoints &&

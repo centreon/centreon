@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -6,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,134 +19,94 @@
  *
  */
 
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
-/**
- * This file contains changes to be included in the next version.
- * The actual version number should be added in the variable $version.
- */
 $version = 'xx.xx.x';
+
 $errorMessage = '';
 
 /**
- * Add column `show_deprecated_custom_views` to contact table.
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
  */
-$addDeprecateCustomViewsToContact=  function() use (&$errorMessage, &$pearDB) {
-    $errorMessage = 'Unable to add column show_deprecated_custom_views to contact table';
-    if (! $pearDB->isColumnExist('contact', 'show_deprecated_custom_views')) {
-        $pearDB->executeQuery(
-            <<<SQL
-            ALTER TABLE contact ADD COLUMN show_deprecated_custom_views ENUM('0','1') DEFAULT '0'
-            SQL
-        );
-    }
-};
 
-/**
- * Switch Topology Order between Dashboards and Custom Views.
- */
-$updateDashboardAndCustomViewsTopology = function() use(&$errorMessage, &$pearDB) {
-    $errorMessage = 'Unable to update topology of Custom Views';
-    $pearDB->executeQuery(
-        <<<SQL
-        UPDATE topology SET topology_order = 2, is_deprecated ="1" WHERE topology_name = "Custom Views"
-        SQL
-    );
-    $errorMessage = 'Unable to update topology of Dashboards';
-    $pearDB->executeQuery(
-        <<<SQL
-        UPDATE topology SET topology_order = 1 WHERE topology_name = "Dashboards"
-        SQL
-    );
-};
-
-/**
- * Set Show Deprecated Custom Views to true by default is there is existing custom views.
- */
-$updateContactsShowDeprecatedCustomViews = function() use(&$errorMessage, &$pearDB) {
-    $errorMessage = 'Unable to retrieve custom views';
-    $statement = $pearDB->executeQuery(
-        <<<SQL
-        SELECT 1 FROM custom_views
-        SQL
+/** -------------------------------------- Host Group Topology -------------------------------------- */
+$fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix duplicate Host Groups topology';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [topology] Fixing duplicate Host Groups menu entries",
     );
 
-    if (! empty($statement->fetchAll())) {
-        $pearDB->executeQuery(
-            <<<SQL
-            UPDATE contact SET show_deprecated_custom_views = '1'
-            SQL
-        );
-    }
-};
-
-$updateCfgParameters = function () use ($pearDB, &$errorMessage) {
-    $errorMessage = 'Unable to update cfg_nagios table';
-
-    $pearDB->executeQuery(
+    $pearDB->update(
         <<<'SQL'
-            UPDATE cfg_nagios
-            SET enable_flap_detection = '1',
-                host_down_disable_service_checks = '1'
-            WHERE enable_flap_detection != '1'
-               OR host_down_disable_service_checks != '1'
-        SQL
+            UPDATE `topology`
+            SET `topology_url` = '/configuration/hosts/groups',
+                `is_react` = '1',
+                `topology_show` = '1'
+            WHERE `topology_page` = 60102
+            SQL
     );
-};
 
-/** -------------------------------------------- BBDO cfg update -------------------------------------------- */
-$bbdoDefaultUpdate= function () use ($pearDB, &$errorMessage) {
-    if ($pearDB->isColumnExist('cfg_centreonbroker', 'bbdo_version') !== 1) {
-        $errorMessage = "Unable to update 'bbdo_version' column to 'cfg_centreonbroker' table";
-        $pearDB->query('ALTER TABLE `cfg_centreonbroker` MODIFY `bbdo_version` VARCHAR(50) DEFAULT "3.1.0"');
-    }
-};
+    // Remove duplicate topology entry 60105 introduced by 25.05 migration
+    $pearDB->delete(
+        <<<'SQL'
+            DELETE FROM `topology`
+            WHERE `topology_page` = 60105
+            SQL
+    );
 
-$bbdoCfgUpdate = function () use ($pearDB, &$errorMessage) {
-    $errorMessage = "Unable to update 'bbdo_version' version in 'cfg_centreonbroker' table";
-    $pearDB->query('UPDATE `cfg_centreonbroker` SET `bbdo_version` = "3.1.0"');
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [topology] Successfully removed duplicate Host Groups topology entry",
+    );
 };
 
 try {
+    // DDL statements for real time database
+    // TODO add your function calls to update the real time database structure here
 
-    $bbdoDefaultUpdate();
-    $addDeprecateCustomViewsToContact();
+    // DDL statements for configuration database
+    // TODO add your function calls to update the configuration database structure here
 
     // Transactional queries for configuration database
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
     }
 
-    $updateDashboardAndCustomViewsTopology();
-    $updateContactsShowDeprecatedCustomViews();
-    $updateCfgParameters();
-    $bbdoCfgUpdate();
+    $fixDuplicateHostGroupTopology();
 
-    $pearDB->commit();
+    $pearDB->commitTransaction();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
-        exception: $exception
+        exception: $throwable
     );
+
     try {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
+        if ($pearDB->isTransactionActive()) {
+            $pearDB->rollBackTransaction();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
-            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            (int) $rollbackException->getCode(),
-            $rollbackException
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            previous: $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
 }

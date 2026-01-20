@@ -30,6 +30,11 @@
       "values": "acl_menu_test;1;Home"
     },
     {
+      "action": "ADDACTION",
+      "object": "ACLGROUP",
+      "values": "ACL Group test;Simple User"
+    },
+    {
       "action": "RELOAD",
       "object": "ACL",
       "values": ""

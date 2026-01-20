@@ -28,7 +28,8 @@ import useThreshold from './useThreshold';
 
 const Threshold = ({
   propertyName,
-  isInGroup
+  isInGroup,
+  tooltipLabel
 }: WidgetPropertyProps): JSX.Element => {
   const { t } = useTranslation();
   const { classes } = useThresholdStyles();
@@ -49,7 +50,7 @@ const Threshold = ({
           endAdornment={
             <Tooltip
               followCursor={false}
-              label={t(labelThresholdsAreAutomaticallyHidden)}
+              label={t(tooltipLabel || labelThresholdsAreAutomaticallyHidden)}
               position="right"
             >
               <InfoOutlinedIcon color="primary" />

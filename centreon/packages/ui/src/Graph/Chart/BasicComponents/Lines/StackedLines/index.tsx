@@ -13,6 +13,7 @@ import {
   type
 } from 'ramda';
 
+import { ReactElement } from 'react';
 import { getDates, getTime } from '../../../../common/timeSeries';
 import { Line, TimeValue } from '../../../../common/timeSeries/models';
 import {
@@ -43,6 +44,8 @@ interface Props {
   xScale: ScaleTime<number, number>;
   yScale: ScaleLinear<number, number>;
   lineStyle: LineStyle | Array<LineStyle>;
+  hasSecondUnit?: boolean;
+  maxLeftAxisCharacters: number;
 }
 
 const StackLines = ({
@@ -51,8 +54,10 @@ const StackLines = ({
   yScale,
   xScale,
   displayAnchor,
-  lineStyle
-}: Props): JSX.Element => {
+  lineStyle,
+  hasSecondUnit,
+  maxLeftAxisCharacters
+}: Props): ReactElement => {
   const curveType = getCurveFactory(
     (equals(type(lineStyle), 'Array')
       ? lineStyle?.[0].curve
@@ -101,6 +106,8 @@ const StackLines = ({
                   transparency={transparency}
                   xScale={xScale}
                   yScale={yScale}
+                  hasSecondUnit={hasSecondUnit}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
                 />
               )}
               {style?.showPoints &&

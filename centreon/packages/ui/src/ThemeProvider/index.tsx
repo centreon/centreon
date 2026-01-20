@@ -1,11 +1,12 @@
 import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
+import { equals, mergeDeepRight } from 'ramda';
 import { CSSInterpolation } from 'tss-react';
 
 import {
   ButtonProps,
   InputBaseProps,
   ThemeProvider as MuiThemeProvider,
+  PaletteOptions,
   StyledEngineProvider,
   Theme,
   createTheme
@@ -147,46 +148,6 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => `
-        ::-webkit-scrollbar {
-          height: ${theme.spacing(1)};
-          width: ${theme.spacing(1)};
-          background-color: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          };
-          border-radius: ${theme.spacing(0.5)};
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: ${theme.palette.primary.main};
-        }
-        * {
-          scrollbar-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          } ${theme.palette.background.default};
-          scrollbar-width: thin;
-        }
-        html {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          text-rendering: optimizeLegibility;
-        }
-        body {
-          background-color: ${theme.palette.background.paper};
-          height: 100%;
-          padding: 0;
-          width: 100%;
-        }
-        #root {
-          background-color: ${theme.palette.background.paper};
-        }
         @font-face {
           font-family: 'Roboto';
           font-style: normal;
@@ -210,6 +171,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           font-style: normal;
           font-weight: 700;
           src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
+        }
+        body {
+          background-color: ${theme.palette.background.paper};
         }
       `
     },
@@ -294,15 +258,23 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
 
 interface Props {
   children: ReactNode;
+  overrideTheme?: {
+    light: Partial<PaletteOptions>;
+    dark: Partial<PaletteOptions>;
+  };
 }
 
-const ThemeProvider = ({ children }: Props): JSX.Element => {
+const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
-  const theme = useMemo(
-    () => createTheme(getTheme(themeMode || ThemeMode.light)),
-    [themeMode]
-  );
+  const theme = useMemo(() => {
+    const overrideThemeByMode = overrideTheme?.[themeMode || 'light'];
+    return createTheme(
+      mergeDeepRight(getTheme(themeMode || ThemeMode.light), {
+        palette: overrideThemeByMode || {}
+      })
+    );
+  }, [themeMode, overrideTheme]);
 
   return (
     <StyledEngineProvider injectFirst enableCssLayer>

@@ -37,7 +37,9 @@ export interface HostConfiguration {
 }
 
 export interface CMAConfiguration {
-  isReverse: boolean;
+  port?: number | null;
+  agentInitiated: boolean;
+  pollerInitiated: boolean;
   otelPublicCertificate: string | null;
   otelCaCertificate: string | null;
   otelPrivateKey: string | null;
@@ -63,7 +65,8 @@ export interface HostConfigurationToAPI {
 }
 
 export interface CMAConfigurationAPI {
-  is_reverse: boolean;
+  agent_initiated: boolean;
+  poller_initiated: boolean;
   otel_public_certificate: string | null;
   otel_ca_certificate: string | null;
   otel_private_key: string | null;

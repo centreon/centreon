@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,8 @@ use Core\Resources\Application\UseCase\CountResources\CountResourcesRequest;
  * @class CountResourcesRequestTransformer
  * @package Core\Resources\Infrastructure\API\CountResources
  */
-final readonly class CountResourcesRequestTransformer {
+final readonly class CountResourcesRequestTransformer
+{
     /**
      * @param CountResourcesInput $input
      * @param ResourceFilter $resourceFilter
@@ -44,7 +45,7 @@ final readonly class CountResourcesRequestTransformer {
     public static function transform(
         CountResourcesInput $input,
         ResourceFilter $resourceFilter,
-        ContactInterface $contact
+        ContactInterface $contact,
     ): CountResourcesRequest {
         return new CountResourcesRequest(
             resourceFilter: $resourceFilter,

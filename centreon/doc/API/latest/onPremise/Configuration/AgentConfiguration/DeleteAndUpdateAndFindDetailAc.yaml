@@ -1,6 +1,6 @@
 delete:
   tags:
-    - Poller/agent configuration
+    - Agent configuration
   summary: "Delete a poller/agent configuration"
   description: "Delete a poller/agent configuration"
   parameters:
@@ -18,7 +18,7 @@ delete:
       $ref: '../../Common/Response/InternalServerError.yaml'
 put:
   tags:
-    - Poller/agent configuration
+    - Agent configuration
   summary: "Update a poller/agent configuration"
   description: "Update a poller/agent configuration"
   parameters:
@@ -42,7 +42,7 @@ put:
       $ref: '../../Common/Response/InternalServerError.yaml'
 get:
   tags:
-    - Poller/agent configuration
+    - Agent configuration
   summary: "Get a poller/agent configuration"
   description: "Get a poller/agent configuration"
   parameters:

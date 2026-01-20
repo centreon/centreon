@@ -1,8 +1,8 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import vms from '../../../fixtures/services/virtual-metric.json';
 
-const checkFirstVMFromListing = () => {
+const checkFirstVmFromListing = () => {
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
     .find('select[name="o1"]')
@@ -48,48 +48,52 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 Given('many virtual metrics are linked to a configured service', () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Virtual metrics' is visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchVM"]');
   cy.getIframeBody().contains('a', 'Add').click();
-  cy.addOrUpdateVirtualMetric(vms.vmForMemory, true);
+  cy.addOrUpdateVirtualMetric(
+    {
+      ...vms.vmForMemory,
+      warningThreshold: vms.vmForMemory.warning_threshold,
+      criticalThreshold: vms.vmForMemory.critical_threshold
+    },
+    true
+  );
   //Type a value in 'Options' field for duplicate
   cy.getIframeBody().find('input[name="dupNbr[1]"]').clear().type('50');
-  checkFirstVMFromListing();
+  checkFirstVmFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
 });
 
 When('the user displays the chart in performance page', () => {
-  cy.navigateTo({
-    page: 'Graphs',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.performancesGraphsLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Chart' field is visible in the DOM
   cy.waitForElementInIframe('#main-content', '#select-chart');
   // Search for a chart to display
-  cy.getIframeBody().find('input[class="select2-search__field"]').eq(0).type('disk');
+  cy.getIframeBody()
+    .find('input[class="select2-search__field"]')
+    .eq(0)
+    .type('disk');
   // Chose memory service to display its graph
   cy.getIframeBody().contains('div', 'Centreon-Server - Disk-/').click();
   cy.wait('@getGraphMetrics');
-})
+});
 
 Then('a message says that the chart will not be displayed is visible', () => {
   // Wait until the button 'Split Chart' is visible
   cy.waitForElementInIframe('#main-content', 'a:contains("Split chart ")');
   // Check that the message is displayed inside the graph
-  cy.getIframeBody().contains('text', "Too many metrics, the chart can't be displayed").should('be.visible');
+  cy.getIframeBody()
+    .contains('text', 'More than 20 may cause performance issues.')
+    .should('be.visible');
 });
 
 Then('a button is available to display the chart', () => {
   // Check that the button is displayed inside the graph
-  cy.getIframeBody().contains('button', "Display Chart").should('be.visible');
+  cy.getIframeBody().contains('button', 'Display anyway').should('be.visible');
 });

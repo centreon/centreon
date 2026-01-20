@@ -56,6 +56,7 @@ const telegrafConfigurationDecoder = JsonDecoder.object<TelegrafConfiguration>(
 
 const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   {
+    port: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.number)),
     tokens: JsonDecoder.optional(
       JsonDecoder.array(
         JsonDecoder.object(
@@ -69,7 +70,8 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
         'tokens'
       )
     ),
-    isReverse: JsonDecoder.boolean,
+    agentInitiated: JsonDecoder.boolean,
+    pollerInitiated: JsonDecoder.boolean,
     otelPublicCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelPrivateKey: JsonDecoder.nullable(JsonDecoder.string),
@@ -104,7 +106,8 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   },
   'CMA configuration',
   {
-    isReverse: 'is_reverse',
+    agentInitiated: 'agent_initiated',
+    pollerInitiated: 'poller_initiated',
     otelPrivateKey: 'otel_private_key',
     otelPublicCertificate: 'otel_public_certificate',
     otelCaCertificate: 'otel_ca_certificate'

@@ -54,14 +54,14 @@ const Modal = ({
       TransitionProps={{
         direction: 'up'
       }}
-      className={classes.modal}
+      className={`${classes.modal} gap-6`}
       data-size={size}
       open={open}
       onClose={onClose}
       {...attr}
     >
       {hasCloseButton && (
-        <div className={classes.modalCloseButton}>
+        <div className="absolute top-2 right-3 opacity-60">
           <IconButton
             aria-label="close"
             icon={<CloseIcon />}

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ class NewHostGroup
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
-        $this->name = trim($this->name);
+        $this->name = self::formatName($this->name);
         Assertion::minLength($this->name, self::MIN_NAME_LENGTH, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
 
@@ -64,7 +64,7 @@ class NewHostGroup
         $this->comment = trim($this->comment);
         Assertion::maxLength($this->comment, self::MAX_COMMENT_LENGTH, "{$shortName}::comment");
 
-        if (null !== $iconId) {
+        if ($iconId !== null) {
             Assertion::positiveInt($iconId, "{$shortName}::iconId");
         }
     }
@@ -97,5 +97,15 @@ class NewHostGroup
     public function getGeoCoords(): ?GeoCoords
     {
         return $this->geoCoords;
+    }
+
+    /**
+     * Format a string as per domain rules for a host group name.
+     *
+     * @param string $name
+     */
+    final public static function formatName(string $name): string
+    {
+        return str_replace(' ', '_', trim($name));
     }
 }
