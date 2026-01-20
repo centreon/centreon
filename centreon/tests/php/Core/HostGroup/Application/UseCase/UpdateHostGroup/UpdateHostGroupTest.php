@@ -119,7 +119,7 @@ it(
 
         $this->validator
             ->expects($this->once())
-            ->method('assertNameDoesNotAlreadyExists')
+            ->method('assertNameIsValid')
             ->willThrowException(HostGroupException::nameAlreadyExists($this->updateHostGroupRequest->name));
 
         $response = ($this->useCase)($this->updateHostGroupRequest);
@@ -132,7 +132,44 @@ it(
 );
 
 it(
-    "should return an InvalidArgumentResponse When a given host doesn't exist",
+    'should return an InvalidArgumentResponse When a hostgroup name contains unauthorized characters',
+    function (): void {
+        $this->updateHostGroupRequest->name = 'HG~1!';
+
+        $this->adminResolver
+            ->expects($this->once())
+            ->method('isAdmin')
+            ->willReturn(true);
+
+        $this->readHostGroupRepository
+            ->expects($this->once())
+            ->method('findOne')
+            ->willReturn(new HostGroup(
+                id: 1,
+                name: 'name',
+                alias: 'alias',
+                geoCoords: GeoCoords::fromString('-10,10'),
+                comment: 'comment',
+            ));
+
+        $this->validator
+            ->expects($this->once())
+            ->method('assertNameIsValid')
+            ->willThrowException(
+                new \Assert\InvalidArgumentException('[HostGroup::name] The value contains unauthorized characters: ~!', 0)
+            );
+
+        $response = ($this->useCase)($this->updateHostGroupRequest);
+
+        expect($response)
+            ->toBeInstanceOf(InvalidArgumentResponse::class)
+            ->and($response->getMessage())
+            ->toBe('[HostGroup::name] The value contains unauthorized characters: ~!');
+    }
+);
+
+it(
+    "Should return an InvalidArgumentResponse When a given host doesn't exist",
     function (): void {
         $this->adminResolver
             ->expects($this->once())
