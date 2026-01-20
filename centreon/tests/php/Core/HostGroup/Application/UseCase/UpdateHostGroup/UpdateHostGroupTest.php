@@ -132,7 +132,7 @@ it(
     function (): void {
         $this->updateHostGroupRequest->name = 'HG~1!';
 
-        $this->adminResolver
+        $this->user
             ->expects($this->once())
             ->method('isAdmin')
             ->willReturn(true);
