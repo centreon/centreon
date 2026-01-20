@@ -4,18 +4,18 @@
   "type": "project",
   "license": "Apache-2.0",
   "require": {
-    "php": "8.1.*",
+    "php": "8.2.*",
     "ext-json": "*",
     "ext-mbstring": "*",
     "ext-pdo": "*",
     "ext-zip": "*"
   },
   "require-dev": {
-    "behat/mink-selenium2-driver": "^1.5",
+    "behat/mink-selenium2-driver": "1.7.*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "24.10.x-dev",
-    "friends-of-behat/mink": "^1.9",
-    "friends-of-behat/mink-extension": "^2.5",
+    "centreon/centreon-test-lib": "dev-MON-189441-24.10.x-improve-quality-tools",
+    "friends-of-behat/mink": "1.11.*",
+    "friends-of-behat/mink-extension": "2.7.*",
     "psr/container": "1.1.1"
   },
   "repositories": [
@@ -36,7 +36,8 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true,
       "symfony/flex": false,
-      "symfony/runtime": false
+      "symfony/runtime": false,
+      "dealerdirect/phpcodesniffer-composer-installer": false
     }
   },
   "scripts": {

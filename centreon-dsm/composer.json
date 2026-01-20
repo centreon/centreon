@@ -4,14 +4,14 @@
   "type": "project",
   "license": "GPL-2.0-only",
   "require": {
-    "php": "8.1.*",
+    "php": "8.2.*",
     "ext-gettext": "*",
     "ext-pdo": "*"
   },
   "require-dev": {
     "ext-json": "*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "24.10.x-dev"
+    "centreon/centreon-test-lib": "dev-MON-189441-24.10.x-improve-quality-tools"
   },
   "repositories": [
     {
@@ -31,7 +31,8 @@
     "allow-plugins": {
       "pestphp/pest-plugin": true,
       "symfony/flex": false,
-      "symfony/runtime": false
+      "symfony/runtime": false,
+      "dealerdirect/phpcodesniffer-composer-installer": false
     }
   },
   "scripts": {
