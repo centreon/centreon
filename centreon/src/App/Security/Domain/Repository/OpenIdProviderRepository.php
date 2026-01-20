@@ -27,6 +27,9 @@ use App\Security\Domain\Aggregate\Provider\OpenId\OpenIdConfiguration;
 
 interface OpenIdProviderRepository
 {
+    /**
+     * @throws \RuntimeException
+     */
     public function getConfiguration(): OpenIdConfiguration;
 
     public function delete(): void;

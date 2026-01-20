@@ -24,14 +24,27 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\Security\Domain\Aggregate\Token;
+use App\Security\Domain\Exception\TokenDoesNotExistException;
 
 interface TokenRepository
 {
+    /**
+     * @throws TokenDoesNotExistException
+     */
     public function get(string $token): Token;
 
+    /**
+     * @throws TokenDoesNotExistException
+     */
     public function getRefreshToken(string $token): Token;
 
+    /**
+     * @throws \RuntimeException
+     */
     public function getTokenExpirationShift(): int;
 
+    /**
+     * @throws \RuntimeException
+     */
     public function update(Token $token): void;
 }

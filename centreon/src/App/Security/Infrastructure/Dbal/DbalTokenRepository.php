@@ -116,7 +116,7 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
         } catch (\Exception $ex) {
             $this->connection->rollBack();
 
-            throw $ex;
+            throw new \RuntimeException(message: $ex->getMessage(), code: $ex->getCode(), previous: $ex);
         }
 
     }
