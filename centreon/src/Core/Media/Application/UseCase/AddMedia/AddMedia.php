@@ -137,6 +137,10 @@ final class AddMedia
                         $this->svgSanitizer->minify(true);
                         $fileContent = $this->svgSanitizer->sanitize($fileContent);
                     }
+                    if ($fileContent === false) {
+                        $errors[] = $this->createMediaError($media, MediaException::errorWhileAddingMedia()->getMessage());
+                        continue;
+                    }
                     $media->setData($fileContent);
                     $hash = $media->hash();
                     $this->info('Add media', [
