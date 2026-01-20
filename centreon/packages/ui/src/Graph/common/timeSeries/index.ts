@@ -20,6 +20,7 @@ import {
   includes,
   isEmpty,
   isNil,
+  isNotNil,
   keys,
   last,
   lt,
@@ -33,8 +34,7 @@ import {
   reject,
   sortBy,
   split,
-  uniq,
-  isNotNil
+  uniq
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
@@ -161,8 +161,8 @@ const getMetrics = (timeValue: TimeValue): Array<string> =>
 
 const getValueForMetric =
   (timeValue: TimeValue) =>
-    (metric_id: number): number =>
-      prop(metric_id, timeValue) as number;
+  (metric_id: number): number =>
+    prop(metric_id, timeValue) as number;
 
 const getUnits = (lines: Array<Line>): Array<string> =>
   pipe(map(prop('unit')), uniq)(lines);
@@ -309,8 +309,8 @@ const getTimeSeriesForLines = ({
             ...acc,
             [metric_id]:
               invert &&
-                metricsValue[metric_id] &&
-                gt(metricsValue[metric_id], 0)
+              metricsValue[metric_id] &&
+              gt(metricsValue[metric_id], 0)
                 ? negate(metricsValue[metric_id])
                 : metricsValue[metric_id]
           };
@@ -343,10 +343,10 @@ const getYScale = ({
 
   return invert
     ? getScaleType(scale)({
-      base: scaleLogarithmicBase,
-      domain: yScale.domain().reverse(),
-      range: yScale.range().reverse()
-    })
+        base: scaleLogarithmicBase,
+        domain: yScale.domain().reverse(),
+        range: yScale.range().reverse()
+      })
     : yScale;
 };
 
@@ -391,40 +391,40 @@ const getScale = ({
   const sanitizedValuesForMinimum = min
     ? [min]
     : getSanitizedValues([
-      invert && graphValues.every(lt(0))
-        ? negate(getMax(graphValues))
-        : getMin(graphValues),
-      !isEmpty(stackedValues) &&
-      !equals(stackedValues, [0]) &&
-      getMin(stackedValues),
-      Math.min(...thresholds)
-    ]);
+        invert && graphValues.every(lt(0))
+          ? negate(getMax(graphValues))
+          : getMin(graphValues),
+        !isEmpty(stackedValues) &&
+          !equals(stackedValues, [0]) &&
+          getMin(stackedValues),
+        Math.min(...thresholds)
+      ]);
   const minValue = Math.min(...sanitizedValuesForMinimum.filter(isNotNil));
 
   const sanitizedValuesForMaximum = max
     ? [max]
     : getSanitizedValues([
-      getMax(graphValues),
-      getMax(stackedValues),
-      hasOnlyZeroesHasValue(graphValues) ? 1 : null,
-      Math.max(...thresholds)
-    ]);
+        getMax(graphValues),
+        getMax(stackedValues),
+        hasOnlyZeroesHasValue(graphValues) ? 1 : null,
+        Math.max(...thresholds)
+      ]);
   const maxValue = Math.max(...sanitizedValuesForMaximum.filter(isNotNil));
 
   const minValueWithMargin =
     (hasDisplayAsBar && minValue > 0) ||
-      (hasLineFilled &&
-        Math.max(maxValue, minValue) > minValue &&
-        minValue > 0) ||
-      (hasStackedLines && minValue > maxValue)
+    (hasLineFilled &&
+      Math.max(maxValue, minValue) > minValue &&
+      minValue > 0) ||
+    (hasStackedLines && minValue > maxValue)
       ? 0
       : minValue - Math.abs(minValue) * 0.05;
   const maxValueWithMargin =
     (hasDisplayAsBar && maxValue < 0) ||
-      (hasLineFilled &&
-        Math.min(maxValue, minValue) < maxValue &&
-        maxValue < 0) ||
-      (hasStackedLines && minValue > maxValue)
+    (hasLineFilled &&
+      Math.min(maxValue, minValue) < maxValue &&
+      maxValue < 0) ||
+    (hasStackedLines && minValue > maxValue)
       ? 0
       : maxValue + Math.abs(maxValue) * 0.05;
 
@@ -521,11 +521,11 @@ const getYScaleUnit = ({
 
   const stackedValues = hasStackedLines
     ? getStackedMetricValues({
-      lines: getSortedStackedLines(dataLines).filter(
-        ({ unit: stackedUnit }) => equals(unit, stackedUnit)
-      ),
-      timeSeries: dataTimeSeries
-    })
+        lines: getSortedStackedLines(dataLines).filter(
+          ({ unit: stackedUnit }) => equals(unit, stackedUnit)
+        ),
+        timeSeries: dataTimeSeries
+      })
     : [];
 
   return getScale({
@@ -538,8 +538,8 @@ const getYScaleUnit = ({
       ),
     hasLineFilled: isNil(isFilled)
       ? dataLines.some(
-        ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
-      )
+          ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
+        )
       : isFilled,
     hasStackedLines: dataLines.some(
       ({ unit: lineUnit, stackKey, stackOrder }) =>

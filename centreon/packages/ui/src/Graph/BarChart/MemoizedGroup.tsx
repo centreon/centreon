@@ -59,17 +59,22 @@ const MemoizedGroup = ({
         const linesBar = isStackedBar
           ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].lines
           : (notStackedLines.find(({ metric_id }) =>
-            equals(metric_id, Number(bar.key))
-          ) as Line);
+              equals(metric_id, Number(bar.key))
+            ) as Line);
         const timeSeriesBar = isStackedBar
           ? stackedLinesTimeSeriesPerStackKeyAndUnit[bar.key].timeSeries
           : notStackedTimeSeries.map((timeSerie) => ({
-            timeTick: timeSerie.timeTick,
-            [bar.key]: timeSerie[Number(bar.key)]
-          }));
+              timeTick: timeSerie.timeTick,
+              [bar.key]: timeSerie[Number(bar.key)]
+            }));
 
-        const unit = isStackedBar ? bar.key.split('-')[1] : (linesBar as Line).unit;
-        const yScale = unit === '' && yScalesPerUnit[unit] === undefined ? yScalesPerUnit[undefined] : yScalesPerUnit[unit];
+        const unit = isStackedBar
+          ? bar.key.split('-')[1]
+          : (linesBar as Line).unit;
+        const yScale =
+          unit === '' && yScalesPerUnit[unit] === undefined
+            ? yScalesPerUnit[undefined]
+            : yScalesPerUnit[unit];
 
         return isStackedBar ? (
           <BarStack
