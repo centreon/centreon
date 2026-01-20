@@ -146,8 +146,37 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
     $leftOutAccs = [];
 
     foreach ($accRecords as $acc) {
-        // for idempotency
-        if (empty($acc['parameters'])) {
+        // Check if parameters column exists and has data
+        if (! isset($acc['parameters']) || $acc['parameters'] === null || $acc['parameters'] === '' || $acc['parameters'] === '{}') {
+            continue;
+        }
+
+        // Check if this ACC has already been migrated to acc_configuration
+        $checkExisting = $pearDB->prepare(
+            <<<'SQL'
+                SELECT id FROM `acc_configuration` WHERE acc_id = :acc_id
+                SQL
+        );
+        $checkExisting->bindValue(':acc_id', (int) $acc['id'], PDO::PARAM_INT);
+        $checkExisting->execute();
+        $existingConfigId = $checkExisting->fetchColumn();
+
+        if ($existingConfigId !== false) {
+            // Already migrated, just clear the parameters
+            CentreonLog::create()->info(
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE - {$version}: [acc] ACC ID {$acc['id']} already migrated, clearing parameters only",
+            );
+
+            $clearParams = $pearDB->prepare(
+                <<<'SQL'
+                    UPDATE `additional_connector_configuration`
+                    SET `parameters` = '{}'
+                    WHERE `id` = :acc_id
+                    SQL
+            );
+            $clearParams->bindValue(':acc_id', (int) $acc['id'], PDO::PARAM_INT);
+            $clearParams->execute();
             continue;
         }
 
@@ -182,7 +211,7 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
         $clearParams = $pearDB->prepare(
             <<<'SQL'
                 UPDATE `additional_connector_configuration`
-                SET `parameters` = NULL
+                SET `parameters` = '{}'
                 WHERE `id` = :acc_id
                 SQL
         );
@@ -256,8 +285,51 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [acc] Successfully migrated {$migratedCount} ACC configurations and {$vcenterCount} vcenters",
     );
+};
 
-    if ($leftOutAccs === []) {
+$dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to drop parameters column';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [acc] Checking if parameters column should be dropped",
+    );
+
+    // First, check if the parameters column exists
+    $columnExists = $pearDB->query(
+        <<<'SQL'
+            SELECT COUNT(*) as count
+            FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME = 'additional_connector_configuration'
+            AND COLUMN_NAME = 'parameters'
+            SQL
+    );
+    $columnExistsResult = $columnExists->fetch(PDO::FETCH_ASSOC);
+
+    if ((int) $columnExistsResult['count'] === 0) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [acc] Parameters column already dropped from additional_connector_configuration table",
+        );
+
+        return;
+    }
+
+    // Check if there are any ACCs with non-empty parameters
+    $checkParams = $pearDB->query(
+        <<<'SQL'
+            SELECT COUNT(*) as count
+            FROM `additional_connector_configuration`
+            WHERE type = 'vmware_v6'
+            AND parameters IS NOT NULL
+            AND parameters != ''
+            AND parameters != '{}'
+            SQL
+    );
+    $result = $checkParams->fetch(PDO::FETCH_ASSOC);
+    $remainingCount = (int) $result['count'];
+
+    if ($remainingCount === 0) {
         try {
             $pearDB->query(
                 <<<'SQL'
@@ -278,7 +350,7 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
     } else {
         CentreonLog::create()->warning(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: [acc] Parameters column retained in additional_connector_configuration table due to unmigrated records",
+            message: "UPGRADE - {$version}: [acc] Parameters column retained in additional_connector_configuration table due to {$remainingCount} unmigrated records",
         );
     }
 };
@@ -289,6 +361,7 @@ try {
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
+    $createAccTables();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
@@ -296,10 +369,13 @@ try {
     }
 
     $fixDuplicateHostGroupTopology();
-    $createAccTables();
     $migrateAccJsonToTables();
 
-    $pearDB->commitTransaction();
+    if ($pearDB->isTransactionActive()) {
+        $pearDB->commitTransaction();
+    }
+
+    $dropParametersColumn();
 
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(
