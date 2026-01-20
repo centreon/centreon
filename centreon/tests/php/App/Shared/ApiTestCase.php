@@ -72,8 +72,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             ->fetchOne();
 
         if ($contact === false) {
-            self::createApiUser($login, admin: false);
-
+            $this->createApiUser($login, admin: false);
             $qb = $connection->createQueryBuilder();
             /** @var string $contact */
             $contact = $qb->select('contact_id')
