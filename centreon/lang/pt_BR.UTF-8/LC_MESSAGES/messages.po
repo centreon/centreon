@@ -1165,6 +1165,7 @@ msgstr ""
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/common-Func.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Alert"
 msgstr "Alerta"
 
@@ -2254,10 +2255,6 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Calculations based on time period"
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid "days before saturation"
 msgstr ""
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -4625,10 +4622,6 @@ msgid "Delete rules"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "row"
-msgstr ""
-
-#: centreon/www/install/front_translate.php
 msgid "Delete the relation"
 msgstr ""
 
@@ -5210,6 +5203,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days "
+"until saturation, and evolution of usage since the past day."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
 "Displays a status overview for selected resources, grouped by hosts or by "
 "services."
 msgstr ""
@@ -5262,12 +5261,6 @@ msgstr ""
 msgid ""
 "Displays the future evolution of a metric as a trend curve, based on its "
 "recent average data."
-msgstr ""
-
-#: centreon/www/install/dashboard_widgets.php
-msgid ""
-"Displays a list of storage with saturation foreseen, current usage, days until saturation, "
-"and evolution of usage since the past day."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -11110,10 +11103,6 @@ msgstr "Unídade de Métrica"
 msgid "Metric capacity planning"
 msgstr ""
 
-#: centreon/www/install/dashboard_widgets.php
-msgid "Storage near saturation"
-msgstr ""
-
 #: centreon/www/install/front_translate.php
 msgid "Metric name"
 msgstr ""
@@ -15941,6 +15930,10 @@ msgstr ""
 msgid "Show time zone"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Show value label"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Show value labels"
 msgstr ""
@@ -16495,6 +16488,10 @@ msgstr "Nome do banco de dados de armazenagem"
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Storage folders"
 msgstr "Fichas de Armazenagens"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
+msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Store LDAP password"
