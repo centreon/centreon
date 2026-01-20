@@ -43,6 +43,7 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
+import ResourcesTable from '../ResourcesTable';
 import {
   columnsForViewByHost,
   columnsForViewByService,

@@ -137,8 +137,8 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
       Cypress.automation('remote:debugger:protocol', {
         command: 'Browser.grantPermissions',
         params: {
-          permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
-          origin: window.location.origin
+          origin: window.location.origin,
+          permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite']
         }
       })
     );
