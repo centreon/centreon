@@ -12,12 +12,12 @@ const useStyles = makeStyles<{
       padding: theme.spacing(2.5)
     },
     '&[data-size="fullscreen"]': {
-      zIndex: 0,
       margin: 0,
+      marginBottom: props?.bottom ?? 0,
       marginLeft: props?.left ?? 0,
       marginRight: props?.right ?? 0,
       marginTop: props?.top ?? 0,
-      marginBottom: props?.bottom ?? 0
+      zIndex: 0
     },
     '&[data-size="fullscreen"] .MuiBackdrop-root': {
       display: 'none'

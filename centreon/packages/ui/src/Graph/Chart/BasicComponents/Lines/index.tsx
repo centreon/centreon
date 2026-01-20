@@ -204,6 +204,7 @@ const Lines = ({
                   {displayGuidingLines && (
                     <RegularAnchorPoint
                       areaColor={areaColor || lineColor}
+                      hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
                       maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}
@@ -211,8 +212,6 @@ const Lines = ({
                       transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
-                      maxLeftAxisCharacters={maxLeftAxisCharacters}
-                      hasSecondUnit={hasSecondUnit}
                     />
                   )}
                   {style?.showPoints &&

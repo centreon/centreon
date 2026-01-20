@@ -4,8 +4,6 @@ import type { MutableRefObject, ReactElement } from 'react';
 
 import { margin } from '../../Chart/common';
 import type { ChartAxis } from '../../Chart/models';
-import { margin } from '../../Chart/common';
-import { ChartAxis } from '../../Chart/models';
 import Axes from '../Axes';
 import Grids from '../Grids';
 import type { Line, TimeValue } from '../timeSeries/models';
