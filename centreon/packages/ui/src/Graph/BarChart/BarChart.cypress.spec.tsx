@@ -75,14 +75,14 @@ const checkWidth = (orientation): void => {
     cy.get('g[class*="visx-rows"] > line')
       .eq(0)
       .should('have.attr', 'x2')
-      .and('equal', '1145');
+      .and('equal', '1133');
 
     return;
   }
   cy.get('g[class*="visx-rows"] > line')
     .eq(0)
     .should('have.attr', 'x2')
-    .and('equal', '1180');
+    .and('equal', '1168');
 };
 
 describe('Bar chart', () => {
@@ -102,7 +102,7 @@ describe('Bar chart', () => {
     cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
       'be.visible'
     );
-    cy.contains('7.47 KB').should('be.visible');
+    cy.contains('7.47 KiB').should('be.visible');
 
     cy.makeSnapshot();
   });

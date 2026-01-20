@@ -11,6 +11,8 @@ import {
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
 import type { PanelOptions } from '../models';
+
+import { openTicketAtom } from '../atom';
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
@@ -19,14 +21,10 @@ interface LoadResourcesProps
     CommonWidgetProps<PanelOptions>,
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
-  isDownHostHidden: boolean;
-  isUnreachableHostHidden: boolean;
   limit?: number;
   page: number | undefined;
-  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -62,15 +60,17 @@ const useLoadResources = ({
   statusTypes,
   hostSeverities,
   serviceSeverities,
-  isDownHostHidden,
-  isUnreachableHostHidden,
-  displayResources,
-  provider,
   isOpenTicketEnabled
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const {
+    displayResources,
+    isDownHostHidden,
+    isUnreachableHostHidden,
+    provider
+  } = useAtomValue(openTicketAtom);
 
   const { data, isLoading } = useFetchQuery<ResourceListing>({
     getEndpoint: () =>

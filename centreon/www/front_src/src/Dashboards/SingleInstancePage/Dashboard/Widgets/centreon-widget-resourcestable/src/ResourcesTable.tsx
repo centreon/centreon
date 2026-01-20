@@ -1,3 +1,5 @@
+import { ReactElement } from 'react';
+
 import { useRefreshInterval } from '@centreon/ui';
 
 import { Listing } from './Listing';
@@ -15,7 +17,7 @@ const ResourceTable = ({
   dashboardId,
   playlistHash,
   widgetPrefixQuery
-}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): JSX.Element => {
+}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): ReactElement => {
   const { resources } = panelData;
 
   const {
@@ -30,12 +32,7 @@ const ResourceTable = ({
     selectedColumnIds,
     statusTypes,
     hostSeverities,
-    serviceSeverities,
-    isDownHostHidden,
-    isUnreachableHostHidden,
-    displayResources,
-    provider,
-    isOpenTicketEnabled
+    serviceSeverities
   } = panelOptions;
 
   const refreshIntervalToUse = useRefreshInterval({
@@ -49,17 +46,12 @@ const ResourceTable = ({
       <Listing
         changeViewMode={changeViewMode}
         dashboardId={dashboardId}
-        displayResources={displayResources}
         displayType={displayType}
         hostSeverities={hostSeverities}
         id={id}
-        isDownHostHidden={isDownHostHidden}
         isFromPreview={isFromPreview}
-        isOpenTicketEnabled={isOpenTicketEnabled}
-        isUnreachableHostHidden={isUnreachableHostHidden}
         limit={limit}
         playlistHash={playlistHash}
-        provider={provider}
         refreshCount={refreshCount}
         refreshIntervalToUse={refreshIntervalToUse}
         resources={resources}

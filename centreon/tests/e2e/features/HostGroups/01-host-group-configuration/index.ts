@@ -4,6 +4,8 @@ import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
+
+import { PAGES } from 'fixtures/shared/constants/pages';
 import hostGroups from '../../../fixtures/host-groups/host-group.json';
 
 const services = {
@@ -130,11 +132,7 @@ When('a host group is configured', () => {
 });
 
 When('the user changes some properties of the configured host group', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
   cy.contains('p', hostGroups.default.name).eq(0).click();
   cy.wait('@getGroupDetails');
@@ -208,11 +206,7 @@ When('the user duplicates the configured host group', () => {
     },
     hostGroups.default.name
   );
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
   cy.getByLabel({ label: 'Duplicate' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Duplicate"]').click();
@@ -242,11 +236,7 @@ Then('a new host group is created with identical properties', () => {
 });
 
 When('the user deletes the configured host group', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroups);
   cy.wait('@getGroups');
   cy.getByLabel({ label: 'Delete' }).eq(1).click();
   cy.get('[type="submit"][aria-label="Delete"]').click();

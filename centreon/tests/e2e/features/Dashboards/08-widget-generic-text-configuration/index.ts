@@ -1,4 +1,6 @@
-import { PatternType } from '@centreon/js-config/cypress/e2e/commands';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
+import { PatternType } from '../../../../../packages/js-config/cypress/e2e/commands';
 
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 

@@ -1,5 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
+import { PAGES } from 'fixtures/shared/constants/pages';
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
@@ -57,7 +57,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 

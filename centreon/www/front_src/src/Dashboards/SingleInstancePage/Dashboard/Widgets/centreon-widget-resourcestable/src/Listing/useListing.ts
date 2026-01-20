@@ -1,6 +1,6 @@
 import { type Column, useSnackbar } from '@centreon/ui';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals, isEmpty, isNotNil } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
+  openTicketAtom,
   resourcesToAcknowledgeAtom,
   resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
@@ -22,7 +23,6 @@ import {
   type Ticket
 } from './models';
 import { labelSelectAtLeastThreeColumns } from './translatedLabels';
-import useIsOpenTicketInstalled from './useIsOpenTicketInstalled';
 import useLoadResources from './useLoadResources';
 
 interface UseListingState {
@@ -56,13 +56,9 @@ interface UseListingProps
     'dashboardId' | 'id' | 'playlistHash' | 'widgetPrefixQuery'
   > {
   changeViewMode?: (displayType) => void;
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
-  isDownHostHidden: boolean;
   isFromPreview?: boolean;
-  isOpenTicketEnabled: boolean;
-  isUnreachableHostHidden: boolean;
   limit?: number;
   provider?: { id: number; name: string };
   refreshCount: number;
@@ -79,7 +75,6 @@ interface UseListingProps
 
 const useListing = ({
   resources,
-  isOpenTicketEnabled,
   states,
   statuses,
   displayType,
@@ -97,11 +92,7 @@ const useListing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities,
-  isDownHostHidden,
-  isUnreachableHostHidden,
-  displayResources,
-  provider
+  serviceSeverities
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
@@ -122,6 +113,9 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
+  const { isOpenTicketEnabled, isOpenTicketInstalled, provider } =
+    useAtomValue(openTicketAtom);
+
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
       setPanelOptions?.({ displayType: DisplayType.Service });
@@ -130,24 +124,16 @@ const useListing = ({
     }
   }, [isOpenTicketEnabled]);
 
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
-
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
 
   const { data, isLoading } = useLoadResources({
     dashboardId,
-    displayResources,
     displayType,
     hostSeverities,
     id,
-    isDownHostHidden,
-    isOpenTicketEnabled:
-      isOpenTicketInstalled && hasProvider && isOpenTicketEnabled,
-    isUnreachableHostHidden,
     limit,
     page,
     playlistHash,
-    provider,
     refreshCount,
     refreshIntervalToUse,
     resources,
@@ -198,12 +184,7 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const { columns, defaultSelectedColumnIds } = useColumns({
-    displayResources,
-    displayType,
-    isOpenTicketEnabled,
-    provider
-  });
+  const { columns, defaultSelectedColumnIds } = useColumns({ displayType });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
     if (updatedColumnIds.length < 3) {

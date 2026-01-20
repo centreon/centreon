@@ -137,11 +137,17 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
       Cypress.automation('remote:debugger:protocol', {
         command: 'Browser.grantPermissions',
         params: {
-          origin: window.location.origin,
-          permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite']
+          permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
+          origin: window.location.origin
         }
       })
     );
+    cy.window()
+      .its('navigator.clipboard')
+      .then((clipboard) => {
+        cy.spy(clipboard, 'writeText').as('writeText');
+      });
+
     initialize({
       commandToCopy: 'echo "hello" | grep "hel"',
       language: 'bash',
@@ -149,13 +155,7 @@ echo 'Hello ' . htmlspecialchars($_POST["name"]) . '!';
 echo "hello" | grep "hel"`
     });
 
-    cy.window()
-      .its('navigator.clipboard')
-      .then((clipboard) => {
-        cy.spy(clipboard, 'writeText').as('writeText');
-      });
-
-    cy.findByTestId('Copy command').focus().click();
+    cy.findByTestId('Copy command').click();
 
     cy.get('@writeText').should(
       'have.been.calledOnceWith',

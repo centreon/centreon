@@ -69,6 +69,9 @@ const MemoizedGroup = ({
               [bar.key]: timeSerie[Number(bar.key)]
             }));
 
+        const unit = isStackedBar ? bar.key.split('-')[1] : (linesBar as Line).unit;
+        const yScale = unit === '' && yScalesPerUnit[unit] === undefined ? yScalesPerUnit[undefined] : yScalesPerUnit[unit];
+
         return isStackedBar ? (
           <BarStack
             barIndex={barGroup.index}
@@ -82,7 +85,8 @@ const MemoizedGroup = ({
             lines={linesBar as Array<Line>}
             neutralValue={neutralValue}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[bar.key.split('-')[1] ?? undefined]}
+            yScale={yScale}
+            neutralValue={neutralValue}
           />
         ) : (
           <BarStack
@@ -96,7 +100,8 @@ const MemoizedGroup = ({
             lines={[linesBar as Line]}
             neutralValue={neutralValue}
             timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[(linesBar as Line).unit ?? undefined]}
+            yScale={yScale}
+            neutralValue={neutralValue}
           />
         );
       })}

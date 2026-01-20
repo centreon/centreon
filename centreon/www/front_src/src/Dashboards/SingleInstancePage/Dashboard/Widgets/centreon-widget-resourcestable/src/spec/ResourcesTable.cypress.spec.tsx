@@ -42,8 +42,7 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
-import type { Data, PanelOptions } from '../models';
-import ResourcesTable from '../ResourcesTable';
+import { openTicketAtom } from '../atom';
 import {
   columnsForViewByHost,
   columnsForViewByService,
@@ -110,6 +109,16 @@ const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
   store.set(aclAtom, mockAcl());
+  store.set(openTicketAtom, {
+    displayResources: options.displayResources,
+    enableHostTicketCreation: options.enableHostTicketCreation,
+    enableServiceTicketCreation: options.enableServiceTicketCreation,
+    isDownHostHidden: options.isDownHostHidden,
+    isOpenTicketEnabled: options.isOpenTicketEnabled,
+    isOpenTicketInstalled: true,
+    isUnreachableHostHidden: options.isUnreachableHostHidden,
+    provider: options.provider
+  });
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -729,6 +738,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withoutTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [...selectedColumnIds, 'open_ticket']
@@ -748,6 +759,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -776,6 +789,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withoutTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [...selectedColumnIds, 'open_ticket']
@@ -813,6 +828,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [
@@ -856,6 +873,8 @@ describe('Open tickets', () => {
       options: {
         ...resourcesOptions,
         displayResources: 'withTicket',
+        enableHostTicketCreation: true,
+        enableServiceTicketCreation: true,
         isOpenTicketEnabled: true,
         provider: { id: 1, name: 'Rule 1' },
         selectedColumnIds: [

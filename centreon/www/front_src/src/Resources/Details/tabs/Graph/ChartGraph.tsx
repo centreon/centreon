@@ -1,3 +1,6 @@
+import { path } from 'ramda';
+import { ReactElement, RefObject, useState } from 'react';
+
 import {
   type Interval,
   LineChart,
@@ -13,9 +16,12 @@ import { ReactElement, RefObject, useState } from 'react';
 import FederatedComponent from '../../../../components/FederatedComponents';
 import { graphsCapNumber } from '../../../constants';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
+import { graphsCapNumber } from '../../../constants';
 import type { Resource } from '../../../models';
 import TooManyElementsCard from '../../../TooManyElementsCard';
 import type { ResourceDetails } from '../../models';
+
+import TooManyElementsCard from '../../../TooManyElementsCard';
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';

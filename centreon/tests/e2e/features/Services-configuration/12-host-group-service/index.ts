@@ -3,6 +3,8 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import serviceCategories from '../../../fixtures/services/category.json';
 import data from '../../../fixtures/services/host_group.json';
 import servicesData from '../../../fixtures/services/service.json';
+
+import { PAGES } from 'fixtures/shared/constants/pages';
 import htmldata from './data.json';
 
 const services = {
@@ -99,11 +101,7 @@ Given('some service categories are configured', () => {
 When(
   'the user goes to Configuration > Services > Services by host group',
   () => {
-    cy.navigateTo({
-      page: 'Services by host group',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
     cy.wait('@getTimeZone');
   }
 );
@@ -151,11 +149,7 @@ Then('the host group service is added to the listing page', () => {
 });
 
 Given('a host group service is configured', () => {
-  cy.navigateTo({
-    page: 'Services by host group',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'a:contains("Add")');
   cy.getIframeBody().contains('a', data.default.name).should('exist');
@@ -223,11 +217,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the host group service', () => {
-  cy.navigateTo({
-    page: 'Services by host group',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
   cy.checkFirstRowFromListing('hostgroups');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
@@ -263,11 +253,7 @@ Then('the new duplicated host group service has the same properties', () => {
 });
 
 When('the user deletes the host group service', () => {
-  cy.navigateTo({
-    page: 'Services by host group',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostGroupsLegacy);
   cy.checkFirstRowFromListing('hostgroups');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');

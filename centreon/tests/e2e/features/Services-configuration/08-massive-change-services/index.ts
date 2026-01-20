@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const services = {
   serviceCritical: {
@@ -110,11 +111,7 @@ Given('several services have been created with mandatory properties', () => {
 });
 
 When('the user has applied "Mass Change" operation on several services', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(13).click();
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(14).click();
