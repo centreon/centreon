@@ -276,6 +276,7 @@ When(
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
     cy.contains('Select all').eq(0).click();
     cy.get('input[name="unhandled_problems"]').click();
+    cy.contains('Select all').eq(1).click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
