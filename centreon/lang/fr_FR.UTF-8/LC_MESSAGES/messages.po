@@ -24685,7 +24685,7 @@ msgstr "Si votre commande utilise des fonctions shell (pipes, redirections, cara
 
 
 msgid "Add a command"
-msgstr "Ajouter une command"
+msgstr "Ajouter une commande"
 
 msgid "Modify a command"
 msgstr "Modifier une commande"
