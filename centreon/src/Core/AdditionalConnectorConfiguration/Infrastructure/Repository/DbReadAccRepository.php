@@ -219,6 +219,8 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             'poller.name' => 'ns.name',
         ]);
 
+        $searchSql = $sqlTranslator->translateSearchParameterToSql();
+
         // Count query for total
         $countRequest = <<<'SQL_WRAP'
             SELECT COUNT(DISTINCT acc.id)
@@ -228,7 +230,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             INNER JOIN `:db`.`nagios_server` ns
                 ON rel.poller_id = ns.id
             SQL_WRAP;
-        $countRequest .= $sqlTranslator->translateSearchParameterToSql();
+        $countRequest .= $searchSql;
 
         $countStatement = $this->db->prepare($this->translateDbName($countRequest));
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {
@@ -244,7 +246,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
 
         // First query: Get paginated ACC IDs only
         $idsRequest = <<<'SQL_WRAP'
-            SELECT DISTINCT acc.id
+            SELECT DISTINCT acc.id, acc.name, acc.type, rel.poller_id, ns.name as poller_name
             FROM `:db`.`additional_connector_configuration` acc
             LEFT JOIN `:db`.`acc_poller_relation` rel
                 ON  acc.id = rel.acc_id
@@ -253,7 +255,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             SQL_WRAP;
 
         // Search
-        $idsRequest .= $sqlTranslator->translateSearchParameterToSql();
+        $idsRequest .= $searchSql;
 
         // Sort
         $sortRequest = $sqlTranslator->translateSortParameterToSql();
@@ -351,6 +353,8 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             ':acl_'
         );
 
+        $searchSql = $sqlTranslator->translateSearchParameterToSql();
+
         // Count query for total
         $countRequest = <<<SQL
             SELECT COUNT(DISTINCT acc.id)
@@ -366,8 +370,8 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
                 AND argr.acl_group_id IN ({$accessGroupIdsQuery})
             SQL;
 
-        $countRequest .= $search = $sqlTranslator->translateSearchParameterToSql();
-        $countRequest .= $search !== null
+        $countRequest .= $searchSql;
+        $countRequest .= $searchSql !== null
             ? ' AND '
             : ' WHERE ';
         $countRequest .= ' acc.id NOT IN (
@@ -395,7 +399,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
 
         // First query: Get paginated ACC IDs only
         $idsRequest = <<<SQL
-            SELECT DISTINCT acc.id
+            SELECT DISTINCT acc.id, acc.name, acc.type, rel.poller_id, ns.name as poller_name
             FROM `:db`.`additional_connector_configuration` acc
             INNER JOIN `:db`.`acc_poller_relation` rel
                 ON  acc.id = rel.acc_id
@@ -409,8 +413,8 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             SQL;
 
         // Search
-        $idsRequest .= $search = $sqlTranslator->translateSearchParameterToSql();
-        $idsRequest .= $search !== null
+        $idsRequest .= $searchSql;
+        $idsRequest .= $searchSql !== null
             ? ' AND '
             : ' WHERE ';
         $idsRequest .= ' acc.id NOT IN (

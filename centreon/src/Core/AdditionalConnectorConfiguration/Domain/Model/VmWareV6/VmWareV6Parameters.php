@@ -112,28 +112,17 @@ class VmWareV6Parameters implements AccParametersInterface
         }
 
         $parameters['port'] = $newDatas['port'];
-        foreach ($parameters['vcenters'] as $index => $vcenter) {
-            // Remove vcenter
-            if (! array_key_exists($vcenter['name'], $requestedVcenters)) {
-                unset($parameters['vcenters'][$index]);
 
-                continue;
+        $newVcenters = [];
+        foreach ($newDatas['vcenters'] as $index => $incomingVcenter) {
+            if ($incomingVcenter['password'] === null
+                && isset($parameters['vcenters'][$index]['password'])) {
+                $incomingVcenter['password'] = $parameters['vcenters'][$index]['password'];
             }
-
-            // Update vcenter
-            $updatedVcenter = $requestedVcenters[$vcenter['name']];
-            $updatedVcenter['password'] ??= $vcenter['password'];
-
-            $parameters['vcenters'][$index] = $updatedVcenter;
-            unset($requestedVcenters[$vcenter['name']]);
+            $newVcenters[] = $incomingVcenter;
         }
-        // Add new vcenter
-        if ($requestedVcenters !== []) {
-            foreach ($requestedVcenters as $newVcenter) {
-                $parameters['vcenters'][] = $newVcenter;
-            }
-        }
-        $parameters['vcenters'] = array_values($parameters['vcenters']);
+
+        $parameters['vcenters'] = $newVcenters;
 
         return new self($encryption, $parameters);
     }

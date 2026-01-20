@@ -188,7 +188,7 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
                         DELETE FROM `:db`.`acc_configuration_item` WHERE id IN ({$placeholders})
                         SQL
                 ));
-                $deleteStatement->execute($idsToDelete);
+                $deleteStatement->execute(array_values($idsToDelete));
             }
 
             // update or insert vcenters
