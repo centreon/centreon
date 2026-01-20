@@ -68,12 +68,6 @@ class EasyVistaRestProvider extends AbstractProvider
     ];  
 
     /*
-    * Set default values for our rule form options
-    *
-    * @return {void}
-    ];
-
-    /*
     * checks if all mandatory fields have been filled
     *
     * @return {array} telling us if there is a missing parameter
@@ -104,10 +98,14 @@ class EasyVistaRestProvider extends AbstractProvider
             foreach ($tickets as $k => $v) {
                 try {
                     $this->closeTicketEzv($k);
-                    $tickets[$k]['status'] = 2;
-                } catch (Exception $e) {
-                    $tickets[$k]['status'] = -1;
-                    $tickets[$k]['msg_error'] = $e->getMessage();
+                    $tickets[$k]['status'] = 1;
+                } catch (\Exception $e) {
+                    if ($this->doCloseTicketContinueOnError()) {
+                        $tickets[$k]['status'] = 1;
+                    } else {
+                        $tickets[$k]['status'] = -1;
+                        $tickets[$k]['msg_error'] = $e->getMessage();
+                    }
                 }
             }
         } else {
@@ -365,16 +363,16 @@ class EasyVistaRestProvider extends AbstractProvider
             . '<option value="' . self::ARG_PHONE . '">' . _('Phone') . '</option>'
             . '<option value="' . self::ARG_ORIGIN . '">' ._('Origin') . '</option>'
             . '<option value="' . self::ARG_IMPACT_ID . '">' . _('Impact') . '</option>'
-            . '<option value="' . self::ARG_DESCRIPTION . '">' ._('Description') . '</option>'
+            . '<option value="' . self::ARG_DESCRIPTION . '">' . _('Description') . '</option>'
             . '<option value="' . self::ARG_DEPARTMENT_CODE . '">' . _('Department') . '</option>'
             . '<option value="' . self::ARG_CI_NAME . '">' . _('CI') . '</option>'
             . '<option value="' . self::ARG_ASSET_NAME . '">' . _('Asset') . '</option>'
             . '<option value="' . self::ARG_LOCATION_CODE . '">' . _('Location') . '</option>'
             . '<option value="' . self::ARG_CATALOG_GUID . '">' . _('Catalog GUID') . '</option>'
             . '<option value="' . self::ARG_CATALOG_CODE . '">' . _('Catalog code') . '</option>'
-            . '<option value="' . self::ARG_CUSTOM_EZV . '">' ._('Custom Field') . '</option>'
+            . '<option value="' . self::ARG_CUSTOM_EZV . '">' . _('Custom Field') . '</option>'
             . '<option value="' . self::ARG_REQUESTOR_MAIL . '">' . _('Requester Mail') . '</option>'
-            . '<option value="' . self::ARG_RECIPIENT_MAIL . '">' ._('Recipient Mail') . '</option>'
+            . '<option value="' . self::ARG_RECIPIENT_MAIL . '">' . _('Recipient Mail') . '</option>'
             . '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
@@ -749,69 +747,5 @@ class EasyVistaRestProvider extends AbstractProvider
         }
 
         return 0;
-    }
-
-    /*
-    * check if the close option is enabled, if so, try to close every selected ticket
-    *
-    * @param {array} $tickets
-    *
-    * @return {void}
-    */
-    public function closeTicket(&$tickets): void
-    {
-        if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
-                try {
-                    $this->closeTicketEzv($k);
-                    $tickets[$k]['status'] = 1;
-                } catch (\Exception $e) {
-                    if ($this->doCloseTicketContinueOnError()) {
-                        $tickets[$k]['status'] = 1;
-                    } else {
-                        $tickets[$k]['status'] = -1;
-                        $tickets[$k]['msg_error'] = $e->getMessage();
-                    }
-                }
-            }
-        } else {
-            parent::closeTicket($tickets);
-        }
-    }
-
-    // webservice methods
-    public function getHostgroups($centreon_path, $data) {
-        $hostCount = count($data['host_list']);
-        $listIds = "";
-
-        $queryValues = [];
-        foreach ($data['host_list'] as $hostId) {
-            $listIds .= ':hId_' . $hostId . ', ';
-            $queryValues[':hId_' . $hostId] = (int)$hostId;
-        }
-
-        $listIds = rtrim($listIds, ', ');
-
-        require_once $centreon_path . 'www/modules/centreon-open-tickets/class/centreonDBManager.class.php';
-        $db_storage = new CentreonDBManager('centstorage');
-
-        $query = "SELECT name FROM hostgroups WHERE hostgroup_id IN"
-            . " (SELECT hostgroup_hg_id FROM centreon.hostgroup_relation WHERE host_host_id IN (" . $listIds .")"
-            . " GROUP BY hostgroup_hg_id HAVING count(hostgroup_hg_id) = :host_count)";
-        
-        $dbQuery = $db_storage->prepare($query);
-        foreach ($queryValues as $bindName => $bindValue) {
-            $dbQuery->bindValue($bindName, $bindValue, PDO::PARAM_INT);
-        }
-        $dbQuery->bindValue(':host_count', $hostCount, PDO::PARAM_INT).
-
-        $dbQuery->execute();
-
-        $result = [];
-        while ($row = $dbQuery->fetch()) {
-            array_push($result, $row['name']);
-        }
-
-        return $result;
     }
 }
