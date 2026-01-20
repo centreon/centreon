@@ -52,21 +52,21 @@ export const useComputeBaseChartDimensions = ({
 
   const legendBoundingHeight =
     !equals(legendDisplay, false) &&
-      (isNil(legendPlacement) || equals(legendPlacement, 'bottom'))
+    (isNil(legendPlacement) || equals(legendPlacement, 'bottom'))
       ? currentLegendHeight
       : 0;
   const legendBoundingWidth =
     !equals(legendDisplay, false) &&
-      (equals(legendPlacement, 'left') || equals(legendPlacement, 'right'))
+    (equals(legendPlacement, 'left') || equals(legendPlacement, 'right'))
       ? legendRefWidth || 0
       : 0;
 
   const graphWidth =
     width > 0
       ? width -
-      (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
-      (hasSecondUnit ? margins.left * 0.8 : margin.left) -
-      legendBoundingWidth
+        (hasSecondUnit ? maxAxisCharacters * 2 : maxAxisCharacters) * 6 -
+        (hasSecondUnit ? margins.left * 0.8 : margin.left) -
+        legendBoundingWidth
       : 0;
   const graphHeight =
     (height || 0) > 0

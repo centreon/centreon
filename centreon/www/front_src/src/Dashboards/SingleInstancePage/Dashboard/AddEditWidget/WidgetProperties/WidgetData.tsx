@@ -5,12 +5,13 @@ import Title from '../../../../components/Title';
 import { labelDatasetSelection } from '../../translatedLabels';
 
 import { FormikValues, useFormikContext } from 'formik';
+import { ReactElement } from 'react';
 import { getDataProperty } from './Inputs/utils';
 import SubInputs from './SubInputs';
 import { useWidgetInputs } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
-const WidgetData = (): JSX.Element => {
+const WidgetData = (): ReactElement => {
   const { t } = useTranslation();
 
   const { classes } = useWidgetPropertiesStyles();
@@ -23,7 +24,7 @@ const WidgetData = (): JSX.Element => {
   return (
     <div>
       {isWidgetSelected && <Title>{t(labelDatasetSelection)}</Title>}
-      <div className={classes.widgetDataContent}>
+      <div className={`${classes.widgetDataContent} overflow-auto h-full`}>
         {(widgetData || []).map(({ Component, key, props }) => (
           <div className={classes.widgetDataItem} key={key}>
             <SubInputs
