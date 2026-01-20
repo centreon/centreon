@@ -14,6 +14,7 @@ import {
 } from 'ramda';
 import type { ReactElement } from 'react';
 
+import { ReactElement } from 'react';
 import { getDates, getTime } from '../../../../common/timeSeries';
 import type { Line, TimeValue } from '../../../../common/timeSeries/models';
 import {

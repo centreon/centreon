@@ -101,13 +101,18 @@ const Lines = ({
           {Object.entries(stackedLinesData).map(
             ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
               const [, unit] = stackedKey.split('-');
+              const yScale =
+                unit === '' && yScalesPerUnit[unit] === undefined
+                  ? yScalesPerUnit[undefined]
+                  : yScalesPerUnit[unit];
+
               return (
                 <StackedLines
                   key={`stacked-${unit}`}
                   lineStyle={lineStyle}
                   lines={lines}
                   timeSeries={stackedTimeSeries}
-                  yScale={yScalesPerUnit[unit ?? undefined]}
+                  yScale={yScale}
                   {...commonStackedLinesProps}
                 />
               );
@@ -126,7 +131,10 @@ const Lines = ({
                     invert: '1',
                     scale,
                     scaleLogarithmicBase,
-                    unit: unit ?? undefined,
+                    unit:
+                      unit === '' && yScalesPerUnit[unit] === undefined
+                        ? undefined
+                        : unit,
                     yScalesPerUnit
                   })}
                   {...commonStackedLinesProps}
@@ -196,7 +204,6 @@ const Lines = ({
                   {displayGuidingLines && (
                     <RegularAnchorPoint
                       areaColor={areaColor || lineColor}
-                      hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
                       maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}
@@ -204,6 +211,8 @@ const Lines = ({
                       transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
+                      hasSecondUnit={hasSecondUnit}
                     />
                   )}
                   {style?.showPoints &&

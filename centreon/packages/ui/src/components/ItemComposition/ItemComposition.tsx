@@ -17,6 +17,8 @@ export type Props = {
   labelAdd?: string;
   onAddItem?: () => void;
   secondaryLabel?: string;
+  isAddButtonSticky?: boolean;
+  addButtonClassName?: string;
 };
 
 export const ItemComposition = ({
@@ -27,8 +29,10 @@ export const ItemComposition = ({
   addButtonHidden,
   IconAdd,
   displayItemsAsLinked,
-  secondaryLabel
-}: Props): JSX.Element => {
+  secondaryLabel,
+  isAddButtonSticky,
+  addButtonClassName
+}: Props): ReactElement => {
   const { classes } = useItemCompositionStyles();
 
   const hasMoreThanOneChildren = gt(children.length, 1);
@@ -43,7 +47,9 @@ export const ItemComposition = ({
           </div>
         )}
       </div>
-      <div className={classes.buttonAndSecondaryLabel}>
+      <div
+        className={`flex justify-between items-center w-full ${isAddButtonSticky && 'bg-background-paper sticky bottom-0 z-2'} ${addButtonClassName}`}
+      >
         {!addButtonHidden && (
           <Button
             aria-label={labelAdd}

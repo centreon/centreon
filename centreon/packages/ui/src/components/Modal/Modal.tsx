@@ -60,7 +60,7 @@ const Modal = ({
       {...attr}
     >
       {hasCloseButton && (
-        <div className={classes.modalCloseButton}>
+        <div className="absolute top-2 right-3 opacity-60">
           <IconButton
             aria-label="close"
             icon={<CloseIcon />}

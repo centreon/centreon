@@ -55,12 +55,6 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
     bold: {
       fontWeight: theme.typography.fontWeightBold
     },
-    container: equals(toolbarPositions, 'end')
-      ? {
-          display: 'flex',
-          flexDirection: 'column-reverse'
-        }
-      : {},
     error: {
       color: theme.palette.error.main,
       fontSize: theme.spacing(1.5),
@@ -190,7 +184,9 @@ const RichTextEditor = ({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className={classes.container}>
+      <div
+        className={`flex ${toolbarPositions === 'end' ? 'flex-col-reverse' : 'flex-col'}`}
+      >
         <div className={classes.toolbar}>
           <ToolbarPlugin
             className={toolbarClassName}

@@ -1,4 +1,7 @@
-import { scaleBand } from '@visx/scale';
+import { ReactElement, memo } from 'react';
+
+import { ScaleType, scaleBand } from '@visx/scale';
+import { BarRounded } from '@visx/shape';
 import { dec, equals, gt, pick } from 'ramda';
 import { memo, type ReactElement } from 'react';
 
@@ -73,32 +76,63 @@ const BarStack = ({
               [isHorizontal ? 'top' : 'right']: shouldApplyRadiusOnTop
             };
 
-            const barY = shouldRetrievePadding
-              ? getPadding({
-                  isNegativeValue,
-                  padding: bar.y,
-                  size: bar.height
-                })
-              : bar.y;
+            const style = getStyle({
+              style: barStyle,
+              metricId: Number(bar.key)
+            }) as BarStyle;
+
+            const barY =
+              isNegativeValue && isStacked && !shouldApplyRadiusOnBottom
+                ? getPadding({
+                    isNegativeValue,
+                    padding: bar.y,
+                    size: bar.height
+                  })
+                : bar.y;
 
             return (
-              <Bar
-                bar={bar}
-                barIndex={barIndex}
-                barPadding={barPadding}
-                barRoundedProps={barRoundedProps}
-                barStyle={barStyle}
-                barWidth={barWidth}
-                barY={barY}
-                exitBar={exitBar}
-                hoverBar={hoverBar}
-                isHorizontal={isHorizontal}
-                isNegativeValue={isNegativeValue}
-                isTooltipHidden={isTooltipHidden}
+              <BarRounded
+                {...barRoundedProps}
+                data-testid={`stacked-bar-${bar.key}-${bar.index}-${bar.bar[1]}`}
+                fill={bar.color}
+                height={getFirstBarHeight({
+                  bar,
+                  barWidth,
+                  y: isHorizontal
+                    ? getPadding({
+                        isNegativeValue,
+                        padding: bar.y,
+                        size: bar.height
+                      })
+                    : barPadding,
+                  isFirstBar: shouldApplyRadiusOnBottom,
+                  isHorizontal,
+                  yScale,
+                  neutralValue
+                })}
                 key={`bar-stack-${barStack.index}-${bar.index}`}
-                neutralValue={neutralValue}
-                shouldApplyRadiusOnBottom={shouldApplyRadiusOnBottom}
-                yScale={yScale}
+                opacity={style?.opacity || 1}
+                radius={style?.radius ? barWidth * style.radius : 0}
+                width={isHorizontal ? barWidth : Math.abs(bar.width)}
+                x={
+                  isHorizontal
+                    ? barPadding
+                    : getPadding({
+                        isNegativeValue,
+                        padding: bar.x,
+                        size: bar.width
+                      })
+                }
+                y={isHorizontal ? barY : barPadding}
+                onMouseEnter={
+                  isTooltipHidden
+                    ? undefined
+                    : hoverBar({
+                        barIndex,
+                        highlightedMetric: Number(bar.key)
+                      })
+                }
+                onMouseLeave={isTooltipHidden ? undefined : exitBar}
               />
             );
           })

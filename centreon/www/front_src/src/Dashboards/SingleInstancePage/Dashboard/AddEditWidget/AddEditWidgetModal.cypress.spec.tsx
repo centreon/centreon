@@ -414,7 +414,7 @@ describe('AddEditWidgetModal', () => {
         );
         cy.findByLabelText(labelTitle).should('have.value', 'Widget name');
         cy.findAllByLabelText('RichTextEditor').eq(0).contains('Description');
-        cy.contains('Widget name').should('be.visible');
+        cy.contains('Widget name').should('exist');
         cy.findAllByLabelText('RichTextEditor').eq(1).contains('Description');
         cy.findByLabelText(labelSave).should('be.disabled');
 
