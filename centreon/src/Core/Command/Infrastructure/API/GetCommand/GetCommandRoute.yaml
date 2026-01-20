@@ -1,0 +1,7 @@
+GetCommand:
+  methods: GET
+  path: /configuration/commands/{commandId}
+  requirements:
+    commandId: '\d+'
+  controller: 'Core\Command\Infrastructure\API\GetCommand\GetCommandController'
+  condition: "request.attributes.get('version') >= 25.10"

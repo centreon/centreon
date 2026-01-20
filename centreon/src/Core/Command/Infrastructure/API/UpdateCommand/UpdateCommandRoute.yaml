@@ -1,0 +1,7 @@
+UpdateCommand:
+  methods: PUT
+  path: /configuration/commands/{commandId}
+  requirements:
+    commandId: '\d+'
+  controller: 'Core\Command\Infrastructure\API\UpdateCommand\UpdateCommandController'
+  condition: "request.attributes.get('version') >= 25.10"

@@ -41,7 +41,16 @@ services:
         decorates: Core\Command\Application\Repository\WriteCommandRepositoryInterface
         arguments:
         - '@.inner'
+        - '@Core\Command\Application\Repository\ReadCommandRepositoryInterface'
         - '@Core\ActionLog\Application\Repository\WriteActionLogRepositoryInterface'
         - '@Centreon\Domain\Contact\Interfaces\ContactInterface'
         - '@Centreon\Infrastructure\DatabaseConnection'
+    
+    Core\Command\Application\UseCase\DeleteCommand\DeleteCommand:
+        arguments:
+            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\DbWriteCommandActionLogRepository'
+
+    Core\Command\Application\UseCase\UpdateCommand\UpdateCommand:
+        arguments:
+            $writeCommandRepository: '@Core\Command\Infrastructure\Repository\DbWriteCommandActionLogRepository'
 

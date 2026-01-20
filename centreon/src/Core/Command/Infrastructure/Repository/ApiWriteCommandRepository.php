@@ -32,6 +32,8 @@ use Core\CommandMacro\Domain\Model\NewCommandMacro;
 use Core\Common\Infrastructure\Repository\ApiRepositoryTrait;
 use Core\Common\Infrastructure\Repository\RepositoryTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Command\Domain\Model\Command;
 
 class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
 {
@@ -125,5 +127,19 @@ class ApiWriteCommandRepository implements WriteCommandRepositoryInterface
         }
 
         return (int) $response->toArray()['id'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function delete(int $commandId): void {
+        throw new RepositoryException('Not yet implemented');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(Command $originalCommand, Command $updatedCommand): void {
+        throw new RepositoryException('Not yet implemented');
     }
 }

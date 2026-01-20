@@ -140,4 +140,38 @@ final class CommandException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+    /**
+     * @return self
+     */
+    public static function updateNotAllowed(): self
+    {
+        return new self(_('You are not allowed to update a command'));
+    }
+
+    /**
+     * @param \Throwable $ex
+     *
+     * @return self
+     */
+    public static function errorWhileUpdating(\Throwable $ex): self
+    {
+        return new self(_('Error while updating the command'), 0, $ex);
+    }
+
+    /**
+     * @return self
+     */
+    public static function deleteNotAllowed(): self
+    {
+        return new self(_('You are not allowed to delete a command'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileDeletingCommand(): self
+    {
+        return new self(_('Error while deleting a command'));
+    }
 }

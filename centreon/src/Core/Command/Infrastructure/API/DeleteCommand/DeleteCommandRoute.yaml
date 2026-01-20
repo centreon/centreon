@@ -1,0 +1,7 @@
+DeleteCommand:
+  methods: DELETE
+  path: /configuration/commands/{commandId}
+  requirements:
+    commandId: '\d+'
+  controller: 'Core\Command\Infrastructure\API\DeleteCommand\DeleteCommandController'
+  condition: "request.attributes.get('version') >= 25.10"

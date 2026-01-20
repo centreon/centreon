@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Command\Application\Repository;
 
 use Core\Command\Domain\Model\NewCommand;
+use Core\Command\Domain\Model\Command;
 
 interface WriteCommandRepositoryInterface
 {
@@ -37,4 +38,26 @@ interface WriteCommandRepositoryInterface
      * @return int
      */
     public function add(NewCommand $command): int;
+
+    /**
+     * Update a command.
+     *
+     * @param Command $command
+     *
+     * @throws \Throwable
+     *
+     * @return int
+     */
+    public function update(Command $originalCommand, Command $updatedCommand): void;
+
+     /**
+      * Delete a command by its id.
+      *
+      * @param int $commandId
+      *
+      * @throws \Throwable
+      *
+      * @return void
+      */
+     public function delete(int $commandId): void;
 }
