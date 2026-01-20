@@ -1,4 +1,4 @@
-import { memo, ReactElement } from 'react';
+import { ReactElement, memo } from 'react';
 
 import { ScaleType, scaleBand } from '@visx/scale';
 import { BarRounded } from '@visx/shape';
@@ -123,10 +123,10 @@ const BarStack = ({
             const barY =
               isNegativeValue && isStacked && !shouldApplyRadiusOnBottom
                 ? getPadding({
-                  isNegativeValue,
-                  padding: bar.y,
-                  size: bar.height
-                })
+                    isNegativeValue,
+                    padding: bar.y,
+                    size: bar.height
+                  })
                 : bar.y;
 
             return (
@@ -139,10 +139,10 @@ const BarStack = ({
                   barWidth,
                   y: isHorizontal
                     ? getPadding({
-                      isNegativeValue,
-                      padding: bar.y,
-                      size: bar.height
-                    })
+                        isNegativeValue,
+                        padding: bar.y,
+                        size: bar.height
+                      })
                     : barPadding,
                   isFirstBar: shouldApplyRadiusOnBottom,
                   isHorizontal,
@@ -157,19 +157,19 @@ const BarStack = ({
                   isHorizontal
                     ? barPadding
                     : getPadding({
-                      isNegativeValue,
-                      padding: bar.x,
-                      size: bar.width
-                    })
+                        isNegativeValue,
+                        padding: bar.x,
+                        size: bar.width
+                      })
                 }
                 y={isHorizontal ? barY : barPadding}
                 onMouseEnter={
                   isTooltipHidden
                     ? undefined
                     : hoverBar({
-                      barIndex,
-                      highlightedMetric: Number(bar.key)
-                    })
+                        barIndex,
+                        highlightedMetric: Number(bar.key)
+                      })
                 }
                 onMouseLeave={isTooltipHidden ? undefined : exitBar}
               />

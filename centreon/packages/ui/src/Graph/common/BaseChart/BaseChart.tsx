@@ -35,8 +35,8 @@ interface Props {
   limitLegend?: number | false;
   lines: Array<Line>;
   setLines:
-  | Dispatch<SetStateAction<Array<Line> | null>>
-  | Dispatch<SetStateAction<Array<Line>>>;
+    | Dispatch<SetStateAction<Array<Line> | null>>
+    | Dispatch<SetStateAction<Array<Line>>>;
   title: string;
   graphHeight: number;
 }
@@ -93,8 +93,8 @@ const BaseChart = ({
                 className={cx(
                   classes.legendContainer,
                   equals(legend?.placement, 'right') &&
-                  !isHorizontal &&
-                  classes.legendContainerVerticalSide
+                    !isHorizontal &&
+                    classes.legendContainerVerticalSide
                 )}
                 ref={legendRef}
               >

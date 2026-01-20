@@ -118,4 +118,29 @@ describe('Single bar', () => {
 
     cy.makeSnapshot();
   });
+
+  it('displays the value on the left of the bar when the corresponding prop is set', () => {
+    initialize({
+      thresholds: successThresholds,
+      direction: 'row',
+      textWidth: 100
+    });
+
+    cy.contains('0.41 s').should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the value on the left of the bar when the corresponding prop is set and the size is mall', () => {
+    initialize({
+      thresholds: criticalThresholds,
+      direction: 'row',
+      textWidth: 70,
+      size: 'small'
+    });
+
+    cy.contains('0.41 s').should('be.visible');
+
+    cy.makeSnapshot();
+  });
 });

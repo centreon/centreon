@@ -8,4 +8,6 @@ export interface SingleBarProps {
   size?: 'medium' | 'small';
   thresholds: Thresholds;
   max?: number;
+  direction?: 'column' | 'row';
+  textWidth?: number; // Applied only when the direction is row
 }
