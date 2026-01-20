@@ -701,11 +701,11 @@ class EasyVistaRestProvider extends AbstractProvider
             $info['data']['requests'][0]['location_code'] = $ticketArguments[$this->internal_arg_name[self::ARG_LOCATION_CODE]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_MAIL]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_MAIL]])) {
             $info['data']['requests'][0]['requestor_mail'] = $ticketArguments[$this->internal_arg_name[self::ARG_REQUESTOR_MAIL]];
         }
 
-        if (!empty($ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_MAIL]])) {
+        if (! empty($ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_MAIL]])) {
             $info['data']['requests'][0]['recipient_mail'] = $ticketArguments[$this->internal_arg_name[self::ARG_RECIPIENT_MAIL]];
         }
 
