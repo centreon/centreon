@@ -130,18 +130,72 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-open-tickets
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon-open-tickets
         shell: bash
 
-      - name: Run of phpstan on /www at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
-        working-directory: centreon-open-tickets
+      - name: Get changed PHP files
+        id: changed-php
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            **/*.php
 
-      - name: Run of phpstan on /src at level max
-        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+      - name: 🛠️ Rector checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these Rector tests: rector:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+
+      - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
+        working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   backend-unit-test:
     runs-on: ubuntu-24.04

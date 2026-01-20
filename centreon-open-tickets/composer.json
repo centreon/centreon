@@ -8,25 +8,34 @@
     "centreon-open-tickets"
   ],
   "license": "GPL-2.0-only",
-  "require-dev": {
+  "require": {
+    "php": "8.1.*",
+    "ext-curl": "*",
+    "ext-ctype": "*",
+    "ext-fileinfo": "*",
+    "ext-filter": "*",
+    "ext-gettext": "*",
+    "ext-intl": "*",
     "ext-json": "*",
     "ext-openssl": "*",
+    "ext-mbstring": "*",
+    "ext-pdo": "*",
+    "ext-session": "*"
+  },
+  "require-dev": {
     "beberlei/assert": "^3.3",
     "centreon/centreon": "^24.10",
     "centreon/centreon-test-lib": "24.10.x-dev",
-    "dealerdirect/phpcodesniffer-composer-installer": "v1.0.0",
-    "friendsofphp/php-cs-fixer": "3.64.*",
     "pestphp/pest": "^1.21",
-    "phpcompatibility/php-compatibility": "9.3.*",
-    "phpstan/phpstan": "1.12.*",
-    "phpstan/phpstan-beberlei-assert": "1.1.*",
-    "rector/rector": "1.2.*",
-    "squizlabs/php_codesniffer": "3.10.*",
     "symfony/console": "6.4.*"
   },
   "autoload": {
     "psr-4": {
-      "CentreonOpenTickets\\": "src/CentreonOpenTickets",
+      "CentreonOpenTickets\\": "src/CentreonOpenTickets"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
       "Tests\\": "tests/php/"
     }
   },
@@ -46,27 +55,73 @@
       "*": "dist"
     },
     "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true,
       "pestphp/pest-plugin": true,
       "symfony/flex": false,
       "symfony/runtime": false
     }
   },
   "scripts": {
+    "require:check": "../php-tools/vendor/bin/composer-require-checker check --config-file=composer-require-checker.json composer.json",
+    "rector:diff": "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:diff:fix": "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
+    "rector:legacy:fix": "../php-tools/vendor/bin/rector process --config=rector.legacy.php",
+    "cs:diff": "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:diff:fix": "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
+    "cs:legacy:www": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --dry-run --diff",
+    "cs:legacy:www:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.www.php --verbose --diff",
+    "cs:legacy:src": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --dry-run --diff",
+    "cs:legacy:src:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.src.php --verbose --diff",
+    "cs:legacy": [
+      "@cs:legacy:www",
+      "@cs:legacy:src"
+    ],
+    "cs:legacy:fix": [
+      "@cs:legacy:www:fix",
+      "@cs:legacy:src:fix"
+    ],
+    "stan:legacy:www": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:www:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.www.neon --memory-limit=1G",
+    "stan:legacy:src": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:src:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.src.neon --memory-limit=1G",
+    "stan:legacy:test": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.test.neon --memory-limit=1G",
+    "stan:legacy:test:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.test.neon --memory-limit=1G",
+    "stan:legacy": [
+      "@stan:legacy:www",
+      "@stan:legacy:src",
+      "@stan:legacy:test"
+    ],
     "test": "pest --do-not-cache-result",
-    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml --no-interaction",
-    "phpcs:strict": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff",
-    "phpcs:unstrict": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff",
-    "phpcs:strict:exec": "php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --diff",
-    "phpcs:unstrict:exec": "php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --diff",
-    "phpcs:strict:ci": "@phpcs:strict",
-    "phpcs:unstrict:ci": "@phpcs:unstrict",
-    "phpstan": "phpstan analyse -c phpstan.neon --level=2 --memory-limit=512M --debug",
-    "phpstan:core": "phpstan analyse -c phpstan.core.neon --level=9 --memory-limit=512M --debug",
-    "phpstan:ci": "@phpstan --no-progress",
-    "phpstan:core:ci": "@phpstan:core --no-progress",
-    "php:check8.2": "phpcs -p --standard=PHPCompatibility --extensions=php --runtime-set testVersion 8.2 . --ignore=*/vendor/*  --error-severity=1 --warning-severity=8",
-    "rector:check": "rector --dry-run --debug",
-    "rector:exec": "rector --debug"
+    "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage.xml",
+    "rector": [
+      "@rector:legacy"
+    ],
+    "rector:fix": [
+      "@rector:legacy:fix"
+    ],
+    "cs": [
+      "@cs:legacy"
+    ],
+    "cs:fix": [
+      "@cs:legacy:fix"
+    ],
+    "stan": [
+      "@stan:legacy"
+    ],
+    "legacy:check": [
+      "@rector:legacy",
+      "@cs:legacy",
+      "@stan:legacy"
+    ],
+    "ci": [
+      "@legacy:check",
+      "@test"
+    ]
+  },
+  "extra": {
+    "symfony": {
+      "allow-contrib": true,
+      "require": "6.4.*"
+    }
   }
 }
