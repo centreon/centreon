@@ -2254,6 +2254,10 @@ msgstr ""
 msgid "Calculations based on time period"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "days before saturation"
+msgstr ""
+
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Can't Use This Virtual Metric '"
 msgstr "Não foi possível usar esta Métrica Virtual '"
@@ -4607,6 +4611,10 @@ msgid "Delete rules"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "row"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 msgid "Delete the relation"
 msgstr ""
 
@@ -5240,6 +5248,12 @@ msgstr ""
 msgid ""
 "Displays the future evolution of a metric as a trend curve, based on its "
 "recent average data."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days until saturation, "
+"and evolution of usage since the past day."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -10920,6 +10934,10 @@ msgstr "Unídade de Métrica"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Metric capacity planning"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
