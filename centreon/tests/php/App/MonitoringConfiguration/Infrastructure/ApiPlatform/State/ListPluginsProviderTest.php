@@ -36,7 +36,7 @@ final class ListPluginsProviderTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        /** `@var` array<int, array{name: string}> $members */
+        /** @var array<int, array{name: string}> $members */
         $members = $response->toArray()['member'];
         self::assertContains('urlize', array_column($members, 'name'));
     }
