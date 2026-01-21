@@ -131,7 +131,7 @@ jobs:
           GH_API_RESPONSE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/centreon/centreon-collect/git/ref/heads/$NEW_BRANCH")
+            "https://api.github.com/repos/centreon/centreon/git/ref/heads/$NEW_BRANCH")
 
           if [[ "$GH_API_RESPONSE_STATUS" == "200" ]]; then
             echo "Branch '$NEW_BRANCH' already exists. Setting NEW_BRANCH_EXISTS flag to true."
@@ -157,7 +157,7 @@ jobs:
           BASE_REF_SHA=$(curl -sS \
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/centreon/centreon-collect/git/ref/$GITHUB_API_REF_TYPE/$BASE_REF" \
+            "https://api.github.com/repos/centreon/centreon/git/ref/$GITHUB_API_REF_TYPE/$BASE_REF" \
             | jq -r '.object.sha')
 
           if [[ -z "$BASE_REF_SHA" || "$BASE_REF_SHA" == "null" ]]; then
@@ -172,7 +172,7 @@ jobs:
           PREVIOUS_STABLE_BUNDLE_TAG_DATA=$(curl -sS \
           -H "Authorization: Bearer $GH_TOKEN" \
           -H "Accept: application/vnd.github+json" \
-          "https://api.github.com/repos/centreon/centreon-collect/git/ref/tags/${PREVIOUS_STABLE_BUNDLE_TAG}")
+          "https://api.github.com/repos/centreon/centreon/git/ref/tags/${PREVIOUS_STABLE_BUNDLE_TAG}")
 
           PREVIOUS_STABLE_BUNDLE_TAG_OBJ_SHA=$(echo "$PREVIOUS_STABLE_BUNDLE_TAG_DATA" | jq -r '.object.sha')
           PREVIOUS_STABLE_BUNDLE_TAG_OBJ_TYPE=$(echo "$PREVIOUS_STABLE_BUNDLE_TAG_DATA" | jq -r '.object.type')
@@ -184,7 +184,7 @@ jobs:
           if [ "$PREVIOUS_STABLE_BUNDLE_TAG_OBJ_TYPE" = "tag" ]; then
             PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA=$(curl -sS \
               -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/centreon/centreon-collect/git/tags/${PREVIOUS_STABLE_BUNDLE_TAG_OBJ_SHA}" \
+              "https://api.github.com/repos/centreon/centreon/git/tags/${PREVIOUS_STABLE_BUNDLE_TAG_OBJ_SHA}" \
               | jq -r '.object.sha')
           else
             PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA="$PREVIOUS_STABLE_BUNDLE_TAG_OBJ_SHA"
@@ -250,7 +250,7 @@ jobs:
               -X POST -H "Content-Type: application/json" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               -d "$PAYLOAD" \
-              "https://api.github.com/repos/centreon/centreon-collect/git/refs")
+              "https://api.github.com/repos/centreon/centreon/git/refs")
 
             API_HTTP_CODE=$(echo API_HTTP_CODE: "$API_RESPONSE_BODY" | tail -n1)
             API_RESPONSE=$(echo "API_RESPONSE: $API_RESPONSE_BODY" | sed '$d')
@@ -269,7 +269,7 @@ jobs:
             curl -sS \
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/centreon/centreon-collect/git/ref/heads/${{ steps.get_and_set_references_information.outputs.new_branch }}" \
+              "https://api.github.com/repos/centreon/centreon/git/ref/heads/${{ steps.get_and_set_references_information.outputs.new_branch }}" \
               | jq -r '.object.sha'
           )
 
@@ -325,7 +325,7 @@ jobs:
           echo "Components with changes are: $(cat component-commit-lists-dir/changed-components.txt)"
 
           # Loading component changed into array
-          mapfile -t COMPONENTS_COLLECT_CHANGED < component-commit-lists-dir/changed-components.txt
+          mapfile -t COMPONENTS_OSS_CHANGED < component-commit-lists-dir/changed-components.txt
 
           # Accept the branche types listed below, nothing else
           # release prefixed branches: standard release type (release-xxxxx)
@@ -335,7 +335,7 @@ jobs:
           # Build link to list of runs for selected branch
           if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} == "develop" ]] || [[ ${{ inputs.dispatch_target_release_branch }} =~ ^hotfix-2[0-9]\.[0-9]+-next$ ]];then
             echo "Using ${{ inputs.dispatch_target_release_branch }} as branch to build testing packages."
-            RUNS_URL="https://github.com/centreon/centreon-collect/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
+            RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
           else
             echo "::error::Invalid release branch name selected ${{ inputs.dispatch_target_release_branch }}, please check the release branch name in the input."
             exit 1
@@ -346,7 +346,7 @@ jobs:
           case ${{ inputs.dispatch_content }} in
             "FULL")
             echo "Triggering all components, docker builders, php and extra libs."
-            for COMPONENT in "${COMPONENTS_COLLECT_FULL[@]}"; do
+            for COMPONENT in "${COMPONENTS_OSS_FULL[@]}"; do
               echo "Dispatching trigger to $COMPONENT workflow."
               gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
             done
@@ -354,7 +354,7 @@ jobs:
 
             "REGULAR")
             echo "Triggering all components only."
-            for COMPONENT in "${COMPONENTS_COLLECT_REGULAR[@]}"; do
+            for COMPONENT in "${COMPONENTS_OSS_REGULAR[@]}"; do
               echo "Dispatching trigger to $COMPONENT workflow."
               gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
             done
@@ -365,11 +365,11 @@ jobs:
 
             # There can be no changes at all
             # Exit 0 with warning if no change at all is reported.
-            if (( ${#COMPONENTS_COLLECT_CHANGED[@]} == 0 )) || [[ -z "${COMPONENTS_COLLECT_CHANGED[*]}" ]]; then
+            if (( ${#COMPONENTS_OSS_CHANGED[@]} == 0 )) || [[ -z "${COMPONENTS_OSS_CHANGED[*]}" ]]; then
               echo "::warning::No changed component(s) found, exiting workflow."
               exit 0
             else
-              for COMPONENT in "${COMPONENTS_COLLECT_CHANGED[@]}"; do
+              for COMPONENT in "${COMPONENTS_OSS_CHANGED[@]}"; do
                 echo "Dispatching trigger to $COMPONENT workflow."
                 gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
               done
