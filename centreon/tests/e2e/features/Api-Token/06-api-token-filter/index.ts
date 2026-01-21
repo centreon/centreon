@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { Contact, Token, columnsFromLabels, durationMap } from '../common';
+import { Contact, columnsFromLabels, durationMap, Token } from '../common';
 
 interface FilterOptions {
   creationDate:
@@ -73,8 +74,8 @@ afterEach(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Login succeeded')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
@@ -91,12 +92,10 @@ Given('Authentication tokens with predefined details are created', () => {
       const expirationDateIsoString = `${expirationDate.toISOString().split('.')[0]}Z`;
 
       const payload = {
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         expiration_date: expirationDateIsoString,
         name: token.name,
-        // biome-ignore lint/style/useNamingConvention: <explanation>
-        user_id: token.userId,
-        type: 'api'
+        type: 'api',
+        user_id: token.userId
       };
       cy.request({
         body: payload,
@@ -113,7 +112,7 @@ Given('Authentication tokens with predefined details are created', () => {
 });
 
 Given('I am on the Authentication tokens page', () => {
-  cy.visit('/centreon/administration/authentication-token');
+  cy.visit(PAGES.configuration.authenticationTokens);
   cy.wait('@getTokens');
 
   cy.getByLabel({ label: 'Refresh', tag: 'button' }).click();
@@ -172,8 +171,8 @@ Then(
 
         return cy
           .get('.MuiTableBody-root .MuiTableRow-root')
-          .each(($row) => {
-            cy.wrap($row)
+          .each((row) => {
+            cy.wrap(row)
               .find('.MuiTableCell-body')
               .eq(columnsFromLabels.indexOf(filterBy))
               .invoke('text')

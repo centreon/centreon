@@ -1,19 +1,17 @@
-import { useMemo } from 'react';
-
-import dayjs from 'dayjs';
-import { FormikValues, useFormikContext } from 'formik';
-import { lte } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { FormHelperText, FormLabel } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import TimeInputs from '../TimeInputs';
+import dayjs from 'dayjs';
+import { FormikValues, useFormikContext } from 'formik';
+import { lte } from 'ramda';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { TimeInputConfiguration } from '../models';
+import TimeInputs from '../TimeInputs';
 import { sevenDays } from '../timestamps';
 import { labelMinimumTimeBetweenPasswordChanges } from '../translatedLabels';
-
 import { getField } from './utils';
 
 const delayBeforeNewPasswordFieldName = 'delayBeforeNewPassword';
@@ -69,9 +67,9 @@ const TimeBeforeNewPassword = (): JSX.Element => {
           baseName={delayBeforeNewPasswordFieldName}
           inputLabel={labelMinimumTimeBetweenPasswordChanges}
           maxDuration={sevenDays}
+          onChange={change}
           timeInputConfigurations={timeInputConfigurations}
           timeValue={delayBeforeNewPasswordValue}
-          onChange={change}
         />
         {delayBeforeNewPasswordError && (
           <FormHelperText error>{delayBeforeNewPasswordError}</FormHelperText>

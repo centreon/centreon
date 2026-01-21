@@ -1,12 +1,10 @@
-import { ReactNode } from 'react';
-
-import { DraggableSyntheticListeners } from '@dnd-kit/core';
-
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import KrilinIndicatorIcon from '@mui/icons-material/DragIndicator';
 
-import { IconButton } from '../../../components';
+import type { DraggableSyntheticListeners } from '@dnd-kit/core';
+import type { ReactNode } from 'react';
 
+import { IconButton } from '../../../components';
 import { useListStyles } from './List.styles';
 
 export interface ContentProps {
@@ -52,8 +50,8 @@ const Content = ({
       <IconButton
         aria-label={`delete-${id}`}
         icon={<DeleteOutlineIcon color="error" fontSize="small" />}
-        size="small"
         onClick={deleteItem(id)}
+        size="small"
       />
     </div>
   );

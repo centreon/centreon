@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import PersonIcon from '@mui/icons-material/Person';
+import { Button, Paper, type Theme, Typography } from '@mui/material';
 
+import { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import PersonIcon from '@mui/icons-material/Person';
-import { Button, Paper, Theme, Typography } from '@mui/material';
-
 import FileDropZone, {
-  CustomDropZoneContentProps,
+  type CustomDropZoneContentProps,
   transformFileListToArray
 } from '.';
 
@@ -42,8 +41,8 @@ const Story = ({
   return (
     <Paper elevation={0}>
       <FileDropZone
-        CustomDropZoneContent={CustomDropZoneContent}
         accept={accept}
+        CustomDropZoneContent={CustomDropZoneContent}
         changeFiles={setFiles}
         className={className}
         files={files}
@@ -64,7 +63,7 @@ export const basicSingleImage = (): JSX.Element => (
 );
 
 export const basicMultipleImage = (): JSX.Element => (
-  <Story multiple accept="image/*" />
+  <Story accept="image/*" multiple />
 );
 
 export const basicSingleCustomExtension = (): JSX.Element => (
@@ -79,8 +78,8 @@ const DropZoneContent = ({
       style={{ height: '100%', position: 'absolute', width: '100%' }}
     />
     <Button
-      style={{ bottom: '0', position: 'absolute', right: '0' }}
       onClick={openFileExplorer}
+      style={{ bottom: '0', position: 'absolute', right: '0' }}
     >
       Open file explorer
     </Button>
@@ -89,8 +88,8 @@ const DropZoneContent = ({
 
 export const basicSingleImageWithACustomDropZoneContent = (): JSX.Element => (
   <Story
-    CustomDropZoneContent={DropZoneContent}
     accept="image/*"
+    CustomDropZoneContent={DropZoneContent}
     multiple={false}
   />
 );

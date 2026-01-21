@@ -1,6 +1,5 @@
-import Module, { ModuleProps } from '../index';
-
-import LicenseCheck, { LicenseCheckProps } from './LicenseCheck';
+import Module, { type ModuleProps } from '../index';
+import LicenseCheck, { type LicenseCheckProps } from './LicenseCheck';
 
 type Props = ModuleProps & LicenseCheckProps;
 

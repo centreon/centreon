@@ -1169,6 +1169,7 @@ msgstr ""
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/common-Func.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Alert"
 msgstr "Alert"
 
@@ -3492,6 +3493,7 @@ msgstr "Kontaktgruppen, die für diesen Service benachrichtigt werden"
 
 #: centreon/src/Core/Command/Infrastructure/Command/Exception/CommandMigrationCommandException.php
 #: centreon/src/Core/Media/Infrastructure/Command/Exception/MediaMigrationCommandException.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Contact not found"
 msgstr ""
 
@@ -4957,6 +4959,12 @@ msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days "
+"until saturation, and evolution of usage since the past day."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
 "Displays a status overview for selected resources, grouped by hosts or by "
 "services."
 msgstr ""
@@ -6282,6 +6290,10 @@ msgstr ""
 msgid "Error while adding the service template"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while creating contact"
+msgstr ""
+
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "Error while creating host category"
 msgstr ""
@@ -6386,6 +6398,10 @@ msgstr ""
 msgid "Error while fetching ACL topologies"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
+msgid "Error while importing LDAP contact"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
 msgstr ""
@@ -6429,6 +6445,10 @@ msgstr ""
 msgid "Error while partially updating the token"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/contact.php
+msgid "Error while processing contacts"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Infrastructure/Local/Repository/ConfigurationException.php
 msgid "Error while reading local provider configuration"
 msgstr "Fehler beim Lesen der lokalen Providerkonfiguration"
@@ -6436,6 +6456,14 @@ msgstr "Fehler beim Lesen der lokalen Providerkonfiguration"
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while refresh token"
 msgstr "Fehler bei der Aktualisierung des Tokens"
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving ACL groups for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving LDAP auth information"
+msgstr ""
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "Error while retrieving a command"
@@ -6494,6 +6522,14 @@ msgid ""
 "Error while retrieving contact groups allowed to receive a dashboard share"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact information for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact templates"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving contacts allowed to receive a dashboard share"
 msgstr ""
@@ -6534,6 +6570,10 @@ msgstr ""
 msgid "Error while retrieving recently created service severity"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving remote server information"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
 msgstr ""
@@ -6544,6 +6584,10 @@ msgstr ""
 
 #: centreon/src/Core/Resources/Application/Exception/ResourceException.php
 msgid "Error while retrieving the number of services by status"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving topologies for contact form"
 msgstr ""
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
@@ -6750,6 +6794,14 @@ msgstr ""
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while updating authentication tokens"
 msgstr "Fehler bei der Aktualisierung der Authentifizierungstokens"
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact (massive change)"
+msgstr ""
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
@@ -15385,6 +15437,10 @@ msgstr ""
 msgid "Show time zone"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Show value label"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Show value labels"
 msgstr ""
@@ -15938,6 +15994,10 @@ msgstr "Speicherdatenbankname"
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Storage folders"
 msgstr "Speicherordner"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
+msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Store LDAP password"

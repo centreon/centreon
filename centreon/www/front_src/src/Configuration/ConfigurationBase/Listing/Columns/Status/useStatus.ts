@@ -1,14 +1,14 @@
+import { capitalize } from '@mui/material';
+
+import { ResponseError, useBulkResponse } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { complement, isNotEmpty, propEq } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ResponseError, useBulkResponse } from '@centreon/ui';
-import { capitalize } from '@mui/material';
 import { useDisable, useEnable } from '../../../api';
-
 import { configurationAtom } from '../../../atoms';
-
 import {
   labelFailedToDisableResources,
   labelFailedToDisableSomeResources,
@@ -72,10 +72,10 @@ const useStatus = ({ row }): Props => {
 
     handleBulkResponse({
       data: results,
-      labelWarning: labelWarningMessage,
+      items: [row.id],
       labelFailed: labelErrorMessage,
       labelSuccess: labelSuccessMessage,
-      items: [row.id]
+      labelWarning: labelWarningMessage
     });
   };
 
@@ -96,8 +96,8 @@ const useStatus = ({ row }): Props => {
 
   return {
     change,
-    isMutating: isDisableMutating || isEnableMutating,
-    checked
+    checked,
+    isMutating: isDisableMutating || isEnableMutating
   };
 };
 

@@ -1,8 +1,8 @@
-import { equals } from 'ramda';
-
 import { useTheme } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals } from 'ramda';
 
 /**
  * Hook that a return an isDarkMode boolean value.

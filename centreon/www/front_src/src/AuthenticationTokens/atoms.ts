@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+
 import { Filter, ModalState } from './models';
 import { baseKey } from './storage';
 import { filtersInitialValues } from './utils';

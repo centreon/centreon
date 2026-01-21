@@ -1,9 +1,8 @@
-import { ReactElement } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Button, Divider } from '@mui/material';
+
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { labelAddNewDataset } from '../../../translatedLabels';
 import { useAddDatasetButtonStyles } from '../styles/AddDatasetButton.styles';

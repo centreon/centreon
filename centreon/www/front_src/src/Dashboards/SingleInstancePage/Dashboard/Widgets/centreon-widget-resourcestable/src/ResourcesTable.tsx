@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
-
 import { useRefreshInterval } from '@centreon/ui';
+
+import { ReactElement } from 'react';
 
 import { Listing } from './Listing';
 import { ResourcesTableProps } from './models';
@@ -61,8 +61,8 @@ const ResourceTable = ({
         sortField={sortField}
         sortOrder={sortOrder}
         states={states}
-        statusTypes={statusTypes}
         statuses={statuses}
+        statusTypes={statusTypes}
         widgetPrefixQuery={widgetPrefixQuery}
       />
     </div>

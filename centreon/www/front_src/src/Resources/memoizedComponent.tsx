@@ -1,6 +1,5 @@
-import { NamedExoticComponent, memo } from 'react';
-
 import { equals, pick } from 'ramda';
+import { memo, NamedExoticComponent } from 'react';
 
 interface MemoizeComponentParameters {
   Component: (props) => JSX.Element | null;

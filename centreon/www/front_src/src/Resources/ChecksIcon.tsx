@@ -1,9 +1,9 @@
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import SyncDisabledIcon from '@mui/icons-material/SyncDisabled';
 import SyncProblemIcon from '@mui/icons-material/SyncProblem';
 import { Tooltip } from '@mui/material';
+
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Resource } from './models';
 import {

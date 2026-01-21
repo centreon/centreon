@@ -1,58 +1,58 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Formik } from 'formik';
-
 import { BrowserRouter } from 'react-router';
+
 import { getTokensEndpoint } from '../../api/endpoints';
 import { ConnectionMode } from '../../models';
 import AgentInitiated from './AgentInitiated';
 
 const initialValues = {
+  configuration: {
+    otelCaCertificate: '',
+    otelPrivateKey: '',
+    otelPublicCertificate: '',
+    tokens: [
+      { id: 1, inputValue: 'testInput', name: 'testName' },
+      { id: 2, inputValue: 'testInput2', name: 'testName2', testId: 'testId2' }
+    ]
+  },
   connectionMode: {
     id: ConnectionMode.secure,
     name: 'TLS'
-  },
-  configuration: {
-    otelPublicCertificate: '',
-    otelCaCertificate: '',
-    otelPrivateKey: '',
-    tokens: [
-      { name: 'testName', id: 1, inputValue: 'testInput' },
-      { name: 'testName2', id: 2, inputValue: 'testInput2', testId: 'testId2' }
-    ]
   }
 };
 
 const valuesWithErrors = {
+  configuration: {
+    otelCaCertificate: '',
+    otelPrivateKey: '',
+    otelPublicCertificate: '',
+    tokens: []
+  },
   connectionMode: {
     id: ConnectionMode.secure,
     name: 'TLS'
-  },
-  configuration: {
-    otelPublicCertificate: '',
-    otelCaCertificate: '',
-    otelPrivateKey: '',
-    tokens: []
   }
 };
 
 const mockErrors = {
+  configuration: {
+    otelCaCertificate: 'CA certificate is required',
+    otelPrivateKey: 'Private key is required',
+    otelPublicCertificate: 'Public certificate is required',
+    tokens: 'At least one token is required'
+  },
   connectionMode: {
     id: ConnectionMode.secure,
     name: 'TLS'
-  },
-  configuration: {
-    otelPublicCertificate: 'Public certificate is required',
-    otelCaCertificate: 'CA certificate is required',
-    otelPrivateKey: 'Private key is required',
-    tokens: 'At least one token is required'
   }
 };
 
 const mockTouched = {
   configuration: {
-    otelPublicCertificate: true,
     otelCaCertificate: true,
     otelPrivateKey: true,
+    otelPublicCertificate: true,
     tokens: true
   }
 };
@@ -67,9 +67,9 @@ const initialize = (
       <BrowserRouter>
         <QueryClientProvider client={new QueryClient()}>
           <Formik
-            initialValues={values}
             initialErrors={errors}
             initialTouched={touched}
+            initialValues={values}
             onSubmit={cy.stub()}
           >
             <AgentInitiated />
@@ -83,10 +83,9 @@ const initialize = (
 describe('AgentInitiated', () => {
   it('should render the component with initial values', () => {
     initialize();
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      ''
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', '');
     cy.get('[data-testid="CA (.crt, .cert, .cer)"] input').should(
       'have.value',
       ''
@@ -110,24 +109,23 @@ describe('AgentInitiated', () => {
 
   it('should render with pre-filled certificate values', () => {
     const prefilledValues = {
+      configuration: {
+        otelCaCertificate: 'existing-ca.cert',
+        otelPrivateKey: 'existing-private.key',
+        otelPublicCertificate: 'existing-public.crt',
+        tokens: []
+      },
       connectionMode: {
         id: ConnectionMode.secure,
         name: 'TLS'
-      },
-      configuration: {
-        otelPublicCertificate: 'existing-public.crt',
-        otelCaCertificate: 'existing-ca.cert',
-        otelPrivateKey: 'existing-private.key',
-        tokens: []
       }
     };
 
     initialize(prefilledValues);
 
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      'existing-public.crt'
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', 'existing-public.crt');
     cy.get('[data-testid="CA (.crt, .cert, .cer)"] input').should(
       'have.value',
       'existing-ca.cert'
@@ -140,13 +138,13 @@ describe('AgentInitiated', () => {
 
   it('should handle empty tokens array', () => {
     const emptyTokensValues = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: '',
         otelCaCertificate: '',
         otelPrivateKey: '',
+        otelPublicCertificate: '',
         tokens: []
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(emptyTokensValues);
@@ -163,7 +161,9 @@ describe('AgentInitiated', () => {
   it('should have correct aria-labels for accessibility', () => {
     initialize();
 
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should(
       'have.attr',
       'aria-label',
       'Public certificate (.crt, .cert, .cer)'
@@ -182,24 +182,23 @@ describe('AgentInitiated', () => {
 
   it('should handle null values for certificates', () => {
     const nullValues = {
+      configuration: {
+        otelCaCertificate: null,
+        otelPrivateKey: null,
+        otelPublicCertificate: null,
+        tokens: null
+      },
       connectionMode: {
         id: ConnectionMode.secure,
         name: 'TLS'
-      },
-      configuration: {
-        otelPublicCertificate: null,
-        otelCaCertificate: null,
-        otelPrivateKey: null,
-        tokens: null
       }
     };
 
     initialize(nullValues);
 
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      ''
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', '');
     cy.get('[data-testid="CA (.crt, .cert, .cer)"] input').should(
       'have.value',
       ''
@@ -212,10 +211,9 @@ describe('AgentInitiated', () => {
     cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input')
       .clear()
       .type('test.cert');
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      'test.cert'
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', 'test.cert');
   });
 
   it('should update the CA certificate field', () => {
@@ -240,14 +238,14 @@ describe('AgentInitiated', () => {
 
   it('should clear certificate fields when empty string is entered', () => {
     const prefilledValues = {
+      configuration: {
+        otelCaCertificate: 'existing-ca.crt',
+        otelPrivateKey: 'existing-private.key',
+        otelPublicCertificate: 'existing-public.crt'
+      },
       connectionMode: {
         id: ConnectionMode.secure,
         name: 'TLS'
-      },
-      configuration: {
-        otelPublicCertificate: 'existing-public.cert',
-        otelCaCertificate: 'existing-ca.cert',
-        otelPrivateKey: 'existing-private.key'
       }
     };
 
@@ -256,10 +254,9 @@ describe('AgentInitiated', () => {
     cy.get(
       '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
     ).clear();
-    cy.get('[data-testid="Public certificate (.crt, .cert, .cer)"] input').should(
-      'have.value',
-      ''
-    );
+    cy.get(
+      '[data-testid="Public certificate (.crt, .cert, .cer)"] input'
+    ).should('have.value', '');
   });
 
   it('should handle CMA tokens selection and change', () => {
@@ -275,16 +272,16 @@ describe('AgentInitiated', () => {
 
   it('should handle token deletion', () => {
     const valuesWithTokens = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: '',
         otelCaCertificate: '',
         otelPrivateKey: '',
+        otelPublicCertificate: '',
         tokens: [
-          { name: 'token1', id: 1, inputValue: 'input1' },
-          { name: 'token2', id: 2, inputValue: 'input2' }
+          { id: 1, inputValue: 'input1', name: 'token1' },
+          { id: 2, inputValue: 'input2', name: 'token2' }
         ]
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(valuesWithTokens);
@@ -317,17 +314,17 @@ describe('AgentInitiated', () => {
 
   it('should properly remove tokens when delete is clicked', () => {
     const valuesWithMultipleTokens = {
-      connectionMode: { id: 'secure', name: 'secure' },
       configuration: {
-        otelPublicCertificate: '',
         otelCaCertificate: '',
         otelPrivateKey: '',
+        otelPublicCertificate: '',
         tokens: [
-          { name: 'token1', id: 1, inputValue: 'input1' },
-          { name: 'token2', id: 2, inputValue: 'input2' },
-          { name: 'token3', id: 3, inputValue: 'input3' }
+          { id: 1, inputValue: 'input1', name: 'token1' },
+          { id: 2, inputValue: 'input2', name: 'token2' },
+          { id: 3, inputValue: 'input3', name: 'token3' }
         ]
-      }
+      },
+      connectionMode: { id: 'secure', name: 'secure' }
     };
 
     initialize(valuesWithMultipleTokens);

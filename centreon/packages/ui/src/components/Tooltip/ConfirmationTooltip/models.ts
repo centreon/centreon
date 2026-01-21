@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
-import { ActionVariants } from '../../../ActionsList/models';
+import type { ActionVariants } from '../../../ActionsList/models';
 
 interface Labels {
   cancel: string;

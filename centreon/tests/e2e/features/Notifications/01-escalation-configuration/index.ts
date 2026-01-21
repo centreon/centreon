@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/notifications/escalation.json';
 import metaServices from '../../../fixtures/services/meta_service.json';
@@ -89,11 +90,7 @@ Given('some service groups are configured', () => {
 });
 
 Given('some meta services are configured', () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.wait('@getTimeZone');
   cy.addMetaService({
     ...metaServices.metaService1,
@@ -106,22 +103,22 @@ Given('some meta services are configured', () => {
 });
 
 When('the user fills all the properties of an escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchE"]');
   cy.getIframeBody().contains('a', 'Add').eq(0).click();
   cy.addEscalation({
     ...data.default,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 
@@ -140,43 +137,43 @@ Then('the escalation is displayed on the listing', () => {
 });
 
 When('the user changes the properties of the configured escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.getIframeBody().contains(data.default.name).click();
   cy.updateEscalation({
     ...data.escalation1,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 
 Then('the properties are updated', () => {
   cy.checkValuesOfEscalation(data.escalation1.name, {
     ...data.escalation1,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 
 When('the user duplicates the configured escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.checkFirstRowFromListing('searchE');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
@@ -186,22 +183,22 @@ When('the user duplicates the configured escalation', () => {
 Then('a new escalation is created with identical properties', () => {
   cy.checkValuesOfEscalation(`${data.escalation1.name}_1`, {
     ...data.escalation1,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 
 When('the user deletes the configured escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.checkFirstRowFromListing('searchE');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');

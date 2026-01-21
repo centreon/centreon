@@ -1,10 +1,10 @@
-import { makeStyles } from 'tss-react/mui';
-
 import {
-  IconButtonProps,
+  type IconButtonProps,
   IconButton as MuiIconButton,
   Tooltip
 } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 import { getNormalizedId } from '../../utils';
 

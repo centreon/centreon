@@ -29,9 +29,9 @@ const initializeOidcUserAndGetLoginPage = (): Cypress.Chainable => {
   return cy
     .fixture('resources/clapi/contact-OIDC/OIDC-authentication-user.json')
     .then((fixture: Array<ActionClapi>) => {
-      fixture.forEach((action) =>
-        cy.executeActionViaClapi({ bodyContent: action })
-      );
+      fixture.forEach((action) => {
+        cy.executeActionViaClapi({ bodyContent: action });
+      });
     });
 };
 
@@ -96,11 +96,11 @@ const configureOpenIdConnect = (): Cypress.Chainable => {
 };
 
 const saveOpenIdFormIfEnabled = () => {
-  return cy.getByLabel({ label: 'save button', tag: 'button' }).then(($btn) => {
-    if ($btn.is(':disabled')) {
+  return cy.getByLabel({ label: 'save button', tag: 'button' }).then((btn) => {
+    if (btn.is(':disabled')) {
       return;
     }
-    cy.wrap($btn).click();
+    cy.wrap(btn).click();
 
     return cy
       .wait('@updateOIDCProvider')

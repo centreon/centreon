@@ -1,15 +1,13 @@
-import { ReactNode } from 'react';
-
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { CheckboxGroup, SelectEntry } from '@centreon/ui';
 
-import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
+import { equals } from 'ramda';
+import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { useStyles } from './basicFilter/checkBox/checkBox.style';
 import {
   BasicCriteria,
@@ -107,9 +105,9 @@ export const CheckBoxWrapper = ({
         direction="horizontal"
         formGroupProps={formGroupProps}
         labelProps={labelProps}
+        onChange={(event) => handleChangeStatus(event)}
         options={transformData(translatedOptions)}
         values={transformData(translatedValues)}
-        onChange={(event) => handleChangeStatus(event)}
       />
     </>
   );

@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { CopyToContainerContentType } from '../../../../../packages/js-config/cypress/e2e/commands';
-
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
@@ -54,11 +54,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the Notification Rules page', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 Given(
@@ -154,8 +150,8 @@ When(
       cy.contains(data.hostGroups.hostGroup1.name).click();
       cy.get('#Searchhostgroups').blur();
       cy.contains('Include services for these hosts').click();
-      cy.get('[data-testid="Extra events services"] >').each(($el) => {
-        cy.wrap($el).click();
+      cy.get('[data-testid="Extra events services"] >').each((el) => {
+        cy.wrap(el).click();
       });
     } else {
       throw new Error(`${resourceType} not managed`);
@@ -392,8 +388,8 @@ When(
     cy.contains(data.hostGroups.hostGroup1.name).click();
     cy.get('#Searchhostgroups').blur();
     cy.contains('Include services for these hosts').click();
-    cy.get('[data-testid="Extra events services"] >').each(($el) => {
-      cy.wrap($el).click();
+    cy.get('[data-testid="Extra events services"] >').each((el) => {
+      cy.wrap(el).click();
     });
   }
 );

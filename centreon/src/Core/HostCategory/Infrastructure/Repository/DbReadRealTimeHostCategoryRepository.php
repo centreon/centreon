@@ -175,11 +175,11 @@ class DbReadRealTimeHostCategoryRepository extends AbstractRepositoryRDB impleme
 
         if ($searchRequest !== null) {
             $request .= <<<'SQL'
-                LEFT JOIN `:dbstg`.resources_tags rtags_host_groups
-                    ON rtags_host_groups.resource_id = resources.resource_id
-                LEFT JOIN `:dbstg`.tags AS host_groups
-                    ON rtags_host_groups.tag_id = host_groups.tag_id
-                    AND host_groups.`type` = 1
+                    LEFT JOIN `:dbstg`.resources_tags rtags_host_groups
+                        ON rtags_host_groups.resource_id = resources.resource_id
+                    LEFT JOIN `:dbstg`.tags AS host_groups
+                        ON rtags_host_groups.tag_id = host_groups.tag_id
+                        AND host_groups.`type` = 1
                 SQL;
 
         }

@@ -1,6 +1,6 @@
-import { Provider, createStore } from 'jotai';
-
 import { userAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
 
 import Widget from '..';
 import { PanelOptions } from '../models';

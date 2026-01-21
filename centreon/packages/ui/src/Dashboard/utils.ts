@@ -1,5 +1,5 @@
 import { lt } from 'ramda';
-import { Layout } from 'react-grid-layout';
+import type { Layout } from 'react-grid-layout';
 
 const minColumns = 1;
 const breakpoint = 768;

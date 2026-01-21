@@ -1,6 +1,12 @@
 {
-  "extends": ["./packages/js-config/biome/base.json"],
+  "extends": ["./packages/js-config/biome/biome.json"],
   "files": {
-    "ignore": ["**/*{.,-}min.js", "**/mockServiceWorker.js", "**/initPendo.js"]
+    "includes": [
+      "**",
+      "!**/*{.,-}min.js",
+      "!**/mockServiceWorker.js",
+      "!**/initPendo.js",
+      "!**/properties.json"
+    ]
   }
 }

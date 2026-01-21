@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
@@ -57,7 +58,7 @@ Given('a non-admin user is in the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 
@@ -75,10 +76,10 @@ When('the user fills in all the information', () => {
   cy.get('*[role="listbox"]').contains('Telegraf').click();
   cy.fillTelegrafMandatoryFields({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 
@@ -132,8 +133,8 @@ When('the user fills in the mandatory information', () => {
   cy.contains('div', 'By agent').click();
   cy.fillCmaMandatoryFields({
     ...agentsConfiguration.CMA1,
-    publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName,
-    privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+    privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
+    publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName
   });
 });
 
@@ -338,7 +339,7 @@ Then('the form fields are empty', () => {
 });
 
 When('the user clicks on Save in the cancellation pop-up', () => {
-  cy.getByTestId({ testId: 'confirm', tag: 'button' }).click();
+  cy.getByTestId({ tag: 'button', testId: 'confirm' }).click();
   cy.wait('@addAgents');
 });
 
@@ -351,16 +352,16 @@ When('the user fills in the {string} mandatory fields', (agentType: string) => {
   if (agentType.includes('Agent')) {
     cy.fillCmaMandatoryFields({
       ...agentsConfiguration.CMA1,
-      publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName,
-      privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+      privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
+      publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName
     });
   } else {
     cy.fillTelegrafMandatoryFields({
       ...agentsConfiguration.telegraf1,
-      publicCertificationFileName:
-        agentsConfiguration.telegraf1.publicCertfFileName,
+      certificateFileName: agentsConfiguration.telegraf1.certfFileName,
       privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-      certificateFileName: agentsConfiguration.telegraf1.certfFileName
+      publicCertificationFileName:
+        agentsConfiguration.telegraf1.publicCertfFileName
     });
   }
 });
@@ -373,10 +374,10 @@ When('the user selects the {string} type', (agentType: string) => {
 When('the user fills all the Telegraf mandatory fields', () => {
   cy.fillTelegrafMandatoryFields({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 
@@ -410,17 +411,17 @@ When(
     if (agentType.includes('Agent')) {
       cy.fillOnlySomeCmaMandatoryFields({
         ...agentsConfiguration.CMA1,
+        privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
         publicCertificationFileName:
-          agentsConfiguration.CMA1.publicCertfFileName,
-        privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+          agentsConfiguration.CMA1.publicCertfFileName
       });
     } else {
       cy.fillOnlySomeTelegrafMandatoryFields({
         ...agentsConfiguration.telegraf1,
-        publicCertificationFileName:
-          agentsConfiguration.telegraf1.publicCertfFileName,
+        certificateFileName: agentsConfiguration.telegraf1.certfFileName,
         privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-        certificateFileName: agentsConfiguration.telegraf1.certfFileName
+        publicCertificationFileName:
+          agentsConfiguration.telegraf1.publicCertfFileName
       });
     }
   }
