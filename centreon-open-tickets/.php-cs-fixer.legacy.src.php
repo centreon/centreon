@@ -19,38 +19,18 @@
  *
  */
 
-class CentreonOpenTicketsRequest
-{
-    /** @var array */
-    protected $postVar = [];
+declare(strict_types=1);
 
-    /** @var array */
-    protected $getVar = [];
+use PhpCsFixer\Finder;
 
-    /**
-     * constructor
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        foreach ($_POST as $key => $value) {
-            $this->postVar[$key] = $value;
-        }
+$config = require_once __DIR__ . '/../php-tools/php-cs-fixer/config/base.strict.php';
+$pathsConfig = require_once __DIR__ . '/.php-cs-fixer.conf.php';
 
-        foreach ($_GET as $key => $value) {
-            $this->getVar[$key] = $value;
-        }
-    }
+$finder = Finder::create()
+    ->in($pathsConfig['legacy:src']['directories'])
+    ->append($pathsConfig['legacy:src']['files'])
+    ->notPath($pathsConfig['legacy:src']['skip']);
 
-    /**
-     * Return value of requested object
-     *
-     * @param string $index
-     * @return mixed
-     */
-    public function getParam($index)
-    {
-        return $this->getVar[$index] ?? $this->postVar[$index] ?? null;
-    }
-}
+return $config
+    ->setFinder($finder)
+    ->setCacheFile('.php-cs-fixer.legacy.src.cache');
