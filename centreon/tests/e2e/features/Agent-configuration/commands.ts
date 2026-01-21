@@ -39,6 +39,7 @@ Cypress.Commands.add('fillTelegrafMandatoryFields', (body: Telegraf) => {
   cy.getByLabel({ label: 'Private key (.key)', tag: 'input' })
     .eq(0)
     .type(body.privateKeyFileName);
+  cy.getByLabel({ label: 'Port', tag: 'input' }).should('have.value', '1443');
   cy.getByLabel({
     label: 'Public certificate (.crt, .cert, .cer)',
     tag: 'input'
