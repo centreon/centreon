@@ -37,6 +37,8 @@ if (! isset($centreon)) {
     exit();
 }
 
+require_once _CENTREON_PATH_ . '/www/include/common/common-Func.php';
+
 if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
     require_once _CENTREON_PATH_ . 'www/include/core/errors/alt_error.php';
 
@@ -85,6 +87,9 @@ $redirect->setValue($o);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
+$csrfToken = createCSRFToken();
+
+$tpl->assign('csrfToken', $csrfToken);
 
 $sub = $form->addElement(
     'button',
@@ -112,7 +117,6 @@ foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
 $tpl->assign('helptext', $helptext);
-
 // Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
@@ -362,7 +366,8 @@ $tpl->display('formGenerateFiles.ihtml');
             type: 'POST',
             dataType: "xml",
             data: {
-                poller: selectedPoller
+                poller: selectedPoller,
+                centreon_token: jQuery("#Form").find('input[name="centreon_token"]').val(),
             },
             success: function (data) {
                 data = $(data);
