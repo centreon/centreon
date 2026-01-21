@@ -101,6 +101,8 @@ final readonly class DbalTokenRepository extends DbalRepository implements Token
                 ->fetchOne();
 
             if ($providerTokenId === false) {
+                $this->connection->rollBack();
+
                 return;
             }
 
