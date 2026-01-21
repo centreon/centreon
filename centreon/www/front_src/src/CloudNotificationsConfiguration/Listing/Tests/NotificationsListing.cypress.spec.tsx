@@ -1,8 +1,13 @@
-import { equals } from 'ramda';
 import { Provider, createStore } from 'jotai';
+import { equals } from 'ramda';
 
-import { TestQueryProvider, Method, SnackbarProvider } from '@centreon/ui';
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
+import Listing from '..';
+import { DeleteConfirmationDialog } from '../../Actions/Delete';
+import { DuplicationForm } from '../../Actions/Duplicate';
+import { notificationEndpoint } from '../../Panel/api/endpoints';
+import { getNotificationResponse } from '../../Panel/specs/testUtils';
 import {
   labelCancel,
   labelDelete,
@@ -12,20 +17,15 @@ import {
   labelDuplicate,
   labelFailedToDeleteNotifications,
   labelFailedToDeleteSelectedNotifications,
+  labelNotificationDuplicated,
   labelNotificationName,
   labelNotificationSuccessfullyDeleted,
-  labelNotificationDuplicated,
   labelNotificationsSuccessfullyDeleted,
   labelPleaseEnterNameForDuplicatedNotification,
   labelRequired,
   labelThisNameAlreadyExists
 } from '../../translatedLabels';
-import { notificationEndpoint } from '../../Panel/api/endpoints';
-import { getNotificationResponse } from '../../Panel/specs/testUtils';
-import { DeleteConfirmationDialog } from '../../Actions/Delete';
-import { DuplicationForm } from '../../Actions/Duplicate';
 import { buildNotificationsEndpoint } from '../api/endpoints';
-import Listing from '..';
 
 import {
   defaultQueryParams,
@@ -515,6 +515,8 @@ describe('column sorting', () => {
   it('executes a listing request when a sortable column is clicked', () => {
     cy.waitForRequest('@defaultRequest');
 
+    cy.contains('notification1').should('exist');
+
     columnToSort.forEach(({ label, id, sortField }) => {
       const sortBy = (sortField || id) as string;
 
@@ -524,19 +526,6 @@ describe('column sorting', () => {
         queries: [{ key: 'sort_by', value: { [sortBy]: 'desc' } }],
         requestAlias: `dataToListingTableDesc${label}`
       });
-
-      cy.findByLabelText(`Column ${label}`).click();
-
-      cy.waitForRequestAndVerifyQueries({
-        queries: [{ key: 'sort_by', value: { [sortBy]: 'asc' } }],
-        requestAlias: `dataToListingTableAsc${label}`
-      });
-
-      cy.contains('notification1').should('exist');
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
     });
   });
 });

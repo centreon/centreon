@@ -79,6 +79,7 @@ const LoginForm = (): JSX.Element => {
         required
         StartAdornment={PersonIcon}
         ariaLabel={labelAlias}
+        dataTestId={labelAlias}
         error={aliasError}
         label={t(labelAlias)}
         value={aliasValue || ''}
@@ -92,6 +93,7 @@ const LoginForm = (): JSX.Element => {
         EndAdornment={passwordEndAdornment}
         StartAdornment={LockIcon}
         ariaLabel={labelPassword}
+        dataTestId={labelPassword}
         error={passwordError}
         inputProps={{
           'aria-label': t(labelPassword) as string,
