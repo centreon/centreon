@@ -157,28 +157,10 @@ Then('a second group of parameters for hosts is displayed', () => {
 When('the user fills in the centreon agent parameters', () => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type('centreon-agent-002');
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
+  cy.contains('Poller-2').click();
   cy.contains('Poller-3').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
-  cy.contains('div', 'By agent').click();
-  cy.getByLabel({ label: 'Name', tag: 'input' }).type(
-    agentsConfiguration.CMA1.name
-  );
-  // Click outside to close the pollers dropdown list
-  cy.contains('h6', 'Pollers').click();
-  cy.getByLabel({
-    label: 'Public certificate (.crt, .cert, .cer)',
-    tag: 'input'
-  }).type(agentsConfiguration.CMA1.publicCertfFileName);
-  cy.getByLabel({ label: 'Private key (.key)', tag: 'input' }).type(
-    agentsConfiguration.CMA1.privateKFileName
-  );
-  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' })
-    .eq(0)
-    .type(agentsConfiguration.CMA1.caFileName);
-  cy.getByTestId({ testId: 'Select existing CMA token(s)' }).click();
-  cy.contains('CMA-Token-001').click();
-  cy.contains('div', 'By poller').click();
   // Click to add the first host
   cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
   cy.contains('Centreon-Server').click();
@@ -192,9 +174,6 @@ When('the user fills in the centreon agent parameters', () => {
     .clear()
     .type('10.0.0.0');
   cy.getByTestId({ testId: 'Port' }).eq(1).clear().type('4317');
-  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' })
-    .eq(0)
-    .type('my-certificate-name-003.crt');
   cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' })
     .eq(1)
     .type('my-certificate-name-003.crt');

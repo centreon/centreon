@@ -187,20 +187,6 @@ Given('some poller agent configurations are created', () => {
     privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
     publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName
   });
-  cy.contains('div', 'By poller').click();
-  cy.get('input[type="checkbox"]').click();
-  cy.getByLabel({ label: 'Select host', tag: 'input' }).eq(0).click();
-  cy.contains('Centreon-Server').click();
-  cy.getByTestId({ testId: 'Select existing CMA token' }).eq(0).click();
-  cy.contains('CMA-Token-001').click();
-  cy.getByLabel({ label: 'DNS/IP', tag: 'input' })
-    .eq(0)
-    .clear()
-    .type('10.0.0.0');
-  cy.getByTestId({ testId: 'Port' }).eq(0).clear().type('4317');
-  cy.getByLabel({ label: 'CA (.crt, .cert, .cer)', tag: 'input' })
-    .eq(0)
-    .type('my-certificate-name-003.crt');
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
 });

@@ -118,6 +118,8 @@ export const useInputs = (): {
                         hosts: [],
                         otelCaCertificate: null,
                         otelPrivateKey: '',
+                        otelPublicCertificate: '',
+                        pollerInitiated: false,
                         port: 4317
                       },
                   type: value
