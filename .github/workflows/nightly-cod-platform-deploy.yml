@@ -5,7 +5,11 @@ on:
     - cron: "15 6 * * 1-5"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
+
   nightly-cod-platform-deploy:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     runs-on: "ubuntu-latest"
     env:

@@ -34,9 +34,12 @@ on:
         required: true
 
 jobs:
-  performance-test:
-    runs-on: centreon-perf-testing
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
 
+  performance-test:
+    needs: [dependency-scan]
+    runs-on: centreon-perf-testing
     defaults:
       run:
         shell: bash

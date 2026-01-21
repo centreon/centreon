@@ -13,7 +13,11 @@ env:
   directory: "centreon/packages/ui"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
+
   chromatic:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon' && !startsWith(github.event.head_commit.message, 'Merge branch')
     runs-on: ubuntu-24.04
 

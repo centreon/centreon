@@ -5,6 +5,15 @@ concurrency:
 
 on:
   pull_request:
+    path:
+      - '!centreon-awie'
+      - '!centreon-dsm'
+      - '!centreon-ha'
+      - '!centreon-open-tickets'
+      - '!centreon'
+      - '!php-tools'
+      - '**'
+
   workflow_dispatch:
 
 jobs:

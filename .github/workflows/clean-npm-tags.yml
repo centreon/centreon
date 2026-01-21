@@ -6,7 +6,11 @@ on:
     - cron: "0 6 * * 1-5"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
+
   clean-npm-tags:
+    needs: [dependency-scan]
     runs-on: ubuntu-22.04
 
     steps:
