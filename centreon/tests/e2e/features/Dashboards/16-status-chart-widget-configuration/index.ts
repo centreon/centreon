@@ -1,6 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
@@ -205,10 +205,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
@@ -342,10 +339,7 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
 
 Given('a dashboard that includes a configured Status Chart widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, statuschartWidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
