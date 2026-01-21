@@ -16,8 +16,6 @@ paths = [
   '''yarn\.lock''',
   '''\.gitleaks\.toml$''',
   '''(.*?)(jpg|gif|doc|pdf|bin)$''',
-  '''node_modules''',
-  '''vendor'''
 ]
 
 regexTarget = "match"
