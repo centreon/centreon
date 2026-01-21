@@ -70,7 +70,7 @@ class AddCommandPresenter extends AbstractPresenter implements AddCommandPresent
                         'connector' => $response->connector
                             ? ['id' => $response->connector['id'], 'name' => $response->connector['name']]
                             : null,
-                        'grap_template' => $response->graphTemplate
+                        'graph_template' => $response->graphTemplate
                             ? ['id' => $response->graphTemplate['id'], 'name' => $response->graphTemplate['name']]
                             : null,
                     ]

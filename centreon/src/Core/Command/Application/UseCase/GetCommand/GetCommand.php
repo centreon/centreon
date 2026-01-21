@@ -33,7 +33,6 @@ use Core\Command\Application\Exception\CommandException;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\Command;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Command\Domain\Model\Argument;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Domain\Model\CommandMacro;

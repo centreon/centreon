@@ -259,7 +259,6 @@ class DbWriteCommandRepository extends AbstractRepositoryRDB implements WriteCom
      *
      * @throws \Throwable
      *
-     * @return int
      */
     private function deleteCommand(int $commandId): void
     {
