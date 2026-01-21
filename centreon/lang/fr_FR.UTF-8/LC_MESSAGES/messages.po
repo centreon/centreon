@@ -740,6 +740,10 @@ msgid "Add a Monitoring Engine Configuration File"
 msgstr "Ajouter le fichier de configuration du moteur de supervision"
 
 #: centreon/www/include/configuration/configResources/formResources.php
+msgid "Global macros"
+msgstr "Macros globales"
+
+#: centreon/www/include/configuration/configResources/formResources.php
 msgid "Add a global macro"
 msgstr "Ajouter une macro globale"
 
