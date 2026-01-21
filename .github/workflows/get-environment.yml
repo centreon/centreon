@@ -66,7 +66,6 @@ on:
 
 jobs:
   get-environment:
-    needs: [dependency-scan]
     runs-on: ubuntu-24.04
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
