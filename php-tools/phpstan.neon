@@ -12,9 +12,6 @@ parameters:
         - php-cs-fixer
         - rector
 
-    scanDirectories:
-        - ../centreon/src/App/Shared/
-
     ignoreErrors:
         # To fix the following errors, you need to update the custom rules:
         # Although PHPStan\Node\ClassPropertyNode is covered by backward compatibility promise, this instanceof assumption
