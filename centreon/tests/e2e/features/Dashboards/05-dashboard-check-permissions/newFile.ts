@@ -1,6 +1,6 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';

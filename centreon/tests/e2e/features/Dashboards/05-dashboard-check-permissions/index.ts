@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { last } from 'ramda';
 
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import adminUser from '../../../fixtures/users/admin.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';

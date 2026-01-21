@@ -1,5 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const uiDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
 const dNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';

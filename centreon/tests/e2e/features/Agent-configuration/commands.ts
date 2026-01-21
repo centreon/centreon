@@ -1,4 +1,4 @@
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 Cypress.Commands.add('fillCmaMandatoryFields', (body: Cma) => {
   cy.getByLabel({ label: 'Name', tag: 'input' }).type(body.name);

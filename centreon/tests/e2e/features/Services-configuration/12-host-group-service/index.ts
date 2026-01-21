@@ -4,7 +4,7 @@ import serviceCategories from '../../../fixtures/services/category.json';
 import data from '../../../fixtures/services/host_group.json';
 import servicesData from '../../../fixtures/services/service.json';
 
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import htmldata from './data.json';
 
 const services = {

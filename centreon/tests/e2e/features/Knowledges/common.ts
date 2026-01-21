@@ -1,4 +1,4 @@
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const configureKb = (url, account, password): void => {
   // Visit the Configuration of 'Knowledge Base' page
