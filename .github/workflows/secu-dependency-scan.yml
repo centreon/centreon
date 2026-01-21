@@ -5,7 +5,7 @@ concurrency:
 
 on:
   pull_request:
-    path:
+    paths:
       - '!centreon-awie'
       - '!centreon-dsm'
       - '!centreon-ha'
