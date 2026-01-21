@@ -1,4 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatTextIcon from '@mui/icons-material/FormatColorText';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
+import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { mergeRegister } from '@lexical/utils';
@@ -7,17 +11,11 @@ import {
   $isRangeSelection,
   FORMAT_TEXT_COMMAND,
   SELECTION_CHANGE_COMMAND,
-  TextFormatType
+  type TextFormatType
 } from 'lexical';
-
-import FormatBoldIcon from '@mui/icons-material/FormatBold';
-import FormatTextIcon from '@mui/icons-material/FormatColorText';
-import FormatItalicIcon from '@mui/icons-material/FormatItalic';
-import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
-import StrikethroughSIcon from '@mui/icons-material/StrikethroughS';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Menu } from '../../../components';
-
 import { useStyles } from './ToolbarPlugin.styles';
 
 const LowPriority = 1;
@@ -45,7 +43,7 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
     setIsItalic(selection.hasFormat('italic'));
     setIsUnderline(selection.hasFormat('underline'));
     setIsStrikeThrough(selection.hasFormat('strikethrough'));
-  }, [editor]);
+  }, []);
 
   useEffect(() => {
     return mergeRegister(
@@ -92,7 +90,7 @@ const FormatButtons = ({ disabled }: Props): JSX.Element => {
         type: 'strikethrough'
       }
     ],
-    [isBold, isItalic, isUnderline, isStrikeThrough]
+    [isBold, isItalic, isUnderline, isStrikeThrough, toggleTextFormat]
   );
 
   return (

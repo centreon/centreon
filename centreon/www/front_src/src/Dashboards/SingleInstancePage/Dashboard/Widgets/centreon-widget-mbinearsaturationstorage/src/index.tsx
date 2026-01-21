@@ -1,10 +1,10 @@
 import { isEmpty } from 'ramda';
+import { ReactElement } from 'react';
+
 import FederatedComponent from '../../../../../../components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
 import { WidgetProps } from './models';
-import { ReactElement } from 'react';
 
 const Widget = ({
   panelData,
@@ -26,16 +26,16 @@ const Widget = ({
   }
   return (
     <FederatedComponent
-      path="/bi/widget/nearsaturationstorage"
+      dashboardId={dashboardId}
+      globalRefreshInterval={globalRefreshInterval}
+      id={id}
+      isFromPreview={isFromPreview}
       panelData={panelData}
       panelOptions={panelOptions}
-      globalRefreshInterval={globalRefreshInterval}
-      refreshCount={refreshCount}
-      isFromPreview={isFromPreview}
-      id={id}
+      path="/bi/widget/nearsaturationstorage"
       playlistHash={playlistHash}
-      dashboardId={dashboardId}
       queryClient={queryClient}
+      refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
     />
   );

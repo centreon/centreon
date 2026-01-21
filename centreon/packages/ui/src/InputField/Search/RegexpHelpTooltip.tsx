@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
+import { Box, Link } from '@mui/material';
 
 import { always, ifElse, isNil } from 'ramda';
-
-import { Box, Link } from '@mui/material';
+import type { ReactElement } from 'react';
 
 import PersistentTooltip from './PersistentTooltip';
 

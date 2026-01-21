@@ -1,10 +1,9 @@
-import { ReactElement } from 'react';
-
 import { Form as FormComponent } from '@centreon/ui';
+
+import { ReactElement } from 'react';
 
 import useFormInitialValues from '../FormInitialValues/useFormInitialValues';
 import useFormInputs from '../FormInputs/useFormInputs';
-
 import ActionButtons from './ActionButtons';
 import useFormSubmit from './useFormSubmit';
 import useValidationSchema from './useValidationSchema';

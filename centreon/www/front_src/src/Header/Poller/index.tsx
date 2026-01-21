@@ -1,11 +1,10 @@
-import { flatten, includes } from 'ramda';
-
 import PollerIcon from '@mui/icons-material/DeviceHub';
 
 import { MenuSkeleton, TopCounterLayout } from '@centreon/ui';
 
-import useNavigation from '../../Navigation/useNavigation';
+import { flatten, includes } from 'ramda';
 
+import useNavigation from '../../Navigation/useNavigation';
 import PollerStatusIcon from './PollerStatusIcon';
 import { PollerSubMenu } from './PollerSubMenu/PollerSubMenu';
 import { usePollerData } from './usePollerData';

@@ -1,11 +1,11 @@
+import { useTheme } from '@mui/material';
+
+import { ComponentColumnProps, IconButton } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, or } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useTheme } from '@mui/material';
-
-import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
 import { openTicketAtom, resourcesToOpenTicketAtom } from '../../../atom';
 import {
@@ -59,6 +59,7 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
           color="primary"
           data-testid={labelOpenTicketForService}
           disabled={hasTicket}
+          onClick={createServiceTicket}
           size="large"
           title={
             <TooltipContent
@@ -68,7 +69,6 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
             />
           }
           tooltipClassName={hasTicket ? classes.tooltip : undefined}
-          onClick={createServiceTicket}
         >
           <IconCreateTicket
             color={hasTicket ? palette.success.main : palette.primary.main}
@@ -82,6 +82,7 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
           color="primary"
           data-testid={labelOpenTicketForHost}
           disabled={didHostHasTicket}
+          onClick={createHostTicket}
           size="large"
           title={
             <TooltipContent
@@ -91,7 +92,6 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
             />
           }
           tooltipClassName={didHostHasTicket ? classes.tooltip : undefined}
-          onClick={createHostTicket}
         >
           <IconCreateTicket
             color={

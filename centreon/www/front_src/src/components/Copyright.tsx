@@ -1,8 +1,8 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()({
   copyright: {

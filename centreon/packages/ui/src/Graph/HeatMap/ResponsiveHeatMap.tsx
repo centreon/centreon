@@ -1,14 +1,12 @@
-import { useMemo, useRef } from 'react';
-
-import { scaleLinear } from '@visx/scale';
-import { T, equals, gt, lt } from 'ramda';
-
 import { Box } from '@mui/material';
 
-import { Tooltip } from '../../components';
+import { scaleLinear } from '@visx/scale';
+import { equals, gt, lt, T } from 'ramda';
+import { useMemo, useRef } from 'react';
 
+import { Tooltip } from '../../components';
 import { useHeatMapStyles } from './HeatMap.styles';
-import { HeatMapProps } from './model';
+import type { HeatMapProps } from './model';
 
 const gap = 8;
 const maxTileSize = 120;
@@ -66,7 +64,7 @@ const ResponsiveHeatMap = <TData,>({
     }
 
     return tileSizeFixed ? maxTileSize : tileWidth;
-  }, [width, tiles, height]);
+  }, [width, tiles, height, tileSizeFixed]);
 
   const isSmallestSize = equals(tileSize, smallestTileSize);
   const isMediumSize = !isSmallestSize && lt(tileSize, 90);
@@ -92,13 +90,13 @@ const ResponsiveHeatMap = <TData,>({
           sx={{ backgroundColor }}
         >
           <Tooltip
-            hasCaret
             classes={{
               arrow: cx(classes.heatMapTooltipArrow, arrowClassName),
               tooltip: classes.heatMapTooltip
             }}
             data-testid={`tooltip-${data?.id}`}
             followCursor={false}
+            hasCaret
             label={
               displayTooltipCondition?.(data) &&
               tooltipContent?.({
@@ -115,9 +113,9 @@ const ResponsiveHeatMap = <TData,>({
                 backgroundColor,
                 data,
                 id,
+                isMediumSize,
                 isSmallestSize,
-                tileSize,
-                isMediumSize
+                tileSize
               })}
             </div>
           </Tooltip>

@@ -1,21 +1,19 @@
-import { useEffect, useState } from 'react';
-
-import { propEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Alert, Checkbox, FormControlLabel, Grid } from '@mui/material';
 
 import { Dialog, useRequest, useSnackbar } from '@centreon/ui';
+
+import { propEq } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { Resource } from '../../../models';
 import {
   labelCancel,
   labelDisacknowledge,
-  labelDisacknowledgeServices,
-  labelDisacknowledgementCommandSent
+  labelDisacknowledgementCommandSent,
+  labelDisacknowledgeServices
 } from '../../../translatedLabels';
 import useAclQuery from '../aclQuery';
-
 import { disacknowledgeResources } from './api';
 
 interface Props {
@@ -72,16 +70,16 @@ const DisacknowledgeForm = ({
 
   return (
     <Dialog
-      open
       confirmDisabled={sendingDisacknowledgeResources}
       data-testid="modalDisacknowledge"
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDisacknowledge)}
       labelTitle={t(labelDisacknowledge)}
-      submitting={sendingDisacknowledgeResources}
       onCancel={onClose}
       onClose={onClose}
       onConfirm={submitDisacknowledge}
+      open
+      submitting={sendingDisacknowledgeResources}
     >
       <Grid container direction="column" spacing={1}>
         {deniedTypeAlert && (
@@ -101,8 +99,8 @@ const DisacknowledgeForm = ({
                   color="primary"
                   disabled={!canDisacknowledgeServices()}
                   inputProps={{ 'aria-label': t(labelDisacknowledgeServices) }}
-                  size="small"
                   onChange={changeDisacknowledgeAttachedRessources}
+                  size="small"
                 />
               }
               label={t(labelDisacknowledgeServices) as string}

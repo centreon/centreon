@@ -13,13 +13,13 @@ const setTimePeriod = (): Cypress.Chainable => {
     'saturday'
   ];
   const timeRanges = {
-    sunday: '14:00-16:00',
-    monday: '07:00-12:00,13:00-18:00',
-    tuesday: '07:00-18:00',
-    wednesday: '07:00-12:00,13:00-17:00',
-    thursday: '14:00-16:00',
     friday: '07:00-18:00',
-    saturday: '10:00-16:00'
+    monday: '07:00-12:00,13:00-18:00',
+    saturday: '10:00-16:00',
+    sunday: '14:00-16:00',
+    thursday: '14:00-16:00',
+    tuesday: '07:00-18:00',
+    wednesday: '07:00-12:00,13:00-17:00'
   };
 
   weekdays.forEach((day) => {

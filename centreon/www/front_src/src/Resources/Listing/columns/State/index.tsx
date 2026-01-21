@@ -1,9 +1,8 @@
-import { FC } from 'react';
+import type { ComponentColumnProps } from '@centreon/ui';
 
 import { path } from 'ramda';
+import { FC } from 'react';
 import { makeStyles } from 'tss-react/mui';
-
-import type { ComponentColumnProps } from '@centreon/ui';
 
 import AcknowledgeChip from '../../../Chip/Acknowledge';
 import DowntimeChip from '../../../Chip/Downtime';
@@ -11,7 +10,6 @@ import FlappingChip from '../../../Chip/Flapping';
 import { Resource } from '../../../models';
 import { labelAcknowledged, labelInDowntime } from '../../../translatedLabels';
 import HoverChip from '../HoverChip';
-
 import AcknowledgementDetailsTable from './DetailsTable/Acknowledgement';
 import DowntimeDetailsTable from './DetailsTable/Downtime';
 

@@ -1,10 +1,8 @@
 import { Typography } from '@mui/material';
 
-import { Trans, useTranslation } from 'react-i18next';
-
 import { Modal } from '@centreon/ui/components';
 
-import useEnable from './useEnable';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   labelCancel,
@@ -12,6 +10,7 @@ import {
   labelEnableToken,
   labelMsgConfirmationEnableToken
 } from '../../translatedLabels';
+import useEnable from './useEnable';
 
 const EnableDialog = (): JSX.Element => {
   const { t } = useTranslation();
@@ -19,14 +18,14 @@ const EnableDialog = (): JSX.Element => {
   const { close, confirm, isMutating, isOpened, name } = useEnable();
 
   return (
-    <Modal open={isOpened} size="large" onClose={close}>
+    <Modal onClose={close} open={isOpened} size="large">
       <Modal.Header>{t(labelEnableToken)}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
+            components={{ bold: <strong /> }}
             defaults={labelMsgConfirmationEnableToken}
             values={{ tokenName: name }}
-            components={{ bold: <strong /> }}
           />
         </Typography>
       </Modal.Body>

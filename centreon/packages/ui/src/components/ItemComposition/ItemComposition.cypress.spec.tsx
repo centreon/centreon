@@ -1,6 +1,5 @@
-import { Props } from './ItemComposition';
-
 import { ItemComposition } from '.';
+import type { Props } from './ItemComposition';
 
 const initialize = ({
   deleteButtonHidden,

@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import { initializeConfigAclAndGetLoginPage } from '../common';
 
 before(() => {
@@ -156,8 +156,8 @@ Given(
       .wait('@getTimeZone')
       .isInProfileMenu('Copy autologin link')
       .get('#autologin-input')
-      .then(($text) =>
-        cy.wrap($text.text()).as('link').should('not.be.undefined')
+      .then((text) =>
+        cy.wrap(text.text()).as('link').should('not.be.undefined')
       );
 
     cy.contains('Logout').click();

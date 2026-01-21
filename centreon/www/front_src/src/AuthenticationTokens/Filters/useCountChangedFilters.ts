@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { equals, filter, length, pipe, toPairs } from 'ramda';
+
 import { filtersAtom } from '../atoms';
 import { filtersInitialValues } from '../utils';
 
@@ -21,8 +22,8 @@ const useCountChangedFilters = (): Props => {
   const changedFiltersCount = countDifferences(filtersInitialValues, filters);
 
   return {
-    isClear: equals(changedFiltersCount, 0),
-    changedFiltersCount
+    changedFiltersCount,
+    isClear: equals(changedFiltersCount, 0)
   };
 };
 

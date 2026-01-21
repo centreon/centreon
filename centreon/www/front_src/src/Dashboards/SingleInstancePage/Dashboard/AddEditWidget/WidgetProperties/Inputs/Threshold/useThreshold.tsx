@@ -1,4 +1,7 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { Box, Typography } from '@mui/material';
+
+import { formatMetricValueWithUnit } from '@centreon/ui';
+import { Tooltip } from '@centreon/ui/components';
 
 import { useFormikContext } from 'formik';
 import {
@@ -13,14 +16,9 @@ import {
   pluck,
   uniq
 } from 'ramda';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Box, Typography } from '@mui/material';
-
-import { formatMetricValueWithUnit } from '@centreon/ui';
-import { Tooltip } from '@centreon/ui/components';
-
-import { WidgetTextField } from '..';
 import {
   labelCriticalThreshold,
   labelCustom,
@@ -31,6 +29,7 @@ import {
   labelWarningThreshold
 } from '../../../../translatedLabels';
 import { Metric, RadioOptions, ServiceMetric } from '../../../models';
+import { WidgetTextField } from '..';
 import { useThresholdStyles } from '../Inputs.styles';
 import { getDataProperty, getProperty } from '../utils';
 

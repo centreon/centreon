@@ -1,12 +1,7 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-import { path, equals, isNil, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import IconForcedCheck from '@mui/icons-material/FlipCameraAndroidOutlined';
 import IconAcknowledge from '@mui/icons-material/Person';
 
 import type { ComponentColumnProps } from '@centreon/ui';
-
 import {
   IconButton,
   Method,
@@ -16,6 +11,11 @@ import {
   useSnackbar,
   useStyleTable
 } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { equals, isNil, path, pathEq } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   resourcesToAcknowledgeAtom,
@@ -31,14 +31,12 @@ import {
   labelSetDowntime,
   labelSetDowntimeOn
 } from '../translatedLabels';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 import IconDowntime from './Icons/Downtime';
 import { useStyles } from './Status.styles';
 
 const StatusColumnOnHover = ({
   row
-}: Pick<ComponentColumnProps, 'row'>): JSX.Element => {
+}: Pick<ComponentColumnProps, 'row'>): ReactElement => {
   const { dataStyle } = useStyleTable({});
   const { classes } = useStyles({ data: dataStyle.statusColumnChip });
   const { t } = useTranslation();
@@ -105,12 +103,12 @@ const StatusColumnOnHover = ({
         color="primary"
         data-testid={`${labelAcknowledge} ${row.name}`}
         disabled={disableAcknowledge}
+        onClick={acknowledge}
         size="large"
         title={getActionTitle({
           isActionPermitted: isAcknowledePermitted,
           labelAction: labelAcknowledge
         })}
-        onClick={acknowledge}
       >
         <IconAcknowledge fontSize="small" />
       </IconButton>
@@ -118,12 +116,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelSetDowntimeOn)} ${row.name}`}
         data-testid={`${labelSetDowntimeOn} ${row.name}`}
         disabled={disableDowntime}
+        onClick={setDowntime}
         size="large"
         title={getActionTitle({
           isActionPermitted: isDowntimePermitted,
           labelAction: labelSetDowntime
         })}
-        onClick={setDowntime}
       >
         <IconDowntime fontSize="small" />
       </IconButton>
@@ -132,12 +130,12 @@ const StatusColumnOnHover = ({
         ariaLabel={`${t(labelForcedCheck)} ${row.name}`}
         data-testid={`${labelForcedCheck} ${row.name}`}
         disabled={disableForcedCheck}
+        onClick={forcedCheck}
         size="large"
         title={getActionTitle({
           isActionPermitted: isForcedCheckPermitted,
           labelAction: labelForcedCheck
         })}
-        onClick={forcedCheck}
       >
         <IconForcedCheck fontSize="small" />
       </IconButton>
@@ -145,11 +143,8 @@ const StatusColumnOnHover = ({
   );
 };
 
-const StatusColumn =
-  ({ displayType, classes, t }) =>
-  ({ row, isHovered }: ComponentColumnProps): JSX.Element => {
-    const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
-
+const StatusColumn = ({ displayType, classes, t, isOnPublicPage }) => {
+  return ({ row, isHovered }: ComponentColumnProps): ReactElement => {
     const statusName = row.status.name;
 
     const isNestedRow =
@@ -159,11 +154,9 @@ const StatusColumn =
       return <div />;
     }
 
-    const label = equals(SeverityCode[5], statusName) ? (
-      <>{t(statusName)}</>
-    ) : (
-      t(statusName)
-    );
+    const label = equals(SeverityCode[5], statusName)
+      ? t(statusName)
+      : t(statusName);
 
     return (
       <div className={classes.statusColumn}>
@@ -179,5 +172,6 @@ const StatusColumn =
       </div>
     );
   };
+};
 
 export default StatusColumn;

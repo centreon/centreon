@@ -1,5 +1,5 @@
-import { SeverityCode } from '@centreon/ui';
 import type { CounterProps, SelectEntry, SubMenuProps } from '@centreon/ui';
+import { SeverityCode } from '@centreon/ui';
 
 import getDefaultCriterias from '../../../Resources/Filter/Criterias/default';
 import type { HostStatusResponse } from '../../api/decoders';
@@ -18,7 +18,6 @@ import {
   formatUnhandledOverTotal,
   getNavigationFunction
 } from '../utils';
-
 import {
   labelAll,
   labelDown,

@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { InputAdornment } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { IconButton } from '../..';
 import {
@@ -28,8 +28,8 @@ const PasswordEndAdornment = ({
     <InputAdornment position="end">
       <IconButton
         ariaLabel={t(label) || ''}
-        size="small"
         onClick={changeVisibility}
+        size="small"
       >
         {icon}
       </IconButton>

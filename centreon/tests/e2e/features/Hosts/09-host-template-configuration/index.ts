@@ -46,20 +46,19 @@ Then('the user configures the host', () => {
 Then('the user can configure directly its parent template', () => {
   cy.getIframeBody()
     .find('img[title="Edit template"]')
-    .then(($el) => {
+    .then((el) => {
       cy.window().then((win) => {
         // Get the hostId and build the correct URL
-        const hostId = $el.siblings('select').val();
+        const hostId = el.siblings('select').val();
         if (hostId !== '' && hostId !== undefined && hostId !== null) {
           // Use relative URL to avoid hardcoding protocol and port
           const baseUrl = win.location.origin;
           const path = '/centreon/main.php';
           const params = new URLSearchParams({
-            p: '60103',
-            o: 'c',
-            // biome-ignore lint/style/useNamingConvention: <explanation>
             host_id: hostId.toString(),
-            min: '1'
+            min: '1',
+            o: 'c',
+            p: '60103'
           });
 
           // Perform redirection in the same tab

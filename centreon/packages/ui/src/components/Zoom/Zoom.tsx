@@ -1,11 +1,10 @@
 import { Zoom as VisxZoom } from '@visx/zoom';
-import { TransformMatrix } from '@visx/zoom/lib/types';
-import { type MutableRefObject } from 'react';
+import type { TransformMatrix } from '@visx/zoom/lib/types';
+import type { MutableRefObject } from 'react';
 
 import { ParentSize } from '../..';
-
-import ZoomContent from './ZoomContent';
 import type { MinimapPosition, ZoomChildren } from './models';
+import ZoomContent from './ZoomContent';
 
 export interface ZoomProps extends ZoomChildren {
   id?: number | string;
@@ -51,10 +50,10 @@ const Zoom = ({
               height={height}
               id={id}
               minimapPosition={minimapPosition}
+              ref={contentRef}
               showMinimap={showMinimap}
               width={width}
               zoom={zoom}
-              ref={contentRef}
             >
               {children}
             </ZoomContent>

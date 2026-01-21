@@ -1,8 +1,3 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
-
 import { Method } from '@centreon/js-config/cypress/component/commands';
 import { SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
@@ -12,10 +7,13 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import { labelMoreActions } from '../Resources/translatedLabels';
-
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
 import { equals } from 'ramda';
-import { DashboardsPage } from './DashboardsPage';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
+import { labelMoreActions } from '../Resources/translatedLabels';
 import {
   dashboardSharesEndpoint,
   dashboardsContactsEndpoint,
@@ -30,11 +28,12 @@ import { viewModeAtom } from './components/DashboardLibrary/DashboardListing/ato
 import { ViewMode } from './components/DashboardLibrary/DashboardListing/models';
 import {
   labelCardsView,
-  labelEditProperties,
   labelEditor,
+  labelEditProperties,
   labelListView,
   labelViewer
 } from './components/DashboardLibrary/DashboardListing/translatedLabels';
+import { DashboardsPage } from './DashboardsPage';
 import { DashboardLayout, FavoriteAction, GetPath } from './models';
 import { routerHooks } from './routerHooks';
 import {
@@ -57,8 +56,8 @@ import {
   labelName,
   labelSave,
   labelSaveYourDashboardForThumbnail,
-  labelShareWithContacts,
   labelSharesSaved,
+  labelShareWithContacts,
   labelUpdate,
   labelUserDeleted,
   labelWelcomeToDashboardInterface
@@ -288,8 +287,8 @@ const columns = [
 ];
 
 const favoriteManagementData = [
-  { view: labelCardsView, dashboardId: 1 },
-  { view: labelListView, dashboardId: 2 }
+  { dashboardId: 1, view: labelCardsView },
+  { dashboardId: 2, view: labelListView }
 ];
 
 const getAliasFavoriteButton = (position: number) => {
@@ -332,7 +331,7 @@ const runFavoriteManagementFromList = ({
   cy.waitForRequest('@getDashboards');
 
   const buttonAlias = getAliasFavoriteButton(position);
-  const path = getPath({ position, action });
+  const path = getPath({ action, position });
 
   const aliasRequestAction = equals(FavoriteAction.add, action)
     ? '@addFavorite'
@@ -935,10 +934,10 @@ describe('Dashboards', () => {
     favoriteManagementData.forEach(({ view, dashboardId }, index) => {
       it(`add a dashboard to favorites when clicking on the corresponding icon in the ${view}`, () => {
         runFavoriteManagementFromList({
-          position: index,
-          view,
           action: FavoriteAction.add,
-          customListingPath: 'Dashboards/favorites/listing/list.json'
+          customListingPath: 'Dashboards/favorites/listing/list.json',
+          position: index,
+          view
         });
         cy.makeSnapshot();
       });
@@ -947,11 +946,11 @@ describe('Dashboards', () => {
         interceptDashboardsFavoriteDelete(dashboardId);
 
         runFavoriteManagementFromList({
-          position: index,
-          view,
           action: FavoriteAction.delete,
           customListingPath:
-            'Dashboards/favorites/listing/listAllMarkedFavorite.json'
+            'Dashboards/favorites/listing/listAllMarkedFavorite.json',
+          position: index,
+          view
         });
         cy.makeSnapshot();
       });

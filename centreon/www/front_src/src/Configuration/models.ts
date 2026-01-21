@@ -1,7 +1,7 @@
 import { Column, Group, InputProps } from '@centreon/ui';
-import { ObjectSchema } from 'yup';
 
 import type { PrimitiveAtom } from 'jotai';
+import { ObjectSchema } from 'yup';
 
 export type NamedEntity = {
   id: number;

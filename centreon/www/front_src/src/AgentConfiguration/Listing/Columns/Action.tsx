@@ -1,9 +1,12 @@
+import { DeleteOutline } from '@mui/icons-material';
+
 import { IconButton } from '@centreon/ui';
 import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
-import { DeleteOutline } from '@mui/icons-material';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import { itemToDeleteAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelDelete } from '../../translatedLabels';
@@ -48,9 +51,9 @@ const Action = ({ row }: Props): JSX.Element => {
   return (
     <IconButton
       ariaLabel={t(labelDelete)}
-      title={t(labelDelete)}
-      onClick={askBeforeDelete}
       className={classes.removeButton}
+      onClick={askBeforeDelete}
+      title={t(labelDelete)}
     >
       <DeleteOutline className={classes.removeIcon} />
     </IconButton>

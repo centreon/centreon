@@ -1,4 +1,4 @@
-import { LineChartData, Thresholds } from '../common/models';
+import type { LineChartData, Thresholds } from '../common/models';
 
 export interface SingleBarProps {
   baseColor?: string;

@@ -1,15 +1,16 @@
-import dayjs from 'dayjs';
-
 import {
   Method,
   useLocaleDateTimeFormat,
   useMutationQuery
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
 import { useQueryClient } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect } from 'react';
+
 import { createdTokenDecoder } from '../../api/decoder';
 import { createTokenEndpoint } from '../../api/endpoints';
 import { tokenAtom } from '../../atoms';
@@ -71,8 +72,8 @@ const useForm = (): UseFormState => {
       payload: {
         expiration_date: getExpirationDateForApi(),
         name,
-        user_id: equals(type.id, TokenType.API) ? user.id : currentUser.id,
-        type: type.id
+        type: type.id,
+        user_id: equals(type.id, TokenType.API) ? user.id : currentUser.id
       }
     }).finally(() => {
       setSubmitting(false);

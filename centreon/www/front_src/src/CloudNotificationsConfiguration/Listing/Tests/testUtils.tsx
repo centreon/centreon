@@ -79,8 +79,8 @@ export const getListingColumns = (): Array<Column> => [
     getFormattedString: ({ name }): string => name,
     id: 'name',
     label: labelName,
-    sortField: 'name',
     sortable: true,
+    sortField: 'name',
     type: ColumnType.string
   },
   {
@@ -88,8 +88,8 @@ export const getListingColumns = (): Array<Column> => [
     getFormattedString: ({ userCount }): string => `${userCount} users`,
     id: 'userCount',
     label: labelUsers,
-    sortField: 'users',
     sortable: true,
+    sortField: 'users',
     type: ColumnType.string
   },
   {
@@ -98,8 +98,8 @@ export const getListingColumns = (): Array<Column> => [
       formatResourcesForListing(resources),
     id: 'resources',
     label: labelResources,
-    sortField: 'resources',
     sortable: true,
+    sortField: 'resources',
     type: ColumnType.string
   },
   {
@@ -130,8 +130,8 @@ export const getListingColumns = (): Array<Column> => [
     disablePadding: false,
     id: 'isActivated',
     label: labelStatus,
-    sortField: 'is_activated',
     sortable: true,
+    sortField: 'is_activated',
     type: ColumnType.component
   }
 ];
