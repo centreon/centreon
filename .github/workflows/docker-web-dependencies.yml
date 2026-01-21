@@ -25,7 +25,6 @@ jobs:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
 
   dispatch-to-maintained-branches:
-    needs: [dependency-scan]
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     steps:
@@ -43,6 +42,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:

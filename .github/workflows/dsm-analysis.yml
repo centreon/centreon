@@ -31,6 +31,9 @@ env:
   module: dsm
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
+
   get-environment:
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml

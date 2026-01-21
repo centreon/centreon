@@ -19,7 +19,11 @@ on:
       - ".github/docker/Dockerfile.packaging-*"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
+
   get-environment:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
