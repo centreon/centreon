@@ -205,4 +205,21 @@ interface ReadServiceRepositoryInterface
      * @return string|null
      */
     public function findNameById(int $serviceId): ?string;
+
+    /**
+     * Find service IDs by command names.
+     *
+     * @param string[] $commandNames
+     * @param int[] $pollerIds
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByCommandNames(
+        array $commandNames,
+        array $pollerIds = [],
+        array $hostIds = [],
+    ): array;
 }

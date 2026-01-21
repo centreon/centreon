@@ -644,6 +644,55 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findIdsByCommandNames(array $commandNames, array $pollerIds = [], array $hostIds = []): array
+    {
+        if ($commandNames === []) {
+            return [];
+        }
+
+        [$bindValues, $commandPlaceholders] = $this->createMultipleBindQuery($commandNames, ':command_');
+
+        $sql = <<<SQL
+                SELECT DISTINCT s.service_id
+                FROM `service` s
+                INNER JOIN `command` c ON s.command_command_id = c.command_id
+                INNER JOIN `host_service_relation` hsr ON s.service_id = hsr.service_service_id
+                INNER JOIN `host` h ON h.host_id = hsr.host_host_id
+                WHERE s.service_register = '1'
+                AND c.command_name IN ({$commandPlaceholders})
+            SQL;
+
+        if ($hostIds !== []) {
+            [$hostBindValues, $hostPlaceholders] = $this->createMultipleBindQuery($hostIds, ':host_');
+            $sql .= <<<SQL
+                    AND h.host_id IN ({$hostPlaceholders})
+                SQL;
+            $bindValues += $hostBindValues;
+        }
+
+        if ($pollerIds !== []) {
+            [$pollerBindValues, $pollerPlaceholders] = $this->createMultipleBindQuery($pollerIds, ':poller_');
+            $sql .= <<<SQL
+                    AND h.host_id IN (
+                        SELECT hr.host_host_id FROM ns_host_relation hr
+                        WHERE hr.nagios_server_id IN ({$pollerPlaceholders})
+                    )
+                SQL;
+            $bindValues += $pollerBindValues;
+        }
+
+        $statement = $this->db->prepare($this->translateDbName($sql));
+        foreach ($bindValues as $placeHolder => $value) {
+            $statement->bindValue($placeHolder, $value, is_int($value) ? \PDO::PARAM_INT : \PDO::PARAM_STR);
+        }
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    /**
      * @param int[] $accessGroupIds
      *
      * @throws \Throwable
