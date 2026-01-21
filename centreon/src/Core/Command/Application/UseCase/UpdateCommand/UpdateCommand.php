@@ -129,12 +129,12 @@ final class UpdateCommand
     }
 
     /**
-     * Update the configuration options of the host group.
+     * Update the configuration options of the command.
      *
-     * @param UpdateCommandRequest $request
-     * @param Command $originalCommand
+     * `@param` UpdateCommandRequest $request
+     * `@param` Command $originalCommand
      *
-     * @throws InvalidGeoCoordException|\Throwable
+     * `@throws` InvalidGeoCoordException|\Throwable
      */
     private function updateCommand(UpdateCommandRequest $request, Command $originalCommand): void
     {
