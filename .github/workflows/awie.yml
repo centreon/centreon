@@ -37,7 +37,13 @@ env:
   module: awie
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
+    with:
+      module_directory: centreon-awie
+
   get-environment:
+    needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-awie/www/modules/centreon-awie/conf.php
