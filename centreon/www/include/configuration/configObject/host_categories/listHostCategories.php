@@ -36,7 +36,7 @@
 
 declare(strict_types=1);
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -44,14 +44,12 @@ require_once './class/centreonUtils.class.php';
 include './include/common/autoNumLimit.php';
 require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
-use Core\Common\Domain\Exception\CollectionException;
-use Core\Common\Domain\Exception\RepositoryException;
-use Core\Common\Domain\Exception\ValueObjectException;
 use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
-
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 // Sanitize and persist/restore search input
 $rawSearch = $_POST['searchH'] ?? $_GET['searchH'] ?? null;
@@ -83,26 +81,26 @@ try {
                 $queryBuilder->expr()->like('hc.hc_alias', ':search')
             )
         );
-        $parameters[] = QueryParameter::string('search', "%$search%");
+        $parameters[] = QueryParameter::string('search', "%{$search}%");
     }
 
-    if (!$centreon->user->admin && $hcString !== "''") {
+    if (! $centreon->user->admin && $hcString !== "''") {
         $hcIds = array_map(
-            fn(string $s) => (int) trim($s, "'\" \t\n\r\0\x0B"),
+            fn (string $s) => (int) trim($s, "'\" \t\n\r\0\x0B"),
             explode(',', $hcString)
         );
         $bindparams = createMultipleBindParameters($hcIds, 'hcId', QueryParameterTypeEnum::INTEGER);
-        if (count($bindparams["parameters"]) > 0) {
-            $queryBuilder->andWhere("hc.hc_id IN ( {$bindparams["placeholderList"]} )");
-            $parameters = array_merge($parameters, $bindparams["parameters"]);
+        if (count($bindparams['parameters']) > 0) {
+            $queryBuilder->andWhere("hc.hc_id IN ( {$bindparams['placeholderList']} )");
+            $parameters = array_merge($parameters, $bindparams['parameters']);
         }
     }
 
     $queryForCount = $queryBuilder->getQuery();
 
     $queryBuilder->orderBy('hc.hc_name')
-       ->offset($offset)
-       ->limit($limit);
+        ->offset($offset)
+        ->limit($limit);
 
     $mainQuery   = $queryBuilder->getQuery();
     $queryParams = QueryParameters::create($parameters);
@@ -110,8 +108,8 @@ try {
     // Execute fetch
     $hostCategories = $pearDB->fetchAllAssociative($mainQuery, $queryParams);
 
-    //build count query
-    //remove the select part of the query
+    // build count query
+    // remove the select part of the query
     $fromPos = stripos($queryForCount, ' FROM ');
     $fromClause = substr($queryForCount, $fromPos);
 
@@ -126,13 +124,13 @@ try {
             'hcString' => $hcString,
             'search' => $search,
             'limit' => $limit,
-            'num' => $num
+            'num' => $num,
         ],
         $exception
     );
     $msg = new CentreonMsg();
-    $msg->setImage("./img/icons/warning.png");
-    $msg->setTextStyle("bold");
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
     $msg->setText('Error fetching host categories list');
 }
 
@@ -140,31 +138,31 @@ try {
 $rows = $totalRows;
 $search = tidySearchKey($search, $advanced_search);
 
-include_once "./include/common/checkPagination.php";
+include_once './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/* Access level */
+// Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // Header menu definitions
-$tpl->assign('headerMenu_name',  _('Name'));
-$tpl->assign('headerMenu_desc',  _('Alias'));
-$tpl->assign('headerMenu_status',  _('Status'));
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_desc', _('Alias'));
+$tpl->assign('headerMenu_status', _('Status'));
 $tpl->assign('headerMenu_hc_type', _('Type'));
 $tpl->assign('headerMenu_hostAct', _('Enabled Hosts'));
 $tpl->assign('headerMenu_hostDeact', _('Disabled Hosts'));
 $tpl->assign('headerMenu_options', _('Options'));
 
 // Build search form
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=$p");
+$form = new HTML_QuickFormCustom('select_form', 'POST', "?p={$p}");
 // Different style between each lines
-$style = "one";
+$style = 'one';
 $attrBtn = [
     'class'   => 'btc bt_success',
-    'onClick' => "window.history.replaceState('', '', '?p={$p}');"
+    'onClick' => "window.history.replaceState('', '', '?p={$p}');",
 ];
 $form->addElement('submit', 'Search', _('Search'), $attrBtn);
 
@@ -184,7 +182,7 @@ try {
 
     if (! $centreon->user->admin) {
         $subQuerybuilder = $pearDB->createQueryBuilder();
-        $subQuerybuilder -> select('1')
+        $subQuerybuilder->select('1')
             ->from("{$aclDbName}.centreon_acl", 'acl')
             ->where(
                 $countsQuerybuilder->expr()->equal('acl.host_id', 'h.host_id')
@@ -211,13 +209,13 @@ try {
 } catch (ConnectionException|CollectionException|ValueObjectException $exception) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
-        "Error fetching host categories counts",
+        'Error fetching host categories counts',
         exception: $exception
     );
     $msg = new CentreonMsg();
-    $msg->setImage("./img/icons/warning.png");
-    $msg->setTextStyle("bold");
-    $msg->setText("Error fetching host categories counts");
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText('Error fetching host categories counts');
 }
 // Populate rows
 foreach ($hostCategories as $hc) {
@@ -237,16 +235,16 @@ foreach ($hostCategories as $hc) {
     }
     $moptions .= "<input maxlength='3' size='3' value='1' style='margin-bottom:0px;' "
               . "name='dupNbr[{$hc['hc_id']}]' "
-              . "onKeypress=\"if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))"
-              . "event.returnValue=false;\" />";
+              . 'onKeypress="if(event.keyCode>31&&(event.keyCode<45||event.keyCode>57))'
+              . 'event.returnValue=false;" />';
 
     $elemArr[] = [
-        'MenuClass'=> "list_{$style}",
+        'MenuClass' => "list_{$style}",
         'RowMenu_select' => $selectedElements->toHtml(),
         'RowMenu_name' => CentreonUtils::escapeSecure($hc['hc_name']),
-        'RowMenu_link' => "main.php?p=$p&o=c&hc_id={$hc['hc_id']}",
+        'RowMenu_link' => "main.php?p={$p}&o=c&hc_id={$hc['hc_id']}",
         'RowMenu_desc' => CentreonUtils::escapeSecure($hc['hc_alias']),
-        'RowMenu_hc_type'=> $hc['level']
+        'RowMenu_hc_type' => $hc['level']
             ? _('Severity') . " ({$hc['level']})"
             : _('Regular'),
         'RowMenu_status' => $hc['hc_activate'] ? _('Enabled') : _('Disabled'),
@@ -266,9 +264,9 @@ $tpl->assign('searchHC', $search);
 $tpl->assign(
     'msg',
     [
-        'addL' => "main.php?p=$p&o=a",
+        'addL' => "main.php?p={$p}&o=a",
         'addT' => _('Add'),
-        'delConfirm' => _('Do you confirm the deletion ?')
+        'delConfirm' => _('Do you confirm the deletion ?'),
     ]
 );
 
@@ -280,28 +278,27 @@ $tpl->assign(
 </script>
 <?php
 foreach (['o1', 'o2'] as $option) {
-    $attrs1 = ['onchange' =>
-        "var bChecked=isChecked();".
-        "if(this.form.elements['$option'].selectedIndex!=0&&!bChecked){alert('"
-        . _("Please select one or more items") . "');return false;}".
-        "if(this.form.elements['$option'].selectedIndex==1&&confirm('"
-        . _("Do you confirm the duplication ?") . "')){setO(this.value);submit();}".
-        "else if(this.form.elements['$option'].selectedIndex==2&&confirm('"
-        . _("Do you confirm the deletion ?") . "')){setO(this.value);submit();}".
-        "else if(this.form.elements['$option'].selectedIndex==3){setO(this.value);submit();}".
-        "else if(this.form.elements['$option'].selectedIndex==4){setO(this.value);submit();}".
-        "this.form.elements['$option'].selectedIndex=0"
+    $attrs1 = ['onchange' => 'var bChecked=isChecked();'
+        . "if(this.form.elements['{$option}'].selectedIndex!=0&&!bChecked){alert('"
+        . _('Please select one or more items') . "');return false;}"
+        . "if(this.form.elements['{$option}'].selectedIndex==1&&confirm('"
+        . _('Do you confirm the duplication ?') . "')){setO(this.value);submit();}"
+        . "else if(this.form.elements['{$option}'].selectedIndex==2&&confirm('"
+        . _('Do you confirm the deletion ?') . "')){setO(this.value);submit();}"
+        . "else if(this.form.elements['{$option}'].selectedIndex==3){setO(this.value);submit();}"
+        . "else if(this.form.elements['{$option}'].selectedIndex==4){setO(this.value);submit();}"
+        . "this.form.elements['{$option}'].selectedIndex=0",
     ];
     $form->addElement(
         'select',
         $option,
         null,
         [
-            null => _("More actions..."),
-            'm' => _("Duplicate"),
-            'd' => _("Delete"),
-            'ms' => _("Enable"),
-            'mu' => _("Disable")
+            null => _('More actions...'),
+            'm' => _('Duplicate'),
+            'd' => _('Delete'),
+            'ms' => _('Enable'),
+            'mu' => _('Disable'),
         ],
         $attrs1
     );
@@ -314,4 +311,4 @@ foreach (['o1', 'o2'] as $option) {
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listHostCategories.ihtml");
+$tpl->display('listHostCategories.ihtml');

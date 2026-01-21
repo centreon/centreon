@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class ServiceProviderTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->container['realtime_db'] = $this->container['configuration_db'] = new Mock\CentreonDB;
+        $this->container['realtime_db'] = $this->container['configuration_db'] = new Mock\CentreonDB();
         $this->container['configuration_db']->addResultSet('SELECT * FROM informations WHERE `key` = :key LIMIT 1', []);
 
         $this->container['rest_http'] = $this->getMockBuilder(CentreonRestHttp::class)
@@ -68,7 +68,7 @@ class ServiceProviderTest extends TestCase
         $this->container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
             = new \Centreon\Infrastructure\Service\CentreonDBManagerService($locator);
         $this->container[\Centreon\ServiceProvider::CENTREON_WEBSERVICE]
-        = $this->container[\Centreon\ServiceProvider::CENTREON_CLAPI] = new class {
+        = $this->container[\Centreon\ServiceProvider::CENTREON_CLAPI] = new class () {
             public function add(): self
             {
                 return $this;

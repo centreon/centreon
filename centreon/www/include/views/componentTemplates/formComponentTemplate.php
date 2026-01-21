@@ -34,17 +34,15 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-/*
- * Load 2 general options
- */
+// Load 2 general options
 $l_general_opt = [];
 
-$stmt = $pearDB->query("SELECT * FROM options");
-while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+$stmt = $pearDB->query('SELECT * FROM options');
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $l_general_opt[$row['key']] = $row['value'];
 }
 
@@ -53,30 +51,26 @@ $stmt->closeCursor();
 $compo = [];
 if (($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) && $compo_id) {
     $stmt = $pearDB->prepare('SELECT * FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1');
-    $stmt->bindValue(':compo_id', $compo_id, \PDO::PARAM_INT);
+    $stmt->bindValue(':compo_id', $compo_id, PDO::PARAM_INT);
     $stmt->execute();
 
     $compo = $stmt->fetchRow();
 }
 
-/*
- * Graphs comes from DB -> Store in $graphs Array
- */
+// Graphs comes from DB -> Store in $graphs Array
 $graphs = [];
 $stmt = $pearDB->query('SELECT graph_id, name FROM giv_graphs_template ORDER BY name');
-while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $graphs[$row['graph_id']] = $row['name'];
 }
 $stmt->closeCursor();
 
-/*
- * List of known data sources
- */
+// List of known data sources
 $dataSources = [];
 $stmt = $pearDBO->query(
     'SELECT 1 AS REALTIME, `metric_name`, `unit_name` FROM `metrics` GROUP BY `metric_name`, `unit_name` ORDER BY `metric_name`'
 );
-while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $dataSources[$row['metric_name']] = $row['metric_name'];
     if (isset($row['unit_name']) && $row['unit_name'] !== '') {
         $dataSources[$row['metric_name']] .= ' (' . $row['unit_name'] . ')';
@@ -85,41 +79,37 @@ while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
 unset($row);
 $stmt->closeCursor();
 
-/*
- * Define Styles
- */
+// Define Styles
 $attrsText = [
-    'size' => 40
+    'size' => 40,
 ];
 $attrsText2 = [
-    'size' => 10
+    'size' => 10,
 ];
 $attrsTextarea = [
     'rows' => 4,
-    'cols' => 60
+    'cols' => 60,
 ];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />' .
-    '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
+$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br />'
+    . '<br /><br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
 $availableRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_service&action=list';
 $attrServices = [
     'datasourceOrigin' => 'ajax',
     'availableDatasetRoute' => $availableRoute,
     'linkedObject' => 'centreonService',
-    'multiple' => false
+    'multiple' => false,
 ];
 
 if ($o !== ADD_COMPONENT_TEMPLATE) {
-    $defaultRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_objects' .
-        '&action=defaultValues&target=graphCurve&field=host_id&id=' . $compo_id;
+    $defaultRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_objects'
+        . '&action=defaultValues&target=graphCurve&field=host_id&id=' . $compo_id;
 
     $attrServices['defaultDatasetRoute'] = $defaultRoute;
 }
 
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+// Form begin
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 if ($o === ADD_COMPONENT_TEMPLATE) {
     $form->addElement('header', 'ftitle', _('Add a Data Source Template'));
 } elseif ($o === MODIFY_COMPONENT_TEMPLATE) {
@@ -128,9 +118,7 @@ if ($o === ADD_COMPONENT_TEMPLATE) {
     $form->addElement('header', 'ftitle', _('View a Data Source Template'));
 }
 
-/*
- *  Basic information
- */
+// Basic information
 $form->addElement('header', 'information', _('General Information'));
 $form->addElement('header', 'options', _('Display Optional Modifier'));
 $form->addElement('header', 'color', _('Colors'));
@@ -152,40 +140,40 @@ $form->addElement('select', 'datasources', null, $dataSources);
 $l_dsColorList = [
     'ds_color_line' => [
         'label' => _('Line color'),
-        'color' => '#0000FF'
+        'color' => '#0000FF',
     ],
     'ds_color_area' => [
         'label' => _('Area color'),
-        'color' => '#FFFFFF'
+        'color' => '#FFFFFF',
     ],
     'ds_color_area_warn' => [
         'label' => _('Warning Area color'),
-        'color' => '#FD9B27'
+        'color' => '#FD9B27',
     ],
     'ds_color_area_crit' => [
         'label' => _('Critical Area color'),
-        'color' => '#FF4A4A'
+        'color' => '#FF4A4A',
     ],
 ];
 
 foreach ($l_dsColorList as $l_dsColor => $l_dCData) {
-    $l_hxColor = isset($compo[$l_dsColor]) && !empty($compo[$l_dsColor]) ? $compo[$l_dsColor] : $l_dCData['color'];
+    $l_hxColor = isset($compo[$l_dsColor]) && ! empty($compo[$l_dsColor]) ? $compo[$l_dsColor] : $l_dCData['color'];
     $attColText = [
         'value' => $l_hxColor,
         'size' => 7,
         'maxlength' => 7,
         'style' => 'text-align: center;',
-        'class' => 'js-input-colorpicker'
+        'class' => 'js-input-colorpicker',
     ];
-    $form->addElement('text', $l_dsColor, $l_dCData["label"], $attColText);
+    $form->addElement('text', $l_dsColor, $l_dCData['label'], $attColText);
 
     $attColAreaR = [
-        'style' => 'width:50px; height:15px; background-color: ' . $l_hxColor .
-            '; border-width:0px; padding-bottom:2px;'
+        'style' => 'width:50px; height:15px; background-color: ' . $l_hxColor
+            . '; border-width:0px; padding-bottom:2px;',
     ];
     $attColAreaW = [
-        'style' => 'width:50px; height:15px; background-color: ' . $l_hxColor .
-            '; border-width:0px; padding-bottom:2px;'
+        'style' => 'width:50px; height:15px; background-color: ' . $l_hxColor
+            . '; border-width:0px; padding-bottom:2px;',
     ];
     $form->addElement('button', $l_dsColor . '_color', '', $attColAreaW);
     $form->addElement('button', $l_dsColor . '_read', '', $attColAreaR);
@@ -194,7 +182,7 @@ foreach ($l_dsColorList as $l_dsColor => $l_dCData) {
 $attTransext = [
     'size' => 2,
     'maxlength' => 3,
-    'style' => 'text-align: center;'
+    'style' => 'text-align: center;',
 ];
 $form->addElement('text', 'ds_transparency', _('Transparency'), $attTransext);
 
@@ -214,7 +202,7 @@ $form->addElement(
     [
         '1' => 1,
         '2' => 2,
-        '3' => 3
+        '3' => 3,
     ]
 );
 $form->addElement('text', 'ds_legend', _('Legend Name'), $attrsText);
@@ -227,14 +215,12 @@ $form->addElement(
         '0' => 0,
         '1' => 1,
         '2' => 2,
-        '3' => 3
+        '3' => 3,
     ]
 );
 $form->addElement('textarea', 'comment', _('Comments'), $attrsTextarea);
 
-/*
- * Components linked with
- */
+// Components linked with
 $form->addElement('header', 'graphs', _('Graph Choice'));
 
 $form->addElement('hidden', 'compo_id');
@@ -246,15 +232,11 @@ function color_line_enabled($values)
     if (isset($values[0]['ds_color_line_mode']) && $values[0]['ds_color_line_mode'] == '1') {
         return true;
     }
-    if (!isset($values[1]) || $values[1] == '') {
-        return false;
-    }
-    return true;
+
+    return ! (! isset($values[1]) || $values[1] == '');
 }
 
-/*
- * Form Rules
- */
+// Form Rules
 $form->registerRule('existName', 'callback', 'NameHsrTestExistence');
 $form->registerRule('existDs', 'callback', 'DsHsrTestExistence');
 
@@ -270,7 +252,7 @@ $form->registerRule('color_line_enabled', 'callback', 'color_line_enabled');
 $form->addRule(
     [
         'ds_color_line_mode',
-        'ds_color_line'
+        'ds_color_line',
     ],
     _('Required Field'),
     'color_line_enabled'
@@ -294,7 +276,7 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         'button',
         'change',
         _('Modify'),
-        ['onClick' => "javascript:window.location.href='?p=" . $p . "&o=c&compo_id=" . $compo_id . "'"]
+        ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&compo_id=' . $compo_id . "'"]
     );
     $form->setDefaults($compo);
     $form->freeze();
@@ -311,7 +293,7 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         'reset',
         _('Reset'),
         [
-            'class' => 'btc bt_default'
+            'class' => 'btc bt_default',
         ]
     );
     $form->setDefaults($compo);
@@ -328,7 +310,7 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
         'reset',
         _('Reset'),
         [
-            'class' => 'btc bt_default'
+            'class' => 'btc bt_default',
         ]
     );
     $form->setDefaults(
@@ -340,7 +322,7 @@ if ($o === WATCH_COMPONENT_TEMPLATE) {
             'ds_color_line_mode' => 0,
             'ds_transparency' => 80,
             'ds_average' => true,
-            'ds_last' => true
+            'ds_last' => true,
         ]
     );
 }
@@ -377,7 +359,7 @@ $tpl->assign(
     'msg',
     [
         'changeL' => 'main.php?p=' . $p . '&o=c&compo_id=' . $compo_id,
-        'changeT' => _('Modify')
+        'changeT' => _('Modify'),
     ]
 );
 
@@ -385,7 +367,7 @@ $tpl->assign('sort1', _('Properties'));
 $tpl->assign('sort2', _('Graphs'));
 // prepare help texts
 $helptext = '';
-include_once('help.php');
+include_once 'help.php';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>';
 }
@@ -404,14 +386,14 @@ if ($form->validate()) {
         'button',
         'change',
         _('Modify'),
-        ['onClick' => "javascript:window.location.href='?p=" . $p . "&o=c&compo_id=" . $compoObj->getValue() . "'"]
+        ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&compo_id=' . $compoObj->getValue() . "'"]
     );
     $form->freeze();
     $valid = true;
 }
 $action = $form->getSubmitValue('action');
 if ($valid) {
-    require_once('listComponentTemplates.php');
+    require_once 'listComponentTemplates.php';
 } else {
     // Apply a template definition
     $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl, true);
@@ -422,14 +404,14 @@ if ($valid) {
     $tpl->assign('o', $o);
     $tpl->display('formComponentTemplate.ihtml');
 }
-$vdef = 0; /* don't list VDEF in metrics list */
+$vdef = 0; // don't list VDEF in metrics list
 
 if ($o === MODIFY_COMPONENT_TEMPLATE || $o === WATCH_COMPONENT_TEMPLATE) {
-    $host_service_id = \HtmlAnalyzer::sanitizeAndRemoveTags(
-        $_POST['host_service_id'] ?? ($compo["host_id"] . '-' . $compo['service_id'])
+    $host_service_id = HtmlAnalyzer::sanitizeAndRemoveTags(
+        $_POST['host_service_id'] ?? ($compo['host_id'] . '-' . $compo['service_id'])
     );
 } elseif ($o === ADD_COMPONENT_TEMPLATE) {
-    $host_service_id = \HtmlAnalyzer::sanitizeAndRemoveTags(
+    $host_service_id = HtmlAnalyzer::sanitizeAndRemoveTags(
         $_POST['host_service_id'] ?? null
     );
 }

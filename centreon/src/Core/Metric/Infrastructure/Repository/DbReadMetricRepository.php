@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,9 +81,9 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     public function findServicesByMetricNamesAndRequestParameters(
         array $metricNames,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
-        if ([] === $metricNames) {
+        if ($metricNames === []) {
             return [];
         }
 
@@ -141,9 +141,9 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
         array $metricNames,
         array $accessGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array {
-        if ([] === $metricNames) {
+        if ($metricNames === []) {
             return [];
         }
 
@@ -269,7 +269,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
      */
     private function createMetricsFromRecords(array $records): array
     {
-        if ([] === $records) {
+        if ($records === []) {
             return [];
         }
 
@@ -293,7 +293,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     private function buildQueryForFindServices(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
-        array $metricNames
+        array $metricNames,
     ): string {
         $request = <<<'SQL'
             SELECT DISTINCT id.`host_id`,
@@ -309,7 +309,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             $accessGroups
         );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $accessGroupIdsQuery = \implode(',', $accessGroupIds);
             $request .= <<<SQL
                     INNER JOIN `:dbstg`.`centreon_acl` acl ON acl.`service_id` = id.`service_id`
@@ -323,7 +323,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             $request .= $this->buildSubRequestForTags($this->subRequestsInformation);
         }
 
-        if ([] !== $this->subRequestsInformation) {
+        if ($this->subRequestsInformation !== []) {
             $request .= $this->subRequestsInformation['service']['request'] ?? '';
             $request .= $this->subRequestsInformation['metaservice']['request'] ?? '';
             $request .= $this->subRequestsInformation['host']['request'] ?? '';
@@ -368,7 +368,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
             $accessGroups
         );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $accessGroupIdsQuery = \implode(',', $accessGroupIds);
             $query .= <<<SQL
                     INNER JOIN `:dbstg`.`centreon_acl` acl ON acl.`service_id` = id.`service_id`
@@ -411,13 +411,13 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
         }
 
         $boundValues = [];
-        if ([] !== $this->subRequestsInformation) {
+        if ($this->subRequestsInformation !== []) {
             foreach ($this->subRequestsInformation as $subRequestInformation) {
                 $boundValues[] = $subRequestInformation['bindValues'];
             }
             $boundValues = \array_merge(...$boundValues);
         }
-        foreach ($boundValues as $bindToken => $bindValueInformation){
+        foreach ($boundValues as $bindToken => $bindValueInformation) {
             foreach ($bindValueInformation as $bindValue => $paramType) {
                 $statement->bindValue($bindToken, $bindValue, $paramType);
             }
@@ -559,7 +559,7 @@ class DbReadMetricRepository extends AbstractRepositoryDRB implements ReadMetric
     private function buildSubRequestForMetaserviceFilter(array $metaserviceIds): array
     {
         foreach ($metaserviceIds as $key => $metaserviceId) {
-            $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_'. $metaserviceId => \PDO::PARAM_STR];
+            $bindMetaserviceNames[':metaservice_name' . $key] = ['meta_' . $metaserviceId => \PDO::PARAM_STR];
         }
 
         $bindTokens = implode(', ', array_keys($bindMetaserviceNames));

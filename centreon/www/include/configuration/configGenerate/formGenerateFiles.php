@@ -33,21 +33,20 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (!$centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
+if (! $centreon->user->admin && $centreon->user->access->checkAction('generate_cfg') === 0) {
     require_once _CENTREON_PATH_ . 'www/include/core/errors/alt_error.php';
+
     return null;
 }
 
-/*
- *  Get Poller List
- */
+// Get Poller List
 $acl = $centreon->user->access;
 $tab_nagios_server = $acl->getPollerAclConf(['get_row' => 'name', 'order' => ['name'], 'keys' => ['id'], 'conditions' => ['ns_activate' => 1]]);
-/* Sort the list of poller server */
+// Sort the list of poller server
 $pollersFromUrl = $_GET['poller'] ?? '';
 $pollersId = explode(',', $pollersFromUrl);
 $selectedPollers = [];
@@ -58,30 +57,28 @@ foreach ($tab_nagios_server as $key => $name) {
     }
 }
 
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+// Form begin
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
-$form->addElement('checkbox', 'debug', _("Run monitoring engine debug (-v)"), null, ['id' => 'ndebug']);
-$form->addElement('checkbox', 'gen', _("Generate Configuration Files"), null, ['id' => 'ngen']);
-$form->addElement('checkbox', 'move', _("Move Export Files"), null, ['id' => 'nmove']);
-$form->addElement('checkbox', 'restart', _("Restart Monitoring Engine"), null, ['id' => 'nrestart']);
+$form->addElement('checkbox', 'debug', _('Run monitoring engine debug (-v)'), null, ['id' => 'ndebug']);
+$form->addElement('checkbox', 'gen', _('Generate Configuration Files'), null, ['id' => 'ngen']);
+$form->addElement('checkbox', 'move', _('Move Export Files'), null, ['id' => 'nmove']);
+$form->addElement('checkbox', 'restart', _('Restart Monitoring Engine'), null, ['id' => 'nrestart']);
 $form->addElement('checkbox', 'postcmd', _('Post generation command'), null, ['id' => 'npostcmd']);
 $form->addElement(
     'select',
     'restart_mode',
-    _("Method"),
-    [2 => _("Restart"), 1 => _("Reload")],
+    _('Method'),
+    [2 => _('Restart'), 1 => _('Reload')],
     ['id' => 'nrestart_mode', 'style' => 'width: 220px;']
 );
 $form->setDefaults(['debug' => '1', 'gen' => '1', 'restart_mode' => '1']);
 
-/* Add multiselect for pollers */
+// Add multiselect for pollers
 $route = './include/common/webServices/rest/internal.php?object=centreon_configuration_poller&action=list';
 $attrPoller = ['datasourceOrigin' => 'ajax', 'allowClear' => true, 'availableDatasetRoute' => $route, 'multiple' => true];
-$form->addElement('select2', 'nhost', _("Pollers"), ["class" => "required"], $attrPoller);
-$form->addRule('nhost', _("You need to select a least one polling instance."), 'required', null, 'client');
+$form->addElement('select2', 'nhost', _('Pollers'), ['class' => 'required'], $attrPoller);
+$form->addRule('nhost', _('You need to select a least one polling instance.'), 'required', null, 'client');
 
 $redirect = $form->addElement('hidden', 'o');
 $redirect->setValue($o);
@@ -92,33 +89,31 @@ $tpl = SmartyBC::createSmartyTemplate($path);
 $sub = $form->addElement(
     'button',
     'submit',
-    _("Export"),
+    _('Export'),
     ['id' => 'exportBtn', 'onClick' => 'generationProcess();', 'class' => 'btc bt_success']
 );
 $msg = null;
 $stdout = null;
 
-$tpl->assign("noPollerSelectedLabel", _("Compulsory Poller"));
-$tpl->assign("consoleLabel", _("Console"));
-$tpl->assign("progressLabel", _("Progress"));
+$tpl->assign('noPollerSelectedLabel', _('Compulsory Poller'));
+$tpl->assign('consoleLabel', _('Console'));
+$tpl->assign('progressLabel', _('Progress'));
 $tpl->assign(
-    "helpattr",
-    'TITLE, "' . _("Help") . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, ' .
-    '"orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], ' .
-    'WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
+    'helpattr',
+    'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, '
+    . '"orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], '
+    . 'WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
 );
 
-include_once("help.php");
+include_once 'help.php';
 
-$helptext = "";
+$helptext = '';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 
-/*
- * Apply a template definition
- */
+// Apply a template definition
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font>');
 $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
@@ -126,7 +121,7 @@ $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 $tpl->assign('o', $o);
 
-$tpl->display("formGenerateFiles.ihtml");
+$tpl->display('formGenerateFiles.ihtml');
 
 ?>
 <script type='text/javascript'>
@@ -144,20 +139,20 @@ $tpl->display("formGenerateFiles.ihtml");
     var postcmdOption;
 
     var tooltip = new CentreonToolTip();
-    var svg = "<?php displaySvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18); ?>"
+    var svg = "<?php displaySvg('www/img/icons/question.svg', 'var(--help-tool-tip-icon-fill-color)', 18, 18); ?>"
     tooltip.setSource(svg);
     var session_id = "<?php echo session_id(); ?>";
     tooltip.render();
     var msgTab = new Array();
 
-    msgTab['start'] = "<?php echo addslashes(_("Preparing environment")); ?>";
-    msgTab['gen'] = "<?php echo addslashes(_("Generating files")); ?>";
-    msgTab['debug'] = "<?php echo addslashes(_("Running debug mode")); ?>";
-    msgTab['move'] = "<?php echo addslashes(_("Moving files")); ?>";
-    msgTab['restart'] = "<?php echo addslashes(_("Restarting engine")); ?>";
-    msgTab['abort'] = "<?php echo addslashes(_("Aborted.")); ?>";
-    msgTab['noPoller'] = "<?php echo addslashes(_("No poller selected")); ?>";
-    msgTab['postcmd'] = "<?php echo addslashes(_("Executing command")); ?>";
+    msgTab['start'] = "<?php echo addslashes(_('Preparing environment')); ?>";
+    msgTab['gen'] = "<?php echo addslashes(_('Generating files')); ?>";
+    msgTab['debug'] = "<?php echo addslashes(_('Running debug mode')); ?>";
+    msgTab['move'] = "<?php echo addslashes(_('Moving files')); ?>";
+    msgTab['restart'] = "<?php echo addslashes(_('Restarting engine')); ?>";
+    msgTab['abort'] = "<?php echo addslashes(_('Aborted.')); ?>";
+    msgTab['noPoller'] = "<?php echo addslashes(_('No poller selected')); ?>";
+    msgTab['postcmd'] = "<?php echo addslashes(_('Executing command')); ?>";
 
     jQuery(function () {
 

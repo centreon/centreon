@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,24 +29,22 @@ use Core\Domain\Common\GeoCoords;
 use Core\HostGroup\Domain\Model\NewHostGroup;
 
 beforeEach(function (): void {
-    $this->createHostGroup = static function (array $fields = []): NewHostGroup {
-        return new NewHostGroup(
-            ...[
-                'name' => 'host-name',
-                'alias' => 'host-alias',
-                'notes' => '',
-                'notesUrl' => '',
-                'actionUrl' => '',
-                'iconId' => 2,
-                'iconMapId' => null,
-                'rrdRetention' => null,
-                'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
-                'comment' => '',
-                'isActivated' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createHostGroup = static fn (array $fields = []): NewHostGroup => new NewHostGroup(
+        ...[
+            'name' => 'host-name',
+            'alias' => 'host-alias',
+            'notes' => '',
+            'notesUrl' => '',
+            'actionUrl' => '',
+            'iconId' => 2,
+            'iconMapId' => null,
+            'rrdRetention' => null,
+            'geoCoords' => GeoCoords::fromString('-90.0,180.0'),
+            'comment' => '',
+            'isActivated' => true,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set host group instance', function (): void {
@@ -62,7 +60,7 @@ it('should return properly set host group instance', function (): void {
 
 it(
     'should throw an exception when host group name is an empty string',
-    fn() => ($this->createHostGroup)(['name' => ''])
+    fn () => ($this->createHostGroup)(['name' => ''])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::minLength('', 0, NewHostGroup::MIN_NAME_LENGTH, 'NewHostGroup::name')->getMessage()
@@ -110,7 +108,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when host group {$field} is too long",
-        fn() => ($this->createHostGroup)([$field => $tooLong])
+        fn () => ($this->createHostGroup)([$field => $tooLong])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "NewHostGroup::{$field}")->getMessage()
@@ -122,7 +120,7 @@ foreach (
 foreach (['iconId', 'iconMapId'] as $field) {
     it(
         "should throw an exception when host group {$field} is an empty integer",
-        fn() => ($this->createHostGroup)([$field => 0])
+        fn () => ($this->createHostGroup)([$field => 0])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::positiveInt(0, "NewHostGroup::{$field}")->getMessage()
@@ -134,7 +132,7 @@ foreach (['iconId', 'iconMapId'] as $field) {
 foreach (['iconId', 'iconMapId'] as $field) {
     it(
         "should throw an exception when host group {$field} is a negative integer",
-        fn() => ($this->createHostGroup)([$field => -1])
+        fn () => ($this->createHostGroup)([$field => -1])
     )->throws(
         InvalidArgumentException::class,
         AssertionException::positiveInt(-1, "NewHostGroup::{$field}")->getMessage()

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
         private readonly ContactInterface $contact,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -73,7 +73,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             }
 
             $this->writeHostTemplateRepository->delete($hostTemplateId);
-            
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
@@ -99,7 +99,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             if ($hostTemplateId === 0) {
                 throw new RepositoryException('Host template ID cannot be 0');
             }
-            
+
             $actionLog = new ActionLog(
                 ActionLog::OBJECT_TYPE_HOST_TEMPLATE,
                 $hostTemplateId,
@@ -107,7 +107,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
                 ActionLog::ACTION_TYPE_ADD,
                 $this->contact->getId()
             );
-            
+
             $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
             $actionLog->setId($actionLogId);
 
@@ -194,7 +194,7 @@ class DbWriteHostTemplateActionLogRepository extends AbstractRepositoryRDB imple
             if ($value instanceof YesNoDefault) {
                 $value = YesNoDefaultConverter::toString($value);
             }
-            
+
             if ($value instanceof SnmpVersion) {
                 $value = $value->value;
             }

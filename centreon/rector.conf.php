@@ -66,7 +66,6 @@ return [
             'src/Adaptation/',
             'src/App/',
             'tests/php/Adaptation/',
-            'tests/php/App/',
             // files
             '.env.local.php',
             '.php-cs-fixer.conf.php',

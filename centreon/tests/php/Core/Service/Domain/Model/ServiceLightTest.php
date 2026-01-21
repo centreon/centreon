@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,25 +32,23 @@ use Core\Service\Domain\Model\ServiceLight;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 beforeEach(function (): void {
-    $this->createService = static function (array $fields = []): ServiceLight {
-        return new ServiceLight(
-            ...[
-                'id' => 1,
-                'name' => new TrimmedString('service-name'),
-                'hostIds' => [3],
-                'categoryIds' => [],
-                'groups' => [new ServiceGroupRelation(2, 1, 3)],
-                'serviceTemplate' => new SimpleEntity(1, new TrimmedString('serviceTemplate-name'), 'ServiceLigth::serviceTemplate'),
-                'notificationTimePeriod' => new SimpleEntity(1, new TrimmedString('notificationTimePeriod-name'), 'ServiceLigth::notificationTimePeriod'),
-                'checkTimePeriod' => new SimpleEntity(1, new TrimmedString('checkTimePeriod-name'), 'ServiceLigth::checkTimePeriod'),
-                'severity' => new SimpleEntity(1, new TrimmedString('severity-name'), 'ServiceLigth::severity'),
-                'normalCheckInterval' => 5,
-                'retryCheckInterval' => 1,
-                'isActivated' => true,
-                ...$fields,
-            ]
-        );
-    };
+    $this->createService = static fn (array $fields = []): ServiceLight => new ServiceLight(
+        ...[
+            'id' => 1,
+            'name' => new TrimmedString('service-name'),
+            'hostIds' => [3],
+            'categoryIds' => [],
+            'groups' => [new ServiceGroupRelation(2, 1, 3)],
+            'serviceTemplate' => new SimpleEntity(1, new TrimmedString('serviceTemplate-name'), 'ServiceLigth::serviceTemplate'),
+            'notificationTimePeriod' => new SimpleEntity(1, new TrimmedString('notificationTimePeriod-name'), 'ServiceLigth::notificationTimePeriod'),
+            'checkTimePeriod' => new SimpleEntity(1, new TrimmedString('checkTimePeriod-name'), 'ServiceLigth::checkTimePeriod'),
+            'severity' => new SimpleEntity(1, new TrimmedString('severity-name'), 'ServiceLigth::severity'),
+            'normalCheckInterval' => 5,
+            'retryCheckInterval' => 1,
+            'isActivated' => true,
+            ...$fields,
+        ]
+    );
 });
 
 it('should return properly set service instance (all properties)', function (): void {
@@ -90,7 +88,7 @@ it('should return properly set host instance (mandatory properties only)', funct
 // mandatory fields
 it(
     'should throw an exception when service name is an empty string',
-    fn() => ($this->createService)(['name' => new TrimmedString('  ')])
+    fn () => ($this->createService)(['name' => new TrimmedString('  ')])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::notEmptyString('ServiceLight::name')->getMessage()
@@ -100,7 +98,7 @@ it(
 $tooLong = str_repeat('a', NewService::MAX_NAME_LENGTH + 1);
 it(
     'should throw an exception when service name is too long',
-    fn() => ($this->createService)(['name' => new TrimmedString($tooLong)])
+    fn () => ($this->createService)(['name' => new TrimmedString($tooLong)])
 )->throws(
     InvalidArgumentException::class,
     AssertionException::maxLength(

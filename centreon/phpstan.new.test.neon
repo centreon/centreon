@@ -7,4 +7,3 @@ parameters:
 
     paths:
         #- tests/php/Adaptation // TODO adaptation tests are not ready yet, to fix later to move it here (core:test)
-        - tests/php/App

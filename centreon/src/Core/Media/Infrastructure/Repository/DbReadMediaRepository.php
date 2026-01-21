@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Repository;
 
@@ -148,59 +148,58 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             ? (int) $total
             : 0;
 
-         return new class(
-             $statement,
-             $index,
-             $totalItems,
-             self::MAX_ITEMS_BY_REQUEST,
-             $this->createMedia(...),
-             $this->logger
-         ) implements \IteratorAggregate, \Countable
-         {
-             /** @var list<Media> */
-             private array $findAllCache = [];
+        return new class (
+            $statement,
+            $index,
+            $totalItems,
+            self::MAX_ITEMS_BY_REQUEST,
+            $this->createMedia(...),
+            $this->logger
+        ) implements \IteratorAggregate, \Countable {
+            /** @var list<Media> */
+            private array $findAllCache = [];
 
-             public function __construct(
-                 private readonly \PDOStatement $statement,
-                 private int &$index,
-                 private readonly int $totalItem,
-                 private readonly int $maxItemByRequest,
-                 private readonly \Closure $factory,
-                 private readonly LoggerInterface $logger,
+            public function __construct(
+                private readonly \PDOStatement $statement,
+                private int &$index,
+                private readonly int $totalItem,
+                private readonly int $maxItemByRequest,
+                private readonly \Closure $factory,
+                private readonly LoggerInterface $logger,
             ) {
             }
 
-             public function getIterator(): Traversable
-             {
-                 if ($this->findAllCache !== []) {
-                     foreach ($this->findAllCache as $media) {
-                         yield $media;
-                     }
-                 } else {
-                     $itemCounter = 0;
-                     do {
-                         $this->logger->debug(
-                             sprintf('Loading media from %d/%d', $this->index, $this->maxItemByRequest)
-                         );
-                         foreach ($this->statement as $result) {
-                             $itemCounter++;
+            public function getIterator(): Traversable
+            {
+                if ($this->findAllCache !== []) {
+                    foreach ($this->findAllCache as $media) {
+                        yield $media;
+                    }
+                } else {
+                    $itemCounter = 0;
+                    do {
+                        $this->logger->debug(
+                            sprintf('Loading media from %d/%d', $this->index, $this->maxItemByRequest)
+                        );
+                        foreach ($this->statement as $result) {
+                            $itemCounter++;
 
-                             $this->findAllCache[] = ($this->factory)($result);
-                         }
-                         $this->index += $this->maxItemByRequest;
-                         $this->statement->execute();
-                     } while ($itemCounter < $this->totalItem);
-                     foreach ($this->findAllCache as $media) {
-                         yield $media;
-                     }
-                 }
-             }
+                            $this->findAllCache[] = ($this->factory)($result);
+                        }
+                        $this->index += $this->maxItemByRequest;
+                        $this->statement->execute();
+                    } while ($itemCounter < $this->totalItem);
+                    foreach ($this->findAllCache as $media) {
+                        yield $media;
+                    }
+                }
+            }
 
-             public function count(): int
-             {
-                 return $this->totalItem;
-             }
-         };
+            public function count(): int
+            {
+                return $this->totalItem;
+            }
+        };
     }
 
     /**
@@ -251,7 +250,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             $sqlTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
-        return new class($statement, $this->createMedia(...)) implements \IteratorAggregate {
+        return new class ($statement, $this->createMedia(...)) implements \IteratorAggregate {
             public function __construct(
                 readonly private \PDOStatement $statement,
                 readonly private \Closure $factory,

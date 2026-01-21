@@ -401,12 +401,6 @@ parameters:
 			path: src/Core/HostGroup/Infrastructure/Repository/ApiReadHostGroupRepository.php
 
 		-
-			message: '#^Parameter \#1 \$accessGroups of method Core\\HostGroup\\Infrastructure\\Repository\\DbReadHostGroupRepository\:\:accessGroupsToIds\(\) expects list\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>, non\-empty\-array\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\> given\.$#'
-			identifier: argument.type
-			count: 5
-			path: src/Core/HostGroup/Infrastructure/Repository/DbReadHostGroupRepository.php
-
-		-
 			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, array\<int\> given\.$#'
 			identifier: argument.type
 			count: 2
@@ -525,11 +519,6 @@ parameters:
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
 			count: 1
 			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteHostRepository.php
-
-		-
-			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
-			count: 1
-			path: src/Core/ResourceAccess/Infrastructure/Repository/Dataset/DbWriteImageFolderRepository.php
 
 		-
 			message: '#^\[CENTREON\-RULE\]\: \(RepositoryNameValidationByInterfaceCustomRule\) Repository name should match the implemented Interface name with exception of data storage prefix and ''Interface'' mention\.$#'
@@ -1019,3 +1008,93 @@ parameters:
 			identifier: throws.unusedType
 			count: 1
 			path: src/Core/User/Domain/Model/User.php
+
+		-
+			message: '#^Property Core\\Command\\Infrastructure\\Command\\MigrateAllCommands\\MigrateAllCommandsCommand\:\:\$defaultDescription has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
+
+		-
+			message: '#^Property Core\\Command\\Infrastructure\\Command\\MigrateAllCommands\\MigrateAllCommandsCommand\:\:\$defaultName has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Core/Command/Infrastructure/Command/MigrateAllCommands/MigrateAllCommandsCommand.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\Serializer\\DashboardResponseDtoNormalizer\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Serializer/DashboardResponseDtoNormalizer.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\Serializer\\DashboardResponseDtoNormalizer\:\:normalize\(\) never returns float so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Serializer/DashboardResponseDtoNormalizer.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\Serializer\\DashboardResponseDtoNormalizer\:\:normalize\(\) never returns int so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Serializer/DashboardResponseDtoNormalizer.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\Serializer\\DashboardResponseDtoNormalizer\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Serializer/DashboardResponseDtoNormalizer.php
+
+		-
+			message: '#^Method Core\\Dashboard\\Infrastructure\\Serializer\\DashboardResponseDtoNormalizer\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Dashboard/Infrastructure/Serializer/DashboardResponseDtoNormalizer.php
+
+		-
+			message: '#^Property Core\\Media\\Infrastructure\\API\\AddMedia\\AddMediaValidator\:\:\$allProperties \(array\<string, mixed\>\) does not accept array\<int\<0, max\>, \(int\|string\)\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Core/Media/Infrastructure/API/AddMedia/AddMediaValidator.php
+
+		-
+			message: '#^Property Core\\Media\\Infrastructure\\Command\\MigrateAllMedias\\MigrateAllMediasCommand\:\:\$defaultDescription has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Core/Media/Infrastructure/Command/MigrateAllMedias/MigrateAllMediasCommand.php
+
+		-
+			message: '#^Property Core\\Media\\Infrastructure\\Command\\MigrateAllMedias\\MigrateAllMediasCommand\:\:\$defaultName has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: src/Core/Media/Infrastructure/Command/MigrateAllMedias/MigrateAllMediasCommand.php
+
+		-
+			message: '#^Method IteratorAggregate@anonymous/centreon/src/Core/Media/Infrastructure/Repository/DbReadMediaRepository\.php\:151\:\:count\(\) should return int\<0, max\> but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Core/Media/Infrastructure/Repository/DbReadMediaRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository\.php\:417\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Core/Service/Infrastructure/Repository/DbReadRealTimeServiceRepository.php
+
+		-
+			message: '#^Parameter \#1 \$accessGroups of method Core\\HostGroup\\Infrastructure\\Repository\\DbReadHostGroupRepository\:\:accessGroupsToIds\(\) expects list\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\>, non\-empty\-array\<Core\\Security\\AccessGroup\\Domain\\Model\\AccessGroup\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Core/HostGroup/Infrastructure/Repository/DbReadHostGroupRepository.php

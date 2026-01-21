@@ -155,19 +155,22 @@
   },
   "scripts": {
     "require:check": "../php-tools/vendor/bin/composer-require-checker check composer.json",
-    "symfony:check": "php bin/console lint:yaml config src --parse-tags && php bin/console lint:container",
     "rector:diff": "php rector.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "rector:diff:fix": "php rector.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "rector:legacy": "../php-tools/vendor/bin/rector process --config=rector.legacy.php --dry-run",
     "rector:legacy:fix": "../php-tools/vendor/bin/rector process --config=rector.legacy.php",
     "rector:core": "../php-tools/vendor/bin/rector process --config=rector.core.php --dry-run",
     "rector:core:fix": "../php-tools/vendor/bin/rector process --config=rector.core.php",
+    "rector:new": "../php-tools/vendor/bin/rector process --config=rector.new.php --dry-run",
+    "rector:new:fix": "../php-tools/vendor/bin/rector process --config=rector.new.php",
     "cs:diff": "php .php-cs-fixer.diff.php --dry-run ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "cs:diff:fix": "php .php-cs-fixer.diff.php ${PHP_DIFF_FILES:-$(git diff --name-only -- '*.php')}",
     "cs:legacy": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --dry-run --diff",
     "cs:legacy:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.legacy.php --verbose --diff",
     "cs:core": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --dry-run --diff",
     "cs:core:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.core.php --verbose --diff",
+    "cs:new": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --dry-run --diff",
+    "cs:new:fix": "../php-tools/vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.new.php --verbose --diff",
     "stan:legacy:www": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:legacy:www:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.legacy.www.neon --memory-limit=1G",
     "stan:legacy:src": "../php-tools/vendor/bin/phpstan analyse -c phpstan.legacy.src.neon --memory-limit=1G",
@@ -181,31 +184,47 @@
     "stan:core:src": "../php-tools/vendor/bin/phpstan analyse -c phpstan.core.neon --memory-limit=1G",
     "stan:core:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.neon --memory-limit=1G",
     "stan:core:test": "../php-tools/vendor/bin/phpstan analyse -c phpstan.core.test.neon --memory-limit=1G",
+    "stan:core:test:baseline": "../php-tools/vendor/bin/phpstan analyse --generate-baseline -c phpstan.core.test.neon --memory-limit=1G",
     "stan:core": [
       "@stan:core:src",
       "@stan:core:test"
+    ],
+    "stan:new:src": "../php-tools/vendor/bin/phpstan analyse -c phpstan.new.neon --memory-limit=1G",
+    "stan:new:test": "../php-tools/vendor/bin/phpstan analyse -c phpstan.new.test.neon --memory-limit=1G",
+    "stan:new": [
+      "@stan:new:src",
+      "@stan:new:test"
+    ],
+    "dep:new": [
+      "../php-tools/vendor/bin/deptrac analyze --config-file deptrac_bc.yaml --cache-file .deptrac_bc.cache --fail-on-uncovered --report-uncovered",
+      "../php-tools/vendor/bin/deptrac analyze --config-file deptrac_hexa.yaml --cache-file .deptrac_hexa.cache --fail-on-uncovered --report-uncovered"
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",
     "rector": [
       "@rector:legacy",
-      "@rector:core"
+      "@rector:core",
+      "@rector:new"
     ],
     "rector:fix": [
       "@rector:legacy:fix",
-      "@rector:core:fix"
+      "@rector:core:fix",
+      "@rector:new:fix"
     ],
     "cs": [
       "@cs:legacy",
-      "@cs:core"
+      "@cs:core",
+      "@cs:new"
     ],
     "cs:fix": [
       "@cs:legacy:fix",
-      "@cs:core:fix"
+      "@cs:core:fix",
+      "@cs:new:fix"
     ],
     "stan": [
       "@stan:legacy",
-      "@stan:core"
+      "@stan:core",
+      "@stan:new"
     ],
     "legacy:check": [
       "@rector:legacy",
@@ -217,10 +236,17 @@
       "@cs:core",
       "@stan:core"
     ],
+    "new:check": [
+      "@rector:new",
+      "@cs:new",
+      "@stan:new"
+    ],
     "ci": [
       "@symfony:check",
       "@legacy:check",
       "@core:check",
+      "@new:check",
+      "@test:new",
       "@test"
     ]
   },

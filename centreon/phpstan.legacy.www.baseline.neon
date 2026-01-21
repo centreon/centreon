@@ -253,13 +253,6 @@ parameters:
 			path: www/include/configuration/configObject/connector/formConnectorFunction.php
 
 		-
-			message: '#^Unknown parameter \$isRemote in call to function updateContactInDB\.$#'
-			identifier: argument.unknown
-			reportUnmatched: false
-			count: 1
-			path: www/include/configuration/configObject/contact/formContact.php
-
-		-
 			message: '#^Undefined variable\: \$configuration$#'
 			identifier: variable.undefined
 			count: 1
@@ -278,12 +271,6 @@ parameters:
 			path: www/include/configuration/configObject/host_dependency/formHostDependency.php
 
 		-
-			message: '#^Deprecated in PHP 8\.0\: Required parameter \$basePath follows optional parameter \$isCloudPlatform\.$#'
-			identifier: parameter.requiredAfterOptional
-			count: 1
-			path: www/include/configuration/configObject/service/DB-Func.php
-
-		-
 			message: '#^Class CentreonUtils referenced with incorrect case\: centreonUtils\.$#'
 			identifier: class.nameCase
 			count: 3
@@ -294,12 +281,6 @@ parameters:
 			identifier: class.nameCase
 			count: 1
 			path: www/include/configuration/configObject/timeperiod/renderTimeperiod.php
-
-		-
-			message: '#^Deprecated in PHP 8\.0\: Required parameter \$submitedValues follows optional parameter \$resource_id\.$#'
-			identifier: parameter.requiredAfterOptional
-			count: 1
-			path: www/include/configuration/configResources/DB-Func.php
 
 		-
 			message: '#^Class CentreonACL referenced with incorrect case\: CentreonAcl\.$#'
@@ -408,3 +389,45 @@ parameters:
 			identifier: class.notFound
 			count: 1
 			path: www/include/reporting/dashboard/imagesGenerations/pie-charts.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$isCloudPlatform follows optional parameter \$hostGroupId\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$isCloudPlatform follows optional parameter \$submittedValues\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Result of function updateHostGroupInDBForCloud \(void\) is used\.$#'
+			identifier: function.void
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Result of function updateHostGroupInDBForOnPrem \(void\) is used\.$#'
+			identifier: function.void
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Function updateAclResourcesMetaRelations not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/include/configuration/configObject/meta_service/DB-Func.php
+
+		-
+			message: '#^Missing parameter \$hostGroupId \(int\) in call to function createNewDatasetFilter\.$#'
+			identifier: argument.missing
+			count: 1
+			path: www/include/configuration/configObject/servicegroup/DB-Func.php
+
+		-
+			message: '#^Unknown parameter \$serviceGroupId in call to function createNewDatasetFilter\.$#'
+			identifier: argument.unknown
+			count: 1
+			path: www/include/configuration/configObject/servicegroup/DB-Func.php

@@ -36,68 +36,66 @@
  *
  */
 
-if (!isset($oreon)) {
+if (! isset($oreon)) {
     exit();
 }
 
-include("./include/common/autoNumLimit.php");
+include './include/common/autoNumLimit.php';
 
-$sort_types = !isset($_GET["sort_types"]) ? 0 : $_GET["sort_types"];
-$order = !isset($_GET["order"]) ? 'ASC' : $_GET["order"];
-$num = !isset($_GET["num"]) ? 0 : $_GET["num"];
-$search_type_host = !isset($_GET["search_type_host"]) ? 1 : $_GET["search_type_host"];
-$search_type_service = !isset($_GET["search_type_service"]) ? 1 : $_GET["search_type_service"];
-$sort_type = !isset($_GET["sort_type"]) ? "host_name" : $_GET["sort_type"];
-$host_search = !isset($_GET["host_search"]) ? 0 : $_GET["host_search"];
-$sg_search = !isset($_GET["sg_search"]) ? 0 : $_GET["sg_search"];
+$sort_types = ! isset($_GET['sort_types']) ? 0 : $_GET['sort_types'];
+$order = ! isset($_GET['order']) ? 'ASC' : $_GET['order'];
+$num = ! isset($_GET['num']) ? 0 : $_GET['num'];
+$search_type_host = ! isset($_GET['search_type_host']) ? 1 : $_GET['search_type_host'];
+$search_type_service = ! isset($_GET['search_type_service']) ? 1 : $_GET['search_type_service'];
+$sort_type = ! isset($_GET['sort_type']) ? 'host_name' : $_GET['sort_type'];
+$host_search = ! isset($_GET['host_search']) ? 0 : $_GET['host_search'];
+$sg_search = ! isset($_GET['sg_search']) ? 0 : $_GET['sg_search'];
 
-/*
- * Check search value in Host search field
- */
-if (isset($_GET["host_search"])) {
-    $centreon->historySearch[$url] = $_GET["host_search"];
+// Check search value in Host search field
+if (isset($_GET['host_search'])) {
+    $centreon->historySearch[$url] = $_GET['host_search'];
 }
 if (isset($_SESSION['monitoring_service_groups'])) {
     $sg_search = $_SESSION['monitoring_service_groups'];
 }
 
-$aTypeAffichageLevel1 = ["svcOVSG" => _("Details"), "svcSumSG" => _("Summary")];
+$aTypeAffichageLevel1 = ['svcOVSG' => _('Details'), 'svcSumSG' => _('Summary')];
 
-$aTypeAffichageLevel2 = ["" => _("All"), "pb" => _("Problems"), "ack_1" => _("Acknowledge"), "ack_0" => _("Not Acknowledged")];
+$aTypeAffichageLevel2 = ['' => _('All'), 'pb' => _('Problems'), 'ack_1' => _('Acknowledge'), 'ack_0' => _('Not Acknowledged')];
 
-$tab_class = ["0" => "list_one", "1" => "list_two"];
+$tab_class = ['0' => 'list_one', '1' => 'list_two'];
 $rows = 10;
 
-include_once($sg_path . "/serviceGridBySGJS.php");
+include_once $sg_path . '/serviceGridBySGJS.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($sg_path, '/templates/');
 
-$tpl->assign("p", $p);
+$tpl->assign('p', $p);
 $tpl->assign('o', $o);
-$tpl->assign("sort_types", $sort_types);
-$tpl->assign("typeDisplay", _("Display"));
-$tpl->assign("typeDisplay2", _("Display details"));
-$tpl->assign("num", $num);
-$tpl->assign("limit", $limit);
-$tpl->assign("mon_host", _("Hosts"));
-$tpl->assign("mon_status", _("Status"));
-$tpl->assign("mon_ip", _("IP"));
-$tpl->assign("mon_last_check", _("Last Check"));
-$tpl->assign("mon_duration", _("Duration"));
+$tpl->assign('sort_types', $sort_types);
+$tpl->assign('typeDisplay', _('Display'));
+$tpl->assign('typeDisplay2', _('Display details'));
+$tpl->assign('num', $num);
+$tpl->assign('limit', $limit);
+$tpl->assign('mon_host', _('Hosts'));
+$tpl->assign('mon_status', _('Status'));
+$tpl->assign('mon_ip', _('IP'));
+$tpl->assign('mon_last_check', _('Last Check'));
+$tpl->assign('mon_duration', _('Duration'));
 $tpl->assign('search', _('Host'));
 $tpl->assign('sgStr', _('Servicegroup'));
 $tpl->assign('pollerStr', _('Poller'));
 $tpl->assign('poller_listing', $oreon->user->access->checkAction('poller_listing'));
-$tpl->assign("mon_status_information", _("Status information"));
+$tpl->assign('mon_status_information', _('Status information'));
 
-# Get servicegroups list
+// Get servicegroups list
 $sgSearchSelect = '<select id="sg_search" name="sg_search"><option value=""></option>';
 $servicegroups = [];
-if (!$oreon->user->access->admin) {
+if (! $oreon->user->access->admin) {
     $servicegroups = $oreon->user->access->getServiceGroups();
 } else {
-    $query = "SELECT DISTINCT sg.sg_name FROM servicegroup sg";
+    $query = 'SELECT DISTINCT sg.sg_name FROM servicegroup sg';
     $DBRESULT = $pearDB->query($query);
     while ($row = $DBRESULT->fetchRow()) {
         $servicegroups[] = $row['sg_name'];
@@ -112,18 +110,17 @@ foreach ($servicegroups as $servicegroup_name) {
     }
 }
 $sgSearchSelect .= '</select>';
-$tpl->assign("sgSearchSelect", $sgSearchSelect);
+$tpl->assign('sgSearchSelect', $sgSearchSelect);
 
+$form = new HTML_QuickFormCustom('select_form', 'GET', '?p=' . $p);
+$tpl->assign('order', strtolower($order));
+$tab_order = ['sort_asc' => 'sort_desc', 'sort_desc' => 'sort_asc'];
+$tpl->assign('tab_order', $tab_order);
 
-$form = new HTML_QuickFormCustom('select_form', 'GET', "?p=" . $p);
-$tpl->assign("order", strtolower($order));
-$tab_order = ["sort_asc" => "sort_desc", "sort_desc" => "sort_asc"];
-$tpl->assign("tab_order", $tab_order);
-
-##Toolbar select $lang["lgd_more_actions"]
+// #Toolbar select $lang["lgd_more_actions"]
 ?>
 <script type="text/javascript">
-    _tm = <?php echo $tM ?>;
+    _tm = <?php echo $tM; ?>;
 
     function setO(_i) {
         document.forms['form'].elements['cmd'].value = _i;
@@ -164,14 +161,14 @@ $form->addElement(
     'typeDisplay',
     _('Display'),
     $aTypeAffichageLevel1,
-    ['id' => 'typeDisplay', 'onChange' => "displayingLevel1(this.value);"]
+    ['id' => 'typeDisplay', 'onChange' => 'displayingLevel1(this.value);']
 );
 $form->addElement(
     'select',
     'typeDisplay2',
     _('Display '),
     $aTypeAffichageLevel2,
-    ['id' => 'typeDisplay2', 'onChange' => "displayingLevel2(this.value);"]
+    ['id' => 'typeDisplay2', 'onChange' => 'displayingLevel2(this.value);']
 );
 
 $form->setDefaults(['typeDisplay2' => 'pb']);
@@ -182,5 +179,5 @@ $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("serviceGrid.ihtml");
+$tpl->display('serviceGrid.ihtml');
 ?>

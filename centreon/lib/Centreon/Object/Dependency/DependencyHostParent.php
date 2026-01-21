@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@
  *
  */
 
-require_once "Centreon/Object/Object.php";
+require_once 'Centreon/Object/Object.php';
 
 /**
  * Class
@@ -30,15 +30,16 @@ require_once "Centreon/Object/Object.php";
 class Centreon_Object_DependencyHostParent extends Centreon_Object
 {
     /** @var string */
-    protected $table = "dependency_hostParent_relation";
+    protected $table = 'dependency_hostParent_relation';
+
     /** @var string */
-    protected $primaryKey = "dependency_dep_id";
+    protected $primaryKey = 'dependency_dep_id';
 
     /**
      * @param int $hostId
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     public function removeRelationLastHostDependency(int $hostId): void
     {
@@ -47,11 +48,11 @@ class Centreon_Object_DependencyHostParent extends Centreon_Object
               WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_hostParent_relation
                                          WHERE host_host_id = ?)
               GROUP BY dependency_dep_id';
-        $result = $this->getResult($query, [$hostId], "fetch");
+        $result = $this->getResult($query, [$hostId], 'fetch');
 
-        //is last parent
+        // is last parent
         if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-            $this->db->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
+            $this->db->query('DELETE FROM dependency WHERE dep_id = ' . $result['id']);
         }
     }
 }

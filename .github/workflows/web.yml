@@ -576,10 +576,6 @@ jobs:
         working-directory: centreon
         shell: bash
 
-      - name: ⚙️ Check Symfony configuration (legacy and new)
-        run: composer symfony:check && composer symfony:new:check
-        working-directory: centreon
-
       - name: Get changed PHP files
         id: changed-php
         uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5

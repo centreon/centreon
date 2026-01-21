@@ -55,7 +55,7 @@ final class ValidMonitoringServerDto
             pattern: MonitoringServer::VALID_COMMAND_RELOAD_REGEX,
             message: 'Invalid command format.'
         )]
-        public ?string $brokerReloadCommand = null
+        public ?string $brokerReloadCommand = null,
     ) {
     }
 

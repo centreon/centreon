@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ final class ThirdPartyLoginForm
     private ?bool $isActive = null;
 
     public function __construct(
-        private readonly UrlGeneratorInterface $urlGenerator
+        private readonly UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -69,7 +69,7 @@ final class ThirdPartyLoginForm
     public function getReturnUrlBeforeAuth(Request $request): string
     {
         // Initiated by https://mobile.centreon.com
-        if ('1' === $request->query->get('mobile')) {
+        if ($request->query->get('mobile') === '1') {
             return (string) $request->headers->get('referer');
         }
 
@@ -82,7 +82,7 @@ final class ThirdPartyLoginForm
      */
     public function getReturnUrlAfterAuth(): string
     {
-        if ('' === $this->token || ! $this->isActive()) {
+        if ($this->token === '' || ! $this->isActive()) {
             return '';
         }
 
@@ -94,7 +94,7 @@ final class ThirdPartyLoginForm
      */
     public function isActive(): bool
     {
-        if (null !== $this->isActive) {
+        if ($this->isActive !== null) {
             return $this->isActive;
         }
 

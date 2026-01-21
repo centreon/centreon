@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function __construct(
         DatabaseConnection $db,
-        private array $subRequestsInformation = []
+        private array $subRequestsInformation = [],
     ) {
         $this->db = $db;
     }
@@ -67,7 +67,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $request = $this->buildQuery($requestParameters, $accessGroups);
         $statement = $this->db->prepare($this->translateDbName($request));
@@ -94,7 +94,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     public function findByRequestParametersAndAccessGroupsAndMetricName(
         RequestParametersInterface $requestParameters,
         array $accessGroups,
-        string $metricName
+        string $metricName,
     ): array {
         $request = $this->buildQuery($requestParameters, $accessGroups, true);
         $statement = $this->db->prepare($this->translateDbName($request));
@@ -430,7 +430,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
         }, []);
 
         if (! empty($subRequestForTags)) {
-            $subRequests = array_map(fn($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
+            $subRequests = array_map(fn ($subRequestForTag) => $subRequestForTag['request'], $subRequestForTags);
             $request .= ' INNER JOIN (';
             $request .= implode(' INTERSECT ', $subRequests);
             $request .= ') AS t ON t.resource_id = r.resource_id';
@@ -451,7 +451,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
     private function buildQuery(
         RequestParametersInterface $requestParameters,
         array $accessGroups = [],
-        bool $hasMetricName = false
+        bool $hasMetricName = false,
     ): string {
         $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlRequestTranslator->setConcordanceArray(['current_value' => 'm.current_value']);
@@ -467,11 +467,11 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
                 SQL_WRAP;
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
-        if ([] !== $accessGroups) {
+        if ($accessGroups !== []) {
             $request .= ' INNER JOIN `:dbstg`.`centreon_acl` acl
                 ON acl.service_id = r.id
                 AND r.type = 0
@@ -552,7 +552,7 @@ class DbReadDashboardPerformanceMetricRepository extends AbstractRepositoryDRB i
      */
     private function buildResourceMetrics(
         RequestParametersInterface $requestParameters,
-        \PDOStatement $statement
+        \PDOStatement $statement,
     ): array {
         $foundRecords = $this->db->query('SELECT FOUND_ROWS()');
         $resourceMetrics = [];

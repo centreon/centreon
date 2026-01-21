@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      */
     public function __construct(
         DatabaseConnection $db,
-        private ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository
+        private ReadOpenIdConfigurationRepositoryInterface $readOpenIdConfigurationRepository,
     ) {
         $this->db = $db;
     }
@@ -172,7 +172,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      * @return CustomConfigurationInterface
      */
     private function loadCustomConfigurationFromConfiguration(
-        Configuration $configuration
+        Configuration $configuration,
     ): CustomConfigurationInterface {
 
         switch ($configuration->getType()) {
@@ -180,7 +180,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
                 $jsonSchemaValidatorFile = __DIR__ . '/../Local/Repository/CustomConfigurationSchema.json';
                 $this->validateJsonRecord($configuration->getJsonCustomConfiguration(), $jsonSchemaValidatorFile);
                 $excludedUserAliases = array_map(
-                    fn($user) => $user['contact_alias'],
+                    fn ($user) => $user['contact_alias'],
                     $this->findExcludedUsers()
                 );
 
@@ -362,7 +362,7 @@ final class DbReadConfigurationRepository extends AbstractRepositoryDRB implemen
      * @return AuthenticationConditions
      */
     private function createAuthenticationConditionsFromRecord(
-        array $authenticationConditionsRecord
+        array $authenticationConditionsRecord,
     ): AuthenticationConditions {
 
         $endpoint = null;

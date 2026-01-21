@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ final class FindDashboardFactory
         DashboardSharingRoles $sharingRoles,
         array $contactShares,
         array $contactGroupShares,
-        DashboardSharingRole $defaultRole
+        DashboardSharingRole $defaultRole,
     ): FindDashboardResponse {
         $ownRole = $defaultRole->getTheMostPermissiveOfBoth($sharingRoles->getTheMostPermissiveRole());
         $response = new FindDashboardResponse();
@@ -83,7 +83,7 @@ final class FindDashboardFactory
                 'email' => $contactShare->getContactEmail(),
                 'role' => $contactShare->getRole(),
             ],
-            $contactShares[$dashboard->getId()]);
+                $contactShares[$dashboard->getId()]);
         }
 
         if ($ownRole === DashboardSharingRole::Editor && array_key_exists($dashboard->getId(), $contactGroupShares)) {

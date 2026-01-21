@@ -417,3 +417,501 @@ parameters:
 			identifier: varTag.nativeType
 			count: 1
 			path: src/Security/SessionAPIAuthenticator.php
+
+		-
+			message: '#^PHPDoc type array\<string\> of property Centreon\\Application\\Validation\\Constraints\\UniqueEntity\:\:\$errorNames is not covariant with PHPDoc type array\<string, string\> of overridden property Symfony\\Component\\Validator\\Constraint\:\:\$errorNames\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Centreon/Application/Validation/Constraints/UniqueEntity.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) i must contain 3 or more characters\.$#'
+			count: 4
+			path: src/Centreon/Domain/Service/I18nService.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB\.php\:226\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/HostConfiguration/Repository/HostGroupRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB\.php\:112\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/MetaServiceConfiguration/Repository/MetaServiceConfigurationRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:184\:\:normalize\(\) never returns bool so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:184\:\:normalize\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
+
+		-
+			message: '#^Method Centreon\\Infrastructure\\RequestParameters\\Interfaces\\NormalizerInterface@anonymous/centreon/src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB\.php\:184\:\:normalize\(\) never returns string so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Centreon/Infrastructure/Monitoring/Timeline/TimelineRepositoryRDB.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(int;\)\: Unexpected token ";", expected TOKEN_HORIZONTAL_WS at offset 12 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: src/Centreon/Infrastructure/MonitoringServer/API/Model/RealTimeMonitoringServer.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between int and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 6
+			path: src/Centreon/Infrastructure/PlatformTopology/Repository/Model/PlatformTopologyFactoryRDB.php
+
+		-
+			message: '#^Strict comparison using \!\=\= between int\|string and null will always evaluate to true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 4
+			path: src/Centreon/Infrastructure/PlatformTopology/Repository/Model/PlatformTopologyFactoryRDB.php
+
+		-
+			message: '#^Property class@anonymous/centreon/src/Centreon/Tests/Application/DataRepresenter/EntityTest\.php\:47\:\:\$prop3 is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: src/Centreon/Tests/Application/DataRepresenter/EntityTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''result'' and array\{status\: bool, result\: mixed\} will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/DataRepresenter/ResponseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertArrayHasKey\(\) with ''status'' and array\{status\: bool, result\: mixed\} will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/DataRepresenter/ResponseTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Symfony\\\\Component\\\\Validator\\\\ConstraintValidatorInterface'' and Symfony\\Component\\Validator\\ConstraintValidatorInterface will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Validation/CentreonValidatorFactoryTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with null will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Validation/Validator/UniqueEntityValidatorTest.php
+
+		-
+			message: '#^Property Centreon\\Application\\Validation\\Constraints\\UniqueEntity\:\:\$errorPath \(string\|null\) does not accept array\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Centreon/Tests/Application/Validation/Validator/UniqueEntityValidatorTest.php
+
+		-
+			message: '#^Property Centreon\\Application\\Validation\\Constraints\\UniqueEntity\:\:\$fields \(array\<mixed\>\) does not accept stdClass\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Centreon/Tests/Application/Validation/Validator/UniqueEntityValidatorTest.php
+
+		-
+			message: '#^Property Centreon\\Application\\Validation\\Constraints\\UniqueEntity\:\:\$fields \(array\<mixed\>\) does not accept string\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Centreon/Tests/Application/Validation/Validator/UniqueEntityValidatorTest.php
+
+		-
+			message: '#^Access to an undefined property Centreon\\Tests\\Application\\Webservice\\AclGroupWebserviceTest\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/AclGroupWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizeRestApiInterface'' and Centreon\\Application\\Webservice\\AclGroupWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/AclGroupWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizePublicInterface'' and Centreon\\Application\\Webservice\\CentreonFrontendComponent&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/CentreonFrontendComponentTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizePublicInterface'' and Centreon\\Application\\Webservice\\CentreonI18n&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/CentreonI18nTest.php
+
+		-
+			message: '#^Access to an undefined property Centreon\\Tests\\Application\\Webservice\\ContactGroupsWebserviceTest\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/ContactGroupsWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizeRestApiInterface'' and Centreon\\Application\\Webservice\\ContactGroupsWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/ContactGroupsWebserviceTest.php
+
+		-
+			message: '#^Access to an undefined property Centreon\\Tests\\Application\\Webservice\\ImagesWebserviceTest\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/ImagesWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizeRestApiInterface'' and Centreon\\Application\\Webservice\\ImagesWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/ImagesWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizePublicInterface'' and Centreon\\Application\\Webservice\\TopologyWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Application/Webservice/TopologyWebserviceTest.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Domain/Service/I18nTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Domain/Service/I18nTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Service\\\\CentreonClapiService'' and Centreon\\Infrastructure\\Service\\CentreonClapiService will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Infrastructure/Service/CentreonClapiServiceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Psr\\\\Container\\\\ContainerInterface'' and Centreon\\Infrastructure\\Service\\CentreonClapiService will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: src/Centreon/Tests/Infrastructure/Service/CentreonClapiServiceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\CentreonLegacyDB\\\\CentreonDBAdapter'' and Centreon\\Infrastructure\\CentreonLegacyDB\\CentreonDBAdapter will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 3
+			path: src/Centreon/Tests/Infrastructure/Service/CentreonDBManagerServiceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Service\\\\CentreonWebserviceService'' and Centreon\\Infrastructure\\Service\\CentreonWebserviceService will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/Centreon/Tests/Infrastructure/Service/CentreonWebserviceServiceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Psr\\\\Container\\\\ContainerInterface'' and Centreon\\Infrastructure\\Service\\CentreonWebserviceService will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 2
+			path: src/Centreon/Tests/Infrastructure/Service/CentreonWebserviceServiceTest.php
+
+		-
+			message: '#^Trait Centreon\\Tests\\Resources\\Dependency\\ValidatorDependencyTrait is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Centreon/Tests/Resources/Dependency/ValidatorDependencyTrait.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) di must contain 3 or more characters\.$#'
+			count: 1
+			path: src/Centreon/Tests/Resources/Mock/ClapiMock.php
+
+		-
+			message: '#^Trait Centreon\\Tests\\Resources\\Traits\\PaginationListTrait is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Centreon/Tests/Resources/Traits/PaginationListTrait.php
+
+		-
+			message: '#^Trait Centreon\\Tests\\Resources\\Traits\\ServiceProviderTrait is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Centreon/Tests/Resources/Traits/ServiceProviderTrait.php
+
+		-
+			message: '#^Access to an undefined property CentreonCommand\\Tests\\Application\\Webservice\\CommandWebserviceTest\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/CentreonCommand/Tests/Application/Webservice/CommandWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizeRestApiInterface'' and CentreonCommand\\Application\\Webservice\\CommandWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonCommand/Tests/Application/Webservice/CommandWebserviceTest.php
+
+		-
+			message: '#^Access to an undefined property CentreonModule\\Tests\\Application\\Webservice\\CentreonModuleWebserviceTest\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/CentreonModule/Tests/Application/Webservice/CentreonModuleWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizeRestApiInterface'' and CentreonModule\\Application\\Webservice\\CentreonModuleWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonModule/Tests/Application/Webservice/CentreonModuleWebserviceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Service\\CentreonModuleServiceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Service/CentreonModuleServiceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Service\\CentreonModuleServiceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Service/CentreonModuleServiceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Service\\CentreonModuleServiceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Service/CentreonModuleServiceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Service\\CentreonModuleServiceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 2
+			path: src/CentreonModule/Tests/Infrastructure/Service/CentreonModuleServiceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Service\\CentreonModuleServiceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Service/CentreonModuleServiceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Service\\CentreonModuleServiceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Service/CentreonModuleServiceTest.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<int, CentreonModule\\Infrastructure\\Entity\\Module\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''CentreonModule\\\\Infrastructure\\\\Entity\\\\Module'' and CentreonModule\\Infrastructure\\Entity\\Module will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\ModuleSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\ModuleSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\ModuleSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\ModuleSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 2
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\ModuleSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\ModuleSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fs must contain 3 or more characters\.$#'
+			count: 7
+			path: src/CentreonModule/Tests/Infrastructure/Source/ModuleSourceTest.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<int, CentreonModule\\Infrastructure\\Entity\\Module\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''CentreonModule\\\\Infrastructure\\\\Entity\\\\Module'' and CentreonModule\\Infrastructure\\Entity\\Module will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\WidgetSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\WidgetSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\WidgetSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\WidgetSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 2
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\WidgetSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\Infrastructure\\Source\\WidgetSourceTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fs must contain 3 or more characters\.$#'
+			count: 7
+			path: src/CentreonModule/Tests/Infrastructure/Source/WidgetSourceTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\ServiceProviderTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/ServiceProviderTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\ServiceProviderTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/ServiceProviderTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\ServiceProviderTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/ServiceProviderTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\ServiceProviderTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 2
+			path: src/CentreonModule/Tests/ServiceProviderTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\ServiceProviderTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$widgetDirectory\)\: \(CentreonLegacy\\Core\\Widget\\Remover&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/ServiceProviderTest.php
+
+		-
+			message: '#^Parameter &\$container by\-ref type of method CentreonModule\\Tests\\ServiceProviderTest\:\:setUpSourceDependency\(\) expects array\<''centreon\.legacy…''\>, non\-empty\-array\<''centreon\.legacy…''\|\(CentreonLegacy\\Core\\Module\\License&PHPUnit\\Framework\\MockObject\\MockObject\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName\)\: \(CentreonLegacy\\Core\\Module\\Installer&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\|\(Closure\(Pimple\\Container\)\: \(Closure\(mixed \$moduleName, mixed \$moduleId\)\: \(CentreonLegacy\\Core\\Module\\Upgrader&PHPUnit\\Framework\\MockObject\\MockObject\)\)\)\> given\.$#'
+			identifier: parameterByRef.type
+			count: 1
+			path: src/CentreonModule/Tests/ServiceProviderTest.php
+
+		-
+			message: '#^Property CentreonModule\\Tests\\ServiceProviderTest\:\:\$container \(Pimple\\Container\) does not accept array\<string\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/CentreonModule/Tests/ServiceProviderTest.php
+
+		-
+			message: '#^Access to an undefined property CentreonNotification\\Tests\\Application\\Webservice\\EscalationWebserviceTest\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/CentreonNotification/Tests/Application/Webservice/EscalationWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizeRestApiInterface'' and CentreonNotification\\Application\\Webservice\\EscalationWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonNotification/Tests/Application/Webservice/EscalationWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''CentreonRemote\\\\Infrastructure\\\\Export\\\\ExportParserInterface'' and CentreonRemote\\Infrastructure\\Export\\ExportParserInterface will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonRemote/Tests/Infrastructure/Export/ExportCommitmentTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with array\<mixed\> will always evaluate to false\.$#'
+			identifier: method.impossibleType
+			count: 1
+			path: src/CentreonRemote/Tests/Infrastructure/Export/ExportManifestTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fs must contain 3 or more characters\.$#'
+			count: 10
+			path: src/CentreonRemote/Tests/Infrastructure/Export/ExportParserJsonTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fs must contain 3 or more characters\.$#'
+			count: 5
+			path: src/CentreonRemote/Tests/Infrastructure/Service/ExportServiceTest.php
+
+		-
+			message: '#^Trait CentreonRemote\\Tests\\Resources\\Traits\\ExporterTrait is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/CentreonRemote/Tests/Resources/Traits/ExporterTrait.php
+
+		-
+			message: '#^Access to an undefined property CentreonUser\\Tests\\Application\\Webservice\\TimeperiodWebserviceTest\:\:\$db\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/CentreonUser/Tests/Application/Webservice/TimeperiodWebserviceTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertInstanceOf\(\) with ''Centreon\\\\Infrastructure\\\\Webservice\\\\WebserviceAutorizeRestApiInterface'' and CentreonUser\\Application\\Webservice\\TimeperiodWebservice&PHPUnit\\Framework\\MockObject\\MockObject will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: src/CentreonUser/Tests/Application/Webservice/TimeperiodWebserviceTest.php

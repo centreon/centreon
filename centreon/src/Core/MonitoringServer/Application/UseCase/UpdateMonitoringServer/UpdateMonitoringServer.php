@@ -30,7 +30,7 @@ final class UpdateMonitoringServer
 {
     public function __construct(
         private WriteMonitoringServerRepositoryInterface $writeRepository,
-        private ReadMonitoringServerRepositoryInterface $readRepository
+        private ReadMonitoringServerRepositoryInterface $readRepository,
     ) {
     }
 

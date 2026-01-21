@@ -1,36 +1,21 @@
 <?php
+
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  *
  */
 
@@ -41,7 +26,6 @@
  */
 class CentreonMainCfg
 {
-
     // List of broker options Centreon Engine
     // (https://documentation.centreon.com/docs/centreon-engine/en/latest/user/configuration/basics/main_configuration_file_options.html#event-broker-options)
     public const EVENT_BROKER_OPTIONS = [
@@ -72,7 +56,7 @@ class CentreonMainCfg
         4194304 => 'Group member data',
         8388608 => 'Module data',
         16777216 => 'Relation data',
-        33554432 => 'Command data'
+        33554432 => 'Command data',
     ];
 
     /** @var array */
@@ -110,6 +94,310 @@ class CentreonMainCfg
         $this->DB = new CentreonDB();
         $this->setBrokerOptions();
         $this->setEngineOptions();
+    }
+
+    /**
+     * Get Default values
+     *
+     * @return array
+     */
+    public function getDefaultMainCfg()
+    {
+        return $this->aInstanceDefaultValues;
+    }
+
+    /**
+     * Get default engine logger values
+     *
+     * @return array
+     */
+    public function getDefaultLoggerCfg(): array
+    {
+        return $this->loggerDefaultCfg;
+    }
+
+    /**
+     * Get Default values
+     *
+     * @return array
+     */
+    public function getDefaultBrokerOptions()
+    {
+        return $this->aDefaultBrokerDirective;
+    }
+
+    /**
+     * Insert the broker modules in cfg_nagios
+     *
+     * @param int $iId
+     * @param ? $source
+     *
+     * @throws PDOException
+     * @return false|void
+     */
+    public function insertBrokerDefaultDirectives($iId, $source)
+    {
+        if (empty($iId) || ! in_array($source, ['ui', 'wizard'])) {
+            return false;
+        }
+
+        $query = "SELECT bk_mod_id FROM `cfg_nagios_broker_module` WHERE cfg_nagios_id = '" . $iId . "'";
+        $dbResult = $this->DB->query($query);
+        if ($dbResult->rowCount() == 0) {
+            $sQuery = "INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) VALUES ('"
+                . $this->aDefaultBrokerDirective[$source] . "', " . $iId . ')';
+            try {
+                $res = $this->DB->query($sQuery);
+            } catch (PDOException $e) {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * @param int $nagiosId
+     *
+     * @throws PDOException
+     */
+    public function insertDefaultCfgNagiosLogger(int $nagiosId): void
+    {
+        $stmt = $this->DB->prepare('INSERT INTO cfg_nagios_logger (`cfg_nagios_id`) VALUES (:nagiosId)');
+        $stmt->bindValue('nagiosId', $nagiosId);
+        $stmt->execute();
+    }
+
+    /**
+     * @param int $nagiosId
+     * @param int $serverId
+     *
+     * @throws PDOException
+     */
+    public function insertCfgNagiosLogger(int $nagiosId, int $serverId): void
+    {
+        $stmt = $this->DB->prepare(
+            'SELECT logger.* FROM cfg_nagios_logger logger, cfg_nagios cfg
+            WHERE cfg.nagios_id = logger.cfg_nagios_id AND cfg.nagios_server_id = :serverId'
+        );
+        $stmt->bindValue('serverId', $serverId, PDO::PARAM_INT);
+        $stmt->execute();
+        $baseValues = $stmt->fetch();
+
+        if (empty($baseValues)) {
+            $baseValues = $this->getDefaultLoggerCfg();
+        } else {
+            unset($baseValues['id']);
+        }
+        $baseValues['cfg_nagios_id'] = $nagiosId;
+        $columnNames = array_keys($baseValues);
+
+        $stmt = $this->DB->prepare(
+            'INSERT INTO cfg_nagios_logger (`' . implode('`, `', $columnNames) . '`)
+            VALUES(:' . implode(', :', $columnNames) . ')'
+        );
+        foreach ($baseValues as $columName => $value) {
+            if ($columName === 'cfg_nagios_id') {
+                $stmt->bindValue(":{$columName}", $value, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue(":{$columName}", $value, PDO::PARAM_STR);
+            }
+        }
+        $stmt->execute();
+    }
+
+    /**
+     * Insert the instance in cfg_nagios
+     *
+     * @param int $source The poller id
+     * @param int $iId
+     * @param string $sName
+     *
+     * @throws PDOException
+     * @return false|mixed
+     */
+    public function insertServerInCfgNagios($source, $iId, $sName)
+    {
+        if (empty($sName)) {
+            $sName = 'poller';
+        }
+        if (! isset($this->aInstanceDefaultValues) || ! isset($iId)) {
+            return false;
+        }
+
+        $res = $this->DB->query('SELECT * FROM cfg_nagios WHERE  nagios_server_id = ' . $source);
+        $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
+
+        $rq = 'INSERT INTO `cfg_nagios` (
+            `nagios_name`, `nagios_server_id`, `log_file`, `cfg_dir`,
+            `status_file`, `status_update_interval`, `enable_notifications`,
+            `execute_service_checks`, `accept_passive_service_checks`, `execute_host_checks`,
+            `accept_passive_host_checks`, `enable_event_handlers`, `check_external_commands`,
+            `external_command_buffer_slots`, `command_check_interval`, `command_file`,
+            `retain_state_information`, `state_retention_file`,`retention_update_interval`,
+            `use_retained_program_state`, `use_retained_scheduling_info`, `use_syslog`, `log_notifications`,
+            `log_service_retries`, `log_host_retries`, `log_event_handlers`, `log_external_commands`,
+            `log_passive_checks`, `sleep_time`, `service_inter_check_delay_method`,
+            `host_inter_check_delay_method`, `service_interleave_factor`, `max_concurrent_checks`,
+            `max_service_check_spread`, `max_host_check_spread`, `check_result_reaper_frequency`,
+            `auto_reschedule_checks`, `enable_flap_detection`, `low_service_flap_threshold`,
+            `high_service_flap_threshold`, `low_host_flap_threshold`, `high_host_flap_threshold`,
+            `soft_state_dependencies`, `service_check_timeout`, `host_check_timeout`, `event_handler_timeout`,
+            `notification_timeout`, `check_for_orphaned_services`, `check_for_orphaned_hosts`,
+            `check_service_freshness`, `check_host_freshness`, `date_format`, `illegal_object_name_chars`,
+            `illegal_macro_output_chars`, `use_regexp_matching`, `use_true_regexp_matching`, `admin_email`,
+            `admin_pager`, `nagios_comment`, `nagios_activate`, `event_broker_options`,
+            `enable_predictive_host_dependency_checks`, `enable_predictive_service_dependency_checks`,
+            `host_down_disable_service_checks`, `passive_host_checks_are_soft`, `enable_environment_macros`,
+            `debug_file`, `debug_level`, `debug_level_opt`, `debug_verbosity`, `max_debug_file_size`, `cfg_file`
+            )
+            VALUES (
+            :nagios_name, :nagios_server_id, :log_file, :cfg_dir,
+            :status_file, :status_update_interval, :enable_notifications,
+            :execute_service_checks, :accept_passive_service_checks, :execute_host_checks,
+            :accept_passive_host_checks, :enable_event_handlers, :check_external_commands,
+            :external_command_buffer_slots, :command_check_interval, :command_file,
+            :retain_state_information, :state_retention_file,:retention_update_interval,
+            :use_retained_program_state, :use_retained_scheduling_info, :use_syslog, :log_notifications,
+            :log_service_retries, :log_host_retries, :log_event_handlers, :log_external_commands,
+            :log_passive_checks, :sleep_time, :service_inter_check_delay_method,
+            :host_inter_check_delay_method, :service_interleave_factor, :max_concurrent_checks,
+            :max_service_check_spread, :max_host_check_spread, :check_result_reaper_frequency,
+            :auto_reschedule_checks, :enable_flap_detection, :low_service_flap_threshold,
+            :high_service_flap_threshold, :low_host_flap_threshold, :high_host_flap_threshold,
+            :soft_state_dependencies, :service_check_timeout, :host_check_timeout, :event_handler_timeout,
+            :notification_timeout, :check_for_orphaned_services, :check_for_orphaned_hosts,
+            :check_service_freshness, :check_host_freshness, :date_format, :illegal_object_name_chars,
+            :illegal_macro_output_chars, :use_regexp_matching, :use_true_regexp_matching, :admin_email,
+            :admin_pager, :nagios_comment, :nagios_activate, :event_broker_options,
+            :enable_predictive_host_dependency_checks, :enable_predictive_service_dependency_checks,
+            :host_down_disable_service_checks, :passive_host_checks_are_soft, :enable_environment_macros, :debug_file,
+            :debug_level, :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file
+            )';
+
+        $params = [
+            ':nagios_name' => 'Centreon Engine ' . $sName,
+            ':nagios_server_id' => $iId,
+            ':log_file' => $baseValues['log_file'],
+            ':cfg_dir' => $baseValues['cfg_dir'],
+            ':status_file' => $baseValues['status_file'],
+            ':status_update_interval' => $baseValues['status_update_interval'],
+            ':enable_notifications' => $baseValues['enable_notifications'],
+            ':execute_service_checks' => $baseValues['execute_service_checks'],
+            ':accept_passive_service_checks' => $baseValues['accept_passive_service_checks'],
+            ':execute_host_checks' => $baseValues['execute_host_checks'],
+            ':accept_passive_host_checks' => $baseValues['accept_passive_host_checks'],
+            ':enable_event_handlers' => $baseValues['enable_event_handlers'],
+            ':check_external_commands' => $baseValues['check_external_commands'],
+            ':external_command_buffer_slots' => $baseValues['external_command_buffer_slots'],
+            ':command_check_interval' => $baseValues['command_check_interval'],
+            ':command_file' => $baseValues['command_file'],
+            ':retain_state_information' => $baseValues['retain_state_information'],
+            ':state_retention_file' => $baseValues['state_retention_file'],
+            ':retention_update_interval' => $baseValues['retention_update_interval'],
+            ':use_retained_program_state' => $baseValues['use_retained_program_state'],
+            ':use_retained_scheduling_info' => $baseValues['use_retained_scheduling_info'],
+            ':use_syslog' => $baseValues['use_syslog'],
+            ':log_notifications' => $baseValues['log_notifications'],
+            ':log_service_retries' => $baseValues['log_service_retries'],
+            ':log_host_retries' => $baseValues['log_host_retries'],
+            ':log_event_handlers' => $baseValues['log_event_handlers'],
+            ':log_external_commands' => $baseValues['log_external_commands'],
+            ':log_passive_checks' => $baseValues['log_passive_checks'],
+            ':sleep_time' => $baseValues['sleep_time'],
+            ':service_inter_check_delay_method' => $baseValues['service_inter_check_delay_method'],
+            ':host_inter_check_delay_method' => $baseValues['host_inter_check_delay_method'],
+            ':service_interleave_factor' => $baseValues['service_interleave_factor'],
+            ':max_concurrent_checks' => $baseValues['max_concurrent_checks'],
+            ':max_service_check_spread' => $baseValues['max_service_check_spread'],
+            ':max_host_check_spread' => $baseValues['max_host_check_spread'],
+            ':check_result_reaper_frequency' => $baseValues['check_result_reaper_frequency'],
+            ':auto_reschedule_checks' => $baseValues['auto_reschedule_checks'],
+            ':enable_flap_detection' => $baseValues['enable_flap_detection'],
+            ':low_service_flap_threshold' => $baseValues['low_service_flap_threshold'],
+            ':high_service_flap_threshold' => $baseValues['high_service_flap_threshold'],
+            ':low_host_flap_threshold' => $baseValues['low_host_flap_threshold'],
+            ':high_host_flap_threshold' => $baseValues['high_host_flap_threshold'],
+            ':soft_state_dependencies' => $baseValues['soft_state_dependencies'],
+            ':service_check_timeout' => $baseValues['service_check_timeout'],
+            ':host_check_timeout' => $baseValues['host_check_timeout'],
+            ':event_handler_timeout' => $baseValues['event_handler_timeout'],
+            ':notification_timeout' => $baseValues['notification_timeout'],
+            ':check_for_orphaned_services' => $baseValues['check_for_orphaned_services'],
+            ':check_for_orphaned_hosts' => $baseValues['check_for_orphaned_hosts'],
+            ':check_service_freshness' => $baseValues['check_service_freshness'],
+            ':check_host_freshness' => $baseValues['check_host_freshness'],
+            ':date_format' => $baseValues['date_format'],
+            ':illegal_object_name_chars' => $baseValues['illegal_object_name_chars'],
+            ':illegal_macro_output_chars' => $baseValues['illegal_macro_output_chars'],
+            ':use_regexp_matching' => $baseValues['use_regexp_matching'],
+            ':use_true_regexp_matching' => $baseValues['use_true_regexp_matching'],
+            ':admin_email' => $baseValues['admin_email'],
+            ':admin_pager' => $baseValues['admin_pager'],
+            ':nagios_comment' => $baseValues['nagios_comment'],
+            ':nagios_activate' => $baseValues['nagios_activate'],
+            ':event_broker_options' => $baseValues['event_broker_options'],
+            ':enable_predictive_host_dependency_checks' => $baseValues['enable_predictive_host_dependency_checks'],
+            ':enable_predictive_service_dependency_checks' => $baseValues['enable_predictive_service_dependency_checks'],
+            ':host_down_disable_service_checks' => $baseValues['host_down_disable_service_checks'],
+            ':passive_host_checks_are_soft' => $baseValues['passive_host_checks_are_soft'],
+            ':enable_environment_macros' => $baseValues['enable_environment_macros'],
+            ':debug_file' => $baseValues['debug_file'],
+            ':debug_level' => $baseValues['debug_level'],
+            ':debug_level_opt' => $baseValues['debug_level_opt'],
+            ':debug_verbosity' => $baseValues['debug_verbosity'],
+            ':max_debug_file_size' => $baseValues['max_debug_file_size'],
+            ':cfg_file' => $baseValues['cfg_file'],
+        ];
+
+        try {
+            $stmt = $this->DB->prepare($rq);
+
+            foreach ($params as $paramName => $paramValue) {
+                if ($paramName === ':nagios_server_id') {
+                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
+                } else {
+                    $stmt->bindValue($paramName, empty($paramValue) ? null : $paramValue, PDO::PARAM_STR);
+                }
+            }
+            $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+
+        $res1 = $this->DB->query('SELECT MAX(nagios_id) as last_id FROM `cfg_nagios`');
+        $nagios = $res1->fetch();
+
+        return $nagios['last_id'];
+    }
+
+    /**
+     * Get Broker Module Entries
+     *
+     * @param int $id
+     *
+     * @throws PDOException
+     * @return array $entries
+     */
+    public function getBrokerModules($id)
+    {
+        $dbResult = $this->DB->query('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = ' . $id);
+        while ($row = $dbResult->fetch()) {
+            $entries[] = $row;
+        }
+        $dbResult->closeCursor();
+
+        return $entries;
+    }
+
+    /**
+     * Explode the bitwise event broker options to an array for QuickForm
+     *
+     * @param int $value The value to explode
+     *
+     * @return array An array of integer
+     */
+    public function explodeEventBrokerOptions($value)
+    {
+        return $this->explodeBitwise($value, self::EVENT_BROKER_OPTIONS);
     }
 
     /**
@@ -205,300 +493,9 @@ class CentreonMainCfg
     }
 
     /**
-     * Get Default values
-     *
-     * @return array
-     */
-    public function getDefaultMainCfg()
-    {
-        return $this->aInstanceDefaultValues;
-    }
-
-    /**
-     * Get default engine logger values
-     *
-     * @return array
-     */
-    public function getDefaultLoggerCfg(): array
-    {
-        return $this->loggerDefaultCfg;
-    }
-
-    /**
-     * Get Default values
-     *
-     * @return array
-     */
-    public function getDefaultBrokerOptions()
-    {
-        return $this->aDefaultBrokerDirective;
-    }
-
-    /**
-     * Insert the broker modules in cfg_nagios
-     *
-     * @param int $iId
-     * @param ? $source
-     *
-     * @return false|void
-     * @throws PDOException
-     */
-    public function insertBrokerDefaultDirectives($iId, $source)
-    {
-        if (empty($iId) || !in_array($source, ['ui', 'wizard'])) {
-            return false;
-        }
-
-        $query = "SELECT bk_mod_id FROM `cfg_nagios_broker_module` WHERE cfg_nagios_id = '" . $iId . "'";
-        $dbResult = $this->DB->query($query);
-        if ($dbResult->rowCount() == 0) {
-            $sQuery = "INSERT INTO cfg_nagios_broker_module (`broker_module`, `cfg_nagios_id`) VALUES ('" .
-                $this->aDefaultBrokerDirective[$source] . "', " . $iId . ")";
-            try {
-                $res = $this->DB->query($sQuery);
-            } catch (\PDOException $e) {
-                return false;
-            }
-        }
-    }
-
-    /**
-     * @param int $nagiosId
-     *
-     * @throws PDOException
-     */
-    public function insertDefaultCfgNagiosLogger(int $nagiosId): void
-    {
-        $stmt = $this->DB->prepare("INSERT INTO cfg_nagios_logger (`cfg_nagios_id`) VALUES (:nagiosId)");
-        $stmt->bindValue('nagiosId', $nagiosId);
-        $stmt->execute();
-    }
-
-    /**
-     * @param int $nagiosId
-     * @param int $serverId
-     *
-     * @throws PDOException
-     */
-    public function insertCfgNagiosLogger(int $nagiosId, int $serverId): void
-    {
-        $stmt = $this->DB->prepare(
-            "SELECT logger.* FROM cfg_nagios_logger logger, cfg_nagios cfg
-            WHERE cfg.nagios_id = logger.cfg_nagios_id AND cfg.nagios_server_id = :serverId"
-        );
-        $stmt->bindValue('serverId', $serverId, \PDO::PARAM_INT);
-        $stmt->execute();
-        $baseValues = $stmt->fetch();
-
-        if (empty($baseValues)) {
-            $baseValues = $this->getDefaultLoggerCfg();
-        } else {
-            unset($baseValues['id']);
-        }
-        $baseValues['cfg_nagios_id'] = $nagiosId;
-        $columnNames = array_keys($baseValues);
-
-        $stmt = $this->DB->prepare(
-            'INSERT INTO cfg_nagios_logger (`' . implode('`, `', $columnNames) . '`)
-            VALUES(:' . implode(', :', $columnNames) . ')'
-        );
-        foreach ($baseValues as $columName => $value) {
-            if ($columName === 'cfg_nagios_id') {
-                $stmt->bindValue(":{$columName}", $value, \PDO::PARAM_INT);
-            } else {
-                $stmt->bindValue(":{$columName}", $value, \PDO::PARAM_STR);
-            }
-        }
-        $stmt->execute();
-    }
-
-    /**
-     * Insert the instance in cfg_nagios
-     *
-     * @param int $source The poller id
-     * @param int $iId
-     * @param string $sName
-     *
-     * @return false|mixed
-     * @throws PDOException
-     */
-    public function insertServerInCfgNagios($source, $iId, $sName)
-    {
-        if (empty($sName)) {
-            $sName = 'poller';
-        }
-        if (!isset($this->aInstanceDefaultValues) || !isset($iId)) {
-            return false;
-        }
-
-        $res = $this->DB->query("SELECT * FROM cfg_nagios WHERE  nagios_server_id = " . $source);
-        $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
-
-        $rq = "INSERT INTO `cfg_nagios` (
-            `nagios_name`, `nagios_server_id`, `log_file`, `cfg_dir`,
-            `status_file`, `status_update_interval`, `enable_notifications`,
-            `execute_service_checks`, `accept_passive_service_checks`, `execute_host_checks`,
-            `accept_passive_host_checks`, `enable_event_handlers`, `check_external_commands`,
-            `external_command_buffer_slots`, `command_check_interval`, `command_file`,
-            `retain_state_information`, `state_retention_file`,`retention_update_interval`,
-            `use_retained_program_state`, `use_retained_scheduling_info`, `use_syslog`, `log_notifications`,
-            `log_service_retries`, `log_host_retries`, `log_event_handlers`, `log_external_commands`,
-            `log_passive_checks`, `sleep_time`, `service_inter_check_delay_method`,
-            `host_inter_check_delay_method`, `service_interleave_factor`, `max_concurrent_checks`,
-            `max_service_check_spread`, `max_host_check_spread`, `check_result_reaper_frequency`,
-            `auto_reschedule_checks`, `enable_flap_detection`, `low_service_flap_threshold`,
-            `high_service_flap_threshold`, `low_host_flap_threshold`, `high_host_flap_threshold`,
-            `soft_state_dependencies`, `service_check_timeout`, `host_check_timeout`, `event_handler_timeout`,
-            `notification_timeout`, `check_for_orphaned_services`, `check_for_orphaned_hosts`,
-            `check_service_freshness`, `check_host_freshness`, `date_format`, `illegal_object_name_chars`,
-            `illegal_macro_output_chars`, `use_regexp_matching`, `use_true_regexp_matching`, `admin_email`,
-            `admin_pager`, `nagios_comment`, `nagios_activate`, `event_broker_options`,
-            `enable_predictive_host_dependency_checks`, `enable_predictive_service_dependency_checks`,
-            `host_down_disable_service_checks`, `passive_host_checks_are_soft`, `enable_environment_macros`,
-            `debug_file`, `debug_level`, `debug_level_opt`, `debug_verbosity`, `max_debug_file_size`, `cfg_file`
-            )
-            VALUES (
-            :nagios_name, :nagios_server_id, :log_file, :cfg_dir,
-            :status_file, :status_update_interval, :enable_notifications,
-            :execute_service_checks, :accept_passive_service_checks, :execute_host_checks,
-            :accept_passive_host_checks, :enable_event_handlers, :check_external_commands,
-            :external_command_buffer_slots, :command_check_interval, :command_file,
-            :retain_state_information, :state_retention_file,:retention_update_interval,
-            :use_retained_program_state, :use_retained_scheduling_info, :use_syslog, :log_notifications,
-            :log_service_retries, :log_host_retries, :log_event_handlers, :log_external_commands,
-            :log_passive_checks, :sleep_time, :service_inter_check_delay_method,
-            :host_inter_check_delay_method, :service_interleave_factor, :max_concurrent_checks,
-            :max_service_check_spread, :max_host_check_spread, :check_result_reaper_frequency,
-            :auto_reschedule_checks, :enable_flap_detection, :low_service_flap_threshold,
-            :high_service_flap_threshold, :low_host_flap_threshold, :high_host_flap_threshold,
-            :soft_state_dependencies, :service_check_timeout, :host_check_timeout, :event_handler_timeout,
-            :notification_timeout, :check_for_orphaned_services, :check_for_orphaned_hosts,
-            :check_service_freshness, :check_host_freshness, :date_format, :illegal_object_name_chars,
-            :illegal_macro_output_chars, :use_regexp_matching, :use_true_regexp_matching, :admin_email,
-            :admin_pager, :nagios_comment, :nagios_activate, :event_broker_options,
-            :enable_predictive_host_dependency_checks, :enable_predictive_service_dependency_checks,
-            :host_down_disable_service_checks, :passive_host_checks_are_soft, :enable_environment_macros, :debug_file,
-            :debug_level, :debug_level_opt, :debug_verbosity, :max_debug_file_size, :cfg_file
-            )";
-
-        $params = [
-            ':nagios_name' => 'Centreon Engine ' . $sName,
-            ':nagios_server_id' => $iId,
-            ':log_file' => $baseValues['log_file'],
-            ':cfg_dir' => $baseValues['cfg_dir'],
-            ':status_file' => $baseValues['status_file'],
-            ':status_update_interval' => $baseValues['status_update_interval'],
-            ':enable_notifications' => $baseValues['enable_notifications'],
-            ':execute_service_checks' => $baseValues['execute_service_checks'],
-            ':accept_passive_service_checks' => $baseValues['accept_passive_service_checks'],
-            ':execute_host_checks' => $baseValues['execute_host_checks'],
-            ':accept_passive_host_checks' => $baseValues['accept_passive_host_checks'],
-            ':enable_event_handlers' => $baseValues['enable_event_handlers'],
-            ':check_external_commands' => $baseValues['check_external_commands'],
-            ':external_command_buffer_slots' => $baseValues['external_command_buffer_slots'],
-            ':command_check_interval' => $baseValues['command_check_interval'],
-            ':command_file' => $baseValues['command_file'],
-            ':retain_state_information' => $baseValues['retain_state_information'],
-            ':state_retention_file' => $baseValues['state_retention_file'],
-            ':retention_update_interval' => $baseValues['retention_update_interval'],
-            ':use_retained_program_state' => $baseValues['use_retained_program_state'],
-            ':use_retained_scheduling_info' => $baseValues['use_retained_scheduling_info'],
-            ':use_syslog' => $baseValues['use_syslog'],
-            ':log_notifications' => $baseValues['log_notifications'],
-            ':log_service_retries' => $baseValues['log_service_retries'],
-            ':log_host_retries' => $baseValues['log_host_retries'],
-            ':log_event_handlers' => $baseValues['log_event_handlers'],
-            ':log_external_commands' => $baseValues['log_external_commands'],
-            ':log_passive_checks' => $baseValues['log_passive_checks'],
-            ':sleep_time' => $baseValues['sleep_time'],
-            ':service_inter_check_delay_method' => $baseValues['service_inter_check_delay_method'],
-            ':host_inter_check_delay_method' => $baseValues['host_inter_check_delay_method'],
-            ':service_interleave_factor' => $baseValues['service_interleave_factor'],
-            ':max_concurrent_checks' => $baseValues['max_concurrent_checks'],
-            ':max_service_check_spread' => $baseValues['max_service_check_spread'],
-            ':max_host_check_spread' => $baseValues['max_host_check_spread'],
-            ':check_result_reaper_frequency' => $baseValues['check_result_reaper_frequency'],
-            ':auto_reschedule_checks' => $baseValues['auto_reschedule_checks'],
-            ':enable_flap_detection' => $baseValues['enable_flap_detection'],
-            ':low_service_flap_threshold' => $baseValues['low_service_flap_threshold'],
-            ':high_service_flap_threshold' => $baseValues['high_service_flap_threshold'],
-            ':low_host_flap_threshold' => $baseValues['low_host_flap_threshold'],
-            ':high_host_flap_threshold' => $baseValues['high_host_flap_threshold'],
-            ':soft_state_dependencies' => $baseValues['soft_state_dependencies'],
-            ':service_check_timeout' => $baseValues['service_check_timeout'],
-            ':host_check_timeout' => $baseValues['host_check_timeout'],
-            ':event_handler_timeout' => $baseValues['event_handler_timeout'],
-            ':notification_timeout' => $baseValues['notification_timeout'],
-            ':check_for_orphaned_services' => $baseValues['check_for_orphaned_services'],
-            ':check_for_orphaned_hosts' => $baseValues['check_for_orphaned_hosts'],
-            ':check_service_freshness' => $baseValues['check_service_freshness'],
-            ':check_host_freshness' => $baseValues['check_host_freshness'],
-            ':date_format' => $baseValues['date_format'],
-            ':illegal_object_name_chars' => $baseValues['illegal_object_name_chars'],
-            ':illegal_macro_output_chars' => $baseValues['illegal_macro_output_chars'],
-            ':use_regexp_matching' => $baseValues['use_regexp_matching'],
-            ':use_true_regexp_matching' => $baseValues['use_true_regexp_matching'],
-            ':admin_email' => $baseValues['admin_email'],
-            ':admin_pager' => $baseValues['admin_pager'],
-            ':nagios_comment' => $baseValues['nagios_comment'],
-            ':nagios_activate' => $baseValues['nagios_activate'],
-            ':event_broker_options' => $baseValues['event_broker_options'],
-            ':enable_predictive_host_dependency_checks' => $baseValues['enable_predictive_host_dependency_checks'],
-            ':enable_predictive_service_dependency_checks' =>
-                $baseValues['enable_predictive_service_dependency_checks'],
-            ':host_down_disable_service_checks' => $baseValues['host_down_disable_service_checks'],
-            ':passive_host_checks_are_soft' => $baseValues['passive_host_checks_are_soft'],
-            ':enable_environment_macros' => $baseValues['enable_environment_macros'],
-            ':debug_file' => $baseValues['debug_file'],
-            ':debug_level' => $baseValues['debug_level'],
-            ':debug_level_opt' => $baseValues['debug_level_opt'],
-            ':debug_verbosity' => $baseValues['debug_verbosity'],
-            ':max_debug_file_size' => $baseValues['max_debug_file_size'],
-            ':cfg_file' => $baseValues['cfg_file']
-        ];
-
-        try {
-            $stmt = $this->DB->prepare($rq);
-
-            foreach ($params as $paramName => $paramValue) {
-                if ($paramName === ':nagios_server_id') {
-                    $stmt->bindValue($paramName, $paramValue, \PDO::PARAM_INT);
-                } else {
-                    $stmt->bindValue($paramName, empty($paramValue) ? null : $paramValue, \PDO::PARAM_STR);
-                }
-            }
-            $stmt->execute();
-        } catch (\PDOException $e) {
-            return false;
-        }
-
-        $res1 = $this->DB->query("SELECT MAX(nagios_id) as last_id FROM `cfg_nagios`");
-        $nagios = $res1->fetch();
-        return $nagios["last_id"];
-    }
-
-    /**
-     * Get Broker Module Entries
-     *
-     * @param int $id
-     *
-     * @return array $entries
-     * @throws PDOException
-     */
-    public function getBrokerModules($id)
-    {
-        $dbResult = $this->DB->query("SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = " . $id);
-        while ($row = $dbResult->fetch()) {
-            $entries[] = $row;
-        }
-        $dbResult->closeCursor();
-        return $entries;
-    }
-
-    /**
      * Explode the bitwise to an array for QuickForm
      *
-     * @param int   $value   The value to explode
+     * @param int $value The value to explode
      * @param array $sources The list of bit
      *
      * @return array An array of integer
@@ -518,18 +515,7 @@ class CentreonMainCfg
                 $listOptions[$bit] = 1;
             }
         }
-        return $listOptions;
-    }
 
-    /**
-     * Explode the bitwise event broker options to an array for QuickForm
-     *
-     * @param int $value The value to explode
-     *
-     * @return array An array of integer
-     */
-    public function explodeEventBrokerOptions($value)
-    {
-        return $this->explodeBitwise($value, self::EVENT_BROKER_OPTIONS);
+        return $listOptions;
     }
 }

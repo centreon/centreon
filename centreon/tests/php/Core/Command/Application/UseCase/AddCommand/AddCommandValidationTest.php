@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ it('throws an exception when an argument is invalid', function (): void {
 
 it('throws an exception when a macro is invalid', function (): void {
     $request = new AddCommandRequest();
-    $request->macros[] = new MacroDto('macro-name', CommandMacroType::Host,  'macro-desc');
+    $request->macros[] = new MacroDto('macro-name', CommandMacroType::Host, 'macro-desc');
 
     $this->validation->assertAreValidMacros($request);
 })->throws(

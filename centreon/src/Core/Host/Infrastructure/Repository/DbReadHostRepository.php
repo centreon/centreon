@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,7 +182,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     {
         $this->info('Check existence of hosts', ['host_ids' => $hostIds]);
 
-        if ([] === $hostIds) {
+        if ($hostIds === []) {
             return [];
         }
 
@@ -445,7 +445,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
@@ -853,7 +853,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             iconId: $result['ehi_icon_image'],
             iconAlternative: (string) $result['ehi_icon_image_alt'],
             comment: (string) $result['host_comment'],
-            timezoneId: 0 === $result['host_location'] ? null : $result['host_location'],
+            timezoneId: $result['host_location'] === 0 ? null : $result['host_location'],
             severityId: $result['severity_id'],
             checkCommandId: $result['command_command_id'],
             checkTimeperiodId: $result['timeperiod_tp_id'],

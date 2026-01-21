@@ -1,5 +1,6 @@
 includes:
     - ../php-tools/phpstan/config/common.neon
+    - phpstan.core.test.baseline.neon
 
 parameters:
 
@@ -16,8 +17,9 @@ parameters:
         - tests/php/polyfill.php
 
     paths:
-        - tests/php/Adaptation #// TODO adaptation tests need to be fixed and moved to new section
+        - tests/php/Adaptation
         - tests/php/Core
+
     ignoreErrors:
         -
             reportUnmatched: false

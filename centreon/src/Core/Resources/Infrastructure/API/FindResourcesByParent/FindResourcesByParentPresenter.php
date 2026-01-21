@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ class FindResourcesByParentPresenter extends AbstractPresenter implements FindRe
         private readonly HypermediaCreator $hypermediaCreator,
         protected RequestParametersInterface $requestParameters,
         PresenterFormatterInterface $presenterFormatter,
-        private readonly \Traversable $extraDataNormalizers
+        private readonly \Traversable $extraDataNormalizers,
     ) {
         parent::__construct($presenterFormatter);
     }

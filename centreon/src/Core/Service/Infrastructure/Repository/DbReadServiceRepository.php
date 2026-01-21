@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     {
         $this->debug('Check existence of services', ['service_ids' => $serviceIds]);
 
-        if ([] === $serviceIds) {
+        if ($serviceIds === []) {
             return [];
         }
 
@@ -182,7 +182,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -494,9 +494,8 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
      */
     public function findByRequestParameterAndAccessGroup(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
-    ): array
-    {
+        array $accessGroups,
+    ): array {
         if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
 
@@ -504,7 +503,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -889,7 +888,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -931,7 +930,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         $statement->execute();
 
         while (false !== ($hasAccessToAll = $statement->fetchColumn())) {
-            if (true === (bool) $hasAccessToAll) {
+            if ((bool) $hasAccessToAll === true) {
                 return true;
             }
         }
@@ -962,7 +961,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 'f' => NotificationType::Flapping,
                 's' => NotificationType::DowntimeScheduled,
                 'n' => NotificationType::None,
-                default => throw new \Exception("Notification type '{$type}' unknown")
+                default => throw new \Exception("Notification type '{$type}' unknown"),
             };
         }
 
@@ -1057,7 +1056,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
         return match ($value) {
             '0' => YesNoDefault::No,
             '1' => YesNoDefault::Yes,
-            default => YesNoDefault::Default
+            default => YesNoDefault::Default,
         };
     }
 }

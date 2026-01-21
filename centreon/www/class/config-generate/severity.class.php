@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -43,37 +28,21 @@ use Pimple\Container;
  */
 class Severity extends AbstractObject
 {
-    /** @var int */
-    private $use_cache = 1;
-    /** @var int */
-    private $done_cache = 0;
-
-    /** @var array */
-    private $service_severity_cache = [];
-    /** @var array */
-    private $service_severity_by_name_cache = [];
-    /** @var array */
-    private $service_linked_cache = [];
-
-    /** @var array */
-    private $host_severity_cache = [];
-    /** @var array */
-    private $host_linked_cache = [];
-    /** @var array */
-    private $host_severities = [];
-    /** @var array */
-    private $service_severities = [];
-
     /** @var null */
     protected $stmt_host = null;
+
     /** @var null */
     protected $stmt_service = null;
+
     /** @var null */
     protected $stmt_hc_name = null;
+
     /** @var string */
     protected $generate_filename =  'severities.cfg';
+
     /** @var string */
     protected string $object_name = 'severity';
+
     /** @var string[] */
     protected $attributesSelectHost = [
         'hc_id' => 'id',
@@ -81,6 +50,7 @@ class Severity extends AbstractObject
         'level' => 'level',
         'icon_id' => 'icon_id',
     ];
+
     /** @var string[] */
     protected $attributesSelectService = [
         'sc_id' => 'id',
@@ -88,6 +58,7 @@ class Severity extends AbstractObject
         'level' => 'level',
         'icon_id' => 'icon_id',
     ];
+
     /** @var string[] */
     protected $attributes_write = [
         'id',
@@ -96,6 +67,33 @@ class Severity extends AbstractObject
         'icon_id',
         'type',
     ];
+
+    /** @var int */
+    private $use_cache = 1;
+
+    /** @var int */
+    private $done_cache = 0;
+
+    /** @var array */
+    private $service_severity_cache = [];
+
+    /** @var array */
+    private $service_severity_by_name_cache = [];
+
+    /** @var array */
+    private $service_linked_cache = [];
+
+    /** @var array */
+    private $host_severity_cache = [];
+
+    /** @var array */
+    private $host_linked_cache = [];
+
+    /** @var array */
+    private $host_severities = [];
+
+    /** @var array */
+    private $service_severities = [];
 
     /**
      * Severity constructor
@@ -111,62 +109,14 @@ class Severity extends AbstractObject
     }
 
     /**
-     * @return void
-     * @throws PDOException
-     */
-    private function cacheHostSeverity(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT hc_name, hc_id, level, icon_id
-            FROM hostcategories
-            WHERE level IS NOT NULL AND hc_activate = '1'"
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            $this->host_severity_cache[$value['hc_id']] = &$value;
-        }
-    }
-
-    /**
-     * @return void
-     * @throws PDOException
-     */
-    private function cacheHostSeverityLinked(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            'SELECT hc_id, host_host_id ' .
-            'FROM hostcategories, hostcategories_relation ' .
-            'WHERE level IS NOT NULL ' .
-            'AND hc_activate = "1" ' .
-            'AND hostcategories_relation.hostcategories_hc_id = hostcategories.hc_id'
-        );
-
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->host_linked_cache[$value['host_host_id']])) {
-                if (
-                    $this->host_severity_cache[$value['hc_id']]['level']
-                    < $this->host_severity_cache[$this->host_linked_cache[$value['host_host_id']]]
-                ) {
-                    $this->host_linked_cache[$value['host_host_id']] = $value['hc_id'];
-                }
-            } else {
-                $this->host_linked_cache[$value['host_host_id']] = $value['hc_id'];
-            }
-        }
-    }
-
-    /**
      * @param $host_id
      *
-     * @return mixed|string|null
      * @throws PDOException
+     * @return mixed|string|null
      */
     public function getHostSeverityByHostId($host_id)
     {
-        # Get from the cache
+        // Get from the cache
         if (isset($this->host_linked_cache[$host_id])) {
             return $this->host_linked_cache[$host_id];
         }
@@ -174,7 +124,7 @@ class Severity extends AbstractObject
             return null;
         }
 
-        # We get unitary
+        // We get unitary
         if (is_null($this->stmt_host)) {
             $this->stmt_host = $this->backend_instance->db->prepare(
                 "SELECT hc_id, hc_name, level
@@ -193,10 +143,12 @@ class Severity extends AbstractObject
         $severity = array_pop($hostsCategories);
         if (is_null($severity)) {
             $this->host_linked_cache[$host_id] = null;
+
             return null;
         }
         $this->host_linked_cache[$host_id] = $severity['hc_id'];
         $this->host_severity_cache[$severity['hc_id']] = &$severity;
+
         return $severity['hc_id'];
     }
 
@@ -210,89 +162,24 @@ class Severity extends AbstractObject
         if (is_null($hc_id)) {
             return null;
         }
-        if (!isset($this->host_severity_cache[$hc_id])) {
+        if (! isset($this->host_severity_cache[$hc_id])) {
             return null;
         }
 
         $this->host_severities[$hc_id] = $this->host_severity_cache[$hc_id];
+
         return $this->host_severity_cache[$hc_id];
-    }
-
-    /**
-     * @return void
-     * @throws PDOException
-     */
-    private function cacheServiceSeverity(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            "SELECT sc_name, sc_id, level, icon_id
-            FROM service_categories
-            WHERE level IS NOT NULL AND sc_activate = '1'"
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            $this->service_severity_by_name_cache[$value['sc_name']] = &$value;
-            $this->service_severity_cache[$value['sc_id']] = &$value;
-        }
-    }
-
-    /**
-     * @return void
-     * @throws PDOException
-     */
-    private function cacheServiceSeverityLinked(): void
-    {
-        $stmt = $this->backend_instance->db->prepare(
-            'SELECT service_categories.sc_id, service_service_id ' .
-            'FROM service_categories, service_categories_relation ' .
-            'WHERE level IS NOT NULL ' .
-            'AND sc_activate = "1" ' .
-            'AND service_categories_relation.sc_id = service_categories.sc_id'
-        );
-
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (isset($this->service_linked_cache[$value['service_service_id']])) {
-                if (
-                    $this->service_severity_cache[$value['sc_id']]['level']
-                    < $this->service_severity_cache[$this->service_linked_cache[$value['service_service_id']]]
-                ) {
-                    $this->service_linked_cache[$value['service_service_id']] = $value['sc_id'];
-                }
-            } else {
-                $this->service_linked_cache[$value['service_service_id']] = $value['sc_id'];
-            }
-        }
-    }
-
-    /**
-     * @return int|void
-     * @throws PDOException
-     */
-    private function buildCache()
-    {
-        if ($this->done_cache == 1) {
-            return 0;
-        }
-
-        $this->cacheHostSeverity();
-        $this->cacheHostSeverityLinked();
-        $this->cacheServiceSeverity();
-        $this->cacheServiceSeverityLinked();
-        $this->done_cache = 1;
     }
 
     /**
      * @param $service_id
      *
-     * @return mixed|string|null
      * @throws PDOException
+     * @return mixed|string|null
      */
     public function getServiceSeverityByServiceId($service_id)
     {
-        # Get from the cache
+        // Get from the cache
         if (isset($this->service_linked_cache[$service_id])) {
             return $this->service_linked_cache[$service_id];
         }
@@ -300,7 +187,7 @@ class Severity extends AbstractObject
             return null;
         }
 
-        # We get unitary
+        // We get unitary
         if (is_null($this->stmt_service)) {
             $this->stmt_service = $this->backend_instance->db->prepare(
                 "SELECT service_categories.sc_id, sc_name, level
@@ -319,12 +206,14 @@ class Severity extends AbstractObject
         $severity = array_pop($serviceCategories);
         if (is_null($severity)) {
             $this->service_linked_cache[$service_id] = null;
+
             return null;
         }
 
         $this->service_linked_cache[$service_id] = $severity['sc_id'];
         $this->service_severity_by_name_cache[$severity['sc_name']] = &$severity;
         $this->service_severity_cache[$severity['sc_id']] = &$severity;
+
         return $severity['sc_id'];
     }
 
@@ -338,31 +227,33 @@ class Severity extends AbstractObject
         if (is_null($sc_id)) {
             return null;
         }
-        if (!isset($this->service_severity_cache[$sc_id])) {
+        if (! isset($this->service_severity_cache[$sc_id])) {
             return null;
         }
 
         $this->service_severities[$sc_id] = $this->service_severity_cache[$sc_id];
+
         return $this->service_severity_cache[$sc_id];
     }
 
     /**
      * @param $hc_name
      *
-     * @return mixed|null
      * @throws PDOException
+     * @return mixed|null
      */
     public function getServiceSeverityMappingHostSeverityByName($hc_name)
     {
         if (isset($this->service_severity_by_name_cache[$hc_name])) {
             $this->service_severities[$this->service_severity_by_name_cache[$hc_name]['sc_id']] = $this->service_severity_by_name_cache[$hc_name];
+
             return $this->service_severity_by_name_cache[$hc_name];
         }
         if ($this->done_cache == 1) {
             return null;
         }
 
-        # We get unitary
+        // We get unitary
         if (is_null($this->stmt_hc_name)) {
             $this->stmt_hc_name = $this->backend_instance->db->prepare(
                 "SELECT sc_name, sc_id, level
@@ -377,12 +268,14 @@ class Severity extends AbstractObject
         $severity = array_pop($serviceCategories);
         if (is_null($severity)) {
             $this->service_severity_by_name_cache[$hc_name] = null;
+
             return null;
         }
 
         $this->service_severity_by_name_cache[$hc_name] = &$severity;
         $this->service_severity_cache[$severity['sc_id']] = &$severity;
         $this->service_severities[$severity['sc_id']] = $this->service_severity_cache[$severity['sc_id']];
+
         return $severity;
     }
 
@@ -394,6 +287,130 @@ class Severity extends AbstractObject
         $this->generateServiceSeverityObjects();
 
         $this->generateHostSeverityObjects();
+    }
+
+    /**
+     * Reset instance
+     */
+    public function reset(): void
+    {
+        $this->host_severities = [];
+        $this->service_severities = [];
+        parent::reset();
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function cacheHostSeverity(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT hc_name, hc_id, level, icon_id
+            FROM hostcategories
+            WHERE level IS NOT NULL AND hc_activate = '1'"
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            $this->host_severity_cache[$value['hc_id']] = &$value;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function cacheHostSeverityLinked(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            'SELECT hc_id, host_host_id '
+            . 'FROM hostcategories, hostcategories_relation '
+            . 'WHERE level IS NOT NULL '
+            . 'AND hc_activate = "1" '
+            . 'AND hostcategories_relation.hostcategories_hc_id = hostcategories.hc_id'
+        );
+
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->host_linked_cache[$value['host_host_id']])) {
+                if (
+                    $this->host_severity_cache[$value['hc_id']]['level']
+                    < $this->host_severity_cache[$this->host_linked_cache[$value['host_host_id']]]
+                ) {
+                    $this->host_linked_cache[$value['host_host_id']] = $value['hc_id'];
+                }
+            } else {
+                $this->host_linked_cache[$value['host_host_id']] = $value['hc_id'];
+            }
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function cacheServiceSeverity(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            "SELECT sc_name, sc_id, level, icon_id
+            FROM service_categories
+            WHERE level IS NOT NULL AND sc_activate = '1'"
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            $this->service_severity_by_name_cache[$value['sc_name']] = &$value;
+            $this->service_severity_cache[$value['sc_id']] = &$value;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @return void
+     */
+    private function cacheServiceSeverityLinked(): void
+    {
+        $stmt = $this->backend_instance->db->prepare(
+            'SELECT service_categories.sc_id, service_service_id '
+            . 'FROM service_categories, service_categories_relation '
+            . 'WHERE level IS NOT NULL '
+            . 'AND sc_activate = "1" '
+            . 'AND service_categories_relation.sc_id = service_categories.sc_id'
+        );
+
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (isset($this->service_linked_cache[$value['service_service_id']])) {
+                if (
+                    $this->service_severity_cache[$value['sc_id']]['level']
+                    < $this->service_severity_cache[$this->service_linked_cache[$value['service_service_id']]]
+                ) {
+                    $this->service_linked_cache[$value['service_service_id']] = $value['sc_id'];
+                }
+            } else {
+                $this->service_linked_cache[$value['service_service_id']] = $value['sc_id'];
+            }
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @return int|void
+     */
+    private function buildCache()
+    {
+        if ($this->done_cache == 1) {
+            return 0;
+        }
+
+        $this->cacheHostSeverity();
+        $this->cacheHostSeverityLinked();
+        $this->cacheServiceSeverity();
+        $this->cacheServiceSeverityLinked();
+        $this->done_cache = 1;
     }
 
     /**
@@ -428,15 +445,5 @@ class Severity extends AbstractObject
             }
             $this->generateObjectInFile($severity, $id);
         }
-    }
-
-    /**
-     * Reset instance
-     */
-    public function reset(): void
-    {
-        $this->host_severities = [];
-        $this->service_severities = [];
-        parent::reset();
     }
 }

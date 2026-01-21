@@ -1,5 +1,24 @@
 <?php
 
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 namespace Centreon\Domain\Entity;
 
 use ReflectionClass;
@@ -29,7 +48,7 @@ class Task implements EntityInterface
 
     /**
      * Autoincrement ID
-     * @var integer
+     * @var int
      */
     private $id;
 
@@ -39,19 +58,13 @@ class Task implements EntityInterface
      */
     private $status;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTime */
     private $createdAt;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $parent_id;
 
-    /**
-     * @var \DateTime
-     */
+    /** @var \DateTime */
     private $completedAt;
 
     /**
@@ -188,7 +201,7 @@ class Task implements EntityInterface
             'status' => $this->getStatus(),
             'type' => $this->getType(),
             'parent_id' => $this->getParentId(),
-            'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s')
+            'created_at' => $this->getCreatedAt()->format('Y-m-d H:i:s'),
         ];
     }
 
@@ -207,6 +220,7 @@ class Task implements EntityInterface
         foreach ($statusConstants as $stKey => $stConstant) {
             $statuses[] = $ref->getConstant($stKey);
         }
+
         return $statuses;
     }
 
@@ -218,9 +232,10 @@ class Task implements EntityInterface
      */
     private function arrayFilterKey($input, $callback)
     {
-        if (!is_array($input)) {
-            trigger_error('arrayFilterKey() expects parameter 1 to be array, ' . gettype($input) .
-                ' given', E_USER_WARNING);
+        if (! is_array($input)) {
+            trigger_error('arrayFilterKey() expects parameter 1 to be array, ' . gettype($input)
+                . ' given', E_USER_WARNING);
+
             return null;
         }
 
@@ -233,8 +248,6 @@ class Task implements EntityInterface
             return [];
         }
 
-        $input = array_intersect_key(array_flip($filteredKeys), $input);
-
-        return $input;
+        return array_intersect_key(array_flip($filteredKeys), $input);
     }
 }

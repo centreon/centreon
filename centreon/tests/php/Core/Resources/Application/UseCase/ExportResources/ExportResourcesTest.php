@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -6,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,14 +37,14 @@ use Core\Security\AccessGroup\Domain\Collection\AccessGroupCollection;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Mockery;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $this->filters = Mockery::mock(ResourceFilter::class);
     $this->resourcesRepository = Mockery::mock(ReadResourceRepositoryInterface::class);
     $this->contactRepository = Mockery::mock(ReadAccessGroupRepositoryInterface::class);
     $this->presenter = new ExportResourcesPresenterStub();
 });
 
-it('test export resources with an invalid contact_id should throw an InvalidArgumentException', function () {
+it('test export resources with an invalid contact_id should throw an InvalidArgumentException', function (): void {
     $request = new ExportResourcesRequest(
         exportedFormat: 'csv',
         resourceFilter: $this->filters,
@@ -55,7 +56,7 @@ it('test export resources with an invalid contact_id should throw an InvalidArgu
     );
 })->throws(\InvalidArgumentException::class);
 
-it('test export resources with an invalid format should throw an InvalidArgumentException', function () {
+it('test export resources with an invalid format should throw an InvalidArgumentException', function (): void {
     $request = new ExportResourcesRequest(
         exportedFormat: 'invalid',
         resourceFilter: $this->filters,
@@ -67,7 +68,7 @@ it('test export resources with an invalid format should throw an InvalidArgument
     );
 })->throws(\InvalidArgumentException::class);
 
-it('export all resources without max results should throw an InvalidArgumentException', function () {
+it('export all resources without max results should throw an InvalidArgumentException', function (): void {
     $request = new ExportResourcesRequest(
         exportedFormat: 'csv',
         resourceFilter: $this->filters,
@@ -79,7 +80,7 @@ it('export all resources without max results should throw an InvalidArgumentExce
     );
 })->throws(\InvalidArgumentException::class);
 
-it('export all resources with max results greater than 10000 should throw an InvalidArgumentException', function () {
+it('export all resources with max results greater than 10000 should throw an InvalidArgumentException', function (): void {
     $request = new ExportResourcesRequest(
         exportedFormat: 'csv',
         resourceFilter: $this->filters,
@@ -91,7 +92,7 @@ it('export all resources with max results greater than 10000 should throw an Inv
     );
 })->throws(\InvalidArgumentException::class);
 
-it('export resources with an error from repository should throw an ErrorResponse', function () {
+it('export resources with an error from repository should throw an ErrorResponse', function (): void {
     $this->resourcesRepository
         ->shouldReceive('iterateResources')
         ->once()
@@ -110,7 +111,7 @@ it('export resources with an error from repository should throw an ErrorResponse
     expect($this->presenter->response)->toBeInstanceOf(ErrorResponse::class);
 });
 
-it('export resources with admin mode should throw a response with all resources', function () {
+it('export resources with admin mode should throw a response with all resources', function (): void {
     $this->resourcesRepository
         ->shouldReceive('iterateResources')
         ->once()
@@ -132,7 +133,7 @@ it('export resources with admin mode should throw a response with all resources'
         ->and($this->presenter->response->getFilteredColumns()->toArray())->toBe(['columns1', 'columns2']);
 });
 
-it('export resources with acl should throw a response with allowed resources', function () {
+it('export resources with acl should throw a response with allowed resources', function (): void {
     $this->contactRepository
         ->shouldReceive('findByContactId')
         ->once()

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,8 @@ class BrokerInputOutputValidator
 
     }
 
-    public function brokerIsValidOrFail(int $brokerId): void {
+    public function brokerIsValidOrFail(int $brokerId): void
+    {
         if (! ($this->readBrokerRepository->exists($brokerId))) {
             throw BrokerException::notFound($brokerId);
         }
@@ -117,7 +118,7 @@ class BrokerInputOutputValidator
      */
     private function validateFieldOrFail(string $name, mixed $value, BrokerInputOutputField $field): void
     {
-        if ($field->isRequired() && (! isset($value) || '' === $value)) {
+        if ($field->isRequired() && (! isset($value) || $value === '')) {
             throw BrokerException::missingParameter($name);
         }
 
@@ -125,7 +126,7 @@ class BrokerInputOutputValidator
             'int' => $value === null || is_int($value),
             'text', 'password' => $value === null || is_string($value),
             'select', 'radio' => in_array($value, $field->getListValues(), true),
-            default => false
+            default => false,
         };
 
         if ($isValid === false) {

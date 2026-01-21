@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ final class AddRule
         private readonly AddRuleValidation $validator,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
         private readonly DatasetFilterValidator $datasetValidator,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -74,7 +74,7 @@ final class AddRule
      */
     public function __invoke(
         AddRuleRequest $request,
-        AddRulePresenterInterface $presenter
+        AddRulePresenterInterface $presenter,
     ): void {
         try {
             if (! $this->isAuthorized()) {
@@ -271,7 +271,7 @@ final class AddRule
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
-                    'last' => $applicableFilter
+                    'last' => $applicableFilter,
                 ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
                 /* Specific behaviour when the last level of filtering is of type
@@ -402,7 +402,7 @@ final class AddRule
 
         $validateAndBuildDatasetFilter = function (
             array $data,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that

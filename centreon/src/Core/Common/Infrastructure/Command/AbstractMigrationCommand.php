@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Command;
 
@@ -70,7 +70,7 @@ abstract class AbstractMigrationCommand extends Command
         $question = match ($platform) {
             self::LOCAL_PLATFORM => 'Local authentication token? ',
             self::TARGET_PLATFORM => 'Target authentication token? ',
-            default => throw new \InvalidArgumentException('Please choose an available platform type')
+            default => throw new \InvalidArgumentException('Please choose an available platform type'),
         };
 
         return $this->askQuestion($question, $input, $output);

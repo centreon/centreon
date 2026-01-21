@@ -38,7 +38,7 @@ class ModuleInstallationVerifier
     public function __construct(
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
-        private ModuleInformationRepositoryInterface $repository
+        private ModuleInformationRepositoryInterface $repository,
     ) {
     }
 
@@ -66,4 +66,3 @@ class ModuleInstallationVerifier
         return version_compare($getConfigFileVersion(), $moduleInformation->version, '=');
     }
 }
-

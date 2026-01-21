@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Infrastructure\Configuration\User\Repository;
 
-use PHPUnit\Framework\TestCase;
 use Core\Infrastructure\Configuration\User\Repository\DbUserFactory;
+use PHPUnit\Framework\TestCase;
 
 class DbUserFactoryTest extends TestCase
 {
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     private array $userRecord;
 
     public function setUp(): void
@@ -43,7 +41,7 @@ class DbUserFactoryTest extends TestCase
             'contact_admin' => '1',
             'contact_theme' => 'light',
             'user_interface_density' => 'compact',
-            'user_can_reach_frontend' => '1'
+            'user_can_reach_frontend' => '1',
         ];
     }
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,14 +57,14 @@ final class DeleteContactDashboardShare
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
     public function __invoke(
         int $dashboardId,
         int $contactId,
-        DeleteContactDashboardSharePresenterInterface $presenter
+        DeleteContactDashboardSharePresenterInterface $presenter,
     ): void {
         try {
             if ($this->isUserAdmin()) {
@@ -115,7 +115,7 @@ final class DeleteContactDashboardShare
     private function deleteContactShareAsAdmin(Dashboard $dashboard, int $contactId): ResponseStatusInterface
     {
         $contact = $this->contactRepository->findById($contactId);
-        if (null === $contact) {
+        if ($contact === null) {
             $this->warning('Contact (%s) not found', ['id' => $contactId]);
 
             return new NotFoundResponse('Contact');
@@ -139,7 +139,7 @@ final class DeleteContactDashboardShare
     private function deleteContactShareAsContact(Dashboard $dashboard, int $contactId): ResponseStatusInterface
     {
         $contact = $this->contactRepository->findById($contactId);
-        if (null === $contact) {
+        if ($contact === null) {
             $this->warning('Contact (%s) not found', ['id' => $contactId]);
 
             return new NotFoundResponse('Contact');

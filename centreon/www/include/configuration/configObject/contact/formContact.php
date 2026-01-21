@@ -23,18 +23,19 @@ require_once __DIR__ . '/../../../../class/centreonContact.class.php';
 use Adaptation\Log\LoggerPassword;
 use Centreon\Infrastructure\Event\EventDispatcher;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (!$centreon->user->admin && $contactId) {
+if (! $centreon->user->admin && $contactId) {
     $aclOptions = ['fields' => ['contact_id', 'contact_name'], 'keys' => ['contact_id'], 'get_row' => 'contact_name', 'conditions' => ['contact_id' => $contactId]];
     $contacts = $acl->getContactAclConf($aclOptions);
-    if (!count($contacts)) {
+    if (! count($contacts)) {
         $msg = new CentreonMsg();
-        $msg->setImage("./img/icons/warning.png");
-        $msg->setTextStyle("bold");
+        $msg->setImage('./img/icons/warning.png');
+        $msg->setTextStyle('bold');
         $msg->setText(_('You are not allowed to access this contact'));
+
         return null;
     }
 }
@@ -48,15 +49,13 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 $initialValues = [];
 
-/*
- * Check if this server is a Remote Server to hide some part of form
- */
+// Check if this server is a Remote Server to hide some part of form
 $dbResult = $pearDB->query("SELECT i.value FROM informations i WHERE i.key = 'isRemote'");
 $result = $dbResult->fetch();
 if ($result === false) {
     $isRemote = false;
 } else {
-    $isRemote = array_map("myDecode", $result);
+    $isRemote = array_map('myDecode', $result);
     $isRemote = $isRemote['value'] === 'yes';
 }
 $dbResult->closeCursor();
@@ -82,31 +81,31 @@ if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
     /**
      * Init Tables informations
      */
-    $cct["contact_hostNotifCmds"] = [];
-    $cct["contact_svNotifCmds"] = [];
-    $cct["contact_cgNotif"] = [];
+    $cct['contact_hostNotifCmds'] = [];
+    $cct['contact_svNotifCmds'] = [];
+    $cct['contact_cgNotif'] = [];
 
-    $dbResult = $pearDB->prepare("SELECT * FROM contact WHERE contact_id = :contactId LIMIT 1");
-    $dbResult->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
+    $dbResult = $pearDB->prepare('SELECT * FROM contact WHERE contact_id = :contactId LIMIT 1');
+    $dbResult->bindValue(':contactId', $contactId, PDO::PARAM_INT);
     $dbResult->execute();
-    $cct = array_map("myDecode", $dbResult->fetch());
-    $cct["contact_passwd"] = null;
+    $cct = array_map('myDecode', $dbResult->fetch());
+    $cct['contact_passwd'] = null;
     $dbResult->closeCursor();
 
     /**
      * Set Host Notification Options
      */
-    $tmp = explode(',', $cct["contact_host_notification_options"]);
+    $tmp = explode(',', $cct['contact_host_notification_options']);
     foreach ($tmp as $key => $value) {
-        $cct["contact_hostNotifOpts"][trim($value)] = 1;
+        $cct['contact_hostNotifOpts'][trim($value)] = 1;
     }
 
     /**
      * Set Service Notification Options
      */
-    $tmp = explode(',', $cct["contact_service_notification_options"]);
+    $tmp = explode(',', $cct['contact_service_notification_options']);
     foreach ($tmp as $key => $value) {
-        $cct["contact_svNotifOpts"][trim($value)] = 1;
+        $cct['contact_svNotifOpts'][trim($value)] = 1;
     }
     $DBRESULT->closeCursor();
 
@@ -115,7 +114,7 @@ if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
      */
     $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'ldap_auth_enable'");
     while ($ldap_auths = $DBRESULT->fetchRow()) {
-        $ldap_auth[$ldap_auths["key"]] = myDecode($ldap_auths["value"]);
+        $ldap_auth[$ldap_auths['key']] = myDecode($ldap_auths['value']);
     }
     $DBRESULT->closeCursor();
 
@@ -126,10 +125,10 @@ if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
                                 FROM `acl_group_contacts_relations`
                                 WHERE `contact_contact_id` = '" . intval($contactId) . "'");
     for ($i = 0; $data = $DBRESULT->fetchRow(); $i++) {
-        if (!$centreon->user->admin && !isset($allowedAclGroups[$data['acl_group_id']])) {
+        if (! $centreon->user->admin && ! isset($allowedAclGroups[$data['acl_group_id']])) {
             $initialValues['contact_acl_groups'][] = $data['acl_group_id'];
         } else {
-            $cct["contact_acl_groups"][$i] = $data["acl_group_id"];
+            $cct['contact_acl_groups'][$i] = $data['acl_group_id'];
         }
     }
     $DBRESULT->closeCursor();
@@ -154,13 +153,13 @@ $notifCgs = $cg->getListContactgroup(false);
 
 if (
     $centreon->optGen['ldap_auth_enable'] == 1
-    && !empty($cct['contact_id'])
+    && ! empty($cct['contact_id'])
     && $cct['contact_auth_type'] === 'ldap'
-    && !empty($cct['ar_id'])
-    && !empty($cct['contact_ldap_dn'])
+    && ! empty($cct['ar_id'])
+    && ! empty($cct['contact_ldap_dn'])
 ) {
     $ldap = new CentreonLDAP($pearDB, null, $cct['ar_id']);
-    if (false !== $ldap->connect()) {
+    if ($ldap->connect() !== false) {
         $cgLdap = $ldap->listGroupsForUser($cct['contact_ldap_dn']);
     }
 }
@@ -168,27 +167,27 @@ if (
 /**
  * Contacts Templates
  */
-$strRestrinction = isset($contactId) ? " AND contact_id != '" . intval($contactId) . "'" : "";
+$strRestrinction = isset($contactId) ? " AND contact_id != '" . intval($contactId) . "'" : '';
 
-$contactTpl = [null => "           "];
+$contactTpl = [null => '           '];
 $DBRESULT = $pearDB->query("SELECT contact_id, contact_name
                             FROM contact
-                            WHERE contact_register = '0' $strRestrinction
+                            WHERE contact_register = '0' {$strRestrinction}
                             ORDER BY contact_name");
 while ($contacts = $DBRESULT->fetchRow()) {
-    $contactTpl[$contacts["contact_id"]] = $contacts["contact_name"];
+    $contactTpl[$contacts['contact_id']] = $contacts['contact_name'];
 }
 $DBRESULT->closeCursor();
 
 /**
  * Template / Style for Quickform input
  */
-$attrsText = ["size" => "30"];
-$attrsText2 = ["size" => "60"];
-$attrsTextDescr = ["size" => "80"];
-$attrsTextMail = ["size" => "90"];
-$attrsAdvSelect = ["style" => "width: 300px; height: 100px;"];
-$attrsTextarea = ["rows" => "15", "cols" => "100"];
+$attrsText = ['size' => '30'];
+$attrsText2 = ['size' => '60'];
+$attrsTextDescr = ['size' => '80'];
+$attrsTextMail = ['size' => '90'];
+$attrsAdvSelect = ['style' => 'width: 300px; height: 100px;'];
+$attrsTextarea = ['rows' => '15', 'cols' => '100'];
 $eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
     . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 $timeRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod&action=list';
@@ -199,7 +198,7 @@ $attrContactgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $
 $aclRoute = './include/common/webServices/rest/internal.php?object=centreon_administration_aclgroup&action=list';
 $attrAclgroups = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $aclRoute, 'multiple' => true, 'linkedObject' => 'centreonAclGroup'];
 
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=" . $p);
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=' . $p);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
@@ -216,7 +215,7 @@ if ($o == MODIFY_CONTACT || $o == WATCH_CONTACT) {
 $tpl->assign('authTypeContact', $authTypeContact);
 
 if ($o == ADD_CONTACT) {
-    $form->addElement('header', 'title', _("Add a User"));
+    $form->addElement('header', 'title', _('Add a User'));
 
     $eventDispatcher->notify(
         'contact.form',
@@ -224,11 +223,11 @@ if ($o == ADD_CONTACT) {
         [
             'form' => $form,
             'tpl' => $tpl,
-            'contact_id' => $contactId
+            'contact_id' => $contactId,
         ]
     );
 } elseif ($o == MODIFY_CONTACT) {
-    $form->addElement('header', 'title', _("Modify a User"));
+    $form->addElement('header', 'title', _('Modify a User'));
 
     $eventDispatcher->notify(
         'contact.form',
@@ -236,11 +235,11 @@ if ($o == ADD_CONTACT) {
         [
             'form' => $form,
             'tpl' => $tpl,
-            'contact_id' => $contactId
+            'contact_id' => $contactId,
         ]
     );
 } elseif ($o == WATCH_CONTACT) {
-    $form->addElement('header', 'title', _("View a User"));
+    $form->addElement('header', 'title', _('View a User'));
 
     $eventDispatcher->notify(
         'contact.form',
@@ -248,11 +247,11 @@ if ($o == ADD_CONTACT) {
         [
             'form' => $form,
             'tpl' => $tpl,
-            'contact_id' => $contactId
+            'contact_id' => $contactId,
         ]
     );
 } elseif ($o == MASSIVE_CHANGE) {
-    $form->addElement('header', 'title', _("Mass Change"));
+    $form->addElement('header', 'title', _('Mass Change'));
 
     $eventDispatcher->notify(
         'contact.form',
@@ -260,7 +259,7 @@ if ($o == ADD_CONTACT) {
         [
             'form' => $form,
             'tpl' => $tpl,
-            'contact_id' => $contactId
+            'contact_id' => $contactId,
         ]
     );
 }
@@ -268,10 +267,10 @@ if ($o == ADD_CONTACT) {
 /**
  * Contact basic information
  */
-$form->addElement('header', 'information', _("General Information"));
-$form->addElement('header', 'additional', _("Additional Information"));
-$form->addElement('header', 'centreon', _("Centreon Authentication"));
-$form->addElement('header', 'acl', _("Access lists"));
+$form->addElement('header', 'information', _('General Information'));
+$form->addElement('header', 'additional', _('Additional Information'));
+$form->addElement('header', 'centreon', _('Centreon Authentication'));
+$form->addElement('header', 'acl', _('Access lists'));
 
 /**
  * No possibility to change name and alias, because there's no interest
@@ -284,16 +283,16 @@ if ($o != MASSIVE_CHANGE) {
     /**
      * Contact name attributes
      */
-    $attrsTextDescr["id"] = "contact_name";
-    $attrsTextDescr["data-testid"] = "contact_name";
-    $form->addElement('text', 'contact_name', _("Full Name"), $attrsTextDescr);
+    $attrsTextDescr['id'] = 'contact_name';
+    $attrsTextDescr['data-testid'] = 'contact_name';
+    $form->addElement('text', 'contact_name', _('Full Name'), $attrsTextDescr);
 
     /**
      * Contact alias attributes
      */
-    $attrsText["id"] = "contact_alias";
-    $attrsText["data-testid"] = "contact_alias";
-    $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
+    $attrsText['id'] = 'contact_alias';
+    $attrsText['data-testid'] = 'contact_alias';
+    $form->addElement('text', 'contact_alias', _('Alias / Login'), $attrsText);
 
     /**
      * Contact email attributes
@@ -305,11 +304,10 @@ if ($o != MASSIVE_CHANGE) {
     /**
      * Contact Pager attributes
      */
-    $attrsText["id"] = "contact_pager";
-    $attrsText["data-testid"] = "contact_pager";
-    $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
+    $attrsText['id'] = 'contact_pager';
+    $attrsText['data-testid'] = 'contact_pager';
+    $form->addElement('text', 'contact_pager', _('Pager'), $attrsText);
 }
-
 
 /**
  * Contact template used
@@ -317,29 +315,29 @@ if ($o != MASSIVE_CHANGE) {
 $form->addElement(
     'select',
     'contact_template_id',
-    _("Contact template used"),
+    _('Contact template used'),
     $contactTpl,
     [
-        "id" => "contact_template_id",
-        "data-testid" => "contact_template_id"
+        'id' => 'contact_template_id',
+        'data-testid' => 'contact_template_id',
     ]
 );
-$form->addElement('header', 'furtherAddress', _("Additional Addresses"));
-for ($i=0; $i < 6; $i++) {
-    $attrsText["id"] = "contact_address" . ($i + 1);
-    $attrsText["data-testid"] = "contact_address" . ($i + 1);
-    $form->addElement('text', 'contact_address' . ($i + 1), _("Address" . ($i + 1)), $attrsText);
+$form->addElement('header', 'furtherAddress', _('Additional Addresses'));
+for ($i = 0; $i < 6; $i++) {
+    $attrsText['id'] = 'contact_address' . ($i + 1);
+    $attrsText['data-testid'] = 'contact_address' . ($i + 1);
+    $form->addElement('text', 'contact_address' . ($i + 1), _('Address' . ($i + 1)), $attrsText);
 }
 
 /**
  * Contact Groups Field
  */
-$form->addElement('header', 'groupLinks', _("Group Relations"));
+$form->addElement('header', 'groupLinks', _('Group Relations'));
 if ($o == MASSIVE_CHANGE) {
     $mc_mod_cg = [];
-    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_cg', null, _("Incremental"), '0');
-    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_cg', null, _("Replacement"), '1');
-    $form->addGroup($mc_mod_cg, 'mc_mod_cg', _("Update mode"), '&nbsp;');
+    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_cg', null, _('Incremental'), '0');
+    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_cg', null, _('Replacement'), '1');
+    $form->addGroup($mc_mod_cg, 'mc_mod_cg', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_cg' => '0']);
 }
 
@@ -353,7 +351,7 @@ $attrContactgroup1 = array_merge(
 $form->addElement(
     'select2',
     'contact_cgNotif',
-    _("Linked to Contact Groups"),
+    _('Linked to Contact Groups'),
     [],
     $attrContactgroup1
 );
@@ -361,31 +359,31 @@ $form->addElement(
 /**
  * Contact Centreon information
  */
-$form->addElement('header', 'oreon', _("Centreon"));
+$form->addElement('header', 'oreon', _('Centreon'));
 $tab = [];
 $tab[] = $form->createElement(
     'radio',
     'contact_oreon',
     null,
-    _("Yes"),
+    _('Yes'),
     '1',
     [
-        "id" => "contact_oreon_yes",
-        "data-testid" => "contact_oreon_yes"
+        'id' => 'contact_oreon_yes',
+        'data-testid' => 'contact_oreon_yes',
     ]
 );
 $tab[] = $form->createElement(
     'radio',
     'contact_oreon',
     null,
-    _("No"),
+    _('No'),
     '0',
     [
-        "id" => "contact_oreon_no",
-        "data-testid" => "contact_oreon_no"
+        'id' => 'contact_oreon_no',
+        'data-testid' => 'contact_oreon_no',
     ]
 );
-$form->addGroup($tab, 'contact_oreon', _("Reach Centreon Front-end"), '&nbsp;');
+$form->addGroup($tab, 'contact_oreon', _('Reach Centreon Front-end'), '&nbsp;');
 
 $autologinEnabled = ($contactId == $centreon->user->user_id || $centreon->user->admin);
 
@@ -413,37 +411,37 @@ if (
     $form->addElement(
         'password',
         'contact_passwd',
-        _("Password"),
+        _('Password'),
         [
-            "size" => "30",
-            "autocomplete" => "new-password",
-            "id" => "passwd1",
-            "data-testid" => "passwd1",
-            "onkeypress" => "resetPwdType(this);"
+            'size' => '30',
+            'autocomplete' => 'new-password',
+            'id' => 'passwd1',
+            'data-testid' => 'passwd1',
+            'onkeypress' => 'resetPwdType(this);',
         ]
     );
 
     $form->addElement(
         'password',
         'contact_passwd2',
-        _("Confirm Password"),
+        _('Confirm Password'),
         [
-            "size" => "30",
-            "autocomplete" => "new-password",
-            "id" => "passwd2",
-            "data-testid" => "passwd2",
-            "onkeypress" => "resetPwdType(this);"
+            'size' => '30',
+            'autocomplete' => 'new-password',
+            'id' => 'passwd2',
+            'data-testid' => 'passwd2',
+            'onkeypress' => 'resetPwdType(this);',
         ]
     );
 
     $form->addElement(
         'button',
         'contact_gen_passwd',
-        _("Generate"),
+        _('Generate'),
         [
-            'onclick' => "generatePassword('passwd', '$encodedPasswordPolicy');",
-            "id" => "contact_gen_passwd",
-            "data-testid" => "contact_gen_passwd"
+            'onclick' => "generatePassword('passwd', '{$encodedPasswordPolicy}');",
+            'id' => 'contact_gen_passwd',
+            'data-testid' => 'contact_gen_passwd',
         ]
     );
 
@@ -474,8 +472,8 @@ if (
     }
 }
 
-/* ------------------------ Topoogy ---------------------------- */
-$pages = [null => ""];
+// ------------------------ Topoogy ----------------------------
+$pages = [null => ''];
 $aclUser = $centreon->user->lcaTStr;
 if (! empty($aclUser)) {
     $acls = array_flip(explode(',', $aclUser));
@@ -537,6 +535,7 @@ if (! empty($aclUser)) {
                 return true;
             }
         }
+
         return false;
     };
 
@@ -546,17 +545,17 @@ if (! empty($aclUser)) {
      * Retrieve the name of all topologies available for this user
      */
     $aclTopologies = $pearDB->query(
-        "SELECT topology_page, topology_name, topology_show "
-        . "FROM topology "
-        . "WHERE topology_page IN ($aclUser)"
+        'SELECT topology_page, topology_name, topology_show '
+        . 'FROM topology '
+        . "WHERE topology_page IN ({$aclUser})"
     );
 
     $translatedPages = [];
 
-    while ($topology = $aclTopologies->fetch(\PDO::FETCH_ASSOC)) {
+    while ($topology = $aclTopologies->fetch(PDO::FETCH_ASSOC)) {
         $translatedPages[$topology['topology_page']] = [
             'i18n' => _($topology['topology_name']),
-            'show' => ((int)$topology['topology_show'] === 1)
+            'show' => ((int) $topology['topology_show'] === 1),
         ];
     }
 
@@ -606,8 +605,8 @@ if (! empty($aclUser)) {
                 /**
                  * We show only first and second level
                  */
-                $pages[$pageId] =
-                    $parentNameLvl1 . ' > ' . $parentNameLvl2;
+                $pages[$pageId]
+                    = $parentNameLvl1 . ' > ' . $parentNameLvl2;
             }
         }
     }
@@ -616,19 +615,19 @@ if (! empty($aclUser)) {
 $form->addElement(
     'select',
     'contact_lang',
-    _("Default Language"),
+    _('Default Language'),
     $langs,
     [
-        "id" => "contact_lang",
-        "data-testid" => "contact_lang"
+        'id' => 'contact_lang',
+        'data-testid' => 'contact_lang',
     ]
 );
-$form->addElement('select', 'default_page', _("Default page"), $pages);
+$form->addElement('select', 'default_page', _('Default page'), $pages);
 $form->addElement(
     'select',
     'contact_type_msg',
-    _("Mail Type"),
-    [null => null, "txt" => "txt", "html" => "html", "pdf" => "pdf"]
+    _('Mail Type'),
+    [null => null, 'txt' => 'txt', 'html' => 'html', 'pdf' => 'pdf']
 );
 
 if ($centreon->user->admin) {
@@ -637,57 +636,57 @@ if ($centreon->user->admin) {
         'radio',
         'contact_admin',
         null,
-        _("Yes"),
+        _('Yes'),
         '1',
-        ["id" => "contact_admin_yes", "data-testid" => "contact_admin_yes"]
+        ['id' => 'contact_admin_yes', 'data-testid' => 'contact_admin_yes']
     );
     $tab[] = $form->createElement(
         'radio',
         'contact_admin',
         null,
-        _("No"),
+        _('No'),
         '0',
-        ["id" => "contact_admin_no", "data-testid" => "contact_admin_no"]
+        ['id' => 'contact_admin_no', 'data-testid' => 'contact_admin_no']
     );
-    $form->addGroup($tab, 'contact_admin', _("Admin"), '&nbsp;');
+    $form->addGroup($tab, 'contact_admin', _('Admin'), '&nbsp;');
 
     $tab = [];
-    $tab[] = $form->createElement(
-            'radio',
-            'reach_api',
-            null,
-            _("Yes"),
-            '1',
-            ["id" => "reach_api_yes", "data-testid" => "reach_api_yes"]
-        );
     $tab[] = $form->createElement(
         'radio',
         'reach_api',
         null,
-        _("No"),
-        '0',
-        ["id" => "reach_api_no", "data-testid" => "reach_api_no"]
+        _('Yes'),
+        '1',
+        ['id' => 'reach_api_yes', 'data-testid' => 'reach_api_yes']
     );
-    $form->addGroup($tab, 'reach_api', _("Reach API Configuration"), '&nbsp;');
+    $tab[] = $form->createElement(
+        'radio',
+        'reach_api',
+        null,
+        _('No'),
+        '0',
+        ['id' => 'reach_api_no', 'data-testid' => 'reach_api_no']
+    );
+    $form->addGroup($tab, 'reach_api', _('Reach API Configuration'), '&nbsp;');
 
     $tab = [];
-    $tab[] = $form->createElement(
-            'radio',
-            'reach_api_rt',
-            null,
-            _("Yes"),
-            '1',
-            ["id" => "reach_api_rt_yes", "data-testid" => "reach_api_rt_yes"]
-        );
     $tab[] = $form->createElement(
         'radio',
         'reach_api_rt',
         null,
-        _("No"),
-        '0',
-        ["id" => "reach_api_rt_no", "data-testid" => "reach_api_rt_no"]
+        _('Yes'),
+        '1',
+        ['id' => 'reach_api_rt_yes', 'data-testid' => 'reach_api_rt_yes']
     );
-    $form->addGroup($tab, 'reach_api_rt', _("Reach API Realtime"), '&nbsp;');
+    $tab[] = $form->createElement(
+        'radio',
+        'reach_api_rt',
+        null,
+        _('No'),
+        '0',
+        ['id' => 'reach_api_rt_no', 'data-testid' => 'reach_api_rt_no']
+    );
+    $form->addGroup($tab, 'reach_api_rt', _('Reach API Realtime'), '&nbsp;');
 }
 
 /**
@@ -695,9 +694,9 @@ if ($centreon->user->admin) {
  */
 if ($o == MASSIVE_CHANGE) {
     $mc_mod_cg = [];
-    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_acl', null, _("Incremental"), '0');
-    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_acl', null, _("Replacement"), '1');
-    $form->addGroup($mc_mod_cg, 'mc_mod_acl', _("Update mode"), '&nbsp;');
+    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_acl', null, _('Incremental'), '0');
+    $mc_mod_cg[] = $form->createElement('radio', 'mc_mod_acl', null, _('Replacement'), '1');
+    $form->addGroup($mc_mod_cg, 'mc_mod_acl', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_acl' => '0']);
 }
 
@@ -710,7 +709,7 @@ $attrAclgroup1 = array_merge(
 $form->addElement(
     'select2',
     'contact_acl_groups',
-    _("Access list groups"),
+    _('Access list groups'),
     [],
     $attrAclgroup1,
 );
@@ -718,7 +717,7 @@ $form->addElement(
 /**
  * Include GMT Class
  */
-require_once _CENTREON_PATH_ . "www/class/centreonGMT.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonGMT.class.php';
 
 $CentreonGMT = new CentreonGMT($pearDB);
 
@@ -730,7 +729,7 @@ $attrTimezones = ['datasourceOrigin' => 'ajax', 'availableDatasetRoute' => $avai
 $form->addElement(
     'select2',
     'contact_location',
-    _("Timezone / Location"),
+    _('Timezone / Location'),
     [],
     $attrTimezones
 );
@@ -743,10 +742,10 @@ if ($centreon->optGen['ldap_auth_enable'] == 1) {
     /**
      * LDAP Distinguished Name attributes
      */
-    $attrsText2["id"] = "contact_ldap_dn";
-    $attrsText2["data-testid"] = "contact_ldap_dn";
-    $dnElement = $form->addElement('text', 'contact_ldap_dn', _("LDAP DN (Distinguished Name)"), $attrsText2);
-    if (!$centreon->user->admin) {
+    $attrsText2['id'] = 'contact_ldap_dn';
+    $attrsText2['data-testid'] = 'contact_ldap_dn';
+    $dnElement = $form->addElement('text', 'contact_ldap_dn', _('LDAP DN (Distinguished Name)'), $attrsText2);
+    if (! $centreon->user->admin) {
         $dnElement->freeze();
     }
 }
@@ -755,7 +754,7 @@ if ($o != MASSIVE_CHANGE) {
         'contact_oreon' => ['contact_oreon' => '1'],
         'contact_admin' => ['contact_admin' => '0'],
         'reach_api' => ['reach_api' => '0'],
-        'reach_api_rt' => ['reach_api_rt' => '0']
+        'reach_api_rt' => ['reach_api_rt' => '0'],
     ]);
 }
 $form->addElement(
@@ -764,45 +763,45 @@ $form->addElement(
     _('Authentication Source'),
     $contactAuthTypeSelect,
     [
-        "id" => "contact_auth_type",
-        "data-testid" => "contact_auth_type"
+        'id' => 'contact_auth_type',
+        'data-testid' => 'contact_auth_type',
     ]
 );
 
 /**
  * Notification informations
  */
-$form->addElement('header', 'notification', _("Notification"));
+$form->addElement('header', 'notification', _('Notification'));
 
 $tab = [];
 $tab[] = $form->createElement(
     'radio',
     'contact_enable_notifications',
     null,
-    _("Yes"),
+    _('Yes'),
     '1',
-    ["data-testid" => "contact_enable_notifications_yes"]
+    ['data-testid' => 'contact_enable_notifications_yes']
 );
 $tab[] = $form->createElement(
     'radio',
     'contact_enable_notifications',
     null,
-    _("No"),
+    _('No'),
     '0',
-    ["data-testid" => "contact_enable_notifications_no"]
+    ['data-testid' => 'contact_enable_notifications_no']
 );
 $tab[] = $form->createElement(
     'radio',
     'contact_enable_notifications',
     null,
-    _("Default"),
+    _('Default'),
     '2',
     [
-        "id" => "contact_enable_notifications_default",
-        "data-testid" => "contact_enable_notifications_default"
+        'id' => 'contact_enable_notifications_default',
+        'data-testid' => 'contact_enable_notifications_default',
     ]
 );
-$form->addGroup($tab, 'contact_enable_notifications', _("Enable Notifications"), '&nbsp;');
+$form->addGroup($tab, 'contact_enable_notifications', _('Enable Notifications'), '&nbsp;');
 if ($o != MASSIVE_CHANGE) {
     $form->setDefaults(['contact_enable_notifications' => '2']);
 }
@@ -810,50 +809,50 @@ if ($o != MASSIVE_CHANGE) {
 /** * *****************************
  * Host notifications
  */
-$form->addElement('header', 'hostNotification', _("Host"));
+$form->addElement('header', 'hostNotification', _('Host'));
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'd',
     '&nbsp;',
-    _("Down"),
-    ['id' => 'hDown', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hDown"]
+    _('Down'),
+    ['id' => 'hDown', 'onClick' => 'uncheckAllH(this);', 'data-testid' => 'hDown']
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'u',
     '&nbsp;',
-    _("Unreachable"),
-    ['id' => 'hUnreachable', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hUnreachable"]
+    _('Unreachable'),
+    ['id' => 'hUnreachable', 'onClick' => 'uncheckAllH(this);', 'data-testid' => 'hUnreachable']
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'r',
     '&nbsp;',
-    _("Recovery"),
-    ['id' => 'hRecovery', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hRecovery"]
+    _('Recovery'),
+    ['id' => 'hRecovery', 'onClick' => 'uncheckAllH(this);', 'data-testid' => 'hRecovery']
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'f',
     '&nbsp;',
-    _("Flapping"),
-    ['id' => 'hFlapping', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hFlapping"]
+    _('Flapping'),
+    ['id' => 'hFlapping', 'onClick' => 'uncheckAllH(this);', 'data-testid' => 'hFlapping']
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     's',
     '&nbsp;',
-    _("Downtime Scheduled"),
-    ['id' => 'hScheduled', 'onClick' => 'uncheckAllH(this);', "data-testid" => "hScheduled"]
+    _('Downtime Scheduled'),
+    ['id' => 'hScheduled', 'onClick' => 'uncheckAllH(this);', 'data-testid' => 'hScheduled']
 );
 $hostNotifOpt[] = $form->createElement(
     'checkbox',
     'n',
     '&nbsp;',
-    _("None"),
-    ['id' => 'hNone', 'onClick' => 'javascript:uncheckAllH(this);', "data-testid" => "hNone"]
+    _('None'),
+    ['id' => 'hNone', 'onClick' => 'javascript:uncheckAllH(this);', 'data-testid' => 'hNone']
 );
-$form->addGroup($hostNotifOpt, 'contact_hostNotifOpts', _("Host Notification Options"), '&nbsp;&nbsp;');
+$form->addGroup($hostNotifOpt, 'contact_hostNotifOpts', _('Host Notification Options'), '&nbsp;&nbsp;');
 
 $defaultDatasetRoute = './include/common/webServices/rest/internal.php?object=centreon_configuration_timeperiod'
     . '&action=defaultValues&target=contact&field=timeperiod_tp_id&id=' . $contactId;
@@ -864,19 +863,18 @@ $attrTimeperiod1 = array_merge(
 $form->addElement(
     'select2',
     'timeperiod_tp_id',
-    _("Host Notification Period"),
+    _('Host Notification Period'),
     [],
     $attrTimeperiod1
 );
-
 
 unset($hostNotifOpt);
 
 if ($o == MASSIVE_CHANGE) {
     $mc_mod_hcmds = [];
-    $mc_mod_hcmds[] = $form->createElement('radio', 'mc_mod_hcmds', null, _("Incremental"), '0');
-    $mc_mod_hcmds[] = $form->createElement('radio', 'mc_mod_hcmds', null, _("Replacement"), '1');
-    $form->addGroup($mc_mod_hcmds, 'mc_mod_hcmds', _("Update mode"), '&nbsp;');
+    $mc_mod_hcmds[] = $form->createElement('radio', 'mc_mod_hcmds', null, _('Incremental'), '0');
+    $mc_mod_hcmds[] = $form->createElement('radio', 'mc_mod_hcmds', null, _('Replacement'), '1');
+    $form->addGroup($mc_mod_hcmds, 'mc_mod_hcmds', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_hcmds' => '0']);
 }
 
@@ -891,7 +889,7 @@ $attrCommand1 = array_merge(
 $form->addElement(
     'select2',
     'contact_hostNotifCmds',
-    _("Host Notification Commands"),
+    _('Host Notification Commands'),
     [],
     $attrCommand1
 );
@@ -899,57 +897,57 @@ $form->addElement(
 /** * *****************************
  * Service notifications
  */
-$form->addElement('header', 'serviceNotification', _("Service"));
+$form->addElement('header', 'serviceNotification', _('Service'));
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'w',
     '&nbsp;',
-    _("Warning"),
-    ['id' => 'sWarning', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sWarning"]
+    _('Warning'),
+    ['id' => 'sWarning', 'onClick' => 'uncheckAllS(this);', 'data-testid' => 'sWarning']
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'u',
     '&nbsp;',
-    _("Unknown"),
-    ['id' => 'sUnknown', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sUnknown"]
+    _('Unknown'),
+    ['id' => 'sUnknown', 'onClick' => 'uncheckAllS(this);', 'data-testid' => 'sUnknown']
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'c',
     '&nbsp;',
-    _("Critical"),
-    ['id' => 'sCritical', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sCritical"]
+    _('Critical'),
+    ['id' => 'sCritical', 'onClick' => 'uncheckAllS(this);', 'data-testid' => 'sCritical']
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'r',
     '&nbsp;',
-    _("Recovery"),
-    ['id' => 'sRecovery', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sRecovery"]
+    _('Recovery'),
+    ['id' => 'sRecovery', 'onClick' => 'uncheckAllS(this);', 'data-testid' => 'sRecovery']
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'f',
     '&nbsp;',
-    _("Flapping"),
-    ['id' => 'sFlapping', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sFlapping"]
+    _('Flapping'),
+    ['id' => 'sFlapping', 'onClick' => 'uncheckAllS(this);', 'data-testid' => 'sFlapping']
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     's',
     '&nbsp;',
-    _("Downtime Scheduled"),
-    ['id' => 'sScheduled', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sScheduled"]
+    _('Downtime Scheduled'),
+    ['id' => 'sScheduled', 'onClick' => 'uncheckAllS(this);', 'data-testid' => 'sScheduled']
 );
 $svNotifOpt[] = $form->createElement(
     'checkbox',
     'n',
     '&nbsp;',
-    _("None"),
-    ['id' => 'sNone', 'onClick' => 'uncheckAllS(this);', "data-testid" => "sNone"]
+    _('None'),
+    ['id' => 'sNone', 'onClick' => 'uncheckAllS(this);', 'data-testid' => 'sNone']
 );
-$form->addGroup($svNotifOpt, 'contact_svNotifOpts', _("Service Notification Options"), '&nbsp;&nbsp;');
+$form->addGroup($svNotifOpt, 'contact_svNotifOpts', _('Service Notification Options'), '&nbsp;&nbsp;');
 
 $defaultAttrTimeperiod2Route = './include/common/webServices/rest/internal.php?'
     . 'object=centreon_configuration_timeperiod&action=defaultValues&target=contact&field=timeperiod_tp_id2&id='
@@ -962,16 +960,16 @@ $attrTimeperiod2 = array_merge(
 $form->addElement(
     'select2',
     'timeperiod_tp_id2',
-    _("Service Notification Period"),
+    _('Service Notification Period'),
     [],
     $attrTimeperiod2
 );
 
 if ($o == MASSIVE_CHANGE) {
     $mc_mod_svcmds = [];
-    $mc_mod_svcmds[] = $form->createElement('radio', 'mc_mod_svcmds', null, _("Incremental"), '0');
-    $mc_mod_svcmds[] = $form->createElement('radio', 'mc_mod_svcmds', null, _("Replacement"), '1');
-    $form->addGroup($mc_mod_svcmds, 'mc_mod_svcmds', _("Update mode"), '&nbsp;');
+    $mc_mod_svcmds[] = $form->createElement('radio', 'mc_mod_svcmds', null, _('Incremental'), '0');
+    $mc_mod_svcmds[] = $form->createElement('radio', 'mc_mod_svcmds', null, _('Replacement'), '1');
+    $form->addGroup($mc_mod_svcmds, 'mc_mod_svcmds', _('Update mode'), '&nbsp;');
     $form->setDefaults(['mc_mod_svcmds' => '0']);
 }
 
@@ -987,7 +985,7 @@ $attrCommand2 = array_merge(
 $form->addElement(
     'select2',
     'contact_svNotifCmds',
-    _("Service Notification Commands"),
+    _('Service Notification Commands'),
     [],
     $attrCommand2
 );
@@ -995,26 +993,26 @@ $form->addElement(
 /**
  * Further informations
  */
-$form->addElement('header', 'furtherInfos', _("Additional Information"));
+$form->addElement('header', 'furtherInfos', _('Additional Information'));
 $cctActivation[] = $form->createElement(
     'radio',
     'contact_activate',
     null,
-    _("Enabled"),
+    _('Enabled'),
     '1',
-    ["id" => "contact_activate_enable", "data-testid" => "contact_activate_enable"]
+    ['id' => 'contact_activate_enable', 'data-testid' => 'contact_activate_enable']
 );
 $cctActivation[] = $form->createElement(
     'radio',
     'contact_activate',
     null,
-    _("Disabled"),
+    _('Disabled'),
     '0',
-    ["id" => "contact_activate_disable", "data-testid" => "contact_activate_disable"]
+    ['id' => 'contact_activate_disable', 'data-testid' => 'contact_activate_disable']
 );
-$form->addGroup($cctActivation, 'contact_activate', _("Status"), '&nbsp;');
+$form->addGroup($cctActivation, 'contact_activate', _('Status'), '&nbsp;');
 $form->setDefaults(['contact_activate' => '1']);
-if ($o == MODIFY_CONTACT && $centreon->user->get_id() == $cct["contact_id"]) {
+if ($o == MODIFY_CONTACT && $centreon->user->get_id() == $cct['contact_id']) {
     $form->freeze('contact_activate');
 }
 
@@ -1023,9 +1021,9 @@ $form->setDefaults(['contact_register' => '1']);
 /**
  * Comments attributes
  */
-$attrsTextarea["id"] = "contact_comment";
-$attrsTextarea["data-testid"] = "contact_comment";
-$form->addElement('textarea', 'contact_comment', _("Comments"), $attrsTextarea);
+$attrsTextarea['id'] = 'contact_comment';
+$attrsTextarea['data-testid'] = 'contact_comment';
+$form->addElement('textarea', 'contact_comment', _('Comments'), $attrsTextarea);
 
 $form->addElement('hidden', 'contact_id');
 $redirect = $form->addElement('hidden', 'o');
@@ -1037,7 +1035,7 @@ $init->setValue(serialize($initialValues));
 if (is_array($select)) {
     $select_str = null;
     foreach ($select as $key => $value) {
-        $select_str .= $key . ",";
+        $select_str .= $key . ',';
     }
     $select_pear = $form->addElement('hidden', 'select');
     $select_pear->setValue($select_str);
@@ -1050,7 +1048,8 @@ function myReplace()
 {
     global $form;
     $ret = $form->getSubmitValues();
-    return (str_replace(" ", "_", $ret["contact_name"]));
+
+    return str_replace(' ', '_', $ret['contact_name']);
 }
 
 $form->applyFilter('__ALL__', 'myTrim');
@@ -1058,30 +1057,30 @@ $form->applyFilter('contact_name', 'myReplace');
 $from_list_menu = false;
 if ($o != MASSIVE_CHANGE) {
     $ret = $form->getSubmitValues();
-    $form->addRule('contact_name', _("Compulsory Name"), 'required');
-    $form->addRule('contact_alias', _("Compulsory Alias"), 'required');
+    $form->addRule('contact_name', _('Compulsory Name'), 'required');
+    $form->addRule('contact_alias', _('Compulsory Alias'), 'required');
     if ($isRemote === false) {
-        $form->addRule('contact_email', _("Valid Email"), 'required');
+        $form->addRule('contact_email', _('Valid Email'), 'required');
     }
-    $form->addRule('contact_oreon', _("Required Field"), 'required');
-    $form->addRule('contact_lang', _("Required Field"), 'required');
+    $form->addRule('contact_oreon', _('Required Field'), 'required');
+    $form->addRule('contact_lang', _('Required Field'), 'required');
     if ($centreon->user->admin) {
-        $form->addRule('contact_admin', _("Required Field"), 'required');
+        $form->addRule('contact_admin', _('Required Field'), 'required');
     }
-    $form->addRule('contact_auth_type', _("Required Field"), 'required');
+    $form->addRule('contact_auth_type', _('Required Field'), 'required');
 
     if (
-        (isset($ret["contact_enable_notifications"]["contact_enable_notifications"])
-        && $ret["contact_enable_notifications"]["contact_enable_notifications"] == 1)
+        (isset($ret['contact_enable_notifications']['contact_enable_notifications'])
+        && $ret['contact_enable_notifications']['contact_enable_notifications'] == 1)
         && ($isRemote === false)
     ) {
-        if (isset($ret["contact_template_id"]) && $ret["contact_template_id"] == '') {
-            $form->addRule('timeperiod_tp_id', _("Compulsory Period"), 'required');
-            $form->addRule('timeperiod_tp_id2', _("Compulsory Period"), 'required');
-            $form->addRule('contact_hostNotifOpts', _("Compulsory Option"), 'required');
-            $form->addRule('contact_svNotifOpts', _("Compulsory Option"), 'required');
-            $form->addRule('contact_hostNotifCmds', _("Compulsory Command"), 'required');
-            $form->addRule('contact_svNotifCmds', _("Compulsory Command"), 'required');
+        if (isset($ret['contact_template_id']) && $ret['contact_template_id'] == '') {
+            $form->addRule('timeperiod_tp_id', _('Compulsory Period'), 'required');
+            $form->addRule('timeperiod_tp_id2', _('Compulsory Period'), 'required');
+            $form->addRule('contact_hostNotifOpts', _('Compulsory Option'), 'required');
+            $form->addRule('contact_svNotifOpts', _('Compulsory Option'), 'required');
+            $form->addRule('contact_hostNotifCmds', _('Compulsory Command'), 'required');
+            $form->addRule('contact_svNotifCmds', _('Compulsory Command'), 'required');
         }
     }
 
@@ -1098,74 +1097,74 @@ if ($o != MASSIVE_CHANGE) {
         }
     }
     $form->registerRule('exist', 'callback', 'testContactExistence');
-    $form->addRule('contact_name', "<font style='color: red;'>*</font>&nbsp;" . _("Contact already exists"), 'exist');
+    $form->addRule('contact_name', "<font style='color: red;'>*</font>&nbsp;" . _('Contact already exists'), 'exist');
     $form->registerRule('existAlias', 'callback', 'testAliasExistence');
     $form->addRule(
         'contact_alias',
-        "<font style='color: red;'>*</font>&nbsp;" . _("Alias already exists"),
+        "<font style='color: red;'>*</font>&nbsp;" . _('Alias already exists'),
         'existAlias'
     );
     $form->registerRule('keepOneContactAtLeast', 'callback', 'keepOneContactAtLeast');
     $form->addRule(
         'contact_alias',
-        _("You have to keep at least one contact to access to Centreon"),
+        _('You have to keep at least one contact to access to Centreon'),
         'keepOneContactAtLeast'
     );
 } elseif ($o == MASSIVE_CHANGE) {
-    $from_list_menu = $form->getSubmitValue("submitMC") ? false : true;
+    $from_list_menu = $form->getSubmitValue('submitMC') ? false : true;
 }
-$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _("Required fields"));
+$form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
 $tpl->assign('autologinEnabled', $autologinEnabled);
 $tpl->assign(
-    "helpattr",
-    'TITLE, "' . _("Help") . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, '
+    'helpattr',
+    'TITLE, "' . _('Help') . '", CLOSEBTN, true, FIX, [this, 0, 5], BGCOLOR, "#ffff99", BORDERCOLOR, '
     . '"orange", TITLEFONTCOLOR, "black", TITLEBGCOLOR, "orange", CLOSEBTNCOLORS, ["","black", "white", "red"], '
     . 'WIDTH, -300, SHADOW, true, TEXTALIGN, "justify"'
 );
 
-# prepare help texts
-$helptext = "";
-include_once("help.php");
+// prepare help texts
+$helptext = '';
+include_once 'help.php';
 foreach ($help as $key => $text) {
     $helptext .= '<span style="display:none" id="help:' . $key . '">' . $text . '</span>' . "\n";
 }
-$tpl->assign("helptext", $helptext);
+$tpl->assign('helptext', $helptext);
 if ($o == WATCH_CONTACT) {
-    # Just watch a contact information
+    // Just watch a contact information
     if ($centreon->user->access->page($p) != 2) {
         $form->addElement(
-            "button",
-            "change",
-            _("Modify"),
-            ["onClick" => "javascript:window.location.href='?p=" . $p . "&o=c&contact_id=" . $contactId . "'"]
+            'button',
+            'change',
+            _('Modify'),
+            ['onClick' => "javascript:window.location.href='?p=" . $p . '&o=c&contact_id=' . $contactId . "'"]
         );
     }
     $form->setDefaults($cct);
     $form->freeze();
 } elseif ($o == MODIFY_CONTACT) {
-    # Modify a contact information
-    $subC = $form->addElement('submit', 'submitC', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    // Modify a contact information
+    $subC = $form->addElement('submit', 'submitC', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
     $form->setDefaults($cct);
 } elseif ($o == ADD_CONTACT) {
-    # Add a contact information
-    $subA = $form->addElement('submit', 'submitA', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    // Add a contact information
+    $subA = $form->addElement('submit', 'submitA', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 } elseif ($o == MASSIVE_CHANGE) {
-    # Massive Change
-    $subMC = $form->addElement('submit', 'submitMC', _("Save"), ["class" => "btc bt_success"]);
-    $res = $form->addElement('reset', 'reset', _("Reset"), ["class" => "btc bt_default"]);
+    // Massive Change
+    $subMC = $form->addElement('submit', 'submitMC', _('Save'), ['class' => 'btc bt_success']);
+    $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 
 if (
-    !empty($cct['contact_id'])
+    ! empty($cct['contact_id'])
     && $centreon->optGen['ldap_auth_enable'] == 1
     && $cct['contact_auth_type'] === 'ldap'
 ) {
-    $tpl->assign("ldap_group", _("Group Ldap"));
+    $tpl->assign('ldap_group', _('Group Ldap'));
     if (isset($cgLdap)) {
-        $tpl->assign("ldapGroups", $cgLdap);
+        $tpl->assign('ldapGroups', $cgLdap);
     }
 }
 
@@ -1173,7 +1172,7 @@ $valid = false;
 
 if ($form->validate() && $from_list_menu == false) {
     $cctObj = $form->getElement('contact_id');
-    if ($form->getSubmitValue("submitA")) {
+    if ($form->getSubmitValue('submitA')) {
         $newContactId = insertContactInDB();
         $cctObj->setValue($contactId);
 
@@ -1182,7 +1181,7 @@ if ($form->validate() && $from_list_menu == false) {
             EventDispatcher::EVENT_ADD,
             [
                 'form' => $form,
-                'contact_id' => $newContactId
+                'contact_id' => $newContactId,
             ]
         );
     } elseif ($form->getSubmitValue('submitC')) {
@@ -1193,11 +1192,11 @@ if ($form->validate() && $from_list_menu == false) {
             EventDispatcher::EVENT_UPDATE,
             [
                 'form' => $form,
-                'contact_id' => $contactId
+                'contact_id' => $contactId,
             ]
         );
-    } elseif ($form->getSubmitValue("submitMC")) {
-        $select = explode(",", $select);
+    } elseif ($form->getSubmitValue('submitMC')) {
+        $select = explode(',', $select);
         foreach ($select as $key => $selectedContactId) {
             if ($selectedContactId) {
                 updateContactInDB(contact_id: $selectedContactId, from_MC: true, isRemote: $isRemote);
@@ -1207,7 +1206,7 @@ if ($form->validate() && $from_list_menu == false) {
                     EventDispatcher::EVENT_UPDATE,
                     [
                         'form' => $form,
-                        'contact_id' => $selectedContactId
+                        'contact_id' => $selectedContactId,
                     ]
                 );
             }
@@ -1218,7 +1217,7 @@ if ($form->validate() && $from_list_menu == false) {
 }
 
 if ($valid) {
-    require_once($path . "listContact.php");
+    require_once $path . 'listContact.php';
 } else {
     // Password does not match
     if (
@@ -1243,16 +1242,16 @@ if ($valid) {
     $tpl->assign('form', $renderer->toArray());
     $tpl->assign('o', $o);
     $tpl->assign('displayAdminFlag', $centreon->user->admin);
-    $tpl->assign("tzUsed", $CentreonGMT->used());
+    $tpl->assign('tzUsed', $CentreonGMT->used());
     if ($centreon->optGen['ldap_auth_enable']) {
         $tpl->assign('ldap', $centreon->optGen['ldap_auth_enable']);
     }
     $tpl->assign('contactAuthType', $contactAuthType);
 
     if ($isRemote === false) {
-        $tpl->display("formContact.ihtml");
+        $tpl->display('formContact.ihtml');
     } else {
-        $tpl->display("formContactLight.ihtml");
+        $tpl->display('formContactLight.ihtml');
     }
 }
 ?>

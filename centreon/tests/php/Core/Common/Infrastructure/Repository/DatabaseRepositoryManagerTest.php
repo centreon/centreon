@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -6,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +28,6 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\Model\ConnectionConfig;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\DataStorageEngineRdb;
 use CentreonDB;
 use Core\Common\Infrastructure\Repository\DatabaseRepositoryManager;
 
@@ -68,7 +68,7 @@ if (! is_null($dbHost) && ! is_null($dbUser) && ! is_null($dbPassword)) {
 function hasConnectionDb(ConnectionConfig $connectionConfig): bool
 {
     try {
-        new \PDO (
+        new \PDO(
             $connectionConfig->getMysqlDsn(),
             $connectionConfig->getUser(),
             $connectionConfig->getPassword(),
@@ -82,7 +82,7 @@ function hasConnectionDb(ConnectionConfig $connectionConfig): bool
 }
 
 if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
-    it('test commit a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon) {
+    it('test commit a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon): void {
         $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -94,11 +94,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             [
                 QueryParameter::int('id', 110),
                 QueryParameter::string('name', 'foo_name'),
-                QueryParameter::string('alias', 'foo_alias')
+                QueryParameter::string('alias', 'foo_alias'),
             ]
         );
         $inserted = $connection->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+            'INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)',
             $queryParameters
         );
         expect($inserted)->toBeInt()->toBe(1);
@@ -108,13 +108,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             ->and($connection->isTransactionActive())->toBeFalse();
         // clean up the database
         $deleted = $connection->delete(
-            "DELETE FROM contact WHERE contact_id = :id",
+            'DELETE FROM contact WHERE contact_id = :id',
             QueryParameters::create([QueryParameter::int('id', 110)])
         );
         expect($deleted)->toBeInt()->toBe(1);
     });
 
-    it('test rollback a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon) {
+    it('test rollback a transaction using DbalConnectionAdapter with success', function () use ($dbConfigCentreon): void {
         $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -126,11 +126,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             [
                 QueryParameter::int('id', 110),
                 QueryParameter::string('name', 'foo_name'),
-                QueryParameter::string('alias', 'foo_alias')
+                QueryParameter::string('alias', 'foo_alias'),
             ]
         );
         $inserted = $connection->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+            'INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)',
             $queryParameters
         );
         expect($inserted)->toBeInt()->toBe(1);
@@ -140,13 +140,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             ->and($connection->isTransactionActive())->toBeFalse();
         // Check that the data was not inserted
         $contact = $connection->fetchAssociative(
-            "SELECT * FROM contact WHERE contact_id = :id",
+            'SELECT * FROM contact WHERE contact_id = :id',
             QueryParameters::create([QueryParameter::int('id', 110)])
         );
         expect($contact)->toBeFalse();
     });
 
-    it('test commit a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon) {
+    it('test commit a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon): void {
         $connection = DatabaseConnection::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -158,11 +158,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             [
                 QueryParameter::int('id', 110),
                 QueryParameter::string('name', 'foo_name'),
-                QueryParameter::string('alias', 'foo_alias')
+                QueryParameter::string('alias', 'foo_alias'),
             ]
         );
         $inserted = $connection->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+            'INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)',
             $queryParameters
         );
         expect($inserted)->toBeInt()->toBe(1);
@@ -172,13 +172,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             ->and($connection->isTransactionActive())->toBeFalse();
         // clean up the database
         $deleted = $connection->delete(
-            "DELETE FROM contact WHERE contact_id = :id",
+            'DELETE FROM contact WHERE contact_id = :id',
             QueryParameters::create([QueryParameter::int('id', 110)])
         );
         expect($deleted)->toBeInt()->toBe(1);
     });
 
-    it('test rollback a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon) {
+    it('test rollback a transaction using DatabaseConnection with success', function () use ($dbConfigCentreon): void {
         $connection = DatabaseConnection::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -190,11 +190,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             [
                 QueryParameter::int('id', 110),
                 QueryParameter::string('name', 'foo_name'),
-                QueryParameter::string('alias', 'foo_alias')
+                QueryParameter::string('alias', 'foo_alias'),
             ]
         );
         $inserted = $connection->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+            'INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)',
             $queryParameters
         );
         expect($inserted)->toBeInt()->toBe(1);
@@ -204,13 +204,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             ->and($connection->isTransactionActive())->toBeFalse();
         // Check that the data was not inserted
         $contact = $connection->fetchAssociative(
-            "SELECT * FROM contact WHERE contact_id = :id",
+            'SELECT * FROM contact WHERE contact_id = :id',
             QueryParameters::create([QueryParameter::int('id', 110)])
         );
         expect($contact)->toBeFalse();
     });
 
-    it('test commit a transaction using CentreonDB with success', function () use ($dbConfigCentreon) {
+    it('test commit a transaction using CentreonDB with success', function () use ($dbConfigCentreon): void {
         $connection = CentreonDB::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -222,11 +222,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             [
                 QueryParameter::int('id', 110),
                 QueryParameter::string('name', 'foo_name'),
-                QueryParameter::string('alias', 'foo_alias')
+                QueryParameter::string('alias', 'foo_alias'),
             ]
         );
         $inserted = $connection->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+            'INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)',
             $queryParameters
         );
         expect($inserted)->toBeInt()->toBe(1);
@@ -236,13 +236,13 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             ->and($connection->isTransactionActive())->toBeFalse();
         // clean up the database
         $deleted = $connection->delete(
-            "DELETE FROM contact WHERE contact_id = :id",
+            'DELETE FROM contact WHERE contact_id = :id',
             QueryParameters::create([QueryParameter::int('id', 110)])
         );
         expect($deleted)->toBeInt()->toBe(1);
     });
 
-    it('test rollback a transaction using CentreonDB with success', function () use ($dbConfigCentreon) {
+    it('test rollback a transaction using CentreonDB with success', function () use ($dbConfigCentreon): void {
         $connection = CentreonDB::createFromConfig($dbConfigCentreon);
         $databaseRepositoryManager = new DatabaseRepositoryManager($connection);
         // Check starting transaction
@@ -254,11 +254,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             [
                 QueryParameter::int('id', 110),
                 QueryParameter::string('name', 'foo_name'),
-                QueryParameter::string('alias', 'foo_alias')
+                QueryParameter::string('alias', 'foo_alias'),
             ]
         );
         $inserted = $connection->insert(
-            "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+            'INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)',
             $queryParameters
         );
         expect($inserted)->toBeInt()->toBe(1);
@@ -268,7 +268,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
             ->and($connection->isTransactionActive())->toBeFalse();
         // Check that the data was not inserted
         $contact = $connection->fetchAssociative(
-            "SELECT * FROM contact WHERE contact_id = :id",
+            'SELECT * FROM contact WHERE contact_id = :id',
             QueryParameters::create([QueryParameter::int('id', 110)])
         );
         expect($contact)->toBeFalse();
@@ -276,7 +276,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it(
         'test commit a transaction using two different connectors is not correct',
-        function () use ($dbConfigCentreon) {
+        function () use ($dbConfigCentreon): void {
             $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
             $databaseRepositoryManager = new DatabaseRepositoryManager(
                 DatabaseConnection::createFromConfig($dbConfigCentreon)
@@ -290,7 +290,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
 
     it(
         'test rollback a transaction using two different connectors is not correct',
-        function () use ($dbConfigCentreon) {
+        function () use ($dbConfigCentreon): void {
             $connection = DbalConnectionAdapter::createFromConfig($dbConfigCentreon);
             $databaseRepositoryManager = new DatabaseRepositoryManager(
                 DatabaseConnection::createFromConfig($dbConfigCentreon)
@@ -302,11 +302,11 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 [
                     QueryParameter::int('id', 110),
                     QueryParameter::string('name', 'foo_name'),
-                    QueryParameter::string('alias', 'foo_alias')
+                    QueryParameter::string('alias', 'foo_alias'),
                 ]
             );
             $inserted = $connection->insert(
-                "INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)",
+                'INSERT INTO contact(contact_id, contact_name, contact_alias) VALUES(:id, :name, :alias)',
                 $queryParameters
             );
             expect($inserted)->toBeInt()->toBe(1);
@@ -316,7 +316,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 ->and($connection->isTransactionActive())->toBeFalse();
             // Check that the data was not inserted
             $contact = $connection->fetchAssociative(
-                "SELECT * FROM contact WHERE contact_id = :id",
+                'SELECT * FROM contact WHERE contact_id = :id',
                 QueryParameters::create([QueryParameter::int('id', 110)])
             );
             expect($contact)->toBeArray()
@@ -324,7 +324,7 @@ if (! is_null($dbConfigCentreon) && hasConnectionDb($dbConfigCentreon)) {
                 ->and($contact['contact_id'])->toBe(110);
             // clean up the database
             $deleted = $connection->delete(
-                "DELETE FROM contact WHERE contact_id = :id",
+                'DELETE FROM contact WHERE contact_id = :id',
                 QueryParameters::create([QueryParameter::int('id', 110)])
             );
             expect($deleted)->toBeInt()->toBe(1);

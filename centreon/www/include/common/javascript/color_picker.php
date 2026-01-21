@@ -36,40 +36,41 @@
  */
 require_once __DIR__ . '/../../../class/HtmlAnalyzer.php';
 
-$n = "";
-$name = "";
-$title = "";
-$hcolor = "000000";
+$n = '';
+$name = '';
+$title = '';
+$hcolor = '000000';
 
 function filter_get($str)
 {
     if (preg_match("/([a-zA-Z0-9\_\-\%\ ]*)/", $str, $matches)) {
         return $matches[1];
     }
+
     return null;
 }
 
-if (function_exists("filter_var")) {
-    $n = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["n"]);
-    $name = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["name"]);
-    $title = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["title"]);
-    if (isset($_GET["hcolor"])) {
-        $hcolor = \HtmlAnalyzer::sanitizeAndRemoveTags($_GET["hcolor"]);
+if (function_exists('filter_var')) {
+    $n = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['n']);
+    $name = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['name']);
+    $title = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['title']);
+    if (isset($_GET['hcolor'])) {
+        $hcolor = HtmlAnalyzer::sanitizeAndRemoveTags($_GET['hcolor']);
     }
 } else {
-    $n = filter_get($_GET["n"]);
-    $name = filter_get($_GET["name"]);
-    $title = filter_get($_GET["title"]);
-    if (isset($_GET["hcolor"])) {
-        $hcolor = filter_get($_GET["hcolor"]);
+    $n = filter_get($_GET['n']);
+    $name = filter_get($_GET['name']);
+    $title = filter_get($_GET['title']);
+    if (isset($_GET['hcolor'])) {
+        $hcolor = filter_get($_GET['hcolor']);
     }
 }
 $n = htmlspecialchars($n, ENT_QUOTES, 'UTF-8');
 $name = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
 $title = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
 $hcolor = htmlspecialchars($hcolor, ENT_QUOTES, 'UTF-8');
-$name1 = $n . "";
-$name2 = $n . "_color";
+$name1 = $n . '';
+$name2 = $n . '_color';
 
 ?>
 <html>
@@ -195,7 +196,7 @@ td  { font-size: 12px; font-family: Verdana, Sans-Serif; text-align:center; back
            }
     
             window.opener.document.forms['Form'].elements['<?php echo $name1; ?>'].value = new_color;
-             window.opener.document.forms['Form'].elements['<?php echo $name2;?>'].style.borderColor = new_color;
+             window.opener.document.forms['Form'].elements['<?php echo $name2; ?>'].style.borderColor = new_color;
            window.opener.document.forms['Form'].elements['<?php echo $name2; ?>'].style.backgroundColor = new_color;
             window.opener.focus();
             window.close();
@@ -259,7 +260,7 @@ td  { font-size: 12px; font-family: Verdana, Sans-Serif; text-align:center; back
     </form>
 </body>
 <script type="text/javascript">
-    changeFinalColor('#<?php echo $hcolor;?>');
-    UpdateGradBarColor('<?php echo hexdec(substr($hcolor, 0, 2));?>','<?php echo hexdec(substr($hcolor, 2, 2));?>','<?php echo hexdec(substr($hcolor, 4, 2));?>');
+    changeFinalColor('#<?php echo $hcolor; ?>');
+    UpdateGradBarColor('<?php echo hexdec(substr($hcolor, 0, 2)); ?>','<?php echo hexdec(substr($hcolor, 2, 2)); ?>','<?php echo hexdec(substr($hcolor, 4, 2)); ?>');
 </script>
 </html>

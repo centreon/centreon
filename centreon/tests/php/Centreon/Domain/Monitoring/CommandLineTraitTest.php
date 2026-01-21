@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,48 +18,37 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\Monitoring;
 
 use Centreon\Domain\HostConfiguration\HostMacro;
 use Centreon\Domain\Monitoring\CommandLineTrait;
-use Centreon\Domain\ServiceConfiguration\ServiceMacro;
 use Centreon\Domain\Monitoring\Exception\MonitoringServiceException;
+use Centreon\Domain\ServiceConfiguration\ServiceMacro;
 use PHPUnit\Framework\TestCase;
 
 class CommandLineTraitTest extends TestCase
 {
     use CommandLineTrait;
 
-    /**
-     * @var HostMacro
-     */
+    /** @var HostMacro */
     private $hostMacroWithoutSpace;
 
-    /**
-     * @var HostMacro
-     */
+    /** @var HostMacro */
     private $hostMacroWithSpace;
 
-    /**
-     * @var ServiceMacro
-     */
+    /** @var ServiceMacro */
     private $serviceMacroWithoutSpace;
 
-    /**
-     * @var ServiceMacro
-     */
+    /** @var ServiceMacro */
     private $serviceMacroWithSpace;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $configurationCommand;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $replacementValue;
 
     protected function setUp(): void
@@ -89,7 +78,7 @@ class CommandLineTraitTest extends TestCase
             $this->hostMacroWithoutSpace,
             $this->hostMacroWithSpace,
             $this->serviceMacroWithoutSpace,
-            $this->serviceMacroWithSpace
+            $this->serviceMacroWithSpace,
         ];
 
         $monitoringCommand = '/centreon/plugins/plugin.pl --a="' . $this->hostMacroWithoutSpace->getValue() . '" '
@@ -122,7 +111,7 @@ class CommandLineTraitTest extends TestCase
             $this->hostMacroWithoutSpace,
             $this->hostMacroWithSpace,
             $this->serviceMacroWithoutSpace,
-            $this->serviceMacroWithSpace
+            $this->serviceMacroWithSpace,
         ];
 
         $monitoringCommand = '/centreon/plugins/plugin.pl --a="' . $this->replacementValue . '" '
@@ -171,7 +160,7 @@ class CommandLineTraitTest extends TestCase
             $this->serviceMacroWithoutSpace,
             $this->serviceMacroWithSpace,
             $serviceMacroExtraOptions,
-            $serviceMacroExtraOptions2
+            $serviceMacroExtraOptions2,
         ];
 
         $monitoringCommand = '/centreon/plugins/plugin.pl --a="' . $this->replacementValue . '" '

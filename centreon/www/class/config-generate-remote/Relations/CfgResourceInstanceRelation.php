@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +34,10 @@ class CfgResourceInstanceRelation extends AbstractObject
 {
     /** @var string */
     protected $table = 'cfg_resource_instance_relations';
+
     /** @var string */
     protected $generateFilename = 'cfg_resource_instance_relations.infile';
+
     /** @var string[] */
     protected $attributesWrite = [
         'resource_id',
@@ -47,8 +50,8 @@ class CfgResourceInstanceRelation extends AbstractObject
      * @param int $resourceId
      * @param int $instanceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function addRelation(int $resourceId, int $instanceId): void
     {

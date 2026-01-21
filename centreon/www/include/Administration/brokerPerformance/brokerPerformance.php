@@ -1,47 +1,32 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-require_once "./include/monitoring/common-Func.php";
-require_once "./class/centreonDB.class.php";
-require_once "./class/centreonGMT.class.php";
-require_once realpath(__DIR__ . "/../../../../config/centreon.config.php");
+require_once './include/monitoring/common-Func.php';
+require_once './class/centreonDB.class.php';
+require_once './class/centreonGMT.class.php';
+require_once realpath(__DIR__ . '/../../../../config/centreon.config.php');
 
 function createArrayStats($arrayFromJson)
 {
@@ -49,16 +34,16 @@ function createArrayStats($arrayFromJson)
 
     if (isset($arrayFromJson['state'])) {
         $io[_('State')]['value'] = $arrayFromJson['state'];
-        if ($arrayFromJson['state'] == "disconnected") {
-            $io[_('State')]['class'] = "badge service_critical";
+        if ($arrayFromJson['state'] == 'disconnected') {
+            $io[_('State')]['class'] = 'badge service_critical';
         } elseif (
-            $arrayFromJson['state'] == "listening"
-            || $arrayFromJson['state'] == "connected"
-            || $arrayFromJson['state'] == "connecting"
+            $arrayFromJson['state'] == 'listening'
+            || $arrayFromJson['state'] == 'connected'
+            || $arrayFromJson['state'] == 'connecting'
         ) {
-            $io[_('State')]['class'] = "badge service_ok";
-        } elseif ($arrayFromJson['state'] == "sleeping" || $arrayFromJson['state'] == "blocked") {
-            $io[_('State')]['class'] = "badge service_warning";
+            $io[_('State')]['class'] = 'badge service_ok';
+        } elseif ($arrayFromJson['state'] == 'sleeping' || $arrayFromJson['state'] == 'blocked') {
+            $io[_('State')]['class'] = 'badge service_warning';
         }
     }
 
@@ -83,13 +68,13 @@ function createArrayStats($arrayFromJson)
     }
 
     if (isset($arrayFromJson['event_processing_speed'])) {
-        $io[_('Event processing speed')] = ['value' => sprintf("%.2f events/s", $arrayFromJson['event_processing_speed']), 'isTimestamp' => false];
+        $io[_('Event processing speed')] = ['value' => sprintf('%.2f events/s', $arrayFromJson['event_processing_speed']), 'isTimestamp' => false];
     }
 
     if (
-        isset($arrayFromJson['queue file'])
-        && isset($arrayFromJson['queue file enabled'])
-        && $arrayFromJson['queue file enabled'] != "no"
+        isset($arrayFromJson['queue file'], $arrayFromJson['queue file enabled'])
+
+        && $arrayFromJson['queue file enabled'] != 'no'
     ) {
         $io[_('Queue file')] = ['value' => $arrayFromJson['queue file'], 'isTimestamp' => false];
     }
@@ -127,7 +112,7 @@ function createArrayStats($arrayFromJson)
 
 function parseStatsFile($statfile)
 {
-    //handle path traversal vulnerability
+    // handle path traversal vulnerability
     if (str_contains($statfile, '..')) {
         throw new Exception('Path traversal found');
     }
@@ -141,12 +126,12 @@ function parseStatsFile($statfile)
     foreach ($json_stats as $key => $value) {
         if (preg_match('/endpoint \(?(.*[^()])\)?/', $key, $matches)) {
             if (preg_match('/.*external commands.*/', $matches[1])) {
-                $matches[1] = "external-commands";
+                $matches[1] = 'external-commands';
             }
 
             if (
-                (preg_match('/.*external commands.*/', $key) && $json_stats[$key]['state'] != "disconnected")
-                || !preg_match('/.*external commands.*/', $key)
+                (preg_match('/.*external commands.*/', $key) && $json_stats[$key]['state'] != 'disconnected')
+                || ! preg_match('/.*external commands.*/', $key)
             ) {
                 $keySepByDash = explode('-', $key);
                 $keySepBySpace = explode(' ', $key);
@@ -155,8 +140,7 @@ function parseStatsFile($statfile)
                 $result['io'][$matches[1]]['id'] = end($keySepBySpace);
                 $result['io'][$matches[1]]['id'] = rtrim($result['io'][$matches[1]]['id'], ')');
 
-
-                /* force type of io  */
+                // force type of io
                 if (preg_match('/.*external commands.*/', $key)) {
                     $result['io'][$matches[1]]['type'] = 'input';
                 } elseif (
@@ -171,7 +155,7 @@ function parseStatsFile($statfile)
                     $result['io'][$matches[1]]['type'] = 'output';
                 }
 
-                /* manage failover output */
+                // manage failover output
                 if (isset($json_stats[$key]['failover'])) {
                     $result['io'][$matches[1] . '-failover'] = createArrayStats($json_stats[$key]['failover']);
                     $result['io'][$matches[1] . '-failover']['type'] = 'output';
@@ -179,7 +163,7 @@ function parseStatsFile($statfile)
                     $result['io'][$matches[1] . '-failover']['id'] = $matches[1] . '-failover';
                 }
 
-                /* manage peers input */
+                // manage peers input
                 if (isset($json_stats[$key]['peers'])) {
                     $arrayPeers = explode(',', $json_stats[$key]['peers']);
                     $counter = count($arrayPeers);
@@ -197,63 +181,56 @@ function parseStatsFile($statfile)
             }
         }
 
-        /* Create list of loaded modules */
+        // Create list of loaded modules
         if (preg_match('/module\s*\/.*\/\d+\-(.*)\.so/', $key, $matches)) {
             $result['modules'][$matches[1]] = $json_stats[$key]['state'];
         }
     }
+
     return $result;
 }
 
-/*
- * Init GMT class
- */
+// Init GMT class
 $centreonGMT = new CentreonGMT($pearDB);
 $centreonGMT->getMyGMTFromSession(session_id());
 
-$form = new HTML_QuickFormCustom('form', 'post', "?p=" . $p);
+$form = new HTML_QuickFormCustom('form', 'post', '?p=' . $p);
 
-/*
- * Get Poller List
- */
+// Get Poller List
 $pollerList = [];
-$DBRESULT = $pearDB->query("SELECT * FROM `nagios_server` WHERE `ns_activate` = 1 ORDER BY `name`");
+$DBRESULT = $pearDB->query('SELECT * FROM `nagios_server` WHERE `ns_activate` = 1 ORDER BY `name`');
 while ($data = $DBRESULT->fetchRow()) {
     if ($data['localhost']) {
         $defaultPoller = $data['id'];
     }
-    $pollerList[$data["id"]] = HtmlSanitizer::createFromString($data["name"])->sanitize()->getString();
+    $pollerList[$data['id']] = HtmlSanitizer::createFromString($data['name'])->sanitize()->getString();
 }
 $DBRESULT->closeCursor();
 
-/*
- * Get poller ID
- */
-$selectedPoller = isset($_POST['pollers']) && $_POST['pollers'] != ""
+// Get poller ID
+$selectedPoller = isset($_POST['pollers']) && $_POST['pollers'] != ''
     ? $_POST['pollers']
     : $defaultPoller;
-if (!isset($selectedPoller)) {
+if (! isset($selectedPoller)) {
     $tmpKeys = array_keys($pollerList);
     $selectedPoller = $tmpKeys[0];
     unset($tmpKeys);
 }
 
-$form->addElement('select', 'pollers', _("Poller"), $pollerList, ["onChange" => "this.form.submit();"]);
+$form->addElement('select', 'pollers', _('Poller'), $pollerList, ['onChange' => 'this.form.submit();']);
 $form->setDefaults(['pollers' => $selectedPoller]);
 $pollerName = $pollerList[$selectedPoller];
 
-$path = "./include/Administration/brokerPerformance/";
+$path = './include/Administration/brokerPerformance/';
 
 // Smarty template initialization
-$tpl = SmartyBC::createSmartyTemplate($path, "./");
+$tpl = SmartyBC::createSmartyTemplate($path, './');
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
 
-/*
- * Message
- */
+// Message
 $lang = [];
 $lang['modules'] = _('Modules');
 $lang['updated'] = _('Last update');
@@ -263,18 +240,16 @@ $lang['output'] = _('Output');
 $tpl->assign('lang', $lang);
 $tpl->assign('poller_name', $pollerName);
 
-/*
- * Get the stats file name
- */
-$queryStatName = "SELECT config_name, cache_directory "
-    . "FROM cfg_centreonbroker "
+// Get the stats file name
+$queryStatName = 'SELECT config_name, cache_directory '
+    . 'FROM cfg_centreonbroker '
     . "WHERE stats_activate = '1' "
-    . "AND ns_nagios_server = :id";
+    . 'AND ns_nagios_server = :id';
 try {
     $stmt = $pearDB->prepare($queryStatName);
     $stmt->bindParam(':id', $selectedPoller, PDO::PARAM_INT);
     $stmt->execute();
-    if (!$stmt->rowCount()) {
+    if (! $stmt->rowCount()) {
         $tpl->assign('msg_err', _('No statistics file defined for this poller'));
     }
     $perf_info = [];
@@ -289,10 +264,10 @@ try {
          * check if file exists, is readable and inside proper folder
          */
         if (
-            !file_exists($statsfile)
-            || !is_readable($statsfile)
-            || ((!str_starts_with(realpath($statsfile), _CENTREON_VARLIB_) )
-            && (!str_starts_with(realpath($statsfile), _CENTREON_CACHEDIR_) ))
+            ! file_exists($statsfile)
+            || ! is_readable($statsfile)
+            || ((! str_starts_with(realpath($statsfile), _CENTREON_VARLIB_))
+            && (! str_starts_with(realpath($statsfile), _CENTREON_CACHEDIR_)))
         ) {
             $perf_err[$row['config_name']] = _('Cannot open statistics file');
         } else {
@@ -301,7 +276,7 @@ try {
     }
     $tpl->assign('perf_err', $perf_err);
     $tpl->assign('perf_info_array', $perf_info);
-} catch (\PDOException $e) {
+} catch (PDOException $e) {
     $tpl->assign('msg_err', _('Error in getting stats filename'));
 }
 

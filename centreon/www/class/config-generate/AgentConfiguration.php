@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,7 +66,7 @@ class AgentConfiguration extends AbstractObjectJSON
                     $agentConfiguration->getConfiguration()->getData(),
                     $agentConfiguration->getConnectionMode()
                 ),
-                default => throw new \Exception('The type of the agent configuration not exists')
+                default => throw new Exception('The type of the agent configuration not exists'),
             };
         }
 
@@ -132,12 +132,12 @@ class AgentConfiguration extends AbstractObjectJSON
         ];
 
         if ($data['is_reverse']) {
-            $hostIds = array_map(static fn(array $host): int => $host['id'], $data['hosts']);
+            $hostIds = array_map(static fn (array $host): int => $host['id'], $data['hosts']);
             $hosts = $this->readHostRepository->findByIds($hostIds);
 
             $tokenNames = array_filter(
                 array_map(
-                    static fn(array $host): ?string => $host['token'] !== null ? $host['token']['name'] : null,
+                    static fn (array $host): ?string => $host['token'] !== null ? $host['token']['name'] : null,
                     $data['hosts']
                 )
             );
@@ -147,14 +147,14 @@ class AgentConfiguration extends AbstractObjectJSON
 
             $tokens = array_filter(
                 $tokens,
-                static fn(Token $token): bool =>  !(
+                static fn (Token $token): bool =>  ! (
                     $token->isRevoked()
-                    || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new \DateTimeImmutable())
+                    || ($token->getExpirationDate() !== null && $token->getExpirationDate() < new DateTimeImmutable())
                 )
             );
 
             $configuration['centreon_agent']['reverse_connections'] = array_map(
-                static fn(array $host): array => [
+                static fn (array $host): array => [
                     'host' => $host['address'],
                     'port' => $host['port'],
                     'encryption' =>  match ($connectionMode) {
@@ -171,7 +171,7 @@ class AgentConfiguration extends AbstractObjectJSON
                 ],
                 array_filter(
                     $data['hosts'],
-                    static fn(array $host): bool => $hosts[$host['id']] ? true : false
+                    static fn (array $host): bool => $hosts[$host['id']] ? true : false
                 )
             );
         }
@@ -206,14 +206,10 @@ class AgentConfiguration extends AbstractObjectJSON
                         ConnectionModeEnum::NO_TLS => 'no',
                         default => 'full',
                     },
-                    'public_cert' => $data['conf_certificate'] !== null
-                        ? $data['conf_certificate']
-                        : '',
-                    'private_key' => $data['conf_private_key'] !== null
-                        ? $data['conf_private_key']
-                        : '',
-                ]
-            ]
+                    'public_cert' => $data['conf_certificate'] ?? '',
+                    'private_key' => $data['conf_private_key'] ?? '',
+                ],
+            ],
         ];
     }
 

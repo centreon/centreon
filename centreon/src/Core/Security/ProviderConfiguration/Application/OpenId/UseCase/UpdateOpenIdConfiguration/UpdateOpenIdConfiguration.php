@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,8 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  */
 class UpdateOpenIdConfiguration
 {
-    use LoggerTrait, VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /**
      * @param WriteOpenIdConfigurationRepositoryInterface $repository
@@ -92,7 +93,7 @@ class UpdateOpenIdConfiguration
      */
     public function __invoke(
         UpdateOpenIdConfigurationPresenterInterface $presenter,
-        UpdateOpenIdConfigurationRequest $request
+        UpdateOpenIdConfigurationRequest $request,
     ): void {
         $this->info('Updating OpenID Provider');
         try {
@@ -290,7 +291,7 @@ class UpdateOpenIdConfiguration
      */
     private function findAccessGroupFromFoundAccessGroups(
         int $accessGroupIdFromRequest,
-        array $foundAccessGroups
+        array $foundAccessGroups,
     ): ?AccessGroup {
         foreach ($foundAccessGroups as $foundAccessGroup) {
             if ($accessGroupIdFromRequest === $foundAccessGroup->getId()) {
@@ -434,7 +435,7 @@ class UpdateOpenIdConfiguration
      */
     private function findContactGroupFromFoundcontactGroups(
         int $contactGroupIdFromRequest,
-        array $foundContactGroups
+        array $foundContactGroups,
     ): ?ContactGroup {
         foreach ($foundContactGroups as $foundContactGroup) {
             if ($contactGroupIdFromRequest === $foundContactGroup->getId()) {
@@ -459,7 +460,7 @@ class UpdateOpenIdConfiguration
      */
     private function manageClientIdAndClientSecretIntoVault(
         array $requestArray,
-        CustomConfiguration $customConfiguration
+        CustomConfiguration $customConfiguration,
     ): array {
         // No need to do anything if vault is not configured
         if (! $this->vaultConfigurationRepository->exists()) {
@@ -492,7 +493,7 @@ class UpdateOpenIdConfiguration
             $data[VaultConfiguration::OPENID_CLIENT_SECRET_KEY] = $requestArray['client_secret'];
         }
 
-        if (! empty($data)) {
+        if ($data !== []) {
             $vaultPaths = $this->writeVaultRepository->upsert(
                 $uuid,
                 $data
