@@ -1,26 +1,29 @@
 ---
 name: release-trigger-builds
+run-name: 'release-trigger-builds ${{ inputs.dispatch_target_release_branch }} ${{ inputs.dispatch_content }}'
 
 on:
   workflow_dispatch:
     inputs:
       dispatch_target_release_branch:
-        description: "Cloud release branch to trigger"
+        description: "Release or hotfix branch to trigger"
         required: true
       dispatch_content:
-        description: "Regular (only centreon named components) or Full (every component, including docker builders, php and extra libs)"
+        description: "Dispatch content mode (affects what workflow is going to be triggered)"
         required: true
         type: choice
         options:
-          - REGULAR
-          - FULL
-
+          - REGULAR # Centreon components only without libs
+          - CHANGED_ONLY # Anything that received a change
+          - FULL # Centreon components + libs
 jobs:
   release-trigger-builds:
     if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
 
       - name: Install Github CLI
         run: |
@@ -39,59 +42,429 @@ jobs:
           fi
         shell: bash
 
-      - name: Trigger selected branches
+      - name: Get and set references information
+        id: get_and_set_references_information
+        run: |
+          set -eux
+
+          # VARS
+          OWNER="centreon"
+          REPO="centreon"
+          NEW_BRANCH="${{ inputs.dispatch_target_release_branch }}" # Possible valid values release-29.10-next or hotfix-29.10-next
+          NEW_BRANCH_SHA="" # sha of the head of NEW_BRANCH
+          NEW_BRANCH_EXISTS="false" # False by default, updated to true later to skip branch creation
+          BASE_REF=""
+          BASE_REF_SHA=""
+          RELEASE_BRANCH_MAJOR_VERSION=""
+          RELEASE_SCOPE=""
+          RELEASE_TYPE=""
+          PREVIOUS_STABLE_BUNDLE_TAG="" # bundle tag
+          PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA="" # sha of the commit pointed by PREVIOUS_STABLE_BUNDLE_TAG
+
+          # Extract RELEASE_BRANCH_MAJOR_VERSION
+          RELEASE_BRANCH_MAJOR_VERSION="$(echo ${{ inputs.dispatch_target_release_branch }} | cut -d "-" -f2)"
+          echo "Major version detected: $RELEASE_BRANCH_MAJOR_VERSION"
+
+          # Deduce RELEASE_SCOPE from RELEASE_BRANCH_MAJOR_VERSION
+          if [[ "$RELEASE_BRANCH_MAJOR_VERSION" =~ ^[0-9]{2}\.(04|10)$ ]]; then
+            RELEASE_SCOPE="onprem"
+            echo "Release scope detected: onprem"
+          elif [[ ! "$RELEASE_BRANCH_MAJOR_VERSION" =~ ^[0-9]{2}\.(04|10)$ ]]; then
+            RELEASE_SCOPE="cloud"
+            echo "Release scope detected: cloud"
+          else
+            echo "Invalid release branch major version: $RELEASE_BRANCH_MAJOR_VERSION. Either RELEASE_BRANCH is invalid or version in it is invalid."
+            exit 1
+          fi
+
+          # Set RELEASE_TYPE based on dispatch_target_release_branch prefix (release or hotfix)
+          RELEASE_TYPE="$(echo ${{ inputs.dispatch_target_release_branch }} | cut -d "-" -f1)"
+          echo "Release type detected: $RELEASE_TYPE"
+
+          # Get previous stable release bundle tags
+          # Previous release bundle tag
+          if [[ "$RELEASE_SCOPE" == "cloud" ]]; then
+            PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-cloud-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
+          elif [[ "$RELEASE_SCOPE" == "onprem" ]]; then
+            PREVIOUS_STABLE_BUNDLE_TAG=$(git tag -l --sort=-version:refname "release-onprem-*-${RELEASE_BRANCH_MAJOR_VERSION}" | head -n 1)
+          else
+            echo "Invalid release_scope: $RELEASE_SCOPE"
+          fi
+
+          # Check if a tag was found
+          if [ -z "$PREVIOUS_STABLE_BUNDLE_TAG" ]; then
+            echo "Previous stable bundle tag not found: $PREVIOUS_STABLE_BUNDLE_TAG, exiting."
+            exit 1
+          else
+            echo "Previous stable bundle tag found: $PREVIOUS_STABLE_BUNDLE_TAG"
+          fi
+
+          # Setting BASE_REF based on RELEASE_BRANCH_MAJOR_VERSION in dispatch_target_release_branch
+          # BASE_REF is the ref to create the NEW_BRANCH from
+          # if RELEASE_TYPE is release AND RELEASE_SCOPE is cloud => create from develop + use version XX.YY of dispatch_target_release_branch
+          if [[ "$RELEASE_TYPE" == "release" && "$RELEASE_SCOPE" == "cloud" ]]; then
+            echo "Release type detected: $RELEASE_TYPE with release scope: $RELEASE_SCOPE"
+            BASE_REF="develop"
+
+          # if RELEASE_TYPE is release => create from dev-XX.YY.x + use version XX.YY of dispatch_target_release_branch
+          elif [[ "$RELEASE_TYPE" == "release" ]]; then
+            echo "Release type detected: $RELEASE_TYPE with release scope: $RELEASE_SCOPE"
+            BASE_REF="dev-$RELEASE_BRANCH_MAJOR_VERSION.x"
+
+          # if RELEASE_TYPE is hotfix => create from latest stable bundle tag + use version XX.YY of dispatch_target_release_branch
+          # bundle tag format is "release-<scope>-YYYYMMNN-XX.YY" with
+          # YYYY is a year (ex: 2029)
+          # MM is a month (ex: 01)
+          # XX.YY is a major version (ex: 29.10)
+          elif [[ "$RELEASE_TYPE" == "hotfix" ]]; then
+            echo "Release type detected: $RELEASE_TYPE with release scope: $RELEASE_SCOPE"
+            BASE_REF="$PREVIOUS_STABLE_BUNDLE_TAG"
+
+          else
+            echo "Either $RELEASE_TYPE or $RELEASE_SCOPE or $RELEASE_BRANCH_MAJOR_VERSION were not valid combination."
+            exit 1
+          fi
+
+          # Check if NEW_BRANCH already exists
+          # Set NEW_BRANCH_EXISTS accordingly
+          echo "Checking if branch $NEW_BRANCH already exists..."
+          GH_API_RESPONSE_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/centreon/centreon-collect/git/ref/heads/$NEW_BRANCH")
+
+          if [[ "$GH_API_RESPONSE_STATUS" == "200" ]]; then
+            echo "Branch '$NEW_BRANCH' already exists. Setting NEW_BRANCH_EXISTS flag to true."
+            NEW_BRANCH_EXISTS="true"
+          elif [[ "$GH_API_RESPONSE_STATUS" == "404" ]]; then
+            echo "Branch '$NEW_BRANCH' does not exist. Branch '$NEW_BRANCH' will be created."
+            NEW_BRANCH_EXISTS="false"
+          else
+            echo "Unexpected GitHub API response status: $GH_API_RESPONSE_STATUS"
+            exit 1
+          fi
+
+          # Resolve BASE_REF_SHA pointed by $BASE_REF
+          # If RELEASE_TYPE is release, this means BASE_REF is a dev branch => use "ref/heads/$BASE_REF"
+          # If RELEASE_TYPE is hotfix, this means BASE_REF is a tag => use "ref/tags/$BASE_REF"
+          GITHUB_API_REF_TYPE=""
+          if [[ "$RELEASE_TYPE" == "release" ]]; then
+            GITHUB_API_REF_TYPE="heads"
+          else
+            GITHUB_API_REF_TYPE="tags"
+          fi
+          echo "Resolving BASE_REF_SHA for $BASE_REF..."
+          BASE_REF_SHA=$(curl -sS \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/centreon/centreon-collect/git/ref/$GITHUB_API_REF_TYPE/$BASE_REF" \
+            | jq -r '.object.sha')
+
+          if [[ -z "$BASE_REF_SHA" || "$BASE_REF_SHA" == "null" ]]; then
+            echo "BASE_REF_SHA is : $BASE_REF_SHA"
+            echo "Could not resolve BASE_REF_SHA for $BASE_REF"
+            exit 1
+          fi
+
+          echo "Using BASE_REF_SHA $BASE_REF_SHA from BASE_REF $BASE_REF."
+
+          # Get PREVIOUS_STABLE_BUNDLE_TAG_SHA data
+          PREVIOUS_STABLE_BUNDLE_TAG_DATA=$(curl -sS \
+          -H "Authorization: Bearer $GH_TOKEN" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/repos/centreon/centreon-collect/git/ref/tags/${PREVIOUS_STABLE_BUNDLE_TAG}")
+
+          PREVIOUS_STABLE_BUNDLE_TAG_OBJ_SHA=$(echo "$PREVIOUS_STABLE_BUNDLE_TAG_DATA" | jq -r '.object.sha')
+          PREVIOUS_STABLE_BUNDLE_TAG_OBJ_TYPE=$(echo "$PREVIOUS_STABLE_BUNDLE_TAG_DATA" | jq -r '.object.type')
+
+          # Resolve tag SHA (lightweight or annotated)
+          # if annotated (release-something-version), follow tag up to commit sha
+          # if lightweight (XX.YY-latest), nothing special
+          # TYPE OF OBJECT (tag or not a tag)
+          if [ "$PREVIOUS_STABLE_BUNDLE_TAG_OBJ_TYPE" = "tag" ]; then
+            PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA=$(curl -sS \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/centreon/centreon-collect/git/tags/${PREVIOUS_STABLE_BUNDLE_TAG_OBJ_SHA}" \
+              | jq -r '.object.sha')
+          else
+            PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA="$PREVIOUS_STABLE_BUNDLE_TAG_OBJ_SHA"
+          fi
+
+          echo "Setting SHA for PREVIOUS_STABLE_BUNDLE_TAG_COMMIT as PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA: $PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA."
+
+          # Output the vars
+          # BASE_REF
+          echo "base_ref=$BASE_REF" >> $GITHUB_OUTPUT
+          # BASE_REF_SHA
+          echo "base_ref_sha=$BASE_REF_SHA" >> $GITHUB_OUTPUT
+          # PREVIOUS_STABLE_BUNDLE_TAG
+          echo "previous_stable_bundle_tag=$PREVIOUS_STABLE_BUNDLE_TAG" >> $GITHUB_OUTPUT
+          # PREVIOUS_STABLE_BUNDLE_TAG_SHA
+          echo "previous_stable_bundle_tag_sha=$PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA" >> $GITHUB_OUTPUT
+          # NEW_BRANCH
+          echo "new_branch=$NEW_BRANCH" >> $GITHUB_OUTPUT
+          # NEW_BRANCH_EXISTS
+          echo "new_branch_exists=$NEW_BRANCH_EXISTS" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create requested release/hotfix branch
+        id: create_requested_release_hotfix_branch
+        run: |
+          set -eux
+
+          # Check the previous values
+          echo "${{ steps.get_and_set_references_information.outputs.base_ref }}"
+          echo "${{ steps.get_and_set_references_information.outputs.base_ref_sha }}"
+          echo "${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag }}"
+          echo "${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag_sha }}"
+          echo "${{ steps.get_and_set_references_information.outputs.new_branch }}"
+          echo "${{ steps.get_and_set_references_information.outputs.new_branch_exists }}" # e.g NEW_BRANCH_EXISTS
+
+          # Get release type
+          RELEASE_TYPE="$(echo ${{ inputs.dispatch_target_release_branch }} | cut -d "-" -f1)"
+
+          if [[ "$RELEASE_TYPE" == "release" ]]; then
+            echo "Creating requested release/hotfix branch with name ${{ steps.get_and_set_references_information.outputs.new_branch }} from ${{ steps.get_and_set_references_information.outputs.base_ref }}."
+            PAYLOAD=$(jq -n --arg ref "refs/heads/${{ steps.get_and_set_references_information.outputs.new_branch }}" --arg sha "${{ steps.get_and_set_references_information.outputs.base_ref_sha }}" \
+              '{ref: $ref, sha: $sha}')
+          elif [[ "$RELEASE_TYPE" == "hotfix" ]]; then
+            echo "Creating requested release/hotfix branch with name ${{ steps.get_and_set_references_information.outputs.new_branch }} from ${{ steps.get_and_set_references_information.outputs.base_ref }}."
+            PAYLOAD=$(jq -n --arg ref "refs/heads/${{ steps.get_and_set_references_information.outputs.new_branch }}" --arg sha "${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag_sha }}" \
+              '{ref: $ref, sha: $sha}')
+          fi
+
+          # DEBUG
+          echo "$PAYLOAD"
+
+          # Create the NEW_BRANCH using API and fine grained
+          # If NEW_BRANCH_EXISTS is false => create it
+          # If NEW_BRANCH_EXISTS is true => skip creation and move on to the diff step
+
+          if [[ "${{ steps.get_and_set_references_information.outputs.new_branch_exists }}" == "false" ]]; then
+            echo "NEW_BRANCH_EXISTS is false, creating new branch."
+            API_RESPONSE_BODY=$(curl \
+              -w "\n%{http_code}" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -X POST -H "Content-Type: application/json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              -d "$PAYLOAD" \
+              "https://api.github.com/repos/centreon/centreon-collect/git/refs")
+
+            API_HTTP_CODE=$(echo API_HTTP_CODE: "$API_RESPONSE_BODY" | tail -n1)
+            API_RESPONSE=$(echo "API_RESPONSE: $API_RESPONSE_BODY" | sed '$d')
+
+            echo "Create ref HTTP status: $API_HTTP_CODE"
+            echo "Create ref response: $API_RESPONSE"
+          else
+            echo "NEW_BRANCH_EXISTS is true, skipping creation."
+          fi
+
+          # Sleep 10sec
+          sleep 10
+
+          # Resolve branch SHA
+          NEW_BRANCH_SHA=$(
+            curl -sS \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/centreon/centreon-collect/git/ref/heads/${{ steps.get_and_set_references_information.outputs.new_branch }}" \
+              | jq -r '.object.sha'
+          )
+
+          # Exit if NEW_BRANC_SHA is not set at all
+          if [[ -z "$NEW_BRANCH_SHA" || "$NEW_BRANCH_SHA" == "null" ]]; then
+            echo "[ERROR] NEW_BRANCH_SHA could not be resolved and set, exiting."
+            exit 1
+          fi
+
+          # Always the current release or hotfix branch sha
+          echo "Setting SHA for NEW_BRANCH ${{ steps.get_and_set_references_information.outputs.new_branch }} as NEW_BRANCH_SHA: $NEW_BRANCH_SHA."
+
+          # Output the vars
+          # NEW_BRANCH_SHA
+          echo "new_branch_sha=$NEW_BRANCH_SHA" >> $GITHUB_OUTPUT
+
+
+        env:
+          GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+      # Detect changes since last stable tag (ex: 25.10-latest)
+      - name: Detect changed components since last stable release bundle tag
+        uses: ./.github/actions/release-detect-changed-components
+        with:
+          base_sha: ${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag_sha }}
+          head_sha: ${{ steps.create_requested_release_hotfix_branch.outputs.new_branch_sha }}
+
+      - name: Download component lists
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: component-commit-lists
+          path: component-commit-lists-dir
+
+      - name: Trigger changed components on selected branches
         run: |
           set -eux
 
           # VARS
           # names defined in workflow files per components
+          # these are the default component_list values, they can be overriden further in the code
           COMPONENTS_OSS=("awie" "dsm" "ha" "open-tickets" "web")
           COMPONENTS_OSS_EXTRA=("docker-keycloak" "docker-packaging" "docker-translation" "docker-web-dependencies")
           COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "open-tickets" "web")
           #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
           #COMPONENTS_MODULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
           #COMPONENTS_COLLECT=("Centreon collect")
+          declare -a COMPONENTS_CHANGED=()
           RUNS_URL=""
 
-          # Accept release prefixed or develop branches, nothing else
-          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} == "develop" ]];then
+          # DEBUG
+          echo "Selected dispatch_target_release_branch is ${{ inputs.dispatch_target_release_branch }}."
+          echo "Selected dispatch_content mode is ${{ inputs.dispatch_content }}."
+          echo "Components with changes are: $(cat component-commit-lists-dir/changed-components.txt)"
+
+          # Loading component changed into array
+          mapfile -t COMPONENTS_COLLECT_CHANGED < component-commit-lists-dir/changed-components.txt
+
+          # Accept the branche types listed below, nothing else
+          # release prefixed branches: standard release type (release-xxxxx)
+          # hotfix prefixed branches: hotfix release type (hotfix-xxxxx)
+          # develop: start of a new major version (not a release) (develop)
+
+          # Build link to list of runs for selected branch
+          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} == "develop" ]] || [[ ${{ inputs.dispatch_target_release_branch }} =~ ^hotfix-2[0-9]\.[0-9]+-next$ ]];then
             echo "Using ${{ inputs.dispatch_target_release_branch }} as branch to build testing packages."
-            RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
+            RUNS_URL="https://github.com/centreon/centreon-collect/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
           else
-            echo "::error::Invalid release branch name, please check the release branch name."
+            echo "::error::Invalid release branch name selected ${{ inputs.dispatch_target_release_branch }}, please check the release branch name in the input."
             exit 1
           fi
 
-          # FULL and EXTRA, web run receives specific label inputs
-          if [[ "${{ inputs.dispatch_content }}" == "FULL" ]]; then
-            echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows."
-            for COMPONENT in "${COMPONENTS_OSS_FULL[@]}"; do
-              case $COMPONENT in
-                web)
-                  gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }} -f labels="system,skip-all-tests"
-                ;;
-                *)
-                  gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
-              esac
+          # Handle the limited cases of dispatch_content
+          echo "Requested ${{ inputs.dispatch_content }} content."
+          case ${{ inputs.dispatch_content }} in
+            "FULL")
+            echo "Triggering all components, docker builders, php and extra libs."
+            for COMPONENT in "${COMPONENTS_COLLECT_FULL[@]}"; do
+              echo "Dispatching trigger to $COMPONENT workflow."
+              gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
             done
-            echo "Requested ${{ inputs.dispatch_content }} content, triggering all component workflows and extra docker builders and libs."
-            for COMPONENT in "${COMPONENTS_OSS_EXTRA[@]}"; do
-              case $COMPONENT in
-                web)
-                  gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }} -f labels="system,skip-all-tests"
-                ;;
-                *)
-                  gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
-              esac
+            ;;
+
+            "REGULAR")
+            echo "Triggering all components only."
+            for COMPONENT in "${COMPONENTS_COLLECT_REGULAR[@]}"; do
+              echo "Dispatching trigger to $COMPONENT workflow."
+              gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
             done
-          else
-            echo "Requested ${{ inputs.dispatch_content }} content, triggering centreon named components only."
-            for COMPONENT in "${COMPONENTS_OSS[@]}"; do
-              gh workflow run $COMPONENT -r ${{ inputs.dispatch_target_release_branch }}
-            done
-          fi
+            ;;
+
+            "CHANGED_ONLY")
+            echo "Triggering components that received at least one change since last stable release bundle tag."
+
+            # There can be no changes at all
+            # Exit 0 with warning if no change at all is reported.
+            if (( ${#COMPONENTS_COLLECT_CHANGED[@]} == 0 )) || [[ -z "${COMPONENTS_COLLECT_CHANGED[*]}" ]]; then
+              echo "::warning::No changed component(s) found, exiting workflow."
+              exit 0
+            else
+              for COMPONENT in "${COMPONENTS_COLLECT_CHANGED[@]}"; do
+                echo "Dispatching trigger to $COMPONENT workflow."
+                gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
+              done
+            fi
+
+            ;;
+          esac
 
           echo "Dispatch was successfully triggered. Runs can be found at ${RUNS_URL}"
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate release summary
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          BASE_SHA: ${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag_sha }}
+          HEAD_SHA: ${{ steps.create_requested_release_hotfix_branch.outputs.new_branch_sha }}
+          PREVIOUS_RELEASE_BUNDLE_TAG: ${{ steps.get_and_set_references_information.outputs.previous_stable_bundle_tag }}
+          NEW_BRANCH: ${{ steps.get_and_set_references_information.outputs.new_branch }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Data from previous steps and context
+            const baseSha = process.env.BASE_SHA;
+            const headSha = process.env.HEAD_SHA;
+            const repo = process.env.GITHUB_REPOSITORY;
+            const previousReleaseBundleTag = process.env.PREVIOUS_RELEASE_BUNDLE_TAG
+            const newBranch = process.env.NEW_BRANCH
+
+            // Artifacts from previous steps
+            const componentsFile = 'artifacts/changed-components.txt';
+            const commitListsDir = 'artifacts/commit-lists';
+
+            // Build summary
+            // Full diff between baseSha (latest stable bundle tag) and headSha (dev or release/hotfix branch)
+            core.summary
+              .addHeading('Release changes summary', 2)
+              .addRaw('\n\n')
+              .addRaw(`**Base (${previousReleaseBundleTag}):** \`${baseSha}\`\n\n`)
+              .addRaw(`**Head (${newBranch}):** \`${headSha}\`\n\n`)
+              .addLink(
+                `Full diff ${previousReleaseBundleTag} <> ${newBranch}`,
+                `https://github.com/${repo}/compare/${baseSha}...${headSha}`
+              )
+              .addRaw('\n\n');
+
+            if (!fs.existsSync(componentsFile)) {
+              core.summary.addRaw('_No components changed._\n');
+              await core.summary.write();
+              return;
+            }
+
+            // Get components, 1 per line from the file
+            const components = fs
+              .readFileSync(componentsFile, 'utf8')
+              .split('\n')
+              .map(l => l.trim())
+              .filter(Boolean);
+
+            let shown = false;
+
+            for (const component of components) {
+              const commitsPath = `${commitListsDir}/${component}.txt`;
+              if (!fs.existsSync(commitsPath)) continue;
+
+              const lines = fs.readFileSync(commitsPath, 'utf8')
+                .split('\n')
+                .map(l => l.trim())
+                .filter(Boolean);
+
+              if (lines.length === 0) continue;
+
+              shown = true;
+
+              const rendered = lines.map(line => {
+                const [sha, ...rest] = line.split(' ');
+                const subject = rest.join(' ');
+                const url = `https://github.com/${repo}/commit/${sha}`;
+                return `- [\`${sha}\`](${url}) ${subject}`;
+              }).join('\n');
+
+              const diffUrl = `https://github.com/${repo}/compare/${baseSha}...${headSha}`;
+
+              core.summary.addSeparator()
+
+              core.summary
+                .addRaw(`\n\n### ${component} — [Full diff ${previousReleaseBundleTag} <> ${newBranch}](${diffUrl})\n\n`)
+                .addDetails(`Commit list (${lines.length})`, `\n\n${rendered}\n`)
+                .addRaw('\n');
+            }
+
+            if (!shown) {
+              core.summary.addRaw('_No components changed._\n');
+            }
+
+            await core.summary.write();
