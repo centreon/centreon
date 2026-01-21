@@ -1,8 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/hostGroups/dependency.json';
 import grps from '../../../fixtures/notifications/data-for-notification.json';
-import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();

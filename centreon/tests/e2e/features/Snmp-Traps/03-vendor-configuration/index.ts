@@ -1,9 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import traps from '../../../fixtures/snmp-traps/snmp-trap.json';
 import data from '../../../fixtures/snmp-traps/vendor.json';
 import { addOrUpdateVendor, checkVendorFieldsValues } from '../common';
-import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const services = {
   serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' }

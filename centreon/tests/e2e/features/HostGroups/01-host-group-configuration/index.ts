@@ -1,8 +1,8 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
-import hostGroups from '../../../fixtures/hostGroups/hostGroup.json';
 import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+import hostGroups from '../../../fixtures/hostGroups/hostGroup.json';
 
 const services = {
   serviceCritical: {

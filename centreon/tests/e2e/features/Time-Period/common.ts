@@ -1,4 +1,4 @@
-import { PAGES } from "e2e/fixtures/shared/constants/pages";
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const setTimePeriod = (): Cypress.Chainable => {
   cy.getIframeBody().find('input[name="tp_name"]').type('timePeriodName');
@@ -50,7 +50,7 @@ const setTimePeriod = (): Cypress.Chainable => {
 };
 
 const navigateToTimePeriodsAndInitiateAddition = () => {
-   cy.visit(PAGES.configuration.timePeriodsLegacy);
+  cy.visit(PAGES.configuration.timePeriodsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="tp_name"]');
