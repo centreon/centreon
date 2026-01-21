@@ -42,11 +42,12 @@ interface WriteCommandRepositoryInterface
     /**
      * Update a command.
      *
-     * @param Command $command
+     * @param Command $originalCommand
+     * @param Command $updatedCommand
      *
      * @throws \Throwable
      *
-     * @return int
+     * @return void
      */
     public function update(Command $originalCommand, Command $updatedCommand): void;
 

@@ -581,7 +581,7 @@ class DbWriteCommandRepository extends AbstractRepositoryRDB implements WriteCom
                 if (in_array($macro->getName(), $addedMacros, true)) {
                     $statement->bindValue(":macroName_{$key}", $macro->getName(), \PDO::PARAM_STR);
                     $statement->bindValue(":macroDescription_{$key}", $macro->getDescription(), \PDO::PARAM_STR);
-                    $statement->bindValue(":macroType_{$key}", $macro->getType(), \PDO::PARAM_INT);
+                    $statement->bindValue(":macroType_{$key}", $macro->getType()->value, \PDO::PARAM_INT);
                 }
             }
 

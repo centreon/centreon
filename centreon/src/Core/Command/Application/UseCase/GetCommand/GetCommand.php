@@ -42,8 +42,6 @@ final class GetCommand
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
-    private array $accessGroups;
 
     /**
      * Summary of __construct

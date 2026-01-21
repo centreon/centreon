@@ -31,7 +31,6 @@ use Core\Application\Common\UseCase\{
     InvalidArgumentResponse,
     NoContentResponse,
     NotFoundResponse,
-    ResponseStatusInterface,
 };
 use Core\Common\Domain\SimpleEntity;
 use Core\Domain\Exception\InvalidGeoCoordException;
@@ -168,8 +167,8 @@ final class UpdateCommand
             argumentExample: (new TrimmedString($request->argumentExample))->value,
             arguments: $arguments,
             macros: $macros,
-            connector: new SimpleEntity($request->connectorId, null, ''),
-            graphTemplate: new SimpleEntity($request->graphTemplateId, null, ''),
+            connector: $request->connectorId !== null ? new SimpleEntity($request->connectorId, null, '') : null,
+            graphTemplate: $request->graphTemplateId !== null ? new SimpleEntity($request->graphTemplateId, null, '') : null,
             type: $request->type,
         );
 

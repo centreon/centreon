@@ -217,7 +217,7 @@ it('should present a command; when command is successfully getted', function ():
         ->and($response->isShellEnabled)->toBe($this->command->isShellEnabled())
         ->and($response->isLocked)->toBe($this->command->isLocked())
         ->and($response->isActivated)->toBe($this->command->isActivated())
-        ->and($response->argumentExample)->tobe($this->command->getArgumentExample())
+        ->and($response->argumentExample)->toBe($this->command->getArgumentExample())
         ->and($response->connector)->toBe([
             'id' => $this->command->getConnector()->getId(),
             'name' => $this->command->getConnector()->getName(),
@@ -226,11 +226,11 @@ it('should present a command; when command is successfully getted', function ():
             'id' => $this->command->getGraphTemplate()->getId(),
             'name' => $this->command->getGraphTemplate()->getName(),
         ])
-        ->and($response->arguments)->tobe([[
+        ->and($response->arguments)->toBe([[
             'name' => $this->command->getArguments()[0]->getName(),
             'description' => $this->command->getArguments()[0]->getDescription(),
         ]])
-        ->and($response->macros)->tobe([[
+        ->and($response->macros)->toBe([[
             'name' => $this->command->getMacros()[0]->getName(),
             'description' => $this->command->getMacros()[0]->getDescription(),
             'type' => $this->command->getMacros()[0]->getType(),

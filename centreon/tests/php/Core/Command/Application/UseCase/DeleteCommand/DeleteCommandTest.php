@@ -182,7 +182,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->toBe(CommandException::errorWhileDeletingCommand()->getMessage());
 });
 
-it('should present an NotFoundResponse; when command is not found', function (): void {
+it('should present a NotFoundResponse when command is not found', function (): void {
     $this->readCommandRepository
         ->expects($this->once())
         ->method('findById')
@@ -197,7 +197,7 @@ it('should present an NotFoundResponse; when command is not found', function ():
         ->toBe("Command not found");
 });
 
-it('should present an NotContentResponse; when command is successfully deleted', function (): void {
+it('should present a NoContentResponse when command is successfully deleted', function (): void {
     $this->user
             ->expects($this->once())
             ->method('isAdmin')
