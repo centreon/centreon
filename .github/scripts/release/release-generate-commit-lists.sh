@@ -34,7 +34,7 @@ while read -r component; do
   git log \
     --pretty=format:'%h %s' \
     "$BASE_SHA..$HEAD_SHA" \
-    -- "$paths" \
+    -- $paths \
     > "artifacts/commit-lists/${component}.txt"
 
   # Checking content
