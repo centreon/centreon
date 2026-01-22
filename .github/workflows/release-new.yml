@@ -31,7 +31,7 @@ on:
 
 jobs:
   dependency-scan:
-    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   check-inputs:
     needs: [dependency-scan]

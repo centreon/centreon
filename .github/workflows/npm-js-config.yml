@@ -21,7 +21,11 @@ on:
       - "centreon/packages/js-config/**"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   publish-package:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/npm-publish-package.yml
     with:
