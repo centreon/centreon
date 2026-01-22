@@ -30,6 +30,7 @@ while read -r component; do
   fi
 
   # Add commits to component commit list
+  echo "Adding commits for $component to file artifacts/commit-lists/${component}.txt"
   git log \
     --pretty=format:'%h %s' \
     "$BASE_SHA..$HEAD_SHA" \
