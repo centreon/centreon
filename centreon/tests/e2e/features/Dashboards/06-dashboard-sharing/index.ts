@@ -69,10 +69,7 @@ Given('a non-admin user who is in a list of shared dashboards', () => {
     jsonName: dashboardAdministratorUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 
@@ -108,10 +105,7 @@ Given('a non-admin user who has update rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 
@@ -170,10 +164,7 @@ When('the viewer user logs in on the platform', () => {
     jsonName: dashboardViewerUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 
@@ -206,10 +197,7 @@ Given(
       loginViaApi: false
     });
 
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
   }
 );
@@ -274,10 +262,7 @@ When('the second editor user logs in on the platform', () => {
     loginViaApi: false
   });
 
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 
@@ -310,10 +295,7 @@ Given('a non-admin editor user with creator rights on a dashboard', () => {
     loginViaApi: false
   });
 
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 
@@ -376,10 +358,7 @@ Then(
       jsonName: dashboardCGMember1.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+   cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
@@ -394,10 +373,7 @@ Then(
       jsonName: dashboardCGMember2.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
@@ -413,10 +389,7 @@ Given('a non-admin editor user who has creator rights on a dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
 });
 
@@ -479,10 +452,7 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
@@ -497,10 +467,7 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
@@ -519,10 +486,7 @@ Given(
       loginViaApi: false
     });
 
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
@@ -598,10 +562,7 @@ Then(
       jsonName: dashboardCGMember3.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
@@ -622,10 +583,7 @@ Then(
       jsonName: dashboardCGMember4.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).should('exist');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();

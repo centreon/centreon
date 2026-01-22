@@ -204,10 +204,7 @@ after(() => {
 
 Given('a dashboard administrator on the dashboard web interface', () => {
   cy.insertDashboard(dashboards.fromDashboardCreatorUser);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   cy.getByLabel({
@@ -300,10 +297,7 @@ Then(
 Given(
   'a dashboard administrator who has just configured a multi-widget dashboard',
   () => {
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   }
@@ -372,10 +366,7 @@ Then('the dashboard is updated with the new widget layout', () => {
 Given(
   'the dashboard administrator with a configured multi-widget dashboard',
   () => {
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
   }

@@ -192,10 +192,7 @@ after(() => {
 
 Given('a dashboard that includes a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -275,10 +272,7 @@ Then('only the services must be displayed', () => {
 
 Given('a dashboard containing a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -376,10 +370,7 @@ Then(
 
 Given('a dashboard featuring two resource table widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -419,10 +410,7 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured resource table widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, resourceTable);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -470,10 +458,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.contains(dashboards.default.name).click();
   }
 );

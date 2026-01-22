@@ -123,11 +123,7 @@ Then('the new connector has the same properties', () => {
 });
 
 When('the user updates the status of a connector to {string}', (type: string) => {
-    cy.navigateTo({
-        page: 'Connectors',
-        rootItemNumber: 3,
-        subMenu: 'Commands'
-    });
+    cy.visit(PAGES.configuration.commandsConnectorsLegacy);
     // Wait for the updated connector to be charged on the DOM
     cy.waitForElementInIframe(
         '#main-content',

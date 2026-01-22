@@ -3,6 +3,7 @@ import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -34,10 +35,8 @@ beforeEach(() => {
 });
 
 after(() => {
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
+  cy.visit(PAGES.monitoring.dashboards);
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'
@@ -49,10 +48,7 @@ Given(
   'a dashboard featuring a dashboard administrator and a dashboard viewer in its share list',
   () => {
     cy.insertDashboard({ ...dashboards.fromDashboardAdministratorUser });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
@@ -106,10 +102,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.contains(dashboards.fromDashboardAdministratorUser.name).click();
     cy.url().should('match', /\/dashboards\/library\/\d+$/);
     cy.getByTestId({ testId: 'edit' }).should('be.enabled');
@@ -120,10 +113,7 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a dashboard editor in its share list',
   () => {
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
@@ -159,10 +149,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.contains(dashboards.fromDashboardAdministratorUser.name)
       .should('exist')
       .click();
@@ -175,10 +162,7 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a viewer in its share list',
   () => {
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
@@ -213,10 +197,7 @@ Then(
       jsonName: dashboardCreatorUser.login,
       loginViaApi: false
     });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     // FIXME
     cy.contains('Dashboards').should('not.exist');
   }
@@ -225,10 +206,7 @@ Then(
 Given(
   'a dashboard featuring a dashboard administrator and a user who has just been removed from the share list',
   () => {
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.getByTestId({ testId: 'Share with contacts' })
       .should('be.visible')
@@ -282,10 +260,7 @@ Then('the restored user retains the same rights on the dashboard', () => {
     jsonName: dashboardCreatorUser.login,
     loginViaApi: false
   });
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.fromDashboardAdministratorUser.name)
     .should('exist')
