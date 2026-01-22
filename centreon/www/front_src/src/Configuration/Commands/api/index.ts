@@ -1,17 +1,16 @@
 export {
-  commandsListDecoder,
   commandDecoder,
+  commandsListDecoder,
   JSONLDEntitiesListDecoder,
   pluginDetailsDecoder
 } from './decoders';
-
 export {
-  getCommandEndpoint,
   commandsEndpoint,
-  getGlobalMacrosEndpoint,
-  getStandardMacrosEndpoint,
-  getPluginsEndpoint,
   connectorsEndpoint,
   duplicateCommandsEndpoint,
-  getPluginEndpoint
+  getCommandEndpoint,
+  getGlobalMacrosEndpoint,
+  getPluginEndpoint,
+  getPluginsEndpoint,
+  getStandardMacrosEndpoint
 } from './endpoints';

@@ -1,13 +1,15 @@
-import { ColumnType, InputType, buildListingDecoder } from '@centreon/ui';
+import { buildListingDecoder, ColumnType, InputType } from '@centreon/ui';
+
 import { JsonDecoder } from 'ts.data.json';
+
 import { Endpoints, FieldType } from '../../models';
 
 const resourceDecoder = JsonDecoder.object(
   {
-    id: JsonDecoder.number,
-    name: JsonDecoder.string,
     alias: JsonDecoder.nullable(JsonDecoder.string),
-    isActivated: JsonDecoder.boolean
+    id: JsonDecoder.number,
+    isActivated: JsonDecoder.boolean,
+    name: JsonDecoder.string
   },
   'Resource',
   {
@@ -22,28 +24,28 @@ export const resourceDecoderListDecoder = buildListingDecoder({
 });
 
 export const getListingResponse = (resourceType) => ({
-  result: Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    name: `${resourceType} ${i}`,
-    alias: `alias for ${resourceType} ${i}`,
-    is_activated: !!(i % 2)
-  })),
   meta: {
     limit: 10,
     page: 1,
     total: 12
-  }
+  },
+  result: Array.from({ length: 12 }, (_, i) => ({
+    alias: `alias for ${resourceType} ${i}`,
+    id: i,
+    is_activated: !!(i % 2),
+    name: `${resourceType} ${i}`
+  }))
 });
 
 export const getEndpoints = (resourceType): Endpoints => ({
-  getAll: `/configuration/${resourceType}`,
-  getOne: ({ id }) => `/configuration/${resourceType}/${id}`,
-  deleteOne: ({ id }) => `/configuration/${resourceType}/${id}`,
+  create: `/configuration/${resourceType}`,
   delete: `/configuration/${resourceType}/_delete`,
+  deleteOne: ({ id }) => `/configuration/${resourceType}/${id}`,
+  disable: () => `/configuration/${resourceType}/_disable`,
   duplicate: `/configuration/${resourceType}/_duplicate`,
   enable: () => `/configuration/${resourceType}/_enable`,
-  disable: () => `/configuration/${resourceType}/_disable`,
-  create: `/configuration/${resourceType}`,
+  getAll: `/configuration/${resourceType}`,
+  getOne: ({ id }) => `/configuration/${resourceType}/${id}`,
   update: ({ id }) => `/configuration/${resourceType}/${id}`
 });
 
@@ -53,8 +55,8 @@ export const columns = [
     getFormattedString: ({ name }) => name,
     id: 'name',
     label: 'Name',
-    sortField: 'name',
     sortable: true,
+    sortField: 'name',
     type: ColumnType.string
   },
   {
@@ -62,34 +64,34 @@ export const columns = [
     getFormattedString: ({ alias }) => alias,
     id: 'alias',
     label: 'Alias',
-    sortField: 'alias',
     sortable: true,
+    sortField: 'alias',
     type: ColumnType.string
   }
 ];
 
 export const filtersConfiguration = [
   {
-    name: 'Name',
     fieldName: 'name',
-    fieldType: FieldType.Text
+    fieldType: FieldType.Text,
+    name: 'Name'
   },
   {
-    name: 'Alias',
     fieldName: 'alias',
-    fieldType: FieldType.Text
+    fieldType: FieldType.Text,
+    name: 'Alias'
   },
   {
-    name: 'Status',
-    fieldType: FieldType.Status
+    fieldType: FieldType.Status,
+    name: 'Status'
   }
 ];
 
 export const filtersInitialValues = {
-  name: '',
   alias: '',
+  disabled: false,
   enabled: false,
-  disabled: false
+  name: ''
 };
 
 export const columnsAtomKey = 'columns_configuration';
@@ -97,14 +99,14 @@ export const filtersAtomKey = 'filters_configuration';
 
 export const groups = [
   {
+    isDividerHidden: true,
     name: 'General informations',
-    order: 1,
-    isDividerHidden: true
+    order: 1
   },
   {
+    isDividerHidden: true,
     name: 'Extended informations',
-    order: 2,
-    isDividerHidden: true
+    order: 2
   }
 ];
 

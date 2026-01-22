@@ -2,26 +2,15 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import useColumns from './Columns/useColumns';
-import useCommands from './useCommands';
-
 import { ResourceType } from '../models';
-import { initialValues, useInputs, useValidationSchema } from './Form';
-import {
-  columnsAtomKey,
-  defaultSelectedColumnIds,
-  filtersAtomKey,
-  filtersInitialValues
-} from './utils';
-
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
+import useColumns from './Columns/useColumns';
+import { initialValues, useInputs, useValidationSchema } from './Form';
 import { Filters } from './models';
-import { useUserPermissions } from './useUserPermissions';
-
 import {
   labelAddCommand,
   labelCommands,
@@ -29,6 +18,14 @@ import {
   labelWelcomePageDescription,
   labelWelcomePageTitle
 } from './translatedLabels';
+import useCommands from './useCommands';
+import { useUserPermissions } from './useUserPermissions';
+import {
+  columnsAtomKey,
+  defaultSelectedColumnIds,
+  filtersAtomKey,
+  filtersInitialValues
+} from './utils';
 
 const Commands = (): ReactElement => {
   const { t } = useTranslation();
@@ -43,18 +40,33 @@ const Commands = (): ReactElement => {
 
   return (
     <ConfigurationBase<Filters>
-      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
-      columnsAtomKey={columnsAtomKey}
-      filtersAtomKey={filtersAtomKey}
-      filtersAtom={filtersAtom}
-      selectedColumnIdsAtom={selectedColumnIdsAtom}
-      columns={columns}
-      resourceType={ResourceType.Command}
-      form={{ inputs, groups, validationSchema, defaultValues: initialValues }}
+      actions={{
+        delete: true,
+        duplicate: true,
+        edit: canEdit,
+        enableDisable: true,
+        viewDetails: true
+      }}
       api={api}
+      columns={columns}
+      columnsAtomKey={columnsAtomKey}
+      defaultSelectedColumnIds={defaultSelectedColumnIds}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
       filtersConfiguration={filtersConfiguration}
       filtersInitialValues={filtersInitialValues}
-      defaultSelectedColumnIds={defaultSelectedColumnIds}
+      form={{ defaultValues: initialValues, groups, inputs, validationSchema }}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+      labels={{
+        title: t(labelCommands),
+        welcomePage: {
+          actions: {
+            create: t(labelAddCommand)
+          },
+          description: t(labelWelcomePageDescription),
+          title: t(labelWelcomePageTitle)
+        }
+      }}
       navbar={[
         {
           label: labelCommands,
@@ -65,23 +77,8 @@ const Commands = (): ReactElement => {
           link: '/main.php?p=60806'
         }
       ]}
-      actions={{
-        delete: true,
-        enableDisable: true,
-        duplicate: true,
-        edit: canEdit,
-        viewDetails: true
-      }}
-      labels={{
-        title: t(labelCommands),
-        welcomePage: {
-          title: t(labelWelcomePageTitle),
-          description: t(labelWelcomePageDescription),
-          actions: {
-            create: t(labelAddCommand)
-          }
-        }
-      }}
+      resourceType={ResourceType.Command}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

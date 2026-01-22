@@ -1,8 +1,9 @@
-import { useQueryClient } from '@tanstack/react-query';
-
 import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
+import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
+
 import { configurationAtom } from '../atoms';
 
 interface UseDisableProps {
@@ -26,11 +27,7 @@ const useDisable = (): UseDisableProps => {
     }
   });
 
-  const disableMutation = ({
-    ids
-  }: {
-    ids: Array<number>;
-  }) => {
+  const disableMutation = ({ ids }: { ids: Array<number> }) => {
     if (equals(method, Method.PATCH)) {
       return mutateAsync({
         _meta: { id: ids[0] },

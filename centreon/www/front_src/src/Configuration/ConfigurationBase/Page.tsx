@@ -1,21 +1,19 @@
+import { LoadingSkeleton } from '@centreon/ui';
+import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { isNil, isNotEmpty, or } from 'ramda';
 import { JSX, useLayoutEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { LoadingSkeleton } from '@centreon/ui';
-import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
-
-import { Listing } from './Listing';
-import { Modal } from './Modal';
-
 import { ConfigurationBase } from '../models';
-
+import { modalStateAtom } from './atoms';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
+import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
+import { Modal } from './Modal';
 import Navbar from './NavBar';
-import { modalStateAtom } from './atoms';
 
 const WelcomePage = ({
   labels,
@@ -44,10 +42,10 @@ const WelcomePage = ({
   return (
     <DataTable.EmptyState
       aria-label="create"
+      canCreate={hasWriteAccess}
       data-testid={dataTestId}
       labels={labels}
       onCreate={onCreate}
-      canCreate={hasWriteAccess}
     />
   );
 };
@@ -115,23 +113,23 @@ const Page = <TFilters,>({
           {isWelcomePageDisplayed ? (
             <WelcomePage
               dataTestId={`create-${resourceType}`}
-              labels={labels.welcomePage}
-              onCreate={openCreatetModal}
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
-              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
               hasWriteAccess={!!actions?.edit}
+              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+              labels={labels.welcomePage}
+              onCreate={openCreatetModal}
             />
           ) : (
             <Listing<TFilters>
-              selectedColumnIdsAtom={selectedColumnIdsAtom}
-              columns={columns}
-              hasWriteAccess={!!actions?.edit}
               actions={actions}
-              isLoading={isLoading}
+              columns={columns}
               data={data}
-              filtersAtomKey={filtersAtomKey}
               filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+              hasWriteAccess={!!actions?.edit}
+              isLoading={isLoading}
+              selectedColumnIdsAtom={selectedColumnIdsAtom}
             />
           )}
         </DataTable>

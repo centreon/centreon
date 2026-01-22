@@ -3,8 +3,7 @@ import { Method } from '@centreon/ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useUserPermissions } from './useUserPermissions';
-
+import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   commandDecoder,
   commandsEndpoint,
@@ -12,10 +11,7 @@ import {
   duplicateCommandsEndpoint,
   getCommandEndpoint
 } from './api';
-
-import { APIType, FieldType, FilterConfiguration } from '../models';
 import { Command, Payload } from './models';
-
 import {
   labelCheck,
   labelDiscovery,
@@ -26,6 +22,7 @@ import {
   labelStatus,
   labelType
 } from './translatedLabels';
+import { useUserPermissions } from './useUserPermissions';
 
 interface UseCommandsState {
   api: APIType;
@@ -33,12 +30,12 @@ interface UseCommandsState {
 }
 
 export const adaptFormToApiPayload = (formData: Command): Payload => ({
-  name: formData.name,
-  type: formData.type,
   command_line: formData.commandLine,
-  is_shell_enabled: formData.isShellEnabled,
+  comment: formData.comment || null,
   connector: formData.connector?.id || null,
-  comment: formData.comment || null
+  is_shell_enabled: formData.isShellEnabled,
+  name: formData.name,
+  type: formData.type
 });
 
 const useCommands = (): UseCommandsState => {
@@ -54,20 +51,20 @@ const useCommands = (): UseCommandsState => {
   const typeOptions = useMemo(
     () => [
       {
+        disabled: !canViewNotificationCommands,
         id: 'Notification',
-        name: labelNotification,
-        disabled: !canViewNotificationCommands
+        name: labelNotification
       },
-      { id: 'Check', name: labelCheck, disabled: !canViewCheckCommands },
+      { disabled: !canViewCheckCommands, id: 'Check', name: labelCheck },
       {
+        disabled: !canViewMiscellaneousCommands,
         id: 'Miscellaneous',
-        name: labelMiscellaneous,
-        disabled: !canViewMiscellaneousCommands
+        name: labelMiscellaneous
       },
       {
+        disabled: !canViewDiscoveryCommands,
         id: 'Discovery',
-        name: labelDiscovery,
-        disabled: !canViewDiscoveryCommands
+        name: labelDiscovery
       }
     ],
     [
@@ -80,28 +77,28 @@ const useCommands = (): UseCommandsState => {
 
   const api: APIType = useMemo(
     () => ({
-      endpoints: {
-        getAll: commandsEndpoint,
-        getOne: getCommandEndpoint,
-        deleteOne: getCommandEndpoint,
-        create: commandsEndpoint,
-        update: getCommandEndpoint,
-        enable: getCommandEndpoint,
-        disable: getCommandEndpoint,
-        duplicate: duplicateCommandsEndpoint
-      },
+      adapter: adaptFormToApiPayload,
+      apiFormat: 'JSON-LD',
       decoders: {
         getAll: commandsListDecoder,
         getOne: commandDecoder
       },
-      methods: {
-        update: Method.PATCH,
-        enable: Method.PATCH,
-        disable: Method.PATCH
+      endpoints: {
+        create: commandsEndpoint,
+        deleteOne: getCommandEndpoint,
+        disable: getCommandEndpoint,
+        duplicate: duplicateCommandsEndpoint,
+        enable: getCommandEndpoint,
+        getAll: commandsEndpoint,
+        getOne: getCommandEndpoint,
+        update: getCommandEndpoint
       },
-      adapter: adaptFormToApiPayload,
-      apiFormat: 'JSON-LD',
-      isSingleDuplicate: true
+      isSingleDuplicate: true,
+      methods: {
+        disable: Method.PATCH,
+        enable: Method.PATCH,
+        update: Method.PATCH
+      }
     }),
     []
   );
@@ -109,24 +106,24 @@ const useCommands = (): UseCommandsState => {
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
       {
-        name: t(labelName),
         fieldName: 'name',
-        fieldType: FieldType.Text
+        fieldType: FieldType.Text,
+        name: t(labelName)
       },
       {
-        name: t(labelType),
         fieldName: 'type',
         fieldType: FieldType.Checkboxes,
+        name: t(labelType),
         options: typeOptions
       },
       {
-        name: t(labelStatus),
-        fieldType: FieldType.Status
+        fieldType: FieldType.Status,
+        name: t(labelStatus)
       },
       {
-        name: t(labelLockedElements),
         fieldName: 'is_from_monitoring_connector',
-        fieldType: FieldType.Checkbox
+        fieldType: FieldType.Checkbox,
+        name: t(labelLockedElements)
       }
     ],
     []

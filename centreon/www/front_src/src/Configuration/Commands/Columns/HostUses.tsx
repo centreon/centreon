@@ -1,5 +1,6 @@
 import { ComponentColumnProps } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
+
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 

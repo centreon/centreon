@@ -8,7 +8,6 @@ import {
   labelStatus,
   labelType
 } from '../translatedLabels';
-
 import initialize from './initialize';
 
 export default (): void => {

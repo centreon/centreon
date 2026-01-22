@@ -1,4 +1,5 @@
 import { Checkbox, FormControlLabel, Typography } from '@mui/material';
+
 import { SetStateAction } from 'jotai';
 import { Dispatch, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,8 +25,8 @@ const Checkboxes = <TFilters,>({
 
   const { change, isChecked } = useCheckboxes<TFilters>({
     filters,
-    setFilters,
-    name
+    name,
+    setFilters
   });
 
   return (
@@ -36,8 +37,8 @@ const Checkboxes = <TFilters,>({
           <FormControlLabel
             control={
               <Checkbox
-                data-testid={name}
                 checked={isChecked(id)}
+                data-testid={name}
                 name={id}
                 onChange={change}
               />

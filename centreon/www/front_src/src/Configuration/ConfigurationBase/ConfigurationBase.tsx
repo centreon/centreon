@@ -1,9 +1,9 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
+
 import { ConfigurationBase } from '../models';
 import { configurationAtom } from './atoms';
-
 import Page from './Page';
 
 const Base = <TFilters,>({
@@ -29,12 +29,12 @@ const Base = <TFilters,>({
 
   useEffect(() => {
     setConfiguration({
-      resourceType,
+      actions,
       api,
+      defaultSelectedColumnIds,
       filtersConfiguration,
       filtersInitialValues,
-      defaultSelectedColumnIds,
-      actions
+      resourceType
     });
 
     if (isNil(localStorage.getItem(filtersAtomKey))) {
@@ -70,16 +70,16 @@ const Base = <TFilters,>({
 
   return (
     <Page<TFilters>
-      columns={columns}
-      resourceType={resourceType}
-      form={form}
       actions={actions}
-      labels={labels}
-      selectedColumnIdsAtom={selectedColumnIdsAtom}
+      columns={columns}
       filtersAtom={filtersAtom}
       filtersAtomKey={filtersAtomKey}
+      form={form}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+      labels={labels}
       navbar={navbar}
+      resourceType={resourceType}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

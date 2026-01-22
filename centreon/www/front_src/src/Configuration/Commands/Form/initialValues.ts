@@ -1,11 +1,11 @@
 export const initialValues = {
-  name: '',
-  type: null,
   commandLine: '',
   comment: null,
-  isShellEnabled: false,
   connector: null,
   globalMarco: null,
+  installedPlugin: null,
+  isShellEnabled: false,
+  name: '',
   standardMacro: null,
-  installedPlugin: null
+  type: null
 };

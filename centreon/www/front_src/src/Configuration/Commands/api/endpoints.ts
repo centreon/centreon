@@ -24,11 +24,11 @@ export const getListEndpoint =
     return buildListingEndpoint({
       apiFormat: 'JSON-LD',
       baseEndpoint: baseEndpoint,
+      customQueryParameters,
       parameters: {
         limit: 10,
         page
-      },
-      customQueryParameters
+      }
     });
   };
 

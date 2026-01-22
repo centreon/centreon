@@ -1,4 +1,5 @@
 import { userPermissionsAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { or } from 'ramda';
 import { useMemo } from 'react';
@@ -24,10 +25,6 @@ export const useUserPermissions = (): UseUserPermissions => {
         userPermissions?.see_check_commands,
         userPermissions?.manage_check_commands
       ),
-      canViewNotificationCommands: or(
-        userPermissions?.see_notification_commands,
-        userPermissions?.manage_notification_commands
-      ),
       canViewDiscoveryCommands: or(
         userPermissions?.see_discovery_commands,
         userPermissions?.manage_discovery_commands
@@ -35,6 +32,10 @@ export const useUserPermissions = (): UseUserPermissions => {
       canViewMiscellaneousCommands: or(
         userPermissions?.see_miscellaneous_commands,
         userPermissions?.manage_miscellaneous_commands
+      ),
+      canViewNotificationCommands: or(
+        userPermissions?.see_notification_commands,
+        userPermissions?.manage_notification_commands
       )
     }),
     []
@@ -43,11 +44,10 @@ export const useUserPermissions = (): UseUserPermissions => {
   const editorPermissions = useMemo(
     () => ({
       canEditCheckCommands: userPermissions?.manage_check_commands,
-      canEditNotificationCommands:
-        userPermissions?.manage_notification_commands,
       canEditDiscoveryCommands: userPermissions?.manage_discovery_commands,
       canEditMiscellaneousCommands:
-        userPermissions?.manage_miscellaneous_commands
+        userPermissions?.manage_miscellaneous_commands,
+      canEditNotificationCommands: userPermissions?.manage_notification_commands
     }),
     []
   );

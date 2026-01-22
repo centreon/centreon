@@ -21,8 +21,8 @@ export const useCommandLine = (): UseCommandLineState => {
   const textFieldRef = useRef<HTMLInputElement>(null);
   const [macros, setMacros] = useState({
     globalMarco: null,
-    standardMacro: null,
-    installedPlugin: null
+    installedPlugin: null,
+    standardMacro: null
   });
 
   const { values, setFieldValue, setFieldTouched, touched, errors } =
@@ -67,12 +67,12 @@ export const useCommandLine = (): UseCommandLineState => {
   };
 
   return {
-    macros,
     changeCommand,
     changeMacro,
-    insertMacroIntoCommand,
-    textFieldRef,
     error: touched?.commandLine && errors?.commandLine,
+    insertMacroIntoCommand,
+    macros,
+    textFieldRef,
     values
   };
 };

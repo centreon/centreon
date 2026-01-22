@@ -1,8 +1,9 @@
+import { QueryParameter } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
 import { useMemo } from 'react';
 
-import { QueryParameter } from '@centreon/ui';
 import { FieldType } from '../../models';
 import { useGetAll } from '../api';
 import { configurationAtom } from '../atoms';
@@ -135,13 +136,13 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   };
 
   const { data, isLoading } = useGetAll({
-    sortField,
-    sortOrder,
-    page,
-    limit,
-    searchConditions,
     filtersAtomKey,
-    getCustomQueryParameters
+    getCustomQueryParameters,
+    limit,
+    page,
+    searchConditions,
+    sortField,
+    sortOrder
   });
 
   return { data, isLoading };

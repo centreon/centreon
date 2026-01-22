@@ -1,10 +1,9 @@
-import { ReactElement, useMemo } from 'react';
+import { Link } from '@mui/material';
 
 import { endsWith } from 'ramda';
+import { ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useLocation } from 'react-router';
-
-import { Link } from '@mui/material';
 
 interface Props {
   navbar: Array<{
@@ -28,10 +27,10 @@ const Navbar = ({ navbar }: Props): ReactElement => {
       {navbar.map(({ label, link }) => {
         return (
           <Link
-            key={label}
             className={className}
             component={RouterLink}
             data-selected={endsWith(link, location.pathname)}
+            key={label}
             to={link}
             underline={endsWith(link, location.pathname) ? 'none' : 'hover'}
           >

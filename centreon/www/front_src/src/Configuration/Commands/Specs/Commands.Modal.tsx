@@ -1,5 +1,3 @@
-import initialize from './initialize';
-
 import {
   labelAddCommand,
   labelCommandLine,
@@ -10,6 +8,7 @@ import {
   labelSave,
   labelSelectOptimizationConnector
 } from '../translatedLabels';
+import initialize from './initialize';
 
 const clickOutideTheField = () => cy.findByTestId('Modal-header').click();
 
@@ -256,13 +255,13 @@ export default (): void => {
 
         cy.waitForRequest('@createCommand').then(({ request }) => {
           expect(request.body).to.deep.equals({
-            name: 'New name',
-            type: 'Discovery',
             command_line:
               '$USER1$/check_centreon_snmp_process -H $HOSTADDRESS$',
-            is_shell_enabled: true,
+            comment: 'some comment',
             connector: '/centreon/api/latest/configuration/connectors/4',
-            comment: 'some comment'
+            is_shell_enabled: true,
+            name: 'New name',
+            type: 'Discovery'
           });
         });
 
@@ -284,14 +283,14 @@ export default (): void => {
 
         cy.waitForRequest('@updateCommand').then(({ request }) => {
           expect(request.body).to.deep.equals({
-            name: 'Updated name',
+            command_line:
+              '$USER1$/check_centreon_snmp_process -H $HOSTADDRESS$ -v $_HOSTSNMPVERSION$ -C $_HOSTSNMPCOMMUNITY$ -n -p $ARG1$ -w $ARG2$ -c $ARG3$',
             comment: 'some comment',
             connector:
               '/centreon/api/latest/.well-known/genid/7b9eb72f31977bee3cf4',
-            type: 'Discovery',
             is_shell_enabled: false,
-            command_line:
-              '$USER1$/check_centreon_snmp_process -H $HOSTADDRESS$ -v $_HOSTSNMPVERSION$ -C $_HOSTSNMPCOMMUNITY$ -n -p $ARG1$ -w $ARG2$ -c $ARG3$'
+            name: 'Updated name',
+            type: 'Discovery'
           });
         });
 

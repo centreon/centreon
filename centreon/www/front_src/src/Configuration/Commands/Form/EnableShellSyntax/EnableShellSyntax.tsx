@@ -1,16 +1,17 @@
-import { ChangeEvent, ReactElement } from 'react';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { FormControlLabel } from '@mui/material';
 
 import { Switch, Tooltip } from '@centreon/ui/components';
-import { FormControlLabel } from '@mui/material';
+
 import { useFormikContext } from 'formik';
+import { ChangeEvent, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { Command } from '../../models';
 import {
   labelEnableShellSyntax,
   labelEnableShellSyntaxTooltip
 } from '../../translatedLabels';
-
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 const EnableShellSyntax = (): ReactElement => {
   const { t } = useTranslation();
@@ -30,24 +31,24 @@ const EnableShellSyntax = (): ReactElement => {
       <FormControlLabel
         control={
           <Switch
-            size="small"
-            color="success"
             checked={value}
-            onChange={change}
+            color="success"
             data-testid="enable-shell-syntax"
+            onChange={change}
+            size="small"
           />
         }
         label={t(labelEnableShellSyntax)}
         labelPlacement="start"
         sx={{
-          marginLeft: 0,
           '& .MuiFormControlLabel-label': {
             marginRight: 2
-          }
+          },
+          marginLeft: 0
         }}
       />
       <Tooltip label={t(labelEnableShellSyntaxTooltip)}>
-        <HelpOutlineIcon fontSize="small" color="primary" />
+        <HelpOutlineIcon color="primary" fontSize="small" />
       </Tooltip>
     </div>
   );

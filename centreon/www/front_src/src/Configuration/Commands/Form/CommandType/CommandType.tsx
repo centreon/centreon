@@ -1,16 +1,13 @@
-import { ChangeEvent, ReactElement, useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
+
+import { useFormikContext } from 'formik';
+import { equals } from 'ramda';
+import { ChangeEvent, ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { Command } from '../../models';
-
-import { useUserPermissions } from '../../useUserPermissions';
-
 import {
   labelCheck,
   labelDiscovery,
@@ -18,6 +15,7 @@ import {
   labelNotification,
   labelYouAreNotAllowed
 } from '../../translatedLabels';
+import { useUserPermissions } from '../../useUserPermissions';
 
 const CommandType = (): ReactElement => {
   const { t } = useTranslation();
@@ -37,24 +35,24 @@ const CommandType = (): ReactElement => {
   const options = useMemo(
     () => [
       {
+        canEdit: canEditNotificationCommands,
         id: 'Notification',
-        name: labelNotification,
-        canEdit: canEditNotificationCommands
+        name: labelNotification
       },
       {
+        canEdit: canEditCheckCommands,
         id: 'Check',
-        name: labelCheck,
-        canEdit: canEditCheckCommands
+        name: labelCheck
       },
       {
+        canEdit: canEditMiscellaneousCommands,
         id: 'Miscellaneous',
-        name: labelMiscellaneous,
-        canEdit: canEditMiscellaneousCommands
+        name: labelMiscellaneous
       },
       {
+        canEdit: canEditDiscoveryCommands,
         id: 'Discovery',
-        name: labelDiscovery,
-        canEdit: canEditDiscoveryCommands
+        name: labelDiscovery
       }
     ],
     [
@@ -71,7 +69,7 @@ const CommandType = (): ReactElement => {
   };
 
   return (
-    <RadioGroup value={value} onChange={change} row>
+    <RadioGroup onChange={change} row value={value}>
       {options.map(({ id, name, canEdit }) => (
         <Tooltip key={id} label={!canEdit && t(labelYouAreNotAllowed)}>
           <FormControlLabel
@@ -80,8 +78,8 @@ const CommandType = (): ReactElement => {
             control={<Radio />}
             disabled={!canEdit}
             label={t(name)}
-            value={id}
             name={name}
+            value={id}
           />
         </Tooltip>
       ))}

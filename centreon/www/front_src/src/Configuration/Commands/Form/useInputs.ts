@@ -1,15 +1,10 @@
-import { Group, InputProps, InputType } from '@centreon/ui';
 import { Box } from '@mui/material';
 
+import { Group, InputProps, InputType } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
-import { useInputsStyles } from './Modal.styles';
 
-import CommandLine from './CommandLine/CommandLine';
-import CommandType from './CommandType/CommandType';
-import EnableShellSyntax from './EnableShellSyntax/EnableShellSyntax';
-
-import { JSONLDEntitiesListDecoder, connectorsEndpoint } from '../api';
-
+import { connectorsEndpoint, JSONLDEntitiesListDecoder } from '../api';
 import {
   labelAdditionalInformation,
   labelCommandLine,
@@ -20,6 +15,10 @@ import {
   labelName,
   labelSelectOptimizationConnector
 } from '../translatedLabels';
+import CommandLine from './CommandLine/CommandLine';
+import CommandType from './CommandType/CommandType';
+import EnableShellSyntax from './EnableShellSyntax/EnableShellSyntax';
+import { useInputsStyles } from './Modal.styles';
 
 export const useInputs = (): {
   groups: Array<Group>;
@@ -36,81 +35,78 @@ export const useInputs = (): {
   return {
     groups: [
       {
+        isDividerHidden: true,
         name: t(labelGeneralInformation),
         order: 1,
-        titleAttributes,
-        isDividerHidden: true
+        titleAttributes
       },
       {
+        isDividerHidden: true,
         name: t(labelAdditionalInformation),
         order: 2,
-        titleAttributes,
-        isDividerHidden: true
+        titleAttributes
       }
     ],
     inputs: [
       {
-        type: InputType.Grid,
-        group: t(labelGeneralInformation),
-        required: true,
         fieldName: 'name',
-        label: t(labelName),
         grid: {
-          gridTemplateColumns: '1fr 1fr',
           columns: [
             {
               fieldName: 'name',
-              required: true,
               label: t(labelName),
+              required: true,
               type: InputType.Text
             },
             {
-              type: InputType.Custom,
               custom: { Component: Box },
               fieldName: '',
-              label: ''
+              label: '',
+              type: InputType.Custom
             }
-          ]
-        }
+          ],
+          gridTemplateColumns: '1fr 1fr'
+        },
+        group: t(labelGeneralInformation),
+        label: t(labelName),
+        required: true,
+        type: InputType.Grid
       },
       {
-        type: InputType.Custom,
+        additionalLabel: t(labelCommandType),
         custom: { Component: CommandType },
         fieldName: 'commandType',
-        required: true,
+        group: t(labelGeneralInformation),
         label: t(labelCommandType),
-        additionalLabel: t(labelCommandType),
-        group: t(labelGeneralInformation)
+        required: true,
+        type: InputType.Custom
       },
       {
-        type: InputType.Custom,
+        additionalLabel: t(labelCommandLine),
         custom: { Component: CommandLine },
         fieldName: 'commandLine',
-        required: true,
+        group: t(labelGeneralInformation),
         label: t(labelCommandLine),
-        additionalLabel: t(labelCommandLine),
-        group: t(labelGeneralInformation)
+        required: true,
+        type: InputType.Custom
       },
       {
-        type: InputType.Custom,
         custom: { Component: EnableShellSyntax },
         fieldName: 'enableShellSyntax',
-        required: true,
+        group: t(labelGeneralInformation),
         label: t(labelEnableShellSyntax),
-        group: t(labelGeneralInformation)
+        required: true,
+        type: InputType.Custom
       },
       {
-        type: InputType.Grid,
-        group: t(labelAdditionalInformation),
         grid: {
-          gridTemplateColumns: '1fr 1fr',
           columns: [
             {
               connectedAutocomplete: {
+                decoder: JSONLDEntitiesListDecoder,
                 endpoint: connectorsEndpoint,
                 filterKey: 'name',
                 getOptionLabel: (option) => option?.name,
-                decoder: JSONLDEntitiesListDecoder,
                 useNewAPIFormat: true
               },
               fieldName: 'connector',
@@ -118,22 +114,25 @@ export const useInputs = (): {
               type: InputType.SingleConnectedAutocomplete
             },
             {
-              type: InputType.Custom,
               custom: { Component: Box },
               fieldName: '',
-              label: ''
+              label: '',
+              type: InputType.Custom
             }
-          ]
-        }
+          ],
+          gridTemplateColumns: '1fr 1fr'
+        },
+        group: t(labelAdditionalInformation),
+        type: InputType.Grid
       },
       {
-        type: InputType.Text,
         fieldName: 'comment',
+        group: t(labelAdditionalInformation),
         label: t(labelComments),
         text: {
           multilineRows: 3
         },
-        group: t(labelAdditionalInformation)
+        type: InputType.Text
       }
     ]
   };

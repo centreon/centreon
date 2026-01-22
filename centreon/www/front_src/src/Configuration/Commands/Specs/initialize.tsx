@@ -1,14 +1,12 @@
-import i18next from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter as Router } from 'react-router';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { userPermissionsAtom } from '@centreon/ui-context';
 
-import Commands from '..';
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter as Router } from 'react-router';
 
+import Commands from '..';
 import { commandsEndpoint, getCommandEndpoint } from '../api';
 import {
   connectorsEndpoint,
@@ -27,9 +25,9 @@ const initialize = (): void => {
 
   store.set(userPermissionsAtom, {
     manage_check_commands: true,
-    manage_notification_commands: true,
     manage_discovery_commands: true,
-    manage_miscellaneous_commands: true
+    manage_miscellaneous_commands: true,
+    manage_notification_commands: true
   });
 
   cy.fixture('Commands/listCommands.json').then((commands) => {

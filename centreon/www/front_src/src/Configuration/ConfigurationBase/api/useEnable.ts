@@ -1,14 +1,17 @@
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
-import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../atoms';
 
 interface UseEnableProps {
   enableMutation: ({
     ids
-  }: { ids: Array<number> }) => Promise<object | ResponseError>;
+  }: {
+    ids: Array<number>;
+  }) => Promise<object | ResponseError>;
   isMutating: boolean;
 }
 
@@ -28,11 +31,7 @@ const useEnable = (): UseEnableProps => {
     }
   });
 
-  const enableMutation = ({
-    ids
-  }: {
-    ids: Array<number>;
-  }) => {
+  const enableMutation = ({ ids }: { ids: Array<number> }) => {
     if (equals(method, Method.PATCH)) {
       return mutateAsync({
         _meta: { id: ids[0] },

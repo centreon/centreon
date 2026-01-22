@@ -1,4 +1,5 @@
 import { Button } from '@centreon/ui/components';
+
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { JSX } from 'react';
@@ -6,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 
 import { FieldType } from '../../../models';
 import useLoadData from '../../Listing/useLoadData';
+import { labelClear, labelSearch } from '../../translatedLabels';
+import { useFilterStyles } from '../Filters.styles';
 import {
   Checkbox,
   Checkboxes,
@@ -14,11 +17,7 @@ import {
   Status,
   Text
 } from './Fields';
-
-import { useFilterStyles } from '../Filters.styles';
 import useFilters from './useFilters';
-
-import { labelClear, labelSearch } from '../../translatedLabels';
 
 interface Props<TFilters> {
   filtersAtom: PrimitiveAtom<TFilters>;
@@ -47,10 +46,10 @@ const Filters = <TFilters,>({
         if (equals(filter.fieldType, FieldType.Text))
           return (
             <Text<TFilters>
+              filters={filters}
+              key={filter.name}
               label={filter.name}
               name={filter.fieldName}
-              key={filter.name}
-              filters={filters}
               setFilters={setFilters}
             />
           );
@@ -58,56 +57,56 @@ const Filters = <TFilters,>({
         if (equals(filter.fieldType, FieldType.Status))
           return (
             <Status<TFilters>
+              filters={filters}
               key={filter.name}
               setFilters={setFilters}
-              filters={filters}
             />
           );
 
         if (equals(filter.fieldType, FieldType.Checkbox))
           return (
             <Checkbox<TFilters>
-              label={filter.name}
-              key={filter.name}
-              setFilters={setFilters}
               filters={filters}
+              key={filter.name}
+              label={filter.name}
               name={filter.fieldName}
+              setFilters={setFilters}
             />
           );
 
         if (equals(filter.fieldType, FieldType.Checkboxes))
           return (
             <Checkboxes<TFilters>
-              label={filter.name}
-              key={filter.name}
-              setFilters={setFilters}
               filters={filters}
-              options={filter.options}
+              key={filter.name}
+              label={filter.name}
               name={filter.fieldName}
+              options={filter.options}
+              setFilters={setFilters}
             />
           );
 
         if (equals(filter.fieldType, FieldType.MultiAutocomplete))
           return (
             <MultiAutocomplete<TFilters>
+              filters={filters}
+              key={filter.name}
               label={filter.name}
               name={filter.fieldName}
               options={filter.options}
-              key={filter.name}
               setFilters={setFilters}
-              filters={filters}
             />
           );
 
         if (equals(filter.fieldType, FieldType.MultiConnectedAutocomplete))
           return (
             <MultiConnectedAutocomplete<TFilters>
-              label={filter.name}
-              name={filter.fieldName}
+              filters={filters}
               getEndpoint={filter.getEndpoint}
               key={filter.name}
+              label={filter.name}
+              name={filter.fieldName}
               setFilters={setFilters}
-              filters={filters}
             />
           );
 
@@ -118,17 +117,17 @@ const Filters = <TFilters,>({
         <Button
           data-testid={labelClear}
           disabled={isClearDisabled}
+          onClick={reset}
           size="small"
           variant="ghost"
-          onClick={reset}
         >
           {t(labelClear)}
         </Button>
         <Button
           data-testid={labelSearch}
           disabled={isLoading}
-          size="small"
           onClick={reload}
+          size="small"
         >
           {t(labelSearch)}
         </Button>

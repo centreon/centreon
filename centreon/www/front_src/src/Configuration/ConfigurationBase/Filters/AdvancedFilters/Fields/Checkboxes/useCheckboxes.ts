@@ -34,8 +34,8 @@ const useCheckboxes = <TFilters>({
   };
 
   return {
-    isChecked,
-    change
+    change,
+    isChecked
   };
 };
 

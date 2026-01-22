@@ -11,11 +11,11 @@ export const defaultSelectedColumnIds = [
 ];
 
 export const filtersInitialValues: Filters = {
-  name: '',
-  enabled: false,
   disabled: false,
-  type: [],
-  is_from_monitoring_connector: false
+  enabled: false,
+  is_from_monitoring_connector: false,
+  name: '',
+  type: []
 };
 
 export const filtersAtomKey = 'centreon-commands-filters-1';

@@ -1,6 +1,6 @@
-import { JsonDecoder } from 'ts.data.json';
-
 import { buildListingDecoder } from '@centreon/ui';
+
+import { JsonDecoder } from 'ts.data.json';
 
 import { Command, CommandsListItem, Plugin } from '../models';
 
@@ -15,44 +15,44 @@ const JSONLDEnityListDecoder = JsonDecoder.object<{ id: string; name: string }>(
 
 const commandsDecoder = JsonDecoder.object<CommandsListItem>(
   {
-    id: JsonDecoder.number,
-    name: JsonDecoder.string,
-    isActivated: JsonDecoder.boolean,
+    commandLine: JsonDecoder.string,
     hostsCount: JsonDecoder.number,
     hostTemplatesCount: JsonDecoder.number,
+    id: JsonDecoder.number,
+    isActivated: JsonDecoder.boolean,
+    name: JsonDecoder.string,
     servicesCount: JsonDecoder.number,
     serviceTemplatesCount: JsonDecoder.number,
-    type: JsonDecoder.string,
-    commandLine: JsonDecoder.string
+    type: JsonDecoder.string
   },
   'Command',
   {
-    isActivated: 'is_activated',
+    commandLine: 'command_line',
     hostsCount: 'used_hosts_count',
     hostTemplatesCount: 'used_host_templates_count',
+    isActivated: 'is_activated',
     servicesCount: 'used_services_count',
-    serviceTemplatesCount: 'used_service_templates_count',
-    commandLine: 'command_line'
+    serviceTemplatesCount: 'used_service_templates_count'
   }
 );
 
 export const commandsListDecoder = buildListingDecoder({
+  apiFormat: 'JSON-LD',
   entityDecoder: commandsDecoder,
   entityDecoderName: 'Command',
-  listingDecoderName: 'Commands List',
-  apiFormat: 'JSON-LD'
+  listingDecoderName: 'Commands List'
 });
 
 export const commandDecoder = JsonDecoder.object<Command>(
   {
-    name: JsonDecoder.string,
-    type: JsonDecoder.string,
     commandLine: JsonDecoder.string,
     comment: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
-    isShellEnabled: JsonDecoder.boolean,
     connector: JsonDecoder.optional(
       JsonDecoder.nullable(JSONLDEnityListDecoder)
-    )
+    ),
+    isShellEnabled: JsonDecoder.boolean,
+    name: JsonDecoder.string,
+    type: JsonDecoder.string
   },
   'Command',
   {
@@ -62,17 +62,17 @@ export const commandDecoder = JsonDecoder.object<Command>(
 );
 
 export const JSONLDEntitiesListDecoder = buildListingDecoder({
+  apiFormat: 'JSON-LD',
   entityDecoder: JSONLDEnityListDecoder,
   entityDecoderName: 'Entity',
-  listingDecoderName: 'Entity List',
-  apiFormat: 'JSON-LD'
+  listingDecoderName: 'Entity List'
 });
 
 export const pluginDetailsDecoder = JsonDecoder.object<Plugin>(
   {
-    name: JsonDecoder.string,
     commandLine: JsonDecoder.string,
-    description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string))
+    description: JsonDecoder.optional(JsonDecoder.nullable(JsonDecoder.string)),
+    name: JsonDecoder.string
   },
   'Plugin',
   {
