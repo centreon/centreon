@@ -1,16 +1,15 @@
-import { useState } from 'react';
-
-import { equals, isEmpty } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Avatar, Chip, useTheme } from '@mui/material';
-import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
+import type { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import { ThemeMode } from '@centreon/ui-context';
 
-import { Props as AutocompleteProps } from '..';
-import { SelectEntry } from '../..';
+import { equals, isEmpty } from 'ramda';
+import { useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
 import PopoverMenu from '../../../../PopoverMenu';
+import type { SelectEntry } from '../..';
+import type { Props as AutocompleteProps } from '..';
 
 type Multiple = boolean;
 type DisableClearable = boolean;
@@ -63,8 +62,8 @@ const PopoverAutocomplete = (
         className={classes.chip}
         color={isEmpty(value) ? undefined : 'primary'}
         label={label}
-        size="small"
         onDelete={(e): void => onChange?.(e, [], 'clear')}
+        size="small"
       />
     );
 
@@ -82,14 +81,14 @@ const PopoverAutocomplete = (
           <AutocompleteField
             autoFocus
             disableCloseOnSelect
-            multiple
             displayPopupIcon={false}
             hideInput={hideInput}
+            multiple
+            onChange={onChange}
             open={optionsOpen}
             renderTags={(): null => null}
             style={{ minWidth: theme.spacing(20) }}
             value={value}
-            onChange={onChange}
             {...props}
           />
         )}

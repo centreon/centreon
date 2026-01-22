@@ -1,12 +1,11 @@
-import { ChangeEvent, KeyboardEvent } from 'react';
-
-import { useFormik } from 'formik';
-import { path, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Dialog, TextField, useRequest } from '@centreon/ui';
 
+import { useFormik } from 'formik';
+import { not, path } from 'ramda';
+import { ChangeEvent, KeyboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { object, string } from 'yup';
+
 import {
   labelCancel,
   labelName,
@@ -79,21 +78,21 @@ const CreateFilterDialog = ({
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelSave)}
       labelTitle={t(isUpdatingFilter ? labelUpdateFilter : labelNewFilter)}
-      open={open}
-      submitting={sending}
       onCancel={onCancel}
       onConfirm={form.submitForm}
+      open={open}
+      submitting={sending}
     >
       <TextField
-        autoFocus
         ariaLabel={t(labelName) as string}
+        autoFocus
         dataTestId={labelName}
         disabled={isUpdatingFilter}
         error={form.touched.name ? form.errors.name : undefined}
         label={t(labelName)}
-        value={form.values.name}
         onChange={form.handleChange('name') as InputChangeEvent}
         onKeyDown={submitFormOnEnterKey}
+        value={form.values.name}
       />
     </Dialog>
   );

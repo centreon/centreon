@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import { atom } from 'jotai';
-import { T, always, cond, gte, isNil } from 'ramda';
+import { always, cond, gte, isNil, T } from 'ramda';
 
 import {
   defaultTimePeriod,
   getTimePeriodById,
   getTimePeriodFromNow
 } from './helpers';
-import { CustomTimePeriod, TimePeriod, TimePeriodById } from './models';
+import type { CustomTimePeriod, TimePeriod, TimePeriodById } from './models';
 
 export const selectedTimePeriodAtom = atom<TimePeriod | null>(
   defaultTimePeriod

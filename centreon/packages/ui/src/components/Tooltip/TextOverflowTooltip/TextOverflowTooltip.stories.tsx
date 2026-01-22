@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { useEffect, useState } from 'react';
 
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
+import { useEffect, useState } from 'react';
 
 import { TextOverflowTooltip } from './TextOverflowTooltip';
 
@@ -55,10 +55,10 @@ export const AsMultiLine: Story = {
       <TextOverflowTooltip {...args} label={labelValue}>
         <p
           style={{
-            WebkitBoxOrient: 'vertical',
-            WebkitLineClamp: '2',
             display: '-webkit-box',
             overflow: 'hidden',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: '2',
             width: '40vw'
           }}
         >

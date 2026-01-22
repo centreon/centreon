@@ -1,11 +1,11 @@
+export { AcknowledgementIcon } from './AcknowledgementIcon';
+export { BusinessActivityIcon } from './BusinessActivityIcon';
+export { ContainerIcon } from './ContainerIcon';
 export { DowntimeIcon } from './DowntimeIcon';
 export { FlappingIcon } from './FlappingIcon';
-export { AcknowledgementIcon } from './AcknowledgementIcon';
-export { HostIcon } from './HostIcon';
-export { ServiceIcon } from './ServiceIcon';
-export { BusinessActivityIcon } from './BusinessActivityIcon';
 export { HostGroupIcon } from './HostGroupIcon';
-export { ServiceGroupIcon } from './ServiceGroupIcon';
+export { HostIcon } from './HostIcon';
 export { MetaServiceIcon } from './MetaServiceIcon';
-export { ContainerIcon } from './ContainerIcon';
 export { RegexIcon } from './RegexIcon';
+export { ServiceGroupIcon } from './ServiceGroupIcon';
+export { ServiceIcon } from './ServiceIcon';

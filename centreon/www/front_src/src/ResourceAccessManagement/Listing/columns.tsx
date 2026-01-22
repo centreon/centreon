@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Column, ColumnType } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelActions,
@@ -8,7 +8,6 @@ import {
   labelName,
   labelStatus
 } from '../translatedLabels';
-
 import { Actions, Activate } from './Actions';
 
 const useListingColumns = (): Array<Column> => {
@@ -20,8 +19,8 @@ const useListingColumns = (): Array<Column> => {
       getFormattedString: ({ name }): string => name,
       id: 'name',
       label: t(labelName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.string
     },
     {
@@ -29,8 +28,8 @@ const useListingColumns = (): Array<Column> => {
       getFormattedString: ({ description }): string => description,
       id: 'description',
       label: t(labelDescription),
-      sortField: 'description',
       sortable: true,
+      sortField: 'description',
       type: ColumnType.string
     },
     {

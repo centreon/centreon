@@ -1,20 +1,19 @@
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Divider,
   ListItemIcon,
   ListItemText,
   MenuItem,
   MenuList,
-  SvgIconTypeMap
+  type SvgIconTypeMap
 } from '@mui/material';
-import { OverridableComponent } from '@mui/material/OverridableComponent';
+import type { OverridableComponent } from '@mui/material/OverridableComponent';
+
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { sanitizedHTML } from '..';
-
 import { useStyles } from './ActionsList.styles';
-import { ActionVariants } from './models';
+import type { ActionVariants } from './models';
 
 interface ActionsType {
   Icon?: OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
@@ -49,7 +48,7 @@ const ActionsList = ({
     <MenuList className={cx(classes.list, className)}>
       {actions?.map((action, idx) => {
         if (equals(action, ActionsListActionDivider.divider)) {
-          // biome-ignore lint/suspicious/noArrayIndexKey:
+          // biome-ignore lint/suspicious/noArrayIndexKey: need it
           return <Divider key={`divider_${idx}`} />;
         }
 
@@ -59,8 +58,8 @@ const ActionsList = ({
         return (
           <MenuItem
             aria-label={label}
-            data-testid={label}
             className={classes.item}
+            data-testid={label}
             data-variant={variant}
             id={label}
             key={label}

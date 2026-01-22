@@ -1,9 +1,10 @@
-import { InputPropsWithoutGroup } from './models';
-
 import { Box, Typography } from '@mui/material';
-import { FormikValues, useFormikContext } from 'formik';
+
+import { type FormikValues, useFormikContext } from 'formik';
 import { isNotEmpty, isNotNil } from 'ramda';
+
 import { getInput } from '.';
+import type { InputPropsWithoutGroup } from './models';
 
 const Grid = ({
   grid,
@@ -21,11 +22,11 @@ const Grid = ({
     <div
       className={`${className} grid gap-3`}
       style={{
+        alignItems: grid?.alignItems || 'flex-start',
         gridTemplateColumns: className
           ? grid?.gridTemplateColumns || undefined
           : grid?.gridTemplateColumns ||
-            `repeat(${grid?.columns.length || 1}, 1fr)`,
-        alignItems: grid?.alignItems || 'flex-start'
+            `repeat(${grid?.columns.length || 1}, 1fr)`
       }}
     >
       {grid?.columns.map((field) => {
@@ -41,11 +42,11 @@ const Grid = ({
         }
 
         return (
-          <Box sx={{ width: '100%' }} key={key}>
+          <Box key={key} sx={{ width: '100%' }}>
             {field.additionalLabel && (
               <Typography
-                sx={{ marginBottom: 0.5, color: 'primary.main' }}
                 className={field?.additionalLabelClassName}
+                sx={{ color: 'primary.main', marginBottom: 0.5 }}
                 variant="h6"
               >
                 {field.additionalLabel}

@@ -7,12 +7,11 @@ import {
   ThresholdType,
   type VariationThreshold
 } from '../../../models';
-
 import BasicThreshold from './BasicThreshold';
 import Circle from './Circle';
+import type { WrapperThresholdLinesModel } from './models';
 import ThresholdWithPatternLines from './ThresholdWithPatternLines';
 import ThresholdWithVariation from './ThresholdWithVariation';
-import type { WrapperThresholdLinesModel } from './models';
 import useScaleThreshold from './useScaleThreshold';
 
 interface Props extends WrapperThresholdLinesModel {

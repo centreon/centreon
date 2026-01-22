@@ -1,6 +1,6 @@
 import { equals, isEmpty, isNil } from 'ramda';
 
-import { QueryParameter } from './models';
+import type { QueryParameter } from './models';
 
 interface ToRawQueryParametersProps {
   queryParameters: Array<QueryParameter>;

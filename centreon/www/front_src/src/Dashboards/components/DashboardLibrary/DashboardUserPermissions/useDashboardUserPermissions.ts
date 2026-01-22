@@ -1,7 +1,7 @@
+import { userAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-
-import { userAtom } from '@centreon/ui-context';
 
 import { Dashboard, DashboardRole } from '../../../api/models';
 

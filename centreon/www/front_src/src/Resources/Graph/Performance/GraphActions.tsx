@@ -1,19 +1,11 @@
-import { type MouseEvent, type MutableRefObject, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import LaunchIcon from '@mui/icons-material/Launch';
 import SaveAsImageIcon from '@mui/icons-material/SaveAlt';
 import {
+  alpha,
   Divider,
   Menu,
   MenuItem,
   Typography,
-  alpha,
   useTheme
 } from '@mui/material';
 
@@ -22,6 +14,13 @@ import {
   IconButton,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
+import { type MouseEvent, type MutableRefObject, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import FederatedComponent from '../../../components/FederatedComponents';
 import { selectedResourceDetailsEndpointDerivedAtom } from '../../Details/detailsAtoms';
@@ -33,12 +32,11 @@ import {
   labelCSV,
   labelExport,
   labelExportAs,
+  labelPerformancePage,
   labelPNGAsDisplayed,
   labelPNGMediumSize,
-  labelPNGSmallSize,
-  labelPerformancePage
+  labelPNGSmallSize
 } from '../../translatedLabels';
-
 import exportToPng from './ExportableGraphWithTimeline/exportToPng';
 
 interface Props {
@@ -54,25 +52,25 @@ const useStyles = makeStyles()((theme) => ({
     alignItems: 'center',
     columnGap: theme.spacing(1),
     display: 'flex',
-    paddingRight: theme.spacing(1),
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
+    paddingRight: theme.spacing(1)
+  },
+  exportAs: {
+    '&:hover': {
+      backgroundColor: 'transparent'
+    },
+    cursor: 'auto'
   },
   menu: {
     width: theme.spacing(22)
   },
   menuHeader: {
-    fontWeight: theme.typography.fontWeightBold,
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
+    fontWeight: theme.typography.fontWeightBold
   },
   menuItem: {
-    fontWeight: theme.typography.fontWeightRegular,
-    color: alpha(theme.palette.text.primary, 0.7)
-  },
-  exportAs: {
-    cursor: 'auto',
-    '&:hover': {
-      backgroundColor: 'transparent'
-    }
+    color: alpha(theme.palette.text.primary, 0.7),
+    fontWeight: theme.typography.fontWeightRegular
   }
 }));
 
@@ -160,92 +158,87 @@ const GraphActions = ({
         loading={exporting}
         loadingIndicatorSize={16}
       >
-        <>
-          <IconButton
-            disableTouchRipple
-            ariaLabel={t(labelPerformancePage) as string}
-            color="primary"
-            data-testid={labelPerformancePage}
-            size="small"
-            title={t(labelPerformancePage) as string}
-            onClick={goToPerformancePage}
-          >
-            <LaunchIcon fontSize="inherit" />
-          </IconButton>
-          <IconButton
-            disableTouchRipple
-            ariaLabel={t(labelExport) as string}
-            data-testid={labelExport}
-            disabled={isNil(timeline)}
-            size="small"
-            title={t(labelExport) as string}
-            onClick={openSizeExportMenu}
-          >
-            <SaveAsImageIcon fontSize="inherit" />
-          </IconButton>
-          <FederatedComponent
-            path="/anomaly-detection/configuration-button"
-            styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
-            type={resource?.type}
-          />
-          <FederatedComponent
-            end={end}
-            path="/anomaly-detection/modal"
-            resourceEndpoint={resourceDetailsEndPoint}
-            start={start}
-            styleMenuSkeleton={{ height: 0, width: 0 }}
-            type={resource?.type}
-          />
-          <Menu
-            keepMounted
-            anchorEl={menuAnchor}
-            open={Boolean(menuAnchor)}
-            onClose={closeSizeExportMenu}
-          >
-            <div className={classes.menu}>
-              <MenuItem
-                data-testid={labelExportAs}
-                className={classes.exportAs}
-              >
-                <Typography className={classes.menuHeader}>
-                  {t(labelExportAs)}
-                </Typography>
-              </MenuItem>
-              <Divider />
+        <IconButton
+          ariaLabel={t(labelPerformancePage) as string}
+          color="primary"
+          data-testid={labelPerformancePage}
+          disableTouchRipple
+          onClick={goToPerformancePage}
+          size="small"
+          title={t(labelPerformancePage) as string}
+        >
+          <LaunchIcon fontSize="inherit" />
+        </IconButton>
+        <IconButton
+          ariaLabel={t(labelExport) as string}
+          data-testid={labelExport}
+          disabled={isNil(timeline)}
+          disableTouchRipple
+          onClick={openSizeExportMenu}
+          size="small"
+          title={t(labelExport) as string}
+        >
+          <SaveAsImageIcon fontSize="inherit" />
+        </IconButton>
+        <FederatedComponent
+          path="/anomaly-detection/configuration-button"
+          styleMenuSkeleton={{ height: 2.5, width: 2.25 }}
+          type={resource?.type}
+        />
+        <FederatedComponent
+          end={end}
+          path="/anomaly-detection/modal"
+          resourceEndpoint={resourceDetailsEndPoint}
+          start={start}
+          styleMenuSkeleton={{ height: 0, width: 0 }}
+          type={resource?.type}
+        />
+        <Menu
+          anchorEl={menuAnchor}
+          keepMounted
+          onClose={closeSizeExportMenu}
+          open={Boolean(menuAnchor)}
+        >
+          <div className={classes.menu}>
+            <MenuItem className={classes.exportAs} data-testid={labelExportAs}>
+              <Typography className={classes.menuHeader}>
+                {t(labelExportAs)}
+              </Typography>
+            </MenuItem>
+            <Divider />
 
-              <MenuItem
-                data-testid={labelPNGAsDisplayed}
-                onClick={(): void => convertToPng(1)}
-              >
-                <Typography variant="body2" className={classes.menuItem}>
-                  {t(labelPNGAsDisplayed)}
-                </Typography>
-              </MenuItem>
-              <MenuItem
-                data-testid={labelPNGMediumSize}
-                onClick={(): void => convertToPng(0.75)}
-              >
-                <Typography variant="body2" className={classes.menuItem}>
-                  {t(labelPNGMediumSize)}
-                </Typography>
-              </MenuItem>
-              <MenuItem
-                data-testid={labelPNGSmallSize}
-                onClick={(): void => convertToPng(0.5)}
-              >
-                <Typography variant="body2" className={classes.menuItem}>
-                  {t(labelPNGSmallSize)}
-                </Typography>
-              </MenuItem>
-              <Divider />
-              <MenuItem data-testid={labelCSV} onClick={exportToCsv}>
-                <Typography variant="body2" className={classes.menuItem}>
-                  {t(labelCSV)}
-                </Typography>
-              </MenuItem>
-            </div>
-          </Menu>
-        </>
+            <MenuItem
+              data-testid={labelPNGAsDisplayed}
+              onClick={(): void => convertToPng(1)}
+            >
+              <Typography className={classes.menuItem} variant="body2">
+                {t(labelPNGAsDisplayed)}
+              </Typography>
+            </MenuItem>
+            <MenuItem
+              data-testid={labelPNGMediumSize}
+              onClick={(): void => convertToPng(0.75)}
+            >
+              <Typography className={classes.menuItem} variant="body2">
+                {t(labelPNGMediumSize)}
+              </Typography>
+            </MenuItem>
+            <MenuItem
+              data-testid={labelPNGSmallSize}
+              onClick={(): void => convertToPng(0.5)}
+            >
+              <Typography className={classes.menuItem} variant="body2">
+                {t(labelPNGSmallSize)}
+              </Typography>
+            </MenuItem>
+            <Divider />
+            <MenuItem data-testid={labelCSV} onClick={exportToCsv}>
+              <Typography className={classes.menuItem} variant="body2">
+                {t(labelCSV)}
+              </Typography>
+            </MenuItem>
+          </div>
+        </Menu>
       </ContentWithCircularLoading>
     </div>
   );

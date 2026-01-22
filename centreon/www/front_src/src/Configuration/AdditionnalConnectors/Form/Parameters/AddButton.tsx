@@ -1,12 +1,10 @@
-import { ReactElement } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Button, Divider } from '@mui/material';
 
-import { labelAddvCenterESX } from '../../translatedLabels';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { labelAddvCenterESX } from '../../translatedLabels';
 import { useAddButtonStyles } from './useParametersStyles';
 
 type Props = {

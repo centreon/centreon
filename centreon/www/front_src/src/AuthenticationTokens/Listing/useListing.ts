@@ -1,9 +1,9 @@
+import { useSnackbar } from '@centreon/ui';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { useSnackbar } from '@centreon/ui';
 import { labelSelectAtLeastOneColumn } from '../translatedLabels';
-import { defaultSelectedColumnIds } from './Columns/Columns';
 import {
   limitAtom,
   pageAtom,
@@ -11,6 +11,7 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from './atoms';
+import { defaultSelectedColumnIds } from './Columns/Columns';
 
 interface UseListing {
   changePage: (updatedPage: number) => void;
@@ -66,14 +67,14 @@ const useListing = (): UseListing => {
   return {
     changePage,
     changeSort,
+    disableRowCondition,
     page,
     resetColumns,
     selectColumns,
     selectedColumnIds,
     setLimit,
     sortf,
-    sorto,
-    disableRowCondition
+    sorto
   };
 };
 

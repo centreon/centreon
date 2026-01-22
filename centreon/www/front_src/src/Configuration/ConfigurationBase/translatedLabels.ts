@@ -26,7 +26,10 @@ export const labelEnableDisable = 'Enable/Disable';
 export const labelModalTitle = ({
   action,
   type
-}: { action: string; type: string }) => {
+}: {
+  action: string;
+  type: string;
+}) => {
   const article = /^[aeiou]/i.test(type) ? 'an' : 'a';
   return `${action} ${article} ${type}`;
 };

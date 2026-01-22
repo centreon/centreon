@@ -1,12 +1,11 @@
-import { equals } from 'ramda';
-
 import { useTheme } from '@mui/material';
 
-import { margins } from '../common/margins';
-
+import { equals } from 'ramda';
 import { useMemo } from 'react';
-import { groupMargin } from './Thresholds';
+
+import { margins } from '../common/margins';
 import { SingleBarProps } from './models';
+import { groupMargin } from './Thresholds';
 
 export const barHeights = {
   medium: 72,
@@ -90,17 +89,20 @@ export const ThresholdLine = ({
         y1={lineY1}
         y2={lineY2}
       />
-      <line
-        data-testid={`${thresholdType}-line-${value}-tooltip`}
-        stroke="transparent"
-        strokeWidth={5}
-        x1={scaledValue}
-        x2={scaledValue + 1}
-        y1={lineY1}
-        y2={lineY2}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={hideTooltip}
-      />
+      {
+        // biome-ignore lint/a11y/noStaticElementInteractions: need it
+        <line
+          data-testid={`${thresholdType}-line-${value}-tooltip`}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={hideTooltip}
+          stroke="transparent"
+          strokeWidth={5}
+          x1={scaledValue}
+          x2={scaledValue + 1}
+          y1={lineY1}
+          y2={lineY2}
+        />
+      }
     </>
   );
 };

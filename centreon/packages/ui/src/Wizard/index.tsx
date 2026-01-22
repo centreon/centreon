@@ -1,16 +1,14 @@
-import { useState } from 'react';
+import { Dialog, DialogContent } from '@mui/material';
 
 import { Formik } from 'formik';
 import { dec, equals, filter, inc, isEmpty, length, not, pipe } from 'ramda';
+import { useState } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import { Dialog, DialogContent } from '@mui/material';
-
 import Confirm from '../Dialog/Confirm';
-
+import type { WizardProps } from './models';
 import Stepper from './Stepper';
 import WizardContent from './WizardContent';
-import { WizardProps } from './models';
 
 const useStyles = makeStyles()(() => ({
   dialogContent: {
@@ -113,24 +111,24 @@ const Wizard = ({
   return (
     <>
       <Dialog
-        fullWidth
         classes={{
           paper: fullHeight ? classes.fullHeight : undefined
         }}
         data-testid="Dialog"
+        fullWidth
         maxWidth={width}
-        open={open}
         onClose={handleClose}
+        open={open}
         {...rest}
       >
         <Stepper currentStep={currentStep} steps={steps} />
         <Formik
-          validateOnChange
           initialValues={initialValues}
+          onSubmit={submit}
           validate={validate}
           validateOnBlur={false}
+          validateOnChange
           validationSchema={validationSchema}
-          onSubmit={submit}
         >
           <DialogContent
             className={cx(classes.dialogContent, classNameDialogContent)}
@@ -150,9 +148,9 @@ const Wizard = ({
         </Formik>
       </Dialog>
       <Confirm
-        open={openConfirm}
         onCancel={(): void => handleCloseConfirm(false)}
         onConfirm={(): void => handleCloseConfirm(true)}
+        open={openConfirm}
         {...confirmDialogLabels}
       />
     </>

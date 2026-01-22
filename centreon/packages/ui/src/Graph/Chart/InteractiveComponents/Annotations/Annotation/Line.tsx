@@ -1,10 +1,10 @@
+import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';
+
 import { Shape } from '@visx/visx';
-import { ScaleTime } from 'd3-scale';
+import type { ScaleTime } from 'd3-scale';
 import { useAtomValue } from 'jotai';
 import { pick } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';
 
 import {
   annotationHoveredAtom,
@@ -12,8 +12,11 @@ import {
   getStrokeOpacityDerivedAtom,
   getStrokeWidthDerivedAtom
 } from '../annotationsAtoms';
-
-import Annotation, { Props as AnnotationProps, yMargin, iconSize } from '.';
+import Annotation, {
+  type Props as AnnotationProps,
+  iconSize,
+  yMargin
+} from '.';
 
 type Props = {
   Icon: (props) => JSX.Element | null;

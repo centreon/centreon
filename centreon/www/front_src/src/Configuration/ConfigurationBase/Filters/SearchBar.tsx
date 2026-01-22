@@ -1,15 +1,13 @@
-import { PrimitiveAtom } from 'jotai';
-import { ReactElement, useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { SearchField } from '@centreon/ui';
 
+import { PrimitiveAtom } from 'jotai';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { labelSearch } from '../translatedLabels';
+import AdvancedFilters from './AdvancedFilters';
 import { useFilterStyles } from './Filters.styles';
 import useSearch from './useSearch';
-
-import AdvancedFilters from './AdvancedFilters';
 
 interface Props<TFilters> {
   filtersAtom: PrimitiveAtom<TFilters>;
@@ -30,9 +28,9 @@ const Filters = <TFilters,>({
   const EndAdornment = useMemo(
     () => () => (
       <AdvancedFilters<TFilters>
-        filtersAtomKey={filtersAtomKey}
-        filtersAtom={filtersAtom}
         areAdvancedFiltersVisible={areAdvancedFiltersVisible}
+        filtersAtom={filtersAtom}
+        filtersAtomKey={filtersAtomKey}
       />
     ),
     [areAdvancedFiltersVisible, filtersAtom]
@@ -41,13 +39,13 @@ const Filters = <TFilters,>({
   return (
     <div className={classes.filters}>
       <SearchField
-        debounced
-        fullWidth
-        EndAdornment={EndAdornment}
         dataTestId={'search-bar'}
+        debounced
+        EndAdornment={EndAdornment}
+        fullWidth
+        onChange={onChange}
         placeholder={t(labelSearch)}
         value={filters.name}
-        onChange={onChange}
       />
     </div>
   );

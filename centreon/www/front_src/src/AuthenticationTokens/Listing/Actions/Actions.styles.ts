@@ -1,25 +1,25 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useActionsStyles = makeStyles()((theme) => ({
-  container: {
-    display: 'flex',
-    alignItems: 'center'
-  },
   actions: {
-    display: 'flex',
     alignItems: 'center',
+    display: 'flex',
     gap: theme.spacing(1.5)
   },
-  searchBar: {
-    width: '100%',
-    paddingInline: theme.spacing(1),
-    display: 'flex',
+  container: {
     alignItems: 'center',
-    justifyContent: 'center'
+    display: 'flex'
   },
   filters: {
     maxWidth: theme.spacing(60),
     minWidth: theme.spacing(20),
+    width: '100%'
+  },
+  searchBar: {
+    alignItems: 'center',
+    display: 'flex',
+    justifyContent: 'center',
+    paddingInline: theme.spacing(1),
     width: '100%'
   }
 }));

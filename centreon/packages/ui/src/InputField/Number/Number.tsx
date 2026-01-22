@@ -1,8 +1,7 @@
-import { ChangeEvent, useState } from 'react';
+import { always, clamp, cond, isEmpty, T } from 'ramda';
+import { type ChangeEvent, useState } from 'react';
 
-import { T, always, clamp, cond, isEmpty } from 'ramda';
-
-import TextField, { TextProps } from '../Text';
+import TextField, { type TextProps } from '../Text';
 
 export interface NumberProps
   extends Omit<TextProps, 'defaultValue' | 'onChange'> {
@@ -61,18 +60,18 @@ const NumberField = ({
 
   return (
     <TextField
+      onChange={changeValue}
       type="number"
       value={actualValue}
-      onChange={changeValue}
       {...props}
+      placeholder={
+        placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
+      }
       textFieldSlotsAndSlotProps={{
         slotProps: {
           htmlInput: { ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput }
         }
       }}
-      placeholder={
-        placeholder || (!defaultValue ? `${fallbackValue}` : undefined)
-      }
     />
   );
 };

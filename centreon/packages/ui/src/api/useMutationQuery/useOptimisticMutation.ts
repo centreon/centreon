@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { append, equals, last, remove, type, update } from 'ramda';
+
 import { Method } from '.';
 
 interface GetOptimisticMutationListingProps<T, TMeta> {
@@ -115,5 +116,5 @@ export const useOptimisticMutation = <T, TMeta>({
 
     return items;
   };
-  return { getOptimisticMutationItems, getListingQueryKey, getPreviousListing };
+  return { getListingQueryKey, getOptimisticMutationItems, getPreviousListing };
 };

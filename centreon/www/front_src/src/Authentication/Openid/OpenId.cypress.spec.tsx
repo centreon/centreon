@@ -1,23 +1,23 @@
 import { Method, TestQueryProvider } from '@centreon/ui';
 
 import {
-  labelDoYouWantToResetTheForm,
-  labelReset,
-  labelResetTheForm,
-  labelSave
-} from '../Local/translatedLabels';
-import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
   contactGroupsEndpoint,
   contactTemplatesEndpoint
 } from '../api/endpoints';
+import {
+  labelDoYouWantToResetTheForm,
+  labelReset,
+  labelResetTheForm,
+  labelSave
+} from '../Local/translatedLabels';
 import { Provider } from '../models';
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
-  labelConditionValue,
   labelConditionsAttributePath,
+  labelConditionValue,
   labelContactGroup,
   labelContactTemplate,
   labelDeleteRelation,
@@ -36,7 +36,7 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from '../translatedLabels';
-
+import OpenidConfigurationForm from '.';
 import {
   labelAuthorizationEndpoint,
   labelBaseUrl,
@@ -65,8 +65,6 @@ import {
   labelUseBasicAuthenticatonForTokenEndpointAuthentication,
   labelUserInformationEndpoint
 } from './translatedLabels';
-
-import OpenidConfigurationForm from '.';
 
 const retrievedOpenidConfiguration = {
   authentication_conditions: {

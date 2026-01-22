@@ -1,8 +1,7 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { http, HttpResponse } from 'msw';
+import type { Meta, StoryObj } from '@storybook/react';
+import { HttpResponse, http } from 'msw';
 
 import { SnackbarProvider } from '../../..';
-
 import { AccessRights } from './AccessRights';
 import {
   accessRightsWithStates,

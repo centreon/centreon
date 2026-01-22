@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
@@ -73,10 +74,10 @@ Then('a pop-up menu with the form is displayed', () => {
 When('the admin user fills in all the information', () => {
   cy.addTelegrafAgent({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 
@@ -162,10 +163,10 @@ Then('a pop up is displayed with all of the agent information', () => {
 When('the user modifies the configuration', () => {
   cy.updateTelegrafAgent({
     ...agentsConfiguration.telegraf2,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf2.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf2.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf2.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf2.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf2.publicCertfFileName
   });
 });
 
@@ -438,10 +439,10 @@ Then('only the filtered pollers are listed in the Pollers field', () => {
 When('the non-admin user fills in all the information', () => {
   cy.addTelegrafAgent({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
 });
 

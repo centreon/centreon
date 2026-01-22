@@ -3,7 +3,6 @@ import { act, renderHook } from '@testing-library/react-hooks';
 import axios from 'axios';
 
 import usePlatformVersions from '../Main/usePlatformVersions';
-
 import { retrievedFederatedModule } from './mocks';
 import useFederatedModules from './useFederatedModules';
 

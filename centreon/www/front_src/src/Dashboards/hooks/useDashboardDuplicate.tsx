@@ -1,8 +1,8 @@
+import { useFetchQuery } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { omit } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { useFetchQuery } from '@centreon/ui';
 
 import { dashboardsEndpoint } from '../api/endpoints';
 import { Dashboard } from '../api/models';

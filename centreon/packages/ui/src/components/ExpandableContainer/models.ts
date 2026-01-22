@@ -1,5 +1,6 @@
-import { SvgIconComponent } from '@mui/icons-material';
-import { CSSProperties, ForwardedRef } from 'react';
+import type { SvgIconComponent } from '@mui/icons-material';
+
+import type { CSSProperties, ForwardedRef } from 'react';
 
 export interface Parameters {
   toggleExpand: () => void;

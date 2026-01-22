@@ -1,7 +1,10 @@
-import { RenderHookResult, act, renderHook } from '@testing-library/react';
+import { act, type RenderHookResult, renderHook } from '@testing-library/react';
 
 import { labelFileTooBig, labelInvalidFileType } from './translatedLabels';
-import useDropzone, { UseDropzoneProps, UseDropzoneState } from './useDropzone';
+import useDropzone, {
+  type UseDropzoneProps,
+  type UseDropzoneState
+} from './useDropzone';
 
 const mockChangeFiles = jest.fn();
 const mockResetFilesStatusAndUploadData = jest.fn();
