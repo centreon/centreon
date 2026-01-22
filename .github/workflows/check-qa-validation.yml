@@ -22,11 +22,7 @@ on:
       - unlabeled
 
 jobs:
-  dependency-scan:
-    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@SECU-dependency-review
-
   check-qa-validation:
-    needs: [dependency-scan]
     if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
 
