@@ -1,7 +1,7 @@
 import { equals, keys, values } from 'ramda';
+
 import toRawQueryParameters from '../../queryParameters';
 import { QueryParameter } from '../../queryParameters/models';
-
 import { getSearchQueryParameterValue } from './getSearchQueryParameterValue';
 import { BuildListingEndpointParameters, Parameters } from './models';
 
@@ -39,7 +39,7 @@ const buildEndpoint = ({
   queryParameters,
   apiFormat
 }): string => {
-  return `${baseEndpoint}?${toRawQueryParameters({ queryParameters, apiFormat })}`;
+  return `${baseEndpoint}?${toRawQueryParameters({ apiFormat, queryParameters })}`;
 };
 
 const buildListingEndpoint = ({
@@ -52,7 +52,7 @@ const buildListingEndpoint = ({
     apiFormat,
     baseEndpoint,
     queryParameters: [
-      ...getQueryParameters({ ...parameters, customQueryParameters, apiFormat })
+      ...getQueryParameters({ ...parameters, apiFormat, customQueryParameters })
     ]
   });
 };

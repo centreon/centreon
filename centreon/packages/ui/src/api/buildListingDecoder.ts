@@ -1,5 +1,6 @@
 import { equals } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
+
 import { Listing, ListingMeta } from './models';
 
 const metaDecoder = JsonDecoder.object<ListingMeta>(
@@ -30,12 +31,12 @@ const jsonLdListingDecoder = <TEntity>(
     },
     listingDecoderName
   ).map((data) => ({
-    result: data.member,
     meta: {
-      total: data.totalItems,
+      limit: data.member.length,
       page: 1,
-      limit: data.member.length
-    }
+      total: data.totalItems
+    },
+    result: data.member
   })) as JsonDecoder.Decoder<Listing<TEntity>>;
 
 const standardListingDecoder = <TEntity>(
