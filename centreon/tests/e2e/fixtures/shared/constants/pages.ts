@@ -10,7 +10,7 @@ export const PAGES = {
     accountParametersLegacy: '/centreon/main.php?p=50104&o=c',
     centreonUiParametersLegacy: '/centreon/main.php?p=50110&o=general',
     databasesPlatformStatusLegacy: '/centreon/main.php?p=50503',
-    authenticationTokens: '/centreon/administration/authentication-token',
+    authenticationTokens: '/centreon/administration/api-token',
     contactsUsersLegacy: '/centreon/main.php?p=60301',
     contactGroupsLegacy: '/centreon/main.php?p=60302',
     contactTemplatesLegacy: '/centreon/main.php?p=60306',
