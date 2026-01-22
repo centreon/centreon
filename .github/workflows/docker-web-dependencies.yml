@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - run: |
-          NIGHTLY_TARGETS=("dev-23.10.x" "dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
           for target in "${NIGHTLY_TARGETS[@]}"; do
             echo "[INFO] - Dispatching nightly run to $target branch."
             gh workflow run docker-web-dependencies.yml -r "$target"
@@ -80,7 +80,7 @@ jobs:
           target: web_dependencies
           context: .
           build-args: |
-            "VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
@@ -104,7 +104,7 @@ jobs:
           target: web_dependencies_collect
           context: .
           build-args: |
-            "VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "IS_CLOUD=${{ needs.get-environment.outputs.is_cloud }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: false

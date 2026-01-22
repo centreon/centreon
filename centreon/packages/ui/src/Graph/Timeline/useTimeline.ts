@@ -1,8 +1,9 @@
-import dayjs, { Dayjs } from 'dayjs';
-
 import { usePluralizedTranslation } from '@centreon/ui';
+
+import dayjs, { type Dayjs } from 'dayjs';
 import { lt } from 'ramda';
 import { useCallback } from 'react';
+
 import {
   labelDay,
   labelHour,
@@ -36,27 +37,30 @@ export const useTimeline = (): UseTimelineState => {
 
       const timeUnits = [
         {
-          value: diffDuration.years(),
-          unit: pluralizedT({ label: labelYear, count: diffDuration.years() })
+          unit: pluralizedT({ count: diffDuration.years(), label: labelYear }),
+          value: diffDuration.years()
         },
         {
-          value: diffDuration.months(),
-          unit: pluralizedT({ label: labelMonth, count: diffDuration.months() })
-        },
-        {
-          value: diffDuration.days(),
-          unit: pluralizedT({ label: labelDay, count: diffDuration.days() })
-        },
-        {
-          value: diffDuration.hours(),
-          unit: pluralizedT({ label: labelHour, count: diffDuration.hours() })
-        },
-        {
-          value: diffDuration.minutes(),
           unit: pluralizedT({
-            label: labelMinute,
-            count: diffDuration.minutes()
-          })
+            count: diffDuration.months(),
+            label: labelMonth
+          }),
+          value: diffDuration.months()
+        },
+        {
+          unit: pluralizedT({ count: diffDuration.days(), label: labelDay }),
+          value: diffDuration.days()
+        },
+        {
+          unit: pluralizedT({ count: diffDuration.hours(), label: labelHour }),
+          value: diffDuration.hours()
+        },
+        {
+          unit: pluralizedT({
+            count: diffDuration.minutes(),
+            label: labelMinute
+          }),
+          value: diffDuration.minutes()
         }
       ];
 
@@ -66,7 +70,7 @@ export const useTimeline = (): UseTimelineState => {
 
       return readableUnits.slice(0, 2).join(', ');
     },
-    []
+    [pluralizedT]
   );
 
   const getWidth = useCallback(

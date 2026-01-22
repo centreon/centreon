@@ -1,5 +1,3 @@
-import { useCallback, useMemo, useRef } from 'react';
-
 import {
   compose,
   flatten,
@@ -13,10 +11,10 @@ import {
   sortBy,
   toLower
 } from 'ramda';
+import { useCallback, useMemo, useRef } from 'react';
 
 import type { LineChartData } from '../common/models';
 import { emphasizeCurveColor } from '../common/utils';
-
 import { adjustGraphData } from './helpers';
 import type { Data } from './models';
 
@@ -32,7 +30,7 @@ interface Props {
 
 const getBoolean = (value) => Boolean(Number(value));
 
-const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
+const useGraphData = ({ data }: Props): GraphDataResult => {
   const adjustedDataRef = useRef<Data>();
 
   const dataWithAdjustedMetricsColor = useMemo(() => {
@@ -54,8 +52,8 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
           ...item,
           ds_data: {
             ...item?.ds_data,
-            ds_invert: getBoolean(item?.ds_data?.ds_invert),
-            ds_filled: getBoolean(item?.ds_data?.ds_filled)
+            ds_filled: getBoolean(item?.ds_data?.ds_filled),
+            ds_invert: getBoolean(item?.ds_data?.ds_invert)
           }
         }));
 
@@ -96,7 +94,7 @@ const useGraphData = ({ data, end, start }: Props): GraphDataResult => {
       timeSeries,
       title
     };
-  }, [dataWithAdjustedMetricsColor, end, start]);
+  }, [dataWithAdjustedMetricsColor]);
 
   prepareData();
 

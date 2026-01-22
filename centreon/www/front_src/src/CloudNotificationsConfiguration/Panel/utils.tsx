@@ -2,7 +2,6 @@ import { equals, isNil } from 'ramda';
 
 import { ChannelsEnum, ResourcesTypeEnum } from '../models';
 import { labelIncludeServicesForTheseHosts } from '../translatedLabels';
-
 import { EmailIcon } from './FormInputs/Channel/Icons';
 import { EventsType } from './models';
 
@@ -44,8 +43,8 @@ const formatMessages = ({ messages, messageType }): object => {
 
   return {
     channel: {
-      Icon: EmailIcon,
       checked: true,
+      Icon: EmailIcon,
       label: ChannelsEnum.Email
     },
     message: message.message,

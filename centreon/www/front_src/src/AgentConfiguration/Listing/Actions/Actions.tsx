@@ -1,7 +1,6 @@
+import { useActionsStyles } from './Actions.styles';
 import AddButton from './AddButton';
 import Search from './Search';
-
-import { useActionsStyles } from './Actions.styles';
 
 const Actions = (): JSX.Element => {
   const { classes } = useActionsStyles();

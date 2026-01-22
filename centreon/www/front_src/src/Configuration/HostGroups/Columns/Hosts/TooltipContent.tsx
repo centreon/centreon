@@ -1,6 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import { Box, Typography, useTheme } from '@mui/material';
+
+import { centreonBaseURL, Pagination } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelDisabledHosts,
@@ -8,8 +10,6 @@ import {
   labelNoDisabledHosts,
   labelNoEnabledHosts
 } from '../../translatedLabels';
-
-import { Pagination, centreonBaseURL } from '@centreon/ui';
 import { useTooltipStyles } from './HostsCount.styles';
 
 interface Props {

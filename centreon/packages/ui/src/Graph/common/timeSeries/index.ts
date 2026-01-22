@@ -1,10 +1,8 @@
 import { Scale } from '@visx/visx';
 import { bisector } from 'd3-array';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import numeral from 'numeral';
 import {
-  path,
-  T,
   add,
   addIndex,
   always,
@@ -20,11 +18,13 @@ import {
   includes,
   isEmpty,
   isNil,
+  isNotNil,
   keys,
   last,
   lt,
   map,
   negate,
+  path,
   pipe,
   pluck,
   prop,
@@ -33,13 +33,13 @@ import {
   reject,
   sortBy,
   split,
+  T,
   uniq
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
-import { LineChartData } from '../models';
-
-import {
+import type { LineChartData } from '../models';
+import type {
   AxeScale,
   FormatMetricValueProps,
   Line,
@@ -136,11 +136,11 @@ const toLine = ({
   metric_id,
   minimum_value,
   name: legend,
+  stackKey: ds_data.ds_stack_key || null,
   stackOrder:
     equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
       ? Number.parseInt(ds_data.ds_order || '0', 10)
       : null,
-  stackKey: ds_data.ds_stack_key || null,
   transparency: ds_data.ds_transparency,
   unit
 });
@@ -382,6 +382,7 @@ const getScale = ({
   invert,
   hasDisplayAsBar,
   hasLineFilled,
+  hasStackedLines,
   min,
   max
 }): ScaleLinear<number, number> => {
@@ -397,22 +398,34 @@ const getScale = ({
           getMin(stackedValues),
         Math.min(...thresholds)
       ]);
-  const minValue = Math.min(...sanitizedValuesForMinimum);
-  const minValueWithMargin =
-    (hasDisplayAsBar || hasLineFilled) && minValue > 0 && !min
-      ? 0
-      : minValue - Math.abs(minValue) * 0.05;
+  const minValue = Math.min(...sanitizedValuesForMinimum.filter(isNotNil));
 
   const sanitizedValuesForMaximum = max
     ? [max]
     : getSanitizedValues([
         getMax(graphValues),
         getMax(stackedValues),
-        hasOnlyZeroesHasValue(graphValues) ? 1 : 0,
+        hasOnlyZeroesHasValue(graphValues) ? 1 : null,
         Math.max(...thresholds)
       ]);
-  const maxValue = Math.max(...sanitizedValuesForMaximum);
-  const maxValueWithMargin = maxValue + Math.abs(maxValue) * 0.05;
+  const maxValue = Math.max(...sanitizedValuesForMaximum.filter(isNotNil));
+
+  const minValueWithMargin =
+    (hasDisplayAsBar && minValue > 0) ||
+    (hasLineFilled &&
+      Math.max(maxValue, minValue) > minValue &&
+      minValue > 0) ||
+    (hasStackedLines && minValue > maxValue)
+      ? 0
+      : minValue - Math.abs(minValue) * 0.05;
+  const maxValueWithMargin =
+    (hasDisplayAsBar && maxValue < 0) ||
+    (hasLineFilled &&
+      Math.min(maxValue, minValue) < maxValue &&
+      maxValue < 0) ||
+    (hasStackedLines && minValue > maxValue)
+      ? 0
+      : maxValue + Math.abs(maxValue) * 0.05;
 
   const scaleType = getScaleType(scale);
 
@@ -427,9 +440,9 @@ const getScale = ({
 
     return scaleType<number>({
       base: scaleLogarithmicBase || 2,
+      clamp: min || max,
       domain: [-greatestValue, greatestValue],
-      range: isHorizontal ? range : range.reverse(),
-      clamp: min || max
+      range: isHorizontal ? range : range.reverse()
     });
   }
 
@@ -437,9 +450,9 @@ const getScale = ({
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
+    clamp: min || max,
     domain,
-    range: isHorizontal ? range : range.reverse(),
-    clamp: min || max
+    range: isHorizontal ? range : range.reverse()
   });
 };
 
@@ -479,7 +492,8 @@ const getYScaleUnit = ({
   min,
   max,
   isBarChart,
-  boundariesUnit
+  boundariesUnit,
+  isFilled
 }: AxeScale & {
   invert?: boolean | string | null;
   unit: string;
@@ -487,6 +501,7 @@ const getYScaleUnit = ({
   min?: number;
   boundariesUnit?: string;
   isBarChart?: boolean;
+  isFilled?: boolean;
 }): ScaleLinear<number, number> => {
   const [firstUnit] = getUnits(dataLines);
   const shouldApplyThresholds =
@@ -510,7 +525,7 @@ const getYScaleUnit = ({
         ),
         timeSeries: dataTimeSeries
       })
-    : [0];
+    : [];
 
   return getScale({
     graphValues,
@@ -520,19 +535,25 @@ const getYScaleUnit = ({
         ({ displayAs, unit: lineUnit }) =>
           equals(unit, lineUnit) && equals(displayAs, 'bar')
       ),
-    hasLineFilled: dataLines.some(
-      ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
+    hasLineFilled: isNil(isFilled)
+      ? dataLines.some(
+          ({ unit: lineUnit, filled }) => equals(unit, lineUnit) && filled
+        )
+      : isFilled,
+    hasStackedLines: dataLines.some(
+      ({ unit: lineUnit, stackKey, stackOrder }) =>
+        equals(unit, lineUnit) && (stackKey || stackOrder)
     ),
     height: valueGraphHeight,
     invert,
     isCenteredZero,
     isHorizontal,
+    max: boundaryToApplyToUnit({ boundariesUnit, boundary: max, unit }),
+    min: boundaryToApplyToUnit({ boundariesUnit, boundary: min, unit }),
     scale,
     scaleLogarithmicBase,
     stackedValues,
-    thresholds: shouldApplyThresholds ? thresholds : [],
-    min: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: min }),
-    max: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: max })
+    thresholds: shouldApplyThresholds ? thresholds : []
   });
 };
 
@@ -561,12 +582,14 @@ const getYScalePerUnit = ({
   isBarChart,
   min,
   max,
-  boundariesUnit
+  boundariesUnit,
+  isFilled
 }: AxeScale & {
   min?: number;
   max?: number;
   isBarChart?: boolean;
   boundariesUnit?: string;
+  isFilled?: boolean;
 }): Record<string, ScaleLinear<number, number>> => {
   const units = getUnits(dataLines);
 
@@ -574,23 +597,24 @@ const getYScalePerUnit = ({
     return {
       ...acc,
       [unit]: getYScaleUnit({
+        boundariesUnit,
         dataLines,
         dataTimeSeries,
         invert: dataLines.some(
           ({ unit: lineUnit, invert }) => equals(lineUnit, unit) && invert
         ),
+        isBarChart,
         isCenteredZero,
+        isFilled,
         isHorizontal,
+        max,
+        min,
         scale,
         scaleLogarithmicBase,
-        thresholdUnit,
         thresholds,
+        thresholdUnit,
         unit,
-        valueGraphHeight,
-        min,
-        max,
-        isBarChart,
-        boundariesUnit
+        valueGraphHeight
       })
     };
   }, {});
@@ -606,7 +630,7 @@ const registerMsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'milliseconds', {
       format: (value) => {
-        return formatTime({ value, unit: 'ms' });
+        return formatTime({ unit: 'ms', value });
       },
       regexps: {
         format: /(ms)/,
@@ -627,7 +651,7 @@ const registerSecondsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'seconds', {
       format: (value) => {
-        return formatTime({ value, unit: 's' });
+        return formatTime({ unit: 's', value });
       },
       regexps: {
         format: /(s)/,
@@ -679,7 +703,7 @@ const formatMetricValue = ({
 
   const formattedMetricValue = numeral(Math.abs(value))
     .format(`0.[00]${formatSuffix}`)
-    .replace(/(iB|B)/g, unit);
+    .replace(/B/, unit);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
@@ -828,9 +852,9 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
         [stackedKey]: {
           lines: relatedLines,
           timeSeries: getTimeSeriesForLines({
+            invert,
             lines: relatedLines,
-            timeSeries,
-            invert
+            timeSeries
           })
         }
       };
@@ -839,11 +863,11 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
   );
 
   return {
+    stackedKeys,
     stackedLinesTimeSeriesPerStackKeyAndUnit: {
       ...stackedLinesTimeSeriesPerStackKey,
       ...stackedLinesTimeSeriesPerUnit
-    },
-    stackedKeys
+    }
   };
 };
 

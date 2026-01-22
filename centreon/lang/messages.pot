@@ -1219,6 +1219,7 @@ msgstr ""
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/common-Func.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Alert"
 msgstr ""
 
@@ -2294,7 +2295,7 @@ msgid "By poller"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "CA (.crt,.cer)"
+msgid "CA (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
@@ -3621,6 +3622,7 @@ msgstr ""
 
 #: centreon/src/Core/Command/Infrastructure/Command/Exception/CommandMigrationCommandException.php
 #: centreon/src/Core/Media/Infrastructure/Command/Exception/MediaMigrationCommandException.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Contact not found"
 msgstr ""
 
@@ -5210,6 +5212,10 @@ msgstr ""
 msgid "Display the password"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Display up to"
 msgstr ""
@@ -5231,6 +5237,12 @@ msgstr ""
 msgid ""
 "Displays a detailed view of the current status for selected resources as a "
 "chart."
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days "
+"until saturation, and evolution of usage since the past day."
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -5836,6 +5848,10 @@ msgid "Edit name"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
+msgid "Edit password"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Edit profile"
 msgstr ""
@@ -6076,6 +6092,14 @@ msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
 msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
@@ -6731,6 +6755,10 @@ msgstr ""
 msgid "Error while adding the service template"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while creating contact"
+msgstr ""
+
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "Error while creating host category"
 msgstr ""
@@ -6835,6 +6863,10 @@ msgstr ""
 msgid "Error while fetching ACL topologies"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
+msgid "Error while importing LDAP contact"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
 msgstr ""
@@ -6877,12 +6909,24 @@ msgstr ""
 msgid "Error while partially updating the token"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/contact.php
+msgid "Error while processing contacts"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Infrastructure/Local/Repository/ConfigurationException.php
 msgid "Error while reading local provider configuration"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while refresh token"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving ACL groups for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving LDAP auth information"
 msgstr ""
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
@@ -6942,6 +6986,14 @@ msgid ""
 "Error while retrieving contact groups allowed to receive a dashboard share"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact information for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact templates"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving contacts allowed to receive a dashboard share"
 msgstr ""
@@ -6982,6 +7034,10 @@ msgstr ""
 msgid "Error while retrieving recently created service severity"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving remote server information"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
 msgstr ""
@@ -6992,6 +7048,10 @@ msgstr ""
 
 #: centreon/src/Core/Resources/Application/Exception/ResourceException.php
 msgid "Error while retrieving the number of services by status"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving topologies for contact form"
 msgstr ""
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
@@ -7198,6 +7258,14 @@ msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while updating authentication tokens"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact (massive change)"
 msgstr ""
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
@@ -14159,7 +14227,7 @@ msgid "Public certificate"
 msgstr ""
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt,.cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
 msgstr ""
 
 #: centreon/www/include/home/customViews/formLoad.php
@@ -15072,6 +15140,10 @@ msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Return to list"
+msgstr ""
+
+#: centreon/www/install/front_translate.php
+msgid "Revert to previous password"
 msgstr ""
 
 #: centreon/www/include/options/media/images/formImg.php
@@ -16710,6 +16782,10 @@ msgstr ""
 msgid "Show time zone"
 msgstr ""
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Show value label"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Show value labels"
 msgstr ""
@@ -17292,6 +17368,10 @@ msgstr ""
 
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Storage folders"
+msgstr ""
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php

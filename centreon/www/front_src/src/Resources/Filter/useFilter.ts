@@ -1,19 +1,18 @@
-import { useEffect } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { omit } from 'ramda';
-import useDeepCompareEffect from 'use-deep-compare-effect';
-
 import {
   getUrlQueryParameters,
   setUrlQueryParameters,
   useRequest
 } from '@centreon/ui';
 
-import { CriteriaValue } from './Criterias/models';
-import { build } from './Criterias/searchQueryLanguage';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { omit } from 'ramda';
+import { useEffect } from 'react';
+import useDeepCompareEffect from 'use-deep-compare-effect';
+
 import { listCustomFilters } from './api';
 import { listCustomFiltersDecoder } from './api/decoders';
+import { CriteriaValue } from './Criterias/models';
+import { build } from './Criterias/searchQueryLanguage';
 import {
   applyFilterDerivedAtom,
   currentFilterAtom,

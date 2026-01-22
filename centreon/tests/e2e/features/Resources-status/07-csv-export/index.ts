@@ -10,7 +10,7 @@ const serviceInDtName = 'service_downtime_1';
 const secondServiceInDtName = 'service_downtime_2';
 const serviceInAcknowledgementName = 'service_ack_1';
 
-const COLUMNS_TO_COMPARE = [
+const ColumnsToCompare = [
   'Status',
   'Parent Resource Name',
   'Parent Resource Status',
@@ -20,7 +20,7 @@ const COLUMNS_TO_COMPARE = [
   'Resource Type'
 ];
 
-const ALL_COLUMNS = [
+const AllColumns = [
   'Status',
   'Resource Type',
   'Resource Name',
@@ -43,7 +43,7 @@ const ALL_COLUMNS = [
   'Check'
 ];
 
-const UPDATED_COLUMNS = [
+const UpdatedColumns = [
   'Status',
   'Resource Type',
   'Resource Name',
@@ -240,8 +240,8 @@ When('the admin user clicks the Export button', () => {
   cy.getByLabel({ label: 'exportCsvButton', tag: 'button' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Export processing in progress')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Export processing in progress')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
@@ -249,9 +249,9 @@ When('the admin user clicks the Export button', () => {
 
 Then('a CSV file should be downloaded', () => {
   cy.waitUntil(() => cy.task('isDownloadComplete', { downloadsFolder }), {
-    timeout: 20000,
+    errorMsg: 'File not downloaded within the allotted time',
     interval: 1000,
-    errorMsg: 'File not downloaded within the allotted time'
+    timeout: 20000
   }).then(() => {
     cy.waitForRequestCount('getServicesStatus', 1, 10, 5000).then(() => {
       cy.log('Condition met: Request passed at least once');
@@ -272,7 +272,7 @@ Then(
         const rawHeaders = rows[0];
         const headers = rawHeaders.map(normalize);
         cy.log('Normalized CSV Headers:', headers.join(' | '));
-        expect(headers).to.deep.equal(ALL_COLUMNS);
+        expect(headers).to.deep.equal(AllColumns);
 
         const dataRows = rows.slice(1);
 
@@ -297,7 +297,7 @@ Then(
             firstTwoRows.forEach((actualRow, index) => {
               const expectedRow = firstTwoExpected[index];
 
-              COLUMNS_TO_COMPARE.forEach((key) => {
+              ColumnsToCompare.forEach((key) => {
                 expect(
                   actualRow[key],
                   `Line ${index + 1} - Key: ${key}`
@@ -345,8 +345,8 @@ Then('the admin user exports only visible columns and pages', () => {
   cy.getByTestId({ testId: 'Current page only' }).click();
   cy.wait('@getResourceCount');
   cy.getByLabel({ label: 'Export', tag: 'button' }).click();
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Export processing in progress')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Export processing in progress')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });
@@ -365,7 +365,7 @@ Then(
         const rawHeaders = rows[0];
         const headers = rawHeaders.map(normalize);
         cy.log('Normalized CSV Headers:', headers.join(' | '));
-        expect(headers).to.deep.equal(UPDATED_COLUMNS);
+        expect(headers).to.deep.equal(UpdatedColumns);
 
         const dataRows = rows.slice(1);
 
@@ -389,7 +389,7 @@ Then(
             firstTwoRows.forEach((actualRow, index) => {
               const expectedRow = firstTwoExpected[index];
 
-              UPDATED_COLUMNS.forEach((key) => {
+              UpdatedColumns.forEach((key) => {
                 if (key === 'Last Check') return;
                 expect(
                   actualRow[key],

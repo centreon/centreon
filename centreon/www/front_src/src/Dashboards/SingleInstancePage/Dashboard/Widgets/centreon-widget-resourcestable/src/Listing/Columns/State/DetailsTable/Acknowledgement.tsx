@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAuthor,
@@ -10,10 +10,8 @@ import {
   labelSticky
 } from '../../../translatedLabels';
 import useStyles from '../State.styles';
-
-import Comment from './Comment';
-
 import DetailsTable, { DetailsTableProps, getYesNoLabel } from '.';
+import Comment from './Comment';
 
 interface AcknowledgementDetails {
   author_name: string;

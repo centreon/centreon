@@ -1,6 +1,6 @@
-import { useAtomValue } from 'jotai';
-
 import { useFetchQuery } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 
 import {
   limitAtom,
@@ -10,7 +10,6 @@ import {
   sortOrderAtom
 } from '../atom';
 import { NotificationsListingType } from '../models';
-
 import { listingDecoder } from './api/decoders';
 import { buildNotificationsEndpoint } from './api/endpoints';
 

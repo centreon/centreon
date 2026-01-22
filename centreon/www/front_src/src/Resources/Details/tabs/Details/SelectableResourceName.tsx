@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography, TypographyVariant } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()(() => ({
   name: {
@@ -25,7 +25,7 @@ const SelectableResourceName = ({
   const { classes } = useStyles();
 
   return (
-    <Typography className={classes.name} variant={variant} onClick={onSelect}>
+    <Typography className={classes.name} onClick={onSelect} variant={variant}>
       {name}
     </Typography>
   );

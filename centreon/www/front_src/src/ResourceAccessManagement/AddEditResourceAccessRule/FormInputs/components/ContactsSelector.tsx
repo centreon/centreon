@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import { Checkbox, FormControlLabel } from '@mui/material';
 
 import { MultiConnectedAutocompleteField } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAllContacts,
@@ -28,7 +28,6 @@ const ContactsSelector = (): React.JSX.Element => {
   return (
     <div className={classes.container}>
       <MultiConnectedAutocompleteField
-        optionProperty="alias"
         allowUniqOption
         chipProps={{
           color: 'primary',
@@ -40,11 +39,12 @@ const ContactsSelector = (): React.JSX.Element => {
         disabled={checked}
         field="alias"
         getEndpoint={getEndpoint()}
+        getRenderedOptionText={(option): string => option.alias?.toString()}
         label={checked ? t(labelAllContactsSelected) : t(labelContacts)}
         limitTags={5}
-        value={contacts}
         onChange={onMultiSelectChange()}
-        getRenderedOptionText={(option): string => option.alias?.toString()}
+        optionProperty="alias"
+        value={contacts}
       />
       <FormControlLabel
         className={classes.label}
@@ -52,8 +52,8 @@ const ContactsSelector = (): React.JSX.Element => {
           <Checkbox
             checked={checked}
             className={classes.checkbox}
-            size="small"
             onChange={onCheckboxChange}
+            size="small"
           />
         }
         label={t(labelAllContacts)}

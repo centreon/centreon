@@ -25,11 +25,11 @@ export const useStatusesColumnStyles = makeStyles()((theme) => ({
     lineHeight: 1
   },
   statusLabelContainer: {
-    borderRadius: '50%',
-    height: theme.spacing(2),
-    display: 'flex',
-    justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: '50%',
+    display: 'flex',
+    height: theme.spacing(2),
+    justifyContent: 'center',
     width: theme.spacing(2)
   }
 }));

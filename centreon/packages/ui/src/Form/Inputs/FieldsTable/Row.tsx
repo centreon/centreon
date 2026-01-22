@@ -1,15 +1,14 @@
-import { Children } from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-import { FormikValues, useFormikContext } from 'formik';
-import { path, inc, is, not, remove, split } from 'ramda';
+import { type FormikValues, useFormikContext } from 'formik';
+import { inc, is, not, path, remove, split } from 'ramda';
+import { Children } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import DeleteIcon from '@mui/icons-material/Delete';
-
-import { getInput } from '..';
 import { IconButton } from '../../..';
-import { InputPropsWithoutGroup } from '../models';
+import { getInput } from '..';
+import type { InputPropsWithoutGroup } from '../models';
 
 interface StylesProps {
   actionsCount?: number;
@@ -133,8 +132,8 @@ const Row = ({
           <IconButton
             ariaLabel={deleteLabel && (t(deleteLabel) || '')}
             className={classes.icon}
-            title={deleteLabel && (t(deleteLabel) || '')}
             onClick={deleteRow}
+            title={deleteLabel && (t(deleteLabel) || '')}
           >
             <DeleteIcon />
           </IconButton>

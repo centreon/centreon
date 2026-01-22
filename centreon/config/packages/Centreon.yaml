@@ -143,6 +143,10 @@ services:
         class: Core\Common\Infrastructure\Repository\ReadVaultRepository
         public: true
 
+    Core\Command\Application\Repository\ReadCommandRepositoryInterface:
+        class: Core\Command\Infrastructure\Repository\DbReadCommandRepository
+        public: true
+
     Symfony\Component\HttpClient\AmpHttpClient:
         class: Symfony\Component\HttpClient\AmpHttpClient
         public: true
@@ -167,6 +171,7 @@ services:
 
     Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface:
         class: Centreon\Infrastructure\Contact\ContactRepositoryRDB
+        public: true
 
     contact.provider:
         class: Centreon\Domain\Contact\ContactProvider
@@ -183,6 +188,7 @@ services:
     # Authentication
     Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface:
         class: Core\Security\AccessGroup\Infrastructure\Repository\DbReadAccessGroupRepository
+        public: true
 
     Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface:
         class: Centreon\Domain\RequestParameters\RequestParameters

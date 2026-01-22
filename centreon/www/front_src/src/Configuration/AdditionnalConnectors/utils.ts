@@ -1,6 +1,8 @@
 import { find, propEq } from 'ramda';
-import { Filters } from './models';
-import { NamedEntity, ParameterKeys } from './models';
+
+import { Filters, NamedEntity, ParameterKeys } from './models';
+
+export const maskedPassword = '********';
 
 export const defaultSelectedColumnIds = [
   'name',
@@ -17,7 +19,7 @@ export const getDefaultParameters = (index: number) => ({
   [ParameterKeys.name]: index > 0 ? `my_vcenter_${index}` : 'my_vcenter',
   [ParameterKeys.url]: 'https://<ip_hostname>/sdk',
   [ParameterKeys.username]: '',
-  [ParameterKeys.password]: ''
+  [ParameterKeys.password]: null
 });
 
 export const availableConnectorTypes = [{ id: 1, name: 'vmware_v6' }];

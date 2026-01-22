@@ -28,6 +28,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
@@ -1013,6 +1014,19 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
+    if (isset($ret['command_command_id'])) {
+        $kernel = Kernel::createForWeb();
+        /** @var ReadCommandRepositoryInterface $commandRepository */
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
+    }
     $ret['service_description'] = $service->checkIllegalChar($ret['service_description']);
 
     $rq = 'UPDATE service SET ';
@@ -1060,7 +1074,13 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         ? $rq .= "'" . $ret['service_retry_check_interval'] . "', "
         : $rq .= 'NULL, ';
     $rq .= "service_passive_checks_enabled = '2', service_obsess_over_service = '2', ";
-    $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
+    isset($ret['service_check_freshness']['service_check_freshness'])
+        ? $rq .= 'service_check_freshness = ' . "'" . $ret['service_check_freshness']['service_check_freshness'] . "', "
+        : $rq .= "service_check_freshness = '2', ";
+    isset($ret['service_freshness_threshold']) && $ret['service_freshness_threshold'] != null
+        ? $rq .= 'service_freshness_threshold = ' . "'" . $ret['service_freshness_threshold'] . "', "
+        : $rq .= 'service_freshness_threshold = NULL, ';
+    // $rq .= "service_check_freshness = '2', service_freshness_threshold = null, ";
     $rq .= 'service_event_handler_enabled = ';
     isset($ret['service_event_handler_enabled']['service_event_handler_enabled'])
     && $ret['service_event_handler_enabled']['service_event_handler_enabled'] != 2
@@ -1180,6 +1200,18 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
+    if (isset($ret['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
+    }
+
     if (isset($ret['sg_name'])) {
         $ret['sg_name'] = $centreon->checkIllegalChar($ret['sg_name']);
     }
@@ -1223,8 +1255,13 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
 
     $rq .= "service_acknowledgement_timeout = null, service_is_volatile = '2', ";
     $rq .= "service_active_checks_enabled = '2', service_passive_checks_enabled = '2', ";
-    $rq .= "service_obsess_over_service = '2', service_check_freshness = '2', ";
-    $rq .= 'service_freshness_threshold = null, ';
+    $rq .= "service_obsess_over_service = '2',";
+    $rq .= isset($ret['service_check_freshness']['service_check_freshness'])
+        ? " service_check_freshness = '" . $ret['service_check_freshness']['service_check_freshness'] . "', "
+        : " service_check_freshness = '2', ";
+    $rq .= isset($ret['service_freshness_threshold']) && $ret['service_freshness_threshold'] != null
+        ? "service_freshness_threshold = '" . $ret['service_freshness_threshold'] . "', "
+        : 'service_freshness_threshold = null, ';
 
     $rq .= 'service_event_handler_enabled = ';
     isset($ret['service_event_handler_enabled']['service_event_handler_enabled'])
@@ -1823,7 +1860,6 @@ function insertServiceInDBForOnPremise($submittedValues = [], $onDemandMacro = n
     if (! count($submittedValues)) {
         $submittedValues = $form->getSubmitValues();
     }
-
     $tmp_fields = insertServiceForOnPremise($submittedValues, $onDemandMacro);
     if (! isset($tmp_fields['service_id'])) {
         return null;
@@ -1862,6 +1898,20 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
 
     if (! count($submittedValues)) {
         $submittedValues = $form->getSubmitValues();
+    }
+
+    if (isset($submittedValues['command_command_id'])) {
+        $kernel = Kernel::createForWeb();
+        /** @var ReadCommandRepositoryInterface $commandRepository */
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $submittedValues['service_check_freshness']['service_check_freshness'] = '1';
+            $submittedValues['service_freshness_threshold'] = 120;
+        }
     }
 
     $submittedValues['service_description'] = $service->checkIllegalChar($submittedValues['service_description']);
@@ -1921,8 +1971,13 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
     $request .= "'2', ";  // service_active_checks_enabled = '2' (default)
     $request .= "'2', ";  // service_passive_checks_enabled = '2' (default)
     $request .= "'2', ";  // service_obsess_over_service = '2' (default)
-    $request .= "'2', ";  // service_check_freshness = '2' (default)
-    $request .= 'null, '; // service_freshness_threshold = null
+
+    isset($submittedValues['service_check_freshness']['service_check_freshness'])
+        ? $request .= "'" . $submittedValues['service_check_freshness']['service_check_freshness'] . "', "
+        : $request .= "'2', ";
+    isset($submittedValues['service_freshness_threshold']) && $submittedValues['service_freshness_threshold'] != null
+        ? $request .= "'" . $submittedValues['service_freshness_threshold'] . "', "
+        : $request .= 'NULL, ';
 
     isset($submittedValues['service_event_handler_enabled']['service_event_handler_enabled'])
     && $submittedValues['service_event_handler_enabled']['service_event_handler_enabled'] != 2
@@ -2057,6 +2112,20 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
 
     if (! count($submittedValues)) {
         $submittedValues = $form->getSubmitValues();
+    }
+
+    if (isset($submittedValues['command_command_id']) && $submittedValues['command_command_id'] != null) {
+        $kernel = Kernel::createForWeb();
+        /** @var ReadCommandRepositoryInterface $commandRepository */
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $submittedValues['service_check_freshness']['service_check_freshness'] = '1';
+            $submittedValues['service_freshness_threshold'] = 120;
+        }
     }
 
     $submittedValues['service_description'] = $service->checkIllegalChar($submittedValues['service_description']);
@@ -2371,6 +2440,17 @@ function updateService($service_id = null, $from_MC = false, $params = [])
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
+    if (isset($ret['command_command_id']) && ! empty($ret['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
+    }
     $ret['service_description'] = $service->checkIllegalChar($ret['service_description']);
 
     if (isset($ret['command_command_id_arg2']) && $ret['command_command_id_arg2'] != null) {
@@ -2622,6 +2702,18 @@ function updateService_MC($service_id = null, $params = [])
     $vaultPath = null;
     if ($vaultConfiguration !== null) {
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
+    }
+
+    if (isset($ret['command_command_id'])) {
+        $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
+        $command = $commandRepository->findById((int) $ret['command_command_id']);
+        if ($command === null) {
+            throw new InvalidArgumentException('The command ID does not exist.');
+        }
+        if ($command->isCentreonMonitoringAgentCommand()) {
+            $ret['service_check_freshness']['service_check_freshness'] = '1';
+            $ret['service_freshness_threshold'] = 120;
+        }
     }
 
     if (isset($ret['sg_name'])) {
@@ -4013,7 +4105,7 @@ function insertServiceTemplateByApi(
 
     $response = callApi($url, 'POST', $payload);
     if ($response['status_code'] !== 201) {
-        throw new Exception($response['message'] ?? 'Unexpected return code by API');
+        throw new Exception($response['content']['message'] ?? 'Unexpected return code by API');
     }
 
     $serviceId = $response['content']['id'] ?? null;
@@ -4210,8 +4302,15 @@ function getServiceTemplatePayload(
 
         foreach ($submittedValues['macroInput'] as $key => $macroName) {
             $payload['macros'][] = [
+                'id' => (empty((int) $submittedValues['macroId'][$key]) ? null : (int) $submittedValues['macroId'][$key]),
                 'name' => $macroName,
-                'value' => $submittedValues['macroValue'][$key] ?? null,
+                'value' => $submittedValues['macroValue'][$key] === PASSWORD_REPLACEMENT_VALUE
+                    ? null
+                    : (
+                        str_starts_with($submittedValues['macroValue'][$key], VaultConfiguration::VAULT_PATH_PATTERN)
+                        ? null
+                        : $submittedValues['macroValue'][$key]
+                    ),
                 'is_password' => isset($submittedValues['macroPassword'][$key]) ? true : false,
                 'description' => $macroDescription[$key] ?? null,
             ];
@@ -4330,7 +4429,7 @@ function callApi(string $url, string $httpMethod, array $payload): array
         [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Cookie' => 'PHPSESSID=' . $_COOKIE['PHPSESSID'],
+                'Cookie' => CentreonSession::resolveSessionCookie(),
             ],
             'body' => json_encode($payload),
         ]

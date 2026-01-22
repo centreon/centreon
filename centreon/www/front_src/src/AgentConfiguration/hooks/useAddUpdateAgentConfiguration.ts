@@ -4,11 +4,13 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
 import { equals, map, omit, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import {
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint
@@ -41,27 +43,27 @@ const adaptTelegrafConfigurationToAPI = (
 
   return {
     ...omit(['pollers', 'connectionMode'], agentConfiguration),
-    connection_mode: agentConfiguration?.connectionMode?.id,
-    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
-      otel_private_key: getFieldBasedOnCertificate(
-        configuration.otelPrivateKey
-      ),
-      otel_ca_certificate: getFieldBasedOnCertificate(
-        configuration.otelCaCertificate
-      ),
-      otel_public_certificate: getFieldBasedOnCertificate(
-        configuration.otelPublicCertificate
-      ),
       conf_certificate: getFieldBasedOnCertificate(
         configuration.confCertificate
       ),
       conf_private_key: getFieldBasedOnCertificate(
         configuration.confPrivateKey
       ),
-      conf_server_port: configuration.confServerPort
-    }
+      conf_server_port: configuration.confServerPort,
+      otel_ca_certificate: getFieldBasedOnCertificate(
+        configuration.otelCaCertificate
+      ),
+      otel_private_key: getFieldBasedOnCertificate(
+        configuration.otelPrivateKey
+      ),
+      otel_public_certificate: getFieldBasedOnCertificate(
+        configuration.otelPublicCertificate
+      )
+    },
+    connection_mode: agentConfiguration?.connectionMode?.id,
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
+    type: (agentConfiguration.type as SelectEntry).id
   };
 };
 
@@ -78,43 +80,44 @@ const adaptCMAConfigurationToAPI = (
 
   return {
     ...omit(['pollers', 'connectionMode'], agentConfiguration),
-    connection_mode: agentConfiguration?.connectionMode?.id,
-    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       agent_initiated: configuration.agentInitiated,
-      poller_initiated: configuration.pollerInitiated,
-      tokens: configuration.agentInitiated
-        ? map(
-            ({ name, creatorId }) => ({ name, creator_id: creatorId }),
-            agentConfiguration.configuration.tokens
-          )
-        : [],
+      hosts: configuration.hosts.map((host) => ({
+        address: host.address,
+        id: host.id,
+        poller_ca_certificate: getFieldBasedOnCertificate(
+          host.pollerCaCertificate
+        ),
+        poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),
+        port: host.port,
+        token: configuration.pollerInitiated
+          ? {
+              creator_id: host?.token?.creatorId,
+              name: host?.token?.name
+            }
+          : null
+      })),
       otel_ca_certificate: getFieldBasedOnCertificate(
         configuration.otelCaCertificate
-      ),
-      otel_public_certificate: getFieldBasedOnCertificate(
-        configuration.otelPublicCertificate
       ),
       otel_private_key: getFieldBasedOnCertificate(
         configuration.otelPrivateKey
       ),
-      hosts: configuration.hosts.map((host) => ({
-        id: host.id,
-        address: host.address,
-        port: host.port,
-        poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),
-        poller_ca_certificate: getFieldBasedOnCertificate(
-          host.pollerCaCertificate
-        ),
-        token: configuration.pollerInitiated
-          ? {
-              name: host?.token?.name,
-              creator_id: host?.token?.creatorId
-            }
-          : null
-      }))
-    }
+      otel_public_certificate: getFieldBasedOnCertificate(
+        configuration.otelPublicCertificate
+      ),
+      poller_initiated: configuration.pollerInitiated,
+      port: configuration.agentInitiated ? configuration?.port : null,
+      tokens: configuration.agentInitiated
+        ? map(
+            ({ name, creatorId }) => ({ creator_id: creatorId, name }),
+            agentConfiguration.configuration.tokens
+          )
+        : []
+    },
+    connection_mode: agentConfiguration?.connectionMode?.id,
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
+    type: (agentConfiguration.type as SelectEntry).id
   };
 };
 
@@ -169,13 +172,13 @@ export const useAddUpdateAgentConfiguration =
       { setSubmitting }: FormikHelpers<AgentConfigurationAPI>
     ) => {
       mutateAsync({
+        _meta: {
+          id: equals(openFormModal, 'add') ? null : openFormModal,
+          setSubmitting
+        },
         payload: equals(agentTypeForm, AgentType.Telegraf)
           ? adaptTelegrafConfigurationToAPI(values)
-          : adaptCMAConfigurationToAPI(values),
-        _meta: {
-          setSubmitting,
-          id: equals(openFormModal, 'add') ? null : openFormModal
-        }
+          : adaptCMAConfigurationToAPI(values)
       });
     };
 

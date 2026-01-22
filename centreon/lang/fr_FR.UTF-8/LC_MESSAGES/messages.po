@@ -1179,6 +1179,7 @@ msgstr "Fréquence d'agrégation"
 #: centreon/www/include/reporting/dashboard/viewHostLog.php
 #: centreon/www/include/reporting/dashboard/viewServicesGroupLog.php
 #: centreon/www/include/reporting/dashboard/xmlInformations/common-Func.php
+#: centreon/www/install/dashboard_widgets.php
 msgid "Alert"
 msgstr "Alerte"
 
@@ -2256,8 +2257,8 @@ msgid "By poller"
 msgstr "Par le collecteur"
 
 #: centreon/www/install/front_translate.php
-msgid "CA (.crt,.cer)"
-msgstr "CA (.crt,.cer)"
+msgid "CA (.crt, .cert, .cer)"
+msgstr "CA (.crt, .cert, .cer)"
 
 #: centreon/www/install/front_translate.php
 msgid "CA Common Name (CN)"
@@ -3558,6 +3559,7 @@ msgstr "Groupes de contacts notifiés pour ce service"
 
 #: centreon/src/Core/Command/Infrastructure/Command/Exception/CommandMigrationCommandException.php
 #: centreon/src/Core/Media/Infrastructure/Command/Exception/MediaMigrationCommandException.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Contact not found"
 msgstr "Contact non trouvé"
 
@@ -5005,6 +5007,10 @@ msgstr "Afficher le diagramme avec ce statut"
 msgid "Display the password"
 msgstr "Afficher le mot de passe"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Display ticket creation buttons"
+msgstr "Afficher les boutons de création de tickets"
+
 #: centreon/www/install/front_translate.php
 msgid "Display up to"
 msgstr "Afficher jusqu'à"
@@ -5028,6 +5034,15 @@ msgid ""
 msgstr ""
 "Affiche une vue détaillée du statut actuel des ressources sélectionnées sous "
 "la forme d'un graphique."
+
+#: centreon/www/install/dashboard_widgets.php
+msgid ""
+"Displays a list of storage with saturation foreseen, current usage, days "
+"until saturation, and evolution of usage since the past day."
+msgstr ""
+"Affiche une liste des espaces de stockage dont la saturation est prévisible, "
+"l'utilisation actuelle, le nombre de jours avant la saturation et "
+"l'évolution de l'utilisation depuis la veille."
 
 #: centreon/www/install/dashboard_widgets.php
 msgid ""
@@ -5527,6 +5542,10 @@ msgid "Edit name"
 msgstr "Modifier le nom"
 
 #: centreon/www/install/front_translate.php
+msgid "Edit password"
+msgstr "Modifier le mot de passe"
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/react_translation.php
 msgid "Edit profile"
 msgstr "Editer le profil"
@@ -5755,6 +5774,14 @@ msgstr "Active le routage des traps"
 #: centreon/www/include/configuration/configObject/command/formCommand.php
 msgid "Enable shell"
 msgstr "Activer le shell"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for hosts"
+msgstr "Activer la création de tickets pour les hôtes"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Enable ticket creation for services"
+msgstr "Activer la création de tickets pour les services"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket management"
@@ -6373,6 +6400,10 @@ msgstr "Erreur lors de l'ajout du service"
 msgid "Error while adding the service template"
 msgstr "Erreur lors de l'ajout du modèle de service"
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while creating contact"
+msgstr ""
+
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "Error while creating host category"
 msgstr "Erreur lors de la création d'une catégorie d'hôtes"
@@ -6477,6 +6508,10 @@ msgstr "Erreur lors de l'activation/désactivation de groupes d'hôtes"
 msgid "Error while fetching ACL topologies"
 msgstr "Erreur lors de la récupération des topologies ACL"
 
+#: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
+msgid "Error while importing LDAP contact"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
 msgstr "Erreur lors de la liaison d'un tableau de bord à sa vignette"
@@ -6520,6 +6555,10 @@ msgstr ""
 msgid "Error while partially updating the token"
 msgstr "Erreur lors de la mise à jour partielle du jeton"
 
+#: centreon/www/include/configuration/configObject/contact/contact.php
+msgid "Error while processing contacts"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Infrastructure/Local/Repository/ConfigurationException.php
 msgid "Error while reading local provider configuration"
 msgstr "Erreur lors de la lecture de la configuration du fournisseur local"
@@ -6527,6 +6566,14 @@ msgstr "Erreur lors de la lecture de la configuration du fournisseur local"
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while refresh token"
 msgstr "Erreur lors du rafraîchissement du jeton"
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving ACL groups for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving LDAP auth information"
+msgstr ""
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "Error while retrieving a command"
@@ -6587,6 +6634,14 @@ msgstr ""
 "Erreur lors de la récupération des groupes de contact autorisés à recevoir "
 "un partage de tableau de bord"
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact information for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact templates"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving contacts allowed to receive a dashboard share"
 msgstr ""
@@ -6633,6 +6688,10 @@ msgid "Error while retrieving recently created service severity"
 msgstr ""
 "Error lors de la récupération de la sévérité de services nouvellement créée"
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving remote server information"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
 msgstr "Erreur lors de la récupération du statut des services"
@@ -6644,6 +6703,10 @@ msgstr "Erreur lors de la récupération du nombre d'hôtes par statut"
 #: centreon/src/Core/Resources/Application/Exception/ResourceException.php
 msgid "Error while retrieving the number of services by status"
 msgstr "Erreur lors de la récupération du nombre de services par statut"
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving topologies for contact form"
+msgstr ""
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
 msgid "Error while search resource access rules"
@@ -6854,6 +6917,14 @@ msgstr "Erreur lors de la mise à jour d'une configuration additionnelle"
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while updating authentication tokens"
 msgstr "Erreur lors de la mise à jour des jetons d'authentification"
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact (massive change)"
+msgstr ""
 
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
@@ -8163,11 +8234,11 @@ msgstr "Cacher les graphiques des services sélectionnés"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Down host"
-msgstr "Masquer les services dont l'hôte est Indisponible"
+msgstr ""
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Hide services with Unreachable host"
-msgstr "Masquer les services dont l'hôte est Injoignable"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Hide the password"
@@ -10262,7 +10333,7 @@ msgstr "Logs"
 
 #: centreon/www/include/Administration/parameters/debug/form.php
 msgid "Logs Directory"
-msgstr "Répertoire d'enregistrement des jounraux"
+msgstr "Répertoire d'enregistrement des journaux"
 
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 msgid "Logs for "
@@ -13314,8 +13385,8 @@ msgid "Public certificate"
 msgstr "Certificat public"
 
 #: centreon/www/install/front_translate.php
-msgid "Public certificate (.crt,.cer)"
-msgstr "Certificat public (.crt,cer)"
+msgid "Public certificate (.crt, .cert, .cer)"
+msgstr "Certificat public (.crt, .cert, .cer)"
 
 #: centreon/www/include/home/customViews/formLoad.php
 msgid "Public views list"
@@ -14067,6 +14138,10 @@ msgstr "Délai de réessai (en secondes)"
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Return to list"
 msgstr "Retourner à la liste"
+
+#: centreon/www/install/front_translate.php
+msgid "Revert to previous password"
+msgstr "Rétablir le mot de passe précédent"
 
 #: centreon/www/include/options/media/images/formImg.php
 msgid "Review form after save"
@@ -15546,6 +15621,10 @@ msgstr "Afficher les seuils"
 msgid "Show time zone"
 msgstr "Afficher le fuseau horaire"
 
+#: centreon/www/install/dashboard_widgets.php
+msgid "Show value label"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Show value labels"
 msgstr "Afficher les étiquettes de valeur"
@@ -16102,6 +16181,10 @@ msgstr "Nom de la base de données de stockage"
 #: centreon/www/include/Administration/parameters/centstorage/form.php
 msgid "Storage folders"
 msgstr "Dossiers de Sauvegarde"
+
+#: centreon/www/install/dashboard_widgets.php
+msgid "Storage near saturation"
+msgstr "Stockage jusqu’à saturation"
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Store LDAP password"
@@ -21823,6 +21906,14 @@ msgid "Here is a self-explanatory image."
 msgstr "Ici, une image d'explication."
 
 #: unknown
+msgid "Hide services with Down hosts"
+msgstr "Masquer les services dont l'hôte est Indisponible"
+
+#: unknown
+msgid "Hide services with Unreachable hosts"
+msgstr "Masquer les services dont l'hôte est Injoignable"
+
+#: unknown
 msgid "Host / Service Data Source"
 msgstr "Source de données Hôte / Service"
 
@@ -24465,6 +24556,10 @@ msgid "d/m/Y H:i"
 msgstr "d/m/Y H:i"
 
 #: unknown
+msgid "days before saturation"
+msgstr "jours avant saturation"
+
+#: unknown
 msgid "default"
 msgstr "défaut"
 
@@ -24559,6 +24654,10 @@ msgstr "resource.cfg"
 #: unknown
 msgid "resources"
 msgstr "ressources"
+
+#: unknown
+msgid "row"
+msgstr "ligne"
 
 #: unknown
 msgid "service"

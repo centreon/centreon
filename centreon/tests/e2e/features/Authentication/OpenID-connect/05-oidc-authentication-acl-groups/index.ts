@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 import {
@@ -45,10 +46,7 @@ Given('an administrator is logged in the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -62,7 +60,9 @@ When(
     cy.getByLabel({
       label: 'Enable OpenID Connect authentication',
       tag: 'input'
-    }).scrollIntoView().check();
+    })
+      .scrollIntoView()
+      .check();
 
     configureOpenIdConnect();
 
@@ -85,7 +85,9 @@ When(
     cy.getByLabel({
       label: 'Role value',
       tag: 'input'
-    }).eq(0).type('{selectall}{backspace}centreon-editor');
+    })
+      .eq(0)
+      .type('{selectall}{backspace}centreon-editor');
     cy.getByLabel({
       label: 'ACL access group',
       tag: 'input'

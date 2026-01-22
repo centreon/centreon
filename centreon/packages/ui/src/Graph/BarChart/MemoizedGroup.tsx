@@ -1,11 +1,12 @@
 import { Group } from '@visx/group';
-import { BarGroup } from '@visx/shape/lib/types';
-import { ScaleLinear } from 'd3-scale';
+import type { BarGroup } from '@visx/shape/lib/types';
+import type { ScaleLinear } from 'd3-scale';
 import { equals, omit } from 'ramda';
 import { memo } from 'react';
-import { Line, TimeValue } from '../common/timeSeries/models';
+
+import type { Line, TimeValue } from '../common/timeSeries/models';
 import BarStack from './BarStack';
-import { BarStyle } from './models';
+import type { BarStyle } from './models';
 
 interface Props {
   neutralValue: number;
@@ -68,33 +69,42 @@ const MemoizedGroup = ({
               [bar.key]: timeSerie[Number(bar.key)]
             }));
 
+        const unit = isStackedBar
+          ? bar.key.split('-')[1]
+          : (linesBar as Line).unit;
+        const yScale =
+          unit === '' && yScalesPerUnit[unit] === undefined
+            ? yScalesPerUnit[undefined]
+            : yScalesPerUnit[unit];
+
         return isStackedBar ? (
           <BarStack
-            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             barIndex={barGroup.index}
             barPadding={isHorizontal ? bar.x : bar.y}
             barStyle={barStyle}
             barWidth={isHorizontal ? bar.width : bar.height}
             isHorizontal={isHorizontal}
+            isStacked
             isTooltipHidden={isTooltipHidden}
+            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             lines={linesBar as Array<Line>}
-            timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[bar.key.split('-')[1] || undefined]}
             neutralValue={neutralValue}
+            timeSeries={timeSeriesBar}
+            yScale={yScale}
           />
         ) : (
           <BarStack
-            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             barIndex={barGroup.index}
             barPadding={isHorizontal ? bar.x : bar.y}
             barStyle={barStyle}
             barWidth={isHorizontal ? bar.width : bar.height}
             isHorizontal={isHorizontal}
             isTooltipHidden={isTooltipHidden}
+            key={`bar-${barGroup.index}-${bar.width}-${bar.y}-${bar.height}-${bar.x}`}
             lines={[linesBar as Line]}
-            timeSeries={timeSeriesBar}
-            yScale={yScalesPerUnit[(linesBar as Line).unit]}
             neutralValue={neutralValue}
+            timeSeries={timeSeriesBar}
+            yScale={yScale}
           />
         );
       })}

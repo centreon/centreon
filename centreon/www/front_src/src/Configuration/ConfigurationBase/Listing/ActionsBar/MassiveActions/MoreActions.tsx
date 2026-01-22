@@ -1,6 +1,3 @@
-import { pipe } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   DeleteOutlineOutlined as DeleteIcon,
   ToggleOffOutlined as DisableIcon,
@@ -11,8 +8,8 @@ import { Menu } from '@mui/material';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
-import { useActionsStyles } from '../Actions.styles';
-import useMassiveActions from './useMassiveActions';
+import { pipe } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelDelete,
@@ -20,6 +17,8 @@ import {
   labelDuplicate,
   labelEnable
 } from '../../../translatedLabels';
+import { useActionsStyles } from '../Actions.styles';
+import useMassiveActions from './useMassiveActions';
 
 interface Props {
   anchor: HTMLElement | null;
@@ -34,41 +33,41 @@ const MoreActions = ({ close, anchor }: Props): JSX.Element => {
     useMassiveActions();
 
   return (
-    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
+    <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
       <ActionsList
-        className={classes.ActionsList}
         actions={[
           {
+            disable: isMutating,
             Icon: DuplicateIcon,
             label: t(labelDuplicate),
-            onClick: pipe(openDuplicateModal, close),
-            disable: isMutating
+            onClick: pipe(openDuplicateModal, close)
           },
           ActionsListActionDivider.divider,
           {
+            disable: isMutating,
             Icon: EnableIcon,
             label: t(labelEnable),
             onClick: pipe(enable, close),
-            disable: isMutating,
             variant: 'success'
           },
           ActionsListActionDivider.divider,
           {
+            disable: isMutating,
             Icon: DisableIcon,
             label: t(labelDisable),
             onClick: pipe(disable, close),
-            disable: isMutating,
             variant: 'error'
           },
           ActionsListActionDivider.divider,
           {
+            disable: isMutating,
             Icon: DeleteIcon,
             label: t(labelDelete),
             onClick: pipe(openDeleteModal, close),
-            variant: 'error',
-            disable: isMutating
+            variant: 'error'
           }
         ]}
+        className={classes.ActionsList}
       />
     </Menu>
   );

@@ -34,6 +34,7 @@ properties:
         type: object
         required:
           - poller_initiated
+          - port
           - agent_initiated
           - otel_public_certificate
           - otel_ca_certificate
@@ -46,6 +47,11 @@ properties:
             description: Connection initiated by poller.
             example: true
 
+          port:
+            type: integer
+            description: Port used for connection (mandatory for agent initiated connection).
+            nullable: true
+
           agent_initiated:
             type: boolean
             description: Connection initiated by agent.
@@ -55,7 +61,7 @@ properties:
             type: [string, null]
             description: |
               Path of the public certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed: `../`, `./`, or `//`
               - Automatically prefixed with `/etc/pki/`
             example: otel-cert.crt
@@ -181,7 +187,7 @@ properties:
             type: [string, null]
             description: |
               Path of the public certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed
               - Automatically prefixed with `/etc/pki/`
             example: otel-cert.crt
@@ -190,7 +196,7 @@ properties:
             type: [string, null]
             description: |
               Path of CA certificate.
-              - Must end with `.crt` or `.cer`
+              - Must end with `.crt`,`.cert` or `.cer`
               - No path traversal allowed
               - Automatically prefixed with `/etc/pki/`
             example: telegraf-ca.crt
