@@ -8,6 +8,7 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import resourceTable from '../../../fixtures/dashboards/creation/widgets/dashboardWithResourceTableWidget.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const services = {
   serviceCritical: {

@@ -9,6 +9,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 import twoStatusGridWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwostatusGrid.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const services = {
   serviceCritical: {

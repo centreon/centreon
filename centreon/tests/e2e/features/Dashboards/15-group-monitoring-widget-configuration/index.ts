@@ -9,6 +9,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import groupMonitoringwidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithGroupMonitoringWidget.json';
 import twoGroupMonitoringwidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoGroupMonitoringWidgets.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const hostGroupName = 'Linux-Servers';
 

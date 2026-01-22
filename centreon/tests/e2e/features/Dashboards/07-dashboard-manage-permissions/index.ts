@@ -36,7 +36,6 @@ beforeEach(() => {
 
 after(() => {
   cy.visit(PAGES.monitoring.dashboards);
-  cy.visit(PAGES.monitoring.dashboards);
   cy.requestOnDatabase({
     database: 'centreon',
     query: 'DELETE FROM dashboard'

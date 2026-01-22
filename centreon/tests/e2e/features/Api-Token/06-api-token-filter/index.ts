@@ -109,7 +109,7 @@ Given('API tokens with predefined details are created', () => {
   });
 });
 
-Given('I am on the Authentication tokens page', () => {
+Given('I am on the API tokens page', () => {
   cy.visit(PAGES.configuration.authenticationTokens);
   cy.wait('@getTokens');
 

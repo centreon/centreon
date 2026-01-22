@@ -82,8 +82,6 @@ Then('the properties are updated', () => {
 
 When('the user duplicates a command', () => {
   cy.visit(PAGES.configuration.commandsMiscellaneousLegacy);
-  cy.wait('@getTimeZone');
-  // Wait for the "Command" search field to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
   cy.getIframeBody().contains(data.miscellaneous.name).parents('tr').find('input[type="checkbox"]').check({ force: true });
   cy.getIframeBody()

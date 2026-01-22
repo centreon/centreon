@@ -9,6 +9,7 @@ import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-a
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
 import dashbboardWithTwoTopBottomWidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoTopBottomWidgets.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
