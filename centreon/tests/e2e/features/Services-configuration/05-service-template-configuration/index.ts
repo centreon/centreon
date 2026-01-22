@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -21,11 +22,7 @@ Then('a service template is configured', () => {
     name: 'service_template',
     template: 'generic-service'
   });
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesTemplatesLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchST"]');
   cy.getIframeBody().contains('service_template').click();
   cy.waitForElementInIframe('#main-content', 'input[name="service_alias"]');

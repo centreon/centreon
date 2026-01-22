@@ -1,5 +1,6 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardViewerUser from '../../../fixtures/users/user-dashboard-viewer.json';
@@ -11,7 +12,7 @@ Given(
       jsonName: dashboardAdministratorUser.login,
       loginViaApi: true
     });
-    cy.visit('/centreon/home/dashboards');
+    cy.visit(PAGES.monitoring.dashboards);
     cy.contains(dashboards.fromDashboardCreatorUser.name).click();
     cy.getByLabel({ label: 'share', tag: 'button' }).click();
     cy.getByLabel({ label: 'Open', tag: 'button' }).click();
