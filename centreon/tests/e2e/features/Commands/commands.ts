@@ -23,7 +23,7 @@ Cypress.Commands.add(
     cy.getByLabel({ label: 'Open', tag: 'button' }).eq(index).click();
     cy.wait(`@${request}`);
     cy.contains('.MuiAutocomplete-option p', value).click();
-    cy.getByTestId({ testId: label, tag: 'button' }).click();
+    cy.getByTestId({ tag: 'button', testId: label }).click();
   }
 );
 
