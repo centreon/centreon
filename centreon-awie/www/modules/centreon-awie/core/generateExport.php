@@ -40,6 +40,7 @@ require_once _CLAPI_CLASS_ . "/centreonUtils.class.php";
 require_once _CLAPI_CLASS_ . "/centreonAPI.class.php";
 
 $formValue = [
+    'centreon_token',
     'export_cmd',
     'TP',
     'CONTACT',
@@ -82,7 +83,6 @@ if (! isset($_POST['centreon_token']) || ! isCSRFTokenValid()) {
 
     exit;
 }
-purgeCSRFToken();
 
 // Exit if user is not admin
 if ((bool) $_SESSION['centreon']->user->admin !== true) {
@@ -113,6 +113,11 @@ $ajaxReturn = [];
 $oExport = new \Export($clapiConnector, $dependencyInjector);
 
 foreach ($_POST as $object => $value) {
+    // Skip CSRF token as it's used for validation above
+    if ($object === 'centreon_token') {
+        continue;
+    }
+
     if (in_array($object, $formValue)) {
         $type = explode('_', $object);
         if ($type[0] == 'export') {
