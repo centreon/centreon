@@ -88,7 +88,7 @@ jobs:
         shell: bash
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
-        uses: JS-DevTools/npm-publish@19c28f1ef146469e409470805ea4279d47c3d35c # v3.1.1
+        uses: JS-DevTools/npm-publish@4ce4bd0f334d5316473155078da1955d42148494 # v4.1.4
         with:
           access: public
           package: ${{ inputs.package_directory }}/package.json
