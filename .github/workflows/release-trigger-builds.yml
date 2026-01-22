@@ -16,6 +16,7 @@ on:
           - REGULAR # Centreon components only without libs
           - CHANGED_ONLY # Anything that received a change
           - FULL # Centreon components + libs
+
 jobs:
   release-trigger-builds:
     if: github.repository == 'centreon/centreon'
@@ -315,7 +316,8 @@ jobs:
           COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "open-tickets" "web")
           #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
           #COMPONENTS_MODULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
-          #COMPONENTS_COLLECT=("Centreon collect")
+          #COMPONENTS_COLLECT_REGULAR=("centreon-collect" "centreon-common" "gorgone" "monitoring-agent")
+          #COMPONENTS_COLLECT_FULL=("centreon-collect" "centreon-common" "gorgone" "monitoring-agent" "docker-packaging" "docker-collect-testing" "docker-gorgone-testing" "libzmq" "lua-curl")
           declare -a COMPONENTS_CHANGED=()
           RUNS_URL=""
 
