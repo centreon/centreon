@@ -29,17 +29,11 @@ while read -r component; do
     continue
   fi
 
-  # REVERT
-  git log \
-    --pretty=format:'%h %s' \
-    "$BASE_SHA..$HEAD_SHA" \
-    -- "$paths"
-
   # Add commits to component commit list
   git log \
     --pretty=format:'%h %s' \
     "$BASE_SHA..$HEAD_SHA" \
-    -- $paths \
+    -- "$paths" \
     > "artifacts/commit-lists/${component}.txt"
 
 done < artifacts/changed-components.txt
