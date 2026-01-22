@@ -30,7 +30,7 @@ for file in "${CHANGED_FILES[@]}"; do
   for component in "${!COMPONENT_PATHS[@]}"; do
     for path in ${COMPONENT_PATHS[$component]}; do
       #echo "Checking change(s) for file $file of component $component in path $path ..."
-      if [[ "$file" == "$path"* || "$file" == "$path" ]]; then
+      if [[ "$file" == "$path" || "$file" == "$path/"* ]]; then
         echo "Component $component has changes in file $file at component path $path"
         echo "Marked $component as changed."
         COMPONENTS_CHANGED[$component]=1
