@@ -39,8 +39,7 @@ const TokenCreationDialog = ({
     }).required(msgError),
     tokenName: string().required(),
     user: object().shape({
-      id: number().required(),
-      alias: string().required()
+      id: number().required()
     })
   });
 

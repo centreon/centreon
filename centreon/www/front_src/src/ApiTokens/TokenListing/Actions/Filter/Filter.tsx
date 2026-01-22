@@ -98,8 +98,10 @@ const Filter = (): JSX.Element => {
         }}
         className={classes.input}
         dataTestId={labelUser}
-        field="name"
+        field="alias"
         getEndpoint={getEndpointConfiguredUser}
+        getOptionLabel={(option): string => option?.alias || ''}
+        getRenderedOptionText={(option): string => option?.alias || ''}
         id={Fields.UserName}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(labelUser)}
