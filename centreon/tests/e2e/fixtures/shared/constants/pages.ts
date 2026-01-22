@@ -20,7 +20,7 @@ export const PAGES = {
     hostsLegacy: '/centreon/main.php?p=60101',
     hostCategoriesLegacy: '/centreon/main.php?p=60104',
     hostsDependenciesLegacy: '/centreon/main.php?p=60407',
-    hostGroups: '/centreon/configuration/hosts/groups',
+    hostGroupsLegacy: '/centreon/main.php?p=60102',
     hostGroupsDependenciesLegacy: '/centreon/main.php?p=60408',
     authentication: '/centreon/administration/authentication',
     backupParametersLegacy: '/centreon/main.php?p=50165&o=backup',

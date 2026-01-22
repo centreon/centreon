@@ -33,7 +33,7 @@ const resultsToSubmit = [
 ];
 
 const checkFirstHostGroupFromListing = () => {
-  cy.visit(PAGES.configuration.hostGroups);
+  cy.visit(PAGES.configuration.hostGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
@@ -111,7 +111,7 @@ When('a host group is configured', () => {
 });
 
 When('the user changes some properties of the configured host group', () => {
-  cy.visit(PAGES.configuration.hostGroups);
+  cy.visit(PAGES.configuration.hostGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(hostGroups.default.name).click();
 
