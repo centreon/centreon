@@ -6077,8 +6077,8 @@
 											"*/\r",
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.includes(\"value should not be null\");\r",
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.eql(\"Host Group not found\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Schema validation test for the host group listing response\", function () {\r",
@@ -6815,8 +6815,8 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.includes(\"This value should not be null\");\r",
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.includes(\"Host Group not found\");\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -7708,8 +7708,8 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.includes(\"This value should not be null\");\r",
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.includes(\"Host Group not found\");\r",
 											"});"
 										],
 										"type": "text/javascript",
@@ -8561,8 +8561,8 @@
 										"exec": [
 											"const responseJson = pm.response.json();\r",
 											"pm.test(\"Host group not found\", function () {\r",
-											"    pm.response.to.have.status(422);\r",
-											"    pm.expect(responseJson.message).to.includes(\"This value should not be null\");\r",
+											"    pm.response.to.have.status(404);\r",
+											"    pm.expect(responseJson.message).to.includes(\"Host Group not found\");\r",
 											"});"
 										],
 										"type": "text/javascript",
