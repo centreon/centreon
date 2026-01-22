@@ -1,6 +1,7 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil } from 'ramda';
 import { useCallback, useMemo } from 'react';
+
 import { Modal } from '../../Modal';
 import { askBeforeCloseFormModalAtom, openFormModalAtom } from '../atoms';
 import Buttons from './Buttons';
@@ -17,18 +18,16 @@ const AddModal = ({ title, Form, modalSize = 'medium' }): JSX.Element => {
 
   const openAskBeforeClose = useCallback(
     () => setAskBeforeCloseFormModal(true),
-    []
+    [setAskBeforeCloseFormModal]
   );
 
   return (
-    <>
-      <Modal open={isModalOpen} onClose={openAskBeforeClose} size={modalSize}>
-        <Modal.Header>{title}</Modal.Header>
-        <Modal.Body>
-          <Form Buttons={Buttons} />
-        </Modal.Body>
-      </Modal>
-    </>
+    <Modal onClose={openAskBeforeClose} open={isModalOpen} size={modalSize}>
+      <Modal.Header>{title}</Modal.Header>
+      <Modal.Body>
+        <Form Buttons={Buttons} />
+      </Modal.Body>
+    </Modal>
   );
 };
 

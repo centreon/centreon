@@ -1,10 +1,10 @@
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { Button, Typography } from '@mui/material';
 
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { customTimePeriodAtom } from '../timePeriodsAtoms';
 import {
@@ -12,7 +12,6 @@ import {
   labelFrom,
   labelTo
 } from '../translatedLabels';
-
 import useStyles from './CompactCustomTimePeriod.styles';
 
 interface Props {
@@ -40,8 +39,8 @@ const CompactCustomTimePeriod = ({
       color="primary"
       data-testid={labelCompactTimePeriod}
       disabled={disabled}
-      variant="outlined"
       onClick={onClick}
+      variant="outlined"
     >
       <div className={classes.buttonContent}>
         <AccessTimeIcon />

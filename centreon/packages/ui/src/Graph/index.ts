@@ -1,21 +1,21 @@
 export type { ParentSizeProps } from '@visx/responsive/lib/components/ParentSize';
+
+export { default as BarChart } from './BarChart/BarChart';
+export { BarStack } from './BarStack';
 export { default as LineChart } from './Chart';
 export { default as NoData } from './common/Error/NoData';
 export { default as ThresholdLines } from './Chart/BasicComponents/Lines/Threshold';
+export * from './Chart/models';
 export { default as useLineChartData } from './Chart/useChartData';
-export { default as BarChart } from './BarChart/BarChart';
-export { Gauge } from './Gauge';
-export { SingleBar } from './SingleBar';
-export { Text as GraphText } from './Text';
 export { default as Header } from './common/BaseChart/Header';
-
-export { HeatMap } from './HeatMap';
-export { BarStack } from './BarStack';
-export { PieChart } from './PieChart';
-export { Timeline } from './Timeline';
-export * from './Tree';
 export type { LineChartData, Threshold, Thresholds } from './common/models';
 export * from './common/timeSeries';
 export type { Metric } from './common/timeSeries/models';
-export * from './Chart/models';
+export { Gauge } from './Gauge';
+export { HeatMap } from './HeatMap';
+export { PieChart } from './PieChart';
 export * from './PieChart/models';
+export { SingleBar } from './SingleBar';
+export { Text as GraphText } from './Text';
+export { Timeline } from './Timeline';
+export * from './Tree';

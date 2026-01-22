@@ -14,7 +14,6 @@ import {
   labelMonths,
   labelSecond
 } from '../translatedLabels';
-
 import TimeInput from './TimeInput';
 
 const useStyles = makeStyles()((theme) => ({
@@ -83,9 +82,9 @@ const TimeInputs = ({
               maxOption={maxOption}
               minOption={minOption}
               name={`${baseName}_${singularLabel}`}
+              onChange={onChange}
               timeValue={timeValue}
               unit={unit}
-              onChange={onChange}
             />
           );
         }

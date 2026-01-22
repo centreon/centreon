@@ -1,5 +1,4 @@
-import { RefObject, useEffect } from 'react';
-
+import { type RefObject, useEffect } from 'react';
 import ResizeObserver from 'resize-observer-polyfill';
 
 interface Props<TRef> {
@@ -21,7 +20,7 @@ const useResizeObserver = <TRef extends Element>({
     return (): void => {
       ro.unobserve(element);
     };
-  }, []);
+  }, [onResize, ref?.current]);
 };
 
 export default useResizeObserver;

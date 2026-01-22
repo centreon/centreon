@@ -1,14 +1,16 @@
+import { Skeleton, Typography } from '@mui/material';
+
 import {
   getData,
   type LineChartData,
-  NoData,
   ParentSize,
   timeFormat,
+  NoData,
   useLocaleDateTimeFormat,
-  useRequest,
-} from "@centreon/ui";
-import { Skeleton, Typography } from "@mui/material";
-import { useAtomValue } from "jotai";
+  useRequest
+} from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 import {
   equals,
   find,
@@ -23,24 +25,25 @@ import {
   propEq,
   propOr,
   reject,
-  sortBy,
-} from "ramda";
+  sortBy
+} from 'ramda';
 import {
   type MutableRefObject,
   type ReactNode,
   useEffect,
   useRef,
-  useState,
-} from "react";
-import { makeStyles } from "tss-react/mui";
+  useState
+} from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import type { CommentParameters } from "../../Actions/api";
-import { selectedResourcesDetailsAtom } from "../../Details/detailsAtoms";
-import type { ResourceDetails } from "../../Details/models";
-import type { TimelineEvent } from "../../Details/tabs/Timeline/models";
-import type { Resource } from "../../models";
-
-import Graph from "./Graph";
+import type { CommentParameters } from '../../Actions/api';
+import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
+import type { ResourceDetails } from '../../Details/models';
+import type { TimelineEvent } from '../../Details/tabs/Timeline/models';
+import type { Resource } from '../../models';
+import { labelNoDataForThisPeriod } from '../../translatedLabels';
+import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
   timeValueAtom,
@@ -376,15 +379,15 @@ const PerformanceGraph = <T,>({
               interactWithGraph={interactWithGraph}
               lines={displayedLines}
               loading={sendingGetGraphDataRequest}
+              onAddComment={onAddComment}
               performanceGraphData={performanceGraphData}
               renderAdditionalLines={renderAdditionalLines}
               resource={resource}
               start={start}
-              timeSeries={timeSeries}
               timeline={timeline}
+              timeSeries={timeSeries}
               width={width}
               xAxisTickFormat={xAxisTickFormat}
-              onAddComment={onAddComment}
             />
           )}
         </ParentSize>
@@ -396,12 +399,12 @@ const PerformanceGraph = <T,>({
         displayTimeValues={displayTimeValues}
         limitLegendRows={limitLegendRows}
         lines={sortedLines}
-        timeSeries={timeSeries}
-        toggable={toggableLegend}
         onClearHighlight={clearHighlight}
         onHighlight={highlightLine}
         onSelect={selectMetricLine}
         onToggle={toggleMetricLine}
+        timeSeries={timeSeries}
+        toggable={toggableLegend}
       />
     </div>
   );

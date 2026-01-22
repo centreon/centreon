@@ -1,6 +1,5 @@
-import { Dispatch, SetStateAction, useState } from 'react';
-
 import { and, isNil, not } from 'ramda';
+import { type Dispatch, type SetStateAction, useState } from 'react';
 
 interface UnsavedDialogOpened {
   action: () => void;

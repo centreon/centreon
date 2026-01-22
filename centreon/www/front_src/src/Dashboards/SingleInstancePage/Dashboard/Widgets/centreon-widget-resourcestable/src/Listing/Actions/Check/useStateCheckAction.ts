@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
-
 import { PrimitiveAtom, SetStateAction, useAtom } from 'jotai';
+import { useEffect } from 'react';
 
 import { Resource } from '../../models';
 import useAclQuery from '../aclQuery';
-
 import { CheckActionAtom } from './checkAtoms';
 import { SetAtom } from './models';
 

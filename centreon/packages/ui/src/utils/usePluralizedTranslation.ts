@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
-
 import pluralize from 'pluralize';
 import { equals, includes } from 'ramda';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useLocale } from './useLocale';
@@ -28,7 +27,7 @@ export const usePluralizedTranslation = (): {
         isZero && isNotPartitiveLocale ? 1 : count
       );
     },
-    [isNotPartitiveLocale]
+    [isNotPartitiveLocale, translation.t]
   );
 
   return {

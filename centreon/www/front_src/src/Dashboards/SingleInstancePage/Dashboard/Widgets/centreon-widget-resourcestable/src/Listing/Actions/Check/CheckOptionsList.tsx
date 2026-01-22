@@ -9,9 +9,8 @@ import Popper from '@mui/material/Popper';
 
 import { labelCheck, labelForcedCheck } from '../../translatedLabels';
 import { Data } from '../model';
-
-import Text from './Text';
 import { useOptionsStyles } from './check.styles';
+import Text from './Text';
 
 interface Disabled {
   disableCheck: boolean;
@@ -60,12 +59,12 @@ const CheckOptionsList = ({
       open={open}
       placement="bottom-start"
     >
-      <List disablePadding className={classes.container}>
+      <List className={classes.container} disablePadding>
         <ListItem disableGutters disablePadding>
           <ListItemButton
-            disableGutters
             className={classes.button}
             disabled={disableCheck}
+            disableGutters
             onClick={onClickCheck}
           >
             <Icon display={isDefaultChecked} />
@@ -80,9 +79,9 @@ const CheckOptionsList = ({
         <Divider variant="middle" />
         <ListItem disableGutters disablePadding>
           <ListItemButton
-            disableGutters
             className={classes.button}
             disabled={disableForcedCheck}
+            disableGutters
             onClick={onClickForcedCheck}
           >
             <Icon display={!isDefaultChecked} />

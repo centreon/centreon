@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+
 import { WidgetResourceType } from '../../../models';
 
 export interface ResourceTypeToToggleRegexAtom {

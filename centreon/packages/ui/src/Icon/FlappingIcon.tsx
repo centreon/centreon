@@ -1,4 +1,4 @@
-import { SvgIconProps } from '@mui/material';
+import type { SvgIconProps } from '@mui/material';
 
 import BaseIcon from './BaseIcon';
 
@@ -14,8 +14,8 @@ export const FlappingIcon = (props: SvgIconProps): JSX.Element => (
   <BaseIcon
     {...props}
     dataTestId="FlappingIcon"
-    Icon={icon}
     height="24"
+    Icon={icon}
     viewBox="0 0 24 24"
     width="24"
   />

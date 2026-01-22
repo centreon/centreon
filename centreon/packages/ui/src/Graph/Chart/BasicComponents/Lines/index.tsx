@@ -1,7 +1,6 @@
-import type { MutableRefObject } from 'react';
-
 import type { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
+import type { MutableRefObject } from 'react';
 
 import {
   getDates,
@@ -10,13 +9,12 @@ import {
 } from '../../../common/timeSeries';
 import type { Line, TimeValue } from '../../../common/timeSeries/models';
 import { getPointRadius, getStyle } from '../../../common/utils';
+import { displayArea } from '../../helpers/index';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint, {
   getYAnchorPoint
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
-import { displayArea } from '../../helpers/index';
 import type { DisplayAnchor, GlobalAreaLines, LineStyle } from '../../models';
-
 import Point from './Point';
 import RegularLine from './RegularLines';
 import useRegularLines from './RegularLines/useRegularLines';
@@ -82,9 +80,9 @@ const Lines = ({
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
-    xScale,
     hasSecondUnit,
-    maxLeftAxisCharacters
+    maxLeftAxisCharacters,
+    xScale
   };
 
   return (
@@ -103,13 +101,18 @@ const Lines = ({
           {Object.entries(stackedLinesData).map(
             ([stackedKey, { lines, timeSeries: stackedTimeSeries }]) => {
               const [, unit] = stackedKey.split('-');
+              const yScale =
+                unit === '' && yScalesPerUnit[unit] === undefined
+                  ? yScalesPerUnit[undefined]
+                  : yScalesPerUnit[unit];
+
               return (
                 <StackedLines
-                  lineStyle={lineStyle}
                   key={`stacked-${unit}`}
+                  lineStyle={lineStyle}
                   lines={lines}
                   timeSeries={stackedTimeSeries}
-                  yScale={yScalesPerUnit[unit ?? undefined]}
+                  yScale={yScale}
                   {...commonStackedLinesProps}
                 />
               );
@@ -120,15 +123,18 @@ const Lines = ({
               const [, unit] = stackedKey.split('-');
               return (
                 <StackedLines
-                  lineStyle={lineStyle}
                   key={`invert-stacked-${unit}`}
+                  lineStyle={lineStyle}
                   lines={lines}
                   timeSeries={stackedTimeSeries}
                   yScale={getYScale({
                     invert: '1',
                     scale,
                     scaleLogarithmicBase,
-                    unit: unit ?? undefined,
+                    unit:
+                      unit === '' && yScalesPerUnit[unit] === undefined
+                        ? undefined
+                        : unit,
                     yScalesPerUnit
                   })}
                   {...commonStackedLinesProps}
@@ -152,107 +158,107 @@ const Lines = ({
 
       {displayAreaRegularLines
         ? regularLines.map(
-          ({
-            areaColor,
-            transparency,
-            lineColor,
-            filled,
-            unit,
-            highlight,
-            invert,
-            metric_id,
-            ...rest
-          }) => {
-            const yScale = getYScale({
-              invert,
-              scale,
-              scaleLogarithmicBase,
+            ({
+              areaColor,
+              transparency,
+              lineColor,
+              filled,
               unit,
-              yScalesPerUnit
-            });
-            const relatedTimeSeries = getTimeSeriesForLines({
+              highlight,
               invert,
-              lines: [
-                {
-                  areaColor,
-                  filled,
-                  highlight,
-                  invert,
-                  lineColor,
-                  metric_id,
-                  transparency,
-                  unit,
-                  ...rest
-                }
-              ],
-              timeSeries
-            });
+              metric_id,
+              ...rest
+            }) => {
+              const yScale = getYScale({
+                invert,
+                scale,
+                scaleLogarithmicBase,
+                unit,
+                yScalesPerUnit
+              });
+              const relatedTimeSeries = getTimeSeriesForLines({
+                invert,
+                lines: [
+                  {
+                    areaColor,
+                    filled,
+                    highlight,
+                    invert,
+                    lineColor,
+                    metric_id,
+                    transparency,
+                    unit,
+                    ...rest
+                  }
+                ],
+                timeSeries
+              });
 
-            const style = getStyle({
-              style: lineStyle,
-              metricId: metric_id
-            }) as LineStyle;
+              const style = getStyle({
+                metricId: metric_id,
+                style: lineStyle
+              }) as LineStyle;
 
-            return (
-              <g key={metric_id}>
-                {displayGuidingLines && (
-                  <RegularAnchorPoint
-                    areaColor={areaColor || lineColor}
-                    lineColor={lineColor}
-                    metric_id={metric_id}
-                    timeSeries={relatedTimeSeries}
-                    transparency={transparency}
-                    xScale={xScale}
-                    yScale={yScale}
-                    maxLeftAxisCharacters={maxLeftAxisCharacters}
-                    hasSecondUnit={hasSecondUnit}
-                  />
-                )}
-                {style?.showPoints &&
-                  getDates(relatedTimeSeries).map((timeTick) => (
-                    <Point
-                      key={timeTick.toString()}
+              return (
+                <g key={metric_id}>
+                  {displayGuidingLines && (
+                    <RegularAnchorPoint
+                      areaColor={areaColor || lineColor}
+                      hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}
-                      radius={getPointRadius(style?.lineWidth)}
                       timeSeries={relatedTimeSeries}
-                      timeTick={timeTick}
+                      transparency={transparency}
                       xScale={xScale}
-                      yPoint={getYAnchorPoint({
-                        metric_id,
-                        timeSeries: relatedTimeSeries,
-                        timeTick,
-                        yScale
-                      })}
                       yScale={yScale}
                     />
-                  ))}
-                <RegularLine
-                  areaColor={areaColor || lineColor}
-                  curve={style?.curve || 'linear'}
-                  dashLength={style?.dashLength}
-                  dashOffset={style?.dashOffset}
-                  dotOffset={style?.dotOffset}
-                  filled={isNil(style?.showArea) ? filled : style.showArea}
-                  graphHeight={height}
-                  highlight={highlight}
-                  lineColor={lineColor}
-                  lineWidth={style?.lineWidth || 2}
-                  metric_id={metric_id}
-                  timeSeries={relatedTimeSeries}
-                  transparency={
-                    isNil(style?.areaTransparency)
-                      ? transparency || 80
-                      : style.areaTransparency
-                  }
-                  unit={unit}
-                  xScale={xScale}
-                  yScale={yScale}
-                />
-              </g>
-            );
-          }
-        )
+                  )}
+                  {style?.showPoints &&
+                    getDates(relatedTimeSeries).map((timeTick) => (
+                      <Point
+                        key={timeTick.toString()}
+                        lineColor={lineColor}
+                        metric_id={metric_id}
+                        radius={getPointRadius(style?.lineWidth)}
+                        timeSeries={relatedTimeSeries}
+                        timeTick={timeTick}
+                        xScale={xScale}
+                        yPoint={getYAnchorPoint({
+                          metric_id,
+                          timeSeries: relatedTimeSeries,
+                          timeTick,
+                          yScale
+                        })}
+                        yScale={yScale}
+                      />
+                    ))}
+                  <RegularLine
+                    areaColor={areaColor || lineColor}
+                    curve={style?.curve || 'linear'}
+                    dashLength={style?.dashLength}
+                    dashOffset={style?.dashOffset}
+                    dotOffset={style?.dotOffset}
+                    filled={isNil(style?.showArea) ? filled : style.showArea}
+                    graphHeight={height}
+                    highlight={highlight}
+                    lineColor={lineColor}
+                    lineWidth={style?.lineWidth || 2}
+                    metric_id={metric_id}
+                    timeSeries={relatedTimeSeries}
+                    transparency={
+                      isNil(style?.areaTransparency)
+                        ? transparency || 80
+                        : style.areaTransparency
+                    }
+                    unit={unit}
+                    xScale={xScale}
+                    yScale={yScale}
+                  />
+                </g>
+              );
+            }
+          )
         : null}
     </g>
   );

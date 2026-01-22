@@ -1,10 +1,6 @@
 import { equals, keys } from 'ramda';
 
-import { maskedPassword } from '../utils';
-
 import { ParameterKeys } from '../models';
-import initialize from './initialize';
-
 import {
   labelAddAnAdditionalConfiguration,
   labelAdditionalConnectorCreated,
@@ -26,6 +22,8 @@ import {
   labelVcenterNameMustBeUnique,
   labelvCenterESX
 } from '../translatedLabels';
+import { maskedPassword } from '../utils';
+import initialize from './initialize';
 
 export const defaultParameters = {
   [ParameterKeys.name]: 'my_vcenter',
@@ -605,8 +603,7 @@ export default (): void => {
                 {
                   name: 'my_vcenter',
                   password: 'password',
-                  url: '10.10.10.10/sdk',
-                  scheme: 'http',
+                  url: 'http://10.10.10.10/sdk',
                   username: 'username'
                 }
               ]
@@ -640,24 +637,22 @@ export default (): void => {
 
         cy.waitForRequest('@updateConnector').then(({ request }) => {
           expect(request.body).to.deep.equals({
-            name: 'Updated name',
             description: 'Description for VMWare1',
+            name: 'Updated name',
             parameters: {
               port: 1000,
               vcenters: [
                 {
                   name: 'vCenter1',
                   password: 'new password',
-                  url: 'vcenter1.example.com/sdk',
-                  username: 'user1',
-                  scheme: 'https'
+                  url: 'https://vcenter1.example.com/sdk',
+                  username: 'user1'
                 },
                 {
                   name: 'vCenter2',
                   password: null,
                   url: '192.0.0.1',
-                  username: 'user2',
-                  scheme: null
+                  username: 'user2'
                 }
               ]
             },

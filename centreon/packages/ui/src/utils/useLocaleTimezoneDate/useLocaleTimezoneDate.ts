@@ -1,7 +1,6 @@
-import { useCallback } from 'react';
-
-import { Dayjs } from 'dayjs';
+import type { Dayjs } from 'dayjs';
 import { isNil } from 'ramda';
+import { useCallback } from 'react';
 
 export interface Props {
   date: Dayjs;
@@ -31,7 +30,7 @@ export const useLocaleTimezoneDate = (): UseLocaleTimeZoneDate => {
     ({ date, locale = 'en', timezone, format = 'L LT' }: Props): string => {
       return toLocaleTimezoneDate({ date, locale, timezone }).format(format);
     },
-    []
+    [toLocaleTimezoneDate]
   );
 
   return {

@@ -1,5 +1,5 @@
 import { equals, isNil, startsWith } from 'ramda';
-import { JsonDecoder } from 'ts.data.json';
+import type { JsonDecoder } from 'ts.data.json';
 
 import { Method } from './useMutationQuery';
 

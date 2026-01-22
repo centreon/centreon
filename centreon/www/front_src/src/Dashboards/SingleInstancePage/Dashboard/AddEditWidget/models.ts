@@ -1,13 +1,13 @@
-import { ReactNode } from 'react';
-
 import { SelectEntry } from '@centreon/ui';
+
+import { ReactNode } from 'react';
 
 import {
   SubInput,
   WidgetHiddenCondition
 } from '../../../../federatedModules/models';
-import { Resource } from '../Widgets/models';
 import { PanelConfiguration, WidgetOptions } from '../models';
+import { Resource } from '../Widgets/models';
 
 export interface Widget {
   data: object | null;
@@ -36,6 +36,7 @@ export interface DefaultResourceType {
   resourceType: string;
   requied?: boolean;
   disabled?: DisabledDefaultResourceType;
+  isSearchBypass?: boolean;
 }
 export interface SelectType {
   defaultResourceType: Array<DefaultResourceType>;
@@ -95,6 +96,8 @@ export interface WidgetPropertyProps {
   forceSingleAutocompleteConditions: ForceSingleAutocompleteConditions;
   selectType?: SelectType;
   allowRegexOnResourceTypes?: Array<WidgetResourceType>;
+  labelDisplayUpToOverride?: string;
+  labelTilesOverride?: string;
   allowEmptyResources?: boolean;
 }
 

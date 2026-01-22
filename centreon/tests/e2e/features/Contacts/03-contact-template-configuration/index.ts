@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import contactTemplates from '../../../fixtures/users/contact.json';
 
 const checkFirstContactTemplateFromListing = () => {
@@ -53,8 +53,8 @@ When('a contact template is configured', () => {
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateContactTemplate({
     ...contactTemplates.defaultTemplate,
-    usedContactTemplate: contactTemplates.defaultTemplate.usedCTemplate,
-    notCommands: contactTemplates.defaultTemplate.NotCommands
+    notCommands: contactTemplates.defaultTemplate.NotCommands,
+    usedContactTemplate: contactTemplates.defaultTemplate.usedCTemplate
   });
 });
 
@@ -64,8 +64,8 @@ When(
     cy.getIframeBody().contains(contactTemplates.defaultTemplate.alias).click();
     cy.addOrUpdateContactTemplate({
       ...contactTemplates.templateForUpdate,
-      usedContactTemplate: contactTemplates.templateForUpdate.usedCTemplate,
-      notCommands: contactTemplates.templateForUpdate.NotCommands
+      notCommands: contactTemplates.templateForUpdate.NotCommands,
+      usedContactTemplate: contactTemplates.templateForUpdate.usedCTemplate
     });
   }
 );
@@ -101,8 +101,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('#contact_hostNotifCmds')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
@@ -121,8 +121,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('#contact_svNotifCmds')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
@@ -168,8 +168,8 @@ Then('a new contact template is created with identical properties', () => {
   cy.getIframeBody()
     .find('#contact_hostNotifCmds')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([
@@ -183,8 +183,8 @@ Then('a new contact template is created with identical properties', () => {
   cy.getIframeBody()
     .find('#contact_svNotifCmds')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => (option as HTMLOptionElement).text
       );
       expect(selectedTexts).to.include.members([

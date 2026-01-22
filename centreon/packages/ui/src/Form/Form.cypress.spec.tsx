@@ -1,11 +1,10 @@
+import { Typography } from '@mui/material';
+
 import { faker } from '@faker-js/faker';
 import { useFormikContext } from 'formik';
 import { object } from 'yup';
 
-import { Typography } from '@mui/material';
-
 import { Button } from '../components';
-
 import { Form } from './Form';
 import { InputType } from './Inputs/models';
 
@@ -22,7 +21,7 @@ const AddItem = ({ addItem }: { addItem: (item) => void }): JSX.Element => {
   };
 
   return (
-    <Button variant="ghost" onClick={add}>
+    <Button onClick={add} variant="ghost">
       Add item
     </Button>
   );
@@ -54,9 +53,9 @@ const initializeFormList = (): void => {
             label: '',
             list: {
               AddItem,
-              SortContent,
               addItemLabel: 'Add an item to the list',
               itemProps: ['id', 'name', 'alias'],
+              SortContent,
               sortLabel: 'Sort items'
             },
             type: InputType.List
@@ -136,10 +135,6 @@ const initializeFormWithSections = (): void => {
   cy.mount({
     Component: (
       <Form
-        isCollapsible
-        initialValues={{
-          list: []
-        }}
         groups={[
           {
             name: 'First group',
@@ -158,6 +153,9 @@ const initializeFormWithSections = (): void => {
             order: 4
           }
         ]}
+        initialValues={{
+          list: []
+        }}
         inputs={[
           {
             fieldName: 'First name',
@@ -238,6 +236,7 @@ const initializeFormWithSections = (): void => {
             type: InputType.Text
           }
         ]}
+        isCollapsible
         submit={cy.stub()}
         validationSchema={object()}
       />
@@ -255,12 +254,12 @@ const initializeFile = () => {
         inputs={[
           {
             fieldName: 'list',
-            group: '',
-            label: 'json',
-            type: InputType.File,
             file: {
               accept: '.json'
-            }
+            },
+            group: '',
+            label: 'json',
+            type: InputType.File
           }
         ]}
         submit={cy.stub()}

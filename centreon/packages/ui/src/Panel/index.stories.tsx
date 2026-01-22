@@ -1,6 +1,6 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-
 import { Typography } from '@mui/material';
+
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import Panel from '.';
 

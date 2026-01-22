@@ -4,8 +4,8 @@ import {
   CriteriaById,
   CriteriaNames,
   selectableResourceTypes,
-  selectableStateTypes,
   selectableStates,
+  selectableStateTypes,
   selectableStatuses
 } from '../models';
 

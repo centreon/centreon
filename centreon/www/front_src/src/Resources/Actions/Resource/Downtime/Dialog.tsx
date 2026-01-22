@@ -1,7 +1,3 @@
-import type { FormikErrors, FormikHandlers, FormikValues } from 'formik';
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Alert,
   Checkbox,
@@ -17,6 +13,10 @@ import {
   SelectField,
   TextField
 } from '@centreon/ui';
+
+import type { FormikErrors, FormikHandlers, FormikValues } from 'formik';
+import { isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import type { Resource } from '../../../models';
 import {
@@ -34,7 +34,6 @@ import {
   labelUnit
 } from '../../../translatedLabels';
 import useAclQuery from '../aclQuery';
-
 import type { DowntimeFormValues } from '.';
 
 const maxEndDate = new Date('2100-01-01');
@@ -83,133 +82,127 @@ const DialogDowntime = ({
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelSetDowntime)}
       labelTitle={t(labelDowntime)}
-      open={open}
-      submitting={submitting}
       onCancel={onCancel}
       onClose={onCancel}
       onConfirm={onConfirm}
+      open={open}
+      submitting={submitting}
     >
-      <>
-        {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
-        <Stack spacing={2}>
-          <Box
-            alignItems="center"
-            display="grid"
-            gap={1}
-            gridTemplateColumns="1fr auto 1fr"
-          >
-            <DateTimePickerInput
-              changeDate={changeTime}
-              date={values.startTime}
-              maxDate={maxEndDate}
-              property="startTime"
-            />
-            <FormHelperText>{t(labelTo)}</FormHelperText>
-            <DateTimePickerInput
-              changeDate={changeTime}
-              date={values.endTime}
-              property="endTime"
-            />
-            {isNil(errors?.startTime) ? (
-              <div />
-            ) : (
-              <FormHelperText error>
-                {errors?.startTime as string}
-              </FormHelperText>
-            )}
+      {deniedTypeAlert && <Alert severity="warning">{deniedTypeAlert}</Alert>}
+      <Stack spacing={2}>
+        <Box
+          alignItems="center"
+          display="grid"
+          gap={1}
+          gridTemplateColumns="1fr auto 1fr"
+        >
+          <DateTimePickerInput
+            changeDate={changeTime}
+            date={values.startTime}
+            maxDate={maxEndDate}
+            property="startTime"
+          />
+          <FormHelperText>{t(labelTo)}</FormHelperText>
+          <DateTimePickerInput
+            changeDate={changeTime}
+            date={values.endTime}
+            property="endTime"
+          />
+          {isNil(errors?.startTime) ? (
             <div />
-            {isNil(errors?.endTime) ? (
-              <div />
-            ) : (
-              <FormHelperText error>{errors?.endTime as string}</FormHelperText>
-            )}
-          </Box>
+          ) : (
+            <FormHelperText error>{errors?.startTime as string}</FormHelperText>
+          )}
+          <div />
+          {isNil(errors?.endTime) ? (
+            <div />
+          ) : (
+            <FormHelperText error>{errors?.endTime as string}</FormHelperText>
+          )}
+        </Box>
 
-          <Stack>
-            <FormHelperText>{t(labelDuration)}</FormHelperText>
+        <Stack>
+          <FormHelperText>{t(labelDuration)}</FormHelperText>
 
-            <Stack alignItems="center" direction="row" spacing={0.5}>
-              <TextField
-                autoSize
-                autoSizeDefaultWidth={168}
-                ariaLabel={t(labelDuration) as string}
-                dataTestId={labelDuration}
+          <Stack alignItems="center" direction="row" spacing={0.5}>
+            <TextField
+              ariaLabel={t(labelDuration) as string}
+              autoSize
+              autoSizeDefaultWidth={168}
+              dataTestId={labelDuration}
+              disabled={values.fixed}
+              error={errors?.duration?.value}
+              onChange={handleChange('duration.value')}
+              type="number"
+              value={values.duration.value}
+            />
+            <Stack
+              direction="row"
+              justifyContent="flex-end"
+              spacing={1}
+              width="100%"
+            >
+              <SelectField
+                dataTestId={labelUnit}
                 disabled={values.fixed}
-                error={errors?.duration?.value}
-                type="number"
-                value={values.duration.value}
-                onChange={handleChange('duration.value')}
-              />
-              <Stack
-                direction="row"
-                width="100%"
-                justifyContent="flex-end"
-                spacing={1}
-              >
-                <SelectField
-                  dataTestId={labelUnit}
-                  disabled={values.fixed}
-                  options={[
-                    {
-                      id: 'seconds',
-                      name: t(labelSeconds)
-                    },
-                    {
-                      id: 'minutes',
-                      name: t(labelMinutes)
-                    },
-                    {
-                      id: 'hours',
-                      name: t(labelHours)
-                    }
-                  ]}
-                  selectedOptionId={values.duration.unit}
-                  onChange={handleChange('duration.unit')}
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={values.fixed}
-                      color="primary"
-                      inputProps={{ 'aria-label': t(labelFixed) as string }}
-                      size="small"
-                      onChange={handleChange('fixed')}
-                    />
+                onChange={handleChange('duration.unit')}
+                options={[
+                  {
+                    id: 'seconds',
+                    name: t(labelSeconds)
+                  },
+                  {
+                    id: 'minutes',
+                    name: t(labelMinutes)
+                  },
+                  {
+                    id: 'hours',
+                    name: t(labelHours)
                   }
-                  label={t(labelFixed) as string}
-                />
-              </Stack>
+                ]}
+                selectedOptionId={values.duration.unit}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={values.fixed}
+                    color="primary"
+                    inputProps={{ 'aria-label': t(labelFixed) as string }}
+                    onChange={handleChange('fixed')}
+                    size="small"
+                  />
+                }
+                label={t(labelFixed) as string}
+              />
             </Stack>
           </Stack>
-          <TextField
-            fullWidth
-            multiline
-            dataTestId={labelComment}
-            error={errors?.comment}
-            label={t(labelComment)}
-            rows={3}
-            value={values.comment}
-            onChange={handleChange('comment')}
-          />
-          {hasHosts && (
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={
-                    canDowntimeServices() && values.isDowntimeWithServices
-                  }
-                  color="primary"
-                  disabled={!canDowntimeServices()}
-                  inputProps={{ 'aria-label': labelSetDowntimeOnServices }}
-                  size="small"
-                  onChange={handleChange('isDowntimeWithServices')}
-                />
-              }
-              label={t(labelSetDowntimeOnServices) as string}
-            />
-          )}
         </Stack>
-      </>
+        <TextField
+          dataTestId={labelComment}
+          error={errors?.comment}
+          fullWidth
+          label={t(labelComment)}
+          multiline
+          onChange={handleChange('comment')}
+          rows={3}
+          value={values.comment}
+        />
+        {hasHosts && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={canDowntimeServices() && values.isDowntimeWithServices}
+                color="primary"
+                disabled={!canDowntimeServices()}
+                inputProps={{ 'aria-label': labelSetDowntimeOnServices }}
+                onChange={handleChange('isDowntimeWithServices')}
+                size="small"
+              />
+            }
+            label={t(labelSetDowntimeOnServices) as string}
+          />
+        )}
+      </Stack>
     </Dialog>
   );
 };

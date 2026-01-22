@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
 
 import { IconButton } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelDelete } from '../../translatedLabels';
 
@@ -28,8 +28,8 @@ const DeleteButton = ({
       ariaLabel={ariaLabel}
       className={className}
       disabled={disabled}
-      title={t(labelDelete) as string}
       onClick={onClick}
+      title={t(labelDelete) as string}
     >
       <DeleteIcon className={iconClassName} />
     </IconButton>
