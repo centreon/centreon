@@ -106,7 +106,7 @@ final class UpdateHostGroup
                 $this->validator->assertHostsExist($request->hosts);
             }
 
-          if ($request->iconId !== null) {
+            if ($request->iconId !== null) {
                 $this->validator->assertIconExists($request->iconId);
             }
 
