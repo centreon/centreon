@@ -398,7 +398,7 @@ jobs:
 
       - name: Upload translations patch
         if: ${{ steps.build-translations.outputs.translations_patch_file != '' }}
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: translations-patch
           path: ${{ steps.build-translations.outputs.translations_patch_file }}
@@ -1198,7 +1198,7 @@ jobs:
   #         secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
   #     - name: Publish report
-  #       uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+  #       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
   #       with:
   #         name: lighthouse-report
   #         path: centreon/lighthouse/report/lighthouseci-index.html
@@ -1314,7 +1314,7 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: openapi-doc
           path: |
