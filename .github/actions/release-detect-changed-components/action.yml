@@ -26,13 +26,13 @@ runs:
       id: detect-changed-components
       shell: bash
       run: |
-        .github/scripts/release-detect-changed-components.sh "${{ inputs.base_sha }}" "${{ inputs.head_sha }}"
+        .github/scripts/release/release-detect-changed-components.sh "${{ inputs.base_sha }}" "${{ inputs.head_sha }}"
         echo "changed_components=$(tr '\n' ' ' < artifacts/changed-components.txt)" >> "$GITHUB_OUTPUT"
 
     - name: Build commit list of the release
       shell: bash
       run: |
-        .github/scripts/release-generate-commit-lists.sh "${{ inputs.base_sha }}" "${{ inputs.head_sha }}"
+        .github/scripts/release/release-generate-commit-lists.sh "${{ inputs.base_sha }}" "${{ inputs.head_sha }}"
 
     - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
