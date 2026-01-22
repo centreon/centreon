@@ -6,14 +6,13 @@ concurrency:
 on:
   pull_request:
     paths:
-      - '**'   
+      - '**'
       - '!centreon-awie'
       - '!centreon-dsm'
       - '!centreon-ha'
       - '!centreon-open-tickets'
       - '!centreon'
       - '!php-tools'
-
 
   workflow_dispatch:
 
