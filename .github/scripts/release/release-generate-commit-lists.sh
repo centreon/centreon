@@ -37,4 +37,8 @@ while read -r component; do
     -- "$paths" \
     > "artifacts/commit-lists/${component}.txt"
 
+  # Checking content
+  echo -e "Commits added for $component are: \r\n"
+  cat "artifacts/commit-lists/${component}.txt"
+
 done < artifacts/changed-components.txt
