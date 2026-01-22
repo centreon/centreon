@@ -48,4 +48,4 @@ done
 sort -u artifacts/changed-components.txt -o artifacts/changed-components.txt
 
 # Output
-echo -e "Detected changes on components: \r\n $(cat artifacts/changed-components.txt)"
+echo -e "Detected changes on components: \r\n$(cat artifacts/changed-components.txt)"
