@@ -1,7 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import severities from '../../../fixtures/services/severity.json';
 
 beforeEach(() => {

@@ -1,6 +1,6 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const UIDtoSearchFor = '(&(uid=centréon-ldap4)(objectClass=posixAccount))';
 const DNtoSearchFor = 'cn=centréon-ldap4,ou=users,dc=centreon,dc=com';

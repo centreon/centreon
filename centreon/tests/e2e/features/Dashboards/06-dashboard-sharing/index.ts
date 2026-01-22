@@ -1,6 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PAGES } from 'fixtures/shared/constants/pages';
 import dashboards from '../../../fixtures/dashboards/check-permissions/dashboards.json';
 import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
@@ -9,6 +8,7 @@ import dashboardCGMember1 from '../../../fixtures/users/user-dashboard-cg-member
 import dashboardCGMember2 from '../../../fixtures/users/user-dashboard-cg-member-2.json';
 import dashboardCGMember3 from '../../../fixtures/users/user-dashboard-cg-member-3.json';
 import dashboardCGMember4 from '../../../fixtures/users/user-dashboard-cg-member-4.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
