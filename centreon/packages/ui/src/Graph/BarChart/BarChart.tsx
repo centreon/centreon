@@ -21,9 +21,9 @@ import type { LineChartData, Thresholds } from '../common/models';
 import type { BarStyle } from './models';
 import ResponsiveBarChart from './ResponsiveBarChart';
 
+dayjs.extend(timezonePlugin);
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
-dayjs.extend(timezonePlugin);
 
 export interface BarChartProps
   extends Partial<
