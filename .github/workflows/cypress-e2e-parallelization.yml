@@ -117,7 +117,7 @@ jobs:
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
           cd ${{ inputs.module_name }}
-          FEATURES=$(cucumber ${{ inputs.features_path }} ${CUCUMBER_TAGS[@]} -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          FEATURES=$(cucumber ${{ inputs.features_path }} "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
           echo $FEATURES
           echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
