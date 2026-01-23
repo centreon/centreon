@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const link = 'https://www.google.com/';
 const services = {
@@ -16,11 +17,7 @@ const services = {
 };
 
 const visitStatusDetailPage = () => {
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 1,
-    subMenu: 'Status Details'
-  });
+  cy.visit(PAGES.monitoring.statusDetailsServicesLegacy);
   cy.wait('@getTimeZone');
 };
 
@@ -71,11 +68,7 @@ Given('a configured passive service linked to the host', () => {
 });
 
 When('the user goes to "Administration > Parameters > My Account"', () => {
-  cy.navigateTo({
-    page: 'My Account',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.accountParametersLegacy);
   cy.wait('@getTimeZone');
 });
 

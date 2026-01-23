@@ -1,3 +1,5 @@
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
@@ -98,12 +100,8 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('visitContactsPage', (index: number) => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: index,
-    subMenu: 'Users'
-  });
+Cypress.Commands.add('visitContactsPage', () => {
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -147,9 +145,7 @@ declare global {
         jsonName: string,
         login: string
       ) => Cypress.Chainable;
-      visitContactsPage: (index: number) => Cypress.Chainable;
+      visitContactsPage: () => Cypress.Chainable;
     }
   }
 }
-
-export {};

@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/services/meta_service.json';
 
 beforeEach(() => {
@@ -19,11 +20,7 @@ Given('a user is logged in Centreon', () => {
 });
 
 Then('a meta service is configured', () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchMS"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="meta_name"]');

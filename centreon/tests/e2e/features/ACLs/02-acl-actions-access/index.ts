@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/acls/acl-data.json';
 import { AclActionType, Action } from '../commands';
 
@@ -131,11 +132,7 @@ Given(
 );
 
 When('I add a new action access linked with the access groups', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
@@ -187,11 +184,7 @@ Then(
   'all linked access group display the new actions access in authorized information tab',
   () => {
     aclAction.aclGroups.forEach((aclGroup) => {
-      cy.navigateTo({
-        page: 'Access Groups',
-        rootItemNumber: 4,
-        subMenu: 'ACL'
-      });
+      cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
       cy.wait('@getTimeZone');
 
       cy.getIframeBody().contains('td.ListColLeft > a', aclGroup).click();
@@ -209,11 +202,7 @@ Then(
 When(
   'I select one by one all action to authorize them in an action access record I create',
   () => {
-    cy.navigateTo({
-      page: 'Actions Access',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclActionsAccessLegacy);
     cy.wait('@getTimeZone');
 
     cy.getIframeBody().contains('a', 'Add').click();
@@ -244,11 +233,7 @@ Then('all radio-buttons have to be checked', () => {
 });
 
 When('I check button-radio for a lot of actions', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
@@ -300,11 +285,7 @@ Given('one existing action access', () => {
 });
 
 When('I remove the access group', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('td.ListColLeft > a', aclAction.name).click();
@@ -321,11 +302,7 @@ When('I remove the access group', () => {
 Then(
   'the link between the access group and the action access is voided',
   () => {
-    cy.navigateTo({
-      page: 'Access Groups',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
 
     cy.wait('@getTimeZone').then(() => {
       cy.executeActionOnIframe(
@@ -358,11 +335,7 @@ Then(
 );
 
 When('I duplicate the action access', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -423,15 +396,9 @@ Then(
 When(
   'I modify some properties such as name, description, comments, status or authorized actions',
   () => {
-    cy.navigateTo({
-      page: 'Actions Access',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclActionsAccessLegacy);
     cy.wait('@getTimeZone');
-
     cy.getIframeBody().contains('td.ListColLeft > a', aclAction.name).click();
-
     cy.wait('@getTimeZone');
     cy.getIframeBody()
       .find('input[name="acl_action_name"]')
@@ -489,11 +456,7 @@ Then('the modifications are saved', () => {
 });
 
 When('I delete the action access', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -528,11 +491,7 @@ Then(
 
 Then('the links with the acl groups are broken', () => {
   aclAction.aclGroups.forEach((aclGroup) => {
-    cy.navigateTo({
-      page: 'Access Groups',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
     cy.wait('@getTimeZone');
 
     cy.getIframeBody().contains('td.ListColLeft > a', aclGroup).click();

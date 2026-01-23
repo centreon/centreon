@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const hostName = 'New-Host-Name';
 const services = {
@@ -91,11 +92,7 @@ When('a host is configured', () => {
 });
 
 When('the user changes the name of a host to "New Host Name"', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(services.serviceOk.host).click({
     force: true
@@ -113,11 +110,7 @@ Then('the host name is updated to "New Host Name" on the Host Page', () => {
 });
 
 When('the user duplicates a host', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
@@ -138,11 +131,7 @@ Then('a new host is created with identical fields', () => {
 });
 
 When('the user deletes the host', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
