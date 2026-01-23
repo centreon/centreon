@@ -577,7 +577,7 @@ abstract class CentreonObject
             return ! ($ids[0][$this->object->getPrimaryKey()] == $updateId);
         }
 
-return (bool) (count($ids));
+        return (bool) (count($ids));
     }
 
     /**

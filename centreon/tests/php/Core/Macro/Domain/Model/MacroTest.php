@@ -101,9 +101,9 @@ it('should resolve macro inheritance', function (): void {
         $macroB2->getName() => $macroB2,
     ])
         ->and($inheritedMacros)->toBe([
-        $macroC->getName() => $macroC,
-        $macroD->getName() => $macroD,
-        $macroE2->getName() => $macroE2,
-        $macroB1->getName() => $macroB1,
-    ]);
+            $macroC->getName() => $macroC,
+            $macroD->getName() => $macroD,
+            $macroE2->getName() => $macroE2,
+            $macroB1->getName() => $macroB1,
+        ]);
 });

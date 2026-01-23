@@ -352,7 +352,8 @@ class Backend
             }
 
             return true;
-        } elseif (is_file($path)) {
+        }
+        if (is_file($path)) {
             return unlink($path);
         }
 

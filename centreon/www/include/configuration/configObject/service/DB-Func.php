@@ -250,7 +250,7 @@ function testServiceTemplateExistence($name = null, $returnId = false)
         return ! ($nbRows >= 1 && $service['service_id'] != $id);  // Duplicate entry
     }
 
-return ! ($nbRows >= 1);
+    return ! ($nbRows >= 1);
 }
 
 /**
