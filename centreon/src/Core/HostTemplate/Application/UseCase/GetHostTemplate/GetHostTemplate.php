@@ -230,10 +230,12 @@ final class GetHostTemplate
 
         $parentTemplates = [];
         foreach ($templateIds as $templateId) {
-            $parentTemplates[] = [
-                'id' => $templateId,
-                'name' => $templateNames[$templateId],
-            ];
+            if (isset($templateNames[$templateId])) { 
+                $parentTemplates[] = [
+                    'id' => $templateId,
+                    'name' => $templateNames[$templateId],
+                ];
+            }
         }
 
         return $parentTemplates;
