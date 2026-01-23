@@ -57,7 +57,7 @@ jobs:
   behat-test-list:
     runs-on: ubuntu-24.04
     outputs:
-      test_tags: ${{ steps.list-features.outputs.test_tags }}
+      test_tags: ${{ steps.list-features.outputs.tags }}
       features: ${{ steps.list-features.outputs.specs }}
       has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
 
