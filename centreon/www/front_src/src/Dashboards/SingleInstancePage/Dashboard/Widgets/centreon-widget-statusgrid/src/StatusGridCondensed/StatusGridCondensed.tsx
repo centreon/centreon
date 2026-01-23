@@ -1,12 +1,11 @@
-import { equals, last, pipe, pluck, reject } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import { formatMetricValue, usePluralizedTranslation } from '@centreon/ui';
 
-import { StatusGridProps } from '../StatusGridStandard/models';
+import { equals, last, pipe, pluck, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { StatusGridProps } from '../StatusGridStandard/models';
 import Skeleton from './Skeleton';
 import StatusCard from './StatusCard';
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
@@ -86,8 +85,8 @@ const StatusGridCondensed = ({
             isBVResourceType={isBVResourceType}
             key={label}
             label={label}
-            resourceType={panelOptions.resourceType}
             resources={panelData.resources}
+            resourceType={panelOptions.resourceType}
             severityCode={severityCode}
             total={total}
           />

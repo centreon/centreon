@@ -14,11 +14,11 @@ export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 
 export default {
   labelDiscard,
-  labelSave,
-  labelLeave,
-  labelStay,
-  labelIfYouClickOnDiscard,
   labelDoYouWantToQuit,
-  labelYourFormHasUnsavedChanges,
-  labelDoYouWantToSaveChanges
+  labelDoYouWantToSaveChanges,
+  labelIfYouClickOnDiscard,
+  labelLeave,
+  labelSave,
+  labelStay,
+  labelYourFormHasUnsavedChanges
 };

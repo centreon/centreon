@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 
+import type { ArcType, PieProps } from './models';
 import PieChart from './PieChart';
-import { ArcType, PieProps } from './models';
 
 const defaultData = [
   { color: '#88B922', label: 'Ok', value: 148 },

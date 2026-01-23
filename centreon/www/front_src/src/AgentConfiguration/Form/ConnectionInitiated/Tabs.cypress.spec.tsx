@@ -7,13 +7,13 @@ const defaultTabs = [
 ];
 
 const defaultChildren = [
-  <div key="tab1" data-testid="tab1-content">
+  <div data-testid="tab1-content" key="tab1">
     Tab 1 Content
   </div>,
-  <div key="tab2" data-testid="tab2-content">
+  <div data-testid="tab2-content" key="tab2">
     Tab 2 Content
   </div>,
-  <div key="tab3" data-testid="tab3-content">
+  <div data-testid="tab3-content" key="tab3">
     Tab 3 Content
   </div>
 ];

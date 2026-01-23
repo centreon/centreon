@@ -1,8 +1,7 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
-
 import Slider from './Slider';
 
 const initialize = ({ isInGroup = false, canEdit = true, slider }): void => {

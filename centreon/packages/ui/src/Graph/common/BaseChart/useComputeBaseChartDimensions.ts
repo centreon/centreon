@@ -1,8 +1,7 @@
-import { RefCallback } from 'react';
-
 import { equals, isNil } from 'ramda';
-
+import type { RefCallback } from 'react';
 import useResizeObserver from 'use-resize-observer';
+
 import { margin } from '../../Chart/common';
 import { margins } from '../margins';
 import { useMarginTop } from '../useMarginTop';

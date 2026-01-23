@@ -1,10 +1,9 @@
-import { useMemo } from 'react';
+import { alpha, LinearProgress, Typography } from '@mui/material';
 
 import { findLast, gt, lt } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { LinearProgress, Typography, alpha } from '@mui/material';
 
 import memoizeComponent from '../../Resources/memoizedComponent';
 

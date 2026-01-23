@@ -1,10 +1,3 @@
-import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
-
-import { __, equals, gt, isNil, not } from 'ramda';
-import { useTranslation, withTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { makeStyles } from 'tss-react/mui';
-
 import CheckIcon from '@mui/icons-material/Check';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
@@ -24,19 +17,24 @@ import {
 } from '@mui/material';
 
 import {
-  MenuSkeleton,
   getData,
+  MenuSkeleton,
   useFullscreen,
   useLocaleDateTimeFormat,
   useRequest
 } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
+import { __, equals, gt, isNil, not } from 'ramda';
+import { MouseEvent, RefObject, useEffect, useRef, useState } from 'react';
+import { useTranslation, withTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+
 import useNavigation from '../../Navigation/useNavigation';
 import routeMap from '../../reactRoutes/routeMap';
-import Clock from '../Clock';
 import { userEndpoint } from '../api/endpoints';
-
+import Clock from '../Clock';
 import SwitchMode from './SwitchThemeMode';
 import {
   labelCopyAutologinLink,
@@ -350,13 +348,12 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
               className={classes.userIcon}
               data-cy="userIcon"
               fontSize="large"
-              ref={userIconRef}
               onClick={toggle}
+              ref={userIconRef}
             />
           </Badge>
         </Tooltip>
         <Popper
-          transition
           anchorEl={anchorEl}
           className={classes.popper}
           data-cy="popper"
@@ -370,6 +367,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
           ]}
           open={not(isNil(anchorEl))}
           placement="bottom-end"
+          transition
         >
           {({ TransitionProps }): JSX.Element => (
             <Fade {...TransitionProps} timeout={350}>
@@ -380,7 +378,7 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                   display: isNil(anchorEl) ? 'none' : 'block'
                 }}
               >
-                <List dense className={classes.containerList}>
+                <List className={classes.containerList} dense>
                   <ListItem className={classes.listItem}>
                     <ListItemText
                       primaryTypographyProps={primaryTypographyProps}
@@ -439,9 +437,9 @@ const UserMenu = ({ headerRef }: Props): JSX.Element => {
                         </ListItemText>
                       </ListItemButton>
                       <textarea
-                        readOnly
                         className={cx(classes.hiddenInput)}
                         id="autologin-input"
+                        readOnly
                         ref={autologinNode as RefObject<HTMLTextAreaElement>}
                         value={autolink}
                       />

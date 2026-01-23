@@ -1,7 +1,7 @@
+import { Box, Typography } from '@mui/material';
+
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Box, Typography } from '@mui/material';
 
 import { DisplayType as DisplayTypeEnum } from '../../models';
 import {
@@ -10,9 +10,8 @@ import {
   labelViewByHost,
   labelViewByService
 } from '../../translatedLabels';
-
-import Option from './Option';
 import { useStyles } from './displayType.styles';
+import Option from './Option';
 
 const options = [
   {

@@ -10,7 +10,6 @@ import type {
   Severity,
   Status
 } from '../models';
-
 import type { CustomTimePeriod, TimePeriodId } from './tabs/Graph/models';
 
 export interface Group extends Partial<NamedEntity> {

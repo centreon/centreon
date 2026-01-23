@@ -1,5 +1,7 @@
 import { Method, useMutationQuery } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
+
 import { getPollerAgentEndpoint } from '../api/endpoints';
 
 interface UseDeletePollerAgent {
@@ -19,10 +21,10 @@ export const useDeletePollerAgent = (): UseDeletePollerAgent => {
   });
 
   const deleteItem = ({ pollerId, agentId }): Promise<void> =>
-    mutateAsync({ _meta: { pollerId, agentId } });
+    mutateAsync({ _meta: { agentId, pollerId } });
 
   return {
-    isMutating,
-    deleteItem
+    deleteItem,
+    isMutating
   };
 };

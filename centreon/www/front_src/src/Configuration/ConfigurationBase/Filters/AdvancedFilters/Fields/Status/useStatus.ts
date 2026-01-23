@@ -22,9 +22,9 @@ const useStatus = <TFilters>({
     };
 
   return {
-    valueEnable: filters.enabled,
+    change,
     valueDisable: filters.disabled,
-    change
+    valueEnable: filters.enabled
   };
 };
 

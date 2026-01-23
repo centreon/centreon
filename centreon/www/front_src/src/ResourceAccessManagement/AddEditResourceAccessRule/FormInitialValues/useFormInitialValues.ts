@@ -4,7 +4,6 @@ import { equals } from 'ramda';
 
 import { editedResourceAccessRuleIdAtom, modalStateAtom } from '../../atom';
 import { ModalMode, ResourceAccessRule } from '../../models';
-
 import { getEmptyInitialValues, getInitialValues } from './initialValues';
 
 interface UseFormState {

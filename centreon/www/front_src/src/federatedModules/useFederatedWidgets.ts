@@ -1,15 +1,13 @@
-import { useCallback, useEffect } from 'react';
-
-import { useAtom } from 'jotai';
-
 import { getData, useDeepCompare, useRequest } from '@centreon/ui';
 import { federatedWidgetsAtom } from '@centreon/ui-context';
 
+import { useAtom } from 'jotai';
+import { difference, pluck } from 'ramda';
+import { useCallback, useEffect } from 'react';
+
+import { internalWidgetComponents } from '../Dashboards/SingleInstancePage/Dashboard/Widgets/widgets';
 import { store } from '../Main/Provider';
 import usePlatformVersions from '../Main/usePlatformVersions';
-
-import { difference, pluck } from 'ramda';
-import { internalWidgetComponents } from '../Dashboards/SingleInstancePage/Dashboard/Widgets/widgets';
 import { federatedWidgetsPropertiesAtom } from './atoms';
 import { FederatedModule, FederatedWidgetProperties } from './models';
 import { loadScript } from './utils';
@@ -57,7 +55,7 @@ const useFederatedWidgets = (): UseFederatedModulesState => {
       return;
     }
 
-    const timestamp = `?t=${new Date().getTime()}`;
+    const timestamp = `?t=${Date.now()}`;
 
     Promise.all(
       externalWidgets.map((moduleName) =>

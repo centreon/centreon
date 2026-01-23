@@ -1,5 +1,8 @@
 import { Form } from '@centreon/ui';
+
 import { find, isNil, propEq } from 'ramda';
+import { ReactElement } from 'react';
+
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
 import Buttons from './Buttons';
@@ -13,17 +16,17 @@ interface Props {
 }
 
 const defaultInitialValues = {
-  name: '',
-  type: null,
-  pollers: [],
   configuration: { port: 4317 },
-  connectionMode: find(propEq('secure', 'id'), connectionModes)
+  connectionMode: find(propEq('secure', 'id'), connectionModes),
+  name: '',
+  pollers: [],
+  type: null
 };
 
 const AgentConfigurationForm = ({
   initialValues,
   isLoading
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const { classes } = useFormStyles();
 
   const { groups, inputs } = useInputs();
@@ -35,17 +38,17 @@ const AgentConfigurationForm = ({
 
   return (
     <Form<AgentConfigurationFormModel>
-      enableReinitialize
-      Buttons={Buttons}
-      validationSchema={validationSchema}
-      isLoading={isLoading}
-      groups={groups}
-      isCollapsible
       areGroupsOpen
-      inputs={inputs}
-      initialValues={values}
-      submit={submit}
+      Buttons={Buttons}
+      enableReinitialize
+      groups={groups}
       groupsClassName={classes.groups}
+      initialValues={values}
+      inputs={inputs}
+      isCollapsible
+      isLoading={isLoading}
+      submit={submit}
+      validationSchema={validationSchema}
     />
   );
 };

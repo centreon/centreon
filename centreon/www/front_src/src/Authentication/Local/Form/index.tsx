@@ -1,10 +1,10 @@
+import type { Group } from '@centreon/ui';
+import { Form, useRequest, useSnackbar } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 
-import { Form, useRequest, useSnackbar } from '@centreon/ui';
-import type { Group } from '@centreon/ui';
-
-import FormButtons from '../../FormButtons';
 import { putPasswordPasswordSecurityPolicy } from '../../api';
+import FormButtons from '../../FormButtons';
 import { PasswordSecurityPolicy } from '../models';
 import {
   labelFailedToSavePasswordPasswordSecurityPolicy,
@@ -14,7 +14,6 @@ import {
   labelPasswordPasswordSecurityPolicySaved
 } from '../translatedLabels';
 import useValidationSchema from '../useValidationSchema';
-
 import inputs from './inputs';
 
 interface Props {
