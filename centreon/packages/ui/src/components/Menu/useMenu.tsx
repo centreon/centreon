@@ -1,14 +1,13 @@
-import { ReactElement, ReactNode, useRef } from 'react';
-
 import {
-  Provider,
   atom,
   createStore,
+  Provider,
   useAtom,
   useAtomValue,
   useStore
 } from 'jotai';
 import { useHydrateAtoms } from 'jotai/utils';
+import { type ReactElement, type ReactNode, useRef } from 'react';
 
 /** state */
 

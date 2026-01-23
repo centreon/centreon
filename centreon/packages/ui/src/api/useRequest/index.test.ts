@@ -1,7 +1,7 @@
-import { RenderHookResult, act, renderHook } from '@testing-library/react';
+import { act, type RenderHookResult, renderHook } from '@testing-library/react';
 import axios from 'axios';
 
-import useRequest, { RequestResult, RequestParams } from '.';
+import useRequest, { type RequestParams, type RequestResult } from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -39,10 +39,11 @@ describe(useRequest, () => {
       request
     });
 
-    await act(async () =>
-      result.current.sendRequest().then((data) => {
-        expect(data).toEqual('success');
-      })
+    await act(
+      async () =>
+        await result.current.sendRequest().then((data) => {
+          expect(data).toEqual('success');
+        })
     );
   });
 
@@ -54,7 +55,7 @@ describe(useRequest, () => {
     const { result } = renderUseRequest({ getErrorMessage, request });
 
     await act(async () => {
-      result.current.sendRequest().catch((error) => {
+      await result.current.sendRequest().catch((error) => {
         expect(error).toEqual({});
       });
     });
@@ -71,7 +72,7 @@ describe(useRequest, () => {
     const { result } = renderUseRequest({ request });
 
     await act(async () => {
-      result.current.sendRequest().catch((error) => {
+      await result.current.sendRequest().catch((error) => {
         expect(error).toEqual(response);
       });
     });
@@ -88,7 +89,7 @@ describe(useRequest, () => {
     });
 
     await act(async () => {
-      result.current.sendRequest().catch((error) => {
+      await result.current.sendRequest().catch((error) => {
         expect(error).toEqual({});
       });
     });
@@ -106,7 +107,7 @@ describe(useRequest, () => {
     });
 
     await act(async () => {
-      result.current.sendRequest().catch((error) => {
+      await result.current.sendRequest().catch((error) => {
         expect(error).toEqual({});
       });
     });

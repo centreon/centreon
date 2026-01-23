@@ -1,7 +1,6 @@
-import { useMemo } from 'react';
-
-import { PrimitiveAtom, useAtom } from 'jotai';
+import { type PrimitiveAtom, useAtom } from 'jotai';
 import { equals, pick, type } from 'ramda';
+import { useMemo } from 'react';
 
 import { Modal } from '..';
 
@@ -72,8 +71,8 @@ export const ConfirmationModal = <TAtom,>({
   return (
     <Modal
       hasCloseButton={hasCloseButton}
-      open={Boolean(atomData)}
       onClose={closeModal}
+      open={Boolean(atomData)}
       size={size}
     >
       <Modal.Header>{formattedLabels.title}</Modal.Header>

@@ -1,7 +1,8 @@
+import { Column, ColumnType } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { Column, ColumnType } from '@centreon/ui';
-import { useAtomValue } from 'jotai';
 import { configurationAtom } from '../../atoms';
 import { labelActions, labelEnableDisable } from '../../translatedLabels';
 import { Actions } from './Actions';
@@ -32,11 +33,11 @@ const useColumns = (): Props => {
             Component: Status,
             clickable: true,
             id: 'is_activated',
-            sortField: 'is_activated',
             label: t(labelEnableDisable),
+            sortable: true,
+            sortField: 'is_activated',
             type: ColumnType.component,
-            width: 'max-content',
-            sortable: true
+            width: 'max-content'
           }
         ]
       : [])

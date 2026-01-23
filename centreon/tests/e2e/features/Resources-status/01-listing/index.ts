@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkMetricsAreMonitored,
@@ -177,7 +178,7 @@ Given('a saved custom filter', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);

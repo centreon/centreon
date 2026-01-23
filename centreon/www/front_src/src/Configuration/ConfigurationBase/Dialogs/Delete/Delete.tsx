@@ -1,12 +1,11 @@
 import { Typography } from '@mui/material';
 
-import { Trans, useTranslation } from 'react-i18next';
-
 import { Modal } from '@centreon/ui/components';
 
-import useDelete from './useDelete';
+import { Trans, useTranslation } from 'react-i18next';
 
 import { labelCancel, labelDelete } from '../../translatedLabels';
+import useDelete from './useDelete';
 
 const DeleteDialog = (): JSX.Element => {
   const { t } = useTranslation();
@@ -15,20 +14,20 @@ const DeleteDialog = (): JSX.Element => {
     useDelete();
 
   return (
-    <Modal open={isOpened} size="large" onClose={close}>
+    <Modal onClose={close} open={isOpened} size="large">
       <Modal.Header>{headerContent}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
+            components={{ bold: <strong /> }}
             defaults={bodyContent.label}
             values={bodyContent.value}
-            components={{ bold: <strong /> }}
           />
         </Typography>
       </Modal.Body>
       <Modal.Actions
-        isDanger
         disabled={isMutating}
+        isDanger
         labels={{
           cancel: t(labelCancel),
           confirm: t(labelDelete)

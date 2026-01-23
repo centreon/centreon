@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import hostTemplates from '../../../fixtures/host-templates/host-template.json';
 
@@ -50,11 +51,7 @@ Given('a blocked host template', () => {
 });
 
 When('the user goes to the host template listing page', () => {
-  cy.navigateTo({
-    page: 'Templates',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait('@getTimeZone');
 });
 

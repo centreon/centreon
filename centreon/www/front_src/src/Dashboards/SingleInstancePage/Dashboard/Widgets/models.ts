@@ -1,5 +1,7 @@
 import { SelectEntry } from '@centreon/ui';
 
+import { QueryClient } from '@tanstack/react-query';
+
 export interface FormThreshold {
   criticalType: 'default' | 'custom';
   customCritical: number;
@@ -87,6 +89,7 @@ export interface CommonWidgetProps<T extends object> {
   refreshCount: number;
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   widgetPrefixQuery: string;
+  queryClient?: QueryClient;
 }
 
 export type StatusDetail = {

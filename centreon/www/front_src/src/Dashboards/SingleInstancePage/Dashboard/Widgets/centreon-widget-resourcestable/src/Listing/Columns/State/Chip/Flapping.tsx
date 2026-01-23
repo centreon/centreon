@@ -1,11 +1,12 @@
 import { useTheme } from '@mui/material';
 
 import { FlappingIcon } from '@centreon/ui';
-
 import { Tooltip } from '@centreon/ui/components';
+
 import { useTranslation } from 'react-i18next';
-import Chip from '.';
+
 import { labelResourceFlapping } from '../../../translatedLabels';
+import Chip from '.';
 
 const FlappingChip = (): JSX.Element => {
   const theme = useTheme();

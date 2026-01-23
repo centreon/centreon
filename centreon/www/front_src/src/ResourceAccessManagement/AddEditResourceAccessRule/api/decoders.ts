@@ -15,7 +15,6 @@ const datasetFilter: JsonDecoder.Decoder<DatasetFilter> =
         [JsonDecoder.isNull(null), JsonDecoder.lazy(() => datasetFilter)],
         'Dataset filter'
       ),
-      resourceType: JsonDecoder.enumeration(ResourceTypeEnum, 'Resource type'),
       resources: JsonDecoder.array(
         JsonDecoder.object<NamedEntity>(
           {
@@ -25,7 +24,8 @@ const datasetFilter: JsonDecoder.Decoder<DatasetFilter> =
           'Resource'
         ),
         'Resources'
-      )
+      ),
+      resourceType: JsonDecoder.enumeration(ResourceTypeEnum, 'Resource type')
     },
     'Dataset filter',
     {
@@ -44,8 +44,8 @@ const contactGroups = JsonDecoder.object<NamedEntity>(
 
 const contacts = JsonDecoder.object<Contact>(
   {
-    id: JsonDecoder.number,
-    alias: JsonDecoder.string
+    alias: JsonDecoder.string,
+    id: JsonDecoder.number
   },
   'Contact'
 );

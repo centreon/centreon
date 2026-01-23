@@ -1,21 +1,21 @@
-import { useEffect } from 'react';
+import { getData, useRequest } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { always, ifElse, isNil, pathEq, pathOr } from 'ramda';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { getData, useRequest } from '@centreon/ui';
 
 import {
   clearSelectedResourceDerivedAtom,
   detailsAtom,
   selectedResourceDetailsEndpointDerivedAtom,
-  selectedResourceUuidAtom,
   selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom,
   sendingDetailsAtom
 } from '../Details/detailsAtoms';
 import { ResourceDetails } from '../Details/models';
 import { ChangeCustomTimePeriodProps } from '../Details/tabs/Graph/models';
+import { resourceDetailsDecoder } from '../decoders';
 import {
   customTimePeriodAtom,
   getNewCustomTimePeriod,
@@ -23,7 +23,6 @@ import {
   selectedTimePeriodAtom
 } from '../Graph/Performance/TimePeriods/timePeriodAtoms';
 import useTimePeriod from '../Graph/Performance/TimePeriods/useTimePeriod';
-import { resourceDetailsDecoder } from '../decoders';
 import {
   labelNoResourceFound,
   labelSomethingWentWrong

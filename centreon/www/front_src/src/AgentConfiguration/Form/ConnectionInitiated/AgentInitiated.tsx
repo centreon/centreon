@@ -1,33 +1,31 @@
-import { equals, propEq, reject } from 'ramda';
-import { ChangeEvent, useCallback, useMemo } from 'react';
+import { Box } from '@mui/material';
 
 import {
   MultiConnectedAutocompleteField,
   NumberField,
   TextField
 } from '@centreon/ui';
-import { Box } from '@mui/material';
-import { useTranslation } from 'react-i18next';
 
 import { useFormikContext } from 'formik';
+import { equals, propEq, reject } from 'ramda';
+import { ChangeEvent, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { listTokensDecoder } from '../../api/decoders';
 import { getTokensEndpoint } from '../../api/endpoints';
 import { AgentConfigurationForm, ConnectionMode } from '../../models';
-
-import { useAgentInitiatedStyles } from './ConnectionInitiated.styles';
-import RedirectToTokensPage from './RedirectToTokensPage';
-
-import Title from './Title';
-
 import {
-  labelCMAauthenticationToken,
   labelCaCertificate,
+  labelCMAauthenticationToken,
   labelOTLPReceiver,
   labelPort,
   labelPrivateKey,
   labelPublicCertificate,
   labelSelectExistingCMATokens
 } from '../../translatedLabels';
+import { useAgentInitiatedStyles } from './ConnectionInitiated.styles';
+import RedirectToTokensPage from './RedirectToTokensPage';
+import Title from './Title';
 
 const publicCertificateProperty = 'configuration.otelPublicCertificate';
 const caCertificateProperty = 'configuration.otelCaCertificate';
@@ -80,35 +78,39 @@ const AgentInitiated = (): React.ReactElement => {
         <Box className="grid grid-cols-2 gap-4">
           <NumberField
             className={classes.input}
-            required
-            value={values.configuration.port}
-            onChange={changePort}
-            label={t(labelPort)}
             dataTestId={labelPort}
-            fullWidth
-            textFieldSlotsAndSlotProps={{
-              slotProps: {
-                htmlInput: {
-                  'data-testid': 'portInput',
-                  min: 1,
-                  max: 65535
-                }
-              }
-            }}
             error={
               (touched?.configuration?.port && errors?.configuration?.port) ||
               undefined
             }
+            fullWidth
+            label={t(labelPort)}
+            onChange={changePort}
+            required
+            textFieldSlotsAndSlotProps={{
+              slotProps: {
+                htmlInput: {
+                  'data-testid': 'portInput',
+                  max: 65535,
+                  min: 1
+                }
+              }
+            }}
+            value={values.configuration.port}
           />
           {isTLSModes && (
             <>
               <TextField
                 className={classes.input}
-                value={values.configuration.otelPublicCertificate || ''}
-                onChange={change(publicCertificateProperty)}
-                label={t(labelPublicCertificate)}
                 dataTestId={labelPublicCertificate}
+                error={
+                  (touched?.configuration?.otelPublicCertificate &&
+                    errors?.configuration?.otelPublicCertificate) ||
+                  undefined
+                }
                 fullWidth
+                label={t(labelPublicCertificate)}
+                onChange={change(publicCertificateProperty)}
                 textFieldSlotsAndSlotProps={{
                   slotProps: {
                     htmlInput: {
@@ -116,18 +118,20 @@ const AgentInitiated = (): React.ReactElement => {
                     }
                   }
                 }}
-                error={
-                  (touched?.configuration?.otelPublicCertificate &&
-                    errors?.configuration?.otelPublicCertificate) ||
-                  undefined
-                }
+                value={values.configuration.otelPublicCertificate || ''}
               />
 
               <TextField
-                value={values.configuration.otelCaCertificate || ''}
-                onChange={change(caCertificateProperty)}
-                label={t(labelCaCertificate)}
+                className={classes.input}
                 dataTestId={labelCaCertificate}
+                error={
+                  (touched?.configuration?.otelCaCertificate &&
+                    errors?.configuration?.otelCaCertificate) ||
+                  undefined
+                }
+                fullWidth
+                label={t(labelCaCertificate)}
+                onChange={change(caCertificateProperty)}
                 textFieldSlotsAndSlotProps={{
                   slotProps: {
                     htmlInput: {
@@ -135,19 +139,20 @@ const AgentInitiated = (): React.ReactElement => {
                     }
                   }
                 }}
-                fullWidth
-                error={
-                  (touched?.configuration?.otelCaCertificate &&
-                    errors?.configuration?.otelCaCertificate) ||
-                  undefined
-                }
-                className={classes.input}
+                value={values.configuration.otelCaCertificate || ''}
               />
 
               <TextField
-                value={values.configuration.otelPrivateKey || ''}
-                onChange={change(privateKeyProperty)}
+                className={classes.input}
+                dataTestId={labelPrivateKey}
+                error={
+                  (touched?.configuration?.otelPrivateKey &&
+                    errors?.configuration?.otelPrivateKey) ||
+                  undefined
+                }
+                fullWidth
                 label={t(labelPrivateKey)}
+                onChange={change(privateKeyProperty)}
                 textFieldSlotsAndSlotProps={{
                   slotProps: {
                     htmlInput: {
@@ -155,14 +160,7 @@ const AgentInitiated = (): React.ReactElement => {
                     }
                   }
                 }}
-                dataTestId={labelPrivateKey}
-                fullWidth
-                error={
-                  (touched?.configuration?.otelPrivateKey &&
-                    errors?.configuration?.otelPrivateKey) ||
-                  undefined
-                }
-                className={classes.input}
+                value={values.configuration.otelPrivateKey || ''}
               />
             </>
           )}
@@ -171,24 +169,24 @@ const AgentInitiated = (): React.ReactElement => {
       <Box>
         <Title label={labelCMAauthenticationToken} />
         <MultiConnectedAutocompleteField
-          required
-          disableClearable={false}
-          dataTestId={labelSelectExistingCMATokens}
-          field="token_name"
-          getEndpoint={getTokensEndpoint}
-          label={t(labelSelectExistingCMATokens)}
-          value={values.configuration.tokens || null}
-          onChange={changeCMATokens}
-          decoder={listTokensDecoder}
-          limitTags={15}
           chipProps={{
             color: 'primary',
             onDelete: deleteToken
           }}
+          dataTestId={labelSelectExistingCMATokens}
+          decoder={listTokensDecoder}
+          disableClearable={false}
           error={
             (touched?.configuration?.tokens && errors?.configuration?.tokens) ||
             undefined
           }
+          field="token_name"
+          getEndpoint={getTokensEndpoint}
+          label={t(labelSelectExistingCMATokens)}
+          limitTags={15}
+          onChange={changeCMATokens}
+          required
+          value={values.configuration.tokens || null}
         />
         <RedirectToTokensPage />
       </Box>

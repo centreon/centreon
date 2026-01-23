@@ -35,7 +35,7 @@ local data = {
   log_level = 0, -- Set 3 to enable all the logs.
   refresh_delay = 500, -- Delay in seconds before reloading a new notification configuration
   sender = "admin@centreon.com",
-  mail_command = 'aws ses send-email --region {{AWS_REGION}} --from "{{SENDER}}" --destination file://{{DESTINATION_FILE}} --message file://{{MESSAGE_FILE}}',
+  mail_command = 'aws ses send-email --region {{AWS_REGION}} --from "{{SENDER}}" --destination "file://{{DESTINATION_FILE}}" --message "file://{{MESSAGE_FILE}}"',
   last_refresh = 0, -- internal.
   current_uid = "unknown", -- internal
   host = {} -- internal: the configuration raised by the API.
@@ -408,20 +408,30 @@ local function send_mail(notif, event, conf, hostname)
   }
 
   --- Create temporary files for destination and message json files
-  local dest_tmpname = "/tmp/" .. os.tmpname() .. ".json"
-  local msg_tmpname = "/tmp/" .. os.tmpname() .. ".json"
+  local dest_tmpname = os.tmpname() .. ".json"
   local dest_file = io.open(dest_tmpname, "w")
+  if not dest_file then
+    broker_log:error(0, "Unable to create destination file: " .. dest_tmpname)
+    return
+  end
   dest_file:write(broker.json_encode(destination_json))
   dest_file:close()
+
+  local msg_tmpname = os.tmpname() .. ".json"
   local msg_file = io.open(msg_tmpname, "w")
+  if not msg_file then
+    broker_log:error(0, "Unable to create message file: " .. msg_tmpname)
+    os.remove(dest_tmpname)
+    return
+  end
   msg_file:write(broker.json_encode(message_json))
   msg_file:close()
 
   -- Constructing the mail command
   local cmd = data.mail_command
-  cmd = string.gsub(cmd, "{{SENDER}}", escape_shell_chars(sender))
-  cmd = string.gsub(cmd, "{{DESTINATION_FILE}}", dest_tmpname)
-  cmd = string.gsub(cmd, "{{MESSAGE_FILE}}", msg_tmpname)
+  cmd = string.gsub(cmd, "{{SENDER}}", escape_shell_chars(data.sender))
+  cmd = string.gsub(cmd, "{{DESTINATION_FILE}}", escape_shell_chars(dest_tmpname))
+  cmd = string.gsub(cmd, "{{MESSAGE_FILE}}", escape_shell_chars(msg_tmpname))
 
   broker_log:info(1, "command content: " .. cmd)
   -- Execution of the command

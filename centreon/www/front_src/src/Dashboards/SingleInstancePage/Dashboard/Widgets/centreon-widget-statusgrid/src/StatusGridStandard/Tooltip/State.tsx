@@ -1,6 +1,3 @@
-import { equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
 import {
@@ -8,6 +5,9 @@ import {
   useFetchQuery,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
+
+import { equals, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { labelAcknowledged, labelInDowntime } from '../translatedLabels';
 

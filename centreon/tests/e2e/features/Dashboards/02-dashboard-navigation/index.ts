@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { last } from 'ramda';
 
 import dashboardsOnePage from '../../../fixtures/dashboards/navigation/dashboards-single-page.json';
@@ -38,7 +39,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the dashboards overview page', () => {
-  cy.visit('/centreon/monitoring/resources');
+  cy.visit(PAGES.monitoring.resourcesStatus);
 });
 
 When('the user accesses the dashboard overview page with no dashboards', () => {

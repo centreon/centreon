@@ -1,10 +1,8 @@
-import { ReactElement } from 'react';
-
 import { useFormikContext } from 'formik';
+import type { ReactElement } from 'react';
 
 import { Button } from '../Button';
-
-import { FormVariant } from './Form.models';
+import type { FormVariant } from './Form.models';
 import { useStyles } from './Form.styles';
 
 export type FormActionsProps = {
@@ -46,9 +44,9 @@ const FormActions = <TResource extends object>({
           aria-label={labels.cancel}
           data-testid="cancel"
           disabled={isSubmitting}
+          onClick={() => onCancel?.()}
           size="medium"
           variant="secondary"
-          onClick={() => onCancel?.()}
         >
           {labels.cancel}
         </Button>
@@ -57,10 +55,10 @@ const FormActions = <TResource extends object>({
         aria-label={labels.submit[variant]}
         data-testid="submit"
         disabled={isSubmitDisabled}
+        onClick={submitForm}
         size="medium"
         type="submit"
         variant="primary"
-        onClick={submitForm}
       >
         {labels.submit[variant]}
       </Button>

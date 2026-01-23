@@ -1,12 +1,12 @@
+import ColumnIcon from '@mui/icons-material/ViewColumn';
+
 import { isNil, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import ColumnIcon from '@mui/icons-material/ViewColumn';
-
-import { Props as ListingProps, getVisibleColumns } from '..';
-import { SelectEntry } from '../../InputField/Select';
+import type { SelectEntry } from '../../InputField/Select';
 import IconPopoverMultiSelect from '../../InputField/Select/IconPopover';
-import { Column } from '../models';
+import { getVisibleColumns, type Props as ListingProps } from '..';
+import type { Column } from '../models';
 import { labelAddColumns } from '../translatedLabels';
 
 type Props = Pick<
@@ -41,12 +41,12 @@ const ColumnMultiSelect = ({
   return (
     <IconPopoverMultiSelect
       icon={<ColumnIcon />}
+      onChange={selectColumnIds}
+      onReset={onResetColumns}
       options={toSelectEntries(columns)}
       popperPlacement="bottom-end"
       title={t(labelAddColumns)}
       value={toSelectEntries(visibleColumns)}
-      onChange={selectColumnIds}
-      onReset={onResetColumns}
     />
   );
 };

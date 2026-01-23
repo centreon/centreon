@@ -1,5 +1,7 @@
 import { type ComponentColumnProps, truncate } from '@centreon/ui';
+
 import { JSX } from 'react';
+
 import useNameStyles from './Name.style';
 
 const Name = ({
@@ -8,8 +10,8 @@ const Name = ({
   renderEllipsisTypography
 }: ComponentColumnProps): JSX.Element => {
   const { classes } = useNameStyles({
-    isRowDisabled: row.isActivated,
-    isHovered
+    isHovered,
+    isRowDisabled: row.isActivated
   });
 
   const renderedName =

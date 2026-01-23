@@ -1,8 +1,8 @@
 import { equals } from 'ramda';
 
 import StatusGridCondensed from './StatusGridCondensed/StatusGridCondensed';
-import StatusGrid from './StatusGridStandard/StatusGrid';
 import { StatusGridProps } from './StatusGridStandard/models';
+import StatusGrid from './StatusGridStandard/StatusGrid';
 
 const Widget = ({ panelOptions, ...props }: StatusGridProps): JSX.Element =>
   equals(panelOptions.viewMode || 'standard', 'standard') ? (

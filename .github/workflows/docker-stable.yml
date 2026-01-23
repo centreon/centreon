@@ -14,7 +14,11 @@ on:
         required: true
         default: ''
         type: string
-
+      dev_branch:
+        description: 'To use only in a dev context on the dockerfiles'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   check-inputs:
@@ -24,7 +28,34 @@ jobs:
       is_cloud: ${{ steps.check_promoted_packages.outputs.is_cloud }}
     runs-on: ubuntu-24.04
     steps:
-      - name: Check if ${{ inputs.release_bundle_tag }} exists on onprem repositories
+      - name: Checkout .version (current branch)
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          path: centreon-current
+          sparse-checkout: .version
+
+      - name: Checkout .version (develop branch)
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: develop
+          path: centreon-develop
+          sparse-checkout: .version
+
+      - name: Check if this workflow is run on a branch in the develop context
+        shell: bash
+        run: |
+          source centreon-current/.version
+          current_version=${MAJOR}
+          source centreon-develop/.version
+          develop_version=${MAJOR}
+          if [[ "${current_version}" != "${develop_version}" ]]; then
+            echo "::error:: Please run this workflow on either develop or a branch that targets develop."
+            exit 1
+          else
+            echo ".version file on the current branch matches the develop version: ${current_version}"
+          fi
+
+      - name: Check if ${{ inputs.release_bundle_tag }} exists on standard repositories
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -45,31 +76,34 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ inputs.release_bundle_tag }}
+          path: centreon-${{ inputs.release_bundle_tag }}
           sparse-checkout: .version
 
       - name: Get parameters from tag
         shell: bash
         id: check_promoted_packages
         run: |
-          source .version
-          major_version=$MAJOR
+          source centreon-${{ inputs.release_bundle_tag }}/.version
+          major_version=${MAJOR}
           if ! [[ ${major_version} =~ ^2[0-9]\.(04|10)$ ]]; then
             echo "is_cloud=true" >> $GITHUB_OUTPUT
-            DISTRIBS=("el9")
+            DISTRIBS=("alma9")
           else
             echo "is_cloud=false" >> $GITHUB_OUTPUT
             case "${major_version}" in
               24.04)
-                DISTRIBS=("alma8" "alma9" "bullseye" "bookworm")
+                echo "::error::The workflow does not work on 24.04 version."
+                exit 1
                 ;;
               24.10)
-                DISTRIBS=("alma8" "alma9" "bookworm")
+                DISTRIBS=("alma8" "alma9" "bookworm" "noble")
                 ;;
               25.10)
                 DISTRIBS=("alma8" "alma9" "bookworm")
                 ;;
               *)
-                DISTRIBS=("alma8" "alma9" "bookworm")
+                echo "::error::Major version has not been properly detected."
+                exit 1
                 ;;
             esac
           fi
@@ -90,36 +124,33 @@ jobs:
     name: dockerize-web ${{ matrix.distrib }}
 
     steps:
-      - name: Checkout dockerize and .version files on version ${{ inputs.release_bundle_tag }}
+      - name: Checkout docker files on tag ${{ inputs.dev_branch || inputs.release_bundle_tag }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: ${{ inputs.release_bundle_tag }}
+          ref: ${{ inputs.dev_branch || inputs.release_bundle_tag }}
           sparse-checkout: |
             .github/docker/centreon-web/${{ matrix.distrib }}/
             .github/docker/centreon-web/init/
             .github/docker/centreon-web/scripts/
             .github/docker/centreon-web/sql/
+
+      - name: Checkout version files on tag ${{ inputs.release_bundle_tag }}
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: ${{ inputs.release_bundle_tag }}
+          path: ./${{ inputs.release_bundle_tag }}/
+          sparse-checkout: |
             .version.centreon-awie
             .version.centreon-dsm
-            .version.centreon-ha
             .version.centreon-open-tickets
             .version.centreon-web
-
-      - name: Login to registry
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
-        with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
-
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Checkout collect .version files on bundle tag ${{ inputs.release_bundle_tag }}
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           repository: centreon/centreon-collect
           ref: ${{ inputs.release_bundle_tag }}
-          path: ./centreon-${{ inputs.release_bundle_tag }}
+          path: ./centreon-collect-${{ inputs.release_bundle_tag }}/
           sparse-checkout: |
             .version.centreon-collect
             .version.centreon-common
@@ -130,16 +161,25 @@ jobs:
         id: export-minor-versions
         shell: bash
         run: |
-          mv .version.* ./centreon-${{ inputs.release_bundle_tag }}/
+          mv ./centreon-collect-${{ inputs.release_bundle_tag }}/.version.* ./${{ inputs.release_bundle_tag }}/
 
           for package in "collect" "gorgone" "common" "awie" "dsm" "open-tickets" "web"; do
-            source centreon-${{ inputs.release_bundle_tag }}/.version.centreon-${package}
+            source ${{ inputs.release_bundle_tag }}/.version.centreon-${package}
             package="${package//-/_}"
             echo "${package}_minor_version: $MINOR"
             echo "${package}_minor_version=$MINOR" >> $GITHUB_OUTPUT
           done
 
           mkdir packages-centreon
+
+      - name: Login to registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
+          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Build dependencies web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -157,7 +197,7 @@ jobs:
             "STABILITY=stable"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
@@ -181,7 +221,7 @@ jobs:
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -191,12 +231,12 @@ jobs:
           build-args: |
             "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}
 
       - name: Build and push OSS image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -208,9 +248,9 @@ jobs:
             "DSM_MINOR_VERSION=${{ steps.export-minor-versions.outputs.dsm_minor_version }}"
             "OPEN_TICKETS_MINOR_VERSION=${{ steps.export-minor-versions.outputs.open_tickets_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}

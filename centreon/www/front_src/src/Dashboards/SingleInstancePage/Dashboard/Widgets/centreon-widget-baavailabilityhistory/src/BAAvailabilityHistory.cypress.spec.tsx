@@ -1,18 +1,18 @@
-import Widget from '.';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
+import Widget from '.';
 
 const initialize = ({ panelData }): void => {
   cy.mount({
     Component: (
       <Widget
-        panelData={panelData}
         dashboardId={1}
-        globalRefreshInterval={{ type: 'global', interval: null }}
+        globalRefreshInterval={{ interval: null, type: 'global' }}
         hasDescription={false}
         id="1"
+        panelData={panelData}
+        panelOptions={null}
         refreshCount={0}
         widgetPrefixQuery="widget"
-        panelOptions={null}
       />
     )
   });

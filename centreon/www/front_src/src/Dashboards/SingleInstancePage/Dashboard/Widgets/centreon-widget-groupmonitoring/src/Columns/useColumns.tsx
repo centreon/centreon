@@ -1,10 +1,9 @@
-import { useTranslation } from 'react-i18next';
-
 import { Column, ColumnType } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { RowProps } from '../models';
 import { labelHosts, labelServices } from '../translatedLabels';
-
 import { Name } from './Name';
 import Statuses from './Statuses/Statuses';
 
@@ -23,19 +22,20 @@ export const useColumns = ({
 
   return [
     {
+      align: 'start',
       Component: ({ row }: Pick<RowProps, 'row'>) => (
         <Name groupType={groupType} isFromPreview={isFromPreview} row={row} />
       ),
-      align: 'start',
       clickable: true,
       id: 'name',
       label: t(groupTypeName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component,
       width: 'minmax(120px, auto)'
     },
     {
+      align: 'start',
       Component: ({ row }: Pick<RowProps, 'row'>) => (
         <Statuses
           groupType={groupType}
@@ -44,7 +44,6 @@ export const useColumns = ({
           row={row}
         />
       ),
-      align: 'start',
       clickable: true,
       id: 'host',
       label: t(labelHosts),

@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 const setTimePeriod = (): Cypress.Chainable => {
   cy.getIframeBody().find('input[name="tp_name"]').type('timePeriodName');
   cy.getIframeBody().find('input[name="tp_alias"]').type('timePeriodAlias');
@@ -11,13 +13,13 @@ const setTimePeriod = (): Cypress.Chainable => {
     'saturday'
   ];
   const timeRanges = {
-    sunday: '14:00-16:00',
-    monday: '07:00-12:00,13:00-18:00',
-    tuesday: '07:00-18:00',
-    wednesday: '07:00-12:00,13:00-17:00',
-    thursday: '14:00-16:00',
     friday: '07:00-18:00',
-    saturday: '10:00-16:00'
+    monday: '07:00-12:00,13:00-18:00',
+    saturday: '10:00-16:00',
+    sunday: '14:00-16:00',
+    thursday: '14:00-16:00',
+    tuesday: '07:00-18:00',
+    wednesday: '07:00-12:00,13:00-17:00'
   };
 
   weekdays.forEach((day) => {
@@ -49,11 +51,7 @@ const setTimePeriod = (): Cypress.Chainable => {
 };
 
 function navigateToTimePeriodsAndInitiateAddition() {
-  cy.navigateTo({
-    page: 'Time Periods',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.timePeriodsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
   cy.getIframeBody().find('a.bt_success').contains('Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="tp_name"]');

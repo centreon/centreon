@@ -1,14 +1,13 @@
+import { useTheme } from '@mui/material';
+
 import { scaleOrdinal } from '@visx/scale';
 import { Pie } from '@visx/shape';
 import { identity } from 'ramda';
 
-import { useTheme } from '@mui/material';
-
 import { getColorFromDataAndTresholds } from '../common/utils';
-
 import AnimatedPie from './AnimatedPie';
+import type { GaugeProps } from './models';
 import { thresholdThickness } from './Thresholds';
-import { GaugeProps } from './models';
 import { getAngles } from './utils';
 
 const dataThickness = 45;
