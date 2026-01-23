@@ -931,6 +931,24 @@ importers:
         specifier: ^5.96.1
         version: 5.102.1(@swc/core@1.14.0(@swc/helpers@0.5.17))(esbuild@0.25.12)
 
+  tests/performance:
+    dependencies:
+      commander:
+        specifier: ^13.1.0
+        version: 13.1.0
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.6.1
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
+      mysql2:
+        specifier: ^3.12.0
+        version: 3.15.3
+      node-fetch:
+        specifier: ^3.3.2
+        version: 3.3.2
+
   tests/rest_api:
     devDependencies:
       newman:
@@ -4735,7 +4753,6 @@ packages:
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@swc/core-linux-x64-musl@1.11.6':
     resolution: {integrity: sha512-n0YRUgbjiNlvJmAyi63iciY0gMN9Li4zgkKuKz5sT5JL9YfL9nETTrY0n4DcB6zH6dnqj5rXq+zTbEmvNHuV2A==}
@@ -5389,9 +5406,6 @@ packages:
 
   '@types/node@20.19.24':
     resolution: {integrity: sha512-FE5u0ezmi6y9OZEzlJfg37mqqf6ZDSF2V/NLjUyGrR9uTZ7Sb9F7bLNZ03S4XVUNRWGA7Ck4c1kK+YnuWjl+DA==}
-
-  '@types/node@24.10.1':
-    resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
 
   '@types/node@25.0.3':
     resolution: {integrity: sha512-W609buLVRVmeW693xKfzHeIV6nJGGz98uCPfeXI1ELMLXVeKYZ9m15fAMSaUPBHYLGFsVRcMmSCksQOrZV9BYA==}
@@ -7615,6 +7629,10 @@ packages:
     resolution: {integrity: sha512-jRFi8UDGo6j+odZiEpjazZaWqEal3w/basFjQHQEwVtZJGDpxbH1MeYluwCS8Xq5wmLJooDlMgvVarmWfGM44g==}
     engines: {node: '>=0.10'}
 
+  data-uri-to-buffer@4.0.1:
+    resolution: {integrity: sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A==}
+    engines: {node: '>= 12'}
+
   data-uri-to-buffer@6.0.2:
     resolution: {integrity: sha512-7hvf7/GW8e86rW0ptuwS3OcBGDjIi6SZva7hCyWC0yYry2cOPmLIjXAUHI6DK2HsnwJd9ifmt57i8eV2n4YNpw==}
     engines: {node: '>= 14'}
@@ -8671,6 +8689,10 @@ packages:
       picomatch:
         optional: true
 
+  fetch-blob@3.2.0:
+    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
+    engines: {node: ^12.20 || >= 14.13}
+
   figures@2.0.0:
     resolution: {integrity: sha512-Oa2M9atig69ZkfwiApY8F2Yy+tzMbazyvqv21R0NsSC8floSOC09BbT1ITWAdoMGQvJ/aZnR1KMwdx9tvHnTNA==}
     engines: {node: '>=4'}
@@ -8849,6 +8871,10 @@ packages:
   form-data@4.0.4:
     resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
     engines: {node: '>= 6'}
+
+  formdata-polyfill@4.0.10:
+    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
+    engines: {node: '>=12.20.0'}
 
   formik@2.4.6:
     resolution: {integrity: sha512-A+2EI7U7aG296q2TLGvNapDNTZp1khVt5Vk0Q/fyfSROss0V/V6+txt2aJnwEos44IxTCW/LYAi/zgWzlevj+g==}
@@ -11358,6 +11384,11 @@ packages:
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
+  node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
+
   node-fetch-h2@2.3.0:
     resolution: {integrity: sha512-ofRW94Ab0T4AOh5Fk8t0h8OBWrmjb0SSB20xh1H8YnPV9EJ+f5AMoYSUQ2zgJ4Iq2HAK0I2l5/Nequ8YzFS3Hg==}
     engines: {node: 4.x || >=6.0.0}
@@ -11370,6 +11401,10 @@ packages:
     peerDependenciesMeta:
       encoding:
         optional: true
+
+  node-fetch@3.3.2:
+    resolution: {integrity: sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
   node-forge@1.3.1:
     resolution: {integrity: sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==}
@@ -13556,11 +13591,6 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  terser@5.44.0:
-    resolution: {integrity: sha512-nIVck8DK+GM/0Frwd+nIhZ84pR/BX7rmXMfYwyg+Sri5oGVE99/E3KvXqpC2xHFxyqXyGHTKBSioxxplrO4I4w==}
-    engines: {node: '>=10'}
-    hasBin: true
-
   terser@5.44.1:
     resolution: {integrity: sha512-t/R3R/n0MSwnnazuPpPNVO60LX0SKL45pyl9YlvxIdkH0Of7D5qM2EVe+yASRIlY5pZ73nclYJfNANGWPwFDZw==}
     engines: {node: '>=10'}
@@ -14282,6 +14312,10 @@ packages:
 
   web-encoding@1.1.5:
     resolution: {integrity: sha512-HYLeVCdJ0+lBYV2FvNZmv3HJ2Nt0QYXqZojk3d9FJOLkwnuhzM9tmamh8d7HPM8QqjKH8DeHkFTx+CFlWpZZDA==}
+
+  web-streams-polyfill@3.3.3:
+    resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
+    engines: {node: '>= 8'}
 
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
@@ -15881,7 +15915,7 @@ snapshots:
       '@cucumber/ci-environment': 10.0.1
       '@cucumber/cucumber-expressions': 17.1.0
       '@cucumber/gherkin': 28.0.0
-      '@cucumber/gherkin-streams': 5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@24.1.0))(@cucumber/messages@24.1.0)
+      '@cucumber/gherkin-streams': 5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@25.0.1))(@cucumber/messages@24.1.0)
       '@cucumber/gherkin-utils': 9.0.0
       '@cucumber/html-formatter': 21.6.0(@cucumber/messages@24.1.0)
       '@cucumber/message-streams': 4.0.1(@cucumber/messages@24.1.0)
@@ -15926,7 +15960,7 @@ snapshots:
       '@cucumber/ci-environment': 10.0.1
       '@cucumber/cucumber-expressions': 18.0.1
       '@cucumber/gherkin': 34.0.0
-      '@cucumber/gherkin-streams': 5.0.1(@cucumber/gherkin@34.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@28.1.0))(@cucumber/messages@28.1.0)
+      '@cucumber/gherkin-streams': 5.0.1(@cucumber/gherkin@34.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@30.1.0))(@cucumber/messages@28.1.0)
       '@cucumber/gherkin-utils': 9.2.0
       '@cucumber/html-formatter': 21.14.0(@cucumber/messages@28.1.0)
       '@cucumber/junit-xml-formatter': 0.8.1(@cucumber/messages@28.1.0)
@@ -15964,7 +15998,7 @@ snapshots:
       yaml: 2.8.1
       yup: 1.7.0
 
-  '@cucumber/gherkin-streams@5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@24.1.0))(@cucumber/messages@24.1.0)':
+  '@cucumber/gherkin-streams@5.0.1(@cucumber/gherkin@28.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@25.0.1))(@cucumber/messages@24.1.0)':
     dependencies:
       '@cucumber/gherkin': 28.0.0
       '@cucumber/message-streams': 4.0.1(@cucumber/messages@24.1.0)
@@ -15972,7 +16006,7 @@ snapshots:
       commander: 9.1.0
       source-map-support: 0.5.21
 
-  '@cucumber/gherkin-streams@5.0.1(@cucumber/gherkin@34.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@28.1.0))(@cucumber/messages@28.1.0)':
+  '@cucumber/gherkin-streams@5.0.1(@cucumber/gherkin@34.0.0)(@cucumber/message-streams@4.0.1(@cucumber/messages@30.1.0))(@cucumber/messages@28.1.0)':
     dependencies:
       '@cucumber/gherkin': 34.0.0
       '@cucumber/message-streams': 4.0.1(@cucumber/messages@28.1.0)
@@ -16883,7 +16917,7 @@ snapshots:
       camelcase: 5.3.1
       find-up: 4.1.0
       get-package-type: 0.1.0
-      js-yaml: 3.14.1
+      js-yaml: 3.14.2
       resolve-from: 5.0.0
 
   '@istanbuljs/schema@0.1.3': {}
@@ -17097,7 +17131,7 @@ snapshots:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 24.10.1
+      '@types/node': 20.19.24
       '@types/yargs': 15.0.19
       chalk: 4.1.2
 
@@ -19702,10 +19736,6 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@24.10.1':
-    dependencies:
-      undici-types: 7.16.0
-
   '@types/node@25.0.3':
     dependencies:
       undici-types: 7.16.0
@@ -19843,17 +19873,17 @@ snapshots:
 
   '@types/wait-on@5.3.4':
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 20.19.24
 
   '@types/webpack-sources@3.2.3':
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 20.19.24
       '@types/source-list-map': 0.1.6
       source-map: 0.7.6
 
   '@types/webpack@4.41.40':
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 20.19.24
       '@types/tapable': 1.0.12
       '@types/uglify-js': 3.17.5
       '@types/webpack-sources': 3.2.3
@@ -20959,7 +20989,7 @@ snapshots:
       array-buffer-byte-length: 1.0.2
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.24.0
+      es-abstract: 1.24.1
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
@@ -21725,7 +21755,7 @@ snapshots:
 
   chrome-launcher@0.15.2:
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 20.19.24
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -21751,7 +21781,7 @@ snapshots:
 
   chromium-edge-launcher@0.2.0:
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 20.19.24
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 1.4.2
@@ -22057,7 +22087,7 @@ snapshots:
   cosmiconfig@4.0.0:
     dependencies:
       is-directory: 0.3.1
-      js-yaml: 3.14.1
+      js-yaml: 3.14.2
       parse-json: 4.0.0
       require-from-string: 2.0.2
 
@@ -22619,6 +22649,8 @@ snapshots:
   dashdash@1.14.1:
     dependencies:
       assert-plus: 1.0.0
+
+  data-uri-to-buffer@4.0.1: {}
 
   data-uri-to-buffer@6.0.2: {}
 
@@ -24016,6 +24048,11 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.3
 
+  fetch-blob@3.2.0:
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 3.3.3
+
   figures@2.0.0:
     dependencies:
       escape-string-regexp: 1.0.5
@@ -24234,6 +24271,10 @@ snapshots:
       es-set-tostringtag: 2.1.0
       hasown: 2.0.2
       mime-types: 2.1.35
+
+  formdata-polyfill@4.0.10:
+    dependencies:
+      fetch-blob: 3.2.0
 
   formik@2.4.6(react@19.1.0):
     dependencies:
@@ -27542,6 +27583,8 @@ snapshots:
 
   node-addon-api@7.1.1: {}
 
+  node-domexception@1.0.0: {}
+
   node-fetch-h2@2.3.0:
     dependencies:
       http2-client: 1.3.5
@@ -27549,6 +27592,12 @@ snapshots:
   node-fetch@2.7.0:
     dependencies:
       whatwg-url: 5.0.0
+
+  node-fetch@3.3.2:
+    dependencies:
+      data-uri-to-buffer: 4.0.1
+      fetch-blob: 3.2.0
+      formdata-polyfill: 4.0.10
 
   node-forge@1.3.1: {}
 
@@ -28439,7 +28488,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 24.10.1
+      '@types/node': 20.19.24
       long: 5.3.2
 
   proxy-addr@2.0.7:
@@ -28984,7 +29033,7 @@ snapshots:
     dependencies:
       call-bind: 1.0.8
       define-properties: 1.2.1
-      es-abstract: 1.24.0
+      es-abstract: 1.24.1
       es-errors: 1.3.0
       es-object-atoms: 1.1.1
       get-intrinsic: 1.3.0
@@ -30053,7 +30102,7 @@ snapshots:
       call-bound: 1.0.4
       define-data-property: 1.1.4
       define-properties: 1.2.1
-      es-abstract: 1.24.0
+      es-abstract: 1.24.1
       es-object-atoms: 1.1.1
       has-property-descriptors: 1.0.2
 
@@ -30332,7 +30381,7 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
-      terser: 5.44.0
+      terser: 5.44.1
       webpack: 5.102.1(@swc/core@1.11.6(@swc/helpers@0.5.17))(esbuild@0.21.5)
     optionalDependencies:
       '@swc/core': 1.11.6(@swc/helpers@0.5.17)
@@ -30344,7 +30393,7 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
-      terser: 5.44.0
+      terser: 5.44.1
       webpack: 5.102.1(@swc/core@1.13.3(@swc/helpers@0.5.17))
     optionalDependencies:
       '@swc/core': 1.13.3(@swc/helpers@0.5.17)
@@ -30355,7 +30404,7 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
-      terser: 5.44.0
+      terser: 5.44.1
       webpack: 5.102.1(@swc/core@1.14.0(@swc/helpers@0.5.17))(esbuild@0.25.12)
     optionalDependencies:
       '@swc/core': 1.14.0(@swc/helpers@0.5.17)
@@ -30366,13 +30415,6 @@ snapshots:
       acorn: 8.15.0
       commander: 2.20.3
       source-map: 0.6.1
-      source-map-support: 0.5.21
-
-  terser@5.44.0:
-    dependencies:
-      '@jridgewell/source-map': 0.3.11
-      acorn: 8.15.0
-      commander: 2.20.3
       source-map-support: 0.5.21
 
   terser@5.44.1:
@@ -31156,6 +31198,8 @@ snapshots:
       util: 0.12.5
     optionalDependencies:
       '@zxing/text-encoding': 0.9.0
+
+  web-streams-polyfill@3.3.3: {}
 
   webidl-conversions@3.0.1: {}
 
