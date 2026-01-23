@@ -74,9 +74,9 @@ jobs:
               if [[ "$RAW_TAG" == not\ * ]]; then
                 TAG="${RAW_TAG#not }"
                 TAG="${TAG#@}"
-                CUCUMBER_TAGS+=(--tags "\"~$TAG\"")
+                CUCUMBER_TAGS+=(--tags "~$TAG")
               elif [ -n "$RAW_TAG" ]; then
-                CUCUMBER_TAGS+=(--tags "\"$RAW_TAG\"")
+                CUCUMBER_TAGS+=(--tags "$RAW_TAG")
               fi
             done <<< "$(echo "$TEST_TAGS_INPUT" | sed 's/ and /\n/g')"
 
