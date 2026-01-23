@@ -90,12 +90,12 @@ runs:
       id: features
       shell: bash
       run: |
+        set -o pipefail
+
         echo "::group::Install dependencies"
         sudo apt-get -qq update
         sudo apt-get install -qqy cucumber jq
         echo "::endgroup::"
-
-        set -o pipefail
 
         TAGS_INPUT="${{ inputs.tags }}"
         CUCUMBER_TAGS=()
