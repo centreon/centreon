@@ -84,6 +84,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       features: ${{ steps.list-features.outputs.features }}
+      has_features: ${{ steps.list-features.outputs.features != '' && toJson(fromJson(steps.list-features.outputs.features)) != '[]' && 'true' || 'false' }}
 
     steps:
       - name: Checkout sources
@@ -97,12 +98,28 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y cucumber
 
-          TEST_TAGS=$(echo "${{ inputs.test_tags }}" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+          TEST_TAGS_INPUT="${{ inputs.test_tags }}"
+          CUCUMBER_TAGS=()
+          if [ -n "$TEST_TAGS_INPUT" ]; then
+            while IFS= read -r RAW_TAG; do
+              RAW_TAG=$(echo "$RAW_TAG" | sed -e 's/^ *//g' -e 's/ *$//g')
+              if [[ "$RAW_TAG" == not\ * ]]; then
+                TAG="${RAW_TAG#not }"
+                TAG="${TAG#@}"
+                CUCUMBER_TAGS+=(--tags "\"~$TAG\"")
+              elif [ -n "$RAW_TAG" ]; then
+                CUCUMBER_TAGS+=(--tags "\"$RAW_TAG\"")
+              fi
+            done <<< "$(echo "$TEST_TAGS_INPUT" | sed 's/ and /\n/g')"
+
+            TEST_TAGS=$(echo "$TEST_TAGS_INPUT" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+          fi
           echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
 
           cd ${{ inputs.module_name }}
-          cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber ${{ inputs.features_path }} --tags "$TEST_TAGS" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          FEATURES=$(cucumber ${{ inputs.features_path }} ${CUCUMBER_TAGS[@]} -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo $FEATURES
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
     if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
@@ -276,11 +293,12 @@ jobs:
 
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
-    needs: [cypress-e2e-test-run]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&
-      (inputs.stability == 'testing' || github.event_name == 'schedule')
+      (inputs.stability == 'testing' || github.event_name == 'schedule') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
@@ -319,10 +337,11 @@ jobs:
           done
 
   cypress-e2e-test-report:
-    needs: [cypress-e2e-test-run]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
 
     steps:
@@ -389,10 +408,11 @@ jobs:
             }
 
   regroup-artifacts:
-    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
