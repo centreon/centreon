@@ -4,4 +4,4 @@ GetHostTemplate:
   requirements:
     hostTemplateId: '\d+'
   controller: 'Core\HostTemplate\Infrastructure\API\GetHostTemplate\GetHostTemplateController'
-  condition: "request.attributes.get('version') >= 25.10"
+  condition: "request.attributes.get('version') >= '25.10'"
