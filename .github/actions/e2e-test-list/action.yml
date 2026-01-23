@@ -95,11 +95,28 @@ runs:
         sudo apt-get install -qqy cucumber jq
         echo "::endgroup::"
 
+        set -o pipefail
+
+        TAGS_INPUT="${{ inputs.tags }}"
+        CUCUMBER_TAGS=()
+        if [ -n "$TAGS_INPUT" ]; then
+          while IFS= read -r RAW_TAG; do
+            RAW_TAG=$(echo "$RAW_TAG" | sed -e 's/^ *//g' -e 's/ *$//g')
+            if [[ "$RAW_TAG" == not\ * ]]; then
+              TAG="${RAW_TAG#not }"
+              TAG="${TAG#@}"
+              CUCUMBER_TAGS+=(--tags "~$TAG")
+            elif [ -n "$RAW_TAG" ]; then
+              CUCUMBER_TAGS+=(--tags "$RAW_TAG")
+            fi
+          done <<< "$(echo "$TAGS_INPUT" | sed 's/ and /\n/g')"
+        fi
+
         TAGS=$(echo "${{ inputs.tags }}" | sed 's/not /~/g; s/ and /&&/g')
 
         cd "${{ inputs.module_name }}"
 
-        cucumber "${{ inputs.feature_directory }}" --tags "$TAGS" -f json \
+        cucumber "${{ inputs.feature_directory }}" "${CUCUMBER_TAGS[@]}" -f json \
           | jq -r '.[].uri' \
           | sed -e "s#^${{ inputs.feature_directory }}/##" -e 's#\.feature$##' \
           | sort -u \
