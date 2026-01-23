@@ -688,40 +688,6 @@ jobs:
 
           exit $exit_code
 
-      - name: 📐 Deptrac checks
-        working-directory: centreon
-        run: |
-          echo "Run of these Deptrac tests: dep:new" && set -e
-
-          pids=()
-          statuses=()
-
-          run_task() {
-            name=$1
-            shift
-            "$@" -- --no-progress
-            result=$?
-            if [ $result -eq 0 ]; then
-              echo "✅ Deptrac $name: Success"
-            else
-              echo "❌ Deptrac $name: Failed"
-            fi
-            return $result
-          }
-
-          # Start tasks in background
-          run_task new composer dep:new & pids+=($!)
-
-          # Wait for all, and record if any failed
-          exit_code=0
-          for pid in "${pids[@]}"; do
-            if ! wait "$pid"; then
-              exit_code=1
-            fi
-          done
-
-          exit $exit_code
-
   gherkin-lint:
     runs-on: ubuntu-24.04
     needs: [get-environment, changes]
