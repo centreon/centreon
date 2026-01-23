@@ -3,11 +3,11 @@ export type { ParentSizeProps } from '@visx/responsive/lib/components/ParentSize
 export { default as BarChart } from './BarChart/BarChart';
 export { BarStack } from './BarStack';
 export { default as LineChart } from './Chart';
-export { default as NoData } from './common/Error/NoData';
 export { default as ThresholdLines } from './Chart/BasicComponents/Lines/Threshold';
 export * from './Chart/models';
 export { default as useLineChartData } from './Chart/useChartData';
 export { default as Header } from './common/BaseChart/Header';
+export { default as NoData } from './common/Error/NoData';
 export type { LineChartData, Threshold, Thresholds } from './common/models';
 export * from './common/timeSeries';
 export type { Metric } from './common/timeSeries/models';

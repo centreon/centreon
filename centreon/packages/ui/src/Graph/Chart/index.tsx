@@ -4,7 +4,9 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/pt';
+
 import { NoData } from '@centreon/ui';
+
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
@@ -17,7 +19,6 @@ import { useChartStyles } from './Chart.styles';
 import LoadingSkeleton from './LoadingSkeleton';
 import type { GlobalAreaLines, LineChartProps } from './models';
 import useChartData from './useChartData';
-
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
