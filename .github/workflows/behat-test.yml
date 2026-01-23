@@ -73,7 +73,6 @@ jobs:
               RAW_TAG=$(echo "$RAW_TAG" | sed -e 's/^ *//g' -e 's/ *$//g')
               if [[ "$RAW_TAG" == not\ * ]]; then
                 TAG="${RAW_TAG#not }"
-                TAG="${TAG#@}"
                 CUCUMBER_TAGS+=(--tags "~$TAG")
               elif [ -n "$RAW_TAG" ]; then
                 CUCUMBER_TAGS+=(--tags "$RAW_TAG")
