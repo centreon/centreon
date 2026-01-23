@@ -82,7 +82,7 @@
   "require-dev": {
     "behat/behat": "3.14.*",
     "behat/mink-selenium2-driver": "1.6.*",
-    "centreon/centreon-test-lib": "dev-MON-189441-24.10.x-improve-quality-tools",
+    "centreon/centreon-test-lib": "24.10.x-dev",
     "friends-of-behat/mink": "1.11.*",
     "friends-of-behat/mink-extension": "2.7.*",
     "mockery/mockery": "1.6.*",
@@ -194,6 +194,10 @@
     "stan:new": [
       "@stan:new:src",
       "@stan:new:test"
+    ],
+    "dep:new": [
+      "../php-tools/vendor/bin/deptrac analyze --config-file deptrac_bc.yaml --cache-file .deptrac_bc.cache --fail-on-uncovered --report-uncovered",
+      "../php-tools/vendor/bin/deptrac analyze --config-file deptrac_hexa.yaml --cache-file .deptrac_hexa.cache --fail-on-uncovered --report-uncovered"
     ],
     "test": "pest --do-not-cache-result",
     "test:ci": "@test --log-junit ./build/phpunit.xml --coverage-clover ./build/coverage-be.xml",

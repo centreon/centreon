@@ -11,7 +11,7 @@
   "require-dev": {
     "ext-json": "*",
     "centreon/centreon": "@dev",
-    "centreon/centreon-test-lib": "dev-MON-189441-24.10.x-improve-quality-tools"
+    "centreon/centreon-test-lib": "24.10.x-dev"
   },
   "repositories": [
     {
