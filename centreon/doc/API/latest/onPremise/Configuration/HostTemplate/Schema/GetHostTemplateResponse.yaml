@@ -155,7 +155,7 @@ properties:
       Indicates whether the flap detection is enabled or not
       * `0` - STATUS_DISABLED
       * `1` - STATUS_ENABLED
-      * `2` - STATUS_DEFAULT (inheritance of his parent's value. If there is no parent, the values used will be that of Centreon Engine)
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
   low_flap_threshold:
     type: integer
     nullable: true
