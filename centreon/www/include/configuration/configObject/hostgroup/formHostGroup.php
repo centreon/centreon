@@ -177,6 +177,8 @@ function myReplace()
 $form->applyFilter('__ALL__', 'myTrim');
 $form->applyFilter('hg_name', 'myReplace');
 $form->addRule('hg_name', _('Compulsory Name'), 'required');
+$form->registerRule('checkHostGroupName', 'callback', 'checkUnauthorizedChars');
+$form->addRule('hg_name', _('The value contains unauthorized characters'), 'checkHostGroupName');
 
 $form->registerRule('exist', 'callback', 'testHostGroupExistence');
 $form->addRule('hg_name', _('Name is already in use'), 'exist');
