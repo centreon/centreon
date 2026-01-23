@@ -21,23 +21,26 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Shared\Infrastructure\Legacy;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Shared\Domain\VaultInterface;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Webmozart\Assert\Assert;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final readonly class LegacyVaultWrapper implements VaultInterface
 {
-    public function testItFindPlugins(): void
+    private ReadVaultRepositoryInterface $repository;
+
+    public function __construct(LegacyContainer $legacyContainer)
     {
-        $this->login();
+        $repository = $legacyContainer->get(ReadVaultRepositoryInterface::class);
+        Assert::isInstanceOf($repository, ReadVaultRepositoryInterface::class);
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
+        $this->repository = $repository;
+    }
 
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        /** @var array<int, array{name: string}> $members */
-        $members = $response->toArray()['member'];
-        self::assertContains('urlize', array_column($members, 'name'));
+    public function read(string $path): array
+    {
+        return $this->repository->findFromPath($path);
     }
 }

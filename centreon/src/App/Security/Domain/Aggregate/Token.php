@@ -21,23 +21,29 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Domain\Aggregate;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final class Token extends AggregateRoot
 {
-    public function testItFindPlugins(): void
+    public function __construct(
+        ?TokenId $id,
+        public readonly TokenIdpEnum $idp,
+        public string $token,
+        public \DateTimeImmutable $expiresAt,
+        public readonly bool $auto,
+    ) {
+        parent::__construct($id);
+    }
+
+    public function isExpired(): bool
     {
-        $this->login();
+        return $this->expiresAt < (new \DateTimeImmutable());
+    }
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        /** @var array<int, array{name: string}> $members */
-        $members = $response->toArray()['member'];
-        self::assertContains('urlize', array_column($members, 'name'));
+    public function willExpireIn(int $seconds): void
+    {
+        $this->expiresAt = (new \DateTimeImmutable())->add(new \DateInterval("PT{$seconds}S"));
     }
 }

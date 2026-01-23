@@ -21,23 +21,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Infrastructure\Idp;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use App\Security\Domain\Aggregate\Token;
+use App\Security\Domain\Exception\TokenRefreshUnavailableException;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final readonly class LocalIdp implements IdpInterface
 {
-    public function testItFindPlugins(): void
+    public function refreshToken(Token $token): void
     {
-        $this->login();
-
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        /** @var array<int, array{name: string}> $members */
-        $members = $response->toArray()['member'];
-        self::assertContains('urlize', array_column($members, 'name'));
+        throw new TokenRefreshUnavailableException();
     }
 }

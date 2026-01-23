@@ -21,23 +21,24 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use Webmozart\Assert\Assert;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final readonly class AbsoluteUrl
 {
-    public function testItFindPlugins(): void
+    public string $value;
+
+    public function __construct(string $value)
     {
-        $this->login();
+        $normalized = $this->normalize($value);
+        Assert::notEmpty($normalized);
+        Assert::regex($normalized, '#^https?://#', 'The URL must start with "http://" or "https://"');
+        $this->value = $normalized;
+    }
 
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        /** @var array<int, array{name: string}> $members */
-        $members = $response->toArray()['member'];
-        self::assertContains('urlize', array_column($members, 'name'));
+    private function normalize(string $value): string
+    {
+        return trim($value, ' /');
     }
 }

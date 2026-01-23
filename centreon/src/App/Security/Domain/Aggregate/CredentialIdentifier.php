@@ -21,23 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Domain\Aggregate;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use Webmozart\Assert\Assert;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final readonly class CredentialIdentifier
 {
-    public function testItFindPlugins(): void
-    {
-        $this->login();
-
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        /** @var array<int, array{name: string}> $members */
-        $members = $response->toArray()['member'];
-        self::assertContains('urlize', array_column($members, 'name'));
+    /**
+     * @param non-empty-string $value
+     */
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::notEmpty($value);
     }
 }

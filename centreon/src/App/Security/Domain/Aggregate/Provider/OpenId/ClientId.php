@@ -21,23 +21,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
+namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
-use Tests\App\Shared\ApiTestCase;
+use Webmozart\Assert\Assert;
 
-final class ListPluginsProviderTest extends ApiTestCase
+final readonly class ClientId
 {
-    public function testItFindPlugins(): void
+    public function __construct(public string $value)
     {
-        $this->login();
-
-        $response = $this->request('GET', '/api/latest/configuration/plugins');
-
-        self::assertResponseIsSuccessful();
-        self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        /** @var array<int, array{name: string}> $members */
-        $members = $response->toArray()['member'];
-        self::assertContains('urlize', array_column($members, 'name'));
+        Assert::notEmpty($value);
     }
 }
