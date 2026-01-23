@@ -58,8 +58,8 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       test_tags: ${{ steps.list-features.outputs.test_tags }}
-      features: ${{ steps.list-features.outputs.features }}
-      has_features: ${{ steps.list-features.outputs.features != '' && toJson(fromJson(steps.list-features.outputs.features)) != '[]' && 'true' || 'false' }}
+      features: ${{ steps.list-features.outputs.specs }}
+      has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
 
     steps:
       - name: Checkout sources
