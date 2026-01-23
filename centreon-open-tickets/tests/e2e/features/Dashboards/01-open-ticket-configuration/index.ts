@@ -59,8 +59,8 @@ before(() => {
   }).as('resourceRequest');
   cy.startContainers({
     moduleName: 'centreon-open-tickets',
-    useSlim: false,
-    profiles: ['glpi']
+    profiles: ['glpi'],
+    useSlim: false
   });
   cy.executeCommandsViaClapi(
     'resources/clapi/config-ACL/dashboard-notification-permissions.json'
