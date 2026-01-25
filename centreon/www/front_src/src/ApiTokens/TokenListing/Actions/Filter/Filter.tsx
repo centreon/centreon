@@ -43,6 +43,7 @@ const Filter = (): JSX.Element => {
   useBuildFilterValues();
 
   const changeUser = (_, value): void => {
+    console.log('value: ', value);
     const formattedValues = value.map((item) => ({
       ...item,
       alias: translateWhiteSpaceToRegex(item?.alias)
