@@ -65,8 +65,7 @@ const FormCreation = ({
     handleChange,
     setFieldValue,
     handleSubmit,
-    resetForm,
-    errors
+    resetForm
   } = useFormikContext<CreateTokenFormValues>();
 
   const { token, duration, tokenName } = useCreateTokenFormValues({
