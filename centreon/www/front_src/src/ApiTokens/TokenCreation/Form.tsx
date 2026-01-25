@@ -40,13 +40,11 @@ interface Props {
   data?: ResponseError | CreatedToken;
   isDialogOpened: boolean;
   isMutating: boolean;
-  isRefetching: boolean;
 }
 
 const FormCreation = ({
   data,
   isMutating,
-  isRefetching,
   isDialogOpened,
   closeDialog
 }: Props): JSX.Element => {
@@ -124,7 +122,7 @@ const FormCreation = ({
 
   const labelConfirm = token ? t(labelClose) : t(labelGenerateNewToken);
 
-  const confirmDisabled = !dirty || !isValid || isRefetching || isMutating;
+  const confirmDisabled = !dirty || !isValid || isMutating;
 
   return (
     <Dialog

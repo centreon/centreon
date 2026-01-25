@@ -1,6 +1,6 @@
 import { FormHelperText } from '@mui/material';
 
-import { useStyles } from '../filter.styles';
+import { useStyles } from '../Filters.styles';
 
 interface Props {
   className?: string;
@@ -13,7 +13,7 @@ const HelperText = ({ error, className }: Props): JSX.Element => {
   return (
     <div>
       {error && (
-        <FormHelperText error className={cx(classes.helperText, className)}>
+        <FormHelperText className={cx(classes.helperText, className)} error>
           {error}
         </FormHelperText>
       )}

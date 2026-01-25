@@ -1,14 +1,13 @@
-import { SetStateAction, memo, useState } from 'react';
-
-import dayjs from 'dayjs';
-
 import { Typography } from '@mui/material';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
-import { useStyles } from '../../../../TokenCreation/InputCalendar/inputCalendar.styles';
-import { labelUntil } from '../../../../translatedLabels';
+import dayjs from 'dayjs';
+import { SetStateAction, memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { labelUntil } from '../../../../translatedLabels';
+import { useStyles } from './DateInput.styles';
 import HelperText from './HelperText';
 
 type SetAtom<Args extends Array<unknown>, Result> = (...args: Args) => Result;
@@ -28,6 +27,8 @@ const DateInput = ({
   label
 }: Props): JSX.Element => {
   const { classes } = useStyles({});
+  const { t } = useTranslation();
+
   const { date, setDate } = dataDate;
   const defaultDate = dayjs().toDate();
 
@@ -82,22 +83,19 @@ const DateInput = ({
   };
 
   return (
-    <div
-      className={classes.container}
-      data-testid={`${label}-calendarContainer`}
-    >
+    <div data-testid={`${label}-calendarContainer`}>
       <div className={classes.containerDatePicker}>
         <div className={classes.secondaryContainer}>
-          <Typography variant="overline"> {labelUntil} </Typography>
+          <Typography variant="overline"> {t(labelUntil)} </Typography>
         </div>
         <DateTimePickerInput
           changeDate={changeDate}
           className={classes.picker}
           closeOnSelect={false}
           date={customizedDate}
+          onClose={close}
           slotProps={slotProps}
           timeSteps={{ minutes: 1 }}
-          onClose={close}
         />
       </div>
       <HelperText error={error} />

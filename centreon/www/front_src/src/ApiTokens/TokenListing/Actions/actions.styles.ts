@@ -1,12 +1,6 @@
 import { makeStyles } from 'tss-react/mui';
 
-interface StylesProps {
-  width: number;
-}
-
-const paginationWidth = 480;
-
-export const useStyles = makeStyles<StylesProps>()((theme, { width } = {}) => ({
+export const useStyles = makeStyles()((theme) => ({
   buttonCreationToken: {
     marginRight: theme.spacing(1),
     minWidth: theme.spacing(15)
@@ -15,8 +9,7 @@ export const useStyles = makeStyles<StylesProps>()((theme, { width } = {}) => ({
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'wrap',
-    rowGap: theme.spacing(0.5),
-    width: theme.spacing((width - paginationWidth) / 8)
+    rowGap: theme.spacing(0.5)
   },
   popoverMenu: {
     zIndex: theme.zIndex.modal

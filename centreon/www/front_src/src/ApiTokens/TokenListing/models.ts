@@ -2,7 +2,10 @@ import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 
 import { Duration } from '../TokenCreation/models';
 
-import { Fields, SortOrder } from './Actions/Filter/models';
+export enum SortOrder {
+  asc = 'asc',
+  desc = 'desc'
+}
 
 export interface DataListing {
   isError: boolean;
@@ -22,7 +25,6 @@ export interface UseTokenListing {
     options?: RefetchOptions | undefined
   ) => Promise<QueryObserverResult<unknown, Error>>;
   sortOrder: SortOrder;
-  sortedField: Fields;
 }
 
 export interface PersonalInformation {
@@ -52,4 +54,25 @@ export interface CreateTokenFormValues {
   duration: Omit<Duration, 'unit'> | null;
   tokenName: string;
   user: PersonalInformation | null;
+}
+
+interface User {
+  id: number;
+  alias: string;
+}
+
+export interface NamedEntity {
+  id: number;
+  name: string;
+}
+
+export interface Filter {
+  name: string;
+  types: Array<NamedEntity>;
+  users: Array<User>;
+  creators: Array<NamedEntity>;
+  expirationDate: Date | null;
+  creationDate: Date | null;
+  enabled: boolean;
+  disabled: boolean;
 }

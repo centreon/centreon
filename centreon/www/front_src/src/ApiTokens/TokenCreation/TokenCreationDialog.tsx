@@ -10,10 +10,9 @@ import {
   PersonalInformation
 } from '../TokenListing/models';
 import { labelFieldRequired } from '../translatedLabels';
-import useRefetch from '../useRefetch';
 
 import FormCreation from './Form';
-import { CreatedToken } from './models';
+
 import useCreateToken from './useCreateToken';
 
 interface Props {
@@ -27,7 +26,7 @@ const TokenCreationDialog = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
-  const { isRefetching } = useRefetch({ key: (data as CreatedToken)?.token });
+
   const currentUser = useAtomValue(userAtom);
 
   const msgError = t(labelFieldRequired);
@@ -67,7 +66,6 @@ const TokenCreationDialog = ({
         data={data}
         isDialogOpened={isDialogOpened}
         isMutating={isMutating}
-        isRefetching={isRefetching}
       />
     </Formik>
   );
