@@ -45,7 +45,7 @@ const Filter = (): JSX.Element => {
   const changeUser = (_, value): void => {
     const formattedValues = value.map((item) => ({
       ...item,
-      name: translateWhiteSpaceToRegex(item.name)
+      alias: translateWhiteSpaceToRegex(item?.alias)
     }));
     setUsers(formattedValues);
   };
