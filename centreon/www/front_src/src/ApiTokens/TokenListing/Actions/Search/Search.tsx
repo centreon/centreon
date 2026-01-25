@@ -13,7 +13,7 @@ import { useStyles } from '../actions.styles';
 
 import { searchAtom } from './atoms';
 import useBuildParameters from './useBuildParametrs';
-import useSearch from './useSearch';
+// import useSearch from './useSearch';
 
 const TokenSearch = (): JSX.Element => {
   const { classes } = useStyles();
@@ -24,7 +24,7 @@ const TokenSearch = (): JSX.Element => {
   const { initialize } = useInitializeFilter();
   const { getSearchParameters } = useBuildParameters();
 
-  useSearch();
+  // useSearch();
 
   const clearFilters = (): void => {
     setSearchValue('');

@@ -26,7 +26,7 @@ import Status from './Status';
 import { creatorsAtom, currentFilterAtom, usersAtom } from './atoms';
 import { useStyles } from './filter.styles';
 import { Fields } from './models';
-import useBuildFilterValues from './useBuildFilterValues';
+// import useBuildFilterValues from './useBuildFilterValues';
 import useInitializeFilter from './useInitializeFilter';
 
 const Filter = (): JSX.Element => {
@@ -40,7 +40,7 @@ const Filter = (): JSX.Element => {
 
   const { initialize } = useInitializeFilter();
 
-  useBuildFilterValues();
+  // useBuildFilterValues();
 
   const changeUser = (_, value): void => {
     console.log('value: ', value);
