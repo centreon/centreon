@@ -67,7 +67,8 @@ const FormCreation = ({
     handleChange,
     setFieldValue,
     handleSubmit,
-    resetForm
+    resetForm,
+    errors
   } = useFormikContext<CreateTokenFormValues>();
 
   const { token, duration, tokenName } = useCreateTokenFormValues({
@@ -138,6 +139,8 @@ const FormCreation = ({
       onCancel={token ? undefined : close}
       onConfirm={token ? close : handleSubmit}
     >
+      <div>{JSON.stringify(values)}</div>
+      <div>{JSON.stringify(errors)}</div>
       <TextField
         autoComplete="off"
         className={classes.input}
