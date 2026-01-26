@@ -70,8 +70,6 @@ const ExcludedUsers = (): JSX.Element => {
   const getRenderedOptionText = useCallback((option): JSX.Element => {
     const { alias, is_admin: isAdmin } = option;
 
-    console.log('option: ', option);
-
     return (
       <div className={classes.option}>
         <ListItemText
@@ -103,7 +101,7 @@ const ExcludedUsers = (): JSX.Element => {
     equals(option.alias, value.alias);
 
   const filterOptions = (options): Array<Contact> =>
-    filter((option) => has('email', option), options);
+    filter((option) => has('alias', option), options);
 
   const getOptionLabel = (option): string => option.alias;
 
