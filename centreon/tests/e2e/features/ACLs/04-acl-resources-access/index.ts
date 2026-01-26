@@ -3,6 +3,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/acls/acl-data.json';
 import '../commands';
 
@@ -63,11 +64,7 @@ Given('three ACL access groups including non admin users exist', () => {
 });
 
 When('I add a new Resources access linked with two groups', () => {
-  cy.navigateTo({
-    page: 'Resources Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
@@ -127,11 +124,7 @@ Then(
   'only chosen linked access groups display the new Resources access in Authorized information tab',
   () => {
     Object.entries(data.ACLGroups).forEach((ACLGroup) => {
-      cy.navigateTo({
-        page: 'Access Groups',
-        rootItemNumber: 4,
-        subMenu: 'ACL'
-      });
+      cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
       cy.waitForElementInIframe(
         '#main-content',
         `a:contains("${ACLGroup[1].name}")`
@@ -177,11 +170,7 @@ Given('one existing Resources access linked with two access groups', () => {
 });
 
 When('I remove one access group', () => {
-  cy.navigateTo({
-    page: 'Resources Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -200,11 +189,7 @@ When('I remove one access group', () => {
 });
 
 Then('link between access group and Resources access must be broken', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${ACLResource.ACLGroups[1]}")`
@@ -241,11 +226,7 @@ Given('one existing Resources access', () => {
 });
 
 When('I duplicate the Resources access', () => {
-  cy.navigateTo({
-    page: 'Resources Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -303,11 +284,7 @@ Given('one existing enabled Resources access record', () => {
 When(
   'I modify some properties such as name, description, comments or status',
   () => {
-    cy.navigateTo({
-      page: 'Resources Access',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
     cy.wait('@getTimeZone');
 
     cy.getIframeBody()
@@ -370,11 +347,7 @@ Then('the modifications are saved', () => {
 });
 
 When('I delete the Resources access', () => {
-  cy.navigateTo({
-    page: 'Resources Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclResourcesAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()

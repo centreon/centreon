@@ -1,6 +1,13 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { addCustomView, addSharedView, deleteCustomView, shareCustomView, visitCustomViewPage } from '../common';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+import {
+  addCustomView,
+  addSharedView,
+  deleteCustomView,
+  shareCustomView,
+  visitCustomViewPage
+} from '../common';
 
 const viewName = 'Unlocked-View';
 const logByAclUser = () => {
@@ -163,11 +170,7 @@ Then('the view is removed for the owner', () => {
 
 Given('a shared custom view with a group', () => {
   /*** this part is for setting the Guest contact group to the configured acl user ***/
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a','custom-view-acl-user').click();
   cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');

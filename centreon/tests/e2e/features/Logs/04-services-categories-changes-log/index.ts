@@ -2,6 +2,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import categories from '../../../fixtures/services/category.json';
 
 beforeEach(() => {
@@ -35,11 +36,7 @@ When('an apiV2 call is made to "Add" a service category', () => {
 Then(
   'a new service category is displayed on the service categories page',
   () => {
-    cy.navigateTo({
-      page: 'Categories',
-      rootItemNumber: 3,
-      subMenu: 'Services'
-    });
+    cy.visit(PAGES.configuration.servicesCategoriesLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -54,10 +51,7 @@ Then(
 Then(
   'a new "ADDED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -114,10 +108,7 @@ When(
 Then(
   'a new "DELETED" line of log is getting added to the page Administration > Log',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -136,11 +127,7 @@ Then(
 );
 
 When('the user changes some properties of the configured service category from UI', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
@@ -158,10 +145,7 @@ When('the user changes some properties of the configured service category from U
 Then(
   'a new "CHANGED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -213,11 +197,7 @@ Given('an enabled service category is configured via APIv2', () => {
 When(
   'the user disables the configured service category from UI',
   () => {
-    cy.navigateTo({
-        page: 'Categories',
-        rootItemNumber: 3,
-        subMenu: 'Services'
-      });
+      cy.visit(PAGES.configuration.servicesCategoriesLegacy);
       cy.wait('@getTimeZone');
       cy.waitForElementInIframe(
         '#main-content',
@@ -231,10 +211,7 @@ When(
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -262,11 +239,7 @@ Given('a disabled service category is configured via APIv2', () => {
 When(
   'the user enables the configured service category from UI',
   () => {
-    cy.navigateTo({
-        page: 'Categories',
-        rootItemNumber: 3,
-        subMenu: 'Services'
-      });
+      cy.visit(PAGES.configuration.servicesCategoriesLegacy);
       cy.wait('@getTimeZone');
       cy.waitForElementInIframe(
         '#main-content',
@@ -280,10 +253,7 @@ When(
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
