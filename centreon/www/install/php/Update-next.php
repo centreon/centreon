@@ -35,12 +35,25 @@ $errorMessage = '';
 
 // TODO add your functions here
 
+/** -------------------------------------- Engine Configuration updates -------------------------------------- */
+$addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Failed to add log_level_otl column to cfg_nagios_logger table';
+    if (! $pearDB->isColumnExist('cfg_nagios_logger', 'log_level_otl')) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `cfg_nagios_logger`
+                ADD COLUMN `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err'
+                SQL
+        );
+    }
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
+    $addOpentelemetryLogLevelColumn();
 
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {

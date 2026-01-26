@@ -195,6 +195,7 @@ class Engine extends AbstractObject
         'log_level_macros',
         'log_level_process',
         'log_level_runtime',
+        'log_level_otl',
         'broker_module_cfg_file',
     ];
 
@@ -398,7 +399,8 @@ class Engine extends AbstractObject
             $stmt = $this->backend_instance->db->prepare(
                 'SELECT log_v2_logger, log_level_functions, log_level_config, log_level_events, log_level_checks,
                     log_level_notifications, log_level_eventbroker, log_level_external_command, log_level_commands,
-                    log_level_downtimes, log_level_comments, log_level_macros, log_level_process, log_level_runtime
+                    log_level_downtimes, log_level_comments, log_level_macros, log_level_process, log_level_runtime,
+                    log_level_otl
                 FROM cfg_nagios_logger
                 WHERE cfg_nagios_id = :id'
             );
