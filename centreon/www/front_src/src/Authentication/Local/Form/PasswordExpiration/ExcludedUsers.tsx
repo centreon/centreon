@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, filter, has, inc, map, pluck } from 'ramda';
+import { equals, filter, inc, map, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -101,7 +101,7 @@ const ExcludedUsers = (): JSX.Element => {
     equals(option.alias, value.alias);
 
   const filterOptions = (options): Array<Contact> =>
-    filter((option) => has('alias', option), options);
+    filter((option) => !equals(option.id, option.alias), options);
 
   const getOptionLabel = (option): string => option.alias;
 
@@ -111,7 +111,7 @@ const ExcludedUsers = (): JSX.Element => {
   });
 
   const formattedUsers = useMemo(
-    () => map((user) => ({ alias: user, id: user, name: user }), excludedUsers),
+    () => map((user) => ({ alias: user, id: user }), excludedUsers),
     [excludedUsers]
   );
 
