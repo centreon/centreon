@@ -14,6 +14,8 @@ import { createTokenEndpoint } from '../api/endpoints';
 
 import { CreatedToken, dataDuration } from './models';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 interface UseCreateToken {
   createToken: (params: Required<CreateTokenFormValues>) => void;
   data?: ResponseError | CreatedToken;
@@ -24,13 +26,16 @@ interface UseCreateToken {
 const useCreateToken = (): UseCreateToken => {
   const { toIsoString } = useLocaleDateTimeFormat();
 
+  const queryClient = useQueryClient();
+
   const { data, mutateAsync, isMutating } = useMutationQuery<
     CreatedToken,
     undefined
   >({
     decoder: createdTokenDecoder,
     getEndpoint: () => createTokenEndpoint,
-    method: Method.POST
+    method: Method.POST,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['listTokens'] })
   });
 
   const getExpirationDate = ({ value, unit }): string => {

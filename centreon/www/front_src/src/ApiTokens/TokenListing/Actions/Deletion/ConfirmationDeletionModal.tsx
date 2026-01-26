@@ -17,6 +17,7 @@ import {
 
 import { selectedRowAtom } from '../../atoms';
 
+import { useQueryClient } from '@tanstack/react-query';
 import Message from './Message';
 import Title from './Title';
 import { useStyles } from './deletion.styles';
@@ -36,10 +37,16 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
 
+  const queryClient = useQueryClient();
+
   const selectedRow = useAtomValue(selectedRowAtom);
 
   const success = (): void => {
     showSuccessMessage(t(labelTokenDeletedSuccessfully));
+
+    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
+
+    close();
   };
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
