@@ -32,15 +32,15 @@ use Security\Interfaces\EncryptionInterface;
 /**
  * @phpstan-type _VmWareV6Parameters array{
  *      port:int,
- *      vcenters:array<array{name:string,url:string,username:string,password:string}>
+ *      vcenters:array<array{id:int|null,name:string,url:string,username:string,password:string}>
  *  }
  * @phpstan-type _VmWareV6ParametersRequest array{
  *      port:int,
- *      vcenters:array<array{name:string,url:string,scheme:string|null,username:string,password:string}>
+ *      vcenters:array<array{id:int|null,name:string,url:string,scheme:string|null,username:string,password:string}>
  *  }
  *  @phpstan-type _VmWareV6ParametersWithoutCredentials array{
  *      port:int,
- *      vcenters:array<array{name:string,url:string,username:null,password:null}>
+ *      vcenters:array<array{id:int|null,name:string,url:string,username:null,password:null}>
  *  }
  */
 class VmWareV6Parameters implements AccParametersInterface
@@ -107,17 +107,41 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $currentObj->getDecryptedData();
         $existingVcenters = $parameters['vcenters'];
 
+        $existingById = [];
+        foreach ($existingVcenters as $vcenter) {
+            if (isset($vcenter['id'])) {
+                $existingById[$vcenter['id']] = $vcenter;
+            }
+        }
+        // check if there is a duplicated id in the provided data
+        $ids = array_filter(array_map(fn ($vcenter) => $vcenter['id'] ?? null, $newDatas['vcenters']));
+        if (count($ids) !== count(array_unique($ids))) {
+            throw new AssertionException('parameters.vcenters[].id contains duplicated values');
+        }
+
         $parameters['port'] = $newDatas['port'];
 
         $newVcenters = [];
-        foreach ($newDatas['vcenters'] as $index => $incomingVcenter) {
-            if ($incomingVcenter['password'] === null
-                && isset($existingVcenters[$index]['password'])) {
-                $incomingVcenter['password'] = $existingVcenters[$index]['password'];
+        foreach ($newDatas['vcenters'] as $vcenter) {
+            if (! isset($vcenter['id'])) {
+                // New vCenter must have a password
+                if (empty($vcenter['password'])) {
+                    throw new AssertionException(
+                        'parameters.vcenters[].password is required for new vCenter'
+                    );
+                }
+                $newVcenters[] = $vcenter;
+                continue;
             }
-            $newVcenters[] = $incomingVcenter;
+            if (! array_key_exists($vcenter['id'], $existingById)) {
+                throw new AssertionException("parameters.vcenters[].id : {$vcenter['id']}, must belong to this ACC");
+            }
+            if (empty($vcenter['password'])) {
+                // If password is empty, reuse old password
+                $vcenter['password'] = $existingById[$vcenter['id']]['password'];
+            }
+            $newVcenters[] = $vcenter;
         }
-
         $parameters['vcenters'] = $newVcenters;
 
         return new self($encryption, $parameters);

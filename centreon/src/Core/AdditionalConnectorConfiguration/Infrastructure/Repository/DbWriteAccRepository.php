@@ -51,12 +51,13 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 INSERT INTO `:db`.`additional_connector_configuration`
-                    (type, name, description, created_by, created_at, updated_by, updated_at)
-                VALUES (:type, :name, :description, :createdBy, :createdAt, :createdBy, :createdAt)
+                    (type, port, name, description, created_by, created_at, updated_by, updated_at)
+                VALUES (:type, :port, :name, :description, :createdBy, :createdAt, :createdBy, :createdAt)
                 SQL
         ));
 
         $statement->bindValue(':type', $acc->getType()->value, \PDO::PARAM_STR);
+        $statement->bindValue(':port', $acc->getParameters()->getEncryptedData()['port'] ?? 443, \PDO::PARAM_INT);
         $statement->bindValue(':name', $acc->getName(), \PDO::PARAM_STR);
         $statement->bindValue(':description', $acc->getDescription(), \PDO::PARAM_STR);
         $statement->bindValue(':createdBy', $acc->getCreatedBy(), \PDO::PARAM_INT);
@@ -67,24 +68,9 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
 
         if ($acc->getType()->value === Type::VMWARE_V6->value) {
             $parameters = $acc->getParameters()->getEncryptedData();
-            $configStatement = $this->db->prepare($this->translateDbName(
-                <<<'SQL'
-                    INSERT INTO `:db`.`acc_configuration`
-                        (acc_id, port, created_at, updated_at)
-                    VALUES (:acc_id, :port, :created_at, :updated_at)
-                    SQL
-            ));
-            $configStatement->bindValue(':acc_id', $accId, \PDO::PARAM_INT);
-            $configStatement->bindValue(':port', $parameters['port'] ?? 443, \PDO::PARAM_INT);
-            $configStatement->bindValue(':created_at', $acc->getCreatedAt()->getTimestamp(), \PDO::PARAM_INT);
-            $configStatement->bindValue(':updated_at', $acc->getCreatedAt()->getTimestamp(), \PDO::PARAM_INT);
-            $configStatement->execute();
-
-            $configId = (int) $this->db->lastInsertId();
-
             if (isset($parameters['vcenters']) && is_array($parameters['vcenters'])) {
                 $this->insertConfigurationItems(
-                    $configId,
+                    $accId,
                     $parameters['vcenters'],
                     $acc->getCreatedAt()->getTimestamp(),
                     $acc->getCreatedAt()->getTimestamp()
@@ -122,82 +108,61 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
 
         if ($acc->getType()->value === Type::VMWARE_V6->value) {
             $parameters = $acc->getParameters()->getEncryptedData();
-            // get config id
-            $configIdStatement = $this->db->prepare($this->translateDbName(
-                <<<'SQL'
-                    SELECT id FROM `:db`.`acc_configuration` WHERE acc_id = :acc_id
-                    SQL
-            ));
-            $configIdStatement->bindValue(':acc_id', $acc->getId(), \PDO::PARAM_INT);
-            $configIdStatement->execute();
-            $configId = (int) $configIdStatement->fetchColumn();
-            if ($configId === 0) {
-                $createConfigStatement = $this->db->prepare($this->translateDbName(
-                    <<<'SQL'
-                        INSERT INTO `:db`.`acc_configuration`
-                            (acc_id, port, created_at, updated_at)
-                        VALUES (:acc_id, :port, :created_at, :updated_at)
-                        SQL
-                ));
-                $createConfigStatement->bindValue(':acc_id', $acc->getId(), \PDO::PARAM_INT);
-                $createConfigStatement->bindValue(':port', $parameters['port'] ?? 443, \PDO::PARAM_INT);
-                $createConfigStatement->bindValue(':created_at', $acc->getUpdatedAt()->getTimestamp(), \PDO::PARAM_INT);
-                $createConfigStatement->bindValue(':updated_at', $acc->getUpdatedAt()->getTimestamp(), \PDO::PARAM_INT);
-                $createConfigStatement->execute();
-                $configId = (int) $this->db->lastInsertId();
-            }
-
-            // update config
-            $configStatement = $this->db->prepare($this->translateDbName(
-                <<<'SQL'
-                    UPDATE `:db`.`acc_configuration`
-                    SET port = :port, updated_at = :updated_at
-                    WHERE acc_id = :acc_id
-                    SQL
-            ));
-            $configStatement->bindValue(':acc_id', $acc->getId(), \PDO::PARAM_INT);
-            $configStatement->bindValue(':port', $parameters['port'] ?? 443, \PDO::PARAM_INT);
-            $configStatement->bindValue(':updated_at', $acc->getUpdatedAt()->getTimestamp(), \PDO::PARAM_INT);
-            $configStatement->execute();
-
             // get existing configuration items (vcenters)
             $existingVcentersStatement = $this->db->prepare($this->translateDbName(
                 <<<'SQL'
                     SELECT id, name, url, username, password, created_at
-                    FROM `:db`.`acc_configuration_item`
-                    WHERE acc_conf_id = :acc_conf_id
+                    FROM `:db`.`acc_item`
+                    WHERE acc_id = :acc_id
                     SQL
             ));
-            $existingVcentersStatement->bindValue(':acc_conf_id', $configId, \PDO::PARAM_INT);
+            $existingVcentersStatement->bindValue(':acc_id', $acc->getId(), \PDO::PARAM_INT);
             $existingVcentersStatement->execute();
             $existingVcenters = [];
             foreach ($existingVcentersStatement->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-                $existingVcenters[$row['name']] = $row;
+                $existingVcenters[(int) $row['id']] = $row;
             }
 
             $incomingVcenters = $parameters['vcenters'] ?? [];
-            $incomingNames = array_column($incomingVcenters, 'name');
+            $incomingVcentersById = [];
+            $newVcenters = [];
+            foreach ($incomingVcenters as $vcenter) {
+                if (isset($vcenter['id'])) {
+                    $incomingVcentersById[(int) $vcenter['id']] = $vcenter;
+                } else {
+                    $newVcenters[] = $vcenter;
+                }
+            }
 
             // delete removed vcenters
-            $toDelete = array_diff(array_keys($existingVcenters), $incomingNames);
+            $toDelete = array_diff_key($existingVcenters, $incomingVcentersById);
             if ($toDelete !== []) {
-                $idsToDelete = array_map(fn ($name) => $existingVcenters[$name]['id'], $toDelete);
+                $idsToDelete = array_keys($toDelete);
                 $placeholders = implode(',', array_fill(0, count($idsToDelete), '?'));
                 $deleteStatement = $this->db->prepare($this->translateDbName(
                     <<<SQL
-                        DELETE FROM `:db`.`acc_configuration_item` WHERE id IN ({$placeholders})
+                        DELETE FROM `:db`.`acc_item` WHERE id IN ({$placeholders})
                         SQL
                 ));
-                $deleteStatement->execute(array_values($idsToDelete));
+                $deleteStatement->execute($idsToDelete);
             }
 
             // update or insert vcenters
-            if (! empty($incomingVcenters)) {
-                $this->upsertConfigurationItems(
-                    $configId,
-                    $incomingVcenters,
+            if ($incomingVcentersById !== []) {
+                $this->updateConfigurationItems(
+                    $acc->getId(),
+                    $incomingVcentersById,
                     $acc->getUpdatedAt()->getTimestamp(),
-                    $existingVcenters,
+                );
+            }
+
+            // insert new vcenters
+            if ($newVcenters !== []) {
+                $this->insertConfigurationItems(
+                    $acc->getId(),
+                    $newVcenters,
+                    $acc->getUpdatedAt()->getTimestamp(),
+                    $acc->getUpdatedAt()->getTimestamp()
                 );
             }
         }
@@ -259,13 +224,13 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
     /**
      * Insert configuration items (vcenters) for a given ACC configuration.
      *
-     * @param int $configId
+     * @param int $accId
      * @param array<array{name:string,url:string,username:null,password:null}> $vcenters
      * @param int $createdAt
      * @param int $updatedAt
      */
     private function insertConfigurationItems(
-        int $configId,
+        int $accId,
         array $vcenters,
         int $createdAt,
         int $updatedAt,
@@ -286,7 +251,7 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
             if (empty($vcenterName) || empty($vcenterUrl) || empty($vcenterUsername) || empty($vcenterPassword)) {
                 continue;
             }
-            $params[] = $configId;
+            $params[] = $accId;
             $params[] = $vcenterName;
             $params[] = $vcenterUrl;
             $params[] = $vcenterUsername;
@@ -302,8 +267,8 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
 
         $valuesString = implode(', ', array_fill(0, $validVcenterCount, '(?, ?, ?, ?, ?, ?, ?)'));
         $statement = $this->db->prepare($this->translateDbName(
-            "INSERT INTO `:db`.`acc_configuration_item`
-                (acc_conf_id, name, url, username, password, created_at, updated_at)
+            "INSERT INTO `:db`.`acc_item`
+                (acc_id, name, url, username, password, created_at, updated_at)
             VALUES {$valuesString}"
         ));
 
@@ -311,27 +276,36 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
     }
 
     /**
-     * Update or insert configuration items (vcenters) for a given ACC configuration.
+     * Update existing configuration items (vcenters) by ID.
      *
-     * @param int $configId
-     * @param array<array{name:string,url:string,username:null,password:null}> $vcenters
+     * @param int $accId
+     * @param array<int, array{id:int,name:string,url:string,username:string,password:string}> $vcenters
      * @param int $updatedAt
-     * @param array<string, array{id:int, name:string, url:string, username:string, password:string, created_at:int}> $existingVcenters
      */
-    private function upsertConfigurationItems(
-        int $configId,
+    private function updateConfigurationItems(
+        int $accId,
         array $vcenters,
         int $updatedAt,
-        array $existingVcenters,
     ): void {
         if ($vcenters === []) {
             return;
         }
 
-        $params = [];
-        $validVcenterCount = 0;
+        $updateStatement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.`acc_item`
+                SET
+                    name = :name,
+                    url = :url,
+                    username = :username,
+                    password = :password,
+                    updated_at = :updated_at
+                WHERE
+                    id = :id AND acc_id = :acc_id
+                SQL
+        ));
 
-        foreach ($vcenters as $vcenter) {
+        foreach ($vcenters as $id => $vcenter) {
             $vcenterName = $vcenter['name'] ?? '';
             $vcenterUrl = $vcenter['url'] ?? '';
             $vcenterUsername = $vcenter['username'] ?? '';
@@ -341,35 +315,14 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
                 continue;
             }
 
-            $createdAt = $existingVcenters[$vcenterName]['created_at'] ?? $updatedAt;
-
-            $params[] = $configId;
-            $params[] = $vcenterName;
-            $params[] = $vcenterUrl;
-            $params[] = $vcenterUsername;
-            $params[] = $vcenterPassword;
-            $params[] = $createdAt;
-            $params[] = $updatedAt;
-            $validVcenterCount++;
+            $updateStatement->bindValue(':id', $id, \PDO::PARAM_INT);
+            $updateStatement->bindValue(':acc_id', $accId, \PDO::PARAM_INT);
+            $updateStatement->bindValue(':name', $vcenterName, \PDO::PARAM_STR);
+            $updateStatement->bindValue(':url', $vcenterUrl, \PDO::PARAM_STR);
+            $updateStatement->bindValue(':username', $vcenterUsername, \PDO::PARAM_STR);
+            $updateStatement->bindValue(':password', $vcenterPassword, \PDO::PARAM_STR);
+            $updateStatement->bindValue(':updated_at', $updatedAt, \PDO::PARAM_INT);
+            $updateStatement->execute();
         }
-
-        if ($validVcenterCount === 0) {
-            return;
-        }
-
-        $valuesString = implode(', ', array_fill(0, $validVcenterCount, '(?, ?, ?, ?, ?, ?, ?)'));
-        $statement = $this->db->prepare($this->translateDbName(
-            "INSERT INTO `:db`.`acc_configuration_item`
-                (acc_conf_id, name, url, username, password, created_at, updated_at)
-            VALUES {$valuesString}
-            AS new_item
-            ON DUPLICATE KEY UPDATE
-                url = new_item.url,
-                username = new_item.username,
-                password = new_item.password,
-                updated_at = new_item.updated_at"
-        ));
-
-        $statement->execute($params);
     }
 }
