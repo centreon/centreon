@@ -19,22 +19,35 @@
  *
  */
 require_once __DIR__ . '/../../../../class/centreonContact.class.php';
+require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\LoggerPassword;
 use Centreon\Infrastructure\Event\EventDispatcher;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 
 if (!isset($centreon)) {
     exit();
 }
 
-if (!$centreon->user->admin && $contactId) {
+function displayWarningMessage(string $message): void
+{
+    $msg = new CentreonMsg();
+    $msg->setImage('./img/icons/warning.png');
+    $msg->setTextStyle('bold');
+    $msg->setText($message);
+}
+if (! $centreon->user->admin && $contactId) {
     $aclOptions = ['fields' => ['contact_id', 'contact_name'], 'keys' => ['contact_id'], 'get_row' => 'contact_name', 'conditions' => ['contact_id' => $contactId]];
     $contacts = $acl->getContactAclConf($aclOptions);
-    if (!count($contacts)) {
-        $msg = new CentreonMsg();
-        $msg->setImage("./img/icons/warning.png");
-        $msg->setTextStyle("bold");
-        $msg->setText(_('You are not allowed to access this contact'));
+    if (! count($contacts)) {
+        displayWarningMessage(_('You are not allowed to access this contact'));
+
         return null;
     }
 }
@@ -48,18 +61,26 @@ require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 
 $initialValues = [];
 
-/*
- * Check if this server is a Remote Server to hide some part of form
- */
-$dbResult = $pearDB->query("SELECT i.value FROM informations i WHERE i.key = 'isRemote'");
-$result = $dbResult->fetch();
+// Check if this server is a Remote Server to hide some part of form
+try {
+    $result = $pearDB->fetchAssociative("SELECT i.value FROM informations i WHERE i.key = 'isRemote'");
+} catch (ConnectionException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while retrieving remote server information: ' . $e->getMessage(),
+        exception: $e,
+    );
+    displayWarningMessage(_('Error while retrieving remote server information'));
+
+    return false;
+}
+
 if ($result === false) {
     $isRemote = false;
 } else {
     $isRemote = array_map("myDecode", $result);
     $isRemote = $isRemote['value'] === 'yes';
 }
-$dbResult->closeCursor();
 
 /**
  * Get the Security Policy for automatic generation password.
@@ -86,12 +107,36 @@ if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
     $cct["contact_svNotifCmds"] = [];
     $cct["contact_cgNotif"] = [];
 
-    $dbResult = $pearDB->prepare("SELECT * FROM contact WHERE contact_id = :contactId LIMIT 1");
-    $dbResult->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
-    $dbResult->execute();
-    $cct = array_map("myDecode", $dbResult->fetch());
-    $cct["contact_passwd"] = null;
-    $dbResult->closeCursor();
+    try {
+        $dbResult = $pearDB->fetchAssociative(
+            <<<'SQL'
+                    SELECT *
+                    FROM contact
+                    WHERE contact_id = :contactId
+                    LIMIT 1
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('contactId', (int) $contactId),
+            ]),
+        );
+    } catch (ConnectionException|ValueObjectException|CollectionException $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: 'Error while retrieving contact information for contact form: ' . $exception->getMessage(),
+            exception: $exception
+        );
+        displayWarningMessage(_('Error while retrieving contact information for contact form'));
+
+        return false;
+    }
+
+    if ($dbResult === false) {
+        displayWarningMessage(_('Contact not found'));
+
+        return false;
+    }
+    $cct = array_map('myDecode', $dbResult);
+    $cct['contact_passwd'] = null;
 
     /**
      * Set Host Notification Options
@@ -108,31 +153,60 @@ if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
     foreach ($tmp as $key => $value) {
         $cct["contact_svNotifOpts"][trim($value)] = 1;
     }
-    $DBRESULT->closeCursor();
 
     /**
      * Get DLAP auth informations
      */
-    $DBRESULT = $pearDB->query("SELECT * FROM `options` WHERE `key` = 'ldap_auth_enable'");
-    while ($ldap_auths = $DBRESULT->fetchRow()) {
-        $ldap_auth[$ldap_auths["key"]] = myDecode($ldap_auths["value"]);
+    $ldap_auth = [];
+    try {
+        $result = $pearDB->fetchAllAssociative("SELECT * FROM `options` WHERE `key` = 'ldap_auth_enable'");
+    } catch (ConnectionException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: 'Error while retrieving LDAP auth information: ' . $e->getMessage(),
+            exception: $e,
+        );
+        displayWarningMessage(_('Error while retrieving LDAP auth information'));
+
+        return false;
     }
-    $DBRESULT->closeCursor();
+    foreach ($result as $ldap_auths) {
+        $ldap_auth[$ldap_auths['key']] = myDecode($ldap_auths['value']);
+    }
 
     /**
      * Get ACL informations for this user
      */
-    $DBRESULT = $pearDB->query("SELECT acl_group_id
-                                FROM `acl_group_contacts_relations`
-                                WHERE `contact_contact_id` = '" . intval($contactId) . "'");
-    for ($i = 0; $data = $DBRESULT->fetchRow(); $i++) {
-        if (!$centreon->user->admin && !isset($allowedAclGroups[$data['acl_group_id']])) {
-            $initialValues['contact_acl_groups'][] = $data['acl_group_id'];
+    try {
+        $aclGroups = $pearDB->fetchAllAssociative(
+            <<<'SQL'
+                    SELECT acl_group_id
+                    FROM acl_group_contacts_relations
+                    WHERE contact_contact_id = :contactId
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('contactId', (int) $contactId),
+            ])
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: 'Error while retrieving ACL groups for contact form: ' . $exception->getMessage(),
+            exception: $exception
+        );
+        displayWarningMessage(_('Error while retrieving ACL groups for contact form'));
+
+        return false;
+    }
+
+    $indicator = 0;
+    foreach ($aclGroups as $aclGroup) {
+        if (! $centreon->user->admin && ! isset($allowedAclGroups[$aclGroup['acl_group_id']])) {
+            $initialValues['contact_acl_groups'][] = $aclGroup['acl_group_id'];
         } else {
-            $cct["contact_acl_groups"][$i] = $data["acl_group_id"];
+            $cct['contact_acl_groups'][$indicator++] = $aclGroup['acl_group_id'];
         }
     }
-    $DBRESULT->closeCursor();
 }
 
 /**
@@ -168,17 +242,37 @@ if (
 /**
  * Contacts Templates
  */
-$strRestrinction = isset($contactId) ? " AND contact_id != '" . intval($contactId) . "'" : "";
-
-$contactTpl = [null => "           "];
-$DBRESULT = $pearDB->query("SELECT contact_id, contact_name
-                            FROM contact
-                            WHERE contact_register = '0' $strRestrinction
-                            ORDER BY contact_name");
-while ($contacts = $DBRESULT->fetchRow()) {
-    $contactTpl[$contacts["contact_id"]] = $contacts["contact_name"];
+$strRestriction = '';
+$params = [];
+if (isset($contactId)) {
+    $strRestriction = ' AND contact_id != :contact_id';
+    $params = [
+        QueryParameter::int('contact_id', (int) $contactId),
+    ];
 }
-$DBRESULT->closeCursor();
+
+$contactTpl = [null => '           '];
+try {
+    $contacts = $pearDB->fetchAllAssociative(
+        "SELECT contact_id, contact_name
+        FROM contact
+        WHERE contact_register = '0' {$strRestriction}
+        ORDER BY contact_name",
+        QueryParameters::create($params),
+    );
+} catch (ConnectionException $e) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while retrieving contact templates: ' . $e->getMessage(),
+        exception: $e,
+    );
+    displayWarningMessage(_('Error while retrieving contact templates'));
+
+    return false;
+}
+foreach ($contacts as $contact) {
+    $contactTpl[$contact['contact_id']] = $contact['contact_name'];
+}
 
 /**
  * Template / Style for Quickform input
@@ -545,15 +639,28 @@ if (! empty($aclUser)) {
     /**
      * Retrieve the name of all topologies available for this user
      */
-    $aclTopologies = $pearDB->query(
-        "SELECT topology_page, topology_name, topology_show "
-        . "FROM topology "
-        . "WHERE topology_page IN ($aclUser)"
-    );
+    try {
+        ['parameters' => $bindValues, 'placeholderList' => $placeholders] = createMultipleBindParameters(explode(',', $aclUser), 'topology_page', QueryParameterTypeEnum::INTEGER);
+        $aclTopologies = $pearDB->fetchAllAssociative(
+            'SELECT topology_page, topology_name, topology_show '
+            . 'FROM topology '
+            . "WHERE topology_page IN ({$placeholders})",
+            QueryParameters::create($bindValues),
+        );
+    } catch (ConnectionException $e) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: 'Error while retrieving topologies for contact form: ' . $e->getMessage(),
+            exception: $e
+        );
+        displayWarningMessage(_('Error while retrieving topologies for contact form'));
+
+        return false;
+    }
 
     $translatedPages = [];
 
-    while ($topology = $aclTopologies->fetch(\PDO::FETCH_ASSOC)) {
+    foreach ($aclTopologies as $topology) {
         $translatedPages[$topology['topology_page']] = [
             'i18n' => _($topology['topology_name']),
             'show' => ((int)$topology['topology_show'] === 1)
@@ -1102,14 +1209,16 @@ if ($o != MASSIVE_CHANGE) {
     $form->registerRule('existAlias', 'callback', 'testAliasExistence');
     $form->addRule(
         'contact_alias',
-        "<font style='color: red;'>*</font>&nbsp;" . _("Alias already exists"),
-        'existAlias'
+        "<font style='color: red;'>*</font>&nbsp;" . _('Alias already exists'),
+        'existAlias',
+        true,
     );
     $form->registerRule('keepOneContactAtLeast', 'callback', 'keepOneContactAtLeast');
     $form->addRule(
         'contact_alias',
-        _("You have to keep at least one contact to access to Centreon"),
-        'keepOneContactAtLeast'
+        _('You have to keep at least one contact to access to Centreon'),
+        'keepOneContactAtLeast',
+        true,
     );
 } elseif ($o == MASSIVE_CHANGE) {
     $from_list_menu = $form->getSubmitValue("submitMC") ? false : true;
@@ -1173,8 +1282,20 @@ $valid = false;
 
 if ($form->validate() && $from_list_menu == false) {
     $cctObj = $form->getElement('contact_id');
-    if ($form->getSubmitValue("submitA")) {
-        $newContactId = insertContactInDB();
+    if ($form->getSubmitValue('submitA')) {
+        try {
+            $newContactId = insertContactInDB();
+        } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Error while creating contact: ' . $exception->getMessage(),
+                exception: $exception,
+            );
+
+            displayWarningMessage(_('Error while creating contact'));
+
+            return false;
+        }
         $cctObj->setValue($contactId);
 
         $eventDispatcher->notify(
@@ -1186,7 +1307,19 @@ if ($form->validate() && $from_list_menu == false) {
             ]
         );
     } elseif ($form->getSubmitValue('submitC')) {
-        updateContactInDB(contact_id: $cctObj->getValue(), isRemote: $isRemote);
+        try {
+            updateContactInDB(contact_id: $cctObj->getValue(), isRemote: $isRemote);
+        } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Error while updating contact: ' . $exception->getMessage(),
+                exception: $exception,
+            );
+
+            displayWarningMessage(_('Error while updating contact'));
+
+            return false;
+        }
 
         $eventDispatcher->notify(
             'contact.form',
@@ -1196,11 +1329,23 @@ if ($form->validate() && $from_list_menu == false) {
                 'contact_id' => $contactId
             ]
         );
-    } elseif ($form->getSubmitValue("submitMC")) {
-        $select = explode(",", $select);
+    } elseif ($form->getSubmitValue('submitMC')) {
+        $select = is_array($select) ? $select : explode(',', $select);
         foreach ($select as $key => $selectedContactId) {
             if ($selectedContactId) {
-                updateContactInDB(contact_id: $selectedContactId, from_MC: true, isRemote: $isRemote);
+                try {
+                    updateContactInDB(contact_id: $selectedContactId, from_MC: true, isRemote: $isRemote);
+                } catch (RepositoryException $exception) {
+                    CentreonLog::create()->error(
+                        CentreonLog::TYPE_BUSINESS_LOG,
+                        'Error while updating contact (massive change): ' . $exception->getMessage(),
+                        exception: $exception,
+                    );
+
+                    displayWarningMessage(_('Error while updating contact (massive change)'));
+
+                    return false;
+                }
 
                 $eventDispatcher->notify(
                     'contact.form',

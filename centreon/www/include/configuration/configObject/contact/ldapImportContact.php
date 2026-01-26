@@ -36,7 +36,9 @@
  *
  */
 
-if (!isset($oreon)) {
+use Core\Common\Domain\Exception\RepositoryException;
+
+if (! isset($oreon)) {
     exit();
 }
 
@@ -128,7 +130,19 @@ if ($form->validate()) {
         unset($selectedUsers);
         unset($arrayToReturn);
 
-        insertLdapContactInDB($_POST["contact_select"]);
+        try {
+            insertLdapContactInDB($_POST['contact_select']);
+        } catch (RepositoryException $exception) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Error while importing LDAP contact: ' . $exception->getMessage(),
+                exception: $exception
+            );
+            $msg = new CentreonMsg();
+            $msg->setImage('./img/icons/warning.png');
+            $msg->setTextStyle('bold');
+            $msg->setText(_('Error while importing LDAP contact'));
+        }
     }
     $form->freeze();
     $valid = true;
