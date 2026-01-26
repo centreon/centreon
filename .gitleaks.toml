@@ -15,7 +15,10 @@ paths = [
   '''composer\.lock''',
   '''yarn\.lock''',
   '''\.gitleaks\.toml$''',
-  '''(.*?)(jpg|gif|doc|pdf|bin)$'''
+  '''(.*?)(jpg|gif|doc|pdf|bin)$''',
+  '''centreon/\.php-cs-fixer\..*\.cache''',
+  '''centreon/var/cache/.*'''
+    '''acceptance-logs\/'''
 ]
 
 regexTarget = "match"

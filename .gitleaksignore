@@ -9,5 +9,3 @@ centreon/tests/php/Security/EncryptionTest.php:generic-api-key:49
 .github/docker/keycloak/configuration/Centreon_SSO_realm.json:generic-api-key:1110
 .github/docker/keycloak/configuration/Centreon_SSO_realm.json:generic-api-key:964
 centreon/www/include/common/javascript/pendo.js:generic-api-key:19
-centreon/.php-cs-fixer.*.cache
-centreon/var/cache/*
