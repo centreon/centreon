@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ class NotificationValidator
     public function validateUsersAndContactGroups(
         array $userIds,
         array $contactGroupsIds,
-        ContactInterface $currentContact
+        ContactInterface $currentContact,
     ): void {
         if ($userIds === [] && $contactGroupsIds === []) {
             throw NotificationException::emptyArrayNotAllowed('users, contactgroups');
@@ -96,7 +96,7 @@ class NotificationValidator
         $contactDifference = new BasicDifference($contactIdsToValidate, $existingContactIds);
         $missingContact = $contactDifference->getRemoved();
 
-        if ([] !== $missingContact) {
+        if ($missingContact !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'users', 'propertyValues' => array_values($missingContact)]
@@ -114,7 +114,8 @@ class NotificationValidator
      *
      * @throws \Throwable|NotificationException
      */
-    private function validateContactGroups(array $contactGroupIds): void {
+    private function validateContactGroups(array $contactGroupIds): void
+    {
         $contactGroupIds = array_unique($contactGroupIds);
 
         if ($this->currentContact->isAdmin()) {
@@ -130,7 +131,7 @@ class NotificationValidator
         $difference = new BasicDifference($contactGroupIds, $existingContactGroups);
         $missingContactGroups = $difference->getRemoved();
 
-        if ([] !== $missingContactGroups) {
+        if ($missingContactGroups !== []) {
             $this->error(
                 'Invalid ID(s) provided',
                 ['propertyName' => 'contactgroups', 'propertyValues' => array_values($missingContactGroups)]

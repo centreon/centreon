@@ -1,37 +1,75 @@
 <?php
-/**
- * Copyright 2016-2019 Centreon
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 namespace CentreonLegacy\Core\Module;
 
-use Pimple\Psr11\Container;
 use Centreon\Test\Mock\CentreonDB;
-use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
 use Centreon\Test\Mock\DependencyInjector\ConfigurationDBProvider;
 use Centreon\Test\Mock\DependencyInjector\FilesystemProvider;
 use Centreon\Test\Mock\DependencyInjector\FinderProvider;
+use Centreon\Test\Mock\DependencyInjector\ServiceContainer;
+use Pimple\Psr11\Container;
 
 class UpgraderTest extends \PHPUnit\Framework\TestCase
 {
     private $container;
+
     private $db;
+
     private $information;
+
     private $utils;
 
     private static $originalProcessClass;
+
+    /**
+     * Create a hacky Process class for the test
+     */
+    public static function setUpBeforeClass(): void
+    {
+        // Save the real Process if it is already loaded
+        if (class_exists(\Symfony\Component\Process\Process::class, false)) {
+            self::$originalProcessClass = new \ReflectionClass(\Symfony\Component\Process\Process::class);
+        }
+
+        // HACK: create a fake Process in the Symfony namespace
+        eval('
+        namespace Symfony\Component\Process;
+        class Process {
+            public function __construct(array $cmd) {}
+            public function setWorkingDirectory($dir) {}
+            public function run() {}
+            public function isSuccessful() { return true; }
+        }');
+    }
+
+    /**
+     * Delete mock and restore origin class.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$originalProcessClass !== null) {
+            self::$originalProcessClass = null;
+        }
+    }
 
     public function setUp(): void
     {
@@ -39,7 +77,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
         $this->db = new CentreonDB();
 
-        $this->information = $this->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
+        $this->information = $this->getMockBuilder(Information::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getInstalledInformation', 'getModulePath', 'getConfiguration'])
             ->getMock();
@@ -72,37 +110,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->method('executePhpFile');
     }
 
-    /**
-     * Create a hacky Process class for the test
-     */
-    public static function setUpBeforeClass(): void
-    {
-        // Save the real Process if it is already loaded
-        if (class_exists('\Symfony\Component\Process\Process', false)) {
-            self::$originalProcessClass = new \ReflectionClass('\Symfony\Component\Process\Process');
-        }
-
-        // HACK: create a fake Process in the Symfony namespace
-        eval('
-        namespace Symfony\Component\Process;
-        class Process {
-            public function __construct(array $cmd) {}
-            public function setWorkingDirectory($dir) {}
-            public function run() {}
-            public function isSuccessful() { return true; }
-        }');
-    }
-
-    /**
-     * Delete mock and restore origin class.
-     */
-    public static function tearDownAfterClass(): void
-    {
-        if (self::$originalProcessClass !== null) {
-            self::$originalProcessClass = null;
-        }
-    }
-
     public function tearDown(): void
     {
         $this->container->terminate();
@@ -124,7 +131,7 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
         $filesystem->expects($this->any())
             ->method('exists')
             ->will($this->returnCallback([$this, 'mockExists']));
-            //->willReturn(true);
+        // ->willReturn(true);
         $this->container->registerProvider(new FilesystemProvider($filesystem));
 
         $finder = $this->getMockBuilder(\Symfony\Component\Finder\Finder::class)
@@ -145,10 +152,10 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
             ->willReturn(new \ArrayIterator([new \SplFileInfo('MyModule-1.0.1')]));
         $this->container->registerProvider(new FinderProvider($finder));
 
-        $query = 'UPDATE modules_informations ' .
-            'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , ' .
-            '`infos` = :infos , `author` = :author , ' .
-            '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id';
+        $query = 'UPDATE modules_informations '
+            . 'SET `name` = :name , `rname` = :rname , `is_removeable` = :is_removeable , '
+            . '`infos` = :infos , `author` = :author , '
+            . '`svc_tools` = :svc_tools , `host_tools` = :host_tools WHERE id = :id';
         $this->db->addResultSet(
             $query,
             []
@@ -172,9 +179,6 @@ class UpgraderTest extends \PHPUnit\Framework\TestCase
 
     public function mockExists($file)
     {
-        if (preg_match('/install\.pre\.php/', $file)) {
-            return false;
-        }
-        return true;
+        return ! (preg_match('/install\.pre\.php/', $file));
     }
 }

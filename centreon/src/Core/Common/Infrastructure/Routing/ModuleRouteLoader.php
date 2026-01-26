@@ -39,7 +39,7 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
         #[Autowire(param: 'kernel.project_dir')]
         private string $projectDir,
         private ModuleInstallationVerifier $moduleInstallationVerifier,
-        private InstallationVerifierInterface $centreonInstallationVerifier
+        private InstallationVerifierInterface $centreonInstallationVerifier,
     ) {
     }
 
@@ -93,4 +93,3 @@ abstract readonly class ModuleRouteLoader implements RouteLoaderInterface
 
     abstract protected function getModuleDirectory(): string;
 }
-

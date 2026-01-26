@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,6 @@ class AssertionException extends \Assert\InvalidArgumentException
     public const INVALID_CHARACTERS = 1003;
     public const INVALID_ARRAY_JSON_ENCODABLE = 1004;
     public const INVALID_MIN_DATE = 1005;
-
     public const INVALID_URL_IP_OR_DOMAIN = 1006;
 
     /**
@@ -70,7 +69,7 @@ class AssertionException extends \Assert\InvalidArgumentException
         int $code = 0,
         ?string $propertyPath = null,
         mixed $value = null,
-        array $constraints = []
+        array $constraints = [],
     ) {
         parent::__construct($message, $code, $propertyPath, $value, $constraints);
     }
@@ -87,7 +86,7 @@ class AssertionException extends \Assert\InvalidArgumentException
     public static function unauthorizedCharacters(
         string $value,
         string $unauthorizedCharacters,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): self {
         return new self(
             sprintf(
@@ -115,7 +114,7 @@ class AssertionException extends \Assert\InvalidArgumentException
         string $value,
         int $valueLength,
         int $maxLength,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): self {
         return new self(
             sprintf(
@@ -148,7 +147,7 @@ class AssertionException extends \Assert\InvalidArgumentException
         string $value,
         int $valueLength,
         int $minLength,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): self {
         return new self(
             sprintf(
@@ -264,7 +263,7 @@ class AssertionException extends \Assert\InvalidArgumentException
     public static function maxDate(
         \DateTimeInterface $date,
         \DateTimeInterface $maxDate,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): self {
         $value = $date->format('c');
 
@@ -293,7 +292,7 @@ class AssertionException extends \Assert\InvalidArgumentException
     public static function minDate(
         \DateTimeInterface $date,
         \DateTimeInterface $minDate,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): self {
         $value = $date->format('c');
 
@@ -431,7 +430,7 @@ class AssertionException extends \Assert\InvalidArgumentException
         int|float $value,
         int|float $minValue,
         int|float $maxValue,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): self {
         return new self(
             sprintf(
@@ -504,7 +503,7 @@ class AssertionException extends \Assert\InvalidArgumentException
     public static function badInstanceOfObject(
         string $objectInstanceName,
         string $instanceNameRequired,
-        ?string $propertyPath = null
+        ?string $propertyPath = null,
     ): self {
         return new self(
             sprintf(

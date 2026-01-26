@@ -84,7 +84,7 @@
         imgElem.class = 'ico-14';
         imgElem.id = globalj;
         imgElem.onclick = function () {
-            var response = window.confirm('<?php echo _("Do you confirm this deletion?"); ?>');
+            var response = window.confirm('<?php echo _('Do you confirm this deletion?'); ?>');
             if (response) {
                 if (navigator.appName == "Microsoft Internet Explorer") {
                     document.getElementById('trExceptionInput_' + this.id).innerText = "";
@@ -154,7 +154,7 @@
             imgElem.class = 'ico-14';
             imgElem.id = globalj;
             imgElem.onclick = function () {
-                var response = window.confirm('<?php echo _("Do you confirm this deletion?"); ?>');
+                var response = window.confirm('<?php echo _('Do you confirm this deletion?'); ?>');
                 if (response) {
                     if (navigator.appName == "Microsoft Internet Explorer") {
                         document.getElementById('trExceptionInput_' + this.id).innerText = "";

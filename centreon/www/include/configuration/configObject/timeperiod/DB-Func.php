@@ -1,41 +1,27 @@
 <?php
+
 /*
-* Copyright 2005-2015 Centreon
-* Centreon is developped by : Julien Mathis and Romain Le Merlus under
-* GPL Licence 2.0.
-*
-* This program is free software; you can redistribute it and/or modify it under
-* the terms of the GNU General Public License as published by the Free Software
-* Foundation ; either version 2 of the License.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License along with
-* this program; if not, see <http://www.gnu.org/licenses>.
-*
-* Linking this program statically or dynamically with other modules is making a
-* combined work based on this program. Thus, the terms and conditions of the GNU
-* General Public License cover the whole combination.
-*
-* As a special exception, the copyright holders of this program give Centreon
-* permission to link this program with independent modules to produce an executable,
-* regardless of the license terms of these independent modules, and to copy and
-* distribute the resulting executable under terms of Centreon choice, provided that
-* Centreon also meet, for each linked independent module, the terms  and conditions
-* of the license of that module. An independent module is a module which is not
-* derived from this program. If you modify this program, you may extend this
-* exception to your version of the program, but you are not obliged to do so. If you
-* do not wish to do so, delete this exception statement from your version.
-*
-* For more information : contact@centreon.com
-*
-*/
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
 
 use Core\ActionLog\Domain\Model\ActionLog;
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
@@ -43,36 +29,32 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
 {
     global $pearDB;
 
-    /*
-     * Insert inclusions
-     */
+    // Insert inclusions
     if (isset($includeTab) && is_array($includeTab)) {
-        $str = "";
+        $str = '';
         foreach ($includeTab as $tpIncludeId) {
-            if ($str != "") {
-                $str .= ", ";
+            if ($str != '') {
+                $str .= ', ';
             }
             $str .= "('" . $tpId . "', '" . $tpIncludeId . "')";
         }
         if (strlen($str)) {
-            $query = "INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES " . $str;
+            $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES ' . $str;
             $pearDB->query($query);
         }
     }
 
-    /*
-     * Insert exclusions
-     */
+    // Insert exclusions
     if (isset($excludeTab) && is_array($excludeTab)) {
-        $str = "";
+        $str = '';
         foreach ($excludeTab as $tpExcludeId) {
-            if ($str != "") {
-                $str .= ", ";
+            if ($str != '') {
+                $str .= ', ';
             }
             $str .= "('" . $tpId . "', '" . $tpExcludeId . "')";
         }
         if (strlen($str)) {
-            $query = "INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES " . $str;
+            $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES ' . $str;
             $pearDB->query($query);
         }
     }
@@ -91,19 +73,17 @@ function testTPExistence($name = null)
     $statement = $pearDB->prepare($query);
     $statement->bindValue(
         ':tp_name',
-        htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, "UTF-8"),
-        \PDO::PARAM_STR
+        htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, 'UTF-8'),
+        PDO::PARAM_STR
     );
     $statement->execute();
-    $tp = $statement->fetch(\PDO::FETCH_ASSOC);
-    #Modif case
-    if ($statement->rowCount() >= 1 && $tp["tp_id"] == $id) {
-        return true;
-    } elseif ($statement->rowCount() >= 1 && $tp["tp_id"] != $id) { #Duplicate entry
-        return false;
-    } else {
+    $tp = $statement->fetch(PDO::FETCH_ASSOC);
+    // Modif case
+    if ($statement->rowCount() >= 1 && $tp['tp_id'] == $id) {
         return true;
     }
+
+    return ! ($statement->rowCount() >= 1 && $tp['tp_id'] != $id);  // Duplicate entry
 }
 
 function deleteTimeperiodInDB($timeperiods = [])
@@ -141,28 +121,28 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         }
 
         $row = $dbResult->fetch();
-        $row["tp_id"] = null;
+        $row['tp_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $val = [];
             foreach ($row as $key2 => $value2) {
-                if ($key2 == "tp_name") {
-                    $value2 .= "_" . $i;
+                if ($key2 == 'tp_name') {
+                    $value2 .= '_' . $i;
                 }
-                if ($key2 == "tp_name") {
+                if ($key2 == 'tp_name') {
                     $tp_name = $value2;
                 }
                 $val[] = $value2 ?: null;
-                if ($key2 != "tp_id") {
+                if ($key2 != 'tp_id') {
                     $fields[$key2] = $value2;
                 }
                 if (isset($tp_name)) {
-                    $fields["tp_name"] = $tp_name;
+                    $fields['tp_name'] = $tp_name;
                 }
             }
             if (isset($tp_name) && testTPExistence($tp_name)) {
                 $params = [
                     'values' => $val,
-                    'timeperiod_id' => $key
+                    'timeperiod_id' => $key,
                 ];
                 $tpId = duplicateTimePeriod($params);
                 $centreon->CentreonLogAction->insertLog(
@@ -179,7 +159,7 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
 
 function updateTimeperiodInDB($tp_id = null)
 {
-    if (!$tp_id) {
+    if (! $tp_id) {
         return;
     }
     updateTimeperiod($tp_id);
@@ -189,34 +169,34 @@ function updateTimeperiod($tp_id, $params = [])
 {
     global $form, $pearDB, $centreon;
 
-    if (!$tp_id) {
+    if (! $tp_id) {
         return;
     }
     $ret = [];
     $ret = count($params) ? $params : $form->getSubmitValues();
 
-    $ret["tp_name"] = $centreon->checkIllegalChar($ret["tp_name"]);
+    $ret['tp_name'] = $centreon->checkIllegalChar($ret['tp_name']);
 
-    $rq = "UPDATE timeperiod ";
-    $rq .= "SET tp_name = '" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_alias = '" . htmlentities($ret["tp_alias"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_sunday = '" . htmlentities($ret["tp_sunday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_monday = '" . htmlentities($ret["tp_monday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_tuesday = '" . htmlentities($ret["tp_tuesday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_wednesday = '" . htmlentities($ret["tp_wednesday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_thursday = '" . htmlentities($ret["tp_thursday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_friday = '" . htmlentities($ret["tp_friday"], ENT_QUOTES, "UTF-8") . "', " .
-        "tp_saturday = '" . htmlentities($ret["tp_saturday"], ENT_QUOTES, "UTF-8") . "' " .
-        "WHERE tp_id = '" . $tp_id . "'";
+    $rq = 'UPDATE timeperiod ';
+    $rq .= "SET tp_name = '" . htmlentities($ret['tp_name'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_alias = '" . htmlentities($ret['tp_alias'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_sunday = '" . htmlentities($ret['tp_sunday'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_monday = '" . htmlentities($ret['tp_monday'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_tuesday = '" . htmlentities($ret['tp_tuesday'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_wednesday = '" . htmlentities($ret['tp_wednesday'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_thursday = '" . htmlentities($ret['tp_thursday'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_friday = '" . htmlentities($ret['tp_friday'], ENT_QUOTES, 'UTF-8') . "', "
+        . "tp_saturday = '" . htmlentities($ret['tp_saturday'], ENT_QUOTES, 'UTF-8') . "' "
+        . "WHERE tp_id = '" . $tp_id . "'";
     $pearDB->query($rq);
 
     $pearDB->query("DELETE FROM timeperiod_include_relations WHERE timeperiod_id = '" . $tp_id . "'");
     $pearDB->query("DELETE FROM timeperiod_exclude_relations WHERE timeperiod_id = '" . $tp_id . "'");
 
-    if (!isset($ret['tp_include'])) {
+    if (! isset($ret['tp_include'])) {
         $ret['tp_include'] = [];
     }
-    if (!isset($ret['tp_exclude'])) {
+    if (! isset($ret['tp_exclude'])) {
         $ret['tp_exclude'] = [];
     }
 
@@ -227,15 +207,15 @@ function updateTimeperiod($tp_id, $params = [])
         $already_stored = [];
         $pearDB->query("DELETE FROM `timeperiod_exceptions` WHERE `timeperiod_id`='" . $tp_id . "'");
         for ($i = 0; $i <= $my_tab['nbOfExceptions']; $i++) {
-            $exInput = "exceptionInput_" . $i;
-            $exValue = "exceptionTimerange_" . $i;
-            if (isset($my_tab[$exInput]) &&
-                !isset($already_stored[strtolower($my_tab[$exInput])]) &&
-                $my_tab[$exInput]
+            $exInput = 'exceptionInput_' . $i;
+            $exValue = 'exceptionTimerange_' . $i;
+            if (isset($my_tab[$exInput])
+                && ! isset($already_stored[strtolower($my_tab[$exInput])])
+                && $my_tab[$exInput]
             ) {
-                $query = "INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) " .
-                    "VALUES ('" . $tp_id . "', LOWER('" . $pearDB->escape($my_tab[$exInput]) . "'), '" .
-                    $pearDB->escape($my_tab[$exValue]) . "')";
+                $query = 'INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) '
+                    . "VALUES ('" . $tp_id . "', LOWER('" . $pearDB->escape($my_tab[$exInput]) . "'), '"
+                    . $pearDB->escape($my_tab[$exValue]) . "')";
                 $pearDB->query($query);
                 $fields[$my_tab[$exInput]] = $my_tab[$exValue];
                 $already_stored[strtolower($my_tab[$exInput])] = 1;
@@ -243,12 +223,12 @@ function updateTimeperiod($tp_id, $params = [])
         }
     }
 
-    /* Prepare value for changelog */
+    // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
         object_id: $tp_id,
-        object_name: $ret["tp_name"],
+        object_name: $ret['tp_name'],
         action_type: ActionLog::ACTION_TYPE_CHANGE,
         fields: $fields
     );
@@ -256,67 +236,64 @@ function updateTimeperiod($tp_id, $params = [])
 
 function insertTimeperiodInDB($ret = [])
 {
-    $tp_id = insertTimeperiod($ret);
-    return ($tp_id);
+    return insertTimeperiod($ret);
 }
 
 function insertTimeperiod($ret = [], $exceptions = null)
 {
     global $form, $pearDB, $centreon;
 
-    if (!count($ret)) {
+    if (! count($ret)) {
         $ret = $form->getSubmitValues();
     }
 
-    $ret["tp_name"] = $centreon->checkIllegalChar($ret["tp_name"]);
+    $ret['tp_name'] = $centreon->checkIllegalChar($ret['tp_name']);
 
-    $rq = "INSERT INTO timeperiod ";
-    $rq .= "(tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday, tp_saturday) ";
-    $rq .= "VALUES (";
-    isset($ret["tp_name"]) && $ret["tp_name"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_alias"]) && $ret["tp_alias"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_alias"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_sunday"]) && $ret["tp_sunday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_sunday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_monday"]) && $ret["tp_monday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_monday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_tuesday"]) && $ret["tp_tuesday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_tuesday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_wednesday"]) && $ret["tp_wednesday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_wednesday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_thursday"]) && $ret["tp_thursday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_thursday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_friday"]) && $ret["tp_friday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_friday"], ENT_QUOTES, "UTF-8") . "', "
-        : $rq .= "NULL, ";
-    isset($ret["tp_saturday"]) && $ret["tp_saturday"] != null
-        ? $rq .= "'" . htmlentities($ret["tp_saturday"], ENT_QUOTES, "UTF-8") . "'"
-        : $rq .= "NULL";
-    $rq .= ")";
+    $rq = 'INSERT INTO timeperiod ';
+    $rq .= '(tp_name, tp_alias, tp_sunday, tp_monday, tp_tuesday, tp_wednesday, tp_thursday, tp_friday, tp_saturday) ';
+    $rq .= 'VALUES (';
+    isset($ret['tp_name']) && $ret['tp_name'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_name'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_alias']) && $ret['tp_alias'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_alias'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_sunday']) && $ret['tp_sunday'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_sunday'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_monday']) && $ret['tp_monday'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_monday'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_tuesday']) && $ret['tp_tuesday'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_tuesday'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_wednesday']) && $ret['tp_wednesday'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_wednesday'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_thursday']) && $ret['tp_thursday'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_thursday'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_friday']) && $ret['tp_friday'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_friday'], ENT_QUOTES, 'UTF-8') . "', "
+        : $rq .= 'NULL, ';
+    isset($ret['tp_saturday']) && $ret['tp_saturday'] != null
+        ? $rq .= "'" . htmlentities($ret['tp_saturday'], ENT_QUOTES, 'UTF-8') . "'"
+        : $rq .= 'NULL';
+    $rq .= ')';
     $pearDB->query($rq);
-    $dbResult = $pearDB->query("SELECT MAX(tp_id) FROM timeperiod");
+    $dbResult = $pearDB->query('SELECT MAX(tp_id) FROM timeperiod');
     $tp_id = $dbResult->fetch();
 
-    if (!isset($ret['tp_include'])) {
+    if (! isset($ret['tp_include'])) {
         $ret['tp_include'] = [];
     }
-    if (!isset($ret['tp_exclude'])) {
+    if (! isset($ret['tp_exclude'])) {
         $ret['tp_exclude'] = [];
     }
 
     includeExcludeTimeperiods($tp_id['MAX(tp_id)'], $ret['tp_include'], $ret['tp_exclude']);
 
-    /*
-     *  Insert exceptions
-     */
+    // Insert exceptions
     if (isset($exceptions)) {
         $my_tab = $exceptions;
     } elseif (isset($_POST['nbOfExceptions'])) {
@@ -324,19 +301,19 @@ function insertTimeperiod($ret = [], $exceptions = null)
     }
     if (isset($my_tab['nbOfExceptions'])) {
         $already_stored = [];
-        $query = "INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) " .
-                 "VALUES (:timeperiod_id, :days, :timerange)";
+        $query = 'INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) '
+                 . 'VALUES (:timeperiod_id, :days, :timerange)';
         $statement = $pearDB->prepare($query);
         for ($i = 0; $i <= $my_tab['nbOfExceptions']; $i++) {
-            $exInput = "exceptionInput_" . $i;
-            $exValue = "exceptionTimerange_" . $i;
+            $exInput = 'exceptionInput_' . $i;
+            $exValue = 'exceptionTimerange_' . $i;
             if (
-                isset($my_tab[$exInput]) && !isset($already_stored[strtolower($my_tab[$exInput])]) &&
-                $my_tab[$exInput]
+                isset($my_tab[$exInput]) && ! isset($already_stored[strtolower($my_tab[$exInput])])
+                && $my_tab[$exInput]
             ) {
-                $statement->bindValue(':timeperiod_id', (int) $tp_id['MAX(tp_id)'], \PDO::PARAM_INT);
-                $statement->bindValue(':days', strtolower($my_tab[$exInput]), \PDO::PARAM_STR);
-                $statement->bindValue(':timerange', $my_tab[$exValue], \PDO::PARAM_STR);
+                $statement->bindValue(':timeperiod_id', (int) $tp_id['MAX(tp_id)'], PDO::PARAM_INT);
+                $statement->bindValue(':days', strtolower($my_tab[$exInput]), PDO::PARAM_STR);
+                $statement->bindValue(':timerange', $my_tab[$exValue], PDO::PARAM_STR);
                 $statement->execute();
                 $fields[$my_tab[$exInput]] = $my_tab[$exValue];
                 $already_stored[strtolower($my_tab[$exInput])] = 1;
@@ -344,27 +321,28 @@ function insertTimeperiod($ret = [], $exceptions = null)
         }
     }
 
-    /* Prepare value for changelog */
+    // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
-        object_id: $tp_id["MAX(tp_id)"],
-        object_name: htmlentities($ret["tp_name"], ENT_QUOTES, "UTF-8"),
+        object_id: $tp_id['MAX(tp_id)'],
+        object_name: htmlentities($ret['tp_name'], ENT_QUOTES, 'UTF-8'),
         action_type: ActionLog::ACTION_TYPE_ADD,
         fields: $fields
     );
 
-    return ($tp_id["MAX(tp_id)"]);
+    return $tp_id['MAX(tp_id)'];
 }
 
 function checkHours($hourString)
 {
-    if ($hourString == "") {
+    if ($hourString == '') {
         return true;
-    } elseif (strstr($hourString, ",")) {
+    }
+    if (strstr($hourString, ',')) {
         $tab1 = preg_split("/\,/", $hourString);
         for ($i = 0; isset($tab1[$i]); $i++) {
-            if (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $tab1[$i], $str)) {
+            if (preg_match('/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/', $tab1[$i], $str)) {
                 if ($str[1] > 24 || $str[3] > 24) {
                     return false;
                 }
@@ -378,21 +356,21 @@ function checkHours($hourString)
                 return false;
             }
         }
+
         return true;
-    } elseif (preg_match("/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/", $hourString, $str)) {
+    }
+    if (preg_match('/([0-9]*):([0-9]*)-([0-9]*):([0-9]*)/', $hourString, $str)) {
         if ($str[1] > 24 || $str[3] > 24) {
             return false;
         }
         if ($str[2] > 59 || $str[4] > 59) {
             return false;
         }
-        if (($str[3] * 60 * 60 + $str[4] * 60) > 86400 || ($str[1] * 60 * 60 + $str[2] * 60) > 86400) {
-            return false;
-        }
-        return true;
-    } else {
-        return false;
+
+        return ! (($str[3] * 60 * 60 + $str[4] * 60) > 86400 || ($str[1] * 60 * 60 + $str[2] * 60) > 86400);
     }
+
+    return false;
 }
 
 /**
@@ -411,6 +389,7 @@ function getTimeperiodIdByName($name)
         $row = $res->fetch();
         $id = $row['tp_id'];
     }
+
     return $id;
 }
 
@@ -447,7 +426,7 @@ function getTimeperiodsFromTemplate(array $tpIds)
 function testTemplateLoop($value)
 {
     // skip check if template field is empty
-    if (!$value) {
+    if (! $value) {
         return true;
     }
 
@@ -456,19 +435,17 @@ function testTemplateLoop($value)
     $data = $form->getSubmitValues();
 
     // skip check if timeperiod is new
-    if (!$data['tp_id']) {
+    if (! $data['tp_id']) {
         return true;
-    } elseif (in_array($data['tp_id'], $value)) {
+    }
+    if (in_array($data['tp_id'], $value)) {
         // try to skip heavy check of templates
-
-        return false;
-    } elseif (in_array($data['tp_id'], getTimeperiodsFromTemplate($value))) {
-        // get list of all timeperiods related via templates
 
         return false;
     }
 
-    return true;
+    return ! (in_array($data['tp_id'], getTimeperiodsFromTemplate($value)));
+    // get list of all timeperiods related via templates
 }
 
 /**
@@ -482,7 +459,7 @@ function duplicateTimePeriod(array $params): int
     global $pearDB;
 
     $isAlreadyInTransaction = $pearDB->inTransaction();
-    if (!$isAlreadyInTransaction) {
+    if (! $isAlreadyInTransaction) {
         $pearDB->beginTransaction();
     }
     try {
@@ -490,14 +467,15 @@ function duplicateTimePeriod(array $params): int
         createTimePeriodsExceptions($params);
         createTimePeriodsIncludeRelations($params);
         createTimePeriodsExcludeRelations($params);
-        if (!$isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction) {
             $pearDB->commit();
         }
-    } catch (\Exception $e) {
-        if (!$isAlreadyInTransaction) {
+    } catch (Exception $e) {
+        if (! $isAlreadyInTransaction) {
             $pearDB->rollBack();
         }
     }
+
     return $params['tp_id'];
 }
 
@@ -516,15 +494,16 @@ function createTimePeriod(array $params): int
         $queryBindValues[':value_' . $index] = $value;
     }
     $bindValues = implode(', ', array_keys($queryBindValues));
-    $statement = $pearDB->prepare("INSERT INTO timeperiod VALUES ($bindValues)");
+    $statement = $pearDB->prepare("INSERT INTO timeperiod VALUES ({$bindValues})");
     foreach ($queryBindValues as $bindKey => $bindValue) {
         if (array_key_first($queryBindValues) === $bindKey) {
-            $statement->bindValue($bindKey, (int) $bindValue, \PDO::PARAM_INT);
+            $statement->bindValue($bindKey, (int) $bindValue, PDO::PARAM_INT);
         } else {
-            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_STR);
+            $statement->bindValue($bindKey, $bindValue, PDO::PARAM_STR);
         }
     }
     $statement->execute();
+
     return (int) $pearDB->lastInsertId();
 }
 
@@ -537,12 +516,12 @@ function createTimePeriodsExcludeRelations(array $params): void
 {
     global $pearDB;
 
-    $query = "INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) " .
-             "SELECT :tp_id, timeperiod_exclude_id FROM timeperiod_exclude_relations " .
-             "WHERE timeperiod_id = :timeperiod_id";
+    $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) '
+             . 'SELECT :tp_id, timeperiod_exclude_id FROM timeperiod_exclude_relations '
+             . 'WHERE timeperiod_id = :timeperiod_id';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':tp_id', $params['tp_id'], PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -555,12 +534,12 @@ function createTimePeriodsIncludeRelations(array $params): void
 {
     global $pearDB;
 
-    $query = "INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) " .
-             "SELECT :tp_id, timeperiod_include_id FROM timeperiod_include_relations " .
-             "WHERE timeperiod_id = :timeperiod_id";
+    $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) '
+             . 'SELECT :tp_id, timeperiod_include_id FROM timeperiod_include_relations '
+             . 'WHERE timeperiod_id = :timeperiod_id';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':tp_id', $params['tp_id'], PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], PDO::PARAM_INT);
     $statement->execute();
 }
 
@@ -573,11 +552,11 @@ function createTimePeriodsExceptions(array $params): void
 {
     global $pearDB;
 
-    $query = "INSERT INTO timeperiod_exceptions (timeperiod_id, days, timerange) " .
-             "SELECT :tp_id, days, timerange FROM timeperiod_exceptions " .
-             "WHERE timeperiod_id = :timeperiod_id";
+    $query = 'INSERT INTO timeperiod_exceptions (timeperiod_id, days, timerange) '
+             . 'SELECT :tp_id, days, timerange FROM timeperiod_exceptions '
+             . 'WHERE timeperiod_id = :timeperiod_id';
     $statement = $pearDB->prepare($query);
-    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
-    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':tp_id', $params['tp_id'], PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], PDO::PARAM_INT);
     $statement->execute();
 }

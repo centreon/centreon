@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,8 @@ use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 
 final class DeleteHost
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     public function __construct(
         private readonly ReadHostRepositoryInterface $readHostRepository,
@@ -184,7 +185,7 @@ final class DeleteHost
     private function retrieveHostUuidFromVault(Host $host): void
     {
         $this->uuid = $this->getUuidFromPath($host->getSnmpCommunity());
-        if (null === $this->uuid) {
+        if ($this->uuid === null) {
             $macros = $this->readHostMacroRepository->findByHostId($host->getId());
             foreach ($macros as $macro) {
                 if (

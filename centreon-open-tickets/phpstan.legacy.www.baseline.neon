@@ -1,0 +1,196 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) d1 must contain 3 or more characters\.$#'
+			count: 2
+			path: widgets/open-tickets/src/export.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) op must contain 3 or more characters\.$#'
+			count: 6
+			path: widgets/open-tickets/src/export.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 1
+			path: widgets/open-tickets/src/export.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) d1 must contain 3 or more characters\.$#'
+			count: 2
+			path: widgets/open-tickets/src/index.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) op must contain 3 or more characters\.$#'
+			count: 22
+			path: widgets/open-tickets/src/index.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 1
+			path: widgets/open-tickets/src/index.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) rv must contain 3 or more characters\.$#'
+			count: 33
+			path: www/modules/centreon-open-tickets/class/automatic.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 4
+			path: www/modules/centreon-open-tickets/providers/Abstract/AbstractProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) k must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-open-tickets/providers/Abstract/AbstractProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) rv must contain 3 or more characters\.$#'
+			count: 4
+			path: www/modules/centreon-open-tickets/providers/Abstract/AbstractProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) v must contain 3 or more characters\.$#'
+			count: 1
+			path: www/modules/centreon-open-tickets/providers/Abstract/AbstractProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/BmcFootprints11/BmcFootprints11Provider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/BmcItsm/BmcItsmProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) k must contain 3 or more characters\.$#'
+			count: 4
+			path: www/modules/centreon-open-tickets/providers/EasyVistaRest/EasyVistaRestProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/EasyvistaSoap/EasyvistaSoapProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) k must contain 3 or more characters\.$#'
+			count: 4
+			path: www/modules/centreon-open-tickets/providers/GlpiRestApi/GlpiRestApiProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) k must contain 3 or more characters\.$#'
+			count: 4
+			path: www/modules/centreon-open-tickets/providers/Itop/ItopProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/Jira/JiraProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) LE must contain 3 or more characters\.$#'
+			count: 1
+			path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) c must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) cb must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) cc must contain 3 or more characters\.$#'
+			count: 17
+			path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) i must contain 3 or more characters\.$#'
+			count: 13
+			path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) le must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) to must contain 3 or more characters\.$#'
+			count: 28
+			path: www/modules/centreon-open-tickets/providers/Mail/library/PHPMailer.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/Otrs/OtrsProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) k must contain 3 or more characters\.$#'
+			count: 4
+			path: www/modules/centreon-open-tickets/providers/Otrs/OtrsProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/RequestTracker2/RequestTracker2Provider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) fp must contain 3 or more characters\.$#'
+			count: 3
+			path: www/modules/centreon-open-tickets/providers/RequestTracker2/RequestTracker2Provider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/providers/Serena/SerenaProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
+			count: 36
+			path: www/modules/centreon-open-tickets/providers/ServiceNow/ServiceNowProvider.class.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 1
+			path: www/modules/centreon-open-tickets/views/logs/index.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 1
+			path: www/modules/centreon-open-tickets/views/rules/form.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o must contain 3 or more characters\.$#'
+			count: 6
+			path: www/modules/centreon-open-tickets/views/rules/index.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 1
+			path: www/modules/centreon-open-tickets/views/rules/index.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o1 must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/views/rules/list.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) o2 must contain 3 or more characters\.$#'
+			count: 2
+			path: www/modules/centreon-open-tickets/views/rules/list.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) p must contain 3 or more characters\.$#'
+			count: 5
+			path: www/modules/centreon-open-tickets/views/rules/list.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) rv must contain 3 or more characters\.$#'
+			count: 12
+			path: www/modules/centreon-open-tickets/webServices/rest/centreon_openticket.class.php

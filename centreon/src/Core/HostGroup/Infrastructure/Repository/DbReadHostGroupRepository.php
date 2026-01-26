@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,9 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHostGroupRepositoryInterface
 {
-    use SqlMultipleBindTrait, HostCategoryRepositoryTrait, HostGroupRepositoryTrait;
+    use SqlMultipleBindTrait;
+    use HostCategoryRepositoryTrait;
+    use HostGroupRepositoryTrait;
 
     public function __construct(DatabaseConnection $db)
     {
@@ -186,7 +188,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findAllByAccessGroupIds(?RequestParametersInterface $requestParameters, array $accessGroupIds): \Traversable&\Countable
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
             return new \ArrayIterator([]);
         }
 
@@ -300,7 +302,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findOneByAccessGroups(int $hostGroupId, array $accessGroups): ?HostGroup
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return null;
         }
 
@@ -330,7 +332,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function existsOneByAccessGroups(int $hostGroupId, array $accessGroups): bool
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return false;
         }
 
@@ -349,7 +351,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function exist(array $hostGroupIds): array
     {
-        if ([] === $hostGroupIds) {
+        if ($hostGroupIds === []) {
             return [];
         }
 
@@ -363,7 +365,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function existByAccessGroups(array $hostGroupIds, array $accessGroups): array
     {
-        if ([] === $accessGroups || [] === $hostGroupIds) {
+        if ($accessGroups === [] || $hostGroupIds === []) {
             return [];
         }
 
@@ -410,7 +412,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     public function findByHostAndAccessGroups(int $hostId, array $accessGroups): array
     {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return [];
         }
 
@@ -477,7 +479,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     private function getFindHostGroupConcatenator(
         ?RequestParametersInterface $requestParameters = null,
-        array $accessGroupIds = []
+        array $accessGroupIds = [],
     ): SqlConcatenator {
         $concatenator = (new SqlConcatenator())
             ->defineSelect(
@@ -510,7 +512,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
             );
 
         $hostCategoryAcls = '';
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             if ($this->hasRestrictedAccessToHostCategories($accessGroupIds)) {
                 $hostCategoryAcls = <<<'SQL'
                     AND hcr.hostcategories_hc_id IN (
@@ -594,7 +596,7 @@ class DbReadHostGroupRepository extends AbstractRepositoryDRB implements ReadHos
      */
     private function retrieveHostGroupsByHost(
         SqlConcatenator $concatenator,
-        int $hostId
+        int $hostId,
     ): array {
         $concatenator
             ->appendJoins(

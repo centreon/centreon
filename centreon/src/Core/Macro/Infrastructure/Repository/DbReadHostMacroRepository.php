@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      */
     public function findByHostIds(array $hostIds): array
     {
-        $this->info('Get host macros',['host_ids' => $hostIds]);
+        $this->info('Get host macros', ['host_ids' => $hostIds]);
 
         if ($hostIds === []) {
 
@@ -100,7 +100,7 @@ class DbReadHostMacroRepository extends AbstractRepositoryRDB implements ReadHos
      */
     public function findByHostId(int $hostId): array
     {
-        $this->info('Get host macros for a host/host template',['host_id' => $hostId]);
+        $this->info('Get host macros for a host/host template', ['host_id' => $hostId]);
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'

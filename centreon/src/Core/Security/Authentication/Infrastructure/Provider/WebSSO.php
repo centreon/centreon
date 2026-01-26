@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class WebSSO implements ProviderAuthenticationInterface
     public function __construct(
         private Container $dependencyInjector,
         private LegacyWebSSOProviderInterface $provider,
-        private Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface $contactRepository
+        private Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface $contactRepository,
     ) {
     }
 

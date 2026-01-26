@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -72,8 +72,8 @@ class MenuRepositoryRDB extends AbstractRepositoryDRB implements MenuRepositoryI
     {
         $statement = $this->db->prepare(
             $this->translateDbName(
-                "SELECT topology_id, topology_url, is_react, topology_url_opt FROM `:db`.topology " .
-                "WHERE topology_page = :topologyPage"
+                'SELECT topology_id, topology_url, is_react, topology_url_opt FROM `:db`.topology '
+                . 'WHERE topology_page = :topologyPage'
             )
         );
         $statement->bindValue(':topologyPage', $pageNumber, \PDO::PARAM_INT);
@@ -83,6 +83,7 @@ class MenuRepositoryRDB extends AbstractRepositoryDRB implements MenuRepositoryI
         if ($result === false) {
             return null;
         }
+
         return (
             new Page((int) $result['topology_id'], $result['topology_url'], $pageNumber, $result['is_react'] === '1')
         )

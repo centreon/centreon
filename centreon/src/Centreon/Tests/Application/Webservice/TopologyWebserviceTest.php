@@ -1,53 +1,37 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
- *
  *
  */
 
 namespace Centreon\Tests\Application\Webservice;
 
-use PHPUnit\Framework\TestCase;
-use Pimple\Container;
 use Centreon\Application\Webservice\TopologyWebservice;
 use Centreon\Domain\Repository\TopologyRepository;
-use Centreon\Tests\Resources\Traits;
-use Centreon\Tests\Resources\Dependency;
+use Centreon\ServiceProvider;
 use Centreon\Test\Mock\CentreonDB;
 use Centreon\Test\Traits\TestCaseExtensionTrait;
 use Centreon\Tests\Resources\CheckPoint;
-use Centreon\ServiceProvider;
+use Centreon\Tests\Resources\Dependency;
+use Centreon\Tests\Resources\Traits;
 use CentreonUser;
+use PHPUnit\Framework\TestCase;
+use Pimple\Container;
 
 /**
  * @group Centreon
@@ -61,16 +45,18 @@ class TopologyWebserviceTest extends TestCase
 
     /** @var Container */
     public $container;
+
     /** @var CentreonDB */
     public $db;
+
     /** @var TopologyWebservice|(TopologyWebservice&object&\PHPUnit\Framework\MockObject\MockObject)|(TopologyWebservice&\PHPUnit\Framework\MockObject\MockObject)|(object&\PHPUnit\Framework\MockObject\MockObject)|\PHPUnit\Framework\MockObject\MockObject */
     public $webservice;
 
     protected function setUp(): void
     {
         // dependencies
-        $this->container = new Container;
-        $this->db = new CentreonDB;
+        $this->container = new Container();
+        $this->db = new CentreonDB();
 
         $this->setUpCentreonDbManager($this->container);
 
@@ -102,12 +88,12 @@ class TopologyWebserviceTest extends TestCase
     public function testGetGetTopologyByPage(): void
     {
         $marker = __METHOD__;
-        $checkpoint = (new CheckPoint)
+        $checkpoint = (new CheckPoint())
             ->add($marker);
 
         $_GET['topology_page'] = 1;
         $this->db->addResultSet(
-            "SELECT * FROM `topology` WHERE `topology_page` = :id",
+            'SELECT * FROM `topology` WHERE `topology_page` = :id',
             [['k']],
             null,
             function () use ($checkpoint, $marker): void {
@@ -122,7 +108,7 @@ class TopologyWebserviceTest extends TestCase
     public function testGetGetTopologyByPageWithoutResult(): void
     {
         $_GET['topology_page'] = 1;
-        $this->db->addResultSet("SELECT * FROM `topology` WHERE `topology_page` = :id", []);
+        $this->db->addResultSet('SELECT * FROM `topology` WHERE `topology_page` = :id', []);
 
         $this->expectException(\RestBadRequestException::class);
 

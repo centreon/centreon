@@ -130,18 +130,120 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
+        shell: bash
+
+      - name: Install dependencies for centreon-open-tickets
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon-open-tickets
         shell: bash
 
-      - name: Run of phpstan on /www at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.neon
+      - name: 🛠️ Rector checks
         working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these Rector tests: rector:legacy" && set -e
 
-      - name: Run of phpstan on /src at level max
-        run: vendor/bin/phpstan analyse --no-progress --level=9 --configuration=phpstan.core.neon
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress-bar
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ Rector $name: Success"
+            else
+              echo "❌ Rector $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy composer rector:legacy & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🧹 PHP-CS-Fixer checks
         working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy:www, cs:legacy:src" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --format=txt --show-progress=none
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHP-CS-Fixer $name: Success"
+            else
+              echo "❌ PHP-CS-Fixer $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy:www composer cs:legacy:www & pids+=($!)
+          run_task legacy:src composer cs:legacy:src & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
+
+      - name: 🔍 PHPStan checks
+        working-directory: centreon-open-tickets
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   backend-unit-test:
     runs-on: ubuntu-24.04

@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure;
@@ -230,8 +231,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
                             ? PdoParameterTypeTransformer::transformFromQueryParameterType(
-                            $queryParameter->getType()
-                        ) : \PDO::PARAM_STR
+                                $queryParameter->getType()
+                            ) : \PDO::PARAM_STR
                     );
                 }
             }
@@ -803,7 +804,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
         string $message,
         array $customContext = [],
         string $query = '',
-        ?\Throwable $previous = null
+        ?\Throwable $previous = null,
     ): void {
         // prepare context of the database exception
         $context = [
@@ -834,7 +835,7 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
      */
     private function executeSelectQuery(
         string $query,
-        ?QueryParameters $queryParameters = null
+        ?QueryParameters $queryParameters = null,
     ): \PDOStatement {
         try {
             $this->validateSelectQuery($query);
@@ -848,8 +849,8 @@ class DatabaseConnection extends \PDO implements ConnectionInterface
                         $queryParameter->getValue(),
                         ($queryParameter->getType() !== null)
                             ? PdoParameterTypeTransformer::transformFromQueryParameterType(
-                            $queryParameter->getType()
-                        ) : \PDO::PARAM_STR
+                                $queryParameter->getType()
+                            ) : \PDO::PARAM_STR
                     );
                 }
             }

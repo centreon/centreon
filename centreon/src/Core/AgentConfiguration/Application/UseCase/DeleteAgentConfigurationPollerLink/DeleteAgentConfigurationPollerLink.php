@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ final class DeleteAgentConfigurationPollerLink
     public function __invoke(
         int $acId,
         int $pollerId,
-        PresenterInterface $presenter
+        PresenterInterface $presenter,
     ): void {
         try {
             if (! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_POLLERS_AGENT_CONFIGURATIONS_RW)) {
@@ -73,18 +73,18 @@ final class DeleteAgentConfigurationPollerLink
                 return;
             }
 
-            if (null === $this->readAcRepository->find($acId)) {
+            if ($this->readAcRepository->find($acId) === null) {
                 $presenter->setResponseStatus(new NotFoundResponse('Agent Configuration'));
 
                 return;
             }
 
             $linkedPollerIds = array_map(
-                static fn(Poller $poller): int => $poller->id,
+                static fn (Poller $poller): int => $poller->id,
                 $this->readAcRepository->findPollersByAcId($acId)
             );
 
-            if (false === $this->user->isAdmin()) {
+            if ($this->user->isAdmin() === false) {
                 $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $accessiblePollerIds = $this->readMonitoringServerRepository->existByAccessGroups(
                     $linkedPollerIds,

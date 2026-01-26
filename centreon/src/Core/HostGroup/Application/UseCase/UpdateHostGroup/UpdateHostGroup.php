@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ final class UpdateHostGroup
         private readonly WriteHostGroupRepositoryInterface $writeHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadViewImgRepositoryInterface $readViewImgRepository,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 
@@ -63,7 +63,7 @@ final class UpdateHostGroup
     public function __invoke(
         int $hostGroupId,
         UpdateHostGroupRequest $request,
-        UpdateHostGroupPresenterInterface $presenter
+        UpdateHostGroupPresenterInterface $presenter,
     ): void {
         try {
             if ($this->contact->isAdmin()) {
@@ -115,10 +115,10 @@ final class UpdateHostGroup
      */
     private function updateHostGroupAsAdmin(
         int $hostGroupId,
-        UpdateHostGroupRequest $request
+        UpdateHostGroupRequest $request,
     ): NoContentResponse|NotFoundResponse {
         $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
-        if (null === $hostGroup) {
+        if ($hostGroup === null) {
             return new NotFoundResponse('Host group');
         }
 
@@ -142,11 +142,11 @@ final class UpdateHostGroup
      */
     private function updateHostGroupAsContact(
         int $hostGroupId,
-        UpdateHostGroupRequest $request
+        UpdateHostGroupRequest $request,
     ): NoContentResponse|NotFoundResponse {
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $hostGroup = $this->readHostGroupRepository->findOneByAccessGroups($hostGroupId, $accessGroups);
-        if (null === $hostGroup) {
+        if ($hostGroup === null) {
             return new NotFoundResponse('Host group');
         }
 
@@ -187,13 +187,13 @@ final class UpdateHostGroup
     private function assertNotNullIconsExist(UpdateHostGroupRequest $request): void
     {
         if (
-            null !== $request->iconId
+            $request->iconId !== null
             && ! $this->readViewImgRepository->existsOne($request->iconId)
         ) {
             throw HostGroupException::iconDoesNotExist('iconId', $request->iconId);
         }
         if (
-            null !== $request->iconMapId
+            $request->iconMapId !== null
             && ! $this->readViewImgRepository->existsOne($request->iconMapId)
         ) {
             throw HostGroupException::iconDoesNotExist('iconMapId', $request->iconMapId);
@@ -226,10 +226,10 @@ final class UpdateHostGroup
             $request->notes,
             $request->notesUrl,
             $request->actionUrl,
-            null === $request->iconId || $request->iconId < 1
+            $request->iconId === null || $request->iconId < 1
                 ? null
                 : $request->iconId,
-            null === $request->iconMapId || $request->iconMapId < 1
+            $request->iconMapId === null || $request->iconMapId < 1
                 ? null
                 : $request->iconMapId,
             $request->rrdRetention,

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,14 +18,13 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Interfaces;
 
 use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\HostMacro;
-use Centreon\Domain\HostConfiguration\Model\HostTemplate;
-use Centreon\Domain\Repository\RepositoryException;
 
 /**
  * This interface gathers all the reading operations on the repository.
@@ -38,8 +37,8 @@ interface HostConfigurationReadRepositoryInterface
      * Find a host.
      *
      * @param int $hostId Host Id to be found
-     * @return Host|null Returns a host otherwise null
      * @throws \Throwable
+     * @return Host|null Returns a host otherwise null
      */
     public function findHost(int $hostId): ?Host;
 
@@ -49,8 +48,8 @@ interface HostConfigurationReadRepositoryInterface
      * **The priority order of host templates is maintained!**
      *
      * @param Host $host Host for which we want to find all host templates recursively
-     * @return Host[]
      * @throws \Throwable
+     * @return Host[]
      */
     public function findHostTemplatesRecursively(Host $host): array;
 
@@ -75,8 +74,8 @@ interface HostConfigurationReadRepositoryInterface
      * Recursively search in the inherited templates if no result found.
      *
      * @param int $hostId Host id
-     * @return string|null Return the command if found
      * @throws \Throwable
+     * @return string|null Return the command if found
      */
     public function findCommandLine(int $hostId): ?string;
 
@@ -85,8 +84,8 @@ interface HostConfigurationReadRepositoryInterface
      *
      * @param int $hostId Id of the host
      * @param bool $isUsingInheritance Indicates whether to use inheritance to find host macros (FALSE by default)
-     * @return array<HostMacro> List of host macros found
      * @throws \Throwable
+     * @return array<HostMacro> List of host macros found
      */
     public function findOnDemandHostMacros(int $hostId, bool $isUsingInheritance = false): array;
 
@@ -101,10 +100,10 @@ interface HostConfigurationReadRepositoryInterface
     /**
      * Find a host regarding user ACL
      *
-     * @param integer $hostId
+     * @param int $hostId
      * @param int[] $accessGroupIds
-     * @return Host|null
      * @throws \Throwable
+     * @return Host|null
      */
     public function findHostByAccessGroupIds(int $hostId, array $accessGroupIds): ?Host;
 
@@ -122,8 +121,8 @@ interface HostConfigurationReadRepositoryInterface
      * Find a host by its name.
      *
      * @param string $hostName Host Id to be found
-     * @return Host|null Returns a host otherwise null
      * @throws \Throwable
+     * @return Host|null Returns a host otherwise null
      */
     public function findHostByName(string $hostName): ?Host;
 
@@ -131,8 +130,8 @@ interface HostConfigurationReadRepositoryInterface
      * Find host template by its id
      *
      * @param int $hostTemplateId
-     * @return Host|null
      * @throws \Throwable
+     * @return Host|null
      */
     public function findHostTemplate(int $hostTemplateId): ?Host;
 }

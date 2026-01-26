@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration;
 
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfiguration;
@@ -36,14 +35,10 @@ use PHPUnit\Framework\TestCase;
 
 class FindConfigurationTest extends TestCase
 {
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&MockObject */
     private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&MockObject */
     private ProviderAuthenticationInterface $providerAuthentication;
 
     /**

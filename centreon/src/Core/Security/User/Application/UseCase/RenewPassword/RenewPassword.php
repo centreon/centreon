@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ class RenewPassword
     public function __construct(
         private ReadUserRepositoryInterface $readRepository,
         private WriteUserRepositoryInterface $writeRepository,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
     }
 
@@ -60,7 +60,7 @@ class RenewPassword
      */
     public function __invoke(
         RenewPasswordPresenterInterface $presenter,
-        RenewPasswordRequest $renewPasswordRequest
+        RenewPasswordRequest $renewPasswordRequest,
     ): void {
         $this->info('Processing password renewal...');
         // Get User informations
@@ -96,7 +96,7 @@ class RenewPassword
             $presenter->setResponseStatus(new InvalidArgumentResponse($ex->getMessage()));
 
             return;
-        }  catch (\Throwable $ex) {
+        } catch (\Throwable $ex) {
             $this->error('An error occured while updating password', ['trace' => (string) $ex]);
             $presenter->setResponseStatus(new ErrorResponse('An error occured while updating password'));
 

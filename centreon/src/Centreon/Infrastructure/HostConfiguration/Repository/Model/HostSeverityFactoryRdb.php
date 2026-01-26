@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\HostConfiguration\Repository\Model;
@@ -36,22 +37,23 @@ class HostSeverityFactoryRdb
      * Create a HostSeverity entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return HostSeverity
      * @throws \Assert\AssertionFailedException
+     * @return HostSeverity
      */
     public static function create(array $data): HostSeverity
     {
         $icon = (new Image())
-            ->setId((int)$data['img_id'])
+            ->setId((int) $data['img_id'])
             ->setName($data['img_name'])
             ->setComment($data['img_comment'])
             ->setPath(str_replace('//', '/', ($data['img_path'])));
-        $hostSeverity = (new HostSeverity($data['hc_name'], $data['hc_alias'], (int)$data['level'], $icon))
-            ->setId((int)$data['hc_id'])
+        $hostSeverity = (new HostSeverity($data['hc_name'], $data['hc_alias'], (int) $data['level'], $icon))
+            ->setId((int) $data['hc_id'])
             ->setActivated($data['hc_activate'] === '1');
         if ($data['hc_comment'] !== null) {
             $hostSeverity->setComments($data['hc_comment']);
         }
+
         return $hostSeverity;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,13 +103,13 @@ final class FindNotification
                 ));
             }
         } catch (AssertionFailedException $ex) {
-            $this->error('An error occurred while retrieving the details of the notification',[
+            $this->error('An error occurred while retrieving the details of the notification', [
                 'notification_id' => $notificationId,
                 'trace' => (string) $ex,
             ]);
             $presenter->presentResponse(new InvalidArgumentResponse($ex->getMessage()));
         } catch (\Throwable $ex) {
-            $this->error('Unable to retrieve the details of the notification',[
+            $this->error('Unable to retrieve the details of the notification', [
                 'notification_id' => $notificationId,
                 'trace' => (string) $ex,
             ]);
@@ -179,7 +179,7 @@ final class FindNotification
     {
         if ($this->user->isAdmin()) {
             return $this->notificationRepository->findContactGroupsByNotificationId($notificationId);
-        }  
+        }
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
 
         return $this->notificationRepository->findContactGroupsByNotificationIdAndAccessGroups(
@@ -205,7 +205,7 @@ final class FindNotification
         array $notificationMessages,
         array $notifiedUsers,
         array $notifiedContactGroups,
-        array $notificationResources
+        array $notificationResources,
     ): FindNotificationResponse {
         $response = new FindNotificationResponse();
 
@@ -216,7 +216,7 @@ final class FindNotification
         $response->isActivated = $notification->isActivated();
 
         $response->messages = array_map(
-            static fn(Message $message): array => [
+            static fn (Message $message): array => [
                 'channel' => $message->getChannel()->value,
                 'subject' => $message->getSubject(),
                 'message' => $message->getRawMessage(),
@@ -231,7 +231,7 @@ final class FindNotification
         );
 
         $response->contactGroups = array_map(
-            static fn(ContactGroup $contactGroup): array => [
+            static fn (ContactGroup $contactGroup): array => [
                 'id' => $contactGroup->getId(),
                 'name' => $contactGroup->getName(),
             ],

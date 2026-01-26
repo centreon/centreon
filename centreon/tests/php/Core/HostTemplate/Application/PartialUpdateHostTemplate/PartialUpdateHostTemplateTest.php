@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -261,7 +261,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
-        ->willThrowException(new \Exception);
+        ->willThrowException(new \Exception());
 
     ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
 
@@ -320,7 +320,7 @@ it('should present a InvalidArgumentResponse when the host template is locked', 
         ->toBe(HostTemplateException::hostIsLocked($hostTemplate->getId())->getMessage());
 });
 
- // Tests for host template
+// Tests for host template
 
 it('should present a ConflictResponse when name is already used', function (): void {
     $this->user
@@ -571,7 +571,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->method('assertAreValidTemplates')
         ->willThrowException(HostTemplateException::idsDoNotExist('templates', $this->request->templates));
 
-    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId );
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ConflictResponse::class)
@@ -579,7 +579,7 @@ it('should present a ConflictResponse when a parent template ID is not valid', f
         ->toBe(
             HostTemplateException::idsDoNotExist(
                 'templates',
-                 $this->request->templates
+                $this->request->templates
             )->getMessage()
         );
 });
@@ -613,7 +613,7 @@ it('should present a ConflictResponse when a parent template create a circular i
         ->method('assertAreValidTemplates')
         ->willThrowException(HostTemplateException::circularTemplateInheritance());
 
-    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId );
+    ($this->useCase)($this->request, $this->presenter, $this->hostTemplateId);
 
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(ConflictResponse::class)

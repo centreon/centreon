@@ -1,0 +1,76 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot call method exec\(\) on object\|resource\.$#'
+			identifier: method.nonObject
+			count: 8
+			path: tests/php/Adaptation/Database/Connection/Adapter/Dbal/DbalConnectionAdapterTest.php
+
+		-
+			message: '#^Cannot call method getAttribute\(\) on object\|resource\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/php/Adaptation/Database/Connection/Adapter/Dbal/DbalConnectionAdapterTest.php
+
+		-
+			message: '#^Cannot call method prepare\(\) on object\|resource\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: tests/php/Adaptation/Database/Connection/Adapter/Dbal/DbalConnectionAdapterTest.php
+
+		-
+			message: '#^Cannot call method quote\(\) on object\|resource\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/php/Adaptation/Database/Connection/Adapter/Dbal/DbalConnectionAdapterTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) a must contain 3 or more characters\.$#'
+			count: 4
+			path: tests/php/Core/Common/Domain/Collection/LiteralStringCollectionTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) b must contain 3 or more characters\.$#'
+			count: 4
+			path: tests/php/Core/Common/Domain/Collection/LiteralStringCollectionTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) a must contain 3 or more characters\.$#'
+			count: 4
+			path: tests/php/Core/Common/Domain/Collection/ObjectCollectionTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) b must contain 3 or more characters\.$#'
+			count: 4
+			path: tests/php/Core/Common/Domain/Collection/ObjectCollectionTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) a must contain 3 or more characters\.$#'
+			count: 4
+			path: tests/php/Core/Common/Domain/Collection/StringCollectionTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) b must contain 3 or more characters\.$#'
+			count: 4
+			path: tests/php/Core/Common/Domain/Collection/StringCollectionTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ip must contain 3 or more characters\.$#'
+			count: 2
+			path: tests/php/Core/Common/Domain/ValueObject/Identity/EmailTest.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(CreatedResponse\<int, AddServiceGroupResponse\>\> \$presentedData\)\: Unexpected token "\>", expected TOKEN_HORIZONTAL_WS at offset 54 on line 1$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: tests/php/Core/ServiceGroup/Application/AddServiceGroup/AddServiceGroupTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) tp must contain 3 or more characters\.$#'
+			count: 15
+			path: tests/php/Core/TimePeriod/Domain/Model/NewTimePeriodTest.php
+
+		-
+			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) tp must contain 3 or more characters\.$#'
+			count: 16
+			path: tests/php/Core/TimePeriod/Domain/Model/TimePeriodTest.php

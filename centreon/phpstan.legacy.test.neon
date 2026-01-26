@@ -1,0 +1,35 @@
+includes:
+    - ../php-tools/phpstan/config/common.neon
+
+parameters:
+
+    level: 2
+
+    bootstrapFiles:
+        - config/centreon.config.php.template
+
+    scanFiles:
+        - config/centreon.config.php.template
+        - www/install/functions.php
+        - tests/phpstan_stubs/bootstrap.stub
+        - tests/phpstan_stubs/legacy.stub
+        - tests/php/bootstrap.php
+        - tests/php/polyfill.php
+
+    paths:
+        - tests/php/Centreon
+        - tests/php/CentreonLegacy
+        - tests/php/Security
+        - tests/php/Utility
+        - tests/php/www
+
+    ignoreErrors:
+
+        - # To ignore errors in the tests/php directory because of Pest
+            reportUnmatched: false
+            path: tests/php
+            messages:
+                - '#^Undefined variable: \$this$#'
+                - '#^Call to an undefined method Pest#'
+                - '#^Access to an undefined property PHPUnit#'
+

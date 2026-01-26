@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class YesNoDefaultConverter
             true, '1', self::CASE_YES, (string) self::CASE_YES => YesNoDefault::Yes,
             false, '0', self::CASE_NO, (string) self::CASE_NO => YesNoDefault::No,
             null, '2', self::CASE_DEFAULT, (string) self::CASE_DEFAULT => YesNoDefault::Default,
-            default => throw new \ValueError("\"{$value}\" is not a valid backing value for enum YesNoDefault")
+            default => throw new \ValueError("\"{$value}\" is not a valid backing value for enum YesNoDefault"),
         };
     }
 
@@ -62,7 +62,7 @@ class YesNoDefaultConverter
         return match ($enum) {
             YesNoDefault::Yes => self::CASE_YES,
             YesNoDefault::No => self::CASE_NO,
-            YesNoDefault::Default => self::CASE_DEFAULT
+            YesNoDefault::Default => self::CASE_DEFAULT,
         };
     }
 

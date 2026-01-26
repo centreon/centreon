@@ -1,29 +1,30 @@
 <?php
+
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
-function set_pagination($tpl, $pagination, $current_page, $rows) {
-    $tpl->assign("pagination", $pagination);
-    $tpl->assign("current_page", $current_page);
-    $num_page = (int)(($rows / $pagination) + 1);
-    $tpl->assign("num_page", $num_page);
+function set_pagination($tpl, $pagination, $current_page, $rows)
+{
+    $tpl->assign('pagination', $pagination);
+    $tpl->assign('current_page', $current_page);
+    $num_page = (int) (($rows / $pagination) + 1);
+    $tpl->assign('num_page', $num_page);
 
     $total = 10;
     $bottom = $current_page - 1;
@@ -52,27 +53,27 @@ function set_pagination($tpl, $pagination, $current_page, $rows) {
         $arrow_last_display = 0;
     }
 
-    $tpl->assign("bottom_display", $bottom_display);
-    $tpl->assign("top_display", $top_display);
-    $tpl->assign("arrow_first_display", $arrow_first_display);
-    $tpl->assign("arrow_last_display", $arrow_last_display);
+    $tpl->assign('bottom_display', $bottom_display);
+    $tpl->assign('top_display', $top_display);
+    $tpl->assign('arrow_first_display', $arrow_first_display);
+    $tpl->assign('arrow_last_display', $arrow_last_display);
 }
 
-$resultat = ["code" => 0, "msg" => 'ok', "data" => null, "pagination" => null];
+$resultat = ['code' => 0, 'msg' => 'ok', 'data' => null, 'pagination' => null];
 
-//$fp = fopen('/tmp/debug.txt', 'a+');
-//fwrite($fp, print_r($get_information, true));
+// $fp = fopen('/tmp/debug.txt', 'a+');
+// fwrite($fp, print_r($get_information, true));
 
 $_SESSION['OT_form_logs'] = $get_information['form'];
 
 try {
     $tickets = $ticket_log->getLog($get_information['form'], $centreon_bg, $get_information['pagination'], $get_information['current_page']);
-    //fwrite($fp, print_r($tickets, true));
+    // fwrite($fp, print_r($tickets, true));
 
     // Smarty template initialization
     $tpl = SmartyBC::createSmartyTemplate($centreon_open_tickets_path, 'views/logs/templates');
 
-    $tpl->assign("tickets", $tickets['tickets']);
+    $tpl->assign('tickets', $tickets['tickets']);
     $resultat['data'] = $tpl->fetch('data.ihtml');
 
     // Get Pagination
@@ -82,5 +83,3 @@ try {
     $resultat['code'] = 1;
     $resultat['msg'] = $e->getMessage();
 }
-
-?>

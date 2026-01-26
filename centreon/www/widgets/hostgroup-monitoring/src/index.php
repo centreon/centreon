@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -53,7 +38,7 @@ require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 
 CentreonSession::start(1);
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId']) || ! isset($_REQUEST['page'])) {
     exit;
 }
 
@@ -67,7 +52,7 @@ if (CentreonSession::checkSession(session_id(), $configurationDatabase) == 0) {
 }
 
 // Smarty template initialization
-$path = $centreon_path . "www/widgets/hostgroup-monitoring/src/";
+$path = $centreon_path . 'www/widgets/hostgroup-monitoring/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
 $centreon = $_SESSION['centreon'];
@@ -151,7 +136,7 @@ $serviceStateLabels = [
 
 const ORDER_DIRECTION_ASC = 'ASC';
 const ORDER_DIRECTION_DESC = 'DESC';
-const DEFAULT_ENTRIES_PER_PAGE= 10;
+const DEFAULT_ENTRIES_PER_PAGE = 10;
 
 $accessGroups = new AccessGroupCollection();
 
@@ -189,7 +174,7 @@ try {
     }
 
     if (isset($preferences['hg_name_search']) && trim($preferences['hg_name_search']) !== '') {
-        $tab = explode(" ", $preferences['hg_name_search']);
+        $tab = explode(' ', $preferences['hg_name_search']);
         $op = $tab[0];
         if (isset($tab[1])) {
             $search = $tab[1];
@@ -197,7 +182,7 @@ try {
         if ($op && isset($search) && trim($search) !== '') {
             $baseQuery = CentreonUtils::conditionBuilder(
                 $baseQuery,
-                "name " . CentreonUtils::operandToMysqlFormat($op) . " :search "
+                'name ' . CentreonUtils::operandToMysqlFormat($op) . ' :search '
             );
             $queryParameters[] = QueryParameter::string('search', $search);
         }
@@ -214,7 +199,7 @@ try {
         : null;
 
     if ($orderByToAnalyse !== null) {
-        $orderByToAnalyse .= " $defaultDirection";
+        $orderByToAnalyse .= " {$defaultDirection}";
         [$column, $direction] = explode(' ', $orderByToAnalyse);
 
         if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
@@ -236,8 +221,8 @@ try {
 
     // Main SELECT query with LIMIT
     $query = $columns . $baseQuery;
-    $query .= " ORDER BY $orderby";
-    $query .= " LIMIT :offset, :entriesPerPage";
+    $query .= " ORDER BY {$orderby}";
+    $query .= ' LIMIT :offset, :entriesPerPage';
 
     $queryParameters[] = QueryParameter::int('offset', $offset);
     $queryParameters[] = QueryParameter::int('entriesPerPage', $entriesPerPage);
@@ -248,9 +233,9 @@ try {
         $detailMode = true;
     }
 
-    $kernel = \App\Kernel::createForWeb();
+    $kernel = App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
-        \Centreon\Application\Controller\MonitoringResourceController::class
+        Centreon\Application\Controller\MonitoringResourceController::class
     );
 
     $buildHostgroupUri = function (array $hostgroup, array $types, array $statuses) use ($resourceController) {
@@ -267,12 +252,12 @@ try {
                 [
                     'name' => 'statuses',
                     'value' => $statuses,
-                ]
+                ],
             ],
         ];
 
         try {
-             $encodedFilter = json_encode($filter, JSON_THROW_ON_ERROR);
+            $encodedFilter = json_encode($filter, JSON_THROW_ON_ERROR);
 
             return $resourceController->buildListingUri(
                 [
@@ -282,10 +267,11 @@ try {
         } catch (JsonException $e) {
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: "Error while handling hostgroup monitoring data: " . $e->getMessage(),
+                message: 'Error while handling hostgroup monitoring data: ' . $e->getMessage(),
                 exception: $e
             );
-            throw new \Exception('Error while handling hostgroup monitoring data: ' . $e->getMessage());
+
+            throw new Exception('Error while handling hostgroup monitoring data: ' . $e->getMessage());
         }
     };
 
@@ -379,11 +365,11 @@ try {
 } catch (ConnectionException $e) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-        message: "Error while fetching hostgroup monitoring data: " . $e->getMessage(),
+        message: 'Error while fetching hostgroup monitoring data: ' . $e->getMessage(),
         exception: $e
     );
 
-    throw new \Exception("Error while fetching hostgroup monitoring data: " . $e->getMessage());
+    throw new Exception('Error while fetching hostgroup monitoring data: ' . $e->getMessage());
 }
 
 $hostGroupMonitoringService->getHostStates($data, (int) $centreon->user->admin === 1, $accessGroups, $detailMode);

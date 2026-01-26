@@ -33,19 +33,17 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$user_params = ["log_filter_host" => true, "log_filter_svc" => true, "log_filter_host_down" => true, "log_filter_host_up" => true, "log_filter_host_unreachable" => true, "log_filter_svc_ok" => true, "log_filter_svc_warning" => true, "log_filter_svc_critical" => true, "log_filter_svc_unknown" => true, "log_filter_notif" => false, "log_filter_error" => true, "log_filter_alert" => true, "log_filter_oh" => false, "search_H" => "", "search_S" => "", 'log_filter_period' => "", 'output' => ""];
+$user_params = ['log_filter_host' => true, 'log_filter_svc' => true, 'log_filter_host_down' => true, 'log_filter_host_up' => true, 'log_filter_host_unreachable' => true, 'log_filter_svc_ok' => true, 'log_filter_svc_warning' => true, 'log_filter_svc_critical' => true, 'log_filter_svc_unknown' => true, 'log_filter_notif' => false, 'log_filter_error' => true, 'log_filter_alert' => true, 'log_filter_oh' => false, 'search_H' => '', 'search_S' => '', 'log_filter_period' => '', 'output' => ''];
 
-/*
- * Add QuickSearch ToolBar
- */
+// Add QuickSearch ToolBar
 $FlagSearchService = 1;
 
 // Smarty template initialization
-$tpl = SmartyBC::createSmartyTemplate("./include/eventLogs/template");
+$tpl = SmartyBC::createSmartyTemplate('./include/eventLogs/template');
 
 $getInputs = [
     'engine' => filter_input(INPUT_GET, 'engine', FILTER_VALIDATE_BOOLEAN, ['options' => ['default' => false]]),
@@ -74,7 +72,7 @@ $pollerArray = [];
 
 $defaultHosts = [];
 if (isset($getInputs['h'])) {
-    $h = explode(",", $getInputs['h']);
+    $h = explode(',', $getInputs['h']);
     $hostObj = new CentreonHost($pearDB);
     $hostArray = $hostObj->getHostsNames($h);
     foreach ($hostArray as $defaultHost) {
@@ -84,7 +82,7 @@ if (isset($getInputs['h'])) {
 
 $defaultHostgroups = [];
 if (isset($getInputs['hg'])) {
-    $hg = explode(",", $getInputs['hg']);
+    $hg = explode(',', $getInputs['hg']);
     $hostGrpObj = new CentreonHostgroups($pearDB);
     $hostGrpArray = $hostGrpObj->getHostsgroups($hg);
     foreach ($hostGrpArray as $defaultHostgroup) {
@@ -119,7 +117,7 @@ if (isset($getInputs['svc'])) {
 
 $defaultServicegroups = [];
 if (isset($getInputs['svcg'])) {
-    $svcg = explode(",", $getInputs['svcg']);
+    $svcg = explode(',', $getInputs['svcg']);
     $serviceGrpObj = new CentreonServicegroups($pearDB);
     $serviceGrpArray = $serviceGrpObj->getServicesGroups($svcg);
     foreach ($serviceGrpArray as $defaultServicegroup) {
@@ -129,7 +127,7 @@ if (isset($getInputs['svcg'])) {
 
 $defaultPollers = [];
 if (isset($getInputs['poller'])) {
-    $poller = explode(",", $getInputs['poller']);
+    $poller = explode(',', $getInputs['poller']);
     $pollerObj = new CentreonInstance($pearDB, $pearDBO);
     $pollerArray = $pollerObj->getInstancesMonitoring($poller);
     foreach ($pollerArray as $defaultPoller) {
@@ -137,81 +135,79 @@ if (isset($getInputs['poller'])) {
     }
 }
 
-/*
- * Form begin
- */
-$form = new HTML_QuickFormCustom('FormPeriod', 'get', "?p=" . $p);
-$form->addElement('header', 'title', _("Choose the source"));
+// Form begin
+$form = new HTML_QuickFormCustom('FormPeriod', 'get', '?p=' . $p);
+$form->addElement('header', 'title', _('Choose the source'));
 
 $periods = [
-    "" => "",
-    "10800" => _("Last 3 hours"),
-    "21600" => _("Last 6 hours"),
-    "43200" => _("Last 12 hours"),
-    "86400" => _("Last 24 hours"),
-    "172800" => _("Last 2 days"),
-    "302400" => _("Last 4 days"),
-    "604800" => _("Last 7 days"),
-    "1209600" => _("Last 14 days"),
-    "2419200" => _("Last 28 days"),
-    "2592000" => _("Last 30 days"),
-    "2678400" => _("Last 31 days"),
-    "5184000" => _("Last 2 months"),
-    "10368000" => _("Last 4 months"),
-    "15552000" => _("Last 6 months"),
-    "31104000" => _("Last year")
+    '' => '',
+    '10800' => _('Last 3 hours'),
+    '21600' => _('Last 6 hours'),
+    '43200' => _('Last 12 hours'),
+    '86400' => _('Last 24 hours'),
+    '172800' => _('Last 2 days'),
+    '302400' => _('Last 4 days'),
+    '604800' => _('Last 7 days'),
+    '1209600' => _('Last 14 days'),
+    '2419200' => _('Last 28 days'),
+    '2592000' => _('Last 30 days'),
+    '2678400' => _('Last 31 days'),
+    '5184000' => _('Last 2 months'),
+    '10368000' => _('Last 4 months'),
+    '15552000' => _('Last 6 months'),
+    '31104000' => _('Last year'),
 ];
 
 $lang = [
-    "ty" => _("Message Type"),
-    "n" => _("Notifications"),
-    "a" => _("Alerts"),
-    "e" => _("Errors"),
-    "s" => _("Status"),
-    "do" => _("Down"),
-    "up" => _("Up"),
-    "un" => _("Unreachable"),
-    "w" => _("Warning"),
-    "ok" => _("Ok"),
-    "cr" => _("Critical"),
-    "uk" => _("Unknown"),
-    "oh" => _("Hard Only"),
-    "sch" => _("Search")
+    'ty' => _('Message Type'),
+    'n' => _('Notifications'),
+    'a' => _('Alerts'),
+    'e' => _('Errors'),
+    's' => _('Status'),
+    'do' => _('Down'),
+    'up' => _('Up'),
+    'un' => _('Unreachable'),
+    'w' => _('Warning'),
+    'ok' => _('Ok'),
+    'cr' => _('Critical'),
+    'uk' => _('Unknown'),
+    'oh' => _('Hard Only'),
+    'sch' => _('Search'),
 ];
 
-$form->addElement('select', 'period', _("Log Period"), $periods);
+$form->addElement('select', 'period', _('Log Period'), $periods);
 $form->addElement(
     'text',
     'StartDate',
     '',
-    ["id" => "StartDate", "onClick" => "resetPeriod()", "class" => "datepicker", "size" => 8]
+    ['id' => 'StartDate', 'onClick' => 'resetPeriod()', 'class' => 'datepicker', 'size' => 8]
 );
 $form->addElement(
     'text',
     'StartTime',
     '',
-    ["id" => "StartTime", "onChange" => "resetPeriod()", "class" => "timepicker", "size" => 5]
+    ['id' => 'StartTime', 'onChange' => 'resetPeriod()', 'class' => 'timepicker', 'size' => 5]
 );
 $form->addElement(
     'text',
     'EndDate',
     '',
-    ["id" => "EndDate", "onClick" => "resetPeriod()", "class" => "datepicker", "size" => 8]
+    ['id' => 'EndDate', 'onClick' => 'resetPeriod()', 'class' => 'datepicker', 'size' => 8]
 );
 $form->addElement(
     'text',
     'EndTime',
     '',
-    ["id" => "EndTime", "onChange" => "resetPeriod()", "class" => "timepicker", "size" => 5]
+    ['id' => 'EndTime', 'onChange' => 'resetPeriod()', 'class' => 'timepicker', 'size' => 5]
 );
 $form->addElement(
     'text',
     'output',
-    _("Output"),
-    ["id" => "output", "style" => "width: 203px;", "size" => 15, "value" => $user_params['output']]
+    _('Output'),
+    ['id' => 'output', 'style' => 'width: 203px;', 'size' => 15, 'value' => $user_params['output']]
 );
 
-/* adding hidden fields to get the result of datepicker in an unlocalized format */
+// adding hidden fields to get the result of datepicker in an unlocalized format
 $form->addElement(
     'hidden',
     'alternativeDateStartDate',
@@ -225,19 +221,19 @@ $form->addElement(
     ['size' => 10, 'class' => 'alternativeDate']
 );
 
-if (!$getInputs['engine']) {
+if (! $getInputs['engine']) {
     $form->addElement(
         'button',
         'graph',
-        _("Apply period"),
-        ["onclick" => "apply_period()", "class" => "btc bt_success"]
+        _('Apply period'),
+        ['onclick' => 'apply_period()', 'class' => 'btc bt_success']
     );
 } else {
     $form->addElement(
         'button',
         'graph',
-        _("Apply period"),
-        ["onclick" => "apply_period_engine()", "class" => "btc bt_success"]
+        _('Apply period'),
+        ['onclick' => 'apply_period_engine()', 'class' => 'btc bt_success']
     );
 }
 
@@ -246,7 +242,7 @@ $attrHost1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableDat
 $form->addElement(
     'select2',
     'host_filter',
-    _("Hosts"),
+    _('Hosts'),
     [],
     $attrHost1
 );
@@ -257,7 +253,7 @@ $attrServicegroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'avai
 $form->addElement(
     'select2',
     'service_group_filter',
-    _("Service Groups"),
+    _('Service Groups'),
     [],
     $attrServicegroup1
 );
@@ -267,7 +263,7 @@ $attrService1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'available
 $form->addElement(
     'select2',
     'service_filter',
-    _("Services"),
+    _('Services'),
     [],
     $attrService1
 );
@@ -277,7 +273,7 @@ $attrHostGroup1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availab
 $form->addElement(
     'select2',
     'host_group_filter',
-    _("Host Groups"),
+    _('Host Groups'),
     [],
     $attrHostGroup1
 );
@@ -287,13 +283,13 @@ $attrPoller1 = ['datasourceOrigin' => 'ajax', 'allowClear' => false, 'availableD
 $form->addElement(
     'select2',
     'poller_filter',
-    _("Pollers"),
+    _('Pollers'),
     [],
     $attrPoller1
 );
 
 $form->setDefaults(
-    ["period" => $user_params['log_filter_period']]
+    ['period' => $user_params['log_filter_period']]
 );
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
@@ -302,10 +298,10 @@ $tpl->assign('form', $renderer->toArray());
 $tpl->assign('user_params', $user_params);
 $tpl->assign('lang', $lang);
 
-if (!$getInputs['engine']) {
-    $tpl->display("viewLog.ihtml");
+if (! $getInputs['engine']) {
+    $tpl->display('viewLog.ihtml');
 } else {
-    $tpl->display("viewLogEngine.ihtml");
+    $tpl->display('viewLogEngine.ihtml');
 }
 
 ?>
@@ -343,38 +339,38 @@ if (!$getInputs['engine']) {
         _num = num;
         logsEngine();
     }
-    var _host = <?php echo !empty($user_params["log_filter_host"]) ? $user_params["log_filter_host"] : 'false'; ?>;
-    var _service = <?php echo !empty($user_params["log_filter_svc"]) ? $user_params["log_filter_svc"] : 'false'; ?>;
+    var _host = <?php echo ! empty($user_params['log_filter_host']) ? $user_params['log_filter_host'] : 'false'; ?>;
+    var _service = <?php echo ! empty($user_params['log_filter_svc']) ? $user_params['log_filter_svc'] : 'false'; ?>;
     // Casting engine variable so that it can be properly interpreted in JS
     var _engine = <?php echo (int) $getInputs['engine']; ?>;
 
-    var _down = <?php echo $user_params["log_filter_host_down"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _up = <?php echo $user_params["log_filter_host_up"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _unreachable = <?php echo $user_params["log_filter_host_unreachable"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
+    var _down = <?php echo $user_params['log_filter_host_down']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _up = <?php echo $user_params['log_filter_host_up']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _unreachable = <?php echo $user_params['log_filter_host_unreachable']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
 
-    var _ok = <?php echo $user_params["log_filter_svc_ok"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _warning = <?php echo $user_params["log_filter_svc_warning"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
-    var _critical = <?php echo $user_params["log_filter_svc_critical"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
+    var _ok = <?php echo $user_params['log_filter_svc_ok']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _warning = <?php echo $user_params['log_filter_svc_warning']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _critical = <?php echo $user_params['log_filter_svc_critical']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
 
-    var _unknown = <?php echo $user_params["log_filter_svc_unknown"]; ?>;
-    <?php echo !empty($user_params["log_filter_notif"]) ? $user_params["log_filter_notif"] : 'false'; ?>;
+    var _unknown = <?php echo $user_params['log_filter_svc_unknown']; ?>;
+    <?php echo ! empty($user_params['log_filter_notif']) ? $user_params['log_filter_notif'] : 'false'; ?>;
 
-    <?php $filterNotif = $user_params["log_filter_notif"];?>
-    var _notification = <?php echo !empty($filterNotif) ? $user_params["log_filter_notif"] : 'false';?>;
-    var _error = <?php echo !empty($user_params["log_filter_error"]) ? $user_params["log_filter_error"] : 'false'; ?>;
-    var _alert = <?php echo !empty($user_params["log_filter_alert"]) ? $user_params["log_filter_alert"] : 'false'; ?>;
+    <?php $filterNotif = $user_params['log_filter_notif']; ?>
+    var _notification = <?php echo ! empty($filterNotif) ? $user_params['log_filter_notif'] : 'false'; ?>;
+    var _error = <?php echo ! empty($user_params['log_filter_error']) ? $user_params['log_filter_error'] : 'false'; ?>;
+    var _alert = <?php echo ! empty($user_params['log_filter_alert']) ? $user_params['log_filter_alert'] : 'false'; ?>;
 
-    var _oh = <?php echo !empty($user_params["log_filter_oh"]) ? $user_params["log_filter_oh"] : 'false'; ?>;
+    var _oh = <?php echo ! empty($user_params['log_filter_oh']) ? $user_params['log_filter_oh'] : 'false'; ?>;
 
-    var _search_H = "<?php echo $user_params["search_H"]; ?>";
-    var _search_S = "<?php echo $user_params["search_S"]; ?>";
-    var _output = "<?php $output; ?>";
+    var _search_H = "<?php echo $user_params['search_H']; ?>";
+    var _search_S = "<?php echo $user_params['search_S']; ?>";
+    var _output = "<?php  ?>";
     // Period
     var currentTime = new Date();
     var period = '';
@@ -531,12 +527,12 @@ if (!$getInputs['engine']) {
                 '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + id
                 <?php
                 if (isset($search) && $search) {
-                    print " + &search_host=" . $search;
+                    echo ' + &search_host=' . $search;
                 }
-                if (isset($search_service) && $search_service) {
-                    print " + &search_service=" . $search_service;
-                }
-                ?>;
+if (isset($search_service) && $search_service) {
+    echo ' + &search_service=' . $search_service;
+}
+?>;
 
             proc.setXml(_addr)
             proc.setXslt(_addrXSL)
@@ -554,13 +550,13 @@ if (!$getInputs['engine']) {
                         '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
                         '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
                         <?php
-                        if (isset($search) && $search) {
-                            print " + &search_host=" . $search;
-                        }
-                        if (isset($search_service) && $search_service) {
-                            print " + &search_service=" . $search_service;
-                        }
-                        ?> +'&export=1';
+        if (isset($search) && $search) {
+            echo ' + &search_host=' . $search;
+        }
+if (isset($search_service) && $search_service) {
+    echo ' + &search_service=' . $search_service;
+}
+?> +'&export=1';
                 } else if (type == 'XML') {
                     var _addr = './include/eventLogs/xml/data.php?output=' + _output + '&oh=' + _oh +
                         '&warning=' + _warning + '&unknown=' + _unknown + '&critical=' + _critical +
@@ -570,14 +566,14 @@ if (!$getInputs['engine']) {
                         '&StartDate=' + StartDate + '&EndDate=' + EndDate + '&StartTime=' + StartTime +
                         '&EndTime=' + EndTime + '&limit=' + _limit + '&id=' + openid
                         <?php
-                        if (isset($search) && $search) {
-                            print " + &search_host=" . $search;
-                            print "&search_host=" . $search;
-                        }
-                        if (isset($search_service) && $search_service) {
-                            print " + &search_service=" . $search_service;
-                        }
-                        ?> +'&export=1';
+if (isset($search) && $search) {
+    echo ' + &search_host=' . $search;
+    echo '&search_host=' . $search;
+}
+if (isset($search_service) && $search_service) {
+    echo ' + &search_service=' . $search_service;
+}
+?> +'&export=1';
                 }
             } else {
                 var poller_value = jQuery("#poller_filter").val();

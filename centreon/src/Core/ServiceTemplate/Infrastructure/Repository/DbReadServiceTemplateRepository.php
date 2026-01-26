@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,7 +188,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate
     {
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
         $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
@@ -327,18 +327,18 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
-         if ($accessGroups === []) {
+        if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
 
             return [];
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
-	);
+        );
 
         $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
 
@@ -359,7 +359,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $sqlConcatenator->defineSelect($request);
         $sqlConcatenator->appendGroupBy('service.service_id, esi.esi_action_url, esi.esi_icon_image, esi.esi_icon_image_alt, esi.esi_notes, esi.esi_notes_url, esi.graph_id');
         if (! empty($subRequest)) {
-            $sqlConcatenator->appendWhere('scr.sc_id IN ('.$subRequest.')');
+            $sqlConcatenator->appendWhere('scr.sc_id IN (' . $subRequest . ')');
         }
         $sqlConcatenator->appendWhere("service_register = '0'");
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
@@ -631,7 +631,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         return match ($value) {
             '0' => YesNoDefault::No,
             '1' => YesNoDefault::Yes,
-            default => YesNoDefault::Default
+            default => YesNoDefault::Default,
         };
     }
 
@@ -658,7 +658,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 'f' => NotificationType::Flapping,
                 's' => NotificationType::DowntimeScheduled,
                 'n' => NotificationType::None,
-                default => throw new \Exception("Notification type '{$type}' unknown")
+                default => throw new \Exception("Notification type '{$type}' unknown"),
             };
         }
 

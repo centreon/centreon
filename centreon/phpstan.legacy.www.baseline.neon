@@ -1,0 +1,433 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Class centreonGraphPoller referenced with incorrect case\: CentreonGraphPoller\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/api/class/centreon_metric.class.php
+
+		-
+			message: '#^Function getChangeState not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/api/class/centreon_topcounter.class.php
+
+		-
+			message: '#^Class CentreonClapi\\CentreonLDAP referenced with incorrect case\: CentreonClapi\\CentreonLdap\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/class/centreon-clapi/CentreonLDAPContactRelation.class.php
+
+		-
+			message: '#^Instantiated class CentreonClapiException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: www/class/centreon-clapi/centreonACLResource.class.php
+
+		-
+			message: '#^Call to sprintf contains 2 placeholders, 3 values given\.$#'
+			identifier: argument.sprintf
+			count: 1
+			path: www/class/centreon-clapi/centreonDependency.class.php
+
+		-
+			message: '#^Undefined variable\: \$name$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/class/centreon-clapi/centreonDependency.class.php
+
+		-
+			message: '#^Method CentreonClapi\\CentreonEngineCfg\:\:initUpdateParameters\(\) should return array but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: www/class/centreon-clapi/centreonEngineCfg.class.php
+
+		-
+			message: '#^Access to undefined constant CentreonClapi\\CentreonServiceTemplate\:\:ORDER_UNIQUENAME\.$#'
+			identifier: classConstant.notFound
+			count: 1
+			path: www/class/centreon-clapi/centreonServiceTemplate.class.php
+
+		-
+			message: '#^Method CentreonClapi\\CentreonTimePeriod\:\:initUpdateParameters\(\) should return array but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: www/class/centreon-clapi/centreonTimePeriod.class.php
+
+		-
+			message: '#^Undefined variable\: \$backupFolder$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/class/centreon-partition/mysqlTable.class.php
+
+		-
+			message: '#^Undefined variable\: \$backupFormat$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/class/centreon-partition/mysqlTable.class.php
+
+		-
+			message: '#^Undefined variable\: \$verbosity$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/class/centreon-partition/options.class.php
+
+		-
+			message: '#^Undefined variable\: \$message$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/class/centreonDB.class.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: www/class/centreonDB.class.php
+
+		-
+			message: '#^Call to function unset\(\) contains undefined variable \$segment\.$#'
+			identifier: unset.variable
+			count: 1
+			path: www/class/centreonDuration.class.php
+
+		-
+			message: '#^Method CentreonGMT\:\:getDelaySecondsForRRD\(\) should return string but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: www/class/centreonGMT.class.php
+
+		-
+			message: '#^Result of method CentreonGraphNg\:\:getServiceGraphID\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: www/class/centreonGraphNg.class.php
+
+		-
+			message: '#^Access to constant LM_HOST_CHECK on an unknown class CentreonLicense\\ServiceProvider\.$#'
+			identifier: class.notFound
+			count: 1
+			path: www/class/centreonHost.class.php
+
+		-
+			message: '#^Access to constant LM_LICENSE on an unknown class CentreonLicense\\ServiceProvider\.$#'
+			identifier: class.notFound
+			count: 2
+			path: www/class/centreonHost.class.php
+
+		-
+			message: '#^Access to constant LM_PRODUCT_NAME on an unknown class CentreonLicense\\ServiceProvider\.$#'
+			identifier: class.notFound
+			count: 1
+			path: www/class/centreonHost.class.php
+
+		-
+			message: '#^Undefined variable\: \$hostgroups$#'
+			identifier: variable.undefined
+			count: 2
+			path: www/class/centreonHostgroups.class.php
+
+		-
+			message: '#^Class CentreonFileManager referenced with incorrect case\: centreonFileManager\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/class/centreonImageManager.php
+
+		-
+			message: '#^Method CentreonImageManager\:\:upload\(\) should return array\|bool but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: www/class/centreonImageManager.php
+
+		-
+			message: '#^Method CentreonImageManager\:\:uploadFromDirectory\(\) should return array\|bool but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: www/class/centreonImageManager.php
+
+		-
+			message: '#^Class CentreonDB referenced with incorrect case\: centreonDB\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/class/centreonStatsModules.class.php
+
+		-
+			message: '#^Class CentreonTimeperiodRenderer referenced with incorrect case\: CentreonTimePeriodRenderer\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/class/centreonTimeperiodRenderer.class.php
+
+		-
+			message: '#^Call to an undefined method CentreonWidgetParamsSelect2\:\:getParameters\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: www/class/centreonWidget/Params/Select2.class.php
+
+		-
+			message: '#^Access to constant FETCH_ASSOC on an unknown class ConfigGenerateRemote\\PDO\.$#'
+			identifier: class.notFound
+			count: 1
+			path: www/class/config-generate-remote/Backend.php
+
+		-
+			message: '#^Class ConfigGenerateRemote\\TimePeriod referenced with incorrect case\: ConfigGenerateRemote\\Timeperiod\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/class/config-generate-remote/Contact.php
+
+		-
+			message: '#^Class ConfigGenerateRemote\\Relations\\ContactHostCommandsRelation referenced with incorrect case\: ConfigGenerateRemote\\Relations\\ContactHostcommandsRelation\.$#'
+			identifier: class.nameCase
+			count: 2
+			path: www/class/config-generate-remote/Generate.php
+
+		-
+			message: '#^Class ConfigGenerateRemote\\Relations\\ContactServiceCommandsRelation referenced with incorrect case\: ConfigGenerateRemote\\Relations\\ContactServicecommandsRelation\.$#'
+			identifier: class.nameCase
+			count: 2
+			path: www/class/config-generate-remote/Generate.php
+
+		-
+			message: '#^Result of method ConfigGenerateRemote\\Generate\:\:getPollersFromRemote\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: www/class/config-generate-remote/Generate.php
+
+		-
+			message: '#^Undefined variable\: \$config_id$#'
+			identifier: variable.undefined
+			count: 2
+			path: www/class/config-generate-remote/Relations/BrokerInfo.php
+
+		-
+			message: '#^Undefined variable\: \$serviceId$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/class/config-generate-remote/Relations/HostPollerRelation.php
+
+		-
+			message: '#^Class ConfigGenerateRemote\\Relations\\TrapsGroupRelation referenced with incorrect case\: ConfigGenerateRemote\\Relations\\trapsGroupRelation\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/class/config-generate-remote/Relations/TrapsGroup.php
+
+		-
+			message: '#^Function updateGeneralOpt not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/include/Administration/parameters/DB-Func.php
+
+		-
+			message: '#^Function updateAPIConfigData not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/include/Administration/parameters/api/api.php
+
+		-
+			message: '#^Undefined variable\: \$logger$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/include/common/vault-functions.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''generate'' \(''generate'', ''generate''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: www/include/configuration/configGenerateTraps/formGenerateTraps.php
+
+		-
+			message: '#^Function duplicateArgDesc\(\) should return unknown_type but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: www/include/configuration/configObject/command/DB-Func.php
+
+		-
+			message: '#^Undefined variable\: \$form$#'
+			identifier: variable.undefined
+			count: 2
+			path: www/include/configuration/configObject/command/DB-Func.php
+
+		-
+			message: '#^Undefined variable\: \$oreon$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/include/configuration/configObject/connector/formConnectorFunction.php
+
+		-
+			message: '#^Undefined variable\: \$configuration$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/include/configuration/configObject/host/DB-Func.php
+
+		-
+			message: '#^Undefined variable\: \$ret$#'
+			identifier: variable.undefined
+			count: 2
+			path: www/include/configuration/configObject/host/DB-Func.php
+
+		-
+			message: '#^Caught class CentreonException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: www/include/configuration/configObject/host_dependency/formHostDependency.php
+
+		-
+			message: '#^Class CentreonUtils referenced with incorrect case\: centreonUtils\.$#'
+			identifier: class.nameCase
+			count: 3
+			path: www/include/configuration/configObject/servicegroup/DB-Func.php
+
+		-
+			message: '#^Class CentreonTimeperiodRenderer referenced with incorrect case\: CentreonTimePeriodRenderer\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/include/configuration/configObject/timeperiod/renderTimeperiod.php
+
+		-
+			message: '#^Class CentreonACL referenced with incorrect case\: CentreonAcl\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/include/eventLogs/xml/data.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value ''widget_model_id'' \(''widget_model_id'', ''widget_model_id''\)\.$#'
+			identifier: array.duplicateKey
+			count: 1
+			path: www/include/home/customViews/action.php
+
+		-
+			message: '#^Function add_hostgroup_downtime not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/include/monitoring/external_cmd/cmd.php
+
+		-
+			message: '#^Function add_svc_hostgroup_downtime not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/include/monitoring/external_cmd/cmd.php
+
+		-
+			message: '#^Function host_flap_detection not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: www/include/monitoring/external_cmd/cmd.php
+
+		-
+			message: '#^Function notifi_host_hostgroup not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: www/include/monitoring/external_cmd/cmd.php
+
+		-
+			message: '#^Function notifi_svc_host_hostgroup not found\.$#'
+			identifier: function.notFound
+			count: 2
+			path: www/include/monitoring/external_cmd/cmd.php
+
+		-
+			message: '#^Function schedule_svc_check not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/include/monitoring/external_cmd/cmd.php
+
+		-
+			message: '#^Undefined variable\: \$flg$#'
+			identifier: variable.undefined
+			count: 2
+			path: www/include/monitoring/external_cmd/functions.php
+
+		-
+			message: '#^Undefined variable\: \$is_admin$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/include/monitoring/external_cmd/functions.php
+
+		-
+			message: '#^Class CentreonDuration referenced with incorrect case\: centreonDuration\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: www/include/monitoring/objectDetails/serviceDetails.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$pearDBO follows optional parameter \$service_id\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: www/include/monitoring/status/Common/common-Func.php
+
+		-
+			message: '#^Array has 2 duplicate keys with value 3 \(3, 3\)\.$#'
+			identifier: array.duplicateKey
+			count: 2
+			path: www/include/monitoring/status/HostGroups/xml/hostGroupXML.php
+
+		-
+			message: '#^Function hasTopologyNameNeverUsed\(\) should return bool but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: www/include/options/accessLists/menusACL/DB-Func.php
+
+		-
+			message: '#^Function updateGroups\(\) should return type but return statement is missing\.$#'
+			identifier: return.missing
+			count: 2
+			path: www/include/options/accessLists/menusACL/DB-Func.php
+
+		-
+			message: '#^Function updateLCARelation\(\) should return type but return statement is missing\.$#'
+			identifier: return.missing
+			count: 2
+			path: www/include/options/accessLists/menusACL/DB-Func.php
+
+		-
+			message: '#^Undefined variable\: \$acl_res_name$#'
+			identifier: variable.undefined
+			count: 1
+			path: www/include/options/accessLists/resourcesACL/DB-Func.php
+
+		-
+			message: '#^Instantiated class graph not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: www/include/reporting/dashboard/imagesGenerations/pie-charts.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$isCloudPlatform follows optional parameter \$hostGroupId\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Deprecated in PHP 8\.0\: Required parameter \$isCloudPlatform follows optional parameter \$submittedValues\.$#'
+			identifier: parameter.requiredAfterOptional
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Result of function updateHostGroupInDBForCloud \(void\) is used\.$#'
+			identifier: function.void
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Result of function updateHostGroupInDBForOnPrem \(void\) is used\.$#'
+			identifier: function.void
+			count: 1
+			path: www/include/configuration/configObject/hostgroup/DB-Func.php
+
+		-
+			message: '#^Function updateAclResourcesMetaRelations not found\.$#'
+			identifier: function.notFound
+			count: 1
+			path: www/include/configuration/configObject/meta_service/DB-Func.php
+
+		-
+			message: '#^Missing parameter \$hostGroupId \(int\) in call to function createNewDatasetFilter\.$#'
+			identifier: argument.missing
+			count: 1
+			path: www/include/configuration/configObject/servicegroup/DB-Func.php
+
+		-
+			message: '#^Unknown parameter \$serviceGroupId in call to function createNewDatasetFilter\.$#'
+			identifier: argument.unknown
+			count: 1
+			path: www/include/configuration/configObject/servicegroup/DB-Func.php

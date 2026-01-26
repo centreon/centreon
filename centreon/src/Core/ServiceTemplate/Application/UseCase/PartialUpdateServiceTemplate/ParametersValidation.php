@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ class ParametersValidation
     {
         $formattedName = ServiceTemplate::formatName($newName) ?? '';
         if (
-            '' !== $formattedName
+            $formattedName !== ''
             && $currentName !== $formattedName
             && $this->readServiceTemplateRepository->existsByName(
                 new TrimmedString($formattedName)
@@ -262,7 +262,7 @@ class ParametersValidation
     public function assertServiceCategories(
         array $serviceCategoriesIds,
         ContactInterface $contact,
-        array $accessGroups
+        array $accessGroups,
     ): void {
         if ($contact->isAdmin()) {
             $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
@@ -293,9 +293,8 @@ class ParametersValidation
         array $serviceGroupDtos,
         int $serviceTemplateId,
         ContactInterface $contact,
-        array $accessGroups
-    ): void
-    {
+        array $accessGroups,
+    ): void {
         if ($serviceGroupDtos === []) {
             return;
         }

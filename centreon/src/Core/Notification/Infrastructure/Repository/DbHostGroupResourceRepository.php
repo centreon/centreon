@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,12 +123,12 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
             ]
         );
 
-        if ([] === $accessGroups || [] === $resourceIds) {
+        if ($accessGroups === [] || $resourceIds === []) {
             return [];
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -172,7 +172,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $concatenator->bindValuesToStatement($statement);
         $statement->execute();
         $resources = array_map(
-            (fn($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
+            (fn ($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -190,9 +190,9 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
      */
     public function findByNotificationIdAndAccessGroups(
         int $notificationId,
-        array $accessGroups
+        array $accessGroups,
     ): ?NotificationResource {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return null;
         }
 
@@ -208,7 +208,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         [$hostgroupEvents, $includedServiceEvents] = $this->retrieveEvents($notificationId);
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
         $concatenator = $this->getConcatenatorForFindRequest($accessGroupIds)
@@ -223,7 +223,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
         $statement->execute();
 
         $resources = array_map(
-            (fn($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
+            (fn ($data) => new ConfigurationResource($data['hg_id'], $data['hg_name'])),
             $statement->fetchAll(\PDO::FETCH_ASSOC)
         );
 
@@ -303,10 +303,10 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
      */
     public function countResourcesByNotificationIdsAndAccessGroups(
         array $notificationIds,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -472,7 +472,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     INNER JOIN `:db`.acl_resources_hg_relations arhr
@@ -519,7 +519,7 @@ class DbHostGroupResourceRepository extends AbstractRepositoryRDB implements Not
                     SQL
             );
 
-        if ([] !== $accessGroupIds) {
+        if ($accessGroupIds !== []) {
             $concatenator->appendJoins(
                 <<<'SQL'
                     INNER JOIN `:db`.acl_resources_hg_relations arhr

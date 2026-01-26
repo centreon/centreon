@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -55,7 +40,7 @@ require_once $centreon_path . 'www/class/centreonMedia.class.php';
 require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId']) || ! isset($_REQUEST['page'])) {
     exit;
 }
 
@@ -104,6 +89,7 @@ try {
         ['widget_id' => $widgetId],
         $e
     );
+
     throw $e;
 }
 
@@ -304,7 +290,7 @@ $allowedOrderColumns = [
     'acknowledged',
     'notify',
     'active_checks',
-    'passive_checks'
+    'passive_checks',
 ];
 
 const ORDER_DIRECTION_ASC = 'ASC';
@@ -318,7 +304,7 @@ $orderByToAnalyse = isset($preferences['order_by'])
     : null;
 
 if ($orderByToAnalyse !== null) {
-    $orderByToAnalyse .= " $defaultDirection";
+    $orderByToAnalyse .= " {$defaultDirection}";
     [$column, $direction] = explode(' ', $orderByToAnalyse);
 
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
@@ -347,6 +333,7 @@ try {
         ['pdo_info' => $e->errorInfo],
         $e
     );
+
     throw $e;
 }
 
@@ -383,6 +370,7 @@ try {
         ['pdo_info' => $e->errorInfo],
         $e
     );
+
     throw $e;
 }
 
@@ -397,7 +385,7 @@ foreach ($records as $row) {
     }
 
     // last_check
-    $valueLastCheck = (int)$row['last_check'];
+    $valueLastCheck = (int) $row['last_check'];
     $valueLastCheckTimestamp = time() - $valueLastCheck;
     if (
         $valueLastCheckTimestamp > 0
@@ -408,7 +396,7 @@ foreach ($records as $row) {
     $data[$row['host_id']]['last_check'] = $valueLastCheck;
 
     // last_state_change
-    $valueLastState = (int)$row['last_state_change'];
+    $valueLastState = (int) $row['last_state_change'];
     if ($valueLastState > 0) {
         $valueLastStateTimestamp = time() - $valueLastState;
         $valueLastState = CentreonDuration::toString($valueLastStateTimestamp) . ' ago';
@@ -418,7 +406,7 @@ foreach ($records as $row) {
     $data[$row['host_id']]['last_state_change'] = $valueLastState;
 
     // last_hard_state_change
-    $valueLastHardState = (int)$row['last_hard_state_change'];
+    $valueLastHardState = (int) $row['last_hard_state_change'];
     if ($valueLastHardState > 0) {
         $valueLastHardStateTimestamp = time() - $valueLastHardState;
         $valueLastHardState = CentreonDuration::toString($valueLastHardStateTimestamp) . ' ago';
@@ -440,7 +428,6 @@ foreach ($records as $row) {
     // output
     $data[$row['host_id']]['output'] = substr($row['output'], 0, $outputLength);
 
-
     $resourceController = $kernel->getContainer()->get(MonitoringResourceController::class);
     $data[$row['host_id']]['details_uri'] = $useDeprecatedPages
     ? '../../main.php?p=20202&o=hd&host_name=' . $row['host_name']
@@ -448,10 +435,10 @@ foreach ($records as $row) {
 
     // action_url
     $valueActionUrl = $row['action_url'];
-    if (!empty($valueActionUrl)) {
+    if (! empty($valueActionUrl)) {
         if (preg_match('#^\./(.+)#', $valueActionUrl, $matches)) {
             $valueActionUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueActionUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueActionUrl)) {
             $valueActionUrl = '//' . $valueActionUrl;
         }
 
@@ -463,10 +450,10 @@ foreach ($records as $row) {
 
     // notes_url
     $valueNotesUrl = $row['notes_url'];
-    if (!empty($valueNotesUrl)) {
+    if (! empty($valueNotesUrl)) {
         if (preg_match('#^\./(.+)#', $valueNotesUrl, $matches)) {
             $valueNotesUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueNotesUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueNotesUrl)) {
             $valueNotesUrl = '//' . $valueNotesUrl;
         }
 
@@ -480,9 +467,9 @@ foreach ($records as $row) {
     // criticality
     $valueCriticality = $row['criticality'];
     if ($valueCriticality != '') {
-        $critData = $criticality->getData($row["criticality_id"]);
-        $valueCriticality = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) .
-            "' title='" . $critData["hc_name"] . "' width='16' height='16'>";
+        $critData = $criticality->getData($row['criticality_id']);
+        $valueCriticality = "<img src='../../img/media/" . $media->getFilename($critData['icon_id'])
+            . "' title='" . $critData['hc_name'] . "' width='16' height='16'>";
         $data[$row['host_id']]['criticality'] = $valueCriticality;
     }
 
@@ -503,6 +490,7 @@ foreach ($records as $row) {
                 ['pdo_info' => $e->errorInfo, 'host_id' => $row['host_id'] ?? null],
                 $e
             );
+
             throw $e;
         }
     }
@@ -524,11 +512,11 @@ $aColorHost = [
     0 => 'host_up',
     1 => 'host_down',
     2 => 'host_unreachable',
-    4 => 'host_pending'
+    4 => 'host_pending',
 ];
 
-$autoRefresh = (isset($preferences['refresh_interval']) && (int)$preferences['refresh_interval'] > 0)
-    ? (int)$preferences['refresh_interval']
+$autoRefresh = (isset($preferences['refresh_interval']) && (int) $preferences['refresh_interval'] > 0)
+    ? (int) $preferences['refresh_interval']
     : 30;
 $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
@@ -555,13 +543,14 @@ try {
     $template->display('table.ihtml');
 } catch (Exception $e) {
     $logger->error(
-        "Error while displaying the host monitoring custom view",
+        'Error while displaying the host monitoring custom view',
         [
             'file' => $e->getFile(),
             'line' => $e->getLine(),
             'exception_type' => $e::class,
-            'exception_message' => $e->getMessage()
+            'exception_message' => $e->getMessage(),
         ]
     );
+
     throw $e;
 }

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,13 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Monitoring\MetaService\Repository\Model;
 
-use Centreon\Domain\Monitoring\Resource;
 use Centreon\Domain\Monitoring\MetaService\Model\MetaServiceMetric;
+use Centreon\Domain\Monitoring\Resource;
 
 /**
  * This class is designed to provide a way to create the MetaServiceMetric entity from the database.
@@ -36,8 +37,8 @@ class MetaServiceMetricFactoryRdb
      * Create a MetaServiceMetric entity from database data.
      *
      * @param array<string, mixed> $data
-     * @return MetaServiceMetric
      * @throws \Assert\AssertionFailedException
+     * @return MetaServiceMetric
      */
     public static function create(array $data): MetaServiceMetric
     {

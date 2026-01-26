@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,9 @@ use Utility\SqlConcatenator;
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use MonitoringServerRepositoryTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -94,7 +96,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -159,13 +161,13 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
      */
     public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array
     {
-         if ($accessGroups === []) {
+        if ($accessGroups === []) {
 
             return [];
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 

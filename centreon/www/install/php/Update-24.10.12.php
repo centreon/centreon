@@ -169,7 +169,6 @@ $alignCMAAgentConfigurationWithNewSchema = function () use ($pearDB, &$errorMess
     }
 };
 
-
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here
@@ -186,7 +185,7 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -196,19 +195,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -53,7 +38,7 @@ require_once $centreon_path . 'www/class/centreonAclLazy.class.php';
 require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 CentreonSession::start(1);
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId']) || !isset($_REQUEST['page'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId']) || ! isset($_REQUEST['page'])) {
     exit;
 }
 
@@ -310,14 +295,12 @@ if (isset($preferences['svc_pending']) && $preferences['svc_pending']) {
     $stateTab[] = 4;
 }
 
-
 if (isset($preferences['hide_down_host']) && $preferences['hide_down_host']) {
     $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' h.state != 1 ');
 }
 if (isset($preferences['hide_unreachable_host']) && $preferences['hide_unreachable_host']) {
     $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' h.state != 2 ');
 }
-
 
 if ($stateTab !== []) {
     $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' s.state IN (' . implode(',', $stateTab) . ')');
@@ -378,11 +361,11 @@ if (isset($preferences['hostgroup']) && $preferences['hostgroup']) {
     }
     $baseQuery = CentreonUtils::conditionBuilder(
         $baseQuery,
-        " s.host_id IN (
+        ' s.host_id IN (
             SELECT host_host_id
-            FROM `" . $conf_centreon['db'] . "`.hostgroup_relation
-            WHERE hostgroup_hg_id IN (" . $queryHG . ")
-        )"
+            FROM `' . $conf_centreon['db'] . '`.hostgroup_relation
+            WHERE hostgroup_hg_id IN (' . $queryHG . ')
+        )'
     );
 }
 if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
@@ -397,14 +380,14 @@ if (isset($preferences['servicegroup']) && $preferences['servicegroup']) {
     }
     $baseQuery = CentreonUtils::conditionBuilder(
         $baseQuery,
-        " s.service_id IN (
+        ' s.service_id IN (
             SELECT DISTINCT service_id
             FROM services_servicegroups
-            WHERE servicegroup_id IN (" . $querySG . ")
-        )"
+            WHERE servicegroup_id IN (' . $querySG . ')
+        )'
     );
 }
-if (!empty($preferences['criticality_filter'])) {
+if (! empty($preferences['criticality_filter'])) {
     $tab = explode(',', $preferences['criticality_filter']);
     $labels = [];
     foreach ($tab as $p) {
@@ -416,7 +399,7 @@ if (!empty($preferences['criticality_filter'])) {
         'cv2.value IN (' . implode(',', $labels) . ')'
     );
 }
-if (isset($preferences['output_search']) && $preferences['output_search'] != "") {
+if (isset($preferences['output_search']) && $preferences['output_search'] != '') {
     $tab = explode(' ', $preferences['output_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
@@ -467,7 +450,7 @@ $allowedOrderColumns = [
     's_notes_url',
     'criticality_id',
     'criticality_level',
-    'icon_image'
+    'icon_image',
 ];
 $allowedDirections = ['ASC', 'DESC'];
 
@@ -573,9 +556,9 @@ foreach ($records as $record) {
     // output
     $data[$dataKey]['output'] = htmlspecialchars(substr($record['output'], 0, $outputLength));
 
-    $kernel = \App\Kernel::createForWeb();
+    $kernel = App\Kernel::createForWeb();
     $resourceController = $kernel->getContainer()->get(
-        \Centreon\Application\Controller\MonitoringResourceController::class
+        Centreon\Application\Controller\MonitoringResourceController::class
     );
     $data[$dataKey]['h_details_uri'] = $useDeprecatedPages
         ? '../../main.php?p=20202&o=hd&host_name=' . $record['hostname']
@@ -599,7 +582,7 @@ foreach ($records as $record) {
     if ($valueHActionUrl) {
         if (preg_match('#^\./(.+)#', $valueHActionUrl, $matches)) {
             $valueHActionUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueHActionUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueHActionUrl)) {
             $valueHActionUrl = '//' . $valueHActionUrl;
         }
 
@@ -617,7 +600,7 @@ foreach ($records as $record) {
     if ($valueHNotesUrl) {
         if (preg_match('#^\./(.+)#', $valueHNotesUrl, $matches)) {
             $valueHNotesUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueHNotesUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueHNotesUrl)) {
             $valueHNotesUrl = '//' . $valueHNotesUrl;
         }
 
@@ -635,7 +618,7 @@ foreach ($records as $record) {
     if ($valueSActionUrl) {
         if (preg_match('#^\./(.+)#', $valueSActionUrl, $matches)) {
             $valueSActionUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueSActionUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueSActionUrl)) {
             $valueSActionUrl = '//' . $valueSActionUrl;
         }
         $valueSActionUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString(
@@ -654,7 +637,7 @@ foreach ($records as $record) {
     if ($valueSNotesUrl) {
         if (preg_match('#^\./(.+)#', $valueSNotesUrl, $matches)) {
             $valueSNotesUrl = '../../' . $matches[1];
-        } elseif (!preg_match($allowedProtocolsRegex, $valueSNotesUrl)) {
+        } elseif (! preg_match($allowedProtocolsRegex, $valueSNotesUrl)) {
             $valueSNotesUrl = '//' . $valueSNotesUrl;
         }
         $valueSNotesUrl = CentreonUtils::escapeSecure($hostObj->replaceMacroInString(
@@ -673,10 +656,10 @@ foreach ($records as $record) {
         $critData = $criticality->getData($record['criticality_id'], 1);
 
         // get criticality icon path
-        $valueCriticalityId = "";
+        $valueCriticalityId = '';
         if (isset($critData['icon_id'])) {
-            $valueCriticalityId = "<img src='../../img/media/" . $media->getFilename($critData['icon_id']) .
-                "' title='" . $critData["sc_name"] . "' width='16' height='16'>";
+            $valueCriticalityId = "<img src='../../img/media/" . $media->getFilename($critData['icon_id'])
+                . "' title='" . $critData['sc_name'] . "' width='16' height='16'>";
         }
 
         $data[$dataKey]['criticality_id'] = $valueCriticalityId;

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ final class FindService
         private ReadAcknowledgementRepositoryInterface $acknowledgementRepository,
         private MonitoringServiceInterface $monitoringService,
         private ReadTagRepositoryInterface $tagRepository,
-        private ReadSeverityRepositoryInterface $severityRepository
+        private ReadSeverityRepositoryInterface $severityRepository,
     ) {
     }
 
@@ -84,7 +84,7 @@ final class FindService
     public function __invoke(
         int $hostId,
         int $serviceId,
-        FindServicePresenterInterface $presenter
+        FindServicePresenterInterface $presenter,
     ): void {
         $this->info('Searching details for service', ['id' => $serviceId]);
 
@@ -198,7 +198,7 @@ final class FindService
         Service $service,
         array $downtimes,
         ?Acknowledgement $acknowledgement,
-        Host $host
+        Host $host,
     ): FindServiceResponse {
         $findServiceResponse = new FindServiceResponse(
             $service->getId(),

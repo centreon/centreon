@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,29 +27,19 @@ class Page
 {
     public const LEGACY_PAGE_BASE_URI = '/main.php?p=';
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $url;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     private $urlOptions;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $pageNumber;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     private $isReact;
 
     public function __construct(int $id, string $url, int $pageNumber, bool $isReact = false)
@@ -91,6 +81,7 @@ class Page
     public function setUrlOptions(?string $urlOptions): self
     {
         $this->urlOptions = $urlOptions;
+
         return $this;
     }
 
@@ -103,7 +94,7 @@ class Page
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     public function isReact(): bool
     {

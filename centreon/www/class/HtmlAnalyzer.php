@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,10 +32,20 @@ class HtmlAnalyzer
 {
     /** @var int */
     private int $index = -1;
+
     /** @var mixed|string */
     private mixed $stringToSanitize;
+
     /** @var int */
     private int $deepTag = 0;
+
+    /**
+     * @param string $stringToSanitize
+     */
+    public function __construct(string $stringToSanitize)
+    {
+        $this->stringToSanitize = $stringToSanitize;
+    }
 
     /**
      * Sanitize and remove html tags
@@ -52,14 +62,6 @@ class HtmlAnalyzer
         $newString = $html->removeHtmlTag();
 
         return str_replace(["'", '"'], ['&#39;', '&#34;'], $newString);
-    }
-
-    /**
-     * @param string $stringToSanitize
-     */
-    public function __construct(string $stringToSanitize)
-    {
-        $this->stringToSanitize = $stringToSanitize;
     }
 
     /**
