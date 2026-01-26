@@ -1,5 +1,6 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const hostName = "New-Host-Name";
 
@@ -37,11 +38,7 @@ When("a host inheriting from a host template", () => {
 });
 
 Then("the user configures the host", () => {
-  cy.navigateTo({
-    page: "Hosts",
-    rootItemNumber: 3,
-    subMenu: "Hosts",
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait("@getTimeZone");
   cy.waitForElementInIframe("#main-content", `input[name="searchH"]`);
   cy.getIframeBody().contains(`${hostName}`).click();
@@ -81,11 +78,7 @@ Then("the user can configure directly its parent template", () => {
 });
 
 When("a host template inheriting from a host template", () => {
-  cy.navigateTo({
-    page: "Templates",
-    rootItemNumber: 3,
-    subMenu: "Hosts",
-  });
+  cy.visit(PAGES.configuration.hostsTemplatesLegacy);
   cy.wait("@getTimeZone");
 });
 

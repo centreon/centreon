@@ -2,14 +2,11 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import {Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import vms from '../../../fixtures/services/virtual-metric.json';
 
-const checkFirstVMFromListing = () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+const checkFirstVmFromListing = () => {
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -52,11 +49,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user adds a virtual metric', () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateVirtualMetric(vms.default, false);
@@ -74,11 +67,7 @@ Then('all properties are saved', () => {
 
 Given('an existing virtual metric', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
-  cy.navigateTo({
-      page: 'Virtual Metrics',
-      rootItemNumber: 1,
-      subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
 });
 
 When('the user changes the properties of the configured virtual metric', () => {
@@ -96,7 +85,7 @@ Then('these properties are updated', () => {
 });
 
 When('the user duplicates the configured virtual metric', () => {
-  checkFirstVMFromListing();
+  checkFirstVmFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
   cy.exportConfig();
@@ -112,7 +101,7 @@ Then('a new virtual metric is created with identical fields', () => {
 });
 
 When('the user deletes the configured virtual metric', () => {
-  checkFirstVMFromListing();
+  checkFirstVmFromListing();
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');
   cy.exportConfig();

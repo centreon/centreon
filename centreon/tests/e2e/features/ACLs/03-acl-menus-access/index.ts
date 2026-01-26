@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/acls/acl-data.json';
 import '../commands';
 
@@ -35,11 +37,7 @@ Given('three ACL access groups have been created', () => {
 });
 
 When('I add a new menu access linked with two groups', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
 
@@ -80,11 +78,7 @@ Then(
   'only chosen linked access groups display the new menu access in Authorized information tab',
   () => {
     Object.entries(data.ACLGroups).forEach((ACLGroup) => {
-      cy.navigateTo({
-        page: 'Access Groups',
-        rootItemNumber: 4,
-        subMenu: 'ACL'
-      });
+      cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
 
       cy.waitForElementInIframe(
         '#main-content',
@@ -125,11 +119,7 @@ Given('one existing ACL Menu access linked with two access groups', () => {
 });
 
 When('I remove one access group', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -148,11 +138,7 @@ When('I remove one access group', () => {
 });
 
 Then('link between access group and Menu access must be broken', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
 
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
@@ -194,11 +180,7 @@ Given('one existing Menu access', () => {
 });
 
 When('I duplicate the Menu access', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -261,11 +243,7 @@ Given('one existing enabled Menu access', () => {
 });
 
 When('I disable it', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains(data.ACLMenu.name).click();
@@ -289,11 +267,7 @@ Then('its status is modified', () => {
 });
 
 When('I delete the Menu access', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -323,11 +297,7 @@ Then(
 );
 
 Then('the link with access groups is broken', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.waitForElementInIframe(
     '#main-content',
     `a:contains("${data.ACLGroups.ACLGroup1.name}")`

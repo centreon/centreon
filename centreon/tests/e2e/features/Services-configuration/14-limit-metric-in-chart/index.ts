@@ -1,5 +1,6 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import vms from '../../../fixtures/services/virtual-metric.json';
 
 const checkFirstVMFromListing = () => {
@@ -48,11 +49,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 Given('many virtual metrics are linked to a configured service', () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Virtual metrics' is visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchVM"]');
@@ -67,11 +64,7 @@ Given('many virtual metrics are linked to a configured service', () => {
 });
 
 When('the user displays the chart in performance page', () => {
-  cy.navigateTo({
-    page: 'Graphs',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.performancesGraphsLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Chart' field is visible in the DOM
   cy.waitForElementInIframe('#main-content', '#select-chart');

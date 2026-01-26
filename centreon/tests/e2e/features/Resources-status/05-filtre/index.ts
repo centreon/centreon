@@ -1,5 +1,6 @@
 import { Given, Then, When } from "@badeball/cypress-cucumber-preprocessor";
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import {
 	checkMetricsAreMonitored,
 	checkServicesAreMonitored,
@@ -172,10 +173,10 @@ Given("a saved critical service filter", () => {
 		setUserFilter(filters),
 	);
 
-	cy.visit("centreon/monitoring/resources").wait([
-		"@getFilters",
-		"@monitoringEndpoint",
-	]);
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
 
 	cy.contains("Unhandled alerts").should("be.visible");
 
@@ -200,10 +201,10 @@ Given("a saved pending host filter", () => {
 		setUserFilter(filters),
 	);
 
-	cy.visit("centreon/monitoring/resources").wait([
-		"@getFilters",
-		"@monitoringEndpoint",
-	]);
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
 
 	cy.contains("Unhandled alerts").should("be.visible");
 
@@ -228,10 +229,10 @@ Given("a saved up host filter", () => {
 		setUserFilter(filters),
 	);
 
-	cy.visit("centreon/monitoring/resources").wait([
-		"@getFilters",
-		"@monitoringEndpoint",
-	]);
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
 
 	cy.contains("Unhandled alerts").should("be.visible");
 
@@ -258,10 +259,10 @@ Given(
 			setUserFilter(filters),
 		);
 
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
 
 		cy.contains("Unhandled alerts").should("be.visible");
 
@@ -300,10 +301,10 @@ Given(
 			setUserFilter(filters),
 		);
 
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
 
 		cy.contains("Unhandled alerts").should("be.visible");
 
@@ -341,10 +342,10 @@ Given("a saved filter that includes Up hosts and Critical services", () => {
 		setUserFilter(filters),
 	);
 
-	cy.visit("centreon/monitoring/resources").wait([
-		"@getFilters",
-		"@monitoringEndpoint",
-	]);
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
 
 	cy.contains("Unhandled alerts").should("be.visible");
 
@@ -382,10 +383,10 @@ Given(
 			setUserFilter(filters),
 		);
 
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
 
 		cy.contains("Unhandled alerts").should("be.visible");
 
@@ -424,10 +425,10 @@ Given("a saved filter that includes a monitoring server with OK status", () => {
 		setUserFilter(filters),
 	);
 
-	cy.visit("centreon/monitoring/resources").wait([
-		"@getFilters",
-		"@monitoringEndpoint",
-	]);
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
+    '@getFilters',
+    '@monitoringEndpoint'
+  ]);
 
 	cy.contains("Unhandled alerts").should("be.visible");
 
@@ -467,10 +468,10 @@ Given(
 			setUserFilter(filters),
 		);
 
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
 
 		cy.contains("Unhandled alerts").should("be.visible");
 
@@ -509,10 +510,10 @@ Given(
 			(filters) => setUserFilter(filters),
 		);
 
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
 
 		cy.contains("Unhandled alerts").should("be.visible");
 
@@ -554,10 +555,10 @@ Given(
 			setUserFilter(filters),
 		);
 
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
 
 		cy.contains("Unhandled alerts").should("be.visible");
 
@@ -599,10 +600,10 @@ Given(
 			setUserFilter(filters),
 		);
 
-		cy.visit("centreon/monitoring/resources").wait([
-			"@getFilters",
-			"@monitoringEndpoint",
-		]);
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
+      '@getFilters',
+      '@monitoringEndpoint'
+    ]);
 
 		cy.contains("Unhandled alerts").should("be.visible");
 
