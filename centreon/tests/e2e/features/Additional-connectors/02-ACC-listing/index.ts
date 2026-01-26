@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import data from '../../../fixtures/additional-configurations/acc.json';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -45,11 +46,7 @@ Given('a non-admin user is logged in', () => {
 });
 
 When('the user clicks on the Additional Connector Configuration page', () => {
-  cy.navigateTo({
-    page: 'Additional Configuration',
-    rootItemNumber: 0,
-    subMenu: 'Connectors'
-  });
+  cy.visit(PAGES.configuration.additionalConfigurations);
 });
 
 Then('the user sees the Additional Connector Configuration page', () => {
@@ -69,7 +66,7 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit('/centreon/configuration/additional-connector-configurations');
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
   }
 );

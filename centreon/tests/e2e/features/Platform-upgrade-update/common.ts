@@ -2,6 +2,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { CopyToContainerContentType } from '@centreon/js-config/cypress/e2e/commands';
 
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
@@ -238,9 +239,7 @@ const installCentreon = (version: string): Cypress.Chainable => {
   }).as('cacheGeneration');
 
   // Step 1
-  cy.visit('/centreon/install/install.php')
-    .get('th.step-wrapper span')
-    .contains(1);
+  cy.visit(PAGES.configuration.install).get('th.step-wrapper span').contains(1);
   cy.get('#next').click();
 
   // Step 2
@@ -612,7 +611,7 @@ Then(
 );
 
 Then('legacy services grid page should still work', () => {
-  cy.visit('/centreon/main.php?p=20204&o=svcOV_pb').wait('@getTimeZone');
+  cy.visit(PAGES.configuration.servicesGridLegacy).wait('@getTimeZone');
 
   cy.waitUntil(() => {
     cy.get('iframe#main-content')
