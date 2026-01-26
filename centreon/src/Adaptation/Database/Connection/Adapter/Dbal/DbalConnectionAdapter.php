@@ -85,7 +85,7 @@ final class DbalConnectionAdapter implements ConnectionInterface
             'charset' => $connectionConfig->getCharset(),
             'driver' => $connectionConfig->getDriver()->value,
         ];
-        $dbalConnectionConfig = $dbalConnectionConfig + DatabaseTLSResolver::getTLSOptions();
+        $dbalConnectionConfig += DatabaseTLSResolver::getTLSOptions();
         try {
             $dbalConnection = DoctrineDbalDriverManager::getConnection($dbalConnectionConfig);
             $dbalConnectionAdapter = new self($dbalConnection, $connectionConfig);

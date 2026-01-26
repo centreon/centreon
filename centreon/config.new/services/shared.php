@@ -33,7 +33,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->autoconfigure();
 
     $services->load('App\\Shared\\', __DIR__ . '/../../src/App/Shared')
-             ->exclude([__DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php']);
+        ->exclude([__DIR__ . '/../../src/App/Shared/Infrastructure/Symfony/Kernel.php']);
 
     $services->set(App\Shared\Infrastructure\Dbal\TLSConnectionFactoryDecorator::class)
         ->decorate('doctrine.dbal.connection_factory')
