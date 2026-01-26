@@ -49,7 +49,7 @@ use Security\Interfaces\EncryptionInterface;
  *  created_by:null|int,
  *  updated_by:null|int,
  *  port?:int,
- *  config_id?:int
+ *  vcenter_id?:int
  * }
  */
 class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccRepositoryInterface
@@ -89,12 +89,11 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
     public function find(int $accId): ?Acc
     {
         $sql = <<<'SQL'
-            SELECT acc.*, conf.port, conf.id as config_id,
+            SELECT acc.*, item.id as vcenter_id,
                    item.name as vcenter_name, item.url as vcenter_url,
                    item.username as vcenter_username, item.password as vcenter_password
             FROM `:db`.`additional_connector_configuration` acc
-            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
-            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
+            LEFT JOIN `:db`.`acc_item` item ON acc.id = item.acc_id
             WHERE acc.`id` = :id
             SQL;
 
@@ -116,12 +115,11 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
     public function findAll(): array
     {
         $sql = <<<'SQL'
-            SELECT acc.*, conf.port, conf.id as config_id,
+            SELECT acc.*, item.id as vcenter_id,
                 item.name as vcenter_name, item.url as vcenter_url,
                 item.username as vcenter_username, item.password as vcenter_password
             FROM `:db`.`additional_connector_configuration` acc
-            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
-            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
+            LEFT JOIN `:db`.`acc_item` item ON acc.id = item.acc_id
             SQL;
 
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -287,12 +285,11 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         [$bindValues, $idsQuery] = $this->createMultipleBindQuery($accIds, ':acc_id_');
 
         $dataRequest = <<<SQL
-            SELECT acc.*, conf.port, conf.id as config_id,
+            SELECT acc.*, item.id as vcenter_id,
                 item.name as vcenter_name, item.url as vcenter_url,
                 item.username as vcenter_username, item.password as vcenter_password
             FROM `:db`.`additional_connector_configuration` acc
-            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
-            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
+            LEFT JOIN `:db`.`acc_item` item ON acc.id = item.acc_id
             WHERE acc.id IN ({$idsQuery})
             ORDER BY acc.id ASC
             SQL;
@@ -457,12 +454,11 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         [$bindValues, $idsQuery] = $this->createMultipleBindQuery($accIds, ':acc_id_');
 
         $dataRequest = <<<SQL
-            SELECT acc.*, conf.port, conf.id as config_id,
+            SELECT acc.*, item.id as vcenter_id,
                 item.name as vcenter_name, item.url as vcenter_url,
                 item.username as vcenter_username, item.password as vcenter_password
             FROM `:db`.`additional_connector_configuration` acc
-            LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
-            LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
+            LEFT JOIN `:db`.`acc_item` item ON acc.id = item.acc_id
             WHERE acc.id IN ({$idsQuery})
             ORDER BY acc.id ASC
             SQL;
@@ -498,12 +494,11 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         $statement = $this->db->prepare($this->translateDbName(
             <<<'SQL'
                 SELECT
-                    acc.*, conf.port, conf.id as config_id,
+                    acc.*, item.id as vcenter_id,
                     item.name as vcenter_name, item.url as vcenter_url,
                     item.username as vcenter_username, item.password as vcenter_password
                 FROM `:db`.`additional_connector_configuration` acc
-                LEFT JOIN `:db`.`acc_configuration` conf ON acc.id = conf.acc_id
-                LEFT JOIN `:db`.`acc_configuration_item` item ON conf.id = item.acc_conf_id
+                LEFT JOIN `:db`.`acc_item` item ON acc.id = item.acc_id
                 JOIN `:db`.`acc_poller_relation` rel
                     ON acc.id = rel.acc_id
                 WHERE rel.poller_id = :poller_id
@@ -575,6 +570,7 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
             }
 
             $vcenters[] = [
+                'id' => $row['vcenter_id'],
                 'name' => $vcenterName,
                 'url' => $vcenterUrl,
                 'username' => $vcenterUsername,

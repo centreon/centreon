@@ -73,28 +73,20 @@ $createAccTables = function () use ($pearDB, &$errorMessage, $version): void {
         message: "UPGRADE - {$version}: [acc] Creating Additional Connector Configuration tables",
     );
 
-    // acc_configuration
+    // Add port column to additional_connector_configuration if not exists
     $pearDB->query(
         <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `acc_configuration` (
-                `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the ACC configuration',
-                `acc_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to additional_connector_configuration',
-                `port` INT UNSIGNED NOT NULL DEFAULT 443 COMMENT 'Port number for VMware connector (default 443)',
-                `created_at` INT NOT NULL COMMENT 'Creation timestamp',
-                `updated_at` INT NOT NULL COMMENT 'Last update timestamp',
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `acc_id_unique` (`acc_id`),
-                FOREIGN KEY (`acc_id`) REFERENCES `additional_connector_configuration`(`id`) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ALTER TABLE `additional_connector_configuration`
+            ADD COLUMN IF NOT EXISTS `port` INT UNSIGNED NOT NULL DEFAULT 443 AFTER `type`;
             SQL
     );
 
-    // acc_configuration_item
+    // acc_item
     $pearDB->query(
         <<<'SQL'
-            CREATE TABLE IF NOT EXISTS `acc_configuration_item` (
+            CREATE TABLE IF NOT EXISTS `acc_item` (
                 `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the vCenter configuration item',
-                `acc_conf_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to acc_configuration',
+                `acc_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to additional_connector_configuration',
                 `name` VARCHAR(255) NOT NULL COMMENT 'Name of the vCenter',
                 `url` VARCHAR(255) NOT NULL COMMENT 'vCenter server URL',
                 `username` VARCHAR(255) NOT NULL COMMENT 'Username for vCenter authentication',
@@ -102,9 +94,9 @@ $createAccTables = function () use ($pearDB, &$errorMessage, $version): void {
                 `created_at` INT NOT NULL COMMENT 'Creation timestamp',
                 `updated_at` INT NOT NULL COMMENT 'Last update timestamp',
                 PRIMARY KEY (`id`),
-                KEY `idx_acc_conf` (`acc_conf_id`),
-                UNIQUE KEY `name_config_unique` (`acc_conf_id`, `name`),
-                FOREIGN KEY (`acc_conf_id`) REFERENCES `acc_configuration`(`id`) ON DELETE CASCADE
+                KEY `idx_acc_id` (`acc_id`),
+                UNIQUE KEY `acc_item_unique` (`acc_id`, `id`),
+                FOREIGN KEY (`acc_id`) REFERENCES `additional_connector_configuration`(`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
             SQL
     );
@@ -121,15 +113,6 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [acc] Starting migration of ACC parameters from JSON to relational tables",
     );
-
-    // initial count
-    $initialCountResult = $pearDB->query(
-        <<<'SQL'
-            SELECT COUNT(*) as count
-            FROM `acc_configuration`
-            SQL
-    )->fetch(PDO::FETCH_ASSOC);
-    $initialCount = (int) $initialCountResult['count'];
 
     // Get all ACC records with JSON parameters
     $statement = $pearDB->query(
@@ -151,17 +134,17 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
             continue;
         }
 
-        // Check if this ACC has already been migrated to acc_configuration
+        // Check if this ACC has already been migrated to acc_item (by acc_id)
         $checkExisting = $pearDB->prepare(
             <<<'SQL'
-                SELECT id FROM `acc_configuration` WHERE acc_id = :acc_id
+                SELECT COUNT(*) FROM `acc_item` WHERE acc_id = :acc_id
                 SQL
         );
         $checkExisting->bindValue(':acc_id', (int) $acc['id'], PDO::PARAM_INT);
         $checkExisting->execute();
-        $existingConfigId = $checkExisting->fetchColumn();
+        $existingCount = (int) $checkExisting->fetchColumn();
 
-        if ($existingConfigId !== false) {
+        if ($existingCount > 0) {
             // Already migrated, just clear the parameters
             CentreonLog::create()->info(
                 logTypeId: CentreonLog::TYPE_UPGRADE,
@@ -191,21 +174,18 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
             continue;
         }
 
-        // Insert into acc_configuration
-        $insertConfig = $pearDB->prepare(
+        // Set port in additional_connector_configuration
+        $updatePort = $pearDB->prepare(
             <<<'SQL'
-                INSERT INTO `acc_configuration` (acc_id, port, created_at, updated_at)
-                VALUES (:acc_id, :port, :created_at, :updated_at)
+                UPDATE `additional_connector_configuration`
+                SET `port` = :port
+                WHERE `id` = :acc_id
                 SQL
         );
+        $updatePort->bindValue(':port', (int) ($parameters['port'] ?? 443), PDO::PARAM_INT);
+        $updatePort->bindValue(':acc_id', (int) $acc['id'], PDO::PARAM_INT);
+        $updatePort->execute();
 
-        $insertConfig->bindValue(':acc_id', (int) $acc['id'], PDO::PARAM_INT);
-        $insertConfig->bindValue(':port', (int) ($parameters['port'] ?? 443), PDO::PARAM_INT);
-        $insertConfig->bindValue(':created_at', (int) $acc['created_at'], PDO::PARAM_INT);
-        $insertConfig->bindValue(':updated_at', (int) $acc['updated_at'], PDO::PARAM_INT);
-        $insertConfig->execute();
-
-        $configId = (int) $pearDB->lastInsertId();
         $migratedCount++;
 
         $clearParams = $pearDB->prepare(
@@ -222,9 +202,9 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
         if (isset($parameters['vcenters']) && is_array($parameters['vcenters'])) {
             $insertVcenter = $pearDB->prepare(
                 <<<'SQL'
-                    INSERT INTO `acc_configuration_item`
-                    (acc_conf_id, name, url, username, password, created_at, updated_at)
-                    VALUES (:acc_conf_id, :name, :url, :username, :password, :created_at, :updated_at)
+                    INSERT INTO `acc_item`
+                    (acc_id, name, url, username, password, created_at, updated_at)
+                    VALUES (:acc_id, :name, :url, :username, :password, :created_at, :updated_at)
                     SQL
             );
 
@@ -242,7 +222,7 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
                     continue;
                 }
 
-                $insertVcenter->bindValue(':acc_conf_id', $configId, PDO::PARAM_INT);
+                $insertVcenter->bindValue(':acc_id', $acc['id'], PDO::PARAM_INT);
                 $insertVcenter->bindValue(':name', $vcenter['name'], PDO::PARAM_STR);
                 $insertVcenter->bindValue(':url', $vcenter['url'], PDO::PARAM_STR);
                 $insertVcenter->bindValue(':username', $vcenter['username'], PDO::PARAM_STR);
@@ -253,40 +233,6 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
                 $vcenterCount++;
             }
         }
-    }
-
-    // Verify migration accounting for existing records (idempotency-safe)
-    $finalCountResult = $pearDB->query(
-        <<<'SQL'
-            SELECT COUNT(*) as count
-            FROM `acc_configuration`
-            SQL
-    )->fetch(PDO::FETCH_ASSOC);
-    $finalCount = (int) $finalCountResult['count'];
-    $expectedCount = $initialCount + $migratedCount;
-
-    if ($finalCount !== $expectedCount) {
-        $leftOutData = array_map(function ($acc) {
-            $params = json_decode($acc['parameters'], true);
-            if (is_array($params) && isset($params['vcenters'])) {
-                foreach ($params['vcenters'] as &$vcenter) {
-                    unset($vcenter['password']);
-                }
-                $acc['parameters'] = json_encode($params);
-            }
-
-            return $acc;
-        }, array_filter($accRecords, function ($acc) use ($leftOutAccs) {
-            return in_array($acc['id'], $leftOutAccs, true);
-        }));
-        CentreonLog::create()->error(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: [acc] Migration verification failed for acc_configuration table",
-            customContext: [
-                'left_out_acc_ids' => $leftOutAccs,
-                'left_out_acc_data' => $leftOutData,
-            ]
-        );
     }
 
     CentreonLog::create()->info(
