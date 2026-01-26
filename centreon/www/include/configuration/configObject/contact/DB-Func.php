@@ -19,7 +19,9 @@
  *
  */
 
+use Adaptation\Database\Connection\Adapter\Pdo\Transformer\PdoParameterTypeTransformer;
 use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Adaptation\Log\LoggerPassword;
@@ -27,6 +29,7 @@ use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\TransformerException;
 use Core\Common\Domain\Exception\ValueObjectException;
 
 if (! isset($centreon)) {
@@ -36,12 +39,15 @@ if (! isset($centreon)) {
 require_once __DIR__ . '/../../../../../bootstrap.php';
 require_once __DIR__ . '/../../../../class/centreonAuth.class.php';
 require_once __DIR__ . '/../../../../class/centreonContact.class.php';
+require_once _CENTREON_PATH_ . '/www/include/common/sqlCommonFunction.php';
 
 /**
- * @param null $name
+ * @param string|null $name
+ * @param bool|null $preventLog
+ * @throws RepositoryException
  * @return bool
  */
-function testContactExistence($name = null)
+function testContactExistence(?string $name = null, ?bool $preventLog = false): bool
 {
     global $pearDB, $form, $centreon;
 
@@ -53,84 +59,156 @@ function testContactExistence($name = null)
     $contactName = $centreon->checkIllegalChar($name);
 
     $query = <<<'SQL'
-        SELECT contact_name, contact_id FROM contact WHERE contact_name = :contact_name
+            SELECT contact_name, contact_id
+            FROM contact
+            WHERE contact_name = :contact_name
         SQL;
 
-    $contact = $pearDB->fetchAssociative(
-        $query,
-        QueryParameters::create([
-            QueryParameter::string('contact_name', $contactName),
-        ])
-    );
+    try {
+        $contact = $pearDB->fetchAssociative(
+            $query,
+            QueryParameters::create([
+                QueryParameter::string('contact_name', $contactName),
+            ])
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        if ($preventLog !== true) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Error while executing testContactExistence: ' . $exception->getMessage(),
+                ['contact_name' => $contactName],
+                exception: $exception,
+            );
+        }
 
-    if ($contact && $contact['contact_id'] === (int) $id) {
+        throw new RepositoryException(
+            'Error while executing testContactExistence',
+            ['contact_name' => $contactName],
+            $exception
+        );
+    }
+
+    if ($contact && $contact['contact_id'] == $id) {
         return true;
     }
 
-    return ! ($contact && $contact['contact_id'] !== (int) $id);
+    return ! ($contact && $contact['contact_id'] != $id);
 }
 
 /**
- * @param null $alias
+ * @param string|null $alias
+ * @param bool|null $preventLog
+ * @throws RepositoryException
  * @return bool
  */
-function testAliasExistence($alias = null)
+function testAliasExistence(?string $alias = null, ?bool $preventLog = false): bool
 {
     global $pearDB, $form;
     $id = null;
     if (isset($form)) {
         $id = $form->getSubmitValue('contact_id');
     }
-    $query = "SELECT contact_alias, contact_id FROM contact WHERE contact_alias = '"
-        . htmlentities($alias, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $contact = $dbResult->fetch();
+    $query = <<<'SQL'
+            SELECT contact_id
+            FROM contact
+            WHERE contact_alias = :contact_alias
+        SQL;
+    try {
+        $contact = $pearDB->fetchAssociative(
+            $query,
+            QueryParameters::create([
+                QueryParameter::string('contact_alias', $alias ?? ''),
+            ]),
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        if ($preventLog !== true) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Error while executing testAliasExistence: ' . $exception->getMessage(),
+                ['contact_alias' => $alias],
+                exception: $exception,
+            );
+        }
 
-    if ($dbResult->rowCount() >= 1 && $contact['contact_id'] == $id) {
+        throw new RepositoryException(
+            'Error while executing testAliasExistence',
+            ['contact_alias' => $alias],
+            $exception,
+        );
+    }
+
+    if ($contact && $contact['contact_id'] == $id) {
         return true;
     }
 
-    return ! ($dbResult->rowCount() >= 1 && $contact['contact_id'] != $id);
+    return ! ($contact && $contact['contact_id'] != $id);
 }
 
 /**
- * @param null $ct_id
+ * @param string|int|null $ct_id
+ * @param bool $log
+ * @throws RepositoryException
  * @return bool
  */
-function keepOneContactAtLeast($ct_id = null)
+function keepOneContactAtLeast(string|int|null $ct_id = null, bool $log = true): bool
 {
     global $pearDB, $form, $centreon;
 
     if (isset($ct_id)) {
-        $contact_id = $ct_id;
+        $contactId = $ct_id;
     } elseif (isset($_GET['contact_id'])) {
-        $contact_id = htmlentities($_GET['contact_id'], ENT_QUOTES, 'UTF-8');
+        $contactId = htmlentities($_GET['contact_id'], ENT_QUOTES, 'UTF-8');
     } else {
-        $contact_id = $form->getSubmitValue('contact_id');
+        $contactId = $form->getSubmitValue('contact_id');
     }
 
     if (isset($form)) {
-        $cct_oreon = $form->getSubmitValue('contact_oreon');
-        $cct_activate = $form->getSubmitValue('contact_activate');
+        $contactOreOn = $form->getSubmitValue('contact_oreon');
+        $contactActivate = $form->getSubmitValue('contact_activate');
     } else {
-        $cct_oreon = 0;
-        $cct_activate = 0;
+        $contactOreOn = 0;
+        $contactActivate = 0;
     }
 
-    if ($contact_id == $centreon->user->get_id()) {
+    if ($contactId == $centreon->user->get_id()) {
         return false;
     }
 
     // Get activated contacts
-    $dbResult = $pearDB->query("SELECT COUNT(*) AS nbr_valid
-            FROM contact
-            WHERE contact_activate = '1'
-            AND contact_oreon = '1'
-            AND contact_id <> '" . $pearDB->escape($contact_id) . "'");
-    $contacts = $dbResult->fetch();
+    $query = <<<'SQL'
+        SELECT COUNT(*) AS nbr_valid
+        FROM contact
+        WHERE contact_activate = '1'
+          AND contact_oreon = '1'
+          AND contact_id <> :contact_id
+        SQL;
 
-    if ($contacts['nbr_valid'] == 0) {
-        if ($cct_oreon == 0 || $cct_activate == 0) {
+    try {
+        $nbr = $pearDB->fetchOne(
+            $query,
+            QueryParameters::create([
+                QueryParameter::int('contact_id', (int) $contactId),
+            ])
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        if ($log) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Error while checking remaining active Centreon contacts: ' . $exception->getMessage(),
+                ['contact_id' => $contactId],
+                exception: $exception,
+            );
+        }
+
+        throw new RepositoryException(
+            'Error while checking remaining active Centreon contacts',
+            ['contact_id' => $contactId],
+            $exception
+        );
+    }
+
+    if ((int) $nbr === 0) {
+        if ($contactOreOn == 0 || $contactActivate == 0) {
             return false;
         }
     }
@@ -154,14 +232,44 @@ function enableContactInDB($contact_id = null, $contact_arr = [])
         $contact_arr = [$contact_id => '1'];
     }
 
-    foreach ($contact_arr as $key => $value) {
-        $pearDB->query("UPDATE contact SET contact_activate = '1' WHERE contact_id = '" . (int) $key . "'");
+    foreach (array_keys($contact_arr) as $contactId) {
+        $updateQuery = <<<'SQL'
+                UPDATE contact
+                SET contact_activate = '1'
+                WHERE contact_id = :contact_id
+            SQL;
+        $selectQuery = <<<'SQL'
+                SELECT contact_name
+                FROM contact
+                WHERE contact_id = :contact_id
+                LIMIT 1
+            SQL;
+        try {
+            $pearDB->update(
+                $updateQuery,
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', (int) $contactId),
+                ])
+            );
+            $row = $pearDB->fetchAssociative(
+                $selectQuery,
+                QueryParameters::create([
+                    QueryParameter::int('contact_id', (int) $contactId),
+                ])
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw new RepositoryException(
+                'Error while enabling contact',
+                ['contact_id' => $contactId],
+                $exception,
+            );
+        }
 
-        $query = "SELECT contact_name FROM `contact` WHERE `contact_id` = '" . (int) $key . "' LIMIT 1";
-        $dbResult2 = $pearDB->query($query);
-        $row = $dbResult2->fetch();
+        if ($row === false) {
+            continue;
+        }
 
-        $centreon->CentreonLogAction->insertLog('contact', $key, $row['contact_name'], 'enable');
+        $centreon->CentreonLogAction->insertLog('contact', $contactId, $row['contact_name'], 'enable');
     }
 }
 
@@ -181,14 +289,45 @@ function disableContactInDB($contact_id = null, $contact_arr = [])
         $contact_arr = [$contact_id => '1'];
     }
 
-    foreach ($contact_arr as $key => $value) {
-        if (keepOneContactAtLeast($key)) {
-            $pearDB->query("UPDATE contact SET contact_activate = '0' WHERE contact_id = '" . (int) $key . "'");
-            $query = "SELECT contact_name FROM `contact` WHERE `contact_id` = '" . (int) $key . "' LIMIT 1";
-            $dbResult2 = $pearDB->query($query);
-            $row = $dbResult2->fetch();
+    foreach (array_keys($contact_arr) as $contactId) {
+        if (keepOneContactAtLeast($contactId)) {
+            $updateQuery = <<<'SQL'
+                    UPDATE contact
+                    SET contact_activate = '0'
+                    WHERE contact_id = :contact_id
+                SQL;
+            $selectQuery = <<<'SQL'
+                    SELECT contact_name
+                    FROM contact
+                    WHERE contact_id = :contact_id
+                    LIMIT 1
+                SQL;
+            try {
+                $pearDB->update(
+                    $updateQuery,
+                    QueryParameters::create([
+                        QueryParameter::int('contact_id', (int) $contactId),
+                    ])
+                );
+                $row = $pearDB->fetchAssociative(
+                    $selectQuery,
+                    QueryParameters::create([
+                        QueryParameter::int('contact_id', (int) $contactId),
+                    ])
+                );
+            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+                throw new RepositoryException(
+                    'Error while disabling contact',
+                    ['contact_id' => $contactId],
+                    $exception,
+                );
+            }
 
-            $centreon->CentreonLogAction->insertLog('contact', $key, $row['contact_name'], 'disable');
+            if ($row === false) {
+                continue;
+            }
+
+            $centreon->CentreonLogAction->insertLog('contact', $contactId, $row['contact_name'], 'disable');
         }
     }
 }
@@ -197,6 +336,7 @@ function disableContactInDB($contact_id = null, $contact_arr = [])
  * Unblock contacts in the database
  *
  * @param int|array<int, string>|null $contact Contact ID, array of contact IDs or null to unblock all contacts
+ * @throws RepositoryException
  */
 function unblockContactInDB(int|array|null $contact = null): void
 {
@@ -206,83 +346,170 @@ function unblockContactInDB(int|array|null $contact = null): void
         return;
     }
 
-    if (is_int($contact)) {
-        $contact = [$contact => '1'];
+    // Normalize input
+    $contactIds = is_int($contact) ? [$contact] : array_map('intval', array_keys($contact));
+
+    if ($contactIds === []) {
+        return;
     }
 
-    $bindContactIds = [];
-    foreach (array_keys($contact) as $contactId) {
-        $bindContactIds[':contact_' . $contactId] = $contactId;
-    }
-    //  implode ids for  IN() clause
-    $idPlaceholders = implode(', ', array_keys($bindContactIds));
-    // retrieve the users and add log
-    $updateQuery = "UPDATE contact SET blocking_time = null WHERE contact_id IN ({$idPlaceholders})";
-    $updateStatement = $pearDB->prepare($updateQuery);
-    foreach ($bindContactIds as $token => $value) {
-        $updateStatement->bindValue($token, $value, PDO::PARAM_INT);
-    }
-    $updateStatement->execute();
-    // retrieve the users and add log
-    $selectQuery = "SELECT contact_id, contact_name FROM contact WHERE contact_id IN ({$idPlaceholders})";
-    $selectStatement = $pearDB->prepare($selectQuery);
-    foreach ($bindContactIds as $token => $value) {
-        $selectStatement->bindValue($token, $value, PDO::PARAM_INT);
-    }
-    $selectStatement->execute();
+    try {
+        // Build IN() clause safely
+        [$inClause, $queryParameters] = createMultipleBindParameters(
+            $contactIds,
+            'contact_id_',
+            QueryParameterTypeEnum::INTEGER,
+        );
 
-    while ($row = $selectStatement->fetch()) {
-        $centreon->CentreonLogAction->insertLog('contact', $row['contact_id'], $row['contact_name'], 'unblock');
+        // Retrieve contacts for logging
+        $selectQuery = <<<SQL
+            SELECT contact_id, contact_name
+            FROM contact
+            WHERE contact_id IN ({$inClause})
+            SQL;
+
+        $contacts = $pearDB->fetchAllAssociative(
+            $selectQuery,
+            $queryParameters
+        );
+
+        // Unblock contacts
+        $updateQuery = <<<SQL
+            UPDATE contact
+            SET blocking_time = NULL
+            WHERE contact_id IN ({$inClause})
+            SQL;
+
+        $pearDB->update(
+            $updateQuery,
+            $queryParameters
+        );
+
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Error while unblocking contacts',
+            ['contact_ids' => $contactIds],
+            $exception
+        );
+    }
+
+    foreach ($contacts as $contact) {
+        $centreon->CentreonLogAction->insertLog(
+            'contact',
+            (int) $contact['contact_id'],
+            $contact['contact_name'],
+            'unblock'
+        );
     }
 }
 
 /**
  * Delete Contacts
  * @param array $contacts
+ * @throws RepositoryException
  */
-function deleteContactInDB($contacts = [])
+function deleteContactInDB(array $contacts = []): void
 {
     global $pearDB, $centreon;
 
-    // getting the contact name for the logs
-    $contactNameStmt = $pearDB->prepare(
-        'SELECT contact_name FROM `contact` WHERE `contact_id` = :contactId LIMIT 1'
-    );
+    if ($contacts === []) {
+        return;
+    }
 
-    $contactTokenStmt = $pearDB->prepare(
-        'SELECT token FROM `security_authentication_tokens` WHERE `user_id` = :contactId'
-    );
-
-    $deleteTokenStmt = $pearDB->prepare(
-        'DELETE FROM `security_token` WHERE `token` = :token'
-    );
-
-    $deleteContactStmt = $pearDB->prepare(
-        'DELETE FROM contact WHERE contact_id = :contactId'
-    );
-
-    $pearDB->beginTransaction();
     try {
-        foreach ($contacts as $key => $value) {
-            $contactNameStmt->bindValue(':contactId', (int) $key, PDO::PARAM_INT);
-            $contactNameStmt->execute();
-            $row = $contactNameStmt->fetch();
+        $ownTransaction = ! $pearDB->isTransactionActive();
+        if ($ownTransaction) {
+            $pearDB->startTransaction();
+        }
 
-            $contactTokenStmt->bindValue(':contactId', (int) $key, PDO::PARAM_INT);
-            $contactTokenStmt->execute();
-            while ($rowContact = $contactTokenStmt->fetch()) {
-                $deleteTokenStmt->bindValue(':token', $rowContact['token'], PDO::PARAM_STR);
-                $deleteTokenStmt->execute();
+        foreach (array_keys($contacts) as $contactId) {
+            $contactId = (int) $contactId;
+
+            $params = QueryParameters::create([
+                QueryParameter::create('contactId', $contactId, QueryParameterTypeEnum::INTEGER),
+            ]);
+
+            $row = $pearDB->fetchAssociative(
+                <<<'SQL'
+                        SELECT contact_name
+                        FROM contact
+                        WHERE contact_id = :contactId
+                        LIMIT 1
+                    SQL,
+                $params
+            );
+            if ($row === false) {
+                continue;
             }
 
-            $deleteContactStmt->bindValue(':contactId', (int) $key, PDO::PARAM_INT);
-            $deleteContactStmt->execute();
+            $contactName = $row['contact_name'];
 
-            $centreon->CentreonLogAction->insertLog('contact', $key, $row['contact_name'], 'd');
+            // Fetch authentication tokens
+            $tokens = $pearDB->fetchAllAssociative(
+                <<<'SQL'
+                    SELECT token
+                    FROM security_authentication_tokens
+                    WHERE user_id = :contactId
+                    SQL,
+                $params
+            );
+
+            // Delete tokens
+            foreach ($tokens as $tokenRow) {
+                $pearDB->delete(
+                    <<<'SQL'
+                        DELETE FROM security_token
+                        WHERE token = :token
+                        SQL,
+                    QueryParameters::create([
+                        QueryParameter::string('token', $tokenRow['token']),
+                    ])
+                );
+            }
+
+            // Delete contact
+            $pearDB->delete(
+                <<<'SQL'
+                    DELETE FROM contact
+                    WHERE contact_id = :contactId
+                    SQL,
+                $params
+            );
+
+            // Log deletion
+            $centreon->CentreonLogAction->insertLog(
+                'contact',
+                $contactId,
+                $contactName,
+                'd'
+            );
         }
-        $pearDB->commit();
-    } catch (PDOException $e) {
-        $pearDB->rollBack();
+
+        if ($ownTransaction) {
+            $pearDB->commitTransaction();
+        }
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        try {
+            if (($ownTransaction ?? false) && $pearDB->isTransactionActive()) {
+                $pearDB->rollBackTransaction();
+            }
+        } catch (ConnectionException $rollbackException) {
+            throw new RepositoryException(
+                'Failed to roll back transaction in deleteContactInDB: ' . $rollbackException->getMessage(),
+                [
+                    'contact_ids' => array_keys($contacts),
+                ],
+                $rollbackException
+            );
+        }
+
+        throw new RepositoryException(
+            'Error while executing deleteContactInDB',
+            [
+                'contact_ids' => array_keys($contacts),
+            ],
+            $exception
+        );
     }
 }
 
@@ -378,161 +605,285 @@ function synchronizeContactWithLdap(array $contacts = []): void
  *
  * @param array $contacts list of contact ids to duplicate
  * @param array $nbrDup Number of duplication per contact id
+ * @throws RepositoryException
  * @return array List of the new contact ids
  */
-function multipleContactInDB($contacts = [], $nbrDup = [])
+function multipleContactInDB($contacts = [], $nbrDup = []): array
 {
     global $pearDB, $centreon;
     $newContactIds = [];
-    foreach ($contacts as $key => $value) {
-        $newContactIds[$key] = [];
-        $statement = $pearDB->prepare(
-            'SELECT `contact`.*, cp.password, cp.creation_date
-            FROM contact
-            LEFT JOIN contact_password cp ON cp.contact_id = contact.contact_id
-            WHERE `contact`.contact_id = :contactId LIMIT 1'
-        );
-        $statement->bindValue(':contactId', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
-        if ($row === false) {
-            return;
+    foreach ($contacts as $contactId => $value) {
+        $contactId = (int) $contactId;
+        $newContactIds[$contactId] = [];
+
+        $selectContactQuery = <<<'SQL'
+            SELECT c.*, cp.password, cp.creation_date
+            FROM contact c
+            LEFT JOIN contact_password cp ON cp.contact_id = c.contact_id
+            WHERE c.contact_id = :contactId
+            LIMIT 1
+            SQL;
+
+        try {
+            $row = $pearDB->fetchAssociative(
+                $selectContactQuery,
+                QueryParameters::create([
+                    QueryParameter::int('contactId', $contactId),
+                ])
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+            throw new RepositoryException(
+                'Error while fetching contact to duplicate',
+                ['contact_id' => $contactId],
+                $exception,
+            );
         }
 
-        $row['contact_id'] = null;
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if (in_array($key2, ['creation_date', 'password']) === false) {
-                    if ($key2 == 'contact_name') {
-                        $contact_name = $value2 . '_' . $i;
-                        $value2 = $value2 . '_' . $i;
-                    }
-                    if ($key2 == 'contact_alias') {
-                        $contact_alias = $value2 . '_' . $i;
-                        $value2 = $value2 . '_' . $i;
-                    }
-                    $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL') : $val
-                        .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                    if ($key2 != 'contact_id') {
-                        $fields[$key2] = $value2;
-                    }
-                    if (isset($contact_name)) {
-                        $fields['contact_name'] = $contact_name;
-                    }
-                    if (isset($contact_alias)) {
-                        $fields['contact_alias'] = $contact_alias;
-                    }
-                }
+        if ($row === false) {
+            continue;
+        }
+
+        $password = $row['password'] ?? null;
+        $creationDate = $row['creation_date'] ?? null;
+
+        // We do not insert these fields into contact table
+        unset($row['password'], $row['creation_date'], $row['contact_id']);
+        $baseInsertData = $row;
+        $columns = array_keys($baseInsertData);
+        $columnSql = implode(', ', array_map(static fn ($column) => '`' . $column . '`', $columns));
+        $placeholders = array_map(static fn ($column) => ':c_' . $column, $columns);
+        $insertQuery = sprintf(
+            'INSERT INTO contact (%s) VALUES (%s)',
+            $columnSql,
+            implode(', ', $placeholders)
+        );
+
+        $dupCount = isset($nbrDup[$contactId]) ? (int) $nbrDup[$contactId] : 0;
+        if ($dupCount <= 0) {
+            continue;
+        }
+
+        for ($i = 1; $i <= $dupCount; $i++) {
+            $insertData = $baseInsertData;
+
+            // Prepare duplicated values
+            $contactName = isset($insertData['contact_name']) ? ((string) $insertData['contact_name'] . '_' . $i) : null;
+            $contactAlias = isset($insertData['contact_alias']) ? ((string) $insertData['contact_alias'] . '_' . $i) : null;
+
+            if ($contactName !== null) {
+                $contactName = $centreon->checkIllegalChar($contactName);
             }
 
-            if (isset($row['contact_name'])) {
-                $row['contact_name'] = $centreon->checkIllegalChar($row['contact_name']);
+            if (! testContactExistence($contactName, true) || ! testAliasExistence($contactAlias, true)) {
+                continue;
             }
 
-            if (testContactExistence($contact_name) && testAliasExistence($contact_alias)) {
-                $rq = $val ? 'INSERT INTO contact VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
-                $lastId = $pearDB->lastInsertId();
-                if (isset($lastId)) {
-                    /**
-                     * Don't insert password for a contact_template.
-                     */
-                    if ($row['password'] !== null) {
-                        $contact = new CentreonContact($pearDB);
-                        $contact->addPasswordByContactId((int) $lastId, $row['password']);
-                        $statement = $pearDB->prepare(
-                            'UPDATE contact_password
+            $insertData['contact_name'] = $contactName;
+            $insertData['contact_alias'] = $contactAlias;
+
+            $queryParameters = [];
+            foreach ($insertData as $col => $value) {
+                $paramName = 'c_' . $col;
+                $queryParameters[] = match (true) {
+                    $value === null => QueryParameter::null($paramName),
+                    is_int($value) => QueryParameter::int($paramName, $value),
+                    is_bool($value) => QueryParameter::bool($paramName, $value),
+                    default => QueryParameter::string($paramName, (string) $value),
+                };
+            }
+
+            try {
+                $pearDB->insert($insertQuery, QueryParameters::create($queryParameters));
+                $lastId = (int) $pearDB->getLastInsertId();
+            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+                throw new RepositoryException(
+                    'Error while inserting duplicated contact',
+                    [
+                        'original_contact_id' => $contactId,
+                        'contact_name' => $contactName,
+                        'contact_alias' => $contactAlias,
+                    ],
+                    $exception,
+                );
+            }
+
+            if ($lastId <= 0) {
+                continue;
+            }
+
+            if ($password !== null) {
+                try {
+                    $contact = new CentreonContact($pearDB);
+                    $contact->addPasswordByContactId($lastId, $password);
+                    if ($creationDate !== null) {
+                        $updateCreationDateQuery = <<<'SQL'
+                            UPDATE contact_password
                             SET creation_date = :creationDate
-                            WHERE contact_id = :contactId'
-                        );
-                        $statement->bindValue(':creationDate', $row['creation_date'], PDO::PARAM_INT);
-                        $statement->bindValue(':contactId', (int) $lastId, PDO::PARAM_INT);
-                        $statement->execute();
-                    }
-                    $newContactIds[$key][] = $lastId;
-                    // ACL update
-                    $query = 'SELECT DISTINCT acl_group_id FROM acl_group_contacts_relations '
-                        . 'WHERE contact_contact_id = ' . (int) $key;
-                    $dbResult = $pearDB->query($query);
-                    $fields['contact_aclRelation'] = '';
-                    $query = 'INSERT INTO acl_group_contacts_relations VALUES (:contact_id, :acl_group_id)';
-                    $statement = $pearDB->prepare($query);
-                    while ($aclRelation = $dbResult->fetch()) {
-                        $statement->bindValue(':contact_id', (int) $lastId, PDO::PARAM_INT);
-                        $statement->bindValue(
-                            ':acl_group_id',
-                            (int) $aclRelation['acl_group_id'],
-                            PDO::PARAM_INT
-                        );
-                        $statement->execute();
-                        $fields['contact_aclRelation'] .= $aclRelation['acl_group_id'] . ',';
-                    }
-                    $fields['contact_aclRelation'] = trim($fields['contact_aclRelation'], ',');
+                            WHERE contact_id = :contactId
+                            SQL;
 
-                    // Command update
-                    $query = 'SELECT DISTINCT command_command_id FROM contact_hostcommands_relation '
-                        . "WHERE contact_contact_id = '" . (int) $key . "'";
-                    $dbResult = $pearDB->query($query);
-                    $fields['contact_hostNotifCmds'] = '';
-                    $query = 'INSERT INTO contact_hostcommands_relation VALUES (:contact_id, :command_command_id)';
-                    $statement = $pearDB->prepare($query);
-                    while ($hostCmd = $dbResult->fetch()) {
-                        $statement->bindValue(':contact_id', (int) $lastId, PDO::PARAM_INT);
-                        $statement->bindValue(
-                            ':command_command_id',
-                            (int) $hostCmd['command_command_id'],
-                            PDO::PARAM_INT
+                        $pearDB->update(
+                            $updateCreationDateQuery,
+                            QueryParameters::create([
+                                QueryParameter::int('creationDate', (int) $creationDate),
+                                QueryParameter::int('contactId', $lastId),
+                            ])
                         );
-                        $statement->execute();
-                        $fields['contact_hostNotifCmds'] .= $hostCmd['command_command_id'] . ',';
                     }
-                    $fields['contact_hostNotifCmds'] = trim($fields['contact_hostNotifCmds'], ',');
-
-                    // Commands update
-                    $query = 'SELECT DISTINCT command_command_id FROM contact_servicecommands_relation '
-                        . "WHERE contact_contact_id = '" . (int) $key . "'";
-                    $dbResult = $pearDB->query($query);
-                    $fields['contact_svNotifCmds'] = '';
-                    $query = 'INSERT INTO contact_servicecommands_relation
-                         VALUES (:contact_id, :command_command_id)';
-                    $statement = $pearDB->prepare($query);
-                    while ($serviceCmd = $dbResult->fetch()) {
-                        $statement->bindValue(':contact_id', (int) $lastId, PDO::PARAM_INT);
-                        $statement->bindValue(
-                            ':command_command_id',
-                            (int) $serviceCmd['command_command_id'],
-                            PDO::PARAM_INT
-                        );
-                        $statement->execute();
-                        $fields['contact_svNotifCmds'] .= $serviceCmd['command_command_id'] . ',';
-                    }
-                    $fields['contact_svNotifCmds'] = trim($fields['contact_svNotifCmds'], ',');
-
-                    // Contact groups
-                    $query = 'SELECT DISTINCT contactgroup_cg_id FROM contactgroup_contact_relation '
-                        . "WHERE contact_contact_id = '" . (int) $key . "'";
-                    $dbResult = $pearDB->query($query);
-                    $fields['contact_cgNotif'] = '';
-                    $query = 'INSERT INTO contactgroup_contact_relation VALUES (:contact_id, :contactgroup_cg_id)';
-                    $statement = $pearDB->prepare($query);
-                    while ($cg = $dbResult->fetch()) {
-                        $statement->bindValue(':contact_id', (int) $lastId, PDO::PARAM_INT);
-                        $statement->bindValue(':contactgroup_cg_id', (int) $cg['contactgroup_cg_id'], PDO::PARAM_INT);
-                        $statement->execute();
-                        $fields['contact_cgNotif'] .= $cg['contactgroup_cg_id'] . ',';
-                    }
-                    $fields['contact_cgNotif'] = trim($fields['contact_cgNotif'], ',');
-                    $centreon->CentreonLogAction->insertLog(
-                        'contact',
-                        $lastId,
-                        $contact_name,
-                        'a',
-                        $fields
+                } catch (Throwable $exception) {
+                    throw new RepositoryException(
+                        'Error while duplicating contact password',
+                        [
+                            'new_contact_id' => $lastId,
+                            'original_contact_id' => $contactId,
+                        ],
+                        $exception,
                     );
                 }
             }
+
+            $newContactIds[$contactId][] = $lastId;
+
+            // --- Copy relations (ACL, host commands, service commands, contact groups) ---
+            $fields = [];
+
+            try {
+                // ACL relations
+                $aclIdsQuery = <<<'SQL'
+                    SELECT DISTINCT acl_group_id
+                    FROM acl_group_contacts_relations
+                    WHERE contact_contact_id = :contactId
+                    SQL;
+
+                $aclRelations = $pearDB->fetchAllAssociative(
+                    $aclIdsQuery,
+                    QueryParameters::create([QueryParameter::int('contactId', $contactId)])
+                );
+
+                $fields['contact_aclRelation'] = '';
+                $insertAclQuery = <<<'SQL'
+                    INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id)
+                    VALUES (:newContactId, :aclGroupId)
+                    SQL;
+
+                foreach ($aclRelations as $aclRelation) {
+                    $pearDB->insert(
+                        $insertAclQuery,
+                        QueryParameters::create([
+                            QueryParameter::int('newContactId', $lastId),
+                            QueryParameter::int('aclGroupId', (int) $aclRelation['acl_group_id']),
+                        ])
+                    );
+                    $fields['contact_aclRelation'] .= $aclRelation['acl_group_id'] . ',';
+                }
+                $fields['contact_aclRelation'] = trim($fields['contact_aclRelation'], ',');
+
+                // Host commands
+                $hostCmdIdsQuery = <<<'SQL'
+                    SELECT DISTINCT command_command_id
+                    FROM contact_hostcommands_relation
+                    WHERE contact_contact_id = :contactId
+                    SQL;
+
+                $hostCmds = $pearDB->fetchAllAssociative(
+                    $hostCmdIdsQuery,
+                    QueryParameters::create([QueryParameter::int('contactId', $contactId)])
+                );
+
+                $fields['contact_hostNotifCmds'] = '';
+                $insertHostCmdQuery = <<<'SQL'
+                    INSERT INTO contact_hostcommands_relation (contact_contact_id, command_command_id)
+                    VALUES (:newContactId, :commandId)
+                    SQL;
+
+                foreach ($hostCmds as $hostCmd) {
+                    $pearDB->insert(
+                        $insertHostCmdQuery,
+                        QueryParameters::create([
+                            QueryParameter::int('newContactId', $lastId),
+                            QueryParameter::int('commandId', (int) $hostCmd['command_command_id']),
+                        ])
+                    );
+                    $fields['contact_hostNotifCmds'] .= $hostCmd['command_command_id'] . ',';
+                }
+                $fields['contact_hostNotifCmds'] = trim($fields['contact_hostNotifCmds'], ',');
+
+                // Service commands
+                $svcCmdIdsQuery = <<<'SQL'
+                    SELECT DISTINCT command_command_id
+                    FROM contact_servicecommands_relation
+                    WHERE contact_contact_id = :contactId
+                    SQL;
+
+                $svcCmds = $pearDB->fetchAllAssociative(
+                    $svcCmdIdsQuery,
+                    QueryParameters::create([QueryParameter::int('contactId', $contactId)])
+                );
+
+                $fields['contact_svNotifCmds'] = '';
+                $insertSvcCmdQuery = <<<'SQL'
+                    INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id)
+                    VALUES (:newContactId, :commandId)
+                    SQL;
+
+                foreach ($svcCmds as $svcCmd) {
+                    $pearDB->insert(
+                        $insertSvcCmdQuery,
+                        QueryParameters::create([
+                            QueryParameter::int('newContactId', $lastId),
+                            QueryParameter::int('commandId', (int) $svcCmd['command_command_id']),
+                        ])
+                    );
+                    $fields['contact_svNotifCmds'] .= $svcCmd['command_command_id'] . ',';
+                }
+                $fields['contact_svNotifCmds'] = trim($fields['contact_svNotifCmds'], ',');
+
+                // Contact groups
+                $cgIdsQuery = <<<'SQL'
+                    SELECT DISTINCT contactgroup_cg_id
+                    FROM contactgroup_contact_relation
+                    WHERE contact_contact_id = :contactId
+                    SQL;
+
+                $cgs = $pearDB->fetchAllAssociative(
+                    $cgIdsQuery,
+                    QueryParameters::create([QueryParameter::int('contactId', $contactId)])
+                );
+
+                $fields['contact_cgNotif'] = '';
+                $insertCgQuery = <<<'SQL'
+                    INSERT INTO contactgroup_contact_relation (contact_contact_id, contactgroup_cg_id)
+                    VALUES (:newContactId, :cgId)
+                    SQL;
+
+                foreach ($cgs as $cg) {
+                    $pearDB->insert(
+                        $insertCgQuery,
+                        QueryParameters::create([
+                            QueryParameter::int('newContactId', $lastId),
+                            QueryParameter::int('cgId', (int) $cg['contactgroup_cg_id']),
+                        ])
+                    );
+                    $fields['contact_cgNotif'] .= $cg['contactgroup_cg_id'] . ',';
+                }
+                $fields['contact_cgNotif'] = trim($fields['contact_cgNotif'], ',');
+
+            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+                throw new RepositoryException(
+                    'Error while duplicating contact relations',
+                    ['original_contact_id' => $contactId, 'new_contact_id' => $lastId],
+                    $exception
+                );
+            }
+
+            // Log (same behavior)
+            $centreon->CentreonLogAction->insertLog(
+                'contact',
+                $lastId,
+                (string) $contactName,
+                'a',
+                $fields
+            );
         }
     }
 
@@ -540,6 +891,9 @@ function multipleContactInDB($contacts = [], $nbrDup = [])
 }
 
 /**
+ * @param mixed $contact_id
+ * @param bool $from_MC
+ * @param bool $isRemote
  * @throws RepositoryException
  */
 function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRemote = false): void
@@ -614,78 +968,130 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
 
 /**
  * @param array $ret
- * @return mixed
+ * @throws RepositoryException
+ * @return int
  */
-function insertContactInDB($ret = [])
+function insertContactInDB(array $ret = []): int
 {
-    $contact_id = insertContact($ret);
-    updateContactHostCommands($contact_id, $ret);
-    updateContactServiceCommands($contact_id, $ret);
-    updateContactContactGroup($contact_id, $ret);
-    updateAccessGroupLinks($contact_id);
+    $contactId = insertContact($ret);
+    updateContactHostCommands($contactId, $ret);
+    updateContactServiceCommands($contactId, $ret);
+    updateContactContactGroup($contactId, $ret);
+    updateAccessGroupLinks($contactId);
 
-    return $contact_id;
+    return $contactId;
 }
 
 /**
  * @param array $ret
- * @return mixed
+ * @throws RepositoryException
+ * @return int
  */
-function insertContact($ret = [])
+function insertContact(array $ret = []): int
 {
-    global $form, $pearDB, $centreon, $dependencyInjector;
+    global $form, $pearDB, $centreon;
 
-    if (! count($ret)) {
+    if ($ret === []) {
         $ret = $form->getSubmitValues();
     }
+
     $ret['contact_name'] = $centreon->checkIllegalChar($ret['contact_name']);
-    if (isset($ret['contact_oreon']['contact_oreon']) && $ret['contact_oreon']['contact_oreon'] === '1') {
+
+    if (
+        isset($ret['contact_oreon']['contact_oreon'])
+        && $ret['contact_oreon']['contact_oreon'] === '1'
+    ) {
         $ret['reach_api_rt']['reach_api_rt'] = '1';
     }
-    // Filter fields to only include whitelisted fields for non-admin users
+
     if (! $centreon->user->admin) {
         $ret = filterNonAdminFields($ret);
     }
 
-    $bindParams = sanitizeFormContactParameters($ret);
-    $params = [];
-    foreach (array_keys($bindParams) as $token) {
-        $params[] = ltrim($token, ':');
+    try {
+        $bindParams = sanitizeFormContactParameters($ret);
+    } catch (InvalidArgumentException $exception) {
+        throw new RepositoryException(
+            'Error while sanitizing contact parameters during insertContact',
+            ['contact_name' => $ret['contact_name'] ?? null],
+            $exception,
+        );
     }
-    $rq = 'INSERT INTO `contact` ( contact_id, ';
-    $rq .= implode(', ', $params) . ')';
-    $rq .= ' VALUES (NULL, ' . implode(', ', array_keys($bindParams)) . ' )';
 
-    $stmt = $pearDB->prepare($rq);
-    foreach ($bindParams as $token => $bindValues) {
-        foreach ($bindValues as $paramType => $value) {
-            $stmt->bindValue($token, $value, $paramType);
+    try {
+        $columns = [];
+        foreach (array_keys($bindParams) as $token) {
+            $columns[] = ltrim($token, ':');
         }
+
+        $insertQuery = sprintf(
+            'INSERT INTO contact (%s) VALUES (%s)',
+            implode(', ', $columns),
+            implode(', ', array_keys($bindParams))
+        );
+
+        $stmtParams = [];
+        foreach ($bindParams as $token => $values) {
+            foreach ($values as $type => $value) {
+                $stmtParams[] = QueryParameter::create(
+                    ltrim($token, ':'),
+                    $value,
+                    PdoParameterTypeTransformer::reverseToQueryParameterType($type),
+                );
+            }
+        }
+
+        $pearDB->insert(
+            $insertQuery,
+            QueryParameters::create($stmtParams),
+        );
+
+        $contactId = (int) $pearDB->getLastInsertId();
+        if ($contactId <= 0) {
+            throw new RepositoryException('Failed to retrieve inserted contact ID');
+        }
+    } catch (
+        ValueObjectException|CollectionException
+        |ConnectionException|TransformerException $exception
+    ) {
+        throw new RepositoryException(
+            'Database error while inserting contact',
+            ['contact_name' => $ret['contact_name'] ?? null],
+            $exception,
+        );
     }
 
-    $stmt->execute();
-    $dbResult = $pearDB->query('SELECT MAX(contact_id) FROM contact');
-    $contactId = $dbResult->fetch();
+    if (! empty($ret['contact_passwd'])) {
+        try {
+            $hashed = password_hash(
+                $ret['contact_passwd'],
+                CentreonAuth::PASSWORD_HASH_ALGORITHM,
+            );
+            $ret['contact_passwd'] = $hashed;
+            $ret['contact_passwd2'] = $hashed;
 
-    if (isset($ret['contact_passwd']) && ! empty($ret['contact_passwd'])) {
-        $ret['contact_passwd'] = password_hash($ret['contact_passwd'], CentreonAuth::PASSWORD_HASH_ALGORITHM);
-        $ret['contact_passwd2'] = $ret['contact_passwd'];
-
-        $contact = new CentreonContact($pearDB);
-        $contact->addPasswordByContactId($contactId['MAX(contact_id)'], $ret['contact_passwd']);
+            $contact = new CentreonContact($pearDB);
+            $contact->addPasswordByContactId($contactId, $hashed);
+        } catch (Throwable $exception) {
+            throw new RepositoryException(
+                'Error while inserting contact password',
+                ['contact_id' => $contactId],
+                $exception,
+            );
+        }
     }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         'contact',
-        $contactId['MAX(contact_id)'],
+        $contactId,
         $ret['contact_name'],
         'a',
         $fields
     );
 
-    return $contactId['MAX(contact_id)'];
+    return $contactId;
 }
 
 /**
@@ -931,7 +1337,7 @@ function updateContactHostCommands(int $contactId, array $fields = []): bool
         return true;
     } catch (Throwable $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and host commands',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -949,15 +1355,11 @@ function updateContactHostCommands_MC(int $contactId): bool
 {
     global $form, $pearDB;
 
-    $kernel = Kernel::createForWeb();
-
-    /** @var Logger $logger */
-    $logger = $kernel->getContainer()->get(Logger::class);
-
     if ($contactId <= 0) {
-        $logger->error(
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_BUSINESS_LOG,
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
-            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId],
         );
 
         return false;
@@ -970,27 +1372,43 @@ function updateContactHostCommands_MC(int $contactId): bool
     }
 
     try {
-        $query = "SELECT command_command_id FROM contact_hostcommands_relation WHERE contact_contact_id = {$contactId}";
-        $hostCommandIdsFromDb = $pearDB->executeQueryFetchColumn($query);
+        $existingIds = $pearDB->fetchFirstColumn(
+            <<<'SQL'
+                    SELECT command_command_id
+                    FROM contact_hostcommands_relation
+                    WHERE contact_contact_id = :contactId
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('contactId', $contactId),
+            ])
+        );
 
-        $query = 'INSERT INTO contact_hostcommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)';
-        $pdoSth = $pearDB->prepareQuery($query);
+        $insertQuery = <<<'SQL'
+                INSERT INTO contact_hostcommands_relation
+                    (contact_contact_id, command_command_id)
+                VALUES (:contactId, :commandId)
+            SQL;
+
         foreach ($hostCommandIdsFromForm as $commandId) {
-            if (! in_array($commandId, $hostCommandIdsFromDb, false)) {
-                $pearDB->executePreparedQuery(
-                    $pdoSth,
-                    ['contact_id' => $contactId, 'command_id' => (int) $commandId]
+            $commandId = (int) $commandId;
+            if (! in_array($commandId, $existingIds, true)) {
+                $pearDB->insert(
+                    $insertQuery,
+                    QueryParameters::create([
+                        QueryParameter::int('contactId', $contactId),
+                        QueryParameter::int('commandId', $commandId),
+                    ])
                 );
             }
         }
 
         return true;
-    } catch (CentreonDbException $e) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error while updating the relationship between contacts and host commands by massive change',
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'Error while updating contact host commands by massive change',
             ['contact_id' => $contactId],
-            $e
+            $exception
         );
 
         return false;
@@ -1046,7 +1464,7 @@ function updateContactServiceCommands(int $contactId, array $fields = []): bool
         return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and service commands',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -1065,15 +1483,11 @@ function updateContactServiceCommands_MC(int $contactId): bool
 {
     global $form, $pearDB;
 
-    $kernel = Kernel::createForWeb();
-
-    /** @var Logger $logger */
-    $logger = $kernel->getContainer()->get(Logger::class);
-
     if ($contactId <= 0) {
-        $logger->error(
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_BUSINESS_LOG,
             "contactId must be an integer greater than 0, given value for contactId : {$contactId}",
-            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId]
+            ['file' => __FILE__, 'line' => __LINE__, 'function' => __FUNCTION__, 'contactId' => $contactId],
         );
 
         return false;
@@ -1086,27 +1500,43 @@ function updateContactServiceCommands_MC(int $contactId): bool
     }
 
     try {
-        $query = "SELECT command_command_id FROM contact_servicecommands_relation WHERE contact_contact_id = {$contactId}";
-        $serviceCommandsFromDb = $pearDB->executeQueryFetchColumn($query);
+        $existingIds = $pearDB->fetchFirstColumn(
+            <<<'SQL'
+                    SELECT command_command_id
+                    FROM contact_servicecommands_relation
+                    WHERE contact_contact_id = :contactId
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('contactId', $contactId),
+            ])
+        );
 
-        $query = 'INSERT INTO contact_servicecommands_relation (contact_contact_id, command_command_id) VALUES (:contact_id, :command_id)';
-        $pdoSth = $pearDB->prepareQuery($query);
+        $insertQuery = <<<'SQL'
+                INSERT INTO contact_servicecommands_relation
+                    (contact_contact_id, command_command_id)
+                VALUES (:contactId, :commandId)
+            SQL;
+
         foreach ($serviceCommandsFromForm as $commandId) {
-            if (! in_array($commandId, $serviceCommandsFromDb, false)) {
-                $pearDB->executePreparedQuery(
-                    $pdoSth,
-                    ['contact_id' => $contactId, 'command_id' => (int) $commandId]
+            $commandId = (int) $commandId;
+            if (! in_array($commandId, $existingIds, true)) {
+                $pearDB->insert(
+                    $insertQuery,
+                    QueryParameters::create([
+                        QueryParameter::int('contactId', $contactId),
+                        QueryParameter::int('commandId', $commandId),
+                    ])
                 );
             }
         }
 
         return true;
-    } catch (CentreonDbException $e) {
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error while updating the relationship between contacts and service commands',
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'Error while updating contact service commands by massive change',
             ['contact_id' => $contactId],
-            $e
+            $exception
         );
 
         return false;
@@ -1177,7 +1607,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): bool
         }
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and contact groups',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -1190,7 +1620,7 @@ function updateContactContactGroup(int $contactId, array $fields = []): bool
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}",
             ['contact_id' => $contactId],
             $e
@@ -1247,7 +1677,7 @@ function updateContactContactGroup_MC(int $contactId): bool
         }
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and contact groups by massive change',
             ['contact_id' => $contactId],
             $e
@@ -1260,7 +1690,7 @@ function updateContactContactGroup_MC(int $contactId): bool
         CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $contactId);
     } catch (Exception $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             "CentreonCustomView::syncContactGroupCustomView failed with contact_id : {$contactId}",
             ['contact_id' => $contactId],
             $e
@@ -1274,6 +1704,7 @@ function updateContactContactGroup_MC(int $contactId): bool
 
 /**
  * @param array $tmpContacts
+ * @throws RepositoryException
  * @return bool
  */
 function insertLdapContactInDB($tmpContacts = [])
@@ -1295,7 +1726,7 @@ function insertLdapContactInDB($tmpContacts = [])
 
         if (
             isset($tmpContacts['contact_name'][$select_key])
-            && testContactExistence($tmpContacts['contact_name'][$select_key])
+            && testContactExistence($tmpContacts['contact_name'][$select_key], true)
         ) {
             $tmpConf['contact_name'] = $tmpContacts['contact_name'][$select_key];
             $tmpConf['contact_alias'] = $tmpContacts['contact_alias'][$select_key];
@@ -1437,7 +1868,7 @@ function updateAccessGroupLinks(int $contactId, array $fields = []): bool
         }
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and acl groups',
             ['contact_id' => $contactId, 'fields' => $fields],
             $e
@@ -1500,7 +1931,7 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): bool
         return true;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
+            CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and acl groups by massive change',
             ['contact_id' => $contactId, 'flag' => $flag],
             $e
@@ -1514,26 +1945,43 @@ function updateAccessGroupLinks_MC(int $contactId, $flag): bool
  * Get contact ID by name
  *
  * @param string $name
+ * @throws RepositoryException
  * @return int
  */
-function getContactIdByName($name)
+function getContactIdByName($name): int
 {
     global $pearDB;
 
-    $id = 0;
-    $res = $pearDB->query("SELECT contact_id FROM contact WHERE contact_name = '" . $pearDB->escape($name) . "'");
-    if ($res->rowCount()) {
-        $row = $res->fetch();
-        $id = $row['contact_id'];
+    $query = <<<'SQL'
+        SELECT contact_id
+        FROM contact
+        WHERE contact_name = :contact_name
+        LIMIT 1
+        SQL;
+
+    try {
+        $row = $pearDB->fetchAssociative(
+            $query,
+            QueryParameters::create([
+                QueryParameter::string('contact_name', $name),
+            ])
+        );
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        throw new RepositoryException(
+            'Error while fetching contact id by name',
+            ['contact_name' => $name],
+            $exception
+        );
     }
 
-    return $id;
+    return $row !== false ? (int) $row['contact_id'] : 0;
 }
 
 /**
  * Sanitize all the contact parameters from the contact form and return a ready to bind array.
  *
  * @param array $ret
+ * @throws InvalidArgumentException
  * @return array
  */
 function sanitizeFormContactParameters(array $ret): array
@@ -1542,6 +1990,14 @@ function sanitizeFormContactParameters(array $ret): array
     $bindParams = [];
     $bindParams[':contact_host_notification_options'] = [PDO::PARAM_STR => null];
     $bindParams[':contact_service_notification_options'] = [PDO::PARAM_STR => null];
+
+    // Local sanitizer
+    $sanitize = static function (?string $value): string {
+        return HtmlSanitizer::createFromString($value ?? '')
+            ->removeTags()
+            ->sanitize()
+            ->getString();
+    };
 
     foreach ($ret as $inputName => $inputValue) {
         switch ($inputName) {
@@ -1569,13 +2025,13 @@ function sanitizeFormContactParameters(array $ret): array
                 ];
                 break;
             case 'contact_hostNotifOpts':
-                $inputValue = HtmlAnalyzer::sanitizeAndRemoveTags(implode(',', array_keys($inputValue)));
+                $inputValue = $sanitize(implode(',', array_keys($inputValue)));
                 if (! empty($inputValue)) {
                     $bindParams[':contact_host_notification_options'] = [PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'contact_svNotifOpts':
-                $inputValue = HtmlAnalyzer::sanitizeAndRemoveTags(implode(',', array_keys($inputValue)));
+                $inputValue = $sanitize(implode(',', array_keys($inputValue)));
                 if (! empty($inputValue)) {
                     $bindParams[':contact_service_notification_options'] = [PDO::PARAM_STR => $inputValue];
                 }
@@ -1632,7 +2088,7 @@ function sanitizeFormContactParameters(array $ret): array
                 break;
             case 'contact_lang':
                 if (! empty($inputValue)) {
-                    $inputValue = HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
+                    $inputValue = $sanitize((string) $inputValue);
                     $bindParams[':' . $inputName] = empty($inputValue) ? [PDO::PARAM_STR => 'browser'] : [PDO::PARAM_STR => $inputValue];
                 }
                 break;
@@ -1645,20 +2101,17 @@ function sanitizeFormContactParameters(array $ret): array
                 break;
             case 'contact_auth_type':
                 if (! empty($inputValue)) {
-                    $inputValue = HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
+                    $inputValue = $sanitize((string) $inputValue);
                     $bindParams[':' . $inputName] = empty($inputValue) ? [PDO::PARAM_STR => 'local'] : [PDO::PARAM_STR => $inputValue];
                 }
                 break;
             case 'contact_alias':
             case 'contact_name':
-                if (
-                    $inputValue = HtmlAnalyzer::sanitizeAndRemoveTags($inputValue ?? '')
-                ) {
-                    if (! empty($inputValue)) {
-                        $bindParams[':' . $inputName] = [PDO::PARAM_STR => $inputValue];
-                    } else {
-                        throw new InvalidArgumentException('Bad Parameter');
-                    }
+                $inputValue = $sanitize((string) $inputValue);
+                if (! empty($inputValue)) {
+                    $bindParams[':' . $inputName] = [PDO::PARAM_STR => $inputValue];
+                } else {
+                    throw new InvalidArgumentException('Bad Parameter');
                 }
                 break;
             case 'contact_autologin_key':
@@ -1673,7 +2126,7 @@ function sanitizeFormContactParameters(array $ret): array
             case 'contact_address5':
             case 'contact_address6':
                 if (
-                    ($inputValue = HtmlAnalyzer::sanitizeAndRemoveTags($inputValue ?? '')) !== false
+                    ($inputValue = $sanitize((string) $inputValue)) !== ''
                 ) {
                     $bindParams[':' . $inputName] = [PDO::PARAM_STR => $inputValue];
                 }
