@@ -78,6 +78,7 @@ const useExportCsv = ({
   const getCurrentFilterParameters = () => {
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
+
     const queryParameters = [
       {
         name: 'host_category_names',
@@ -103,8 +104,13 @@ const useExportCsv = ({
       {
         name: 'host_severity_names',
         value: getCriteriaNames('host_severities')
+      },
+      {
+        name: 'states',
+        value: getCriteriaIds('states')
       }
     ];
+
 
     const filtersParameters = {
       search: {
