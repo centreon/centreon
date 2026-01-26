@@ -3,7 +3,7 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
@@ -32,7 +32,7 @@ interface TestWrapperProps {
 const TestWrapper = ({
   initialDate = null,
   label = 'test-date'
-}: TestWrapperProps) => {
+}: TestWrapperProps): JSX.Element => {
   const [date, setDate] = useState<Date | null>(initialDate);
   const [displayCalendar, setDisplayCalendar] = useState(true);
 
@@ -55,7 +55,7 @@ const TestWrapper = ({
   );
 };
 
-const initialize = (args) => {
+const initialize = (args): void => {
   // Create a store with consistent locale settings
   const store = createStore();
   store.set(userAtom, {

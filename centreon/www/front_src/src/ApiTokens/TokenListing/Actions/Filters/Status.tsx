@@ -18,8 +18,8 @@ import { filtersAtom } from '../../atoms';
 import { useStyles } from './Filters.styles';
 
 const Status = (): JSX.Element => {
-  const { t } = useTranslation();
   const { classes } = useStyles();
+  const { t } = useTranslation();
 
   const [filters, setFilters] = useAtom(filtersAtom);
 

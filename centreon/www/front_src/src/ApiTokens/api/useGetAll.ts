@@ -11,6 +11,11 @@ interface UseGetAllProps {
   sortOrder: string;
 }
 
+interface Props {
+  data;
+  isLoading: boolean;
+}
+
 const useGetAll = ({
   sortField,
   sortOrder,
@@ -20,7 +25,7 @@ const useGetAll = ({
   baseEndpoint,
   decoder,
   queryKey
-}: UseGetAllProps) => {
+}: UseGetAllProps): Props => {
   const sort = { [sortField]: sortOrder };
 
   const { data, isFetching } = useFetchQuery({

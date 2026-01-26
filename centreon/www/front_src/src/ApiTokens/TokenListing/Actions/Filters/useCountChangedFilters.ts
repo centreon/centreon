@@ -4,7 +4,7 @@ import { equals, filter, length, pipe, toPairs } from 'ramda';
 import { filtersAtom } from '../../atoms';
 import { filtersInitialValues } from '../../utils';
 
-const countDifferences = (defaultValues, values) =>
+const countDifferences = (defaultValues, values): number =>
   pipe(
     toPairs,
     filter(([key, val]) => !equals(val, values[key])),

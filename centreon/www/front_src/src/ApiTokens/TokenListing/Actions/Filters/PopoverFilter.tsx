@@ -14,8 +14,8 @@ import { useStyles } from './Filters.styles';
 import useCountChangedFilters from './useCountChangedFilters';
 
 const PopoverFilter = (): JSX.Element => {
-  const { t } = useTranslation();
   const { classes } = useStyles();
+  const { t } = useTranslation();
 
   const { changedFiltersCount } = useCountChangedFilters();
 
