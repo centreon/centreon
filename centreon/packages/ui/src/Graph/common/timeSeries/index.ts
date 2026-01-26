@@ -135,7 +135,9 @@ const toLine = ({
     ...defaultDsData,
     ...(ds_data || {}),
     ds_color_area:
-      ds_data?.ds_color_area ?? ds_data?.ds_color_line ?? defaultDsData.ds_color_line
+      ds_data?.ds_color_area ??
+      ds_data?.ds_color_line ??
+      defaultDsData.ds_color_line
   };
 
   return {
@@ -628,7 +630,7 @@ const formatMetricValue = ({
 
   const formattedMetricValue = numeral(Math.abs(value))
     .format(`0.[00]${formatSuffix}`)
-    .replace(/iB/g, unit);
+    .replace(/B/, unit);
 
   if (lt(value, 0)) {
     return `-${formattedMetricValue}`;
