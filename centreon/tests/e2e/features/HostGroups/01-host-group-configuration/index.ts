@@ -1,6 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import hostGroups from '../../../fixtures/hostGroups/hostGroup.json';
 
 const services = {
@@ -32,11 +33,7 @@ const resultsToSubmit = [
 ];
 
 const checkFirstHostGroupFromListing = () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
@@ -114,11 +111,7 @@ When('a host group is configured', () => {
 });
 
 When('the user changes some properties of the configured host group', () => {
-  cy.navigateTo({
-    page: 'Host Groups',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(hostGroups.default.name).click();
 

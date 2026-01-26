@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -17,11 +18,7 @@ afterEach(() => {
 });
 
 const checkCreatedContactFromListing = () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(5).click();
   cy.getIframeBody()

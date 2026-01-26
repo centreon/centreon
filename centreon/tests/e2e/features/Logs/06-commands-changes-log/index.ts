@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import commands from '../../../fixtures/commands/command.json';
 
 beforeEach(() => {
@@ -37,11 +38,7 @@ Then(
   (type: string) => {
     switch (type) {
       case 'NOTIFICATION': {
-        cy.navigateTo({
-          page: 'Notifications',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
+        cy.visit(PAGES.configuration.commandsNotificationLegacy);
         cy.wait('@getTimeZone');
         cy.waitForElementInIframe(
           '#main-content',
@@ -53,11 +50,7 @@ Then(
         break;
       }
       case 'CHECK': {
-        cy.navigateTo({
-          page: 'Checks',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
+        cy.visit(PAGES.configuration.commandsChecksLegacy);
         cy.wait('@getTimeZone');
         cy.waitForElementInIframe(
           '#main-content',
@@ -69,11 +62,7 @@ Then(
         break;
       }
       case 'MISCELLANEOUS': {
-        cy.navigateTo({
-          page: 'Miscellaneous',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
+        cy.visit(PAGES.configuration.commandsMiscellaneousLegacy);
         cy.wait('@getTimeZone');
         cy.waitForElementInIframe(
           '#main-content',
@@ -85,11 +74,7 @@ Then(
         break;
       }
       case 'DISCOVERY': {
-        cy.navigateTo({
-          page: 'Discovery',
-          rootItemNumber: 3,
-          subMenu: 'Commands'
-        });
+        cy.visit(PAGES.configuration.commandsDiscoveryLegacy);
         cy.wait('@getTimeZone');
         cy.waitForElementInIframe(
           '#main-content',
@@ -109,10 +94,7 @@ Then(
 Then(
   'a new "Added" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import traps from '../../../fixtures/snmp-traps/snmp-trap.json';
 import data from '../../../fixtures/snmp-traps/vendor.json';
 import { addOrUpdateVendor, checkVendorFieldsValues } from '../common';
@@ -52,11 +53,7 @@ Given('a user is logged in Centreon', () => {
 });
 
 When('the user goes to "Configuration > SNMP Traps > Manufacturer"', () => {
-  cy.navigateTo({
-    page: 'Manufacturer',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsManufacturerLegacy);
 });
 
 When('the user adds a new vendor', () => {
@@ -70,11 +67,7 @@ Then('the vendor configuration is added to the listing page', () => {
 });
 
 Given('a vendor {string} is configured', (step) => {
-  cy.navigateTo({
-    page: 'Manufacturer',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsManufacturerLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
@@ -156,11 +149,7 @@ Then('the deleted object is not displayed in the list', () => {
 
 Given('a passive service is linked to the vendor', () => {
   cy.setPassiveResource('/centreon/api/latest/configuration/services/27');
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(services.serviceOk.name).click();
   cy.waitForElementInIframe('#main-content', 'a:contains("Relations")');
@@ -178,11 +167,7 @@ Given('a passive service is linked to the vendor', () => {
 });
 
 Given('an SNMP Trap is linked to the vendor', () => {
-  cy.navigateTo({
-    page: 'SNMP Traps',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="searchT"]');
   cy.getIframeBody().contains('a', 'Add').click();
@@ -208,11 +193,7 @@ Given('an SNMP Trap is linked to the vendor', () => {
 });
 
 When('the user goes to "Configuration > SNMP Traps > Generate"', () => {
-  cy.navigateTo({
-    page: 'Generate',
-    rootItemNumber: 3,
-    subMenu: 'SNMP Traps'
-  });
+  cy.visit(PAGES.configuration.snmpTrapsGenerateLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'select[name="host"]');
 });
