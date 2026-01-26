@@ -91,6 +91,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       features: ${{ steps.list-features.outputs.specs }}
+      has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
 
     steps:
       - name: Checkout sources
@@ -278,11 +279,12 @@ jobs:
 
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
-    needs: [cypress-e2e-test-run]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&
-      (inputs.stability == 'testing' || github.event_name == 'schedule')
+      (inputs.stability == 'testing' || github.event_name == 'schedule') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -321,10 +323,11 @@ jobs:
           done
 
   cypress-e2e-test-report:
-    needs: [cypress-e2e-test-run]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
 
     steps:
@@ -391,10 +394,11 @@ jobs:
             }
 
   regroup-artifacts:
-    needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
+    needs: [cypress-e2e-test-list, cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
