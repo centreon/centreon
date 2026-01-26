@@ -83,8 +83,8 @@ jobs:
   cypress-e2e-test-list:
     runs-on: ubuntu-24.04
     outputs:
-      features: ${{ steps.list-features.outputs.specs }}
-      has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
+      features: ${{ steps.list-features.outputs.features }}
+      has_features: ${{ steps.list-features.outputs.features != '' && toJson(fromJson(steps.list-features.outputs.features)) != '[]' && 'true' || 'false' }}
       db_id: ${{ steps.get-db-id.outputs.db_id }}
 
     steps:
