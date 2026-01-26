@@ -36,6 +36,8 @@ abstract class ApiTestCase extends SymfonyApiTestCase
 
     protected static ?bool $alwaysBootKernel = true;
 
+    protected ?string $token = null;
+
     private Client $client;
 
     private ?string $token = null;
@@ -120,30 +122,71 @@ abstract class ApiTestCase extends SymfonyApiTestCase
 
     final protected function login(string $login = 'admin'): void
     {
-        $this->request('POST', '/api/latest/login', [
-            'json' => [
-                'security' => [
-                    'credentials' => [
-                        'login' => $login,
-                        'password' => self::TEST_PASSWORD,
-                    ],
-                ],
-            ],
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get('doctrine.dbal.default_connection');
+
+        $this->token = base64_encode(random_bytes(48));
+        $qb = $connection->createQueryBuilder();
+        /** @var string|false $contact */
+        $contact = $qb->select('contact_id')
+            ->from('contact')
+            ->where('contact_alias = :login')
+            ->setParameter('login', $login)
+            ->executeQuery()
+            ->fetchOne();
+
+        if ($contact === false) {
+            $this->createApiUser($login, admin: false);
+            $qb = $connection->createQueryBuilder();
+            /** @var string $contact */
+            $contact = $qb->select('contact_id')
+                ->from('contact')
+                ->where('contact_alias = :login')
+                ->setParameter('login', $login)
+                ->executeQuery()
+                ->fetchOne();
+        }
+
+        // create authentication token directly in the database
+        $connection->insert('security_token', [
+            'token' => $this->token,
+            'creation_date' => time(),
+            'expiration_date' => null,
         ]);
 
-        $response = $this->client->getResponse();
+        $tokenId = (int) $connection->lastInsertId();
 
-        /** @var array{security: array{token: string}}|null $content */
-        $content = $response?->toArray();
-
-        $this->token = $content['security']['token'] ?? null;
-        if (! $this->token) {
-            throw new \RuntimeException('Cannot find authentication token');
-        }
+        $connection->insert('security_authentication_tokens', [
+            'provider_token_id' => $tokenId,
+            'user_id' => (int) $contact,
+            'token' => $this->token,
+            'provider_token_refresh_id' => null,
+            'provider_configuration_id' => 1,
+            'is_revoked' => 0,
+        ]);
     }
 
     final protected function logout(): void
     {
+        if (! $this->token) {
+            return;
+        }
+
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get('doctrine.dbal.default_connection');
+
+        $qb = $connection->createQueryBuilder();
+        $qb->delete('security_authentication_tokens')
+            ->where('token = :token')
+            ->setParameter('token', $this->token)
+            ->executeStatement();
+
+        $qb = $connection->createQueryBuilder();
+        $qb->delete('security_token')
+            ->where('token = :token')
+            ->setParameter('token', $this->token)
+            ->executeStatement();
+
         $this->token = null;
     }
 
@@ -152,6 +195,9 @@ abstract class ApiTestCase extends SymfonyApiTestCase
      */
     private static function createApiUser(Connection $connection, string $identifier, bool $admin = false, array $actions = []): void
     {
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get('doctrine.dbal.default_connection');
+
         $connection->insert('contact', [
             'contact_name' => $identifier,
             'contact_alias' => $identifier,

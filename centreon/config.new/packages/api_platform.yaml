@@ -9,6 +9,7 @@ api_platform:
         ApiPlatform\Validator\Exception\ValidationException: 400 # To be compatible with the legacy
         App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
         App\Shared\Domain\Exception\AggregateNotFoundException: 404
+        App\Security\Domain\Exception\CredentialDisabledException: 401
 
     defaults:
         stateless: false # Cannot set it to "true" yet, because of the session login mecanism

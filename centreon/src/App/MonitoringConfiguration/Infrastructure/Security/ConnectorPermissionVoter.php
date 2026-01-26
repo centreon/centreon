@@ -21,43 +21,37 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Legacy;
+namespace App\MonitoringConfiguration\Infrastructure\Security;
 
-use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
-use Centreon\Domain\Contact\Contact;
+use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
+use App\Security\Domain\Aggregate\Permission;
+use App\Security\Infrastructure\Security\CredentialUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<value-of<GlobalMacroPermissionEnum>, mixed>
+ * @extends Voter<value-of<ConnectorPermissionEnum>, mixed>
  */
-final class LegacyGlobalMacroPermissionVoter extends Voter
+final class ConnectorPermissionVoter extends Voter
 {
-    /**
-     * @var array<value-of<GlobalMacroPermissionEnum>, string>
-     */
-    private const LEGACY_PERMISSION_MAP = [
-        GlobalMacroPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_POLLERS_GLOBAL_MACRO_RW,
-    ];
-
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return GlobalMacroPermissionEnum::tryFrom($attribute) !== null;
+        return ConnectorPermissionEnum::tryFrom($attribute) !== null;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 
-        if (! $user instanceof Contact) {
+        if (! $user instanceof CredentialUser) {
             $vote?->addReason('The user is not logged in.');
 
             return false;
         }
 
-        if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user does not have the required topology role: ' . self::LEGACY_PERMISSION_MAP[$attribute]);
+        if (! $user->credential->isPermissionGranted(new Permission($attribute))) {
+            $vote?->addReason('The user has not the required permission.');
 
             return false;
         }

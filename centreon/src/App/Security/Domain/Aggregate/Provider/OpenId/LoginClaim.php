@@ -21,27 +21,14 @@
 
 declare(strict_types=1);
 
-namespace App\Shared\Infrastructure\Legacy;
+namespace App\Security\Domain\Aggregate\Provider\OpenId;
 
-use Centreon\Domain\Contact\Contact;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
+use Webmozart\Assert\Assert;
 
-final readonly class LegacySecurity
+final readonly class LoginClaim
 {
-    public function __construct(
-        private Security $security,
-    ) {
-    }
-
-    public function getUserId(): int
+    public function __construct(public string $value)
     {
-        $user = $this->security->getUser();
-
-        if (! $user instanceof Contact) {
-            throw new AuthenticationCredentialsNotFoundException('The user is not authenticated.');
-        }
-
-        return $user->getId();
+        Assert::notEmpty($value);
     }
 }

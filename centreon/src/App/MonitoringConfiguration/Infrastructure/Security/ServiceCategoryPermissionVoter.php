@@ -21,44 +21,37 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Legacy;
+namespace App\MonitoringConfiguration\Infrastructure\Security;
 
-use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
-use Centreon\Domain\Contact\Contact;
+use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
+use App\Security\Domain\Aggregate\Permission;
+use App\Security\Infrastructure\Security\CredentialUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<value-of<ConnectorPermissionEnum>, mixed>
+ * @extends Voter<value-of<ServiceCategoryPermissionEnum>, mixed>
  */
-final class LegacyConnectorPermissionVoter extends Voter
+final class ServiceCategoryPermissionVoter extends Voter
 {
-    /**
-     * @var array<value-of<ConnectorPermissionEnum>, string>
-     */
-    private const LEGACY_PERMISSION_MAP = [
-        ConnectorPermissionEnum::CanReadAndWrite->value => Contact::ROLE_CONFIGURATION_CONNECTORS_RW,
-        ConnectorPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_CONNECTORS_R,
-    ];
-
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return ConnectorPermissionEnum::tryFrom($attribute) !== null;
+        return ServiceCategoryPermissionEnum::tryFrom($attribute) !== null;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 
-        if (! $user instanceof Contact) {
+        if (! $user instanceof CredentialUser) {
             $vote?->addReason('The user is not logged in.');
 
             return false;
         }
 
-        if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user does not have the required topology role: ' . self::LEGACY_PERMISSION_MAP[$attribute]);
+        if (! $user->credential->isPermissionGranted(new Permission($attribute))) {
+            $vote?->addReason('The user has not the required permission.');
 
             return false;
         }

@@ -21,44 +21,37 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Infrastructure\Legacy;
+namespace App\MonitoringConfiguration\Infrastructure\Security;
 
-use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
-use Centreon\Domain\Contact\Contact;
+use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
+use App\Security\Domain\Aggregate\Permission;
+use App\Security\Infrastructure\Security\CredentialUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<value-of<ServiceCategoryPermissionEnum>, mixed>
+ * @extends Voter<value-of<GlobalMacroPermissionEnum>, mixed>
  */
-final class LegacyServiceCategoryPermissionVoter extends Voter
+final class GlobalMacroPermissionVoter extends Voter
 {
-    /**
-     * @var array<value-of<ServiceCategoryPermissionEnum>, string>
-     */
-    private const LEGACY_PERMISSION_MAP = [
-        ServiceCategoryPermissionEnum::CanRead->value => Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ,
-        ServiceCategoryPermissionEnum::CanWrite->value => Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE,
-    ];
-
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return ServiceCategoryPermissionEnum::tryFrom($attribute) !== null;
+        return GlobalMacroPermissionEnum::tryFrom($attribute) !== null;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 
-        if (! $user instanceof Contact) {
+        if (! $user instanceof CredentialUser) {
             $vote?->addReason('The user is not logged in.');
 
             return false;
         }
 
-        if (! $user->hasTopologyRole(self::LEGACY_PERMISSION_MAP[$attribute])) {
-            $vote?->addReason('The user does not have the required topology role.');
+        if (! $user->credential->isPermissionGranted(new Permission($attribute))) {
+            $vote?->addReason('The user has not the required permission.');
 
             return false;
         }
