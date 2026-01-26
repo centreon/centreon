@@ -1,15 +1,16 @@
-import debounce from '@mui/utils/debounce';
+import { useRef } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
-import { useRef } from 'react';
+
+import debounce from '@mui/utils/debounce';
 
 import { filtersAtom } from '../../atoms';
 import { Filter } from '../../models';
 
 interface UseSearch {
-  onChange: (event) => void;
   filters: Filter;
+  onChange: (event) => void;
 }
 
 const useSearch = (): UseSearch => {

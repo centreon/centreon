@@ -1,5 +1,4 @@
 import { useStyles } from './actions.styles';
-
 import TokenFilter from './Filters';
 
 interface Props {

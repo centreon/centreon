@@ -1,14 +1,14 @@
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
 interface UseGetAllProps {
-  sortField: string;
-  sortOrder: string;
-  page?: number;
-  limit?: number;
-  searchConditions: Array<unknown>;
   baseEndpoint: string;
   decoder;
+  limit?: number;
+  page?: number;
   queryKey: Array<string>;
+  searchConditions: Array<unknown>;
+  sortField: string;
+  sortOrder: string;
 }
 
 const useGetAll = ({

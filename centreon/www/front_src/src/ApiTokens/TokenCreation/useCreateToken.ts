@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { equals } from 'ramda';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   Method,
@@ -13,8 +14,6 @@ import { createdTokenDecoder } from '../api/decoder';
 import { createTokenEndpoint } from '../api/endpoints';
 
 import { CreatedToken, dataDuration } from './models';
-
-import { useQueryClient } from '@tanstack/react-query';
 
 interface UseCreateToken {
   createToken: (params: Required<CreateTokenFormValues>) => void;

@@ -1,12 +1,14 @@
+import { Suspense } from 'react';
+
+import { useTranslation } from 'react-i18next';
+
 import TuneIcon from '@mui/icons-material/Tune';
 import { Badge } from '@mui/material';
 
 import { LoadingSkeleton, PopoverMenu } from '@centreon/ui';
 
-import { Suspense } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { labelFilters } from '../../../translatedLabels';
+
 import Filters from './Filters';
 import { useStyles } from './Filters.styles';
 import useCountChangedFilters from './useCountChangedFilters';

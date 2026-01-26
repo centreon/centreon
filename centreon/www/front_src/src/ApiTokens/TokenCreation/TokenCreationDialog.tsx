@@ -12,7 +12,6 @@ import {
 import { labelFieldRequired } from '../translatedLabels';
 
 import FormCreation from './Form';
-
 import useCreateToken from './useCreateToken';
 
 interface Props {

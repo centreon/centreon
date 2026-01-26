@@ -13,7 +13,7 @@ const HelperText = ({ error, className }: Props): JSX.Element => {
   return (
     <div>
       {error && (
-        <FormHelperText className={cx(classes.helperText, className)} error>
+        <FormHelperText error className={cx(classes.helperText, className)}>
           {error}
         </FormHelperText>
       )}

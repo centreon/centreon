@@ -5,11 +5,11 @@ import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 interface UseListing {
   changePage: (updatedPage: number) => void;
   changeSort: ({ sortOrder, sortField }) => void;
+  disableRowCondition: (row) => boolean;
   page?: number;
   setLimit;
   sortf: string;
   sorto: 'asc' | 'desc';
-  disableRowCondition: (row) => boolean;
 }
 
 const useListing = (): UseListing => {

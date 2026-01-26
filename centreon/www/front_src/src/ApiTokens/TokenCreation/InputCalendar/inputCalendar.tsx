@@ -11,8 +11,8 @@ import { DateTimePickerInput, useLocaleDateTimeFormat } from '@centreon/ui';
 import { CreateTokenFormValues } from '../../TokenListing/models';
 import { labelInvalidDateCreationToken } from '../../translatedLabels';
 import { isInvalidDate } from '../utils';
-
 import HelperText from '../../TokenListing/Actions/Filters/DateInput/HelperText';
+
 import { useStyles } from './inputCalendar.styles';
 
 interface Props {

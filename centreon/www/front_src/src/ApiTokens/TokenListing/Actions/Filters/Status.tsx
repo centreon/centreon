@@ -1,3 +1,6 @@
+import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
 import {
   Checkbox,
   FormControlLabel,
@@ -5,15 +8,13 @@ import {
   Typography
 } from '@mui/material';
 
-import { useAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import {
   labelDisabled,
   labelEnabled,
   labelStatus
 } from '../../../translatedLabels';
 import { filtersAtom } from '../../atoms';
+
 import { useStyles } from './Filters.styles';
 
 const Status = (): JSX.Element => {

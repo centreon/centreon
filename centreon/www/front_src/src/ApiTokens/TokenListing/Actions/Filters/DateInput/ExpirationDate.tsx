@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { labelExpirationDate } from '../../../../translatedLabels';
 import { filtersAtom } from '../../../atoms';
 import { Property } from '../models';
+
 import DateFilter from './DateFilter';
 
 const ExpirationDate = (): JSX.Element => {

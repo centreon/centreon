@@ -1,12 +1,14 @@
+import { SetStateAction, memo, useState } from 'react';
+
+import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+
 import { Typography } from '@mui/material';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
-import dayjs from 'dayjs';
-import { SetStateAction, memo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { labelUntil } from '../../../../translatedLabels';
+
 import { useStyles } from './DateInput.styles';
 import HelperText from './HelperText';
 
@@ -93,9 +95,9 @@ const DateInput = ({
           className={classes.picker}
           closeOnSelect={false}
           date={customizedDate}
-          onClose={close}
           slotProps={slotProps}
           timeSteps={{ minutes: 1 }}
+          onClose={close}
         />
       </div>
       <HelperText error={error} />

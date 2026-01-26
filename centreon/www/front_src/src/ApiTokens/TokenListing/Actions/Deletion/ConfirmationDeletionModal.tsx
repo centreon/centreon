@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   ConfirmDialog,
@@ -14,10 +15,8 @@ import {
   labelDelete,
   labelTokenDeletedSuccessfully
 } from '../../../translatedLabels';
-
 import { selectedRowAtom } from '../../atoms';
 
-import { useQueryClient } from '@tanstack/react-query';
 import Message from './Message';
 import Title from './Title';
 import { useStyles } from './deletion.styles';

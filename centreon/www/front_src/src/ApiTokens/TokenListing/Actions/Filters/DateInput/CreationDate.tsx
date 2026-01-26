@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { labelCreationDate } from '../../../../translatedLabels';
 import { filtersAtom } from '../../../atoms';
 import { Property } from '../models';
+
 import DateFilter from './DateFilter';
 
 const CreationDate = (): JSX.Element => {

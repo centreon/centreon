@@ -57,8 +57,8 @@ export interface CreateTokenFormValues {
 }
 
 interface User {
-  id: number;
   alias: string;
+  id: number;
 }
 
 export interface NamedEntity {
@@ -67,12 +67,12 @@ export interface NamedEntity {
 }
 
 export interface Filter {
+  creationDate: Date | null;
+  creators: Array<NamedEntity>;
+  disabled: boolean;
+  enabled: boolean;
+  expirationDate: Date | null;
   name: string;
   types: Array<NamedEntity>;
   users: Array<User>;
-  creators: Array<NamedEntity>;
-  expirationDate: Date | null;
-  creationDate: Date | null;
-  enabled: boolean;
-  disabled: boolean;
 }

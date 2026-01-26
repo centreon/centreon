@@ -12,8 +12,8 @@ const countDifferences = (defaultValues, values) =>
   )(defaultValues);
 
 interface Props {
-  isClear: boolean;
   changedFiltersCount: number;
+  isClear: boolean;
 }
 
 const useCountChangedFilters = (): Props => {

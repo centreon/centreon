@@ -1,24 +1,25 @@
+import { useEffect, useState } from 'react';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
 import { equals, isNil, map, pick, reject } from 'ramda';
-import { useEffect, useState } from 'react';
 
 import { filtersAtom } from '../../atoms';
 import { Filter, NamedEntity } from '../../models';
 import { filtersInitialValues } from '../../utils';
 
 interface UseFiltersState {
-  isClearDisabled: boolean;
+  changeCreator: (_, values) => void;
   changeName: (event) => void;
   changeUser: (_, values) => void;
-  changeCreator: (_, values) => void;
-  filterCreators: (options) => Array<NamedEntity>;
   deleteCreator: (_, item) => void;
   deleteUser: (_, item) => void;
+  filterCreators: (options) => Array<NamedEntity>;
+  filters: Filter;
+  isClearDisabled: boolean;
   isOptionEqualToValue: (option, selectedValue) => boolean;
   reload: () => void;
   reset: () => void;
-  filters: Filter;
 }
 
 export const getUniqData = (data): Array<NamedEntity> => {

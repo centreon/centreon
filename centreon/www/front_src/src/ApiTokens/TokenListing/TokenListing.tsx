@@ -9,7 +9,6 @@ import TokenCreationButton from '../TokenCreation';
 import { labelApiToken } from '../translatedLabels';
 
 import Actions from './Actions';
-
 import { useColumns } from './ComponentsColumn/useColumns';
 import Title from './Title';
 import { selectedRowAtom } from './atoms';
@@ -46,6 +45,7 @@ const TokenListing = (): JSX.Element | null => {
         getId={({ name, user }) => `${name}-${user.id}`}
         limit={data?.meta.limit}
         loading={isLoading}
+        memoProps={[columns, page, sorto, sortf]}
         rows={data?.result}
         sortField={sortf}
         sortOrder={sorto}
@@ -56,7 +56,6 @@ const TokenListing = (): JSX.Element | null => {
         onRowClick={selectRow}
         onSelectColumns={onSelectColumns}
         onSort={changeSort}
-        memoProps={[columns, page, sorto, sortf]}
       />
     </div>
   );

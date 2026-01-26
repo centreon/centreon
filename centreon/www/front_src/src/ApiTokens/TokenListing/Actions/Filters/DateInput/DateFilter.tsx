@@ -1,15 +1,17 @@
+import { useMemo, useState } from 'react';
+
+import dayjs from 'dayjs';
+import { equals, map, pipe, propEq, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import {
   SingleAutocompleteField as SelectInput,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 
-import dayjs from 'dayjs';
-import { equals, map, pipe, propEq, reject } from 'ramda';
-import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { dataDuration } from '../../../../TokenCreation/models';
 import { Property } from '../models';
+
 import DateInput from './DateInput';
 
 interface Props {
@@ -77,12 +79,12 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
         getOptionItemLabel={(option) => option?.name}
         id={label.trim()}
         label={t(label)}
-        onChange={handleChange}
         options={data}
         textFieldSlotsAndSlotProps={{
           slotProps: { htmlInput: { value: currentValue?.name ?? '' } }
         }}
         value={currentValue}
+        onChange={handleChange}
       />
       {displayCalendar && (
         <DateInput

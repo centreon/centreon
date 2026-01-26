@@ -5,9 +5,13 @@ import { listTokensDecoder } from '../api/decoder';
 import { listTokensEndpoint } from '../api/endpoints';
 import useGetAll from '../api/useGetAll';
 
-import { filtersAtom } from './atoms';
-
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
+import {
+  filtersAtom,
+  limitAtom,
+  pageAtom,
+  sortFieldAtom,
+  sortOrderAtom
+} from './atoms';
 
 interface LoadDataState {
   data?;

@@ -1,10 +1,11 @@
-import { ListingVariant, userAtom } from '@centreon/ui-context';
+import { useState } from 'react';
 
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { createStore, Provider } from 'jotai';
-import { useState } from 'react';
+
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import DateInput from './DateInput';
 
