@@ -274,6 +274,7 @@ $migrateAccJsonToTables = function () use ($pearDB, &$errorMessage, $version): v
                 }
                 $acc['parameters'] = json_encode($params);
             }
+
             return $acc;
         }, array_filter($accRecords, function ($acc) use ($leftOutAccs) {
             return in_array($acc['id'], $leftOutAccs, true);
