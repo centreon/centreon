@@ -212,12 +212,15 @@ final class GetServiceTemplate
             $serviceGroups
         ));
         $response->groups = array_map(
-            fn (array $group) => [
-                'serviceGroupId' => $group['serviceGroup']->getId(),
-                'serviceGroupName' => $group['serviceGroup']->getName(),
-                'hostTemplateId' => (int) $group['relation']->getHostId(),
-                'hostTemplateName' => $hostTemplateNames[(int) $group['relation']->getHostId()],
-            ],
+            function (array $group) use ($hostTemplateNames): array {
+                $hostId = (int) $group['relation']->getHostId();
+                return [
+                    'serviceGroupId' => $group['serviceGroup']->getId(),
+                    'serviceGroupName' => $group['serviceGroup']->getName(),
+                    'hostTemplateId' => $hostId,
+                    'hostTemplateName' => $hostTemplateNames[$hostId] ?? '',
+                ];
+            },
             $serviceGroups,
         );
        
