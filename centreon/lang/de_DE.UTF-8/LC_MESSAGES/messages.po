@@ -1690,6 +1690,7 @@ msgstr "Auditprotokollaktivierung"
 msgid "Authentication"
 msgstr "Authentifizierung"
 
+#: centreon/src/App/Security/Infrastructure/Security/TokenAuthenticator.php
 #: centreon/src/Security/TokenAPIAuthenticator.php
 msgid "Authentication Required"
 msgstr "Authentifizierung erforderlich"
