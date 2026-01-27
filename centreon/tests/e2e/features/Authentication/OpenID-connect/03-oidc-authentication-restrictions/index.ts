@@ -1,10 +1,11 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+import { configureProviderAcls } from '../../../../commons';
 import {
   configureOpenIDConnect,
   initializeOIDCUserAndGetLoginPage
 } from '../common';
-import { configureProviderAcls } from '../../../../commons';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
@@ -37,10 +38,7 @@ Given('an administrator is logged on the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 

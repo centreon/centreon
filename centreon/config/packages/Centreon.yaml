@@ -120,6 +120,7 @@ services:
 
     Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface:
         class: Centreon\Infrastructure\Contact\ContactRepositoryRDB
+        public: true
 
     contact.provider:
         class: Centreon\Domain\Contact\ContactProvider
@@ -136,6 +137,7 @@ services:
     # Authentication
     Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface:
         class: Core\Security\AccessGroup\Infrastructure\Repository\DbReadAccessGroupRepository
+        public: true
 
     Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface:
         class: Centreon\Domain\RequestParameters\RequestParameters

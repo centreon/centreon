@@ -1,6 +1,8 @@
+import { PAGES } from "e2e/fixtures/shared/constants/pages";
+
 const configureKB = (url, account, password): void => {
   // Visit the Configuration of 'Knowledge Base' page
-  cy.visit('/centreon/main.php?p=50133&o=knowledgeBase')
+  cy.visit(PAGES.configuration.knowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'knowledge base url' is visible in the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="kb_wiki_url"]');

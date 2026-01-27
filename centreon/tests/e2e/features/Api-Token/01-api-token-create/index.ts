@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const token = {
   duration: '7 days',
@@ -33,10 +34,7 @@ Given('I am logged in as an administrator', () => {
 });
 
 Given('I am on the API tokens page', () => {
-  cy.navigateTo({
-    page: 'API Tokens',
-    rootItemNumber: 4
-  });
+  cy.visit(PAGES.configuration.authenticationTokens);
 
   cy.wait('@getTokens');
 });

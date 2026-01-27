@@ -5,6 +5,7 @@ import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import metaServices from '../../../fixtures/services/meta_service.json';
 import servicesData from '../../../fixtures/services/service.json';
 import data from '../../../fixtures/notifications/escalation.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const services = {
   serviceCritical: {
@@ -91,18 +92,14 @@ Given('some service groups are configured', () => {
 });
 
 Given('some meta services are configured', () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.wait('@getTimeZone');
   cy.addMetaService(metaServices.metaService1);
   cy.addMetaService(metaServices.metaService2);
 });
 
 When('the user fills all the properties of an escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchE"]');
   cy.getIframeBody().contains('a', 'Add').eq(0).click();
   cy.addEscalation(data.default);
@@ -123,7 +120,7 @@ Then('the escalation is displayed on the listing', () => {
 });
 
 When('the user changes the properties of the configured escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.getIframeBody().contains(data.default.name).click();
   cy.updateEscalation(data.escalation1);
 });
@@ -133,7 +130,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicates the configured escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.checkFirstRowFromListing('searchE');
   cy.getIframeBody().find('select[name="o1"]').select('Duplicate');
   cy.wait('@getTimeZone');
@@ -145,7 +142,7 @@ Then('a new escalation is created with identical properties', () => {
 });
 
 When('the user deletes the configured escalation', () => {
-  cy.visit('/centreon/main.php?p=60401');
+  cy.visit(PAGES.configuration.escalationsLegacy);
   cy.checkFirstRowFromListing('searchE');
   cy.getIframeBody().find('select[name="o1"]').select('Delete');
   cy.wait('@getTimeZone');

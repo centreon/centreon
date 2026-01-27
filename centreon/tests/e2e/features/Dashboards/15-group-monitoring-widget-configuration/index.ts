@@ -9,6 +9,7 @@ import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import groupMonitoringwidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithGroupMonitoringWidget.json';
 import twoGroupMonitoringwidgets from '../../../fixtures/dashboards/creation/widgets/dashboardWithTwoGroupMonitoringWidgets.json';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const hostGroupName = 'Linux-Servers';
 
@@ -191,10 +192,7 @@ Given(
   "a dashboard in the dashboard administrator user's dashboard library",
   () => {
     cy.insertDashboard({ ...dashboards.default });
-    cy.navigateTo({
-      page: 'Dashboards',
-      rootItemNumber: 0
-    });
+    cy.visit(PAGES.monitoring.dashboards);
     cy.wait('@listAllDashboards');
     cy.contains(dashboards.default.name).click();
   }
@@ -279,10 +277,7 @@ Then("the Group monitoring widget is added in the dashboard's layout", () => {
 
 Given('a dashboard that includes a configured Group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -328,10 +323,7 @@ Then(
 
 Given('a dashboard featuring two group monitoring widgets', () => {
   cy.insertDashboardWithWidget(dashboards.default, twoGroupMonitoringwidgets);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({
@@ -362,10 +354,7 @@ Then('only the contents of the other widget are displayed', () => {
 
 Given('a dashboard having a configured group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
 });
@@ -403,10 +392,7 @@ Then('the second widget has the same properties as the first widget', () => {
 
 Given('a dashboard configuring group monitoring widget', () => {
   cy.insertDashboardWithWidget(dashboards.default, groupMonitoringwidget);
-  cy.navigateTo({
-    page: 'Dashboards',
-    rootItemNumber: 0
-  });
+  cy.visit(PAGES.monitoring.dashboards);
   cy.wait('@listAllDashboards');
   cy.contains(dashboards.default.name).click();
   cy.getByLabel({

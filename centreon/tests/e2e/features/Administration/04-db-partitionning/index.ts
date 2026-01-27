@@ -1,5 +1,6 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -28,11 +29,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 When('the user visits the database informations page', () => {
-  cy.navigateTo({
-    page: 'Databases',
-    rootItemNumber: 4,
-    subMenu: 'Platform Status'
-  });
+  cy.visit(PAGES.configuration.databasesPlatformStatusLegacy);
   cy.wait('@getTimeZone');
 });
 

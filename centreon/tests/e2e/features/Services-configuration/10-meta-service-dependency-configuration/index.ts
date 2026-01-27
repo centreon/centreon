@@ -2,6 +2,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import data from '../../../fixtures/services/meta_service.json';
 
 beforeEach(() => {
@@ -32,11 +33,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 Given('some meta services are configured', () => {
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.metaServicesLegacy);
   cy.wait('@getTimeZone');
   cy.addMetaService(data.metaService1);
   cy.addMetaService(data.metaService2);
@@ -45,11 +42,7 @@ Given('some meta services are configured', () => {
 
 Given('a meta service dependency is configured', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
-  cy.navigateTo({
-    page: 'Meta Services',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.metaServicesDependenciesLegacy);
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addMSDependency(data.defaultMetaServiceDep);
