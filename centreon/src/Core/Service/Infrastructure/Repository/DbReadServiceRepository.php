@@ -696,7 +696,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
 
         // if one of the filters is set, we need to add the AND clause
         if ($hostIds !== [] || $pollerIds !== []) {
-            $sql .= <<<SQL
+            $sql .= <<<'SQL'
                     AND (
                 SQL;
         }
@@ -713,9 +713,9 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             [$pollerBindValues, $pollerPlaceholders] = $this->createMultipleBindQuery($pollerIds, ':poller_');
             // if hosts filter is also set, we need to add the OR clause
             if ($hostIds !== []) {
-                $sql .= <<<SQL
-                    OR
-                SQL;
+                $sql .= <<<'SQL'
+                        OR
+                    SQL;
             }
             $sql .= <<<SQL
                     h.host_id IN (
@@ -728,7 +728,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
 
         // close the AND clause if one of the filters is set
         if ($hostIds !== [] || $pollerIds !== []) {
-            $sql .= <<<SQL
+            $sql .= <<<'SQL'
                     )
                 SQL;
         }
