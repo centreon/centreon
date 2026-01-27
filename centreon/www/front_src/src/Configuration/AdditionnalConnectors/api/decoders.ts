@@ -46,8 +46,9 @@ export const additionalConnectorsListDecoder = buildListingDecoder({
   listingDecoderName: 'Additional connectors List'
 });
 
-const vcenterDecoder = JsonDecoder.object<Parameter>(
+const vcenterDecoder = JsonDecoder.object<Parameter & { id: number | null }>(
   {
+    id: JsonDecoder.nullable(JsonDecoder.number),
     [ParameterKeys.name]: JsonDecoder.string,
     [ParameterKeys.url]: JsonDecoder.string,
     [ParameterKeys.username]: JsonDecoder.nullable(JsonDecoder.string),
