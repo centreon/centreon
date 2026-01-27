@@ -127,4 +127,12 @@ class ServiceSeverityException extends \Exception
             self::CODE_CONFLICT
         );
     }
+
+     /**
+     * @return self
+     */
+    public static function errorWhileRetrieving(): self
+    {
+        return new self(_('Error while retrieving service severity'));
+    }
 }

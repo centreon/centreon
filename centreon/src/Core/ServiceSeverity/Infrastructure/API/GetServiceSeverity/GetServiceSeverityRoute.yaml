@@ -1,0 +1,7 @@
+GetServiceSeverity:
+  methods: GET
+  path: /configuration/services/severities/{serviceSeverityId}
+  requirements:
+    serviceSeverityId: '\d+'
+  controller: 'Core\ServiceSeverity\Infrastructure\API\GetServiceSeverity\GetServiceSeverityController'
+  condition: "request.attributes.get('version') >= '25.10'"
