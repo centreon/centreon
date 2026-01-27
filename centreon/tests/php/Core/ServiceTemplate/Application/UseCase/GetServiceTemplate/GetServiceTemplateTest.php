@@ -180,7 +180,8 @@ it('should present a GetServiceTemplateResponse with non-admin user', function (
 
     $this->readAccessGroupRepository
         ->expects($this->once())
-        ->method('findByContact');
+        ->method('findByContact')
+        ->willReturn([]);
 
     $this->readServiceTemplateRepository
         ->expects($this->once())

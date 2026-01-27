@@ -131,6 +131,7 @@ allOf:
         example: 1
       notification_type:
         type: integer
+        nullable: true
         description: |
           Define the states of the service for which notifications should be sent out.
 
