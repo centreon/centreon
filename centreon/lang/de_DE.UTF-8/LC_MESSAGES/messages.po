@@ -731,11 +731,11 @@ msgstr "Monitoring Engine Konfigurationsdatei hinzufügen"
 
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "Global macros"
-msgstr ""
+msgstr "Globale Makros"
 
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "Add a global macro"
-msgstr "Globales makro hinzufügen"
+msgstr "Globales Makro hinzufügen"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Add a Service"
@@ -18080,7 +18080,7 @@ msgstr "Bild anzeigen"
 
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "View global macro"
-msgstr "Globales makro anzeigen"
+msgstr "Globales Makro anzeigen"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "View Vendor"
