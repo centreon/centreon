@@ -30,7 +30,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\Shared\Application\Command\CommandBus;
-use App\Shared\Infrastructure\Legacy\LegacySecurity;
+use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
 
 /**
@@ -40,8 +40,9 @@ final readonly class DeleteCommandProcessor implements ProcessorInterface
 {
     public function __construct(
         private CommandBus $commandBus,
-        private LegacySecurity $legacySecurity,
+        private Security $security,
     ) {
+
     }
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): void
@@ -55,7 +56,7 @@ final readonly class DeleteCommandProcessor implements ProcessorInterface
         $command = new DeleteCommandCommand(
             id: $commandId,
             type: $type,
-            deletedBy: $this->legacySecurity->getUserId(),
+            deletedBy: $this->security->getUser()->credential->userId->value,
         );
 
         $this->commandBus->execute($command);

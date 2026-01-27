@@ -35,8 +35,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CreateCommandResource;
 use App\Shared\Application\Command\CommandBus;
-use App\Shared\Infrastructure\Legacy\LegacySecurity;
 use App\Shared\Infrastructure\TransformerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
@@ -52,7 +52,7 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
         private CommandBus $commandBus,
         #[Autowire(service: ResourceCommandTransformer::class)]
         private TransformerInterface $transformer,
-        private LegacySecurity $legacySecurity,
+        private Security $security,
     ) {
     }
 
@@ -68,7 +68,7 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
             connectorId: $data->connector
                 ? new ConnectorId($data->connector->id)
                 : null,
-            creatorId: $this->legacySecurity->getUserId(),
+            creatorId: $this->security->getUser()->credential->userId->value,
             comment: $data->comment !== null
                 ? new CommandComment($data->comment)
                 : null,

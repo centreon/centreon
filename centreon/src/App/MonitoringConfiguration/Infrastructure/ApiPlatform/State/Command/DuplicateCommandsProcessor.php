@@ -33,8 +33,8 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Dto\DuplicateCommandInput;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource;
+use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
-use App\Shared\Infrastructure\Legacy\LegacySecurity;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -52,7 +52,6 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         private CommandBus $commandBus,
         #[Autowire(service: ResourceCommandTransformer::class)]
         private TransformerInterface $transformer,
-        private LegacySecurity $legacySecurity,
         private Security $security,
     ) {
     }
@@ -76,7 +75,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         $duplicatedCommandsResult = $this->commandBus->execute(
             new DuplicateCommandsCommand(
                 commandIds: array_map(fn (int $id): CommandId => new CommandId($id), $data->ids),
-                duplicatedBy: $this->legacySecurity->getUserId(),
+                duplicatedBy: $this->security->getUser()->credential->userId->value,
                 allowedTypes: $allowedTypes,
             )
         );
