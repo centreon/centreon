@@ -80,6 +80,7 @@ const useExportCsv = ({
   const getCurrentFilterParameters = () => {
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
+
     const queryParameters = [
       {
         name: 'host_category_names',
@@ -105,8 +106,13 @@ const useExportCsv = ({
       {
         name: 'host_severity_names',
         value: getCriteriaNames('host_severities')
+      },
+      {
+        name: 'states',
+        value: getCriteriaIds('states')
       }
     ];
+
 
     const filtersParameters = {
       search: {
@@ -142,13 +148,13 @@ const useExportCsv = ({
 
     const paginationParameters = includePagination
       ? {
-          limit: listing?.meta?.limit || 10,
-          page: listing?.meta?.page || 1,
-          sort: {
-            [sort?.[0] as string]: sort?.[1] || '',
-            last_status_change: 'desc'
-          }
+        limit: listing?.meta?.limit || 10,
+        page: listing?.meta?.page || 1,
+        sort: {
+          [sort?.[0] as string]: sort?.[1] || '',
+          last_status_change: 'desc'
         }
+      }
       : {};
 
     const types = getCriteriaIds('resource_types');

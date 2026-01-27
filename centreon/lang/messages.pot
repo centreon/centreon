@@ -1747,6 +1747,7 @@ msgstr ""
 msgid "Authentication"
 msgstr ""
 
+#: centreon/src/App/Security/Infrastructure/Security/TokenAuthenticator.php
 #: centreon/src/Security/TokenAPIAuthenticator.php
 msgid "Authentication Required"
 msgstr ""
