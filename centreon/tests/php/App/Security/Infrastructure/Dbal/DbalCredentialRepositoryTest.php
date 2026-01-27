@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\Security\Infrastructure\Dbal;
 
-use App\Security\Domain\Exception\CredentialDoesNotExistException;
+use App\Security\Domain\Exception\CredentialNotFoundException;
 use App\Security\Infrastructure\Dbal\DbalCredentialRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
@@ -48,7 +48,7 @@ final class DbalCredentialRepositoryTest extends KernelTestCase
 
     public function testGetByUsernameThrowsExceptionIfNotFound(): void
     {
-        $this->expectException(CredentialDoesNotExistException::class);
+        $this->expectException(CredentialNotFoundException::class);
         $this->repository->getByUsername('invalid-user');
     }
 }

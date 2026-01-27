@@ -29,6 +29,7 @@ use App\MonitoringConfiguration\Application\Command\DeleteCommandCommand;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandId;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use Symfony\Bundle\SecurityBundle\Security;
 use Webmozart\Assert\Assert;
@@ -51,12 +52,15 @@ final readonly class DeleteCommandProcessor implements ProcessorInterface
         Assert::integer($uriVariables['id']);
         $commandId = new CommandId($uriVariables['id']);
 
+        $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
+
         $type = CommandTypeEnum::fromName($data->type);
 
         $command = new DeleteCommandCommand(
             id: $commandId,
             type: $type,
-            deletedBy: $this->security->getUser()->credential->userId->value,
+            deletedBy: $credentialUser->credential->userId->value,
         );
 
         $this->commandBus->execute($command);

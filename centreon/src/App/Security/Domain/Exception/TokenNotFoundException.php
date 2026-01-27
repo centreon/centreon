@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Exception;
 
-use App\Shared\Domain\Exception\AggregateDoesNotExistException;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-final class CredentialDoesNotExistException extends AggregateDoesNotExistException
+final class TokenNotFoundException extends AggregateNotFoundException
 {
 }

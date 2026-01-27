@@ -24,17 +24,17 @@ declare(strict_types=1);
 namespace App\Security\Domain\Repository;
 
 use App\Security\Domain\Aggregate\Token;
-use App\Security\Domain\Exception\TokenDoesNotExistException;
+use App\Security\Domain\Exception\TokenNotFoundException;
 
 interface TokenRepository
 {
     /**
-     * @throws TokenDoesNotExistException
+     * @throws TokenNotFoundException
      */
     public function get(string $token): Token;
 
     /**
-     * @throws TokenDoesNotExistException
+     * @throws TokenNotFoundException
      */
     public function getRefreshToken(string $token): Token;
 

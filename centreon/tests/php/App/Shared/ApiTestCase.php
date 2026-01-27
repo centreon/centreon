@@ -32,15 +32,12 @@ abstract class ApiTestCase extends SymfonyApiTestCase
 {
     public const CAN_READ_CHECK_COMMANDS = 'see_check_commands';
     public const CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS = 'manage_notification_commands';
-    private const TEST_PASSWORD = 'Centreon!2021';
 
     protected static ?bool $alwaysBootKernel = true;
 
     protected ?string $token = null;
 
     private Client $client;
-
-    private ?string $token = null;
 
     public static function setUpBeforeClass(): void
     {
@@ -136,7 +133,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             ->fetchOne();
 
         if ($contact === false) {
-            $this->createApiUser($login, admin: false);
+            $this->createApiUser($connection, $login, admin: false);
             $qb = $connection->createQueryBuilder();
             /** @var string $contact */
             $contact = $qb->select('contact_id')
@@ -193,7 +190,7 @@ abstract class ApiTestCase extends SymfonyApiTestCase
     /**
      * @param array<string> $actions
      */
-    private static function createApiUser(Connection $connection, string $identifier, bool $admin = false, array $actions = []): void
+    protected static function createApiUser(Connection $connection, string $identifier, bool $admin = false, array $actions = []): void
     {
         /** @var Connection $connection */
         $connection = static::getContainer()->get('doctrine.dbal.default_connection');

@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CreateCommandResource;
+use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -59,6 +60,8 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): CommandResource
     {
         $type = CommandTypeEnum::fromName($data->type);
+        $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $command = new CreateCommandCommand(
             name: new CommandName($data->name),
@@ -68,7 +71,7 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
             connectorId: $data->connector
                 ? new ConnectorId($data->connector->id)
                 : null,
-            creatorId: $this->security->getUser()->credential->userId->value,
+            creatorId: $credentialUser->credential->userId->value,
             comment: $data->comment !== null
                 ? new CommandComment($data->comment)
                 : null,

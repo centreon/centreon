@@ -34,6 +34,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\TransformerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -61,6 +62,8 @@ final readonly class UpdateCommandProcessor implements ProcessorInterface
         Assert::keyExists($uriVariables, 'id');
         Assert::integer($uriVariables['id']);
         $commandId = new CommandId($uriVariables['id']);
+        $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $command = new UpdateCommandCommand(
             id: $commandId,
@@ -71,7 +74,7 @@ final readonly class UpdateCommandProcessor implements ProcessorInterface
             isShellEnabled: $data->isShellEnabled,
             isActivated: $data->isActivated,
             connectorId: $data->connector ? new ConnectorId($data->connector->id) : null,
-            updatedBy: $this->security->getUser()->credential->userId->value,
+            updatedBy: $credentialUser->credential->userId->value,
         );
 
         $model = $this->commandBus->execute($command);

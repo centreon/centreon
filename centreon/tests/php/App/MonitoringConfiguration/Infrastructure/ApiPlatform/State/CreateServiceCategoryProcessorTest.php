@@ -27,6 +27,7 @@ use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Domain\Repository\ServiceCategoryRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateServiceCategoryProcessorTest extends ApiTestCase
@@ -146,7 +147,11 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
     public function testCannotCreateServiceCategoryIfNotEnoughPermission(): void
     {
-        $this->createApiUser($username = bin2hex(random_bytes(8)));
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
         $this->login($username);
 
         $this->request('POST', '/api/latest/configuration/services/categories', [

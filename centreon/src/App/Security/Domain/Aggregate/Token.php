@@ -25,6 +25,9 @@ namespace App\Security\Domain\Aggregate;
 
 use App\Shared\Domain\Aggregate\AggregateRoot;
 
+/**
+ * @extends AggregateRoot<TokenId>
+ */
 final class Token extends AggregateRoot
 {
     public function __construct(

@@ -23,9 +23,8 @@ declare(strict_types=1);
 
 namespace App\Security\Domain\Exception;
 
-use App\Shared\Domain\Exception\AggregateDoesNotExistException;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-// TODO mtarld Rename to NotFound (same for others)
-final class TokenDoesNotExistException extends AggregateDoesNotExistException
+final class CredentialNotFoundException extends AggregateNotFoundException
 {
 }

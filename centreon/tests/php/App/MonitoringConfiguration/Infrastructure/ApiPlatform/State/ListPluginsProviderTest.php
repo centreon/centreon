@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
-use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ListPluginResource;
+use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\PluginResource;
 use Tests\App\Shared\ApiTestCase;
 
 final class ListPluginsProviderTest extends ApiTestCase

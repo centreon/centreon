@@ -60,6 +60,9 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
     {
         Assert::isInstanceOf($data, DuplicateCommandInput::class);
 
+        $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
+
         /** @var array<int, string> */
         $allowedTypes = $this->getAllowedCommandTypes();
 
@@ -75,7 +78,7 @@ final readonly class DuplicateCommandsProcessor implements ProcessorInterface
         $duplicatedCommandsResult = $this->commandBus->execute(
             new DuplicateCommandsCommand(
                 commandIds: array_map(fn (int $id): CommandId => new CommandId($id), $data->ids),
-                duplicatedBy: $this->security->getUser()->credential->userId->value,
+                duplicatedBy: $credentialUser->credential->userId->value,
                 allowedTypes: $allowedTypes,
             )
         );
