@@ -625,12 +625,12 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
             <<<'SQL'
                     SELECT (
                         SELECT GROUP_CONCAT(DISTINCT host_service_relation.hostgroup_hg_id)
-                        FROM host_service_relation
+                        FROM `:db`.host_service_relation
                                 WHERE service_service_id = hsr.service_service_id
                                 GROUP BY service_service_id
                     ) AS hostgroups,
                         hsr.service_service_id
-                    FROM host_service_relation hsr
+                    FROM `:db`.host_service_relation hsr
                     WHERE hsr.hostgroup_hg_id = :hostGroupId;
                 SQL
         ));
@@ -686,31 +686,51 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
 
         $sql = <<<SQL
                 SELECT DISTINCT s.service_id
-                FROM `service` s
-                INNER JOIN `command` c ON s.command_command_id = c.command_id
-                INNER JOIN `host_service_relation` hsr ON s.service_id = hsr.service_service_id
-                INNER JOIN `host` h ON h.host_id = hsr.host_host_id
+                FROM `:db`.`service` s
+                INNER JOIN `:db`.command c ON s.command_command_id = c.command_id
+                INNER JOIN `:db`.host_service_relation hsr ON s.service_id = hsr.service_service_id
+                INNER JOIN `:db`.host h ON h.host_id = hsr.host_host_id
                 WHERE s.service_register = '1'
                 AND c.command_name IN ({$commandPlaceholders})
             SQL;
 
+        // if one of the filters is set, we need to add the AND clause
+        if ($hostIds !== [] || $pollerIds !== []) {
+            $sql .= <<<SQL
+                    AND (
+                SQL;
+        }
+
         if ($hostIds !== []) {
             [$hostBindValues, $hostPlaceholders] = $this->createMultipleBindQuery($hostIds, ':host_');
             $sql .= <<<SQL
-                    AND h.host_id IN ({$hostPlaceholders})
+                    h.host_id IN ({$hostPlaceholders})
                 SQL;
             $bindValues += $hostBindValues;
         }
 
         if ($pollerIds !== []) {
             [$pollerBindValues, $pollerPlaceholders] = $this->createMultipleBindQuery($pollerIds, ':poller_');
+            // if hosts filter is also set, we need to add the OR clause
+            if ($hostIds !== []) {
+                $sql .= <<<SQL
+                    OR
+                SQL;
+            }
             $sql .= <<<SQL
-                    AND h.host_id IN (
-                        SELECT hr.host_host_id FROM ns_host_relation hr
+                    h.host_id IN (
+                        SELECT hr.host_host_id FROM `:db`.ns_host_relation hr
                         WHERE hr.nagios_server_id IN ({$pollerPlaceholders})
                     )
                 SQL;
             $bindValues += $pollerBindValues;
+        }
+
+        // close the AND clause if one of the filters is set
+        if ($hostIds !== [] || $pollerIds !== []) {
+            $sql .= <<<SQL
+                    )
+                SQL;
         }
 
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -755,7 +775,7 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 $hostCategoryAcls = <<<'SQL'
                     AND hcr.hostcategories_hc_id IN (
                         SELECT arhcr.hc_id
-                        FROM acl_resources_hc_relations arhcr
+                        FROM `:db`.acl_resources_hc_relations arhcr
                         INNER JOIN `:db`.acl_resources res
                             ON arhcr.acl_res_id = res.acl_res_id
                         INNER JOIN `:db`.acl_res_group_relations argr
