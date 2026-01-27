@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 
 import { PAGES } from "fixtures/shared/constants/pages";
 

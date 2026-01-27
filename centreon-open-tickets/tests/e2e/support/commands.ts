@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-namespace */
 import '@centreon/js-config/cypress/e2e/commands';
 import '../features/Dashboards/commands';
 
