@@ -601,6 +601,7 @@ export default (): void => {
               port: 5700,
               vcenters: [
                 {
+                  id: null,
                   name: 'my_vcenter',
                   password: 'password',
                   url: 'http://10.10.10.10/sdk',
@@ -643,12 +644,14 @@ export default (): void => {
               port: 1000,
               vcenters: [
                 {
+                  id: 1,
                   name: 'vCenter1',
                   password: 'new password',
                   url: 'https://vcenter1.example.com/sdk',
                   username: 'user1'
                 },
                 {
+                  id: 2,
                   name: 'vCenter2',
                   password: null,
                   url: '192.0.0.1',
