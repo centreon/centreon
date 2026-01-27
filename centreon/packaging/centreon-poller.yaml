@@ -137,7 +137,7 @@ overrides:
       - "centreon-broker-core (<< ${NEXT_MAJOR_VERSION}~)"
       - "centreon-engine-opentelemetry (>= ${MAJOR_VERSION}~)"
       - "centreon-engine-opentelemetry (<< ${NEXT_MAJOR_VERSION}~)"
-      - libdbd-mysql-perl
+      - (libdbd-mysql-perl | libdbd-mariadb-perl)
       - libdbd-sqlite3-perl
       - monitoring-plugins-basic
     recommends:
