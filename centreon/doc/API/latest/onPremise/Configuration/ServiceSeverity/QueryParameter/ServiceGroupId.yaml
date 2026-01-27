@@ -1,0 +1,8 @@
+in: path
+name: service_group_id
+required: true
+description: "Service group ID"
+schema:
+  type: integer
+  minimum: 1
+  example: 1
