@@ -96,7 +96,6 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
      */
     private function mapActionRuleToRoles(string $actionRule): array
     {
-        // TODO add command ACLs
         $legacyRoles = match ($actionRule) {
             'host_schedule_check' => ['ROLE_HOST_CHECK'],
             'host_schedule_forced_check' => ['ROLE_HOST_CHECK', 'ROLE_HOST_FORCED_CHECK'],
@@ -119,6 +118,14 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
             'delete_poller_cfg' => ['ROLE_DELETE_POLLER_CFG'],
             'top_counter' => ['ROLE_DISPLAY_TOP_COUNTER'],
             'poller_stats' => ['ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS'],
+            'see_check_commands' => ['ROLE_SEE_CHECK_COMMANDS'],
+            'manage_check_commands' => ['ROLE_MANAGE_CHECK_COMMANDS'],
+            'see_notification_commands' => ['ROLE_SEE_NOTIFICATION_COMMANDS'],
+            'manage_notification_commands' => ['ROLE_MANAGE_NOTIFICATION_COMMANDS'],
+            'see_discovery_commands' => ['ROLE_SEE_DISCOVERY_COMMANDS'],
+            'manage_discovery_commands' => ['ROLE_MANAGE_DISCOVERY_COMMANDS'],
+            'see_miscellaneous_commands' => ['ROLE_SEE_MISCELLANEOUS_COMMANDS'],
+            'manage_miscellaneous_commands' => ['ROLE_MANAGE_MISCELLANEOUS_COMMANDS'],
             default => [],
         };
 
