@@ -73,7 +73,6 @@ $linkCMAConnectorToExistingRelatedCMACommands = function () use ($pearDB, &$erro
     );
 };
 
-
 /**
  * Update SAML provider configuration:
  *      - If requested_authn_context exists, set requested_authn_context_comparison to its value and requested_authn_context to true
@@ -153,7 +152,6 @@ $updateSamlProviderConfiguration = function () use ($pearDB, &$errorMessage, $ve
         message: "UPGRADE - {$version}: SAML provider configuration updated successfully"
     );
 };
-
 
 try {
     // DDL statements for real time database
