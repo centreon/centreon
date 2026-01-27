@@ -289,7 +289,7 @@ allOf:
             name:
               type: string
               description: "Define a service group name that is associated with this service template"
-              example: 'host-group-name'
+              example: 'service-group-name'
             host_template_id:
               type: integer
               description: "Define a host template ID that is associated with this service group for this service template"
