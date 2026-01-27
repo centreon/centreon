@@ -524,6 +524,7 @@ overrides:
       - libfile-which-perl
       - lsb-release
       - "mariadb-client | mysql-client"
+      - (libdbd-mysql-perl | libdbd-mariadb-perl)
       - cron
       - apache2
       - rrdtool
