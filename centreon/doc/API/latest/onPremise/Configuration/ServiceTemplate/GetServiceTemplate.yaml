@@ -1,0 +1,24 @@
+get:
+  tags:
+    - Service template
+  summary: "Get a service template"
+  description: |
+    Get a service template configuration.
+
+    *This endpoint has a specific behaviour on Cloud environments.*
+    *Please check the dedicated Cloud API documentation.*
+  parameters:
+    - $ref: 'QueryParameter/ServiceTemplateId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/GetServiceTemplateResponse.yaml'
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

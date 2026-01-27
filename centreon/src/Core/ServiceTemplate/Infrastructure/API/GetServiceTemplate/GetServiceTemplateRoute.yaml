@@ -1,0 +1,7 @@
+GetServiceTemplate:
+  methods: GET
+  path: /configuration/services/templates/{serviceTemplateId}
+  requirements:
+    serviceTemplateId: '\d+'
+  controller: 'Core\ServiceTemplate\Infrastructure\API\GetServiceTemplate\GetServiceTemplateController'
+  condition: "request.attributes.get('version') >= 25.10"
