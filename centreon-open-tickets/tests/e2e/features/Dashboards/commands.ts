@@ -34,9 +34,9 @@ Cypress.Commands.add(
           const iframeBody = ($iframe[0] as HTMLIFrameElement).contentDocument
             ?.body;
           if (iframeBody) {
-            const $element = Cypress.$(iframeBody).find(elementSelector);
+            const Element = Cypress.$(iframeBody).find(elementSelector);
 
-            return $element.length > 0 && $element.is(':visible');
+            return Element.length > 0 && Element.is(':visible');
           }
 
           return false;
@@ -143,7 +143,7 @@ Cypress.Commands.add('applyAcl', () => {
 });
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       editDashboard: (name: string) => Cypress.Chainable;
