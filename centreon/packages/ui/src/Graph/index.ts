@@ -7,6 +7,7 @@ export { default as ThresholdLines } from './Chart/BasicComponents/Lines/Thresho
 export * from './Chart/models';
 export { default as useLineChartData } from './Chart/useChartData';
 export { default as Header } from './common/BaseChart/Header';
+export { default as NoData } from './common/Error/NoData';
 export type { LineChartData, Threshold, Thresholds } from './common/models';
 export * from './common/timeSeries';
 export type { Metric } from './common/timeSeries/models';
