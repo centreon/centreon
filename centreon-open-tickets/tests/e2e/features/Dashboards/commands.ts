@@ -1,5 +1,4 @@
-
-import { PAGES } from "fixtures/shared/constants/pages";
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 Cypress.Commands.add('visitDashboards', () => {
   cy.intercept({
@@ -169,5 +168,3 @@ declare global {
     }
   }
 }
-
-export {};
