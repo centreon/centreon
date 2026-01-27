@@ -22,7 +22,7 @@
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 
-require_once __DIR__ . '/../../../bootstrap.php';
+require_once _CENTREON_PATH_ . '/bootstrap.php';
 
 $version = 'xx.xx.x';
 
@@ -77,7 +77,7 @@ $createAccTables = function () use ($pearDB, &$errorMessage, $version): void {
     $pearDB->query(
         <<<'SQL'
             ALTER TABLE `additional_connector_configuration`
-            ADD COLUMN IF NOT EXISTS `port` INT UNSIGNED NOT NULL DEFAULT 443 AFTER `type`;
+            ADD COLUMN `port` INT UNSIGNED NOT NULL DEFAULT 443 AFTER `type`;
             SQL
     );
 
@@ -276,8 +276,7 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
             FROM `additional_connector_configuration`
             WHERE type = 'vmware_v6'
             AND parameters IS NOT NULL
-            AND parameters != ''
-            AND parameters != '{}'
+            AND JSON_LENGTH(parameters) > 0
             SQL
     );
     $result = $checkParams->fetch(PDO::FETCH_ASSOC);
