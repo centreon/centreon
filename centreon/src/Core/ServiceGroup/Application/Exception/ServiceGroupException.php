@@ -90,6 +90,6 @@ class ServiceGroupException extends \Exception
      */
     public static function errorWhileRetrieving(): self
     {
-        return new self(_('Error while retrieving for service groups'));
+        return new self(_('EError while retrieving service group'));
     }
 }
