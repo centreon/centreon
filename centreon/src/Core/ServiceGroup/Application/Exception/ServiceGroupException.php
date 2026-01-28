@@ -84,4 +84,12 @@ class ServiceGroupException extends \Exception
     {
         return new self(sprintf(_("The service group name '%s' already exists"), $serviceGroupName), self::CODE_CONFLICT);
     }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrieving(): self
+    {
+        return new self(_('Error while retrieving for service groups'));
+    }
 }
