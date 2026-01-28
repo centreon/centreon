@@ -1,4 +1,5 @@
 import { Form } from '@centreon/ui';
+
 import { useGetVaultConfiguration } from '../hooks/useGetVaultConfiguration';
 import { useUpdateVaultConfiguration } from '../hooks/useUpdateVaultConfiguration';
 import { PostVaultConfiguration } from '../models';
@@ -24,18 +25,18 @@ const VaultForm = (): JSX.Element => {
 
   return (
     <Form<PostVaultConfiguration>
+      Buttons={Buttons}
       className={classes.group}
       initialValues={{
         address: data?.address,
         port: data?.port,
-        rootPath: data?.rootPath,
         roleId: '',
+        rootPath: data?.rootPath,
         secretId: ''
       }}
-      validationSchema={validationSchema}
       inputs={inputs}
-      Buttons={Buttons}
       submit={submitVaultConfiguration}
+      validationSchema={validationSchema}
     />
   );
 };

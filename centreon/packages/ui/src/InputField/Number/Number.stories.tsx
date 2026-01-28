@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import NumberField from './Number';
 
@@ -25,26 +25,28 @@ const meta: Meta<typeof NumberField> = {
   component: NumberField
 };
 
+const { log } = console;
+
 export default meta;
 type Story = StoryObj<typeof NumberField>;
 
 export const Default: Story = {
   args: {
-    onChange: console.log
+    onChange: log
   }
 };
 
 export const WithDefaultValue: Story = {
   args: {
     defaultValue: 25,
-    onChange: console.log
+    onChange: log
   }
 };
 
 export const WithFallbackValue: Story = {
   args: {
     fallbackValue: 25,
-    onChange: console.log
+    onChange: log
   }
 };
 
@@ -52,7 +54,7 @@ export const WithFallbackValueAndDefaultValue: Story = {
   args: {
     defaultValue: 10,
     fallbackValue: 25,
-    onChange: console.log
+    onChange: log
   }
 };
 
@@ -61,6 +63,6 @@ export const WithFallbackValueAndDefaultValueAutoSize: Story = {
     autoSize: true,
     defaultValue: 10,
     fallbackValue: 25,
-    onChange: console.log
+    onChange: log
   }
 };

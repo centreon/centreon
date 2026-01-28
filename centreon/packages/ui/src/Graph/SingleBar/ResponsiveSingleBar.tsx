@@ -1,12 +1,11 @@
-import { useMemo, useRef } from 'react';
+import { alpha, Box, useTheme } from '@mui/material';
 
 import { animated, useSpring } from '@react-spring/web';
 import { scaleLinear } from '@visx/scale';
 import { Bar } from '@visx/shape';
 import { Group, Tooltip } from '@visx/visx';
 import { clamp, equals, flatten, head, pluck } from 'ramda';
-
-import { Box, alpha, useTheme } from '@mui/material';
+import { useMemo, useRef } from 'react';
 
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 import { margins } from '../common/margins';
@@ -14,13 +13,12 @@ import {
   formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
-import { Metric } from '../common/timeSeries/models';
+import type { Metric } from '../common/timeSeries/models';
 import { useTooltipStyles } from '../common/useTooltipStyles';
 import { getColorFromDataAndTresholds } from '../common/utils';
-
+import type { SingleBarProps } from './models';
 import { barHeights, lineMargins } from './ThresholdLine';
 import Thresholds, { groupMargin } from './Thresholds';
-import { SingleBarProps } from './models';
 
 interface Props extends SingleBarProps {
   height: number;
@@ -72,7 +70,7 @@ const ResponsiveSingleBar = ({
         theme,
         thresholds
       }),
-    [latestMetricData, thresholds, theme]
+    [latestMetricData, thresholds, theme, baseColor]
   );
 
   const isSmall = equals(size, 'small');
@@ -173,6 +171,7 @@ const ResponsiveSingleBar = ({
           placement="top"
         >
           <svg height={height} ref={svgRef} width={width}>
+            <title>single bar</title>
             <Group.Group>
               {text}
               <animated.rect
@@ -197,14 +196,14 @@ const ResponsiveSingleBar = ({
               {thresholds.enabled && (
                 <Thresholds
                   barHeight={realBarHeight}
+                  direction={direction}
                   hideTooltip={hideTooltip}
                   isSmall={isSmall}
                   showTooltip={showTooltip}
                   size={size}
+                  textWidth={textWidth}
                   thresholds={thresholds}
                   xScale={xScale}
-                  direction={direction}
-                  textWidth={textWidth}
                 />
               )}
             </Group.Group>

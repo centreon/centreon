@@ -1,5 +1,5 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
-import { AdditionalResource } from './types';
+import type { AdditionalResource } from "./types";
 
 export const additionalResourcesAtom = atom<Array<AdditionalResource>>([]);

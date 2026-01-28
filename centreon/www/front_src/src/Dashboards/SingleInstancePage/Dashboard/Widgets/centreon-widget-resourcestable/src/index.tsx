@@ -1,11 +1,11 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { ReactElement, useEffect, useMemo } from 'react';
-
 import { platformVersionsAtom } from 'packages/ui-context/src';
 import { has } from 'ramda';
-import ResourcesTable from './ResourcesTable';
+import { ReactElement, useEffect, useMemo } from 'react';
+
 import { openTicketAtom } from './atom';
 import { OpenTicketContext, ResourcesTableProps } from './models';
+import ResourcesTable from './ResourcesTable';
 
 const Widget = (props: ResourcesTableProps): ReactElement => {
   const platform = useAtomValue(platformVersionsAtom);

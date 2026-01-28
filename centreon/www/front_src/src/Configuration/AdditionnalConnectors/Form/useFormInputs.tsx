@@ -1,4 +1,5 @@
 import { Group, InputProps, InputType } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 
 import { pollersEndpoint } from '../api/endpoints';
@@ -34,18 +35,16 @@ const useFormInputs = (): FormInputsState => {
 
   const groups = [
     {
+      isDividerHidden: true,
       name: t(labelGeneralInformation),
       order: 1,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     { name: t(labelSettings), order: 2, titleAttributes }
   ];
 
   const inputs = [
     {
-      type: InputType.Grid,
-      group: t(labelGeneralInformation),
       grid: {
         columns: [
           {
@@ -63,14 +62,13 @@ const useFormInputs = (): FormInputsState => {
             type: InputType.Text
           }
         ]
-      }
+      },
+      group: t(labelGeneralInformation),
+      type: InputType.Grid
     },
 
     {
-      type: InputType.Grid,
-      group: t(labelSettings),
       grid: {
-        gridTemplateColumns: '3fr 2fr 2fr',
         columns: [
           {
             connectedAutocomplete: {
@@ -104,13 +102,14 @@ const useFormInputs = (): FormInputsState => {
             label: t(labelPort),
             type: InputType.Custom
           }
-        ]
-      }
+        ],
+        gridTemplateColumns: '3fr 2fr 2fr'
+      },
+      group: t(labelSettings),
+      type: InputType.Grid
     },
 
     {
-      type: InputType.Grid,
-      group: t(labelSettings),
       grid: {
         columns: [
           {
@@ -124,11 +123,13 @@ const useFormInputs = (): FormInputsState => {
             type: InputType.Custom
           }
         ]
-      }
+      },
+      group: t(labelSettings),
+      type: InputType.Grid
     }
   ];
 
-  return { inputs, groups };
+  return { groups, inputs };
 };
 
 export default useFormInputs;

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useDebounce } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
+import { useState } from 'react';
 
-import { useDebounce } from '@centreon/ui';
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
 

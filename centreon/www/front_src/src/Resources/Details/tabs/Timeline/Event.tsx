@@ -1,8 +1,3 @@
-import dayjs, { Dayjs } from 'dayjs';
-import { equals, filter, isNil, prop } from 'ramda';
-import { TFunction, useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import CommentIcon from '@mui/icons-material/Comment';
 import EventIcon from '@mui/icons-material/Event';
 import FaceIcon from '@mui/icons-material/Face';
@@ -10,6 +5,11 @@ import NotificationIcon from '@mui/icons-material/Notifications';
 import { Chip, Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
+
+import dayjs, { Dayjs } from 'dayjs';
+import { equals, filter, isNil, prop } from 'ramda';
+import { TFunction, useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import AcknowledgeChip from '../../../Chip/Acknowledge';
 import DowntimeChip from '../../../Chip/Downtime';
@@ -33,7 +33,6 @@ import {
 } from '../../../translatedLabels';
 import CompactStatusChip from '../CompactStatusChip';
 import OutputInformation from '../OutputInformation';
-
 import { TimelineEvent, Type } from './models';
 
 const types: Array<Type> = [

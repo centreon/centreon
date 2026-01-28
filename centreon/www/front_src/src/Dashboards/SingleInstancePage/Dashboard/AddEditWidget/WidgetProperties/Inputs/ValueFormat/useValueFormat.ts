@@ -1,6 +1,5 @@
-import { ChangeEvent, useMemo } from 'react';
-
 import { useFormikContext } from 'formik';
+import { ChangeEvent, useMemo } from 'react';
 
 import { Widget } from '../../../models';
 import { getProperty } from '../utils';

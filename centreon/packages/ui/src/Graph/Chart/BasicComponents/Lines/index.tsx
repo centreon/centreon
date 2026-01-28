@@ -1,7 +1,6 @@
-import type { MutableRefObject } from 'react';
-
 import type { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
+import type { MutableRefObject } from 'react';
 
 import {
   getDates,
@@ -10,13 +9,12 @@ import {
 } from '../../../common/timeSeries';
 import type { Line, TimeValue } from '../../../common/timeSeries/models';
 import { getPointRadius, getStyle } from '../../../common/utils';
+import { displayArea } from '../../helpers/index';
 import GuidingLines from '../../InteractiveComponents/AnchorPoint/GuidingLines';
 import RegularAnchorPoint, {
   getYAnchorPoint
 } from '../../InteractiveComponents/AnchorPoint/RegularAnchorPoint';
-import { displayArea } from '../../helpers/index';
 import type { DisplayAnchor, GlobalAreaLines, LineStyle } from '../../models';
-
 import Point from './Point';
 import RegularLine from './RegularLines';
 import useRegularLines from './RegularLines/useRegularLines';
@@ -82,9 +80,9 @@ const Lines = ({
     graphHeight: height,
     graphSvgRef,
     graphWidth: width,
-    xScale,
     hasSecondUnit,
-    maxLeftAxisCharacters
+    maxLeftAxisCharacters,
+    xScale
   };
 
   return (
@@ -110,8 +108,8 @@ const Lines = ({
 
               return (
                 <StackedLines
-                  lineStyle={lineStyle}
                   key={`stacked-${unit}`}
+                  lineStyle={lineStyle}
                   lines={lines}
                   timeSeries={stackedTimeSeries}
                   yScale={yScale}
@@ -125,8 +123,8 @@ const Lines = ({
               const [, unit] = stackedKey.split('-');
               return (
                 <StackedLines
-                  lineStyle={lineStyle}
                   key={`invert-stacked-${unit}`}
+                  lineStyle={lineStyle}
                   lines={lines}
                   timeSeries={stackedTimeSeries}
                   yScale={getYScale({
@@ -197,8 +195,8 @@ const Lines = ({
               });
 
               const style = getStyle({
-                style: lineStyle,
-                metricId: metric_id
+                metricId: metric_id,
+                style: lineStyle
               }) as LineStyle;
 
               return (
@@ -206,14 +204,14 @@ const Lines = ({
                   {displayGuidingLines && (
                     <RegularAnchorPoint
                       areaColor={areaColor || lineColor}
+                      hasSecondUnit={hasSecondUnit}
                       lineColor={lineColor}
+                      maxLeftAxisCharacters={maxLeftAxisCharacters}
                       metric_id={metric_id}
                       timeSeries={relatedTimeSeries}
                       transparency={transparency}
                       xScale={xScale}
                       yScale={yScale}
-                      maxLeftAxisCharacters={maxLeftAxisCharacters}
-                      hasSecondUnit={hasSecondUnit}
                     />
                   )}
                   {style?.showPoints &&

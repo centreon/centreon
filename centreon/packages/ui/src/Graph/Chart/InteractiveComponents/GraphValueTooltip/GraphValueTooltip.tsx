@@ -1,11 +1,10 @@
-import { equals } from 'ramda';
-
 import { Typography } from '@mui/material';
+
+import { equals } from 'ramda';
 
 import { Tooltip as MuiTooltip } from '../../../../components/Tooltip';
 import { useTooltipStyles } from '../../../common/useTooltipStyles';
-import { ThresholdTooltip, Tooltip } from '../../models';
-
+import type { ThresholdTooltip, Tooltip } from '../../models';
 import GraphValueTooltipContent from './GraphValueTooltipContent';
 
 interface Props {

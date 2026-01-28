@@ -1,19 +1,18 @@
 import {
-  MutateOptions,
-  UseMutationResult,
-  useQueryClient
-} from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
-
-import {
   Method,
   ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
 
-import { labelUserDeleted } from '../translatedLabels';
+import {
+  MutateOptions,
+  UseMutationResult,
+  useQueryClient
+} from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 
+import { labelUserDeleted } from '../translatedLabels';
 import { getDashboardAccessRightsContactGroupEndpoint } from './endpoints';
 import { DeleteAccessRightDto, resource } from './models';
 
@@ -63,34 +62,40 @@ const useDeleteAccessRightsContactGroup =
       const { onSettled, ...restOptions } = options || {};
 
       const onSettledWithInvalidateQueries = (
-        data: undefined,
+        data: unknown,
         error: ResponseError | null,
-        vars: DeleteAccessRightDto
+        vars: unknown
       ): void => {
-        invalidateQueries(vars as unknown);
-        onSettled?.(data, error, vars, undefined);
+        invalidateQueries({ _meta: vars });
+        onSettled?.(data, error, variables, undefined);
       };
 
-      const { id, dashboardId } = variables as unknown;
+      const { id, dashboardId } = variables;
 
-      return mutateAsync(
-        {
-          _meta: {
-            dashboardId,
-            id
+      try {
+        const result = await mutateAsync(
+          {
+            _meta: {
+              dashboardId,
+              id
+            }
+          },
+          {
+            onSettled: onSettledWithInvalidateQueries,
+            ...restOptions
           }
-        },
-        {
-          onSettled: onSettledWithInvalidateQueries,
-          ...restOptions
-        }
-      ).then(() => {
-        queryClient.invalidateQueries({
+        );
+
+        await queryClient.invalidateQueries({
           queryKey: [resource.dashboards]
         });
 
         showSuccessMessage(t(labelUserDeleted));
-      });
+
+        return result;
+      } catch (error) {
+        return error as ResponseError;
+      }
     };
 
     return {

@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/acls/acl-data.json';
 import { AclActionType, Action } from '../commands';
 
@@ -307,8 +307,8 @@ Then(
     cy.wait('@getTimeZone').then(() => {
       cy.executeActionOnIframe(
         data.ACLGroups.ACLGroup1.name,
-        ($body) => {
-          cy.wrap($body)
+        (body) => {
+          cy.wrap(body)
             .contains('td.ListColLeft > a', data.ACLGroups.ACLGroup1.name)
             .click();
         },
@@ -320,8 +320,8 @@ Then(
     cy.wait('@getTimeZone').then(() => {
       cy.executeActionOnIframe(
         'Authorizations information',
-        ($body) => {
-          cy.wrap($body).contains('a', 'Authorizations information').click();
+        (body) => {
+          cy.wrap(body).contains('a', 'Authorizations information').click();
         },
         3,
         3000

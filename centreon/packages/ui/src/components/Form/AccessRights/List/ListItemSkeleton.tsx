@@ -1,7 +1,6 @@
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 import { List } from '../../../List';
-
 import { useListStyles } from './List.styles';
 
 const ListItemSkeleton = (): ReactElement => {

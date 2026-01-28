@@ -4,8 +4,8 @@ import {
   Then,
   When
 } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import {
   checkMetricsAreMonitored,
   checkServicesAreMonitored
@@ -292,8 +292,8 @@ Then(
 
       return cy
         .get('#panel-content :contains("Status information")')
-        .then(($el) => {
-          if ($el.find(':contains("Downtime duration")').length === 0) {
+        .then((el) => {
+          if (el.find(':contains("Downtime duration")').length === 0) {
             cy.get('button#Close').click();
 
             return false;
@@ -381,9 +381,9 @@ Then(
       .eq(1)
       .find('td')
       .eq(1)
-      .then(($date) => {
+      .then((date) => {
         cy.getTimeFromHeader().then((localTime: string) => {
-          const toDate = $date[0].textContent || '';
+          const toDate = date[0].textContent || '';
 
           expect(
             calculateMinuteInterval(
@@ -488,8 +488,8 @@ Then(
       .its('0.contentDocument.body')
       .find('.ListTable td.isTimestamp')
       .contains(/\d+:\d+/)
-      .then(($el) => {
-        const downtimeStartTime = $el.text().trim();
+      .then((el) => {
+        const downtimeStartTime = el.text().trim();
 
         cy.getTimeFromHeader().then((localTime: string) => {
           cy.log(`Downtime start time : ${downtimeStartTime}`);

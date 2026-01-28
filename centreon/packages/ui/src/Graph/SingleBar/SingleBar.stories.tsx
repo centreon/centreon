@@ -1,7 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import dataLastWeek from '../mockedData/lastWeek.json';
-
 import { SingleBar } from '.';
 
 const meta: Meta<typeof SingleBar> = {
@@ -258,8 +257,8 @@ export const RowDirection: Story = {
 export const RowDirectionSmall: Story = {
   args: {
     data: dataLastWeek,
-    size: 'small',
     direction: 'row',
+    size: 'small',
     textWidth: 70,
     thresholds: {
       critical: [

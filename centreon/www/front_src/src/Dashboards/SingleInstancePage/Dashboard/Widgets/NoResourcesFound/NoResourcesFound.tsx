@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { useStyles } from './NoResourcesFound.styles';
 

@@ -1,5 +1,8 @@
+import { Theme } from '@mui/material';
+
+import { getResourcesUrl, getStatusColors, SeverityCode } from '@centreon/ui';
+
 import {
-  T,
   always,
   cond,
   equals,
@@ -10,12 +13,9 @@ import {
   isNil,
   length,
   lt,
-  lte
+  lte,
+  T
 } from 'ramda';
-
-import { Theme } from '@mui/material';
-
-import { SeverityCode, getResourcesUrl, getStatusColors } from '@centreon/ui';
 
 import { IndicatorType } from './models';
 

@@ -1,15 +1,15 @@
-import { ReactElement, useMemo } from 'react';
-
 import {
   CssBaseline,
+  createTheme,
   ThemeProvider as MuiThemeProvider,
-  StyledEngineProvider,
-  createTheme
+  StyledEngineProvider
 } from '@mui/material';
-
-import { ThemeMode } from '@centreon/ui-context';
-
 import { GlobalStyles } from '@mui/system';
+
+import type { ThemeMode } from '@centreon/ui-context';
+
+import { type ReactElement, useMemo } from 'react';
+
 import { getTheme } from '../ThemeProvider';
 
 interface Props {
@@ -24,7 +24,7 @@ const StoryBookThemeProvider = ({
   const theme = useMemo(() => createTheme(getTheme(themeMode)), [themeMode]);
 
   return (
-    <StyledEngineProvider injectFirst enableCssLayer>
+    <StyledEngineProvider enableCssLayer injectFirst>
       <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
       <MuiThemeProvider theme={theme}>
         {children}

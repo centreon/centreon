@@ -18,13 +18,16 @@ export const useDebounce = ({
     ref.current = functionToDebounce;
   }, [functionToDebounce]);
 
-  return useCallback((...args): void => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+  return useCallback(
+    (...args): void => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-    timeoutRef.current = setTimeout(() => {
-      ref.current?.(...args);
-    }, wait);
-  }, memoProps);
+      timeoutRef.current = setTimeout(() => {
+        ref.current?.(...args);
+      }, wait);
+    },
+    [...memoProps, wait]
+  );
 };

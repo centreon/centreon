@@ -1,11 +1,9 @@
-import { useEffect } from 'react';
-
 import dayjs from 'dayjs';
-import { path, find, isNil, lt, pipe, propEq } from 'ramda';
+import { find, isNil, lt, path, pipe, propEq } from 'ramda';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useFetchQuery, useSnackbar } from '..';
-
 import { labelLicenseWarning } from './translatedLabel';
 
 const legacyBaseEndpoint = './api/internal.php';
@@ -48,5 +46,5 @@ export const useLicenseExpirationWarning = ({ module }: Props): void => {
     if (lt(daysUntilExpiration, 15)) {
       showWarningMessage(t(labelLicenseWarning(module, daysUntilExpiration)));
     }
-  }, [data]);
+  }, [data, currentDate, getExpirationDate, module, showWarningMessage, t]);
 };

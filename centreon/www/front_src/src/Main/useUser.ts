@@ -1,9 +1,9 @@
+import { getData, useRequest } from '@centreon/ui';
+import type { User } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
+
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { isNil } from 'ramda';
-
-import { getData, useRequest } from '@centreon/ui';
-import { ThemeMode, userAtom } from '@centreon/ui-context';
-import type { User } from '@centreon/ui-context';
 
 import { userDecoder } from '../api/decoders';
 import { userEndpoint } from '../api/endpoint';

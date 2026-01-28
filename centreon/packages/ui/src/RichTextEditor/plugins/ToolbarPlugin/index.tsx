@@ -1,6 +1,7 @@
 import { Divider } from '@mui/material';
 
 import { ReactElement } from 'react';
+
 import AlignPicker from './AlignPicker';
 import BlockButtons from './BlockButtons';
 import FormatButtons from './FormatButtons';
