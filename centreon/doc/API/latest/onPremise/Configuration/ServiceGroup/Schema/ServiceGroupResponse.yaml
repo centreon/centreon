@@ -16,11 +16,11 @@ properties:
     type: string
     nullable: true
     description: "Geographical coordinates use by Centreon Map module to position element on map"
-    example: 2
+    example: 48.51,2.20
   comment:
     type: string
-    nullable:
-    description: "Comments on this service group"
+    nullable: true
+    description: "Service group description"
     example: 1
   is_activated:
     type: boolean
