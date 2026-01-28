@@ -23,6 +23,7 @@ export const useStyles = makeStyles()((theme) => ({
   subContainer: {
     alignItems: 'center',
     display: 'flex',
+    gap: 1,
     flex: 0.1
   },
   subContainerSearch: {

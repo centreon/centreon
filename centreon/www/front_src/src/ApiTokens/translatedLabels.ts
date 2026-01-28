@@ -37,3 +37,5 @@ export const labelUntil = 'Until';
 export const labelDisabled = 'Disabled';
 export const labelEnabled = 'Enabled';
 export const labelFilters = 'Filters';
+
+export const labelRefresh = 'Refresh';
