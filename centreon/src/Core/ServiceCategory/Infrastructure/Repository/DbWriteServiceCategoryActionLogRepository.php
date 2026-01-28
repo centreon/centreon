@@ -39,6 +39,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
 {
     use LoggerTrait;
     public const SERVICE_CATEGORY_PROPERTIES_MAP = [
+        'id' => 'sc_id',
         'name' => 'sc_name',
         'alias' => 'sc_alias',
         'isActivated' => 'sc_activate',

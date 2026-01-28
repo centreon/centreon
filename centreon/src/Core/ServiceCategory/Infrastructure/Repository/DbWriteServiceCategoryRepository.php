@@ -176,7 +176,7 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
     }
 
     /**
-     * @param ServiceCategory $ServiceCategory
+     * @param ServiceCategory $serviceCategory
      *
      * @throws \Throwable
      *
