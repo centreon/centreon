@@ -1,25 +1,39 @@
 <?php
-
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005-2015 Centreon
+ * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+ * GPL Licence 2.0.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License as published by the Free Software
+ * Foundation ; either version 2 of the License.
  *
- * https://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, see <http://www.gnu.org/licenses>.
+ *
+ * Linking this program statically or dynamically with other modules is making a
+ * combined work based on this program. Thus, the terms and conditions of the GNU
+ * General Public License cover the whole combination.
+ *
+ * As a special exception, the copyright holders of this program give Centreon
+ * permission to link this program with independent modules to produce an executable,
+ * regardless of the license terms of these independent modules, and to copy and
+ * distribute the resulting executable under terms of Centreon choice, provided that
+ * Centreon also meet, for each linked independent module, the terms  and conditions
+ * of the license of that module. An independent module is a module which is not
+ * derived from this program. If you modify this program, you may extend this
+ * exception to your version of the program, but you are not obliged to do so. If you
+ * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (! isset($centreon)) {
+if (!isset($centreon)) {
     exit();
 }
 
@@ -27,1156 +41,532 @@ require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonContactgroup.class.php';
 require_once _CENTREON_PATH_ . 'www/class/centreonMeta.class.php';
 
-use Adaptation\Database\Connection\Collection\QueryParameters;
-use Adaptation\Database\Connection\Exception\ConnectionException;
-use Adaptation\Database\Connection\ValueObject\QueryParameter;
-use Core\Common\Domain\Exception\CollectionException;
-use Core\Common\Domain\Exception\ValueObjectException;
-
-/**
- * Check if a meta service exists for a given name
- *
- * @param string|null $name
- * @return bool
- */
 function testExistence($name = null)
 {
-    global $pearDB, $form;
-    $metaIdFromForm = $form ? $form->getSubmitValue('meta_id') : null;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select('meta_id')
-        ->from('meta_service')
-        ->where('meta_name = :meta_name')
-        ->getQuery();
-    try {
-        $meta = $pearDB->fetchAssociative($query, QueryParameters::create([
-            QueryParameter::string('meta_name', getParamValue($name, sanitize: true)),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error while executing testExistence',
-            [
-                'metaName' => $name,
-            ],
-            $exception
-        );
-        $meta = false;
+    global $pearDB;
+    global $form;
+    $id = null;
+    if (isset($form)) {
+        $id = $form->getSubmitValue('meta_id');
     }
-    if ($meta && isset($meta['meta_id'])) {
-        return $meta['meta_id'] == $metaIdFromForm;
+    $query = "SELECT meta_id FROM meta_service WHERE meta_name = '" . htmlentities($name, ENT_QUOTES, "UTF-8") . "'";
+    $dbResult = $pearDB->query($query);
+    $meta = $dbResult->fetch();
+    #Modif case
+    if ($dbResult->rowCount() >= 1 && $meta["meta_id"] == $id) {
+        return true;
+    } #Duplicate entry
+    elseif ($dbResult->rowCount() >= 1 && $meta["meta_id"] != $id) {
+        return false;
+    } else {
+        return true;
     }
-
-    return true;
 }
 
-/**
- * Enable a meta service in the DB
- *
- * @param int|null $metaId
- * @return void
- */
-function enableMetaServiceInDB($metaId = null)
+function enableMetaServiceInDB($meta_id = null)
 {
-    if (! $metaId) {
+    if (!$meta_id) {
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update('meta_service')
-        ->set('meta_activate', "'1'")
-        ->where('meta_id = :meta_id')
-        ->getQuery();
-    try {
-        $pearDB->update($query, QueryParameters::create([
-            QueryParameter::int('meta_id', (int) $metaId),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error while enabling meta_service',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
-    }
+    $pearDB->query("UPDATE meta_service SET meta_activate = '1' WHERE meta_id = '" . $meta_id . "'");
 }
 
-/**
- * Disable a meta service in the DB
- *
- * @param int|null $metaId
- * @return void
- */
-function disableMetaServiceInDB($metaId = null)
+function disableMetaServiceInDB($meta_id = null)
 {
-    if (! $metaId) {
+    if (!$meta_id) {
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update('meta_service')
-        ->set('meta_activate', "'0'")
-        ->where('meta_id = :meta_id')
-        ->getQuery();
-    try {
-        $pearDB->update($query, QueryParameters::create([
-            QueryParameter::int('meta_id', (int) $metaId),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error while disabling meta_service',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
-    }
+    $pearDB->query("UPDATE meta_service SET meta_activate = '0' WHERE meta_id = '" . $meta_id . "'");
 }
 
 /**
- * Remove dependency relation if it is the last one
- *
  * @param int $serviceId
- * @return void
  */
 function removeRelationLastMetaServiceDependency(int $serviceId): void
 {
     global $pearDB;
-    $subQb = $pearDB->createQueryBuilder();
-    $subQuery = $subQb->select('dependency_dep_id')
-        ->from('dependency_metaserviceParent_relation')
-        ->where('meta_service_meta_id = :serviceId')
-        ->getQuery();
 
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select('COUNT(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id')
-        ->from('dependency_metaserviceParent_relation')
-        ->where('dependency_dep_id = (' . $subQuery . ')')
-        ->groupBy('dependency_dep_id')
-        ->getQuery();
-    try {
-        $result = $pearDB->fetchAssociative($query, QueryParameters::create([
-            QueryParameter::int('serviceId', $serviceId),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error in removeRelationLastMetaServiceDependency',
-            [
-                'serviceId' => $serviceId,
-            ],
-            $exception
-        );
+    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id 
+              FROM dependency_metaserviceParent_relation 
+              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_metaserviceParent_relation 
+                                         WHERE meta_service_meta_id =  ' . $serviceId . ')';
+    $dbResult = $pearDB->query($query);
+    $result = $dbResult->fetch();
 
-        return;
-    }
-    if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $qbDel = $pearDB->createQueryBuilder();
-        $queryDel = $qbDel->delete('dependency')
-            ->where('dep_id = :dep_id')
-            ->getQuery();
-        try {
-            $pearDB->delete($queryDel, QueryParameters::create([
-                QueryParameter::int('dep_id', (int) $result['id']),
-            ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error deleting dependency',
-                [
-                    'depId' => $result['id'],
-                ],
-                $exception
-            );
-        }
+    //is last parent
+    if ($result['nb_dependency'] == 1) {
+        $pearDB->query("DELETE FROM dependency WHERE dep_id = " . $result['id']);
     }
 }
 
-/**
- * Delete meta service(s) and corresponding service entries
- *
- * @param array<mixed> $metas
- * @return void
- */
-function deleteMetaServiceInDB($metas = [])
+function deleteMetaServiceInDB($metas = array())
 {
     global $pearDB;
-    foreach ($metas as $metaId => $value) {
-        removeRelationLastMetaServiceDependency((int) $metaId);
-        $qb = $pearDB->createQueryBuilder();
-        $query = $qb->delete('meta_service')
-            ->where('meta_id = :meta_id')
-            ->getQuery();
-        try {
-            $pearDB->delete($query, QueryParameters::create([
-                QueryParameter::int('meta_id', (int) $metaId),
-            ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error deleting meta_service',
-                [
-                    'meta_id' => $metaId,
-                ],
-                $exception
-            );
-        }
-        $qb2 = $pearDB->createQueryBuilder();
-        $query2 = $qb2->delete('service')
-            ->where('service_description = :service_description')
-            ->andWhere("service_register = '2'")
-            ->getQuery();
-        try {
-            $pearDB->delete($query2, QueryParameters::create([
-                QueryParameter::string('service_description', 'meta_' . $metaId),
-            ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error deleting service for meta_service',
-                [
-                    'serviceDescription' => 'meta_' . $metaId,
-                ],
-                $exception
-            );
-        }
+    foreach ($metas as $key => $value) {
+        removeRelationLastMetaServiceDependency((int)$key);
+        $pearDB->query("DELETE FROM meta_service WHERE meta_id = '" . $pearDB->escape($key) . "'");
+        $query = "DELETE FROM service WHERE service_description = 'meta_" .
+            $pearDB->escape($key) . "' AND service_register = '2'";
+        $pearDB->query($query);
     }
 }
 
-/**
- * Enable a metric in the DB
- *
- * @param int|null $msrId
- * @return void
- */
-function enableMetricInDB($msrId = null)
+function enableMetricInDB($msr_id = null)
 {
-    if (! $msrId) {
+    if (!$msr_id) {
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update('meta_service_relation')
-        ->set('activate', "'1'")
-        ->where('msr_id = :msr_id')
-        ->getQuery();
-    try {
-        $pearDB->update($query, QueryParameters::create([
-            QueryParameter::int('msr_id', (int) $msrId),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error enabling metric',
-            [
-                'msrId' => $msrId,
-            ],
-            $exception
-        );
-    }
+    $pearDB->query("UPDATE meta_service_relation SET activate = '1' WHERE msr_id = '" . $msr_id . "'");
 }
 
-/**
- * Disable a metric in the DB
- *
- * @param int|null $msrId
- * @return void
- */
-function disableMetricInDB($msrId = null)
+function disableMetricInDB($msr_id = null)
 {
-    if (! $msrId) {
+    if (!$msr_id) {
         return;
     }
     global $pearDB;
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update('meta_service_relation')
-        ->set('activate', "'0'")
-        ->where('msr_id = :msr_id')
-        ->getQuery();
-    try {
-        $pearDB->update($query, QueryParameters::create([
-            QueryParameter::int('msr_id', (int) $msrId),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error disabling metric',
-            [
-                'msrId' => $msrId,
-            ],
-            $exception
-        );
+    $pearDB->query("UPDATE meta_service_relation SET activate = '0' WHERE msr_id = '" . $msr_id . "'");
+}
+
+function deleteMetricInDB($metrics = array())
+{
+    global $pearDB;
+    foreach ($metrics as $key => $value) {
+        $pearDB->query("DELETE FROM meta_service_relation WHERE msr_id = '" . $key . "'");
     }
 }
 
-/**
- * Delete metric(s) from the DB
- *
- * @param array<mixed> $metrics
- * @return void
- */
-function deleteMetricInDB($metrics = [])
+function multipleMetaServiceInDB($metas = array(), $nbrDup = array())
 {
-    global $pearDB;
-    foreach ($metrics as $msrId => $value) {
-        $qb = $pearDB->createQueryBuilder();
-        $query = $qb->delete('meta_service_relation')
-            ->where('msr_id = :msr_id')
-            ->getQuery();
-        try {
-            $pearDB->delete($query, QueryParameters::create([
-                QueryParameter::int('msr_id', (int) $msrId),
-            ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error deleting metric',
-                [
-                    'msrId' => $msrId,
-                ],
-                $exception
-            );
-        }
-    }
-}
-
-/**
- * Duplicate meta services
- *
- * @param array<int> $metas Array of meta_ids to duplicate
- * @param array<int> $nbrDup Array of duplication counts indexed by meta_id
- * @return void
- */
-function multipleMetaServiceInDB($metas = [], $nbrDup = [])
-{
-    global $pearDB;
-    foreach ($metas as $metaId => $value) {
-        $qbSelect = $pearDB->createQueryBuilder();
-        $query = $qbSelect->select('*')
-            ->from('meta_service')
-            ->where('meta_id = :meta_id')
-            ->limit(1)
-            ->getQuery();
-        try {
-            $row = $pearDB->fetchAssociative($query, QueryParameters::create([
-                QueryParameter::int('meta_id', (int) $metaId),
-            ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error fetching meta_service for duplication',
-                [
-                    'metaId' => $metaId,
-                ],
-                $exception
-            );
-            continue;
-        }
-        if (! $row) {
-            continue;
-        }
-        $row['meta_id'] = null;
-        for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
-            $metaName = $row['meta_name'] . '_' . $i;
-            $row['meta_name'] = $metaName;
-            $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert('meta_service')
-                ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                ->getQuery();
-
-            try {
-                if (! testExistence($metaName)) {
-                    continue;
-                }
-                $params = [];
-                foreach ($row as $column => $value) {
-                    $params[] = QueryParameter::string($column, $value);
-                }
-                $pearDB->insert($insertQuery, QueryParameters::create($params));
-                $newMetaId = $pearDB->getLastInsertId();
-                if ($newMetaId) {
+    # Foreach Meta Service
+    foreach ($metas as $key => $value) {
+        global $pearDB;
+        # Get all information about it
+        $dbResult = $pearDB->query("SELECT * FROM meta_service WHERE meta_id = '" . $key . "' LIMIT 1");
+        $row = $dbResult->fetch();
+        $row["meta_id"] = null;
+        # Loop on the number of MetaService we want to duplicate
+        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+            $val = null;
+            # Create a sentence which contains all the value
+            foreach ($row as $key2 => $value2) {
+                $key2 == "meta_name" ? ($meta_name = $value2 = $value2 . "_" . $i) : null;
+                $val
+                    ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
+                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
+            }
+            if (testExistence($meta_name)) {
+                $val ? $rq = "INSERT INTO meta_service VALUES (" . $val . ")" : $rq = null;
+                $pearDB->query($rq);
+                $dbResult = $pearDB->query("SELECT MAX(meta_id) FROM meta_service");
+                $maxId = $dbResult->fetch();
+                if (isset($maxId["MAX(meta_id)"])) {
                     $metaObj = new CentreonMeta($pearDB);
-                    $metaObj->insertVirtualService($newMetaId, addslashes($metaName));
-
-                    // Duplicate contacts
-                    $qbContacts = $pearDB->createQueryBuilder();
-                    $queryContacts = $qbContacts->select('DISTINCT contact_id')
-                        ->from('meta_contact')
-                        ->where('meta_id = :meta_id')
-                        ->getQuery();
-                    $contacts = $pearDB->fetchAllAssociative($queryContacts, QueryParameters::create([
-                        QueryParameter::int('meta_id', (int) $metaId),
-                    ]));
-                    foreach ($contacts as $contact) {
-                        $qbInsertContact = $pearDB->createQueryBuilder();
-                        $queryInsertContact = $qbInsertContact->insert('meta_contact')
-                            ->values([
-                                'meta_id'    => ':meta_id',
-                                'contact_id' => ':contact_id',
-                            ])
-                            ->getQuery();
-                        $pearDB->insert($queryInsertContact, QueryParameters::create([
-                            QueryParameter::int('meta_id', (int) $newMetaId),
-                            QueryParameter::int('contact_id', (int) $contact['contact_id']),
-                        ]));
+                    $metaObj->insertVirtualService($maxId["MAX(meta_id)"], $meta_name);
+                    /* Duplicate contacts */
+                    $query = "SELECT DISTINCT contact_id FROM meta_contact WHERE meta_id = '" . $key . "'";
+                    $dbResult = $pearDB->query($query);
+                    while ($Contact = $dbResult->fetch()) {
+                        $query = "INSERT INTO meta_contact VALUES ('" .
+                            $maxId["MAX(meta_id)"] . "', '" . $Contact["contact_id"] . "')";
+                        $pearDB->query($query);
                     }
+                    /* Duplicate contactgroups */
+                    $query = "SELECT DISTINCT cg_cg_id FROM meta_contactgroup_relation WHERE meta_id = '" . $key . "'";
+                    $dbResult = $pearDB->query($query);
 
-                    // Duplicate contactgroups
-                    $qbCG = $pearDB->createQueryBuilder();
-                    $queryCG = $qbCG->select('DISTINCT cg_cg_id')
-                        ->from('meta_contactgroup_relation')
-                        ->where('meta_id = :meta_id')
-                        ->getQuery();
-                    $cgroups = $pearDB->fetchAllAssociative($queryCG, QueryParameters::create([
-                        QueryParameter::int('meta_id', (int) $metaId),
-                    ]));
-                    foreach ($cgroups as $cg) {
-                        $qbInsertCG = $pearDB->createQueryBuilder();
-                        $queryInsertCG = $qbInsertCG->insert('meta_contactgroup_relation')
-                            ->values([
-                                'meta_id'   => ':meta_id',
-                                'cg_cg_id'  => ':cg_cg_id',
-                            ])
-                            ->getQuery();
-                        $pearDB->insert($queryInsertCG, QueryParameters::create([
-                            QueryParameter::int('meta_id', (int) $newMetaId),
-                            QueryParameter::int('cg_cg_id', (int) $cg['cg_cg_id']),
-                        ]));
+                    while ($Cg = $dbResult->fetch()) {
+                        $query = "INSERT INTO meta_contactgroup_relation " .
+                            "VALUES ('" . $maxId["MAX(meta_id)"] . "', '" . $Cg["cg_cg_id"] . "')";
+                        $pearDB->query($query);
                     }
-
-                    // Duplicate metrics
-                    $qbMetric = $pearDB->createQueryBuilder();
-                    $queryMetric = $qbMetric->select('*')
-                        ->from('meta_service_relation')
-                        ->where('meta_id = :meta_id')
-                        ->getQuery();
-                    $metricsRows = $pearDB->fetchAllAssociative($queryMetric, QueryParameters::create([
-                        QueryParameter::int('meta_id', (int) $metaId),
-                    ]));
-                    foreach ($metricsRows as $metric) {
-                        $metric['msr_id'] = null;
-                        $metric['meta_id'] = $newMetaId;
-                        $columns = array_keys($metric);
-                        $qbInsertMetric = $pearDB->createQueryBuilder();
-                        $insertMetricQuery = $qbInsertMetric->insert('meta_service_relation')
-                            ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                            ->getQuery();
-                        // Build parameters for the metric row.
-                        $paramsMetric = [];
-                        foreach ($metric as $column => $value) {
-                            $paramsMetric[] =  QueryParameter::string($column, $value);
+                    $dbResult = $pearDB->query("SELECT * FROM meta_service_relation WHERE meta_id = '" . $key . "'");
+                    while ($metric = $dbResult->fetch()) {
+                        $val = null;
+                        $metric["msr_id"] = null;
+                        foreach ($metric as $key2 => $value2) {
+                            $key2 == "meta_id" ? $value2 = $maxId["MAX(meta_id)"] : null;
+                            $val
+                                ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
+                                : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
                         }
-                        $pearDB->insert($insertMetricQuery, QueryParameters::create($paramsMetric));
+                        $pearDB->query("INSERT INTO meta_service_relation VALUES (" . $val . ")");
                     }
-                    updateAclResourcesMetaRelations($newMetaId);
                 }
-            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-                CentreonLog::create()->error(
-                    CentreonLog::TYPE_SQL,
-                    'Error duplicating meta_service',
-                    [
-                        'metaId' => $metaId,
-                        'metaName' => $metaName,
-                    ],
-                    $exception
-                );
             }
         }
     }
 }
 
-/**
- * Update an existing meta service using bound parameters
- *
- * @param int|null $metaId
- * @return void
- */
-function updateMetaServiceInDB($metaId = null)
+function updateMetaServiceInDB($meta_id = null)
 {
-    global $isCloudPlatform;
-
-    if (! $metaId) {
+    if (!$meta_id) {
         return;
     }
-    updateMetaService($metaId);
-
-    if (! $isCloudPlatform) {
-        updateMetaServiceContact($metaId);
-        updateMetaServiceContactGroup($metaId);
-    }
-    updateAclResourcesMetaRelations($metaId);
+    updateMetaService($meta_id);
+    updateMetaServiceContact($meta_id);
+    updateMetaServiceContactGroup($meta_id);
 }
 
-/**
- * Insert a new meta service in the DB
- *
- * @return int
- */
 function insertMetaServiceInDB()
 {
-    global $isCloudPlatform;
-
-    $metaId = insertMetaService();
-
-    if (! $isCloudPlatform) {
-        updateMetaServiceContact($metaId);
-        updateMetaServiceContactGroup($metaId);
-    }
-    updateAclResourcesMetaRelations($metaId);
-
-    return $metaId;
+    $meta_id = insertMetaService();
+    updateMetaServiceContact($meta_id);
+    updateMetaServiceContactGroup($meta_id);
+    return ($meta_id);
 }
 
-/**
- * Duplicate metrics: for each metric to duplicate, fetch its row and insert duplicates
- *
- * @param array<int> $metrics
- * @param array<int> $nbrDup
- * @return void
- */
-function multipleMetricInDB($metrics = [], $nbrDup = [])
+function multipleMetricInDB($metrics = array(), $nbrDup = array())
 {
-    global $pearDB;
-    foreach ($metrics as $msrId => $value) {
-        $qbSelect = $pearDB->createQueryBuilder();
-        $query = $qbSelect->select('*')
-            ->from('meta_service_relation')
-            ->where('msr_id = :msr_id')
-            ->limit(1)
-            ->getQuery();
-        try {
-            $row = $pearDB->fetchAssociative($query, QueryParameters::create([
-                QueryParameter::int('msr_id', (int) $msrId),
-            ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error fetching metric for duplication',
-                [
-                    'msrId' => $msrId,
-                ],
-                $exception
-            );
-            continue;
-        }
-        if (! $row) {
-            continue;
-        }
-        $row['msr_id'] = null;
-        for ($i = 1; $i <= $nbrDup[$msrId]; $i++) {
-            $columns = array_keys($row);
-            $qbInsert = $pearDB->createQueryBuilder();
-            $insertQuery = $qbInsert->insert('meta_service_relation')
-                ->values(array_combine($columns, array_map(fn ($col) => ':' . $col, $columns)))
-                ->getQuery();
-            try {
-                $params = [];
-                foreach ($row as $column => $val) {
-                    $params[] = QueryParameter::string($column, $val);
-                }
-                $pearDB->insert($insertQuery, QueryParameters::create($params));
-            } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-                CentreonLog::create()->error(
-                    CentreonLog::TYPE_SQL,
-                    'Error inserting duplicated metric',
-                    [
-                        'originalMsrId' => $msrId,
-                        'duplicationIndex' => $i,
-                    ],
-                    $exception
-                );
+    # Foreach Meta Service
+    foreach ($metrics as $key => $value) {
+        global $pearDB;
+        # Get all information about it
+        $dbResult = $pearDB->query("SELECT * FROM meta_service_relation WHERE msr_id = '" . $key . "' LIMIT 1");
+        $row = $dbResult->fetch();
+        $row["msr_id"] = null;
+        # Loop on the number of Metric we want to duplicate
+        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+            $val = null;
+            # Create a sentence which contains all the value
+            foreach ($row as $key2 => $value2) {
+                $val
+                    ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
+                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
             }
+            $val ? $rq = "INSERT INTO meta_service_relation VALUES (" . $val . ")" : $rq = null;
+            $dbResult = $pearDB->query($rq);
         }
     }
 }
 
-/**
- * Check if the virtual meta host exists and create it if not
- *
- * @return void
- */
 function checkMetaHost()
 {
     global $pearDB;
-    $qbSelect = $pearDB->createQueryBuilder();
-    $query = $qbSelect->select('host_id')
-        ->from('host')
-        ->where("host_register = '2'")
-        ->andWhere("host_name = '_Module_Meta'")
-        ->getQuery();
-    try {
-        $host = $pearDB->fetchAssociative($query);
-    } catch (ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error fetching _Module_Meta host',
-            [
-            ],
-            $exception
-        );
-        $host = false;
-    }
-    if (! $host) {
-        $qbInsert = $pearDB->createQueryBuilder();
-        $queryInsert = $qbInsert->insert('host')
-            ->values([
-                'host_name' => "'_Module_Meta'",
-                'host_register' => "'2'",
-            ])
-            ->getQuery();
-        try {
-            $pearDB->insert($queryInsert);
-        } catch (ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error inserting _Module_Meta host',
-                [
-                ],
-                $exception
-            );
-        }
 
-        // For linking, the subqueries are left as raw SQL for clarity.
-        $queryLink = <<<'SQL'
-                INSERT INTO ns_host_relation (nagios_server_id, host_host_id)
-                VALUES (
-                    (SELECT id FROM nagios_server WHERE localhost = '1'),
-                    (SELECT host_id FROM host WHERE host_name = '_Module_Meta')
-                )
-                ON DUPLICATE KEY UPDATE nagios_server_id = (SELECT id FROM nagios_server WHERE localhost = '1')
-            SQL;
-        try {
-            $pearDB->insert($queryLink);
-        } catch (ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error linking _Module_Meta host to Nagios server',
-                [
-                ],
-                $exception
-            );
-        }
+    $query = "SELECT host_id FROM host WHERE host_register = '2'  AND host_name = '_Module_Meta' ";
+    $res = $pearDB->query($query);
+    if (!$res->rowCount()) {
+        # Add virtual _Module_Meta host
+        $query = "INSERT INTO host (host_name, host_register) VALUES ('_Module_Meta', '2') ";
+        $pearDB->query($query);
+        # Link _Module_Meta to default localhost poller
+        $query = "INSERT INTO ns_host_relation(`nagios_server_id`, `host_host_id`)
+        VALUES(
+            (SELECT id FROM nagios_server WHERE localhost = '1'),
+            (SELECT host_id FROM host WHERE host_name = '_Module_Meta')
+        )
+        ON DUPLICATE KEY UPDATE nagios_server_id = (SELECT id FROM nagios_server WHERE localhost = '1')";
+        $pearDB->query($query);
     }
 }
 
-/**
- * Insert meta service
- *
- * @param array<mixed> $ret
- * @return int
- */
-function insertMetaService($ret = [])
+function insertMetaService($ret = array())
 {
     global $form, $pearDB, $centreon;
+
     checkMetaHost();
-    if (! count($ret)) {
+
+    if (!count($ret)) {
         $ret = $form->getSubmitValues();
     }
-    $qbInsert = $pearDB->createQueryBuilder();
-    $query = $qbInsert->insert('meta_service')
-        ->values([
-            'meta_name' => ':meta_name',
-            'meta_display' => ':meta_display',
-            'check_period' => ':check_period',
-            'max_check_attempts' => ':max_check_attempts',
-            'normal_check_interval' => ':normal_check_interval',
-            'retry_check_interval' => ':retry_check_interval',
-            'notification_interval' => ':notification_interval',
-            'notification_period' => ':notification_period',
-            'notification_options' => ':notification_options',
-            'notifications_enabled' => ':notifications_enabled',
-            'calcul_type' => ':calcul_type',
-            'data_source_type' => ':data_source_type',
-            'meta_select_mode' => ':meta_select_mode',
-            'regexp_str' => ':regexp_str',
-            'metric' => ':metric',
-            'warning' => ':warning',
-            'critical' => ':critical',
-            'graph_id' => ':graph_id',
-            'meta_comment' => ':meta_comment',
-            'geo_coords' => ':geo_coords',
-            'meta_activate' => ':meta_activate',
-        ])
-        ->getQuery();
 
-    try {
-        $params = [
-            QueryParameter::string('meta_name', getParamValue($ret, 'meta_name', sanitize: true)),
-            QueryParameter::string('meta_display', getParamValue($ret, 'meta_display', sanitize: true)),
-            QueryParameter::string('check_period', getParamValue($ret, 'check_period')),
-            QueryParameter::int('max_check_attempts', (int) getParamValue($ret, 'max_check_attempts')),
-            QueryParameter::string('normal_check_interval', getParamValue($ret, 'normal_check_interval')),
-            QueryParameter::string('retry_check_interval', getParamValue($ret, 'retry_check_interval')),
-            QueryParameter::string('notification_interval', getParamValue($ret, 'notification_interval')),
-            QueryParameter::string('notification_period', getParamValue($ret, 'notification_period')),
-            QueryParameter::string('notification_options', isset($ret['ms_notifOpts']) ? implode(',', array_keys($ret['ms_notifOpts'])) : null),
-            QueryParameter::string('notifications_enabled', getParamValue($ret, 'notifications_enabled', 'notifications_enabled', default: '2')),
-            QueryParameter::string('calcul_type', $ret['calcul_type'] ?? null),
-            QueryParameter::int('data_source_type', (int) getParamValue($ret, 'data_source_type', default: 0)),
-            QueryParameter::string('meta_select_mode', getParamValue($ret, 'meta_select_mode', 'meta_select_mode')),
-            QueryParameter::string('regexp_str', getParamValue($ret, 'regexp_str', sanitize: true)),
-            QueryParameter::string('metric', getParamValue($ret, 'metric', sanitize: true)),
-            QueryParameter::string('warning', getParamValue($ret, 'warning', sanitize: true)),
-            QueryParameter::string('critical', getParamValue($ret, 'critical', sanitize: true)),
-            QueryParameter::string('graph_id', getParamValue($ret, 'graph_id')),
-            QueryParameter::string('meta_comment', getParamValue($ret, 'meta_comment', sanitize: true)),
-            QueryParameter::string('geo_coords', getParamValue($ret, 'geo_coords', sanitize: true)),
-            QueryParameter::string('meta_activate', getParamValue($ret, 'meta_activate', 'meta_activate')),
-        ];
-        $pearDB->insert($query, QueryParameters::create($params));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error inserting meta_service',
-            [
-                'metaName' => $ret['meta_name'] ?? null,
-                'params'   => $params,
-            ],
-            $exception
-        );
-    }
-    $metaId = $pearDB->getLastInsertId();
-    if (! $metaId) {
-        return 0;
-    }
+    $rq = "INSERT INTO meta_service " .
+        "(meta_name, meta_display, check_period, max_check_attempts, normal_check_interval, retry_check_interval, " .
+        "notification_interval, notification_period, notification_options, notifications_enabled, calcul_type, " .
+        "data_source_type, meta_select_mode, regexp_str, metric, warning, critical, " .
+        "graph_id, meta_comment, geo_coords, meta_activate) " .
+        "VALUES ( ";
+    isset($ret["meta_name"]) && $ret["meta_name"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    isset($ret["meta_display"]) && $ret["meta_display"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    isset($ret["check_period"]) && $ret["check_period"] != null
+        ? $rq .= "'" . $ret["check_period"] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["max_check_attempts"]) && $ret["max_check_attempts"] != null
+        ? $rq .= "'" . $ret["max_check_attempts"] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["normal_check_interval"]) && $ret["normal_check_interval"] != null
+        ? $rq .= "'" . $ret["normal_check_interval"] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["retry_check_interval"]) && $ret["retry_check_interval"] != null
+        ? $rq .= "'" . $ret["retry_check_interval"] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["notification_interval"]) && $ret["notification_interval"] != null
+        ? $rq .= "'" . $ret["notification_interval"] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["notification_period"]) && $ret["notification_period"] != null
+        ? $rq .= "'" . $ret["notification_period"] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["ms_notifOpts"]) && $ret["ms_notifOpts"] != null
+        ? $rq .= "'" . implode(",", array_keys($ret["ms_notifOpts"])) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["notifications_enabled"]["notifications_enabled"]) &&
+    $ret["notifications_enabled"]["notifications_enabled"] != 2
+        ? $rq .= "'" . $ret["notifications_enabled"]["notifications_enabled"] . "', "
+        : $rq .= "'2', ";
+    isset($ret["calcul_type"]) ? $rq .= "'" . $ret["calcul_type"] . "', " : $rq .= "NULL, ";
+    isset($ret["data_source_type"]) ? $rq .= "'" . $ret["data_source_type"] . "', " : $rq .= "0, ";
+    isset($ret["meta_select_mode"]["meta_select_mode"])
+        ? $rq .= "'" . $ret["meta_select_mode"]["meta_select_mode"] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["regexp_str"]) && $ret["regexp_str"] != null
+        ? $rq .= "'" . htmlentities($ret["regexp_str"]) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["metric"]) && $ret["metric"] != null
+        ? $rq .= "'" . htmlentities($ret["metric"]) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["warning"]) && $ret["warning"] != null
+        ? $rq .= "'" . htmlentities($ret["warning"]) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["critical"]) && $ret["critical"] != null
+        ? $rq .= "'" . htmlentities($ret["critical"]) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["graph_id"]) && $ret["graph_id"] != null ? $rq .= "'" . $ret["graph_id"] . "', " : $rq .= "NULL, ";
+    isset($ret["meta_comment"]) && $ret["meta_comment"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_comment"]) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["geo_coords"]) && $ret["geo_coords"] != null
+        ? $rq .= "'" . htmlentities($ret["geo_coords"]) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["meta_activate"]["meta_activate"]) && $ret["meta_activate"]["meta_activate"] != null
+        ? $rq .= "'" . $ret["meta_activate"]["meta_activate"] . "'"
+        : $rq .= "NULL";
+    $rq .= ")";
+    $pearDB->query($rq);
+    $dbResult = $pearDB->query("SELECT MAX(meta_id) FROM meta_service");
+    $meta_id = $dbResult->fetch();
+
+    /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('meta', $metaId, addslashes($ret['meta_name']), 'a', $fields);
-    $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $centreon->CentreonLogAction->insertLog(
+        "meta",
+        $meta_id["MAX(meta_id)"],
+        CentreonDB::escape($ret["meta_name"]),
+        "a",
+        $fields
+    );
 
-    return $metaId;
+    $metaObj = new CentreonMeta($pearDB);
+    $metaObj->insertVirtualService($meta_id["MAX(meta_id)"], CentreonDB::escape($ret["meta_name"]));
+
+    return ($meta_id["MAX(meta_id)"]);
 }
 
-/**
- * Update meta service
- *
- * @param int|null $metaId
- * @return void
- */
-function updateMetaService($metaId = null)
+function updateMetaService($meta_id = null)
 {
-    if (! $metaId) {
+    if (!$meta_id) {
         return;
     }
+
     global $form, $pearDB, $centreon;
+
     checkMetaHost();
+
+    $ret = array();
     $ret = $form->getSubmitValues();
-    $qb = $pearDB->createQueryBuilder();
-    $qb->update('meta_service')
-        ->set('meta_name', ':meta_name')
-        ->set('meta_display', ':meta_display')
-        ->set('check_period', ':check_period')
-        ->set('max_check_attempts', ':max_check_attempts')
-        ->set('normal_check_interval', ':normal_check_interval')
-        ->set('retry_check_interval', ':retry_check_interval')
-        ->set('notification_interval', ':notification_interval')
-        ->set('notification_period', ':notification_period')
-        ->set('notification_options', ':notification_options')
-        ->set('notifications_enabled', ':notifications_enabled')
-        ->set('calcul_type', ':calcul_type')
-        ->set('data_source_type', ':data_source_type')
-        ->set('meta_select_mode', ':meta_select_mode')
-        ->set('regexp_str', ':regexp_str')
-        ->set('metric', ':metric')
-        ->set('warning', ':warning')
-        ->set('critical', ':critical')
-        ->set('graph_id', ':graph_id')
-        ->set('meta_comment', ':meta_comment')
-        ->set('geo_coords', ':geo_coords')
-        ->set('meta_activate', ':meta_activate')
-        ->where('meta_id = :meta_id');
-    $query = $qb->getQuery();
-    $params = [];
-    try {
-        $params = [
-            QueryParameter::string('meta_name', getParamValue($ret, 'meta_name', sanitize: true)),
-            QueryParameter::string('meta_display', getParamValue($ret, 'meta_display', sanitize: true)),
-            QueryParameter::string('check_period', getParamValue($ret, 'check_period')),
-            QueryParameter::int('max_check_attempts', (int) getParamValue($ret, 'max_check_attempts')),
-            QueryParameter::string('normal_check_interval', getParamValue($ret, 'normal_check_interval')),
-            QueryParameter::string('retry_check_interval', getParamValue($ret, 'retry_check_interval')),
-            QueryParameter::string('notification_interval', getParamValue($ret, 'notification_interval')),
-            QueryParameter::string('notification_period', getParamValue($ret, 'notification_period')),
-            QueryParameter::string('notification_options', isset($ret['ms_notifOpts']) ? implode(',', array_keys($ret['ms_notifOpts'])) : null),
-            QueryParameter::string('notifications_enabled', getParamValue($ret, 'notifications_enabled', 'notifications_enabled', false, '2')),
-            QueryParameter::string('calcul_type', $ret['calcul_type'] ?? null),
-            QueryParameter::int('data_source_type', (int) getParamValue($ret, 'data_source_type', null, false, 0)),
-            QueryParameter::string('meta_select_mode', getParamValue($ret, 'meta_select_mode', 'meta_select_mode')),
-            QueryParameter::string('regexp_str', getParamValue($ret, 'regexp_str', sanitize: true)),
-            QueryParameter::string('metric', getParamValue($ret, 'metric', sanitize: true)),
-            QueryParameter::string('warning', getParamValue($ret, 'warning', sanitize: true)),
-            QueryParameter::string('critical', getParamValue($ret, 'critical', sanitize: true)),
-            QueryParameter::string('graph_id', getParamValue($ret, 'graph_id')),
-            QueryParameter::string('meta_comment', getParamValue($ret, 'meta_comment', sanitize: true)),
-            QueryParameter::string('geo_coords', getParamValue($ret, 'geo_coords', sanitize: true)),
-            QueryParameter::string('meta_activate', getParamValue($ret, 'meta_activate', 'meta_activate')),
-            QueryParameter::int('meta_id', (int) $metaId),
-        ];
-        $pearDB->update($query, QueryParameters::create($params));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error updating meta_service (updateMetaService)',
-            [
-                'metaId' => $metaId,
-                'params' => $params,
-            ],
-            $exception
-        );
-    }
+    $rq = "UPDATE meta_service SET ";
+    $rq .= "meta_name = ";
+    $ret["meta_name"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_name"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    $rq .= "meta_display = ";
+    $ret["meta_display"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_display"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    $rq .= "check_period = ";
+    $ret["check_period"] != null ? $rq .= "'" . $ret["check_period"] . "', " : $rq .= "NULL, ";
+    $rq .= "max_check_attempts = ";
+    $ret["max_check_attempts"] != null ? $rq .= "'" . $ret["max_check_attempts"] . "', " : $rq .= "NULL, ";
+    $rq .= "normal_check_interval = ";
+    $ret["normal_check_interval"] != null ? $rq .= "'" . $ret["normal_check_interval"] . "', " : $rq .= "NULL, ";
+    $rq .= "retry_check_interval = ";
+    $ret["retry_check_interval"] != null ? $rq .= "'" . $ret["retry_check_interval"] . "', " : $rq .= "NULL, ";
+    $rq .= "notification_interval = ";
+    $ret["notification_interval"] != null ? $rq .= "'" . $ret["notification_interval"] . "', " : $rq .= "NULL, ";
+    $rq .= "notification_period = ";
+    $ret["notification_period"] != null ? $rq .= "'" . $ret["notification_period"] . "', " : $rq .= "NULL, ";
+    $rq .= "notification_options = ";
+    isset($ret["ms_notifOpts"]) && $ret["ms_notifOpts"] != null
+        ? $rq .= "'" . implode(",", array_keys($ret["ms_notifOpts"])) . "', "
+        : $rq .= "NULL, ";
+    $rq .= "notifications_enabled = ";
+    $ret["notifications_enabled"]["notifications_enabled"] != 2
+        ? $rq .= "'" . $ret["notifications_enabled"]["notifications_enabled"] . "', "
+        : $rq .= "'2', ";
+    $rq .= "calcul_type = ";
+    $ret["calcul_type"] ? $rq .= "'" . $ret["calcul_type"] . "', " : $rq .= "NULL, ";
+    $rq .= "data_source_type = ";
+    $ret["data_source_type"] ? $rq .= "'" . $ret["data_source_type"] . "', " : $rq .= "0, ";
+    $rq .= "meta_select_mode = ";
+    $ret["meta_select_mode"]["meta_select_mode"] != null
+        ? $rq .= "'" . $ret["meta_select_mode"]["meta_select_mode"] . "', "
+        : $rq .= "NULL, ";
+    $rq .= "regexp_str = ";
+    $ret["regexp_str"] != null
+        ? $rq .= "'" . htmlentities($ret["regexp_str"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    $rq .= "metric = ";
+    $ret["metric"] != null ? $rq .= "'" . htmlentities($ret["metric"], ENT_QUOTES, "UTF-8") . "', " : $rq .= "NULL, ";
+    $rq .= "warning = ";
+    $ret["warning"] != null ? $rq .= "'" . htmlentities($ret["warning"], ENT_QUOTES, "UTF-8") . "', " : $rq .= "NULL, ";
+    $rq .= "critical = ";
+    $ret["critical"] != null
+        ? $rq .= "'" . htmlentities($ret["critical"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    $rq .= "graph_id = ";
+    $ret["graph_id"] != null ? $rq .= "'" . $ret["graph_id"] . "', " : $rq .= "NULL, ";
+    $rq .= "meta_comment = ";
+    $ret["meta_comment"] != null
+        ? $rq .= "'" . htmlentities($ret["meta_comment"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    $rq .= "geo_coords = ";
+    $ret["geo_coords"] != null
+        ? $rq .= "'" . htmlentities($ret["geo_coords"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    $rq .= "meta_activate = ";
+    $ret["meta_activate"]["meta_activate"] != null
+        ? $rq .= "'" . $ret["meta_activate"]["meta_activate"] . "' "
+        : $rq .= "NULL ";
+    $rq .= " WHERE meta_id = '" . $meta_id . "'";
+
+    /* Prepare value for changelog */
     $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('meta', $metaId, addslashes($ret['meta_name']), 'c', $fields);
+    $centreon->CentreonLogAction->insertLog("meta", $meta_id, CentreonDB::escape($ret["meta_name"]), "c", $fields);
+
+    $dbResult = $pearDB->query($rq);
+
     $metaObj = new CentreonMeta($pearDB);
-    $metaObj->insertVirtualService($metaId, addslashes($ret['meta_name']));
+    $metaObj->insertVirtualService($meta_id, CentreonDB::escape($ret["meta_name"]));
 }
 
-/**
- * Update meta service contact relations
- *
- * @param int $metaId
- * @return void
- */
-function updateMetaServiceContact($metaId)
+
+function updateMetaServiceContact($meta_id)
 {
-    if (! $metaId || ! is_numeric($metaId)) {
+    if (!$meta_id || false === is_numeric($meta_id)) {
         return;
     }
-    global $form, $pearDB, $centreon;
-    $qbDelete = $pearDB->createQueryBuilder();
-    $queryPurge = $qbDelete->delete('meta_contact')
-        ->where('meta_id = :meta_id')
-        ->getQuery();
-    try {
-        $pearDB->delete($queryPurge, QueryParameters::create([
-            QueryParameter::int('meta_id', (int) $metaId),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error purging meta_contact',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
-    }
+    global $form;
+    global $pearDB;
+    /* Purge old relation */
+    $queryPurge = "DELETE FROM meta_contact WHERE meta_id = " . $meta_id;
+    $pearDB->query($queryPurge);
+
+    /* Add relation between metaservice and contact */
+    $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
-    $userId = $centreon->user->get_id();
-    if (! in_array($userId, $ret) && $centreon->user->admin !== '1') {
-        $ret[] = $userId;
-    }
-
-    $values = [];
-    $params = [];
-
-    try {
-        foreach ($ret as $key => $contactId) {
-            $values[] = " (:metaId_{$key}, :contactId_{$key})";
-            $params["metaId_{$key}"] = QueryParameter::int("metaId_{$key}", (int) $metaId);
-            $params["contactId_{$key}"] = QueryParameter::int("contactId_{$key}", (int) $contactId);
+    if (count($ret)) {
+        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES ";
+        for ($i = 0; $i < count($ret); $i++) {
+            if ($i > 0) {
+                $queryAddRelation .= ', ';
+            }
+            $queryAddRelation .= "(" . $meta_id . ", " . $ret[$i] . ")";
         }
-        $valuesString = implode(',', $values);
-        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$valuesString}";
-        if ($values !== []) {
-            $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
-        }
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error updating Meta Service Contact',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
+        $pearDB->query($queryAddRelation);
     }
 }
 
-/**
- * Update meta service contact group relations
- *
- * @param int|null $metaId
- * @return void
- */
-function updateMetaServiceContactGroup($metaId = null)
+function updateMetaServiceContactGroup($meta_id = null)
 {
-    if (! $metaId) {
+    if (!$meta_id) {
         return;
     }
-    global $form, $pearDB;
-    $qbDelete = $pearDB->createQueryBuilder();
-    $queryDelete = $qbDelete->delete('meta_contactgroup_relation')
-        ->where('meta_id = :meta_id')
-        ->getQuery();
-    try {
-        $pearDB->delete($queryDelete, QueryParameters::create([
-            QueryParameter::int('meta_id', (int) $metaId),
-        ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error deleting meta_contactgroup_relation',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
+    global $form;
+    global $pearDB;
+    $rq = "DELETE FROM meta_contactgroup_relation ";
+    $rq .= "WHERE meta_id = '" . $meta_id . "'";
+    $dbResult = $pearDB->query($rq);
 
-        return;
-    }
+    $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cgs');
     $cg = new CentreonContactgroup($pearDB);
-    foreach ($ret as $group) {
-        if (! is_numeric($group)) {
-            $res = $cg->insertLdapGroup($group);
+    for ($i = 0; $i < count($ret); $i++) {
+        if (!is_numeric($ret[$i])) {
+            $res = $cg->insertLdapGroup($ret[$i]);
             if ($res != 0) {
-                $group = $res;
+                $ret[$i] = $res;
             } else {
                 continue;
             }
         }
-        $qbInsert = $pearDB->createQueryBuilder();
-        $queryInsert = $qbInsert->insert('meta_contactgroup_relation')
-            ->values([
-                'meta_id' => ':meta_id',
-                'cg_cg_id' => ':cg_cg_id',
-            ])
-            ->getQuery();
-        try {
-            $pearDB->insert($queryInsert, QueryParameters::create([
-                QueryParameter::int('meta_id', (int) $metaId),
-                QueryParameter::int('cg_cg_id', (int) $group),
-            ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error inserting meta_contactgroup_relation',
-                [
-                    'metaId' => $metaId,
-                    'group_id' => $group,
-                ],
-                $exception
-            );
-        }
+        $rq = "INSERT INTO meta_contactgroup_relation ";
+        $rq .= "(meta_id, cg_cg_id) ";
+        $rq .= "VALUES ";
+        $rq .= "('" . $meta_id . "', '" . $ret[$i] . "')";
+        $dbResult = $pearDB->query($rq);
     }
 }
 
-function updateAclResourcesMetaRelations(int $metaId): void
+function updateMetricInDB($msr_id = null)
 {
-    global $pearDB, $centreon;
-    if ($metaId <= 0 || $centreon->user->admin === '1') {
+    if (!$msr_id) {
         return;
     }
-
-    // get ACL resources IDs for the current user
-    $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
-    $selectAclQuery = "SELECT DISTINCT ar.acl_res_id
-            FROM acl_res_group_relations argr
-            INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
-            WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
-    try {
-        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
-        if ($aclResIds !== []) {
-            $aclResIdsImploded = implode(',', array_map(fn ($row) => $row['acl_res_id'], $aclResIds));
-
-            // clean old relations
-            $queryClean = "DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN ({$aclResIdsImploded})";
-            $pearDB->delete($queryClean, QueryParameters::create([
-                QueryParameter::int('metaId', (int) $metaId),
-            ]));
-
-            // insert new relations
-            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
-            $values = [];
-            foreach ($aclResIds as $aclResId) {
-                $values[] = " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
-                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
-            }
-            // update acl_resources_meta_relations
-            if ($values !== []) {
-                $valuesString = implode(',', $values);
-                $queryAcl = "INSERT INTO acl_resources_meta_relations (acl_res_id, meta_id) VALUES {$valuesString}";
-                $pearDB->insert($queryAcl, QueryParameters::create($paramsAcl));
-            }
-        }
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error updating acl_resources_meta_relations',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
-    }
+    updateMetric($msr_id);
 }
 
-/**
- * Update metric – simply calls updateMetric
- *
- * @param int|null $msrId
- * @return void
- */
-function updateMetricInDB($msrId = null)
+function insertMetricInDB()
 {
-    if (! $msrId) {
-        return;
-    }
-    updateMetric($msrId);
+    $msr_id = insertMetric();
+    updateMetricContactGroup($msr_id);
+    return ($msr_id);
 }
 
-// /**
-//  * Insert metric – inserts then updates its contact groups
-//  * Not used
-//  *
-//  * @return int
-//  */
-// function insertMetricInDB()
-// {
-//     $msrId = insertMetric();
-//     updateMetricContactGroup($msrId);
-//     return $msrId;
-// }
-
-/**
- * Insert a metric
- *
- * @param array<mixed> $ret
- * @return int
- */
-function insertMetric($ret = [])
+function insertMetric($ret = array())
 {
-    global $form, $pearDB, $centreon;
+    global $form;
+    global $pearDB;
+    global $centreon;
     $ret = $form->getSubmitValues();
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->insert('meta_service_relation')
-        ->values([
-            'meta_id' => ':meta_id',
-            'host_id' => ':host_id',
-            'metric_id' => ':metric_id',
-            'msr_comment' => ':msr_comment',
-            'activate' => ':activate',
-        ])
-        ->getQuery();
-    try {
-        $params = [
-            QueryParameter::int('meta_id', (int) getParamValue($ret, 'meta_id')),
-            QueryParameter::int('host_id', (int) getParamValue($ret, 'host_id')),
-            QueryParameter::int('metric_id', (int) getParamValue($ret, 'metric_sel', 1)),
-            QueryParameter::string('msr_comment', getParamValue($ret, 'msr_comment', sanitize: true)),
-            QueryParameter::string('activate', getParamValue($ret, 'activate', 'activate')),
-        ];
-        $pearDB->insert($query, QueryParameters::create($params));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error inserting metric',
-            [
-                'params' => $params,
-            ],
-            $exception
-        );
-    }
-    $msrId = $pearDB->getLastInsertId();
-
-    return $msrId;
+    $rq = "INSERT INTO meta_service_relation " .
+        "(meta_id, host_id, metric_id, msr_comment, activate) " .
+        "VALUES ( ";
+    isset($ret["meta_id"]) && $ret["meta_id"] != null ? $rq .= "'" . $ret["meta_id"] . "', " : $rq .= "NULL, ";
+    isset($ret["host_id"]) && $ret["host_id"] != null ? $rq .= "'" . $ret["host_id"] . "', " : $rq .= "NULL, ";
+    isset($ret["metric_sel"][1]) && $ret["metric_sel"][1] != null
+        ? $rq .= "'" . $ret["metric_sel"][1] . "', "
+        : $rq .= "NULL, ";
+    isset($ret["msr_comment"]) && $ret["msr_comment"] != null
+        ? $rq .= "'" . htmlentities($ret["msr_comment"]) . "', "
+        : $rq .= "NULL, ";
+    isset($ret["activate"]["activate"]) && $ret["activate"]["activate"] != null
+        ? $rq .= "'" . $ret["activate"]["activate"] . "'"
+        : $rq .= "NULL";
+    $rq .= ")";
+    $dbResult = $pearDB->query($rq);
+    $dbResult = $pearDB->query("SELECT MAX(msr_id) FROM meta_service_relation");
+    $msr_id = $dbResult->fetch();
+    return ($msr_id["MAX(msr_id)"]);
 }
 
-/**
- * Update a metric
- *
- * @param int|null $msrId
- * @return void
- */
-function updateMetric($msrId = null)
+function updateMetric($msr_id = null)
 {
-    if (! $msrId) {
+    if (!$msr_id) {
         return;
     }
-    global $form, $pearDB;
+    global $form;
+    global $pearDB;
     $ret = $form->getSubmitValues();
-    $qb = $pearDB->createQueryBuilder();
-    $query = $qb->update('meta_service_relation')
-        ->set('meta_id', ':meta_id')
-        ->set('host_id', ':host_id')
-        ->set('metric_id', ':metric_id')
-        ->set('msr_comment', ':msr_comment')
-        ->set('activate', ':activate')
-        ->where('msr_id = :msr_id')
-        ->getQuery();
-    try {
-        $params = [
-            QueryParameter::int('meta_id', (int) getParamValue($ret, 'meta_id')),
-            QueryParameter::int('host_id', (int) getParamValue($ret, 'host_id')),
-            QueryParameter::int('metric_id', (int) getParamValue($ret, 'metric_sel', 1)),
-            QueryParameter::string('msr_comment', getParamValue($ret, 'msr_comment', sanitize: true)),
-            QueryParameter::string('activate', getParamValue($ret, 'activate', 'activate')),
-            QueryParameter::int('msr_id', (int) $msrId),
-        ];
-        $pearDB->update($query, QueryParameters::create($params));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error updating metric',
-            [
-                'msrId' => $msrId,
-                'params' => $params,
-            ],
-            $exception
-        );
-    }
-}
-
-/**
- * Retrieve and optionally sanitize a parameter from a (possibly nested) array
- *
- * @param array<mixed>|mixed $params Main input parameter or array of parameters
- * @param string|null $key The first-level key
- * @param string|int|null $subKey Optional subkey for nested access
- * @param bool $sanitize Whether to sanitize the value using htmlspecialchars
- * @param mixed|null $default Default value if key is not found
- *
- * @return mixed
- */
-function getParamValue(
-    $params,
-    string|null $key = null,
-    string|int|null $subKey = null,
-    bool $sanitize = false,
-    mixed $default = null,
-): mixed {
-    // If not an array, return directly (optionally sanitize)
-    if (! is_array($params) || $key === null) {
-        return $sanitize ? sanitize($params) : $params;
-    }
-
-    // Handle nested parameter (with subkey)
-    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] == 0)) {
-        return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
-    }
-
-    // Handle first-level parameter
-    if (! empty($params[$key]) || $params[$key] == 0) {
-        return $sanitize ? sanitize($params[$key]) : $params[$key];
-    }
-
-    return $default;
-}
-
-/**
- * Sanitize a value using htmlspecialchars
- * PS: the htmlspecialchars function is used to keep the same behavior as the original code
- *
- * @param mixed $value
- * @return mixed
- */
-function sanitize(mixed $value): mixed
-{
-    return is_string($value)
-        ? htmlspecialchars($value, ENT_QUOTES, 'UTF-8')
-        : $value;
+    $rq = "UPDATE meta_service_relation SET ";
+    $rq .= "meta_id = ";
+    $ret["meta_id"] != null ? $rq .= "'" . $ret["meta_id"] . "', " : $rq .= "NULL, ";
+    $rq .= "host_id = ";
+    $ret["host_id"] != null ? $rq .= "'" . $ret["host_id"] . "', " : $rq .= "NULL, ";
+    $rq .= "metric_id = ";
+    $ret["metric_sel"][1] != null ? $rq .= "'" . $ret["metric_sel"][1] . "', " : $rq .= "NULL, ";
+    $rq .= "msr_comment = ";
+    $ret["msr_comment"] != null
+        ? $rq .= "'" . htmlentities($ret["msr_comment"], ENT_QUOTES, "UTF-8") . "', "
+        : $rq .= "NULL, ";
+    $rq .= "activate = ";
+    $ret["activate"]["activate"] != null ? $rq .= "'" . $ret["activate"]["activate"] . "' " : $rq .= "NULL ";
+    $rq .= " WHERE msr_id = '" . $msr_id . "'";
+    $pearDB->query($rq);
 }

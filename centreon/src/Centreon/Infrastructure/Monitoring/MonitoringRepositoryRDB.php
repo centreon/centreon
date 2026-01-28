@@ -1020,7 +1020,7 @@ final class MonitoringRepositoryRDB extends AbstractRepositoryDRB implements Mon
             . ' WHERE srv.enabled = \'1\'
               AND h.enabled = \'1\'
               AND srv.description = :service_description
-            GROUP BY srv.service_id, h.host_id';
+            GROUP BY srv.service_id';
 
         $request = $this->translateDbName($request);
 
