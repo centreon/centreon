@@ -37,7 +37,7 @@ properties:
           "id": 2,
           "name": "my-vcenter B",
           "url": "http://10.10.10.10/sdk",
-          "username": null,
+          "username": "username2",
           "password": null
         },
         {
