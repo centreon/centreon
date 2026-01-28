@@ -29,6 +29,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
 
 class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
@@ -172,5 +173,34 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
 
             throw $ex;
         }
+    }
+
+    /**
+     * @param ServiceCategory $ServiceCategory
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function update(ServiceCategory $serviceCategory): void {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.service_categories
+                SET
+                    `sc_name` = :name,
+                    `sc_description` = :alias,
+                    `sc_activate` = :isActivated
+                WHERE sc_id = :id
+                SQL
+        );
+        $statement = $this->db->prepare($request);
+
+        $statement->bindValue(':name', $serviceCategory->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':alias', $serviceCategory->getAlias(), \PDO::PARAM_STR);
+        $statement->bindValue(':isActivated', (new BoolToEnumNormalizer())->normalize($serviceCategory->isActivated()), \PDO::PARAM_STR);
+        $statement->bindValue(':id', $serviceCategory->getId(), \PDO::PARAM_INT);
+
+        $statement->execute();
+
     }
 }

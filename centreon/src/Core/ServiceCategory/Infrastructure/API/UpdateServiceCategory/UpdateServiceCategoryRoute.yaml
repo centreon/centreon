@@ -1,0 +1,7 @@
+UpdateServiceCategory:
+  methods: PUT
+  path: /configuration/services/categories/{serviceCategoryId}
+  requirements:
+    serviceCategoryId: '\d+'
+  controller: 'Core\ServiceCategory\Infrastructure\API\UpdateServiceCategory\UpdateServiceCategoryController'
+  condition: "request.attributes.get('version') >= '25.10'"

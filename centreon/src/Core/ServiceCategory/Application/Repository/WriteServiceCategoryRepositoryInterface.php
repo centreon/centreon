@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\ServiceCategory\Application\Repository;
 
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
 
 interface WriteServiceCategoryRepositoryInterface
 {
@@ -66,4 +67,13 @@ interface WriteServiceCategoryRepositoryInterface
      * @throws \Throwable
      */
     public function unlinkFromService(int $serviceId, array $serviceCategoriesIds): void;
+
+    /**
+     * @param ServiceCategory $ServiceCategory
+     *
+     * @throws \Throwable
+     *
+     * @return void
+     */
+    public function update(ServiceCategory $ServiceCategory): void;
 }
