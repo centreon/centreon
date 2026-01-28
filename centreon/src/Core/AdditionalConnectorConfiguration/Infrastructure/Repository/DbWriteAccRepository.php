@@ -91,6 +91,7 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
                 UPDATE `:db`.`additional_connector_configuration`
                 SET
                     `name` = :name,
+                    `port` = :port,
                     `description` = :description,
                     `updated_by` = :updatedBy,
                     `updated_at` = :updatedAt
@@ -101,6 +102,7 @@ class DbWriteAccRepository extends AbstractRepositoryRDB implements WriteAccRepo
 
         $statement->bindValue(':id', $acc->getId(), \PDO::PARAM_INT);
         $statement->bindValue(':name', $acc->getName(), \PDO::PARAM_STR);
+        $statement->bindValue(':port', $acc->getParameters()->getEncryptedData()['port'] ?? 443, \PDO::PARAM_INT);
         $statement->bindValue(':description', $acc->getDescription(), \PDO::PARAM_STR);
         $statement->bindValue(':updatedBy', $acc->getUpdatedBy(), \PDO::PARAM_INT);
         $statement->bindValue(':updatedAt', $acc->getUpdatedAt()->getTimestamp(), \PDO::PARAM_INT);
