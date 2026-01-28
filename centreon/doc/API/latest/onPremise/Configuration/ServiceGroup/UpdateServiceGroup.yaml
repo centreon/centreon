@@ -5,7 +5,7 @@ put:
   description: |
     Update a service group configuration
   parameters:
-    - $ref: 'QueryParameter/SeverityId.yaml'
+    - $ref: 'QueryParameter/ServiceGroupId.yaml'
   requestBody:
     required: true
     content:
