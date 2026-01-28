@@ -1,0 +1,22 @@
+get:
+  tags:
+    - Service group
+  summary: "Get a service group"
+  description: |
+    Get an existing service group.
+
+  parameters:
+    - $ref: 'QueryParameter/ServiceGroupId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/ServiceGroupResponse.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'
