@@ -1,9 +1,9 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+
 import IconRefresh from '@mui/icons-material/Refresh';
 
 import { IconButton } from '@centreon/ui';
-
-import { useQueryClient } from '@tanstack/react-query';
-import { useTranslation } from 'react-i18next';
 
 import { labelRefresh } from '../../translatedLabels';
 
@@ -20,9 +20,9 @@ const Refresh = (): JSX.Element => {
     <IconButton
       ariaLabel={t(labelRefresh) as string}
       data-testid="Refresh"
-      onClick={onRefresh}
       size="small"
       title={t(labelRefresh) as string}
+      onClick={onRefresh}
     >
       <IconRefresh />
     </IconButton>

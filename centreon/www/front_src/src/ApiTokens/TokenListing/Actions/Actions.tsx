@@ -1,6 +1,5 @@
 import TokenFilter from './Filters';
 import { useStyles } from './actions.styles';
-
 import Refresh from './Refresh';
 
 interface Props {
