@@ -1,0 +1,7 @@
+GetServiceCategory:
+  methods: GET
+  path: /configuration/services/categories/{serviceCategoryId}
+  requirements:
+    serviceCategoryId: '\d+'
+  controller: 'Core\ServiceCategory\Infrastructure\API\GetServiceCategory\GetServiceCategoryController'
+  condition: "request.attributes.get('version') >= '25.10'"

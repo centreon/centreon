@@ -1,0 +1,22 @@
+get:
+  tags:
+    - Service category
+  summary: "Get a service category"
+  description: |
+    Get an existing service category.
+
+  parameters:
+    - $ref: 'QueryParameter/ServiceCategoryId.yaml'
+  responses:
+    '200':
+      description: "OK"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/ServiceCategoryResponse.yaml'
+    '403':
+      $ref: '../../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../../Common/Response/NotFound.yaml'
+    '500':
+      $ref: '../../../Common/Response/InternalServerError.yaml'

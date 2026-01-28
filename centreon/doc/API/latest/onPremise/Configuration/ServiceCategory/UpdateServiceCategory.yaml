@@ -1,0 +1,27 @@
+put:
+  tags:
+    - Service category
+  summary: "Update a service category"
+  description: |
+    Update a service category configuration
+  parameters:
+    - $ref: 'QueryParameter/ServiceCategoryId.yaml'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'Schema/ServiceCategoryRequest.yaml'
+  responses:
+    '204':
+      description: "OK"
+    '400':
+      $ref: '../../Common/Response/BadRequest.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '404':
+      $ref: '../../Common/Response/NotFound.yaml'
+    '409':
+      $ref: '../../Common/Response/Conflict.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

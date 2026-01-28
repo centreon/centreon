@@ -25,6 +25,9 @@ namespace Core\ServiceCategory\Application\Exception;
 
 class ServiceCategoryException extends \Exception
 {
+
+    public const CODE_CONFLICT = 1;
+
     /**
      * @return self
      */
@@ -103,5 +106,39 @@ class ServiceCategoryException extends \Exception
     public static function errorWhileRetrievingRealTimeServiceCategories(\Throwable $exception): self
     {
         return new self(_('Error while searching service categories in real time context'), 0, $exception);
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileRetrieving(): self
+    {
+        return new self(_('Error while retrieving service category'));
+    }
+
+     /**
+     * @return self
+     */
+    public static function editNotAllowed(): self
+    {
+        return new self(_('You are not allowed to update service categories'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileUpdating(): self
+    {
+        return new self(_('Error while updating service category'));
+    }
+
+      /**
+     * @param string $serviceCategoryName
+     *
+     * @return self
+     */
+    public static function nameAlreadyExists(string $serviceCategoryName): self
+    {
+        return new self(sprintf(_("The service category name '%s' already exists"), $serviceCategoryName), self::CODE_CONFLICT);
     }
 }

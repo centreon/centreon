@@ -1,0 +1,14 @@
+type: object
+required: ["name", "alias"]
+properties:
+  name:
+    type: string
+    description: "Service category name"
+    example: "service-category"
+  alias:
+    type: string
+    description: "Service category alias"
+    example: "service-category"
+  is_activated:
+    type: boolean
+    description: "Indicates whether this service category is enabled or not"

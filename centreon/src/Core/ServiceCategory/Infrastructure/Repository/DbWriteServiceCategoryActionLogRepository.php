@@ -33,6 +33,7 @@ use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\NewServiceCategory;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
 
 class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB implements WriteServiceCategoryRepositoryInterface
 {
@@ -139,7 +140,7 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
      * @return array<string, string>
      */
     private function getServiceCategoryAsArray(
-        NewServiceCategory $serviceCategory,
+        NewServiceCategory|ServiceCategory $serviceCategory,
     ): array {
         $reflection = new \ReflectionClass($serviceCategory);
         $properties = $reflection->getProperties();
@@ -150,6 +151,9 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
             if ($property->getName() === 'isActivated') {
                 $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
                     = $property->getValue($serviceCategory) ? '1' : '0';
+            } elseif($property->getName() === 'id') {
+                $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
+                    = strval($property->getValue($serviceCategory));
             } else {
                 $serviceCategoryAsArray[self::SERVICE_CATEGORY_PROPERTIES_MAP[$property->getName()]]
                     = is_string($property->getValue($serviceCategory))
@@ -159,5 +163,37 @@ class DbWriteServiceCategoryActionLogRepository extends AbstractRepositoryRDB im
         }
 
         return $serviceCategoryAsArray;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update(ServiceCategory $serviceCategory): void
+    {
+        try {
+            $this->writeServiceCategoryRepository->update($serviceCategory);
+            
+            $actionLog = new ActionLog(
+                objectType: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
+                objectId: $serviceCategory->getId(),
+                objectName: $serviceCategory->getName(),
+                actionType: ActionLog::ACTION_TYPE_CHANGE,
+                contactId: $this->user->getId()
+            );
+            $actionLogId = $this->writeActionLogRepository->addAction($actionLog);
+            $actionLog->setId($actionLogId);
+            $details = $this->getServiceCategoryAsArray($serviceCategory);
+            //$details = [];
+            $this->writeActionLogRepository->addActionDetails($actionLog, $details);
+
+            return ;
+        } catch (\Throwable $ex) {
+            $this->error(
+                'Error while updating a service category',
+                ['serviceCategory' => $serviceCategory, 'trace' => (string) $ex]
+            );
+
+            throw $ex;
+        }
     }
 }
