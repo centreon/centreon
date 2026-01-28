@@ -1,16 +1,14 @@
-import { useState } from 'react';
-
-import { equals, isNil, negate } from 'ramda';
-
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
-import { margin } from '../../common';
-import { GraphInterval, Interval } from '../../models';
+import { equals, isNil, negate } from 'ramda';
+import { useState } from 'react';
 
+import { margin } from '../../common';
+import type { GraphInterval, Interval } from '../../models';
+import { TimeShiftDirection } from './models';
 import TimeShiftIcon, { timeShiftIconSize } from './TimeShiftIcon';
 import TimeShiftZone from './TimeShiftZone';
-import { TimeShiftDirection } from './models';
 
 interface Props {
   getInterval?: (args: Interval) => void;
@@ -70,9 +68,9 @@ const TimeShiftZones = ({
       />
       {displayIcon && (
         <TimeShiftIcon
-          Icon={Icon}
           ariaLabel={ariaLabelIcon}
           directionHovered={directionHovered}
+          Icon={Icon}
           xIcon={xIcon}
           yIcon={yIcon}
         />

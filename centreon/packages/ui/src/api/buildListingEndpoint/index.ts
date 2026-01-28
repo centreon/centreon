@@ -1,7 +1,7 @@
 import toRawQueryParameters from '../../queryParameters';
-import { QueryParameter } from '../../queryParameters/models';
+import type { QueryParameter } from '../../queryParameters/models';
 import { getSearchQueryParameterValue } from './getSearchQueryParameterValue';
-import { BuildListingEndpointParameters, Parameters } from './models';
+import type { BuildListingEndpointParameters, Parameters } from './models';
 
 const getQueryParameters = ({
   sort,
@@ -44,7 +44,7 @@ const buildListingEndpoint = ({
       ]
     });
   }
-  
+
   return buildEndpoint({
     baseEndpoint,
     queryParameters: [

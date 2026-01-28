@@ -1,12 +1,14 @@
 import { SingleAutocompleteField, useResizeObserver } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreateTokenFormValues } from '../../../Listing/models';
+
 import { tokenAtom } from '../../../atoms';
+import { CreateTokenFormValues } from '../../../Listing/models';
 import { labelDuration } from '../../../translatedLabels';
 import { dataDuration } from '../../utils';
 import { useDurationstyles } from './Duration.styles';
@@ -60,10 +62,10 @@ const DurationField = (): JSX.Element => {
         getOptionItemLabel={(option) => option?.name}
         id="duration"
         label={t(labelDuration)}
+        onChange={changeDuration}
         options={options}
         required={true}
         value={values.duration}
-        onChange={changeDuration}
       />
       {isDisplayingDateTimePicker &&
         equals(values.duration?.id, 'customize') && (

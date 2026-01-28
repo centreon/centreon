@@ -1,9 +1,9 @@
+import { Typography } from '@mui/material';
+
 import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography } from '@mui/material';
 import { primaryCommand, secondaryCommand } from './CommandeLine.module.css';
-
 import { getCommandsWithArguments } from './utils';
 
 const useStyles = makeStyles()((theme) => ({

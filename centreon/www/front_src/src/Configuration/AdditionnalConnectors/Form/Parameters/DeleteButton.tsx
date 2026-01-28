@@ -1,14 +1,12 @@
-import { ReactElement } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutline';
 import { Chip } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { labelRemoveVCenterESX } from '../../translatedLabels';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { labelRemoveVCenterESX } from '../../translatedLabels';
 import { useDeleteButtonStyles } from './useParametersStyles';
 
 type Props = {

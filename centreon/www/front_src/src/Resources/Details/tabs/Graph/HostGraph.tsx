@@ -1,16 +1,15 @@
-import { useState } from 'react';
-
-import { useAtom } from 'jotai';
-import { isNil } from 'ramda';
-
 import type { ListingModel } from '@centreon/ui';
 import { TimePeriods, useRequest } from '@centreon/ui';
 
-import type { TabProps } from '..';
+import { useAtom } from 'jotai';
+import { isNil } from 'ramda';
+import { useState } from 'react';
+
 import GraphOptions from '../../../Graph/Performance/ExportableGraphWithTimeline/GraphOptions';
 import { listResources } from '../../../Listing/api';
 import type { Resource } from '../../../models';
 import InfiniteScroll from '../../InfiniteScroll';
+import type { TabProps } from '..';
 import ServiceGraphs from '../Services/Graphs';
 import LoadingSkeleton from '../Timeline/LoadingSkeleton';
 import { updatedGraphIntervalAtom } from './atoms';
@@ -67,12 +66,12 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
           renderExternalComponent={<GraphOptions />}
         />
       }
+      graphTimeParameters={graphTimeParameters}
       limit={limit}
       loading={sending}
       loadingSkeleton={<LoadingSkeleton />}
       preventReloadWhen={isNil(details)}
       sendListingRequest={sendListingRequest}
-      graphTimeParameters={graphTimeParameters}
     >
       {({
         infiniteScrollTriggerRef,

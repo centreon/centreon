@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { PageSkeleton, useFullscreen } from '@centreon/ui';
 
 import { equals, includes, isNil, replace } from 'ramda';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-
-import { PageSkeleton, useFullscreen } from '@centreon/ui';
 
 const LegacyRoute = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
@@ -105,11 +104,11 @@ const LegacyRoute = (): JSX.Element => {
         frameBorder="0"
         id="main-content"
         name="main-content"
+        onLoad={load}
         scrolling="yes"
         src={`./main.get.php${params}`}
         style={{ height: '100%', width: '100%' }}
         title="Main Content"
-        onLoad={load}
       />
     </>
   );

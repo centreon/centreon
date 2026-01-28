@@ -1,5 +1,4 @@
 import { baseKey, getStoredOrDefault } from '../storage';
-
 import { Filter } from './models';
 
 const filterKey = `${baseKey}filter`;

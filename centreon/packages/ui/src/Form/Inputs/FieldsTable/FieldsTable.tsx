@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import { FormHelperText, IconButton, Typography } from '@mui/material';
 
-import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
+import { userAtom } from '@centreon/ui-context';
+
+import {
+  type DraggableSyntheticListeners,
+  rectIntersection
+} from '@dnd-kit/core';
 import { verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { FormikValues, useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
 import {
-  path,
   clone,
   dec,
   equals,
@@ -16,26 +21,22 @@ import {
   map,
   not,
   or,
+  path,
   pick,
   pipe,
   split,
   type
 } from 'ramda';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
-import { FormHelperText, IconButton, Typography } from '@mui/material';
-
-import { userAtom } from '@centreon/ui-context';
-
 import { SortableItems, useMemoComponent } from '../../..';
-import { DragEnd } from '../../../SortableItems';
-import {
+import type { DragEnd } from '../../../SortableItems';
+import type {
   InputPropsWithoutGroup,
   InputPropsWithoutGroupAndType
 } from '../models';
-
 import Row from './Row';
 
 interface StylesProps {
@@ -146,8 +147,8 @@ const SortableRow = ({
         index={Number(id)}
         isLastElement={isLastElement}
         label={label}
-        tableFieldName={fieldName}
         onDeleteRow={deleteRow}
+        tableFieldName={fieldName}
       />
     </div>
   );
@@ -266,7 +267,7 @@ const FieldsTable = ({
     if (getSortableDefined) {
       setIsSortable(fieldsTable?.getSortable?.(values) || false);
     }
-  }, [fieldName, fieldsTable, fieldsTableRows, label, values]);
+  }, [fieldsTable, values, getSortableDefined]);
 
   const updatePriorities = (items): Array<unknown> =>
     items.reduce((acc, curr, index) => {
@@ -296,7 +297,6 @@ const FieldsTable = ({
         <div className={classes.table}>
           {isSortable ? (
             <SortableItems<Entity>
-              updateSortableItemsOnItemsChange
               Content={SortableRow}
               collisionDetection={rectIntersection}
               getDisableOverItemSortableCondition={
@@ -312,8 +312,9 @@ const FieldsTable = ({
                 'onDeleteRow'
               ]}
               items={sortableItems}
-              sortingStrategy={verticalListSortingStrategy}
               onDragEnd={dragEnd}
+              sortingStrategy={verticalListSortingStrategy}
+              updateSortableItemsOnItemsChange
             />
           ) : (
             keysToIterate.map((idx): JSX.Element => {
@@ -333,8 +334,8 @@ const FieldsTable = ({
                     index={idx}
                     isLastElement={isLastElement}
                     label={label}
-                    tableFieldName={fieldName}
                     onDeleteRow={getSortableDefined ? onDeleteRow : undefined}
+                    tableFieldName={fieldName}
                   />
                 </div>
               );

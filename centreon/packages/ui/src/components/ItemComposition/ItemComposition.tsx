@@ -1,13 +1,11 @@
-import { ReactElement } from 'react';
-
-import { gt } from 'ramda';
-
 import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
 import { Typography } from '@mui/material';
 
-import { Button } from '..';
+import { gt } from 'ramda';
+import type { ReactElement } from 'react';
 
+import { Button } from '..';
 import { useItemCompositionStyles } from './ItemComposition.styles';
 
 export type Props = {
@@ -44,7 +42,7 @@ export const ItemComposition = ({
       <div className={classes.itemCompositionItemsAndLink}>
         <div className={classes.itemCompositionItems}>{children}</div>
         {displayItemsAsLinked && hasMoreThanOneChildren && (
-          <div data-linked className={classes.linkedItems}>
+          <div className={classes.linkedItems} data-linked>
             <LinkIcon className={classes.linkIcon} viewBox="0 0 24 24" />
           </div>
         )}
@@ -59,9 +57,9 @@ export const ItemComposition = ({
             disabled={addbuttonDisabled}
             icon={IconAdd || <AddIcon />}
             iconVariant="start"
+            onClick={onAddItem}
             size="small"
             variant="ghost"
-            onClick={onAddItem}
           >
             {labelAdd}
           </Button>

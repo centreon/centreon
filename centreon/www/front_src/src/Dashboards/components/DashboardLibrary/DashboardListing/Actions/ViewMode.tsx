@@ -1,17 +1,16 @@
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import ListIcon from '@mui/icons-material/FormatListBulleted';
 import CardsIcon from '@mui/icons-material/GridViewOutlined';
 import { Box } from '@mui/material';
 
 import { IconButton } from '@centreon/ui';
 
+import { useAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { viewModeAtom } from '../atom';
 import { ViewMode as ViewModeType } from '../models';
 import { labelCardsView, labelListView } from '../translatedLabels';
-
 import { useActionsStyles } from './useActionsStyles';
 
 const ViewMode = (): JSX.Element => {
@@ -22,14 +21,14 @@ const ViewMode = (): JSX.Element => {
 
   const actions = [
     {
-      Icon: CardsIcon,
       changeMode: () => setViewMode(ViewModeType.Cards),
+      Icon: CardsIcon,
       label: labelCardsView,
       mode: ViewModeType.Cards
     },
     {
-      Icon: ListIcon,
       changeMode: () => setViewMode(ViewModeType.List),
+      Icon: ListIcon,
       label: labelListView,
       mode: ViewModeType.List
     }
@@ -44,8 +43,8 @@ const ViewMode = (): JSX.Element => {
             color={equals(mode, viewMode) ? 'primary' : 'default'}
             data-selected={equals(mode, viewMode)}
             key={label}
-            title={t(label)}
             onClick={changeMode}
+            title={t(label)}
           >
             <Icon />
           </IconButton>

@@ -1,23 +1,21 @@
-import { ChangeEvent, useCallback, useState } from 'react';
+import { InputAdornment } from '@mui/material';
 
-import { FormikValues, useFormikContext } from 'formik';
+import { type FormikValues, useFormikContext } from 'formik';
 import {
-  path,
   equals,
   gt,
   isEmpty,
   not,
+  path,
   split,
   type as variableType
 } from 'ramda';
+import { type ChangeEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { InputAdornment } from '@mui/material';
-
 import { TextField, useMemoComponent } from '../..';
-
+import { type InputPropsWithoutGroup, InputType } from './models';
 import PasswordEndAdornment from './PasswordEndAdornment';
-import { InputPropsWithoutGroup, InputType } from './models';
 
 const Text = ({
   dataTestId,
@@ -53,12 +51,12 @@ const Text = ({
     const { value } = event.target;
     if (change) {
       change({
-        setFieldValue,
-        value,
         setFieldTouched,
+        setFieldValue,
+        setTouched,
         setValues,
-        values,
-        setTouched
+        value,
+        values
       });
 
       return;
@@ -99,7 +97,7 @@ const Text = ({
     }
 
     return null;
-  }, [isVisible]);
+  }, [isVisible, changeVisibility, text?.endAdornment, type]);
 
   const getInputType = (): string => {
     if (text?.type) {
@@ -122,32 +120,32 @@ const Text = ({
   return useMemoComponent({
     Component: (
       <TextField
-        fullWidth={text?.fullWidth ?? true}
-        EndAdornment={EndAdornment}
         ariaLabel={t(label) || ''}
         autoFocus={autoFocus}
-        dataTestId={dataTestId || label}
         data-testid-suffix={`test-${label}`}
+        dataTestId={dataTestId || label}
         disabled={disabled}
+        EndAdornment={EndAdornment}
         error={error as string | undefined}
+        fullWidth={text?.fullWidth ?? true}
         label={t(label)}
         multiline={isMultiline}
+        onBlur={handleBlur(fieldName)}
+        onChange={changeText}
         placeholder={text?.placeholder}
         required={isRequired}
         rows={rows}
-        type={getInputType()}
-        value={value || ''}
-        onBlur={handleBlur(fieldName)}
-        onChange={changeText}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
-              'data-testid': dataTestId || label,
               'aria-label': label,
+              'data-testid': dataTestId || label,
               min: text?.min
             }
           }
         }}
+        type={getInputType()}
+        value={value || ''}
       />
     ),
     memoProps: [

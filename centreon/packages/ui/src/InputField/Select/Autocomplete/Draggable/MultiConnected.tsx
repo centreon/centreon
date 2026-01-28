@@ -1,6 +1,5 @@
 import ConnectedAutocompleteField from '../Connected';
 import MultiAutocompleteField from '../Multi';
-
 import DraggableAutocompleteField from '.';
 
 const MultiConnectedAutocompleteField = ConnectedAutocompleteField(

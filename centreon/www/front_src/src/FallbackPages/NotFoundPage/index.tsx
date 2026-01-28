@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { FallbackPage } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelThisPageCouldNotBeFound } from './translatedLabels';
 

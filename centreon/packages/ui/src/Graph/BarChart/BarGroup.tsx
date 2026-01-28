@@ -1,6 +1,6 @@
 import { scaleBand, scaleOrdinal } from '@visx/scale';
 import { BarGroupHorizontal, BarGroup as VisxBarGroup } from '@visx/shape';
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 import { difference, equals, keys, omit, pick } from 'ramda';
 import { memo, useMemo } from 'react';
 
@@ -12,9 +12,9 @@ import {
   getTimeSeriesForLines,
   getUnits
 } from '../common/timeSeries';
-import { Line, TimeValue } from '../common/timeSeries/models';
+import type { Line, TimeValue } from '../common/timeSeries/models';
 import MemoizedGroup from './MemoizedGroup';
-import { BarStyle } from './models';
+import type { BarStyle } from './models';
 
 // Minimum value for logarithmic scale to avoid log(0)
 const minLogScaleValue = 0.001;
@@ -103,7 +103,7 @@ const BarGroup = ({
         domain: lineKeys,
         range: colors
       }),
-    [...lineKeys, ...colors]
+    [...lineKeys, ...colors, colors, lineKeys]
   );
   const metricScale = useMemo(
     () =>
@@ -112,7 +112,7 @@ const BarGroup = ({
         padding: 0.1,
         range: [0, xScale.bandwidth()]
       }),
-    [...lineKeys, xScale.bandwidth()]
+    [lineKeys, xScale.bandwidth]
   );
 
   const placeholderScale = yScalesPerUnit[firstUnit];
@@ -149,19 +149,19 @@ const BarGroup = ({
         barGroups.map((barGroup, index) => {
           return (
             <MemoizedGroup
-              key={`bar-group-${barGroup.index}-${barGroup.x0}`}
               barGroup={barGroup}
+              barIndex={index}
               barStyle={barStyle}
+              isHorizontal={isHorizontal}
+              isTooltipHidden={isTooltipHidden}
+              key={`bar-group-${barGroup.index}-${barGroup.x0}`}
+              neutralValue={neutralValue}
+              notStackedLines={notStackedLines}
+              notStackedTimeSeries={notStackedTimeSeries}
               stackedLinesTimeSeriesPerStackKeyAndUnit={
                 stackedLinesTimeSeriesPerStackKeyAndUnit
               }
-              notStackedTimeSeries={notStackedTimeSeries}
-              notStackedLines={notStackedLines}
-              isTooltipHidden={isTooltipHidden}
-              isHorizontal={isHorizontal}
-              neutralValue={neutralValue}
               yScalesPerUnit={yScalesPerUnit}
-              barIndex={index}
             />
           );
         })

@@ -1,13 +1,12 @@
 import { Listing } from '@centreon/ui';
 
-import { AgentConfigurationListing } from '../models';
-
-import Actions from './Actions/Actions';
-import DeleteModal from './DeleteModal';
-
 import { useTranslation } from 'react-i18next';
+
+import { AgentConfigurationListing } from '../models';
 import { labelCollapse, labelExpand } from '../translatedLabels';
+import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
+import DeleteModal from './DeleteModal';
 import { useListing } from './useListing';
 
 interface Props {
@@ -39,31 +38,31 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
     <>
       <Listing
         actions={<Actions />}
-        columns={columns}
         columnConfiguration={{
           selectedColumnIds,
           sortable: true
         }}
+        columns={columns}
+        currentPage={page}
+        limit={limit}
+        loading={isLoading}
+        onLimitChange={setLimit}
+        onPaginate={setPage}
+        onResetColumns={resetColumns}
+        onRowClick={updateAgentConfiguration}
+        onSelectColumns={selectColumns}
+        onSort={changeSort}
+        rows={rows}
+        sortField={sortField}
+        sortOrder={sortOrder}
         subItems={{
           canCheckSubItems: false,
           enable: true,
           getRowProperty: () => 'pollers',
-          labelExpand: t(labelExpand),
-          labelCollapse: t(labelCollapse)
+          labelCollapse: t(labelCollapse),
+          labelExpand: t(labelExpand)
         }}
-        loading={isLoading}
-        onRowClick={updateAgentConfiguration}
-        rows={rows}
-        currentPage={page}
-        onPaginate={setPage}
-        limit={limit}
-        onLimitChange={setLimit}
         totalRows={total}
-        sortField={sortField}
-        sortOrder={sortOrder}
-        onSort={changeSort}
-        onResetColumns={resetColumns}
-        onSelectColumns={selectColumns}
       />
       <DeleteModal />
     </>

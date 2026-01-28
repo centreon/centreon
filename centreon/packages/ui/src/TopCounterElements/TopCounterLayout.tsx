@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { SvgIcon } from '@mui/material';
 import { Badge, ClickAwayListener } from '@mui/material';
+
+import { useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import useCloseOnLegacyPage from './useCloseOnLegacyPage';
 
@@ -157,8 +156,8 @@ const TopCounterLayout = ({
             aria-label={title}
             className={classes.button}
             id={`${subMenuId}-button`}
-            type="button"
             onClick={(): void => setToggled(!toggled)}
+            type="button"
           >
             <span className={classes.iconWrapper}>
               <Badge

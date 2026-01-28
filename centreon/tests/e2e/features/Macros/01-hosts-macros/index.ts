@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
 import hostMacros from '../../../fixtures/macros/hosts.json';
 
 const clickToAddHost = () => {

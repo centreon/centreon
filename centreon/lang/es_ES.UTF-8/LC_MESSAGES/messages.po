@@ -1670,6 +1670,7 @@ msgstr "Activación de registros de auditoría."
 msgid "Authentication"
 msgstr "autenticación"
 
+#: centreon/src/App/Security/Infrastructure/Security/TokenAuthenticator.php
 #: centreon/src/Security/TokenAPIAuthenticator.php
 msgid "Authentication Required"
 msgstr ""

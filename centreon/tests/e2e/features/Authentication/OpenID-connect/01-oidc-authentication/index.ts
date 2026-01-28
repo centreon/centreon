@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import { configureProviderAcls } from '../../../../commons';
 import {
   configureOpenIdConnect,
@@ -115,12 +115,12 @@ When(
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
       })
-      .then(($input) => {
-        if ($input.is(':checked')) {
+      .then((input) => {
+        if (input.is(':checked')) {
           return;
         }
 
-        cy.wrap($input).check();
+        cy.wrap(input).check();
 
         saveOpenIdFormIfEnabled();
       });

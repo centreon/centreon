@@ -7,6 +7,7 @@ import {
 import i18next from 'i18next';
 import { useState } from 'react';
 import { initReactI18next } from 'react-i18next';
+
 import { labelSelectAll, labelUnSelectAll } from '../../../../translatedLabels';
 import { baseEndpoint, getEndpoint, label, placeholder } from './utils';
 
@@ -18,13 +19,13 @@ const Component = () => {
     <TestQueryProvider>
       <div style={{ paddingTop: 20 }}>
         <MultiConnectedAutocompleteField
+          disableSelectAll={false}
           field="host.name"
           getEndpoint={getEndpoint}
           label={label}
+          onChange={(_, item) => setValues(item)}
           placeholder={placeholder}
           value={values}
-          onChange={(_, item) => setValues(item)}
-          disableSelectAll={false}
         />
       </div>
     </TestQueryProvider>

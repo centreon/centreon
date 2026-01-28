@@ -1,7 +1,6 @@
 import { CommonWidgetProps, Data, FormThreshold } from '../../models';
-
-import TopBottom from './TopBottom';
 import { TopBottomSettings, ValueFormat } from './models';
+import TopBottom from './TopBottom';
 
 interface Props extends CommonWidgetProps<object> {
   panelData: Data;
