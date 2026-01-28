@@ -152,14 +152,15 @@ jobs:
         working-directory: centreon-open-tickets
         run: |
           echo "Run of these Rector tests: rector:legacy on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
+          echo "${{ steps.changed-php.outputs.all_changed_files }}" | tr ' ' '\n' > /tmp/php_files.txt
+          PHP_DIFF_FILES="$(cat /tmp/php_files.txt | tr '\n' ' ')" composer rector:diff
 
       - name: 🧹 PHP-CS-Fixer checks
         if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon-open-tickets
         run: |
-          echo "Run of these PHP-CS-Fixer tests: cs:legacy on diff" && set -e
-          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
+          echo "${{ steps.changed-php.outputs.all_changed_files }}" | tr ' ' '\n' > /tmp/php_files.txt
+          PHP_DIFF_FILES="$(cat /tmp/php_files.txt | tr '\n' ' ')" composer cs:diff
 
       - name: 🔍 PHPStan checks
         working-directory: centreon-open-tickets
