@@ -69,11 +69,11 @@ interface WriteServiceCategoryRepositoryInterface
     public function unlinkFromService(int $serviceId, array $serviceCategoriesIds): void;
 
     /**
-     * @param ServiceCategory $ServiceCategory
+     * @param ServiceCategory $serviceCategory
      *
      * @throws \Throwable
      *
      * @return void
      */
-    public function update(ServiceCategory $ServiceCategory): void;
+    public function update(ServiceCategory $serviceCategory): void;
 }

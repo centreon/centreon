@@ -77,7 +77,7 @@ final class UpdateServiceCategoryController extends AbstractController
     }
 
     /**
-     * @var array{
+     * @param array{
      *     name: string,
      *     alias: string,
      *     is_activated?: bool
