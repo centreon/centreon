@@ -10928,7 +10928,7 @@ msgstr "Monitoring Engine Konfigurationsdatei bearbeiten"
 
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "Modify a global macro"
-msgstr "Globales makro bearbeiten"
+msgstr "Globales Makro bearbeiten"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify a Service"
