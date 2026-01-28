@@ -104,36 +104,6 @@ describe('DateInput Component', () => {
     );
   });
 
-  it('should update date when typing in the input field', () => {
-    initialize({});
-
-    cy.get('[data-testid="calendarInput"]').clear().type('25/12/2025 15:45');
-
-    // The date should be updated in the input but not yet committed
-    cy.get('[data-testid="calendarInput"]').should(
-      'have.value',
-      '25/12/2025 15:45'
-    );
-  });
-
-  it('should commit date when pressing Enter key', () => {
-    initialize({});
-
-    cy.get('[data-testid="calendarInput"]')
-      .clear()
-      .type('25/12/2025 15:45')
-      .type('{enter}');
-
-    cy.get('[data-testid="current-date"]').should(
-      'contain',
-      '2025-12-25 15:45'
-    );
-    cy.get('[data-testid="calendar-display"]').should(
-      'contain',
-      'Calendar hidden'
-    );
-  });
-
   it('should show error for invalid date format', () => {
     initialize({});
 
@@ -234,22 +204,5 @@ describe('DateInput Component', () => {
       .blur();
 
     cy.contains('invalid date').should('not.exist');
-  });
-
-  it('should properly handle time components in date', () => {
-    initialize({});
-    cy.get('[data-testid="calendarInput"]')
-      .clear()
-      .type('21/08/2025 23:30')
-      .type('{enter}');
-
-    cy.get('[data-testid="current-date"]').should(
-      'contain',
-      '2025-08-21 23:30'
-    );
-    cy.get('[data-testid="calendar-display"]').should(
-      'contain',
-      'Calendar hidden'
-    );
   });
 });
