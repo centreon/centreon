@@ -27,21 +27,24 @@ properties:
     type: object
     description: |
       Configuration parameters, varies depending on the ACC type.
-      If credential(s) do not change, replace value(s) by null.
+      If password does not change, replace value by null.
+      If adding a new vcenter, id must be null.
+      When updating an existing vcenter, id must be provided.
     example:
       port: 4242
       vcenters: [
         {
+          "id": 2,
           "name": "my-vcenter B",
           "url": "http://10.10.10.10/sdk",
           "username": null,
           "password": null
         },
         {
+          "id": null,
           "name": "my-vcenter B",
           "url": "http://10.10.10.10/sdk",
           "username": "admin",
           "password": "my-pwd B"
         }
-
       ]
