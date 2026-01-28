@@ -2645,7 +2645,7 @@ CREATE TABLE IF NOT EXISTS `dashboard_widgets` (
 
 CREATE TABLE IF NOT EXISTS `additional_connector_configuration` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the additional connector configuration',
-  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6' COMMENT 'Type of the additional connector configuration (e.g., vCenter)',
+  `type` enum('vmware_v6') NOT NULL DEFAULT 'vmware_v6' COMMENT 'Type of the additional connector configuration (e.g., vmware_v6)',
   `name` varchar(255) NOT NULL COMMENT 'Name of the additional connector configuration',
   `description` text COMMENT 'Description of the additional connector configuration',
   `port` INT UNSIGNED NOT NULL DEFAULT 443 COMMENT 'Port number for VMware connector (default 443)',
