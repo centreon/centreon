@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+set -eu
+
+# Check for gitleaks installation
+echo "Beginning Gitleaks check"
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "Error: gitleaks is not installed. Please install it to use this hook."
+  echo "Visit https://github.com/gitleaks/gitleaks for installation instructions."
+  exit 1
+fi
+
+# Set commits range
+LATEST_COMMIT=$(git rev-parse HEAD)
+PARENT_LATEST_COMMIT_BRANCH=$(git rev-parse -q --verify develop)
+COMMITS_RANGE="$PARENT_LATEST_COMMIT..$LATEST_COMMIT"
+#debug
+echo "LATEST_COMMIT = $LATEST_COMMIT"
+echo "PARENT_LATEST_COMMIT = $PARENT_LATEST_COMMIT_BRANCH"
+echo "COMMITS_RANGE = $COMMITS_RANGE"
+
+# Check fo secrets
+gitleaks git -v --log-opts="--no-merges $PARENT_LATEST_COMMIT..$LATEST_COMMIT"
