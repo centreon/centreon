@@ -36,7 +36,6 @@ use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Application\Common\UseCase\PresenterInterface;
-use Core\ServiceCategory\Infrastructure\API\GetServiceCategory\GetServiceCategoryPresenter;
 
 final class GetServiceCategory
 {
@@ -53,7 +52,7 @@ final class GetServiceCategory
     }
 
     /**
-     * @param GetServiceCategoryPresenter $presenter
+     * @param PresenterInterface $presenter
      * @param int $serviceCategoryId
      */
     public function __invoke(PresenterInterface $presenter, int $serviceCategoryId): void
