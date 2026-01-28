@@ -1,0 +1,24 @@
+type: object
+required: ["name", "alias"]
+properties:
+  name:
+    type: string
+    description: "Service group name"
+    example: "service-group"
+  alias:
+    type: string
+    description: "Service group alias"
+    example: "service-group"
+  geo_coords:
+    type: string
+    nullable: true
+    description: "Geographical coordinates use by Centreon Map module to position element on map"
+    example: 48.51,2.20
+  comment:
+    type: string
+    nullable: true
+    description: "Service group description"
+    example: 1
+  is_activated:
+    type: boolean
+    description: "Indicates whether this service group is enabled or not"
