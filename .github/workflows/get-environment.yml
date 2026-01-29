@@ -62,9 +62,6 @@ on:
         value: ${{ jobs.get-environment.outputs.labels }}
 
 jobs:
-  dependency-scan:
-    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
-
   get-environment:
     runs-on: ubuntu-24.04
     outputs:
