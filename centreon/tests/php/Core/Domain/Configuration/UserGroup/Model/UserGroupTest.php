@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace Tests\Core\Domain\Configuration\UserGroup\Model;
 
 use Centreon\Domain\Common\Assertion\AssertionException;
-use PHPUnit\Framework\TestCase;
 use Core\Domain\Configuration\UserGroup\Model\UserGroup;
+use PHPUnit\Framework\TestCase;
 
 class UserGroupTest extends TestCase
 {
@@ -55,7 +55,7 @@ class UserGroupTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $name,
-                strlen($name),
+                mb_strlen($name),
                 UserGroup::MAX_NAME_LENGTH,
                 'UserGroup::name'
             )->getMessage()
@@ -89,7 +89,7 @@ class UserGroupTest extends TestCase
         $this->expectExceptionMessage(
             AssertionException::maxLength(
                 $alias,
-                strlen($alias),
+                mb_strlen($alias),
                 UserGroup::MAX_ALIAS_LENGTH,
                 'UserGroup::alias'
             )->getMessage()

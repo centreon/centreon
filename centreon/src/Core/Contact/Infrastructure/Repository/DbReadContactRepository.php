@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
      */
     public function findNamesByIds(int ...$ids): array
     {
-        if ([] === $ids) {
+        if ($ids === []) {
             return [];
         }
 
@@ -73,7 +73,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
 
         $fields = '';
         foreach ($ids as $index => $id) {
-            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
+            $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
         }
 
         $select = <<<SQL
@@ -242,7 +242,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
         foreach ($accessGroupIds as $key => $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return false;
         }
 
@@ -263,7 +263,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
                     OR gcgr.acl_group_id IN ({$accessGroupIdsAsString}));
                 SQL
         ));
-        $statement->bindValue(':contactId', $contactId,\PDO::PARAM_INT);
+        $statement->bindValue(':contactId', $contactId, \PDO::PARAM_INT);
         foreach ($bind as $token => $accessGroupId) {
             $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
         }
@@ -345,7 +345,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
         foreach ($accessGroupIds as $key => $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return [];
         }
 
@@ -383,7 +383,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
         foreach ($contactIds as $key => $contactId) {
             $bind[':contact' . $key] = $contactId;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return [];
         }
 
@@ -493,7 +493,7 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
             return [];
         }
         $accessGroupIds = array_map(
-            fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -544,14 +544,14 @@ class DbReadContactRepository extends AbstractRepositoryRDB implements ReadConta
     public function findByAccessGroupsAndUserAndRequestParameters(
         array $accessGroups,
         ContactInterface $user,
-        ?RequestParametersInterface $requestParameters = null
+        ?RequestParametersInterface $requestParameters = null,
     ): array {
-        if ([] === $accessGroups) {
+        if ($accessGroups === []) {
             return [];
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
         [$binValues, $subRequest] = $this->createMultipleBindQuery($accessGroupIds, ':id_');

@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,19 +22,15 @@
 namespace Centreon\Domain\Repository;
 
 use Centreon\Domain\Entity\NagiosServer;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Domain\Repository\Traits\CheckListOfIdsTrait;
-use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Centreon\Infrastructure\CentreonLegacyDB\Interfaces\PaginationRepositoryInterface;
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 
 class NagiosServerRepository extends AbstractRepositoryRDB implements PaginationRepositoryInterface
 {
     use CheckListOfIdsTrait;
-
-    /** @var int $resultCountForPagination */
-    private int $resultCountForPagination = 0;
-
     private const CONCORDANCE_ARRAY = [
         'id' => 'id',
         'name' => 'name',
@@ -63,8 +59,11 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         'engineVersion' => 'engine_version',
         'centreonbrokerLogsPath' => 'centreonbroker_logs_path',
         'remoteId' => 'remote_id',
-        'remoteServerUseAsProxy' => 'remote_server_use_as_proxy'
+        'remoteServerUseAsProxy' => 'remote_server_use_as_proxy',
     ];
+
+    /** @var int */
+    private int $resultCountForPagination = 0;
 
     /**
      * @param DatabaseConnection $db
@@ -74,7 +73,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         $this->db = $db;
     }
 
-     /**
+    /**
      * Check list of IDs
      *
      * @return bool
@@ -85,11 +84,11 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
-    public function getPaginationList($filters = null, int $limit = null, int $offset = null, $ordering = []): array
+    public function getPaginationList($filters = null, ?int $limit = null, ?int $offset = null, $ordering = []): array
     {
-        $collector = new StatementCollector;
+        $collector = new StatementCollector();
 
         $sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM `:db`.`nagios_server`';
 
@@ -105,7 +104,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
-                && [] !== $filters['ids']
+                && $filters['ids'] !== []
             ) {
                 $idsListKey = [];
 
@@ -122,7 +121,7 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
             }
         }
 
-        if (!empty($ordering['field'])) {
+        if (! empty($ordering['field'])) {
             $sql .= ' ORDER BY `' . self::CONCORDANCE_ARRAY[$ordering['field']] . '` '
                 . $ordering['order'];
         } else {
@@ -158,6 +157,88 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         return $result;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function getPaginationListTotal(): int
+    {
+        return $this->resultCountForPagination;
+    }
+
+    /**
+     * Export poller's Nagios data
+     *
+     * @param int[] $pollerIds
+     * @return array
+     */
+    public function export(array $pollerIds): array
+    {
+        // prevent SQL exception
+        if (! $pollerIds) {
+            return [];
+        }
+
+        $ids = join(',', $pollerIds);
+
+        $sql = "SELECT * FROM nagios_server WHERE id IN ({$ids})";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+
+        $result = [];
+
+        while ($row = $stmt->fetch()) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Truncate the data
+     */
+    public function truncate(): void
+    {
+        $sql = <<<'SQL'
+            TRUNCATE TABLE `nagios_server`;
+            TRUNCATE TABLE `cfg_nagios`;
+            TRUNCATE TABLE `cfg_nagios_broker_module`
+            SQL;
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+    }
+
+    /**
+     * Sets poller as updated (shows that poller needs restarting)
+     *
+     * @param int $id id of poller
+     */
+    public function setUpdated(int $id): void
+    {
+        $sql = "UPDATE `nagios_server` SET `updated` = '1' WHERE `id` = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+    }
+
+    /**
+     * Get Central Poller
+     *
+     * @return int|null
+     */
+    public function getCentral(): ?int
+    {
+        $query = "SELECT id FROM nagios_server WHERE localhost = '1' LIMIT 1";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+
+        if (! $stmt->rowCount()) {
+            return null;
+        }
+
+        return (int) $stmt->fetch()['id'];
+    }
+
     private function createNagiosServerFromArray(array $data): NagiosServer
     {
         $nagiosServer = new NagiosServer();
@@ -191,87 +272,5 @@ class NagiosServerRepository extends AbstractRepositoryRDB implements Pagination
         $nagiosServer->setRemoteServerUseAsProxy($data['remote_server_use_as_proxy']);
 
         return $nagiosServer;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaginationListTotal(): int
-    {
-        return $this->resultCountForPagination;
-    }
-
-    /**
-     * Export poller's Nagios data
-     *
-     * @param int[] $pollerIds
-     * @return array
-     */
-    public function export(array $pollerIds): array
-    {
-        // prevent SQL exception
-        if (!$pollerIds) {
-            return [];
-        }
-
-        $ids = join(',', $pollerIds);
-
-        $sql = "SELECT * FROM nagios_server WHERE id IN ({$ids})";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-
-        $result = [];
-
-        while ($row = $stmt->fetch()) {
-            $result[] = $row;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Truncate the data
-     */
-    public function truncate(): void
-    {
-        $sql = <<<SQL
-TRUNCATE TABLE `nagios_server`;
-TRUNCATE TABLE `cfg_nagios`;
-TRUNCATE TABLE `cfg_nagios_broker_module`
-SQL;
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-    }
-
-    /**
-     * Sets poller as updated (shows that poller needs restarting)
-     *
-     * @param int $id id of poller
-     */
-    public function setUpdated(int $id): void
-    {
-        $sql = "UPDATE `nagios_server` SET `updated` = '1' WHERE `id` = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
-        $stmt->execute();
-    }
-
-    /**
-     * Get Central Poller
-     *
-     * @return int|null
-     */
-    public function getCentral(): ?int
-    {
-        $query = "SELECT id FROM nagios_server WHERE localhost = '1' LIMIT 1";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-
-        if (!$stmt->rowCount()) {
-            return null;
-        }
-
-        return (int)$stmt->fetch()['id'];
     }
 }

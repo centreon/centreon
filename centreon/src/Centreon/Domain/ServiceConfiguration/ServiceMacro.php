@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,28 +18,23 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\ServiceConfiguration;
 
-use Centreon\Domain\Macro\Interfaces\MacroInterface;
 use Centreon\Domain\Annotation\EntityDescriptor;
+use Centreon\Domain\Macro\Interfaces\MacroInterface;
 
 class ServiceMacro implements MacroInterface
 {
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $id;
 
-    /**
-     * @var string|null Macro name
-     */
+    /** @var string|null Macro name */
     private $name;
 
-    /**
-     * @var string|null Macro value
-     */
+    /** @var string|null Macro value */
     private $value;
 
     /**
@@ -48,19 +43,13 @@ class ServiceMacro implements MacroInterface
      */
     private $isPassword = false;
 
-    /**
-     * @var string|null Macro description
-     */
+    /** @var string|null Macro description */
     private $description;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $order;
 
-    /**
-     * @var int|null
-     */
+    /** @var int|null */
     private $serviceId;
 
     /**
@@ -78,6 +67,7 @@ class ServiceMacro implements MacroInterface
     public function setId(?int $id): self
     {
         $this->id = $id;
+
         return $this;
     }
 
@@ -97,7 +87,7 @@ class ServiceMacro implements MacroInterface
     {
         $patternToBeFound = '$_SERVICE';
         if ($name !== null) {
-            if (!str_starts_with($name, $patternToBeFound)) {
+            if (! str_starts_with($name, $patternToBeFound)) {
                 $name = $patternToBeFound . $name;
                 if ($name[-1] !== '$') {
                     $name .= '$';
@@ -107,6 +97,7 @@ class ServiceMacro implements MacroInterface
         } else {
             $this->name = null;
         }
+
         return $this;
     }
 
@@ -125,6 +116,7 @@ class ServiceMacro implements MacroInterface
     public function setValue(?string $value): self
     {
         $this->value = $value;
+
         return $this;
     }
 
@@ -143,6 +135,7 @@ class ServiceMacro implements MacroInterface
     public function setPassword(bool $isPassword): self
     {
         $this->isPassword = $isPassword;
+
         return $this;
     }
 
@@ -161,6 +154,7 @@ class ServiceMacro implements MacroInterface
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -179,6 +173,7 @@ class ServiceMacro implements MacroInterface
     public function setOrder(?int $order): self
     {
         $this->order = $order;
+
         return $this;
     }
 
@@ -197,6 +192,7 @@ class ServiceMacro implements MacroInterface
     public function setServiceId(?int $serviceId): self
     {
         $this->serviceId = $serviceId;
+
         return $this;
     }
 }

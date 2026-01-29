@@ -37,11 +37,11 @@ $errorMessage = '';
 $insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to add data to connector table';
     $pearDB->executeQuery(
-        <<<SQL
-        REPLACE INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
-        (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-        (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
-        SQL
+        <<<'SQL'
+            REPLACE INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
+            (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+            (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+            SQL
     );
 };
 
@@ -65,34 +65,33 @@ $createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage
  * @param centreonDB $pearDB
  *
  * @throws CentreonDbException
- *
  */
 $addConnectorToTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
     $errorMessage = 'Unable to retrieve data from topology table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT 1 FROM `topology`
-            WHERE `topology_name` = 'Connectors'
-                AND `topology_parent` = 6
-                AND `topology_page` = 620
-        SQL
+                SELECT 1 FROM `topology`
+                WHERE `topology_name` = 'Connectors'
+                    AND `topology_parent` = 6
+                    AND `topology_page` = 620
+            SQL
     );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
+    $topologyAlreadyExists = (bool) $statement->fetch(PDO::FETCH_COLUMN);
 
     $errorMessage = 'Unable to insert into topology';
     if (! $topologyAlreadyExists) {
         $pearDB->executeQuery(
             <<<'SQL'
-                INSERT INTO `topology` (
-                    `topology_name`,
-                    `topology_parent`,
-                    `topology_page`,
-                    `topology_order`,
-                    `topology_group`,
-                    `topology_show`
-                )
-                VALUES ('Connectors', 6, 620, 92, 1, '1')
-            SQL
+                    INSERT INTO `topology` (
+                        `topology_name`,
+                        `topology_parent`,
+                        `topology_page`,
+                        `topology_order`,
+                        `topology_group`,
+                        `topology_show`
+                    )
+                    VALUES ('Connectors', 6, 620, 92, 1, '1')
+                SQL
         );
     }
 };
@@ -108,12 +107,12 @@ $changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): v
     $errorMessage = 'Unable to update table topology';
     $pearDB->executeQuery(
         <<<'SQL'
-            UPDATE `topology`
-            SET `topology_name` = 'Additional Configurations',
-                `topology_parent` = 620,
-                `topology_page` = 62002
-            WHERE `topology_url` = '/configuration/additional-connector-configurations'
-        SQL
+                UPDATE `topology`
+                SET `topology_name` = 'Additional Configurations',
+                    `topology_parent` = 620,
+                    `topology_page` = 62002
+                WHERE `topology_url` = '/configuration/additional-connector-configurations'
+            SQL
     );
 };
 
@@ -130,9 +129,9 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     if (! $pearDBO->isColumnExist('resources', 'flapping')) {
         $pearDBO->exec(
             <<<'SQL'
-                ALTER TABLE `resources`
-                ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
-            SQL
+                    ALTER TABLE `resources`
+                    ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
+                SQL
         );
     }
 
@@ -140,9 +139,9 @@ $addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage)
     if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
         $pearDBO->exec(
             <<<'SQL'
-                ALTER TABLE `resources`
-                ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
-            SQL
+                    ALTER TABLE `resources`
+                    ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
+                SQL
         );
     }
 };
@@ -174,7 +173,6 @@ $createIndexesForResourceStatus = function (CentreonDB $realtimeDb) use (&$error
     }
 };
 
-
 try {
     $createIndexForDowntimes($pearDBO);
     $addColumnToResourcesTable($pearDBO);
@@ -191,7 +189,7 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "{$versionOfTheUpgrade}: " . $errorMessage,
@@ -201,19 +199,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "{$versionOfTheUpgrade}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "{$versionOfTheUpgrade}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("{$versionOfTheUpgrade}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("{$versionOfTheUpgrade}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

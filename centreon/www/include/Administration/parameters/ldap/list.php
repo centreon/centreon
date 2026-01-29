@@ -34,12 +34,12 @@
  *
  */
 
-include "./include/common/autoNumLimit.php";
-require_once __DIR__ . "/listFunction.php";
+include './include/common/autoNumLimit.php';
+require_once __DIR__ . '/listFunction.php';
 
 $labels = ['name' => _('Name'), 'description' => _('Description'), 'status' => _('Status'), 'enabled' => _('Enabled'), 'disabled' => _('Disabled')];
 
-$searchLdap = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$searchLdap = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchLdap'] ?? $_GET['searchLdap'] ?? null
 );
 
@@ -64,28 +64,28 @@ $statement = $pearDB->prepare("UPDATE options SET `value` = :value WHERE `key` =
 $statement->bindValue(':value', $enableLdap, PDO::PARAM_STR);
 $statement->execute();
 
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 $list = $ldapConf->getLdapConfigurationList($searchLdap, ($num * $limit), $limit);
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path . 'ldap/');
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?o=ldap&p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?o=ldap&p=' . $p);
 
-$attrBtnSuccess = ["class" => "btc bt_success", "onClick" => "window.history.replaceState('', '', '?p=" . $p . "&o=ldap');"];
-$form->addElement('submit', 'Search', _("Search"), $attrBtnSuccess);
+$attrBtnSuccess = ['class' => 'btc bt_success', 'onClick' => "window.history.replaceState('', '', '?p=" . $p . "&o=ldap');"];
+$form->addElement('submit', 'Search', _('Search'), $attrBtnSuccess);
 
 $tpl->assign('list', $list);
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=ldap&new=1", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=ldap&new=1', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 $form->addElement(
     'select',
     'o1',
     null,
-    [null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
+    [null => _('More actions...'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     getActionList('o1')
 );
 $form->setDefaults(['o1' => null]);
@@ -94,7 +94,7 @@ $form->addElement(
     'select',
     'o2',
     null,
-    [null => _("More actions..."), "d" => _("Delete"), "ms" => _("Enable"), "mu" => _("Disable")],
+    [null => _('More actions...'), 'd' => _('Delete'), 'ms' => _('Enable'), 'mu' => _('Disable')],
     getActionList('o2')
 );
 $form->setDefaults(['o2' => null]);
@@ -112,7 +112,7 @@ $tpl->assign('form', $renderer->toArray());
 $tpl->assign('labels', $labels);
 $tpl->assign('searchLdap', $searchLdap);
 $tpl->assign('p', $p);
-$tpl->display("list.ihtml");
+$tpl->display('list.ihtml');
 ?>
 <script type="text/javascript">
     function setA(_i) {

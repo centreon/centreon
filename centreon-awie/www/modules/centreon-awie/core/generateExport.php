@@ -1,19 +1,22 @@
 <?php
 
-/**
- * Copyright 2021 Centreon
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
 require_once __DIR__ . '/../../../../bootstrap.php';
@@ -40,6 +43,7 @@ require_once _CLAPI_CLASS_ . '/centreonUtils.class.php';
 require_once _CLAPI_CLASS_ . '/centreonAPI.class.php';
 
 $formValue = [
+    'centreon_token',
     'export_cmd',
     'TP',
     'CONTACT',
@@ -82,7 +86,6 @@ if (! isset($_POST['centreon_token']) || ! isCSRFTokenValid()) {
 
     exit;
 }
-purgeCSRFToken();
 
 // Exit if user is not admin
 if ((bool) $_SESSION['centreon']->user->admin !== true) {
@@ -111,6 +114,11 @@ $ajaxReturn = [];
 $oExport = new Export($clapiConnector, $dependencyInjector);
 
 foreach ($_POST as $object => $value) {
+    // Skip CSRF token as it's used for validation above
+    if ($object === 'centreon_token') {
+        continue;
+    }
+
     if (in_array($object, $formValue)) {
         $type = explode('_', $object);
         if ($type[0] == 'export') {

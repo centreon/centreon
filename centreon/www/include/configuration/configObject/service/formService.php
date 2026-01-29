@@ -223,7 +223,7 @@ if (($o === SERVICE_MODIFY || $o === SERVICE_WATCH) && $service_id) {
             ON esi.service_service_id = service_id
         WHERE service_id = :service_id LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
 
     // Set base value
@@ -252,7 +252,7 @@ if (($o === SERVICE_MODIFY || $o === SERVICE_WATCH) && $service_id) {
         WHERE scr.service_service_id = :service_id AND sc.level IS NOT NULL
         ORDER BY sc.level ASC LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     if ($statement->rowCount()) {
         $cr = $statement->fetch();
@@ -414,7 +414,6 @@ if ($o === SERVICE_MASSIVE_CHANGE) {
 
 $form->addElement('text', 'command_command_id_arg', _('Args'), $attrsText);
 
-
 if (! $isCloudPlatform) {
     $serviceIV = [
         $form->createElement('radio', 'service_is_volatile', null, _('Yes'), '1'),
@@ -520,7 +519,7 @@ if (! $isCloudPlatform) {
                 null,
                 _('Default'),
                 '2'
-            )
+            ),
         ];
         $form->addGroup($contactAdditive, 'mc_contact_additive_inheritance', _('Contact additive inheritance'), '&nbsp;');
 
@@ -533,7 +532,7 @@ if (! $isCloudPlatform) {
                 null,
                 _('Default'),
                 '2'
-            )
+            ),
         ];
         $form->addGroup(
             $contactGroupAdditive,
@@ -764,10 +763,8 @@ if ($isCloudPlatform) {
 // Acknowledgement timeout.
 $form->addElement('text', 'service_acknowledgement_timeout', _('Acknowledgement timeout'), $attrsText2);
 
-
 // Further information
 $form->addElement('header', 'furtherInfos', _('Additional Information'));
-
 
 //
 // # Sort 2 - Service Relations
@@ -799,7 +796,7 @@ if ($form_service_type === 'BYHOST') {
             $defaultDataset = ($hostsBounded !== [])
                 ? ['0' => $hostsBounded[0]]
                 : [];
-        };
+        }
         $form->addElement(
             'select2',
             'service_hPars',
@@ -807,7 +804,7 @@ if ($form_service_type === 'BYHOST') {
             [],
             array_merge($attributes['hosts_cloud_specific'], ['defaultDataset' => $defaultDataset])
         );
-        $form->addRule('service_hPars', _("Host / Service Required"), 'required');
+        $form->addRule('service_hPars', _('Host / Service Required'), 'required');
     } else {
         if (isset($service['service_hPars']) && count($service['service_hPars']) > 1) {
             $sgReadOnly = true;
@@ -829,11 +826,10 @@ if ($form_service_type === 'BYHOSTGROUP') {
 
 // Service relations
 if ($isCloudPlatform) {
-    $form->addElement('header', 'classification', _("Classification"));
+    $form->addElement('header', 'classification', _('Classification'));
 } else {
     $form->addElement('header', 'links', _('Relations'));
 }
-
 
 if ($o === SERVICE_MASSIVE_CHANGE) {
     $mc_mod_sgs = [];
@@ -1036,10 +1032,8 @@ if ($o !== SERVICE_MASSIVE_CHANGE) {
         if (! $form->getSubmitValue('service_hgPars') && $serviceHParsFieldIsAdded) {
             $form->addRule('service_hPars', _('HostGroup or Host Required'), 'required');
         }
-    } else {
-        if (! $isCloudPlatform) {
-            $form->addFormRule('checkServiceTemplateHasCommand');
-        }
+    } elseif (! $isCloudPlatform) {
+        $form->addFormRule('checkServiceTemplateHasCommand');
     }
     if (! $form->getSubmitValue('service_hPars') && $serviceHgParsFieldIsAdded) {
         $form->addRule('service_hgPars', _('HostGroup or Host Required'), 'required');

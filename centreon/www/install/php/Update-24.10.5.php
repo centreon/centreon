@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,14 @@ $errorMessage = '';
 $createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
     $errorMessage = 'Unable to create table agent_information';
     $pearDBO->exec(
-        <<<SQL
-            CREATE TABLE IF NOT EXISTS `agent_information` (
-                `poller_id` bigint(20) unsigned NOT NULL,
-                `enabled` tinyint(1) NOT NULL DEFAULT 1,
-                `infos` JSON NOT NULL,
-            PRIMARY KEY (`poller_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        SQL
+        <<<'SQL'
+                CREATE TABLE IF NOT EXISTS `agent_information` (
+                    `poller_id` bigint(20) unsigned NOT NULL,
+                    `enabled` tinyint(1) NOT NULL DEFAULT 1,
+                    `infos` JSON NOT NULL,
+                PRIMARY KEY (`poller_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            SQL
     );
 };
 
@@ -57,7 +57,7 @@ try {
     }
 
     $pearDB->commit();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();

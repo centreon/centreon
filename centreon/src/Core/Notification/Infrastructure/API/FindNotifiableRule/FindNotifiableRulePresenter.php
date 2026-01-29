@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,22 +37,22 @@ final class FindNotifiableRulePresenter extends AbstractPresenter implements Fin
             $this->present([
                 'notification_id' => $data->notificationId,
                 'channels' => [
-                    'email' => null === $data->channels->email ? null : [
+                    'email' => $data->channels->email === null ? null : [
                         'subject' => $data->channels->email->subject,
                         'formatted_message' => $data->channels->email->formattedMessage,
                         'contacts' => array_map(
-                            static fn(ContactDto $contact) => [
+                            static fn (ContactDto $contact) => [
                                 'email_address' => $contact->emailAddress,
                                 'full_name' => $contact->fullName,
                             ],
                             $data->channels->email->contacts
                         ),
                     ],
-                    'slack' => null === $data->channels->slack ? null : [
+                    'slack' => $data->channels->slack === null ? null : [
                         'slack_channel' => $data->channels->slack->slackChannel,
                         'message' => $data->channels->slack->message,
                     ],
-                    'sms' => null === $data->channels->sms ? null : [
+                    'sms' => $data->channels->sms === null ? null : [
                         'phone_number' => $data->channels->sms->phoneNumber,
                         'message' => $data->channels->sms->message,
                     ],

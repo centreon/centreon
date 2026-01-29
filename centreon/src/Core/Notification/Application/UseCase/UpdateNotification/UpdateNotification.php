@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ final class UpdateNotification
         array $messages,
         array $users,
         array $contactGroups,
-        array $resources
+        array $resources,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();
@@ -202,7 +202,7 @@ final class UpdateNotification
      */
     private function deleteResourcesForUserWithACL(
         NotificationResourceRepositoryInterface $repository,
-        int $notificationId
+        int $notificationId,
     ): void {
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $existingResources = $repository->findByNotificationIdAndAccessGroups($notificationId, $accessGroups);

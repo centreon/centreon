@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,17 +18,16 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\Contact;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface;
 use Centreon\Domain\Menu\Model\Page;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 /**
  * Database repository for the contacts.
@@ -41,9 +40,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     private const MENU_ACCESS_NO_ACCESS = 0;
     private const MENU_ACCESS_READ_WRITE_ACCESS = 1;
 
-    /**
-     * @var DatabaseConnection
-     */
+    /** @var DatabaseConnection */
     private $db;
 
     /**
@@ -188,7 +185,6 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
         return $contact;
     }
 
-
     /**
      * @inheritDoc
      *
@@ -233,6 +229,23 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
     }
 
     /**
+     * Replace all instances of :dbstg and :db by the real db names.
+     * The table names of the database are defined in the services.yaml
+     * configuration file.
+     *
+     * @param string $request Request to translate
+     * @return string Request translated
+     */
+    protected function translateDbName(string $request): string
+    {
+        return str_replace(
+            [':dbstg', ':db'],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
+            $request
+        );
+    }
+
+    /**
      * Find and add all topology rules defined by all menus access defined for this contact.
      * The purpose is to limit access to the API based on menus access.
      *
@@ -240,8 +253,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function addTopologyRules(Contact $contact): void
     {
-        $topologySubquery =
-            $contact->isAdmin()
+        $topologySubquery
+            = $contact->isAdmin()
             ? 'SELECT topology.topology_id, 1 AS access_right
                 FROM `:db`.topology'
             : 'SELECT topology.topology_id, acltr.access_right
@@ -261,8 +274,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                     ON topology.topology_id = acltr.topology_topology_id
                 WHERE contact.contact_id = :contact_id';
 
-        $request =
-            'SELECT topology.topology_name, topology.topology_page,
+        $request
+            = 'SELECT topology.topology_name, topology.topology_page,
                     topology.topology_parent, access.access_right
             FROM `:db`.topology
             LEFT JOIN (' . $topologySubquery . ') AS access
@@ -365,8 +378,8 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function addActionRules(Contact $contact): void
     {
-        $request =
-            'SELECT DISTINCT rules.acl_action_name
+        $request
+            = 'SELECT DISTINCT rules.acl_action_name
             FROM `:db`.contact contact
             LEFT JOIN `:db`.contactgroup_contact_relation cgcr
                 ON cgcr.contact_contact_id = contact.contact_id
@@ -446,11 +459,11 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
      */
     private function createContact(array $contact): Contact
     {
-        $contactTimezoneName = !empty($contact['timezone_name'])
+        $contactTimezoneName = ! empty($contact['timezone_name'])
             ? $contact['timezone_name']
             : $this->getDefaultTimezone();
 
-        $contactLocale = !empty($contact['contact_lang'])
+        $contactLocale = ! empty($contact['contact_lang'])
             ? $this->parseLocaleFromContactLang($contact['contact_lang'])
             : null;
 
@@ -462,7 +475,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 (int) $contact['default_page'],
                 (bool) $contact['is_react']
             );
-            if (!empty($contact['topology_url_opt'])) {
+            if (! empty($contact['topology_url_opt'])) {
                 $page->setUrlOptions($contact['topology_url_opt']);
             }
         }
@@ -563,6 +576,7 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 break;
             case 'manage_tokens':
                 $contact->addRole(Contact::ROLE_MANAGE_TOKENS);
+                // no break
             case 'create_edit_poller_cfg':
                 $contact->addRole(Contact::ROLE_CREATE_EDIT_POLLER_CFG);
                 break;
@@ -576,22 +590,5 @@ final class ContactRepositoryRDB implements ContactRepositoryInterface
                 $contact->addRole(Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS);
                 break;
         }
-    }
-
-    /**
-     * Replace all instances of :dbstg and :db by the real db names.
-     * The table names of the database are defined in the services.yaml
-     * configuration file.
-     *
-     * @param string $request Request to translate
-     * @return string Request translated
-     */
-    protected function translateDbName(string $request): string
-    {
-        return str_replace(
-            [':dbstg', ':db'],
-            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
-            $request
-        );
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ namespace Tests\Core\HostGroup\Application\UseCase\AddHostGroup;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupPresenterInterface;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
-use Core\HostGroup\Application\UseCase\FindHostGroup\FindHostGroupPresenterInterface;
-use Core\HostGroup\Application\UseCase\FindHostGroup\FindHostGroupResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 
 class AddHostGroupTestPresenterStub extends DefaultPresenter implements AddHostGroupPresenterInterface

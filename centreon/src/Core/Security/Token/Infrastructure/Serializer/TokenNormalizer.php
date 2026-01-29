@@ -46,7 +46,7 @@ class TokenNormalizer implements NormalizerInterface, NormalizerAwareInterface
     public function normalize(
         mixed $object,
         ?string $format = null,
-        array $context = []
+        array $context = [],
     ): array {
         $context[self::ALREADY_CALLED] = true;
         /** @var array<string, mixed> $response */

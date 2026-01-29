@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,7 +26,7 @@ namespace Tests\Core\Common\Domain\Exception;
 use Core\Common\Domain\Exception\ExceptionFormatter;
 use Core\Common\Domain\Exception\RepositoryException;
 
-it('test format native exception without previous', function () {
+it('test format native exception without previous', function (): void {
     $exception = new \LogicException('logic_exception_message', 99);
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
@@ -48,12 +48,12 @@ it('test format native exception without previous', function () {
         ->and($format['previous'])->toBeNull();
 });
 
-it('test format business logic exception without previous', function () {
+it('test format business logic exception without previous', function (): void {
     $exception = new RepositoryException('repository_exception_message');
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe('Core\\Common\\Domain\\Exception\\RepositoryException')
+        ->and($format['type'])->toBe(RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
@@ -70,12 +70,12 @@ it('test format business logic exception without previous', function () {
         ->and($format['previous'])->toBeNull();
 });
 
-it('test format business logic exception without previous with context', function () {
+it('test format business logic exception without previous with context', function (): void {
     $exception = new RepositoryException('repository_exception_message', ['contact' => 1, 'name' => 'John']);
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe('Core\\Common\\Domain\\Exception\\RepositoryException')
+        ->and($format['type'])->toBe(RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')
@@ -92,15 +92,15 @@ it('test format business logic exception without previous with context', functio
         ->and($format['previous'])->toBeNull();
 });
 
-it('test format business logic exception with previous', function () {
+it('test format business logic exception with previous', function (): void {
     $exception = new RepositoryException(
         'repository_exception_message', previous: new \LogicException(
-        'logic_exception_message', 99
-    ));
+            'logic_exception_message', 99
+        ));
     $format = ExceptionFormatter::format($exception);
     expect($format)->toBeArray()
         ->and($format)->toHaveKey('type')
-        ->and($format['type'])->toBe('Core\\Common\\Domain\\Exception\\RepositoryException')
+        ->and($format['type'])->toBe(RepositoryException::class)
         ->and($format)->toHaveKey('message')
         ->and($format['message'])->toBe('repository_exception_message')
         ->and($format)->toHaveKey('file')

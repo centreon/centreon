@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,15 +43,13 @@ beforeEach(function (): void {
         new \DateTimeImmutable(),
         new Refresh(RefreshType::Global, null)
     );
-    $this->createContactShare = function (DashboardSharingRole $role) {
-        return new DashboardContactShare(
-            $this->testedDashboard,
-            2,
-            'name',
-            'email',
-            $role
-        );
-    };
+    $this->createContactShare = fn (DashboardSharingRole $role) => new DashboardContactShare(
+        $this->testedDashboard,
+        2,
+        'name',
+        'email',
+        $role
+    );
     $this->createContactGroupShares = function (DashboardSharingRole ...$roles) {
         $shares = [];
         foreach ($roles as $index => $role) {
@@ -87,9 +85,9 @@ it(
     function (
         ?string $expected,
         ?string $contactRole,
-        array $contactGroupRoles
+        array $contactGroupRoles,
     ): void {
-        $toEnum = static fn(?string $string): ?DashboardSharingRole => $string
+        $toEnum = static fn (?string $string): ?DashboardSharingRole => $string
             ? DashboardSharingRoleConverter::fromString($string)
             : null;
 

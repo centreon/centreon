@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -53,7 +38,7 @@ require_once $centreon_path . 'www/class/centreonCriticality.class.php';
 require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 
 session_start();
-if (!isset($_SESSION['centreon'], $_GET['widgetId'], $_GET['list'])) {
+if (! isset($_SESSION['centreon'], $_GET['widgetId'], $_GET['list'])) {
     // As the header is already defined, if one of these parameters is missing, an empty CSV is exported
     exit;
 }
@@ -104,7 +89,7 @@ if (in_array('0', $exportList, true)) {
 
 // Filter out invalid host IDs
 $filteredHostList = array_filter($exportList, static function ($hostId) {
-    return (int)$hostId > 0; // Keep only valid positive integers
+    return (int) $hostId > 0; // Keep only valid positive integers
 });
 
 $mainQueryParameters = [];
@@ -127,7 +112,7 @@ try {
 $stateLabels = getLabels();
 
 // Request
-$columns = <<<SQL
+$columns = <<<'SQL'
         SELECT
             1 AS REALTIME,
             h.host_id,
@@ -200,7 +185,7 @@ if (! empty($hostQuery)) {
     $baseQuery .= ' AND h.host_id IN (' . $hostQuery . ') ';
 }
 
-if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != "") {
+if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != '') {
     $tab = explode(' ', $preferences['host_name_search']);
     $op = $tab[0];
     if (isset($tab[1])) {
@@ -236,10 +221,10 @@ if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgeme
 }
 
 if (isset($preferences['notification_filter']) && $preferences['notification_filter']) {
-    if ($preferences['notification_filter'] == "enabled") {
-        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, " notify = 1");
-    } elseif ($preferences['notification_filter'] == "disabled") {
-        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, " notify = 0");
+    if ($preferences['notification_filter'] == 'enabled') {
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' notify = 1');
+    } elseif ($preferences['notification_filter'] == 'disabled') {
+        $baseQuery = CentreonUtils::conditionBuilder($baseQuery, ' notify = 0');
     }
 }
 
@@ -328,7 +313,7 @@ $allowedOrderColumns = [
     'cv.value AS criticality',
     'h.icon_image',
     'h.icon_image_alt',
-    'criticality_id'
+    'criticality_id',
 ];
 
 const ORDER_DIRECTION_ASC = 'ASC';
@@ -342,7 +327,7 @@ $orderByToAnalyse = isset($preferences['order_by'])
     : null;
 
 if ($orderByToAnalyse !== null) {
-    $orderByToAnalyse .= " $defaultDirection";
+    $orderByToAnalyse .= " {$defaultDirection}";
     [$column, $direction] = explode(' ', $orderByToAnalyse);
 
     if (in_array($column, $allowedOrderColumns, true) && in_array($direction, $allowedDirections, true)) {
@@ -355,7 +340,7 @@ $data = [];
 try {
     // Main SELECT query
     $query = $columns . $baseQuery;
-    $query .= " ORDER BY $orderBy";
+    $query .= " ORDER BY {$orderBy}";
 
     $outputLength = $preferences['output_length'] ?? 50;
     $commentLength = $preferences['comment_length'] ?? 50;
@@ -377,7 +362,7 @@ try {
             } elseif ($key == 'output') {
                 $value = substr($value, 0, $outputLength);
             } elseif (($key == 'action_url' || $key == 'notes_url') && $value) {
-                if (!preg_match("/(^http[s]?)|(^\/\/)/", $value)) {
+                if (! preg_match("/(^http[s]?)|(^\/\/)/", $value)) {
                     $value = '//' . $value;
                 }
 
@@ -402,7 +387,7 @@ try {
                     LIMIT 1
                     SQL
             );
-            $res2->bindValue(':hostId', $row['host_id'], \PDO::PARAM_INT);
+            $res2->bindValue(':hostId', $row['host_id'], PDO::PARAM_INT);
             $res2->execute();
             $data[$row['host_id']]['comment'] = ($row2 = $res2->fetch()) ? substr($row2['data'], 0, $commentLength) : '-';
         }
@@ -410,12 +395,12 @@ try {
 } catch (CentreonDbException $e) {
     CentreonLog::create()->error(
         CentreonLog::TYPE_SQL,
-        "Error while fetching host monitoring",
+        'Error while fetching host monitoring',
         [
             'message' => $e->getMessage(),
             'parameters' => [
-                'orderby' => $orderBy
-            ]
+                'orderby' => $orderBy,
+            ],
         ],
         $e
     );

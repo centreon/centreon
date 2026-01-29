@@ -52,35 +52,35 @@ $errorMessages = [];
 
 try {
     checkPhpPrerequisite();
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $errorMessages[] = $e->getMessage();
 }
 
 try {
     $db = new CentreonDB();
     checkMariaDBPrerequisite($db);
-} catch (\Exception $e) {
+} catch (Exception $e) {
     $errorMessages[] = $e->getMessage();
 }
 
 foreach ($errorMessages as $errorMessage) {
     $status = 1;
-    $content .= "<p class='required'>" . $errorMessage . "</p>";
+    $content .= "<p class='required'>" . $errorMessage . '</p>';
 }
 
-if (!is_file('../install.conf.php')) {
+if (! is_file('../install.conf.php')) {
     $status = 1;
     $content .= sprintf("<p class='required'>%s (install.conf.php)</p>", _('Configuration file not found.'));
 }
 
 if ($status !== 1) {
     $content .= sprintf(
-        "<p>%s%s</p>",
+        '<p>%s%s</p>',
         _('You are about to upgrade Centreon.'),
         _('The entire process should take around ten minutes.')
     );
     $content .= sprintf(
-        "<p>%s</p>",
+        '<p>%s</p>',
         _('It is strongly recommended to make a backup of your databases before going any further.')
     );
     require_once '../install.conf.php';
@@ -93,7 +93,7 @@ $template->assign('content', $content);
 $template->display('content.tpl');
 ?>
 <script type='text/javascript'>
-    var status = <?php echo $status;?>;
+    var status = <?php echo $status; ?>;
 
     /**
      * Validates info

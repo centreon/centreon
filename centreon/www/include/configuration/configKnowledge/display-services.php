@@ -1,115 +1,93 @@
 <?php
 
 /*
- * Copyright 2005-2020 CENTREON
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
- * SVN : $URL: http://svn.centreon.com/trunk/centreon/www/include/monitoring/status/Services/service.php $
- * SVN : $Id: service.php 8549 2009-07-01 16:20:26Z shotamchay $
- *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-$modules_path = $centreon_path . "www/include/configuration/configKnowledge/";
+$modules_path = $centreon_path . 'www/include/configuration/configKnowledge/';
 require_once $modules_path . 'functions.php';
 require_once $centreon_path . '/bootstrap.php';
 $pearDB = $dependencyInjector['configuration_db'];
 
-if (!isset($limit) || (int) $limit < 0) {
-    $limit = $centreon->optGen["maxViewConfiguration"];
+if (! isset($limit) || (int) $limit < 0) {
+    $limit = $centreon->optGen['maxViewConfiguration'];
 }
 
-$order = "ASC";
-$orderBy = "host_name";
+$order = 'ASC';
+$orderBy = 'host_name';
 
 // Use whitelist as we can't bind ORDER BY values
-if (!empty($_POST['order']) && !empty($_POST['orderby'])) {
-    if (in_array($_POST['order'], ["ASC", "DESC"])) {
+if (! empty($_POST['order']) && ! empty($_POST['orderby'])) {
+    if (in_array($_POST['order'], ['ASC', 'DESC'])) {
         $order = $_POST['order'];
     }
-    if (in_array($_POST['orderby'], ["host_name", "service_description"])) {
+    if (in_array($_POST['orderby'], ['host_name', 'service_description'])) {
         $orderBy = $_POST['orderby'];
     }
 }
 
-require_once "./include/common/autoNumLimit.php";
+require_once './include/common/autoNumLimit.php';
 
-/*
- * Add paths
- */
+// Add paths
 set_include_path(get_include_path() . PATH_SEPARATOR . $modules_path);
 
-require_once $centreon_path . "/www/class/centreon-knowledge/procedures.class.php";
+require_once $centreon_path . '/www/class/centreon-knowledge/procedures.class.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($modules_path);
 
 try {
-    $postHost = !empty($_POST['searchHost'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHost'])
+    $postHost = ! empty($_POST['searchHost'])
+        ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHost'])
         : '';
-    $postService = !empty($_POST['searchService'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchService'])
+    $postService = ! empty($_POST['searchService'])
+        ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchService'])
         : '';
-    $postHostgroup = !empty($_POST['searchHostgroup'])
+    $postHostgroup = ! empty($_POST['searchHostgroup'])
         ? filter_input(INPUT_POST, 'searchHostgroup', FILTER_VALIDATE_INT)
         : false;
-    $postServicegroup = !empty($_POST['searchServicegroup'])
+    $postServicegroup = ! empty($_POST['searchServicegroup'])
         ? filter_input(INPUT_POST, 'searchServicegroup', FILTER_VALIDATE_INT)
         : false;
-    $postPoller = !empty($_POST['searchPoller'])
+    $postPoller = ! empty($_POST['searchPoller'])
         ? filter_input(INPUT_POST, 'searchPoller', FILTER_VALIDATE_INT)
         : false;
-    $searchHasNoProcedure = !empty($_POST['searchHasNoProcedure'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHasNoProcedure'])
+    $searchHasNoProcedure = ! empty($_POST['searchHasNoProcedure'])
+        ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchHasNoProcedure'])
         : '';
-    $templatesHasNoProcedure = !empty($_POST['searchTemplatesWithNoProcedure'])
-        ? \HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchTemplatesWithNoProcedure'])
+    $templatesHasNoProcedure = ! empty($_POST['searchTemplatesWithNoProcedure'])
+        ? HtmlAnalyzer::sanitizeAndRemoveTags($_POST['searchTemplatesWithNoProcedure'])
         : '';
 
     $conf = getWikiConfig($pearDB);
     $WikiURL = $conf['kb_wiki_url'];
 
-    $currentPage = "services";
+    $currentPage = 'services';
     require_once $modules_path . 'search.php';
 
-    /*
-     * Init Status Template
-     */
+    // Init Status Template
     $status = [
-        0 => "<font color='orange'> " . _("No wiki page defined") . " </font>",
-        1 => "<font color='green'> " . _("Wiki page defined") . " </font>"
+        0 => "<font color='orange'> " . _('No wiki page defined') . ' </font>',
+        1 => "<font color='green'> " . _('Wiki page defined') . ' </font>',
     ];
 
     $proc = new procedures($pearDB);
@@ -123,43 +101,43 @@ try {
                 LEFT JOIN host_service_relation hsr ON hsr.service_service_id = s.service_id
                 RIGHT JOIN host h ON h.host_id = hsr.host_host_id
             WHERE s.service_register = '1' ";
-    if (!empty($postHost)) {
-        $query .= "AND h.host_name LIKE :postHost ";
+    if (! empty($postHost)) {
+        $query .= 'AND h.host_name LIKE :postHost ';
         $queryValues[':postHost'] = [
-            \PDO::PARAM_STR => "%" . $postHost . "%"
+            PDO::PARAM_STR => '%' . $postHost . '%',
         ];
     }
     if ($postHostgroup !== false) {
-        $query .= "
+        $query .= '
             AND hsr.host_host_id IN
             (SELECT host_host_id FROM hostgroup_relation hgr
-                WHERE hgr.hostgroup_hg_id = :postHostgroup ) ";
+                WHERE hgr.hostgroup_hg_id = :postHostgroup ) ';
         $queryValues[':postHostgroup'] = [
-            \PDO::PARAM_INT => $postHostgroup
+            PDO::PARAM_INT => $postHostgroup,
         ];
     }
     if ($postServicegroup !== false) {
-        $query .= "
+        $query .= '
             AND s.service_id IN
             (SELECT service_service_id FROM servicegroup_relation
-                WHERE servicegroup_sg_id = :postServicegroup ) ";
+                WHERE servicegroup_sg_id = :postServicegroup ) ';
         $queryValues[':postServicegroup'] = [
-            \PDO::PARAM_INT => $postServicegroup
+            PDO::PARAM_INT => $postServicegroup,
         ];
     }
     if ($postPoller !== false) {
-        $query .= "
+        $query .= '
             AND hsr.host_host_id IN
             (SELECT host_host_id FROM ns_host_relation
-                WHERE nagios_server_id = :postPoller ) ";
+                WHERE nagios_server_id = :postPoller ) ';
         $queryValues[':postPoller'] = [
-            \PDO::PARAM_INT => $postPoller
+            PDO::PARAM_INT => $postPoller,
         ];
     }
-    if (!empty($postService)) {
-        $query .= "AND s.service_description LIKE :postService ";
+    if (! empty($postService)) {
+        $query .= 'AND s.service_description LIKE :postService ';
         $queryValues[':postService'] = [
-            \PDO::PARAM_STR => "%" . $postService . "%"
+            PDO::PARAM_STR => '%' . $postService . '%',
         ];
     }
 
@@ -172,32 +150,32 @@ try {
                 LEFT JOIN host h2 ON h2.host_id = hgr.host_host_id
             WHERE s2.service_register = '1' ";
     if ($postHostgroup !== false) {
-        $query .= "
+        $query .= '
             AND (h2.host_id IN
             (SELECT host_host_id FROM hostgroup_relation hgr
                 WHERE hgr.hostgroup_hg_id = :postHostgroup )
-            OR hgr.hostgroup_hg_id = :postHostgroup ) ";
+            OR hgr.hostgroup_hg_id = :postHostgroup ) ';
     }
-    if (!empty($postHost)) {
-        $query .= "AND h2.host_name LIKE :postHost ";
+    if (! empty($postHost)) {
+        $query .= 'AND h2.host_name LIKE :postHost ';
     }
     if ($postServicegroup !== false) {
-        $query .= "
+        $query .= '
             AND s2.service_id IN
             (SELECT service_service_id FROM servicegroup_relation
-                WHERE servicegroup_sg_id = :postServicegroup) ";
+                WHERE servicegroup_sg_id = :postServicegroup) ';
     }
     if ($postPoller !== false) {
-        $query .= "
+        $query .= '
             AND h2.host_id IN
             (SELECT host_host_id FROM ns_host_relation
-                WHERE nagios_server_id = :postPoller ) ";
+                WHERE nagios_server_id = :postPoller ) ';
     }
-    if (!empty($postService)) {
-        $query .= "AND s2.service_description LIKE :postService ";
+    if (! empty($postService)) {
+        $query .= 'AND s2.service_description LIKE :postService ';
     }
-    $query .= ") as t1 ";
-    $query .= "ORDER BY $orderBy " . $order . " LIMIT :offset, :limit";
+    $query .= ') as t1 ';
+    $query .= "ORDER BY {$orderBy} " . $order . ' LIMIT :offset, :limit';
 
     $statement = $pearDB->prepare($query);
     foreach ($queryValues as $bindId => $bindData) {
@@ -211,50 +189,48 @@ try {
 
     $serviceList = [];
     while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
-        $row['service_description'] = str_replace("#S#", "/", $row['service_description']);
-        $row['service_description'] = str_replace("#BS#", "\\", $row['service_description']);
+        $row['service_description'] = str_replace('#S#', '/', $row['service_description']);
+        $row['service_description'] = str_replace('#BS#', '\\', $row['service_description']);
         if (isset($row['host_id']) && $row['host_id']) {
             $serviceList[$row['host_name'] . '_/_' . $row['service_description']] = [
-                "id" => $row['service_id'],
-                "svc" => $row['service_description'],
-                "h" => $row['host_name']
+                'id' => $row['service_id'],
+                'svc' => $row['service_description'],
+                'h' => $row['host_name'],
             ];
         }
     }
 
-    $rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+    $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
-    /*
-     * Create Diff
-     */
-    $tpl->assign("host_name", _("Hosts"));
-    $tpl->assign("p", 61002);
-    $tpl->assign("service_description", _("Services"));
+    // Create Diff
+    $tpl->assign('host_name', _('Hosts'));
+    $tpl->assign('p', 61002);
+    $tpl->assign('service_description', _('Services'));
 
     $diff = [];
     $templateHostArray = [];
 
     foreach ($serviceList as $key => $value) {
-        $tplStr = "";
+        $tplStr = '';
         $tplArr = $proc->getMyServiceTemplateModels($value['id']);
-        $key_nospace = str_replace(" ", "_", $key);
+        $key_nospace = str_replace(' ', '_', $key);
         $diff[$key] = $proc->serviceHasProcedure($key_nospace, $tplArr) == true ? 1 : 0;
 
-        if (!empty($templatesHasNoProcedure)) {
+        if (! empty($templatesHasNoProcedure)) {
             if (
                 $diff[$key] == 1
                 || $proc->serviceHasProcedure($key_nospace, $tplArr, PROCEDURE_INHERITANCE_MODE) == true
             ) {
                 $rows--;
-                unset($diff[$key]);
-                unset($serviceList[$key]);
+                unset($diff[$key], $serviceList[$key]);
+
                 continue;
             }
-        } elseif (!empty($searchHasNoProcedure)) {
+        } elseif (! empty($searchHasNoProcedure)) {
             if ($diff[$key] == 1) {
                 $rows--;
-                unset($diff[$key]);
-                unset($serviceList[$key]);
+                unset($diff[$key], $serviceList[$key]);
+
                 continue;
             }
         }
@@ -265,41 +241,39 @@ try {
                 if ($firstTpl) {
                     $firstTpl = 0;
                 } else {
-                    $tplStr .= "&nbsp;|&nbsp;";
+                    $tplStr .= '&nbsp;|&nbsp;';
                 }
-                $tplStr .= "<a href='" . $WikiURL .
-                    "/index.php?title=Service-Template_:_" . $value1 . "' target='_blank'>" . $value1 . "</a>";
+                $tplStr .= "<a href='" . $WikiURL
+                    . '/index.php?title=Service-Template_:_' . $value1 . "' target='_blank'>" . $value1 . '</a>';
             }
         }
         $templateHostArray[$key] = $tplStr;
         unset($tplStr);
     }
 
-    include "./include/common/checkPagination.php";
+    include './include/common/checkPagination.php';
 
     if (isset($templateHostArray)) {
-        $tpl->assign("templateHostArray", $templateHostArray);
+        $tpl->assign('templateHostArray', $templateHostArray);
     }
 
     $WikiVersion = getWikiVersion($WikiURL . '/api.php');
-    $tpl->assign("WikiVersion", $WikiVersion);
-    $tpl->assign("WikiURL", $WikiURL);
-    $tpl->assign("content", $diff);
-    $tpl->assign("services", $serviceList);
-    $tpl->assign("status", $status);
-    $tpl->assign("selection", 1);
+    $tpl->assign('WikiVersion', $WikiVersion);
+    $tpl->assign('WikiURL', $WikiURL);
+    $tpl->assign('content', $diff);
+    $tpl->assign('services', $serviceList);
+    $tpl->assign('status', $status);
+    $tpl->assign('selection', 1);
 
-    /*
-     * Send template in order to open
-     */
+    // Send template in order to open
 
     // translations
-    $tpl->assign("status_trans", _("Status"));
-    $tpl->assign("actions_trans", _("Actions"));
-    $tpl->assign("template_trans", _("Template"));
+    $tpl->assign('status_trans', _('Status'));
+    $tpl->assign('actions_trans', _('Actions'));
+    $tpl->assign('template_trans', _('Template'));
 
     // Template
-    $tpl->registerObject("lineTemplate", getLineTemplate('list_one', 'list_two'));
+    $tpl->registerObject('lineTemplate', getLineTemplate('list_one', 'list_two'));
     $tpl->assign('limit', $limit);
 
     $tpl->assign('order', $order);
@@ -307,8 +281,8 @@ try {
     $tpl->assign('defaultOrderby', 'host_name');
 
     // Apply a template definition
-    $tpl->display($modules_path . "templates/display.ihtml");
-} catch (\Exception $e) {
+    $tpl->display($modules_path . 'templates/display.ihtml');
+} catch (Exception $e) {
     $tpl->assign('errorMsg', $e->getMessage());
-    $tpl->display($modules_path . "templates/NoWiki.tpl");
+    $tpl->display($modules_path . 'templates/NoWiki.tpl');
 }

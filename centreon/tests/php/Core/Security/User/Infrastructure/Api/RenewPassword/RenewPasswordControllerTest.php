@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,19 +31,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RenewPasswordControllerTest extends TestCase
 {
-    /**
-     * @var RenewPassword&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RenewPassword&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var Request&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Request&\PHPUnit\Framework\MockObject\MockObject */
     private $request;
 
-    /**
-     * @var RenewPasswordPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var RenewPasswordPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
     public function setUp(): void
@@ -61,7 +55,7 @@ class RenewPasswordControllerTest extends TestCase
         $controller = new RenewPasswordController();
 
         $invalidPayload = json_encode([
-            'old_password' => 'titi'
+            'old_password' => 'titi',
         ]);
         $this->request
             ->expects($this->once())

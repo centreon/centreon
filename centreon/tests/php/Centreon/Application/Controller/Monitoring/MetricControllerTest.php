@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,34 +21,38 @@
 
 namespace Tests\Centreon\Application\Controller\Monitoring;
 
-use Centreon\Domain\Contact\Contact;
-use Centreon\Domain\Monitoring\Host;
-use Centreon\Domain\Monitoring\Service;
 use Centreon\Application\Controller\Monitoring\MetricController;
+use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Exception\EntityNotFoundException;
-use Centreon\Domain\Monitoring\Metric\Interfaces\MetricServiceInterface;
+use Centreon\Domain\Monitoring\Host;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringServiceInterface;
+use Centreon\Domain\Monitoring\Metric\Interfaces\MetricServiceInterface;
+use Centreon\Domain\Monitoring\Service;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use FOS\RestBundle\View\View;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use FOS\RestBundle\View\View;
-use Psr\Container\ContainerInterface;
-use PHPUnit\Framework\TestCase;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class MetricControllerTest extends TestCase
 {
     protected $adminContact;
 
     protected $host;
+
     protected $service;
 
     protected $metrics;
+
     protected $start;
+
     protected $end;
 
     protected $monitoringService;
+
     protected $metricService;
 
     protected $container;
@@ -56,6 +60,7 @@ class MetricControllerTest extends TestCase
     protected $requestParameters;
 
     protected array $normalizedPerformanceMetrics = [];
+
     protected array $status = [];
 
     protected function setUp(): void
@@ -337,7 +342,7 @@ class MetricControllerTest extends TestCase
         $metricController->getServicePerformanceMetrics($this->requestParameters, 1, 1);
     }
 
-     /**
+    /**
      * test getServicePerformanceMetrics with start date greater than end date
      */
     public function testGetServicePerformanceMetricsWrongDateRange(): void

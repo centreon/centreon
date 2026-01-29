@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         foreach ($accessGroupIds as $key => $accessGroupId) {
             $bind[':access_group_' . $key] = $accessGroupId;
         }
-        if ([] === $bind) {
+        if ($bind === []) {
             return false;
         }
 
@@ -111,7 +111,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
                     AND gcgr.acl_group_id IN ({$accessGroupIdsAsString})
                 SQL
         ));
-        $statement->bindValue(':contactGroupId', $contactGroupId,\PDO::PARAM_INT);
+        $statement->bindValue(':contactGroupId', $contactGroupId, \PDO::PARAM_INT);
         foreach ($bind as $token => $accessGroupId) {
             $statement->bindValue($token, $accessGroupId, \PDO::PARAM_INT);
         }
@@ -125,7 +125,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
      */
     public function findNamesByIds(int ...$ids): array
     {
-        if ([] === $ids) {
+        if ($ids === []) {
             return [];
         }
 
@@ -133,7 +133,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
 
         $fields = '';
         foreach ($ids as $index => $id) {
-            $fields .= ('' === $fields ? '' : ', ') . ':id_' . $index;
+            $fields .= ($fields === '' ? '' : ', ') . ':id_' . $index;
         }
 
         $select = <<<SQL
@@ -302,7 +302,7 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
             $contactGroup = DbContactGroupFactory::createFromRecord($result);
         }
         $this->debug(
-            $contactGroup === null  ? 'No Contact Group found' : 'Contact Group Found',
+            $contactGroup === null ? 'No Contact Group found' : 'Contact Group Found',
             [
                 'contact_group_id' => $contactGroupId,
             ]
@@ -358,10 +358,9 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         array $accessGroups,
         ContactInterface $user,
         ?RequestParametersInterface $requestParameters = null,
-    ): array
-    {
+    ): array {
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -460,10 +459,10 @@ class DbReadContactGroupRepository extends AbstractRepositoryDRB implements Read
         }
         $contactGroupIdsAsString = implode(', ', array_keys($bind));
         $request = $this->translateDbName(
-           <<<SQL
-               SELECT cg_id FROM `:db`.contactgroup
-               WHERE cg_id IN ({$contactGroupIdsAsString})
-               SQL
+            <<<SQL
+                SELECT cg_id FROM `:db`.contactgroup
+                WHERE cg_id IN ({$contactGroupIdsAsString})
+                SQL
         );
         $statement = $this->db->prepare($request);
         foreach ($bind as $key => $value) {

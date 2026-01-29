@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -57,7 +57,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      */
     public function __construct(
         PresenterFormatterInterface $presenterFormatter,
-        private readonly ExceptionLogger $exceptionLogger
+        private readonly ExceptionLogger $exceptionLogger,
     ) {
         parent::__construct($presenterFormatter);
     }
@@ -150,7 +150,7 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             ];
 
             $line = array_map(
-                fn($key) => $resource[$key],
+                fn ($key) => $resource[$key],
                 $csvHeader->values()
             );
 
@@ -197,10 +197,8 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
             // if the key is a resource or parent_resource, we keep all columns starting with this key
             if (str_starts_with($key, 'resource_')) {
                 $key = 'resource';
-            } else {
-                if (str_starts_with($key, 'parent_resource_')) {
-                    $key = 'parent_resource';
-                }
+            } elseif (str_starts_with($key, 'parent_resource_')) {
+                $key = 'parent_resource';
             }
 
             return $filteredColumns->contains($key);
@@ -215,23 +213,19 @@ final class ExportResourcesPresenterCsv extends AbstractPresenter implements Exp
      */
     private function sortHeaderByFilteredColumns(
         StringCollection $csvHeader,
-        StringCollection $filteredColumns
+        StringCollection $filteredColumns,
     ): StringCollection {
         $csvHeader->sortByKeys(function ($keyA, $keyB) use ($filteredColumns) {
             // if the key is a resource or parent_resource, we keep all columns starting with this key
             if (str_starts_with($keyA, 'resource_')) {
                 $keyA = 'resource';
-            } else {
-                if (str_starts_with($keyA, 'parent_resource_')) {
-                    $keyA = 'parent_resource';
-                }
+            } elseif (str_starts_with($keyA, 'parent_resource_')) {
+                $keyA = 'parent_resource';
             }
             if (str_starts_with($keyB, 'resource_')) {
                 $keyB = 'resource';
-            } else {
-                if (str_starts_with($keyB, 'parent_resource_')) {
-                    $keyB = 'parent_resource';
-                }
+            } elseif (str_starts_with($keyB, 'parent_resource_')) {
+                $keyB = 'parent_resource';
             }
 
             return $filteredColumns->indexOf($keyA) <=> $filteredColumns->indexOf($keyB);

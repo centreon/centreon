@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ final class UpdateVersions
         private readonly ReadUpdateRepositoryInterface $readUpdateRepository,
         private readonly WriteUpdateRepositoryInterface $writeUpdateRepository,
         Container $dependencyInjector,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
         /** @var CentreonModuleService $service */
         $service = $dependencyInjector[ServiceProvider::CENTREON_MODULE];
@@ -107,7 +107,7 @@ final class UpdateVersions
         $this->info('Starting centreon-web update process');
         $availableUpdates = $this->getAvailableUpdates($this->getCurrentVersion());
 
-        if ([] !== $availableUpdates) {
+        if ($availableUpdates !== []) {
             $this->info('Available updates found for centreon-web', ['updates' => $availableUpdates]);
             $this->runUpdates($availableUpdates);
         } else {

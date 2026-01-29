@@ -47,10 +47,10 @@ const HOST_OPEN_TICKET_COMMAND_ID = 4;
 function format_popup(): void
 {
     global $cmd,
-           $rule,
-           $centreon,
-           $centreon_path,
-           $db;
+    $rule,
+    $centreon,
+    $centreon_path,
+    $db;
 
     $rules = [];
 

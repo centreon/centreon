@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -202,7 +202,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findUsersByNotificationIdUserAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups);
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');
@@ -285,7 +285,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
 
     public function findUsersByContactGroupIds(int ...$contactGroupIds): array
     {
-        if ([] === $contactGroupIds) {
+        if ($contactGroupIds === []) {
             return [];
         }
 
@@ -405,7 +405,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function countContactsByNotificationIdsAndAccessGroup(
         array $notificationIds,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups);
         [$accessGroupBindValues, $accessGroupSubQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');
@@ -474,7 +474,7 @@ class DbReadNotificationRepository extends AbstractRepositoryRDB implements Read
     public function findContactGroupsByNotificationIdAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $accessGroupIds = array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups);
         [$bindValues, $subQuery] = $this->createMultipleBindQuery($accessGroupIds, ':ag_id_');

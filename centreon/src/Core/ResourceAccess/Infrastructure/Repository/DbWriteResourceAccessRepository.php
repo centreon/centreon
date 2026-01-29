@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ use Core\ResourceAccess\Domain\Model\Rule;
 
 final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implements WriteResourceAccessRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use RepositoryTrait;
+    use SqlMultipleBindTrait;
 
     /** @var WriteDatasetRepositoryInterface[] */
     private array $repositoryProviders;
@@ -265,7 +267,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactsToRule(int $ruleId, array $contactIds): void
     {
-        if ([] === $contactIds) {
+        if ($contactIds === []) {
             return;
         }
 
@@ -331,7 +333,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void
     {
-        if ([] === $contactGroupIds) {
+        if ($contactGroupIds === []) {
             return;
         }
 

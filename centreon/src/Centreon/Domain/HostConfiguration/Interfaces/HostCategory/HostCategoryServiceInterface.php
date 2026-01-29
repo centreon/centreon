@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostCategory;
@@ -42,8 +43,8 @@ interface HostCategoryServiceInterface
      * Find a host category (for non admin user).
      *
      * @param int $categoryId Id of the host category to be found
-     * @return HostCategory|null
      * @throws HostCategoryException
+     * @return HostCategory|null
      */
     public function findWithAcl(int $categoryId): ?HostCategory;
 
@@ -51,8 +52,8 @@ interface HostCategoryServiceInterface
      * Find a host category (for admin user).
      *
      * @param int $categoryId Id of the host category to be found
-     * @return HostCategory|null
      * @throws HostCategoryException
+     * @return HostCategory|null
      */
     public function findWithoutAcl(int $categoryId): ?HostCategory;
 
@@ -60,8 +61,8 @@ interface HostCategoryServiceInterface
      * Find host categories by name (for admin user).
      *
      * @param string[] $categoriesName List of names of host categories to be found
-     * @return HostCategory[]
      * @throws HostCategoryException
+     * @return HostCategory[]
      */
     public function findByNamesWithoutAcl(array $categoriesName): array;
 }

@@ -107,7 +107,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
         private readonly \Traversable $resourceACLProviders,
-        \Traversable $extraDataProviders
+        \Traversable $extraDataProviders,
     ) {
         parent::__construct($db);
         $this->sqlRequestTranslator = $sqlRequestTranslator;
@@ -361,7 +361,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function iterateResourcesByAccessGroupIds(
         ResourceFilter $filter,
         array $accessGroupIds,
-        int $maxResults = 0
+        int $maxResults = 0,
     ): \Traversable {
         try {
             $this->resources = [];
@@ -436,9 +436,8 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countResourcesByFilterAndAccessGroupIds(
         ResourceFilter $filter,
         bool $allPages,
-        array $accessGroupIds
-    ): int
-    {
+        array $accessGroupIds,
+    ): int {
         // if $allPages is set to true, we don't use pagination and limit because count all resources
         if ($allPages) {
             $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
@@ -528,7 +527,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         ResourceFilter $filter,
         QueryParameters $queryParametersFromRequestParameter,
         array $accessGroupIds = [],
-        bool $onlyCount = false
+        bool $onlyCount = false,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -703,7 +702,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     private function addResourceAclSubRequest(array $accessGroupIds): string
     {
         $orConditions = array_map(
-            static fn(ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
+            static fn (ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
             iterator_to_array($this->resourceACLProviders)
         );
 
@@ -724,7 +723,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function createQueryHeaders(
         ResourceFilter $filter,
-        QueryParameters $queryParametersFromRequestParameter
+        QueryParameters $queryParametersFromRequestParameter,
     ): string {
         $headers = '';
         $nextHeaders = function () use (&$headers): void {
@@ -920,7 +919,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     private function count(
         string $query,
         QueryParameters $queryParametersFromRequestParameters,
-        bool $withFilter = true
+        bool $withFilter = true,
     ): int {
         $queryResources = $this->translateDbName($query);
 
@@ -949,7 +948,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function iterate(
         string $query,
-        QueryParameters $queryParametersFromRequestParameters
+        QueryParameters $queryParametersFromRequestParameters,
     ): \Traversable {
         $queryResources = $this->translateDbName($query);
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -1006,11 +1005,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         $resourcesWithIcons = array_filter(
             $this->resources,
-            static fn(ResourceEntity $resource): bool => null !== $resource->getIcon()
+            static fn (ResourceEntity $resource): bool => $resource->getIcon() !== null
         );
 
         return array_map(
-            static fn(ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getIcon()?->getId(),
             $resourcesWithIcons
         );
     }
@@ -1022,11 +1021,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         $resourcesWithSeverities = array_filter(
             $this->resources,
-            static fn(ResourceEntity $resource): bool => null !== $resource->getSeverity()
+            static fn (ResourceEntity $resource): bool => $resource->getSeverity() !== null
         );
 
         return array_map(
-            static fn(ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
+            static fn (ResourceEntity $resource): ?int => $resource->getSeverity()?->getIcon()?->getId(),
             $resourcesWithSeverities
         );
     }
@@ -1112,7 +1111,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function addSeveritySubRequest(
         ResourceFilter $filter,
-        QueryParameters $queryParametersFromRequestParameter
+        QueryParameters $queryParametersFromRequestParameter,
     ): string {
         $subRequest = '';
         $filteredNames = [];
@@ -1174,7 +1173,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function addResourceParentIdSubRequest(
         ResourceFilter $filter,
-        QueryParameters $queryParametersFromRequestParameter
+        QueryParameters $queryParametersFromRequestParameter,
     ): string {
         $subRequest = '';
         $filteredParentIds = [];
@@ -1347,7 +1346,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     private function addMonitoringServerSubRequest(
         ResourceFilter $filter,
-        QueryParameters $queryParametersFromRequestParameter
+        QueryParameters $queryParametersFromRequestParameter,
     ): string {
         $subRequest = '';
         if (! empty($filter->getMonitoringServerNames())) {

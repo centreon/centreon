@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ final class FindNotifiableResources
      */
     public function __construct(
         private readonly ContactInterface $contact,
-        private readonly ReadNotifiableResourceRepositoryInterface $readRepository
+        private readonly ReadNotifiableResourceRepositoryInterface $readRepository,
     ) {
     }
 
@@ -96,7 +96,7 @@ final class FindNotifiableResources
                 $notificationHostDto->id = $notificationHost->getId();
                 $notificationHostDto->name = $notificationHost->getName();
                 $notificationHostDto->alias = $notificationHost->getAlias();
-                if ([] !== $notificationHost->getEvents()) {
+                if ($notificationHost->getEvents() !== []) {
                     $notificationHostDto->events = NotificationHostEventConverter::toBitFlags(
                         $notificationHost->getEvents()
                     );
@@ -106,7 +106,7 @@ final class FindNotifiableResources
                     $notificationServiceDto->id = $notificationService->getId();
                     $notificationServiceDto->name = $notificationService->getName();
                     $notificationServiceDto->alias = $notificationService->getAlias();
-                    if ([] !== $notificationService->getEvents()) {
+                    if ($notificationService->getEvents() !== []) {
                         $notificationServiceDto->events = NotificationServiceEventConverter::toBitFlags(
                             $notificationService->getEvents()
                         );

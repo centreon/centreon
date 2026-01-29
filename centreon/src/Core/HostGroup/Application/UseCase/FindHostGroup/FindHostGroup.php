@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ final class FindHostGroup
     public function __construct(
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 
@@ -90,7 +90,7 @@ final class FindHostGroup
     {
         $hostGroup = $this->readHostGroupRepository->findOne($hostGroupId);
 
-        if (null === $hostGroup) {
+        if ($hostGroup === null) {
             return new NotFoundResponse('Host group');
         }
 
@@ -109,7 +109,7 @@ final class FindHostGroup
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $hostGroup = $this->readHostGroupRepository->findOneByAccessGroups($hostGroupId, $accessGroups);
 
-        if (null === $hostGroup) {
+        if ($hostGroup === null) {
             return new NotFoundResponse('Host group');
         }
 

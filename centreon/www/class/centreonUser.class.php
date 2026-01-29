@@ -32,65 +32,87 @@ class CentreonUser
 {
     /** @var int|string|null */
     public $user_id;
+
     /** @var string|null */
     public $name;
+
     /** @var string|null */
     public $alias;
+
     /** @var string|null */
     public $passwd;
+
     /** @var string|null */
     public $email;
+
     /** @var string|null */
     public $lang;
+
     /** @var string */
-    public $charset = "UTF-8";
+    public $charset = 'UTF-8';
+
     /** @var int */
     public $version = 3;
+
     /** @var int|string|null */
     public $admin;
+
     /** @var */
-    public $limit; //FIXME not in this class
+    public $limit; // FIXME not in this class
+
     /** @var */
-    public $num; //FIXME not in this class
+    public $num; // FIXME not in this class
+
     /** @var mixed|null */
     public $gmt;
+
     /** @var bool|null */
     public $is_admin = null;
+
     /** @var */
-    public $groupList; //FIXME not in this class
+    public $groupList; // FIXME not in this class
+
     /** @var */
-    public $groupListStr; //FIXME not in this class
+    public $groupListStr; // FIXME not in this class
+
     /** @var CentreonACL */
     public $access;
+
     /** @var CentreonUserLog */
     public $log;
-    /** @var string|null */
-    protected $token;
+
     /** @var int|mixed */
     public $default_page;
-    /** @var bool */
-    private $showDeprecatedPages;
-    /** @var int */
-    private $currentPage;
+
     /** @var string|null */
     public $theme;
 
-    /** @var bool */
-    protected $restApi;
-    /** @var bool */
-    protected $restApiRt;
-
-    # User LCA
-    # Array with elements ID for loop test
+    // User LCA
+    // Array with elements ID for loop test
     /** @var array|null */
     public $lcaTopo;
 
-    # String with elements ID separated by commas for DB requests
+    // String with elements ID separated by commas for DB requests
     /** @var string|null */
     public $lcaTStr;
 
     /** @var string */
     public $authType;
+
+    /** @var string|null */
+    protected $token;
+
+    /** @var bool */
+    protected $restApi;
+
+    /** @var bool */
+    protected $restApiRt;
+
+    /** @var bool */
+    private $showDeprecatedPages;
+
+    /** @var int */
+    private $currentPage;
 
     /**
      * CentreonUser constructor
@@ -103,15 +125,15 @@ class CentreonUser
     {
         global $pearDB;
 
-        $this->user_id = $user["contact_id"] ?? null;
-        $this->name = isset($user["contact_name"]) ?
-            html_entity_decode($user["contact_name"], ENT_QUOTES, "UTF-8") : null;
-        $this->alias = isset($user["contact_alias"]) ?
-            html_entity_decode($user["contact_alias"], ENT_QUOTES, "UTF-8") : null;
-        $this->email = isset($user["contact_email"]) ?
-            html_entity_decode($user["contact_email"], ENT_QUOTES, "UTF-8") : null;
-        $this->lang = $user["contact_lang"] ?? null;
-        $this->passwd = $user["contact_passwd"] ?? null;
+        $this->user_id = $user['contact_id'] ?? null;
+        $this->name = isset($user['contact_name'])
+            ? html_entity_decode($user['contact_name'], ENT_QUOTES, 'UTF-8') : null;
+        $this->alias = isset($user['contact_alias'])
+            ? html_entity_decode($user['contact_alias'], ENT_QUOTES, 'UTF-8') : null;
+        $this->email = isset($user['contact_email'])
+            ? html_entity_decode($user['contact_email'], ENT_QUOTES, 'UTF-8') : null;
+        $this->lang = $user['contact_lang'] ?? null;
+        $this->passwd = $user['contact_passwd'] ?? null;
         $this->token = $user['contact_autologin_key'] ?? null;
         $this->admin = $user['contact_admin'] ?? null;
         $this->default_page = $user['default_page'] ?? CentreonAuth::DEFAULT_PAGE;
@@ -122,9 +144,7 @@ class CentreonUser
         $this->access = new CentreonACL($this->user_id, $this->admin);
         $this->lcaTopo = $this->access->topology;
         $this->lcaTStr = $this->access->topologyStr;
-        /*
-         * Initiate Log Class
-         */
+        // Initiate Log Class
         $this->log = new CentreonUserLog($this->user_id, $pearDB);
 
         /**
@@ -133,9 +153,7 @@ class CentreonUser
         $this->restApi = isset($user['reach_api']) && $user['reach_api'] == 1;
         $this->restApiRt = isset($user['reach_api_rt']) && $user['reach_api_rt'] == 1;
 
-        /*
-         * Init authentication type, could by local, openid, web-sso, saml
-         */
+        // Init authentication type, could by local, openid, web-sso, saml
         $this->authType = $user['auth_type'] ?? 'unknown';
     }
 
@@ -148,28 +166,30 @@ class CentreonUser
     {
         global $pearDB;
 
-        if (!isset($div_name)) {
+        if (! isset($div_name)) {
             return 0;
         }
+
         return $_SESSION['_Div_' . $div_name] ?? 1;
     }
 
     /**
      * @param CentreonDB $pearDB
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getAllTopology($pearDB)
     {
-        $DBRESULT = $pearDB->query("SELECT topology_page FROM topology WHERE topology_page IS NOT NULL");
+        $DBRESULT = $pearDB->query('SELECT topology_page FROM topology WHERE topology_page IS NOT NULL');
         while ($topo = $DBRESULT->fetch()) {
-            if (isset($topo["topology_page"])) {
-                $lcaTopo[$topo["topology_page"]] = 1;
+            if (isset($topo['topology_page'])) {
+                $lcaTopo[$topo['topology_page']] = 1;
             }
         }
         unset($topo);
         $DBRESULT->closeCursor();
+
         return $lcaTopo;
     }
 
@@ -183,29 +203,29 @@ class CentreonUser
      */
     public function checkUserStatus($sid, $pearDB): void
     {
-        $query1 = "SELECT contact_admin, contact_id FROM session, contact " .
-            "WHERE session.session_id = :session_id" .
-            " AND contact.contact_id = session.user_id AND contact.contact_register = '1'";
+        $query1 = 'SELECT contact_admin, contact_id FROM session, contact '
+            . 'WHERE session.session_id = :session_id'
+            . " AND contact.contact_id = session.user_id AND contact.contact_register = '1'";
         $statement = $pearDB->prepare($query1);
         $statement->bindValue(':session_id', $sid);
         $statement->execute();
         $admin = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
-        $query2 = "SELECT count(*) FROM `acl_group_contacts_relations` " .
-            "WHERE contact_contact_id = :contact_id";
+        $query2 = 'SELECT count(*) FROM `acl_group_contacts_relations` '
+            . 'WHERE contact_contact_id = :contact_id';
         $statement = $pearDB->prepare($query2);
-        $statement->bindValue(':contact_id', (int)$admin["contact_id"], PDO::PARAM_INT);
+        $statement->bindValue(':contact_id', (int) $admin['contact_id'], PDO::PARAM_INT);
         $statement->execute();
         $admin2 = $statement->fetch(PDO::FETCH_ASSOC);
         $statement->closeCursor();
 
-        if ($admin["contact_admin"]) {
+        if ($admin['contact_admin']) {
             unset($admin);
-            $this->is_admin = 1;// FIXME property overwritten
-        } elseif (!$admin2["count(*)"]) {
+            $this->is_admin = 1; // FIXME property overwritten
+        } elseif (! $admin2['count(*)']) {
             unset($admin2);
-            $this->is_admin = 1;// FIXME property overwritten
+            $this->is_admin = 1; // FIXME property overwritten
         }
         $this->is_admin = 0;
     }
@@ -394,14 +414,14 @@ class CentreonUser
     /**
      * @param CentreonDB $db
      *
-     * @return array|mixed
      * @throws PDOException
+     * @return array|mixed
      */
     public function getUserList($db)
     {
         static $userList;
 
-        if (!isset($userList)) {
+        if (! isset($userList)) {
             $userList = [];
             $res = $db->query(
                 "SELECT contact_id, contact_name
@@ -414,6 +434,7 @@ class CentreonUser
                 $userList[$row['contact_id']] = $row['contact_name'];
             }
         }
+
         return $userList;
     }
 
@@ -423,20 +444,21 @@ class CentreonUser
      * @param CentreonDB $db
      * @param int $userId
      *
-     * @return string
      * @throws PDOException
+     * @return string
      */
     public function getContactName($db, $userId)
     {
         static $userNames;
 
-        if (!isset($userNames)) {
+        if (! isset($userNames)) {
             $userNames = [];
-            $res = $db->query("SELECT contact_name, contact_id FROM contact");
+            $res = $db->query('SELECT contact_name, contact_id FROM contact');
             while ($row = $res->fetch()) {
                 $userNames[$row['contact_id']] = $row['contact_name'];
             }
         }
+
         return $userNames[$userId] ?? null;
     }
 
@@ -446,8 +468,8 @@ class CentreonUser
      * @param CentreonDB $db
      * @param array $parameters
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getContactParameters($db, $parameters = [])
     {
@@ -479,25 +501,25 @@ class CentreonUser
      * @param CentreonDB $db
      * @param array $parameters
      *
-     * @return null
      * @throws PDOException
+     * @return null
      */
     public function setContactParameters($db, $parameters = [])
     {
-        if (!count($parameters)) {
+        if (! count($parameters)) {
             return null;
         }
         $queryValues = [];
         $keys = array_keys($parameters);
         $deleteQuery = 'DELETE FROM contact_param WHERE cp_contact_id = :cp_contact_id AND cp_key IN( ';
         $queryValues[':cp_contact_id'] = $this->user_id;
-        $queryKey ='';
+        $queryKey = '';
         foreach ($keys as $key) {
-            $queryKey .=' :cp_key'.$key.',';
-            $queryValues[':cp_key'.$key] = $key;
+            $queryKey .= ' :cp_key' . $key . ',';
+            $queryValues[':cp_key' . $key] = $key;
         }
         $queryKey = rtrim($queryKey, ',');
-        $deleteQuery .= $queryKey .' )';
+        $deleteQuery .= $queryKey . ' )';
         $stmt = $db->prepare($deleteQuery);
         $stmt->execute($queryValues);
 

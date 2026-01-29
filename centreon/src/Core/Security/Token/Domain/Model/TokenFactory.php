@@ -103,9 +103,8 @@ final class TokenFactory
      */
     public static function create(
         TokenTypeEnum $type,
-        array $data
-    ): Token
-    {
+        array $data,
+    ): Token {
         if ($type === TokenTypeEnum::CMA) {
             /** @var _JwtToken $data */
             return new JwtToken(

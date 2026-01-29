@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ final class UpdateRule
         private readonly UpdateRuleValidation $validator,
         private readonly DatasetFilterValidator $datasetValidator,
         private readonly DataStorageEngineInterface $dataStorageEngine,
-        private readonly bool $isCloudPlatform
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -175,7 +175,7 @@ final class UpdateRule
 
         $validateAndBuildDatasetFilter = function (
             array $data,
-            ?DatasetFilter $parentDatasetFilter
+            ?DatasetFilter $parentDatasetFilter,
         ) use (&$validateAndBuildDatasetFilter, &$datasetFilter): void {
             /**
              * In any case we want to make sure that
@@ -247,7 +247,7 @@ final class UpdateRule
         $saveDatasetFiltersHierarchy = function (
             int $ruleId,
             int $datasetId,
-            DatasetFilter $filter
+            DatasetFilter $filter,
         ) use (&$parentFilterId, &$saveDatasetFiltersHierarchy): void {
             // First iteration we save the root filter
             $this->debug(
@@ -324,7 +324,7 @@ final class UpdateRule
                 // Extract from the DatasetFilter the final filter level and its parent.
                 [
                     'parent' => $parentApplicableFilter,
-                    'last' => $applicableFilter
+                    'last' => $applicableFilter,
                 ] = DatasetFilter::findApplicableFilters($datasetFilter);
 
                 /* Specific behaviour when the last level of filtering is of type

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidIcon(?int $iconId): void
     {
-        if ($iconId !== null && false === $this->readViewImgRepository->existsOne($iconId)) {
+        if ($iconId !== null && $this->readViewImgRepository->existsOne($iconId) === false) {
             $this->error('Icon does not exist', ['icon_id' => $iconId]);
 
             throw HostException::idDoesNotExist('iconId', $iconId);
@@ -160,7 +160,7 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidTimePeriod(?int $timePeriodId, ?string $propertyName = null): void
     {
-        if ($timePeriodId !== null && false === $this->readTimePeriodRepository->exists($timePeriodId) ) {
+        if ($timePeriodId !== null && $this->readTimePeriodRepository->exists($timePeriodId) === false) {
             $this->error('Time period does not exist', ['time_period_id' => $timePeriodId]);
 
             throw HostException::idDoesNotExist($propertyName ?? 'timePeriodId', $timePeriodId);
@@ -198,7 +198,7 @@ class PartialUpdateHostValidation
      */
     public function assertIsValidTimezone(?int $timezoneId): void
     {
-        if ($timezoneId !== null && false === $this->readTimezoneRepository->exists($timezoneId) ) {
+        if ($timezoneId !== null && $this->readTimezoneRepository->exists($timezoneId) === false) {
             $this->error('Timezone does not exist', ['timezone_id' => $timezoneId]);
 
             throw HostException::idDoesNotExist('timezoneId', $timezoneId);
@@ -217,20 +217,20 @@ class PartialUpdateHostValidation
     public function assertIsValidCommand(
         ?int $commandId,
         ?CommandType $commandType = null,
-        ?string $propertyName = null
+        ?string $propertyName = null,
     ): void {
         if ($commandId === null) {
             return;
         }
 
-        if ($commandType === null && false === $this->readCommandRepository->exists($commandId)) {
+        if ($commandType === null && $this->readCommandRepository->exists($commandId) === false) {
             $this->error('Command does not exist', ['command_id' => $commandId]);
 
             throw HostException::idDoesNotExist($propertyName ?? 'commandId', $commandId);
         }
         if (
             $commandType !== null
-            && false === $this->readCommandRepository->existsByIdAndCommandType($commandId, $commandType)
+            && $this->readCommandRepository->existsByIdAndCommandType($commandId, $commandType) === false
         ) {
             $this->error('Command does not exist', ['command_id' => $commandId, 'command_type' => $commandType]);
 
@@ -291,7 +291,7 @@ class PartialUpdateHostValidation
      */
     public function assertAreValidTemplates(array $templateIds, int $hostId): void
     {
-         if ($templateIds === []) {
+        if ($templateIds === []) {
 
             return;
         }
@@ -304,8 +304,8 @@ class PartialUpdateHostValidation
 
         if (
             in_array($hostId, $templateIds, true)
-            || false === $this->inheritanceManager->isValidInheritanceTree($hostId, $templateIds)
-            ) {
+            || $this->inheritanceManager->isValidInheritanceTree($hostId, $templateIds) === false
+        ) {
             throw HostException::circularTemplateInheritance();
         }
     }

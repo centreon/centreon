@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Repository;
 
@@ -39,8 +39,8 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
         private readonly DbReadMediaRepository $dbReadMediaRepository,
         private string $absoluteMediaPath,
     ) {
-         $this->absoluteMediaPath = realpath($absoluteMediaPath)
-            ?: throw new \Exception(sprintf('Path invalid \'%s\'', $absoluteMediaPath));
+        $this->absoluteMediaPath = realpath($absoluteMediaPath)
+           ?: throw new \Exception(sprintf('Path invalid \'%s\'', $absoluteMediaPath));
     }
 
     /**
@@ -64,15 +64,14 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
      */
     public function findAll(): \Traversable&\Countable
     {
-        return new class ($this->absoluteMediaPath, $this->dbReadMediaRepository->findAll())
-            implements \IteratorAggregate, \Countable {
+        return new class ($this->absoluteMediaPath, $this->dbReadMediaRepository->findAll()) implements \IteratorAggregate, \Countable {
             /**
              * @param string $absoluteMediaPath
              * @param \Traversable<int, Media>&\Countable $medias
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable&\Countable $medias
+                readonly private \Traversable&\Countable $medias,
             ) {
             }
 
@@ -88,11 +87,10 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
                             $media->getComment(),
                             file_get_contents($absoluteMediaPath)
                                 ?: throw new \Exception(
-                                'Cannot get content of file ' . $media->getRelativePath()
-                            )
+                                    'Cannot get content of file ' . $media->getRelativePath()
+                                )
                         );
-                    }
-                    else {
+                    } else {
                         yield $media;
                     }
                 }
@@ -120,15 +118,14 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
      */
     private function createTraversable(\Traversable $medias): \Traversable
     {
-        return new class ($this->absoluteMediaPath, $medias) implements \IteratorAggregate
-        {
+        return new class ($this->absoluteMediaPath, $medias) implements \IteratorAggregate {
             /**
              * @param string $absoluteMediaPath
              * @param \Traversable<int, Media> $medias
              */
             public function __construct(
                 readonly private string $absoluteMediaPath,
-                readonly private \Traversable $medias
+                readonly private \Traversable $medias,
             ) {
             }
 

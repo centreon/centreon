@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Core\Common\Domain\Exception\CollectionException;
 
-it('add a query parameter with a good type', function () {
+it('add a query parameter with a good type', function (): void {
     $queryParameters = new QueryParameters();
     $param = QueryParameter::string('name_string', 'value');
     $queryParameters->add('name_string', $param);
@@ -35,32 +35,32 @@ it('add a query parameter with a good type', function () {
         ->and($queryParameters->get('name_string'))->toBe($param);
 });
 
-it('add a query parameter with a bad type', function () {
+it('add a query parameter with a bad type', function (): void {
     $param = new \stdClass();
     $queryParameters = new QueryParameters();
     $queryParameters->add('name', $param);
 })->throws(CollectionException::class);
 
-it('create with good type', function () {
+it('create with good type', function (): void {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
-        'name_int' => QueryParameter::int('name_int', 1)
+        'name_int' => QueryParameter::int('name_int', 1),
     ];
-    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
+    $queryParameters = QueryParameters::create($param);
     expect($queryParameters->length())->toBe(2)
         ->and($queryParameters->get('name_string'))->toBe($param['name_string'])
         ->and($queryParameters->get('name_int'))->toBe($param['name_int']);
 });
 
-it('create with bad type', function () {
+it('create with bad type', function (): void {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
-        'name_int' => new \stdClass()
+        'name_int' => new \stdClass(),
     ];
-    \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
+    QueryParameters::create($param);
 })->throws(CollectionException::class);
 
-it('get query parameters with int type', function () {
+it('get query parameters with int type', function (): void {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -76,7 +76,7 @@ it('get query parameters with int type', function () {
         ->and($queryParameters->getIntQueryParameters()->has('name_int'))->toBeTrue();
 });
 
-it('get query parameters with string type', function () {
+it('get query parameters with string type', function (): void {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -87,12 +87,12 @@ it('get query parameters with string type', function () {
             'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
         ),
     ];
-    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
+    $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getStringQueryParameters()->length())->toBe(1)
         ->and($queryParameters->getStringQueryParameters()->has('name_string'))->toBeTrue();
 });
 
-it('get query parameters with bool type', function () {
+it('get query parameters with bool type', function (): void {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -103,12 +103,12 @@ it('get query parameters with bool type', function () {
             'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
         ),
     ];
-    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
+    $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getBoolQueryParameters()->length())->toBe(1)
         ->and($queryParameters->getBoolQueryParameters()->has('name_bool'))->toBeTrue();
 });
 
-it('get query parameters with null type', function () {
+it('get query parameters with null type', function (): void {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -124,7 +124,7 @@ it('get query parameters with null type', function () {
         ->and($queryParameters->getNullQueryParameters()->has('name_null'))->toBeTrue();
 });
 
-it('get query parameters with large object type', function () {
+it('get query parameters with large object type', function (): void {
     $param = [
         'name_string' => QueryParameter::string('name_string', 'value'),
         'name_int' => QueryParameter::int('name_int', 1),
@@ -135,7 +135,7 @@ it('get query parameters with large object type', function () {
             'hjghjgjhgkhjgkhghgh7d8f7sdf7sdf7sd7fds'
         ),
     ];
-    $queryParameters = \Adaptation\Database\Connection\Collection\QueryParameters::create($param);
+    $queryParameters = QueryParameters::create($param);
     expect($queryParameters->getLargeObjectQueryParameters()->length())->toBe(1)
         ->and($queryParameters->getLargeObjectQueryParameters()->has('name_large_object'))->toBeTrue();
 });
