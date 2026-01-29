@@ -35,7 +35,10 @@ env:
   module: ha
 
 jobs:
+  uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   get-environment:
+    needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-ha/.env
