@@ -15,11 +15,13 @@ paths = [
   '''composer\.lock''',
   '''yarn\.lock''',
   '''\.gitleaks\.toml$''',
-  '''(.*?)(jpg|gif|doc|pdf|bin)$'''
+  '''(.*?)(jpg|gif|doc|pdf|bin)$''',
 ]
 
 regexTarget = "match"
 regexes = [
   '''ABCDEFG1234567890''',
   '''IKbUBottl5eoyhf0I5Io2nuDsTA85D50''', # client_secret of keycloak docker image: used only for testing
+  '''R0MIlEL91Hhh2OJIGIS9y43TDFWCRX0r2aClU7sI''', # token of glpi docker image: used only for testing
+  '''6a174c20-f6de-a53c-74d2-6018fcceff64''', # secret id of vault docker image: used only for testing
 ]
