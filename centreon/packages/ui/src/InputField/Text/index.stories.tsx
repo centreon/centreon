@@ -1,9 +1,9 @@
-import { makeStyles } from 'tss-react/mui';
-
 import AbcIcon from '@mui/icons-material/Abc';
-import { Theme } from '@mui/material';
+import type { Theme } from '@mui/material';
 
 import { useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
 import TextField from '.';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -53,7 +53,7 @@ export const defaultValue = (): JSX.Element => (
 );
 
 export const transparent = (): JSX.Element => (
-  <TextField transparent placeholder="Transparent" />
+  <TextField placeholder="Transparent" transparent />
 );
 
 const CustomTextField = (): JSX.Element => {
@@ -88,9 +88,9 @@ const ControlledTextFieldWithAutoSize = (): JSX.Element => {
     <TextField
       autoSize
       autoSizeDefaultWidth={60}
+      onChange={change}
       placeholder="Auto size"
       value={value}
-      onChange={change}
     />
   );
 };
@@ -102,9 +102,9 @@ export const AutoSizeControlled = (): JSX.Element => (
 export const autoSizeWithEndAdornment = (): JSX.Element => (
   <TextField
     autoSize
-    EndAdornment={AbcIcon}
     autoSizeCustomPadding={10}
     autoSizeDefaultWidth={60}
+    EndAdornment={AbcIcon}
     placeholder="Auto size"
   />
 );

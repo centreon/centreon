@@ -1,15 +1,13 @@
 import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
-import { path, all, isNil, map, not, nth, pipe, prop } from 'ramda';
+import { all, isNil, map, not, nth, path, pipe, prop } from 'ramda';
 
 import { Line, TimeValue } from '../models';
 import { getTime } from '../timeSeries';
-
+import { getFillColor } from '.';
 import StackedAnchorPoint, {
   StackValue
 } from './AnchorPoint/StackedAnchorPoint';
-
-import { getFillColor } from '.';
 
 interface Props {
   displayTimeValues: boolean;

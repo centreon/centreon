@@ -1,21 +1,20 @@
-import { isNil, propEq } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Divider,
   FormControl,
-  FormControlProps,
+  type FormControlProps,
   FormHelperText,
   InputLabel,
   ListSubheader,
   MenuItem,
   Select,
-  SelectProps,
-  Theme
+  type SelectProps,
+  type Theme
 } from '@mui/material';
 
-import { getNormalizedId } from '../../utils';
+import { isNil, propEq } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
+import { getNormalizedId } from '../../utils';
 import Option from './Option';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -101,6 +100,11 @@ const SelectField = ({
       <Select
         displayEmpty
         fullWidth={fullWidth}
+        label={label}
+        onChange={changeOption}
+        renderValue={(id): string => {
+          return getOption(id)?.name;
+        }}
         slotProps={{
           input: {
             'aria-label': ariaLabel,
@@ -113,12 +117,7 @@ const SelectField = ({
             ...inputProps
           }
         }}
-        label={label}
-        renderValue={(id): string => {
-          return getOption(id)?.name;
-        }}
         value={selectedOptionId}
-        onChange={changeOption}
         {...props}
       >
         {options

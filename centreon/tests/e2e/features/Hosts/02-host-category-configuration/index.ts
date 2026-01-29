@@ -1,7 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored } from 'commons';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import hostCategories from '../../../fixtures/host-categories/category.json';
 
 const checkFirstHostCategoryFromListing = () => {

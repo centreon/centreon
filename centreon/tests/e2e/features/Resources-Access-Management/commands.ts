@@ -4,16 +4,12 @@ Cypress.Commands.add(
     for (let i = 1; i <= numberOfTimes; i += 1) {
       const name = `Rule${i}`;
       const payload = {
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         contact_groups: { all: false, ids: [] },
         contacts: { all: false, ids: [17] },
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         dataset_filters: [
-          // biome-ignore lint/style/useNamingConvention: <explanation>
           { dataset_filter: null, resources: [14], type: 'host' }
         ],
         description: '',
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         is_enabled: true,
         name
       };
@@ -34,7 +30,7 @@ Cypress.Commands.add('enableResourcesAccessManagementFeature', () => {
 });
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       createMultipleResourceAccessRules: (

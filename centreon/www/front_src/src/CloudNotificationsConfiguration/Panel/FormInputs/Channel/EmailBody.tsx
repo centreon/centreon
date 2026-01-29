@@ -1,10 +1,10 @@
+import { RichTextEditor, useMemoComponent } from '@centreon/ui';
+
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { FormikValues, useFormikContext } from 'formik';
 import { useSetAtom } from 'jotai';
 import { path } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { RichTextEditor, useMemoComponent } from '@centreon/ui';
 
 import { labelTypeYourTextHere } from '../../../translatedLabels';
 import { htmlEmailBodyAtom } from '../../atom';
@@ -39,9 +39,9 @@ const EmailBody = (): JSX.Element => {
   return useMemoComponent({
     Component: (
       <RichTextEditor
+        contentClassName={classes.textEditor}
         displayMacrosButton
         editable
-        contentClassName={classes.textEditor}
         editorState={value}
         error={(error as string) || undefined}
         getEditorState={getEditorState}
@@ -49,11 +49,11 @@ const EmailBody = (): JSX.Element => {
         initialize={initialize}
         minInputHeight={120}
         namespace="EmailBody"
+        onBlur={handleBlur('messages.message')}
         placeholder={t(labelTypeYourTextHere) as string}
         setHtmlString={sethtmlEmailBody}
         toolbarClassName={classes.editorToolbar}
         toolbarPositions="end"
-        onBlur={handleBlur('messages.message')}
       />
     ),
     memoProps: [value, error]

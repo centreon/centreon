@@ -1,7 +1,6 @@
-import { SelectChangeEvent } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 
-import SelectField, { SelectEntry } from '../../../../InputField/Select';
-
+import SelectField, { type SelectEntry } from '../../../../InputField/Select';
 import { useRoleSelectField } from './RoleSelectField.styles';
 
 interface Props {
@@ -29,14 +28,14 @@ const RoleSelectField = ({
   return (
     <div className={classes.roleContainer}>
       <SelectField
-        fullWidth
         dataTestId={testId}
         disabled={disabled}
+        fullWidth
         label={label}
+        onChange={change}
         options={roles}
         selectedOptionId={value}
         size="small"
-        onChange={change}
       />
     </div>
   );

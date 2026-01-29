@@ -1,6 +1,5 @@
-import { memo } from 'react';
-
 import { equals, isNil } from 'ramda';
+import { memo } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
 import { useLoadImage } from './useLoadImage';

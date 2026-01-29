@@ -1,8 +1,8 @@
-import { cond, equals, isNil, keys } from 'ramda';
-
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps, SeverityCode } from '@centreon/ui';
+
+import { cond, equals, isNil, keys } from 'ramda';
 
 import StatusChip from './StatusChip';
 import useStyles from './SubItem.styles';

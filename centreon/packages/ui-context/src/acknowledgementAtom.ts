@@ -1,8 +1,6 @@
-import { atom } from 'jotai';
-
-import { defaultAcknowledgement } from './defaults';
-
-import { Acknowledgement } from '.';
+import { atom } from "jotai";
+import type { Acknowledgement } from ".";
+import { defaultAcknowledgement } from "./defaults";
 
 const acknowledgementAtom = atom<Acknowledgement>(defaultAcknowledgement);
 

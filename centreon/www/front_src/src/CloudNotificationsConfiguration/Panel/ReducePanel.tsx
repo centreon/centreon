@@ -1,17 +1,16 @@
-import { useAtom } from 'jotai';
-import { gt } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Box, Button } from '@mui/material';
 
 import { PanelSize, togglePanelSize } from '@centreon/ui';
+
+import { useAtom } from 'jotai';
+import { gt } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { panelWidthStorageAtom } from '../atom';
 import {
   labelExpandInformationPanel,
   labelReduceInformationPanel
 } from '../translatedLabels';
-
 import useStyles from './Form/Form.styles';
 
 const ReducePanelButton = (): JSX.Element => {

@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
+import TextSizeIcon from '@mui/icons-material/TextFields';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $createHeadingNode,
   $isHeadingNode,
-  HeadingTagType
+  type HeadingTagType
 } from '@lexical/rich-text';
 import { $setBlocksType } from '@lexical/selection';
 import { $findMatchingParent, mergeRegister } from '@lexical/utils';
@@ -16,13 +16,11 @@ import {
   COMMAND_PRIORITY_CRITICAL,
   SELECTION_CHANGE_COMMAND
 } from 'lexical';
-import { T, always, cond, equals, isNil } from 'ramda';
+import { always, cond, equals, isNil, T } from 'ramda';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import TextSizeIcon from '@mui/icons-material/TextFields';
-
 import { Menu } from '../../../components';
-
 import { useStyles } from './ToolbarPlugin.styles';
 
 interface Props {

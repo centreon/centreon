@@ -1,8 +1,7 @@
-import { ChangeEvent } from 'react';
-
 import { useFormikContext } from 'formik';
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { ChangeEvent } from 'react';
 
 import { selectedDatasetFiltersAtom } from '../../../atom';
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';

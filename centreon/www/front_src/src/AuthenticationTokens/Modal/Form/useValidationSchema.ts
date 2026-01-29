@@ -1,7 +1,7 @@
-import { number, object, string } from 'yup';
-
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { number, object, string } from 'yup';
+
 import { TokenType } from '../../models';
 import { labelRequired } from '../../translatedLabels';
 
@@ -22,8 +22,8 @@ const useValidationSchema = () => {
       return equals(type.id, TokenType.API)
         ? schema
             .shape({
-              id: number().required(),
-              alias: string().required()
+              alias: string().required(),
+              id: number().required()
             })
             .required(t(labelRequired))
         : schema.nullable();

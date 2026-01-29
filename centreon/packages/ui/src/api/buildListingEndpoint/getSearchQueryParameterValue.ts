@@ -11,7 +11,7 @@ import {
   uniq
 } from 'ramda';
 
-import {
+import type {
   ConditionsSearchParameter,
   GetConditionsSearchQueryParameterValueState,
   GetListsSearchQueryParameterValueProps,

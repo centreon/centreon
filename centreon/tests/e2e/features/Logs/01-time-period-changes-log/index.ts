@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import periods from '../../../fixtures/time-periods/time-period.json';
 
 beforeEach(() => {
@@ -35,8 +35,8 @@ When('a call to the endpoint "Add" a time period is done via APIv2', () => {
       ...day,
       timeRange: day.time_range
     })),
-    templates: periods.default.templates,
-    exceptions: periods.default.exceptions
+    exceptions: periods.default.exceptions,
+    templates: periods.default.templates
   });
 });
 
@@ -118,8 +118,8 @@ Given('a time period is configured via APIv2', () => {
       ...day,
       timeRange: day.time_range
     })),
-    templates: periods.default.templates,
-    exceptions: periods.default.exceptions
+    exceptions: periods.default.exceptions,
+    templates: periods.default.templates
   });
 });
 
@@ -132,8 +132,8 @@ When(
         ...day,
         timeRange: day.time_range
       })),
-      templates: periods.time_period1.templates,
-      exceptions: periods.time_period1.exceptions
+      exceptions: periods.time_period1.exceptions,
+      templates: periods.time_period1.templates
     });
   }
 );

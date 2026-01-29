@@ -9,6 +9,7 @@ import {
   propEq,
   split
 } from 'ramda';
+
 import useSnackbar from '../Snackbar/useSnackbar';
 
 const useBulkResponse = () => {

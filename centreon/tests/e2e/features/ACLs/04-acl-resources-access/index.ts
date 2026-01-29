@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/acls/acl-data.json';
 
 const aclResource = {
@@ -124,8 +124,8 @@ Then(
       cy.wait('@getTimeZone').then(() => {
         cy.executeActionOnIframe(
           'Authorizations information',
-          ($body) => {
-            cy.wrap($body).contains('a', 'Authorizations information').click();
+          (body) => {
+            cy.wrap(body).contains('a', 'Authorizations information').click();
           },
           3,
           3000
@@ -175,8 +175,8 @@ Then('link between access group and Resources access must be broken', () => {
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
       aclResource.aclGroups[1],
-      ($body) => {
-        cy.wrap($body)
+      (body) => {
+        cy.wrap(body)
           .contains('td.ListColLeft > a', aclResource.aclGroups[1])
           .click();
       },
@@ -188,8 +188,8 @@ Then('link between access group and Resources access must be broken', () => {
   cy.wait('@getTimeZone').then(() => {
     cy.executeActionOnIframe(
       'Authorizations information',
-      ($body) => {
-        cy.wrap($body).contains('a', 'Authorizations information').click();
+      (body) => {
+        cy.wrap(body).contains('a', 'Authorizations information').click();
       },
       3,
       3000

@@ -1,12 +1,12 @@
-import { equals, isNil, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import CheckIcon from '@mui/icons-material/Check';
 import SmsFailedIcon from '@mui/icons-material/SmsFailed';
 import { Alert, Grid, Paper, Typography } from '@mui/material';
 import Chip from '@mui/material/Chip';
 
 import { ContentWithCircularLoading } from '@centreon/ui';
+
+import { equals, isNil, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelCreatingExportTask,

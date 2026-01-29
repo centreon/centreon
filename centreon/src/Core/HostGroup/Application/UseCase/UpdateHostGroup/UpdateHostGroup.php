@@ -102,7 +102,7 @@ final class UpdateHostGroup
             if ($existingHostGroup === null) {
                 return new NotFoundResponse('Host Group');
             }
-            $this->validator->assertNameDoesNotAlreadyExists($existingHostGroup, $request->name);
+            $this->validator->assertNameIsValid($existingHostGroup, $request->name);
             if ($request->hosts !== null) {
                 $this->validator->assertHostsExist($request->hosts);
             }

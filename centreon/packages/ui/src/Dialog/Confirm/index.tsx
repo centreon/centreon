@@ -1,11 +1,11 @@
 import {
-  ButtonProps,
+  type ButtonProps,
   DialogContentText,
-  DialogContentTextProps,
+  type DialogContentTextProps,
   Typography
 } from '@mui/material';
 
-import Dialog, { Props as DialogProps } from '..';
+import Dialog, { type Props as DialogProps } from '..';
 
 type Props = DialogProps & {
   children?: JSX.Element;

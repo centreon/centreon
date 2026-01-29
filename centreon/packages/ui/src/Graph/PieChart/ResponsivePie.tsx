@@ -1,21 +1,19 @@
-import { useRef } from 'react';
+import { useTheme } from '@mui/material';
 
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import numeral from 'numeral';
 import { always, equals, gt, ifElse, lt } from 'ramda';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '@mui/material';
-
 import { Tooltip } from '../../components';
-import { Legend as LegendComponent } from '../Legend';
-import { LegendProps } from '../Legend/models';
 import { getValueByUnit } from '../common/utils';
-
+import { Legend as LegendComponent } from '../Legend';
+import type { LegendProps } from '../Legend/models';
+import type { PieProps } from './models';
 import { usePieStyles } from './PieChart.styles';
-import { PieProps } from './models';
 import { useResponsivePie } from './useResponsivePie';
 
 const DefaultLegend = ({ scale, direction }: LegendProps): JSX.Element => (
@@ -124,6 +122,7 @@ const ResponsivePie = ({
             height={Math.ceil(svgSize)}
             width={Math.ceil(svgSize)}
           >
+            <title>pie chart</title>
             <Group left={half} top={half}>
               <Pie
                 cornerRadius={4}
@@ -161,11 +160,11 @@ const ResponsivePie = ({
 
                     return (
                       <Tooltip
-                        hasCaret
                         classes={{
                           tooltip: classes.pieChartTooltip
                         }}
                         followCursor={false}
+                        hasCaret
                         key={arc.data.label}
                         label={
                           TooltipContent && (
@@ -185,39 +184,42 @@ const ResponsivePie = ({
                           radianY: Math.sin(midAngle)
                         })}
                       >
-                        <g
-                          data-testid={arc.data.label}
-                          onClick={onClick}
-                          onKeyUp={() => undefined}
-                        >
-                          <path
-                            cursor="pointer"
-                            d={pie.path(arc) as string}
-                            fill={arc.data.color}
-                          />
-                          {displayValues &&
-                            !isContainsExactlyOneNonZeroValue &&
-                            angle > minAngle && (
-                              <Text
-                                data-testid="value"
-                                dy=".33em"
-                                fill="#000"
-                                fillOpacity={opacity}
-                                fontSize={12}
-                                fontWeight={600}
-                                pointerEvents="none"
-                                textAnchor="middle"
-                                x={x}
-                                y={y}
-                              >
-                                {getValueByUnit({
-                                  total,
-                                  unit,
-                                  value: arc.data.value
-                                })}
-                              </Text>
-                            )}
-                        </g>
+                        {
+                          // biome-ignore lint/a11y/noStaticElementInteractions: need it
+                          <g
+                            data-testid={arc.data.label}
+                            onClick={onClick}
+                            onKeyUp={() => undefined}
+                          >
+                            <path
+                              cursor="pointer"
+                              d={pie.path(arc) as string}
+                              fill={arc.data.color}
+                            />
+                            {displayValues &&
+                              !isContainsExactlyOneNonZeroValue &&
+                              angle > minAngle && (
+                                <Text
+                                  data-testid="value"
+                                  dy=".33em"
+                                  fill="#000"
+                                  fillOpacity={opacity}
+                                  fontSize={12}
+                                  fontWeight={600}
+                                  pointerEvents="none"
+                                  textAnchor="middle"
+                                  x={x}
+                                  y={y}
+                                >
+                                  {getValueByUnit({
+                                    total,
+                                    unit,
+                                    value: arc.data.value
+                                  })}
+                                </Text>
+                              )}
+                          </g>
+                        }
                       </Tooltip>
                     );
                   });

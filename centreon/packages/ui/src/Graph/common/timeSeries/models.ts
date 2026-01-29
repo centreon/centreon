@@ -1,6 +1,6 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { ChartAxis } from '../../Chart/models';
+import type { ChartAxis } from '../../Chart/models';
 
 interface DsData {
   ds_color_area: string;

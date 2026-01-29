@@ -1,11 +1,11 @@
 import {
-  SubmitResult,
   apiBase,
   applyConfigurationViaClapi,
   checkServicesAreMonitored,
   checkThatConfigurationIsExported,
   getStatusNumberFromString,
   insertFixture,
+  SubmitResult,
   submitResultsViaClapi,
   updateFixturesResult,
   versionApi
@@ -91,8 +91,8 @@ const initializeAckResources = (): Cypress.Chainable => {
 
 const insertAckResourceFixtures = (): Cypress.Chainable => {
   const dateBeforeLogin = new Date();
-  let results: SubmitResult[];
-  updateFixturesResult().then((submitResult: SubmitResult[]) => {
+  let results: Array<SubmitResult>;
+  updateFixturesResult().then((submitResult: Array<SubmitResult>) => {
     results = submitResult;
   });
 

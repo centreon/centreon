@@ -19,15 +19,15 @@ interface Dependency {
 
 interface ServiceDependency {
   dependency: Dependency;
-  services: string[];
-  dependentServices: string[];
-  dependentHosts: string[];
+  services: Array<string>;
+  dependentServices: Array<string>;
+  dependentHosts: Array<string>;
 }
 
 interface ServiceGroupDependency {
   dependency: Dependency;
-  serviceGroups: string[];
-  dependentServiceGroups: string[];
+  serviceGroups: Array<string>;
+  dependentServiceGroups: Array<string>;
 }
 
 interface VirtualMetric {
@@ -61,8 +61,8 @@ interface MetaServiceDependency {
   notificationFailsOnUnknown: number;
   notificationFailsOnCritical: number;
   notificationFailsOnPending: number;
-  metaServicesNames: string[];
-  dependentMetaServicesNames: string[];
+  metaServicesNames: Array<string>;
+  dependentMetaServicesNames: Array<string>;
   comment: string;
 }
 
@@ -125,8 +125,8 @@ Cypress.Commands.add(
           .getIframeBody()
           .find('.select2-results')
           .find('li')
-          .then(($lis) => {
-            const count = $lis.length;
+          .then((lis) => {
+            const count = lis.length;
             if (count <= 1) {
               cy.exportConfig();
               cy.getIframeBody()
@@ -424,7 +424,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   'createOrUpdateHostGroupService',
-  (body: HostGroupService, isUpdate: boolean, htmldata: HtmlElt[]) => {
+  (body: HostGroupService, isUpdate: boolean, htmldata: Array<HtmlElt>) => {
     cy.waitForElementInIframe(
       '#main-content',
       'input[name="service_description"]'
@@ -657,7 +657,7 @@ Cypress.Commands.add(
 );
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addOrUpdateVirtualMetric: (
@@ -685,7 +685,7 @@ declare global {
       createOrUpdateHostGroupService: (
         body: HostGroupService,
         isUpdate: boolean,
-        htmldata: HtmlElt[]
+        htmldata: Array<HtmlElt>
       ) => Cypress.Chainable;
       checkValuesOfHostGroupService: (
         name: string,

@@ -4,7 +4,6 @@ import type {
   Resource,
   SortOrder
 } from '../../models';
-
 import type { DisplayType } from './Listing/models';
 
 export interface Data {
