@@ -21,6 +21,9 @@ on:
     - cron: "0 2 * * 1-5"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
@@ -39,6 +42,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
