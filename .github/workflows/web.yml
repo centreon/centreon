@@ -47,7 +47,8 @@ env:
   e2e_directory: centreon/tests/e2e
 
 jobs:
-  uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}

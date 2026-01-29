@@ -37,7 +37,8 @@ env:
   module: dsm
 
 jobs:
-  uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   get-environment:
     needs: [dependency-scan]
