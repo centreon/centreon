@@ -83,6 +83,10 @@ Then(
         .click();
 
       cy.wait('@getTimeZone');
+      cy.waitForElementInIframe(
+        '#main-content',
+        `a:contains("Authorizations information")`
+      );
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
       cy.getIframeBody()

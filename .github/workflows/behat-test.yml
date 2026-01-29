@@ -59,6 +59,7 @@ jobs:
     outputs:
       test_tags: ${{ steps.list-features.outputs.tags }}
       features: ${{ steps.list-features.outputs.specs }}
+      has_features: ${{ steps.list-features.outputs.specs != '' && toJson(fromJson(steps.list-features.outputs.specs)) != '[]' && 'true' || 'false' }}
 
     steps:
       - name: Checkout sources
@@ -216,8 +217,11 @@ jobs:
           path: '${{ inputs.name }}-xunit-reports/**/*.xml'
 
   regroup-artifacts:
-    needs: [behat-test-run, behat-test-report]
-    if: always()
+    needs: [behat-test-list, behat-test-run, behat-test-report]
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.behat-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
