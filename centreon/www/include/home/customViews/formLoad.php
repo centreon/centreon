@@ -30,69 +30,65 @@
  * do not wish to do so, delete this exception statement from your version.
  *
  * For more information : contact@centreon.com
- *
  */
-
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit;
 }
 
-require_once _CENTREON_PATH_ . "www/class/centreonCustomView.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonWidget.class.php';
 
 $db = new CentreonDB();
 $viewObj = new CentreonCustomView($centreon, $db);
 $widgetObj = new CentreonWidget($centreon, $db);
-$title = "";
+$title = '';
 $action = null;
 $defaultTab = [];
-if ($_REQUEST['action'] == "load") {
-    $title = _("Load a public view");
-    $action = "load";
+if ($_REQUEST['action'] == 'load') {
+    $title = _('Load a public view');
+    $action = 'load';
 }
 
-if (!isset($action)) {
-    echo _("No action");
+if (! isset($action)) {
+    echo _('No action');
+
     exit;
 }
 
-$query = "select * from custom_views where public = 1";
+$query = 'select * from custom_views where public = 1';
 $DBRES = $db->query($query);
 $arrayView = [];
-$arrayView[-1] = "";
+$arrayView[-1] = '';
 while ($row = $DBRES->fetchRow()) {
     $arrayView[$row['custom_view_id']] = $row['name'];
 }
 
 // Smarty template initialization
-$path = "./include/home/customViews/";
-$template = SmartyBC::createSmartyTemplate($path, "./");
+$path = './include/home/customViews/';
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 /**
  * Field templates
  */
-$attrsText = ["size" => "30"];
-$attrsAdvSelect = ["style" => "width: 200px; height: 150px;"];
-$attrsTextarea = ["rows" => "5", "cols" => "40"];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
-    '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
+$attrsText = ['size' => '30'];
+$attrsAdvSelect = ['style' => 'width: 200px; height: 150px;'];
+$attrsTextarea = ['rows' => '5', 'cols' => '40'];
+$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
+    . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=103");
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=103');
 $form->addElement('header', 'title', $title);
-$form->addElement('header', 'information', _("General Information"));
+$form->addElement('header', 'information', _('General Information'));
 
-
-$form->addElement('select', 'viewLoad', _("Public views list"), $arrayView);
-
+$form->addElement('select', 'viewLoad', _('Public views list'), $arrayView);
 
 /**
  * Submit button
  */
-$form->addElement('button', 'submit', _("Submit"), ["onClick" => "submitData();"]);
-$form->addElement('reset', 'reset', _("Reset"));
+$form->addElement('button', 'submit', _('Submit'), ['onClick' => 'submitData();']);
+$form->addElement('reset', 'reset', _('Reset'));
 $form->addElement('hidden', 'action');
 $form->setDefaults(['action' => $action]);
-
 
 /**
  * Renderer
@@ -102,7 +98,7 @@ $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font
 $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
 $form->accept($renderer);
 $template->assign('form', $renderer->toArray());
-$template->display("formLoad.ihtml");
+$template->display('formLoad.ihtml');
 ?>
 <script type="text/javascript">
     jQuery(function () {

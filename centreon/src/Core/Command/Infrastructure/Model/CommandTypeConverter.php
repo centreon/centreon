@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ final class CommandTypeConverter
             2 => CommandType::Check,
             3 => CommandType::Miscellaneous,
             4 => CommandType::Discovery,
-            default => throw new \RangeException('Command type must be between 1 and 4')
+            default => throw new \RangeException('Command type must be between 1 and 4'),
         };
     }
 }

@@ -553,38 +553,89 @@ jobs:
         env:
           runner: ubuntu-24.04
 
-      - name: Install Dependencies
-        run: composer install --optimize-autoloader
-        working-directory: centreon
+      - name: Install dependencies for PHP quality tools
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
         shell: bash
 
       - name: Create configuration file
         run: cp config/centreon.config.php.template config/centreon.config.php
         working-directory: centreon
 
-      - name: Check Symfony configuration
-        run: composer symfony:check:ci
-        working-directory: centreon
+      - name: Ensure Symfony cache directories exist and are writable (legacy and new)
+        run: |
+          echo "Ensure Symfony cache directories exist" && set -e
+          sudo mkdir -p /var/cache/centreon/symfony.new
+          sudo mkdir -p /var/cache/centreon/symfony
+          echo "Set permissions on Symfony cache directories with user: '$USER'" && set -e
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony.new
+          sudo chown -R $USER:$USER /var/cache/centreon/symfony
 
-      - name: Run of php-cs-fixer with strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.dist.php --verbose --dry-run --diff
+      - name: Install dependencies for centreon-web
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
         working-directory: centreon
+        shell: bash
 
-      - name: Run of php-cs-fixer without strict_type
-        run: vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.unstrict.php --verbose --dry-run --diff
-        working-directory: centreon
+      - name: Get changed PHP files
+        id: changed-php
+        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        with:
+          files: |
+            **/*.php
 
-      - name: Run of phpstan on /src at level 4
-        run: vendor/bin/phpstan analyse --no-progress --level=4 --configuration=phpstan.neon
+      - name: 🛠️ Rector checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
+        run: |
+          echo "Run of these Rector tests: rector:legacy, rector:core, rector:new on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer rector:diff
 
-      - name: Run of phpstan on /src/Core at level 8 + Centreon Custom Rules
-        run: vendor/bin/phpstan analyse --no-progress --level=8 --configuration=phpstan.core.neon
+      - name: 🧹 PHP-CS-Fixer checks
+        if: steps.changed-php.outputs.any_changed == 'true'
         working-directory: centreon
+        run: |
+          echo "Run of these PHP-CS-Fixer tests: cs:legacy, cs:core, cs:new on diff" && set -e
+          PHP_DIFF_FILES="${{ steps.changed-php.outputs.all_changed_files }}" composer cs:diff
 
-      - name: Run of phpstan on /tests at level 2
-        run: vendor/bin/phpstan analyse --no-progress --level=2 --configuration=phpstan.test.neon
+      - name: 🔍 PHPStan checks
         working-directory: centreon
+        run: |
+          echo "Run of these PHPStan tests: stan:legacy:www, stan:legacy:src, stan:legacy:test, stan:core, stan:core:test, stan:new, stan:new:test" && set -e
+
+          pids=()
+          statuses=()
+
+          run_task() {
+            name=$1
+            shift
+            "$@" -- --no-progress
+            result=$?
+            if [ $result -eq 0 ]; then
+              echo "✅ PHPStan $name: Success"
+            else
+              echo "❌ PHPStan $name: Failed"
+            fi
+            return $result
+          }
+
+          # Start tasks in background
+          run_task legacy:www composer stan:legacy:www & pids+=($!)
+          run_task legacy:src composer stan:legacy:src & pids+=($!)
+          run_task legacy:test composer stan:legacy:test & pids+=($!)
+          run_task core:src composer stan:core:src & pids+=($!)
+          run_task core:test composer stan:core:test & pids+=($!)
+          run_task new:src composer stan:new:src & pids+=($!)
+          run_task new:test composer stan:new:test & pids+=($!)
+
+          # Wait for all, and record if any failed
+          exit_code=0
+          for pid in "${pids[@]}"; do
+            if ! wait "$pid"; then
+              exit_code=1
+            fi
+          done
+
+          exit $exit_code
 
   gherkin-lint:
     runs-on: ubuntu-24.04

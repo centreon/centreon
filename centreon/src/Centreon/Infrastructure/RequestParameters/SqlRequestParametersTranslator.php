@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Infrastructure\RequestParameters;
@@ -34,33 +35,25 @@ use Utility\SqlConcatenator;
  */
 class SqlRequestParametersTranslator
 {
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $aggregateOperators = [
         RequestParameters::AGGREGATE_OPERATOR_OR,
-        RequestParameters::AGGREGATE_OPERATOR_AND
+        RequestParameters::AGGREGATE_OPERATOR_AND,
     ];
 
     /**
-     * @var array<string, string> $concordanceArray Concordance table between the search column
-     * and the real column name in the database. ['id' => 'my_table_id', ...]
+     * @var array<string, string> Concordance table between the search column
+     *                            and the real column name in the database. ['id' => 'my_table_id', ...]
      */
     private $concordanceArray = [];
 
-    /**
-     * @var array<string, mixed>
-     */
+    /** @var array<string, mixed> */
     private $searchValues = [];
 
-    /**
-     * @var array<string, NormalizerInterface>
-     */
+    /** @var array<string, NormalizerInterface> */
     private $normalizers = [];
 
-    /**
-     * @var RequestParametersInterface
-     */
+    /** @var RequestParametersInterface */
     private $requestParameters;
 
     /**
@@ -70,60 +63,6 @@ class SqlRequestParametersTranslator
     public function __construct(RequestParametersInterface $requestParameters)
     {
         $this->requestParameters = $requestParameters;
-    }
-
-    /**
-     * Create the database query based on the search parameters.
-     *
-     * @param array<mixed, mixed> $search Array containing search parameters
-     * @param string|null $aggregateOperator Aggregate operator
-     * @return string Return the processed database query
-     * @throws RequestParametersTranslatorException
-     */
-    private function createDatabaseQuery(array $search, string $aggregateOperator = null): string
-    {
-        $databaseQuery = '';
-        $databaseSubQuery = '';
-        foreach ($search as $key => $searchRequests) {
-            if ($this->isAggregateOperator($key)) {
-                if (is_object($searchRequests) || is_array($searchRequests)) {
-                    if (is_object($searchRequests)) {
-                        $searchRequests = (array) $searchRequests;
-                    }
-                    // Recursive call until to read key/value data
-                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $key);
-                }
-            } elseif (is_int($key) && (is_object($searchRequests) || is_array($searchRequests))) {
-                // It's a list of object to process
-                $searchRequests = (array) $searchRequests;
-                if ($searchRequests !== []) {
-                    // Recursive call until to read key/value data
-                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $aggregateOperator);
-                }
-            } elseif (!is_int($key)) {
-                // It's a pair on key/value to translate into a database query
-                if (is_object($searchRequests)) {
-                    $searchRequests = (array) $searchRequests;
-                }
-                $databaseSubQuery = $this->createQueryOnKeyValue($key, $searchRequests);
-            }
-            if (!empty($databaseQuery)) {
-                if (is_null($aggregateOperator)) {
-                    $aggregateOperator = RequestParameters::AGGREGATE_OPERATOR_AND;
-                }
-                if (!empty($databaseSubQuery)) {
-                    $databaseQuery .= ' '
-                        . $this->translateAggregateOperator($aggregateOperator)
-                        . ' '
-                        . $databaseSubQuery;
-                }
-            } else {
-                $databaseQuery .= $databaseSubQuery;
-            }
-        }
-        return count($search) > 1 && !empty($databaseQuery)
-            ? '(' . $databaseQuery . ')'
-            : $databaseQuery;
     }
 
     /**
@@ -156,17 +95,18 @@ class SqlRequestParametersTranslator
      *      list($whereQuery, $bindValues) = $pagination->createQuery([...]);
      * </code>
      *
-     * @return string|null SQL request according to the search parameters
      * @throws RequestParametersTranslatorException
+     * @return string|null SQL request according to the search parameters
      */
     public function translateSearchParameterToSql(): ?string
     {
         $whereQuery = '';
         $search = $this->requestParameters->getSearch();
-        if (!empty($search) && is_array($search)) {
+        if (! empty($search) && is_array($search)) {
             $whereQuery .= $this->createDatabaseQuery($search);
         }
-        return !empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
+
+        return ! empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
     }
 
     /**
@@ -179,7 +119,7 @@ class SqlRequestParametersTranslator
         $orderQuery = '';
         foreach ($this->requestParameters->getSort() as $name => $order) {
             if (array_key_exists($name, $this->concordanceArray)) {
-                if (!empty($orderQuery)) {
+                if (! empty($orderQuery)) {
                     $orderQuery .= ', ';
                 }
                 $orderQuery .= sprintf(
@@ -190,7 +130,8 @@ class SqlRequestParametersTranslator
                 );
             }
         }
-        return !empty($orderQuery) ? ' ORDER BY ' . $orderQuery : null;
+
+        return ! empty($orderQuery) ? ' ORDER BY ' . $orderQuery : null;
     }
 
     /**
@@ -216,11 +157,214 @@ class SqlRequestParametersTranslator
     }
 
     /**
+     * @return array<string, string>
+     */
+    public function getConcordanceArray(): array
+    {
+        return $this->concordanceArray;
+    }
+
+    /**
+     * @param array<string, string> $concordanceArray
+     */
+    public function setConcordanceArray(array $concordanceArray): void
+    {
+        $this->concordanceArray = $concordanceArray;
+    }
+
+    /**
+     * Add a search value
      *
-     * @param string $key Key representing the entity to search
-     * @param mixed $valueOrArray Mixed value or array representing the value to search.
-     * @return string Part of the database query.
+     * @param string $key Key
+     * @param array<int, array<int, mixed>> $value Array [type_value => value]
+     */
+    public function addSearchValue(string $key, array $value): void
+    {
+        $this->searchValues[$key] = $value;
+    }
+
+    /**
+     * @return array<string, array<int, mixed>>
+     */
+    public function getSearchValues(): array
+    {
+        return $this->searchValues;
+    }
+
+    /**
+     * @param array<string, array<int, mixed>> $searchValues
+     */
+    public function setSearchValues(array $searchValues): void
+    {
+        $this->searchValues = $searchValues;
+    }
+
+    /**
+     * Automatically bind values to a \PDOStatement.
+     *
+     * @param \PDOStatement $statement
+     */
+    public function bindSearchValues(\PDOStatement $statement): void
+    {
+        foreach ($this->getSearchValues() as $key => $data) {
+            $type = key($data);
+            $value = $data[$type];
+            $statement->bindValue($key, $value, $type);
+        }
+    }
+
+    /**
+     * @param DatabaseConnection $db
+     *
+     * @return int|null
+     */
+    public function calculateNumberOfRows(DatabaseConnection $db): ?int
+    {
+        if (
+            false === ($result = $db->query('SELECT FOUND_ROWS()'))
+            || false === ($value = $result->fetchColumn())
+        ) {
+            return null;
+        }
+
+        $this->getRequestParameters()->setTotal($nbRows = (int) $value);
+
+        return $nbRows;
+    }
+
+    /**
+     * @param int $numberOfRows
+     */
+    public function setNumberOfRows(int $numberOfRows): void
+    {
+        $this->requestParameters->setTotal($numberOfRows);
+    }
+
+    /**
+     * Add a normalizer for a property name to be declared in the search parameters.
+     * <code>
+     * $sqlRequestTranslator = new SqlRequestParametersTranslator(new RequestParameters());
+     * $sqlRequestTranslator->addNormalizer(
+     *      'name',
+     *      new class() implements NormalizerInterface
+     *      {
+     *          public function normalize($valueToNormalize)
+     *          {
+     *              if ($valueToNormalize === "localhost") {
+     *                  return "127.0.0.1";
+     *              }
+     *              return $valueToNormalize;
+     *          }
+     *      }
+     * );
+     * </code>
+     * @param string $propertyName Property name for which the normalizer is applied
+     * @param NormalizerInterface $normalizer Normalizer to applied
+     * @throws \InvalidArgumentException
+     */
+    public function addNormalizer(string $propertyName, NormalizerInterface $normalizer): void
+    {
+        if (empty($propertyName)) {
+            throw new \InvalidArgumentException(_('The property name of the normalizer cannot be empty.'));
+        }
+        $this->normalizers[$propertyName] = $normalizer;
+    }
+
+    public function appendQueryBuilderWithPagination(QueryBuilderInterface $queryBuilder): void
+    {
+        $page = $this->requestParameters->getPage();
+        $limit = $this->requestParameters->getLimit();
+        $offset = ($page - 1) * $limit;
+
+        $queryBuilder
+            ->limit($limit)
+            ->offset($offset);
+    }
+
+    public function appendQueryBuilderWithSortParameter(QueryBuilderInterface $queryBuilder): void
+    {
+        foreach ($this->requestParameters->getSort() as $name => $order) {
+            if (array_key_exists($name, $this->concordanceArray)) {
+                $queryBuilder->addOrderBy(
+                    sprintf(
+                        '%s IS NULL, %s',
+                        $this->concordanceArray[$name],
+                        $this->concordanceArray[$name],
+                    ),
+                    $order
+                );
+            }
+        }
+    }
+
+    public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
+    {
+        $search = $this->requestParameters->getSearch();
+        if (! empty($search)) {
+            $queryBuilder->where($this->createDatabaseQuery($search));
+        }
+    }
+
+    /**
+     * Create the database query based on the search parameters.
+     *
+     * @param array<mixed, mixed> $search Array containing search parameters
+     * @param string|null $aggregateOperator Aggregate operator
      * @throws RequestParametersTranslatorException
+     * @return string Return the processed database query
+     */
+    private function createDatabaseQuery(array $search, ?string $aggregateOperator = null): string
+    {
+        $databaseQuery = '';
+        $databaseSubQuery = '';
+        foreach ($search as $key => $searchRequests) {
+            if ($this->isAggregateOperator($key)) {
+                if (is_object($searchRequests) || is_array($searchRequests)) {
+                    if (is_object($searchRequests)) {
+                        $searchRequests = (array) $searchRequests;
+                    }
+                    // Recursive call until to read key/value data
+                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $key);
+                }
+            } elseif (is_int($key) && (is_object($searchRequests) || is_array($searchRequests))) {
+                // It's a list of object to process
+                $searchRequests = (array) $searchRequests;
+                if ($searchRequests !== []) {
+                    // Recursive call until to read key/value data
+                    $databaseSubQuery = $this->createDatabaseQuery($searchRequests, $aggregateOperator);
+                }
+            } elseif (! is_int($key)) {
+                // It's a pair on key/value to translate into a database query
+                if (is_object($searchRequests)) {
+                    $searchRequests = (array) $searchRequests;
+                }
+                $databaseSubQuery = $this->createQueryOnKeyValue($key, $searchRequests);
+            }
+            if (! empty($databaseQuery)) {
+                if (is_null($aggregateOperator)) {
+                    $aggregateOperator = RequestParameters::AGGREGATE_OPERATOR_AND;
+                }
+                if (! empty($databaseSubQuery)) {
+                    $databaseQuery .= ' '
+                        . $this->translateAggregateOperator($aggregateOperator)
+                        . ' '
+                        . $databaseSubQuery;
+                }
+            } else {
+                $databaseQuery .= $databaseSubQuery;
+            }
+        }
+
+        return count($search) > 1 && ! empty($databaseQuery)
+            ? '(' . $databaseQuery . ')'
+            : $databaseQuery;
+    }
+
+    /**
+     * @param string $key Key representing the entity to search
+     * @param mixed $valueOrArray mixed value or array representing the value to search
+     * @throws RequestParametersTranslatorException
+     * @return string part of the database query
      */
     private function createQueryOnKeyValue(string $key, $valueOrArray): string
     {
@@ -358,15 +502,15 @@ class SqlRequestParametersTranslator
 
     /**
      * @param string $aggregateOperator
-     * @return string
      * @throws RequestParametersTranslatorException
+     * @return string
      */
     private function translateAggregateOperator(string $aggregateOperator): string
     {
         return match ($aggregateOperator) {
             RequestParameters::AGGREGATE_OPERATOR_AND => 'AND',
             RequestParameters::AGGREGATE_OPERATOR_OR => 'OR',
-            default => throw new RequestParametersTranslatorException(_('Bad search operator'))
+            default => throw new RequestParametersTranslatorException(_('Bad search operator')),
         };
     }
 
@@ -395,120 +539,6 @@ class SqlRequestParametersTranslator
     }
 
     /**
-     * @return array<string, string>
-     */
-    public function getConcordanceArray(): array
-    {
-        return $this->concordanceArray;
-    }
-
-    /**
-     * @param array<string, string> $concordanceArray
-     */
-    public function setConcordanceArray(array $concordanceArray): void
-    {
-        $this->concordanceArray = $concordanceArray;
-    }
-
-    /**
-     * Add a search value
-     *
-     * @param string $key Key
-     * @param array<int, array<int, mixed>> $value Array [type_value => value]
-     */
-    public function addSearchValue(string $key, array $value): void
-    {
-        $this->searchValues[$key] = $value;
-    }
-
-    /**
-     * @return array<string, array<int, mixed>>
-     */
-    public function getSearchValues(): array
-    {
-        return $this->searchValues;
-    }
-
-    /**
-     * @param array<string, array<int, mixed>> $searchValues
-     */
-    public function setSearchValues(array $searchValues): void
-    {
-        $this->searchValues = $searchValues;
-    }
-
-    /**
-     * Automatically bind values to a \PDOStatement.
-     *
-     * @param \PDOStatement $statement
-     */
-    public function bindSearchValues(\PDOStatement $statement): void
-    {
-        foreach ($this->getSearchValues() as $key => $data) {
-            $type = key($data);
-            $value = $data[$type];
-            $statement->bindValue($key, $value, $type);
-        }
-    }
-
-    /**
-     * @param DatabaseConnection $db
-     *
-     * @return int|null
-     */
-    public function calculateNumberOfRows(DatabaseConnection $db): ?int
-    {
-        if (
-            false === ($result = $db->query('SELECT FOUND_ROWS()'))
-            || false === ($value = $result->fetchColumn())
-        ) {
-            return null;
-        }
-
-        $this->getRequestParameters()->setTotal($nbRows = (int) $value);
-
-        return $nbRows;
-    }
-
-    /**
-     * @param int $numberOfRows
-     */
-    public function setNumberOfRows(int $numberOfRows): void
-    {
-        $this->requestParameters->setTotal($numberOfRows);
-    }
-
-    /**
-     * Add a normalizer for a property name to be declared in the search parameters.
-     * <code>
-     * $sqlRequestTranslator = new SqlRequestParametersTranslator(new RequestParameters());
-     * $sqlRequestTranslator->addNormalizer(
-     *      'name',
-     *      new class() implements NormalizerInterface
-     *      {
-     *          public function normalize($valueToNormalize)
-     *          {
-     *              if ($valueToNormalize === "localhost") {
-     *                  return "127.0.0.1";
-     *              }
-     *              return $valueToNormalize;
-     *          }
-     *      }
-     * );
-     * </code>
-     * @param string $propertyName Property name for which the normalizer is applied
-     * @param NormalizerInterface $normalizer Normalizer to applied
-     * @throws \InvalidArgumentException
-     */
-    public function addNormalizer(string $propertyName, NormalizerInterface $normalizer): void
-    {
-        if (empty($propertyName)) {
-            throw new \InvalidArgumentException(_('The property name of the normalizer cannot be empty.'));
-        }
-        $this->normalizers[$propertyName] = $normalizer;
-    }
-
-    /**
      * Normalize a value.
      *
      * @param string $propertyName Property name to be normalized if it exists
@@ -520,41 +550,7 @@ class SqlRequestParametersTranslator
         if (array_key_exists($propertyName, $this->normalizers)) {
             return $this->normalizers[$propertyName]->normalize($valueToNormalize);
         }
+
         return $valueToNormalize;
-    }
-
-    public function appendQueryBuilderWithPagination(QueryBuilderInterface $queryBuilder): void
-    {
-        $page = $this->requestParameters->getPage();
-        $limit = $this->requestParameters->getLimit();
-        $offset = ($page - 1) * $limit;
-
-        $queryBuilder
-            ->limit($limit)
-            ->offset($offset);
-    }
-
-    public function appendQueryBuilderWithSortParameter(QueryBuilderInterface $queryBuilder): void
-    {
-        foreach ($this->requestParameters->getSort() as $name => $order) {
-            if (array_key_exists($name, $this->concordanceArray)) {
-                $queryBuilder->addOrderBy(
-                    sprintf(
-                        '%s IS NULL, %s',
-                        $this->concordanceArray[$name],
-                        $this->concordanceArray[$name],
-                    ),
-                    $order
-                );
-            }
-        }
-    }
-
-    public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
-    {
-        $search = $this->requestParameters->getSearch();
-        if (! empty($search)) {
-            $queryBuilder->where($this->createDatabaseQuery($search));
-        }
     }
 }

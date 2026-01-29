@@ -33,12 +33,12 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include("./include/common/autoNumLimit.php");
-include_once("./class/centreonUtils.class.php");
+include './include/common/autoNumLimit.php';
+include_once './class/centreonUtils.class.php';
 
 $search = null;
 if (isset($_POST['searchM'])) {
@@ -57,94 +57,86 @@ if (isset($_POST['searchM'])) {
     $search = $centreon->historySearch[$url];
 }
 
-$rq = "SELECT SQL_CALC_FOUND_ROWS * FROM view_img_dir "
-    . "LEFT JOIN view_img_dir_relation ON dir_dir_parent_id = dir_id "
-    . "LEFT JOIN view_img ON img_img_id = img_id ";
+$rq = 'SELECT SQL_CALC_FOUND_ROWS * FROM view_img_dir '
+    . 'LEFT JOIN view_img_dir_relation ON dir_dir_parent_id = dir_id '
+    . 'LEFT JOIN view_img ON img_img_id = img_id ';
 if ($search) {
-    $rq .= "WHERE (img_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%' "
-        . "OR dir_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%') ";
+    $rq .= "WHERE (img_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "%' "
+        . "OR dir_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "%') ";
 }
-$rq .= "ORDER BY dir_alias, img_name LIMIT " . $num * $limit . ", " . $limit;
+$rq .= 'ORDER BY dir_alias, img_name LIMIT ' . $num * $limit . ', ' . $limit;
 
 $res = $pearDB->query($rq);
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
-include("./include/common/checkPagination.php");
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/*
- * start header menu
- */
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_desc", _("Directory"));
-$tpl->assign("headerMenu_img", _("Image"));
-$tpl->assign("headerMenu_comment", _("Comment"));
+// start header menu
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_desc', _('Directory'));
+$tpl->assign('headerMenu_img', _('Image'));
+$tpl->assign('headerMenu_comment', _('Comment'));
 
-$form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p);
 
-/*
- * Fill a tab with a mutlidimensionnal Array we put in $tpl
- */
+// Fill a tab with a mutlidimensionnal Array we put in $tpl
 $elemArr = [];
 for ($i = 0; $elem = $res->fetchRow(); $i++) {
-    if (isset($elem['dir_id']) && !isset($elemArr[$elem['dir_id']])) {
-        $selectedDirElem = $form->addElement('checkbox', "select[" . $elem['dir_id'] . "]");
-        $selectedDirElem->setAttribute("onclick", "setSubNodes(this, 'select[" . $elem['dir_id'] . "-')");
-        $rowOpt = ["RowMenu_select" => $selectedDirElem->toHtml(), "RowMenu_DirLink" => "main.php?p=" . $p . "&o=cd&dir_id=" . $elem['dir_id'], "RowMenu_dir" => CentreonUtils::escapeSecure(
-            $elem["dir_name"],
+    if (isset($elem['dir_id']) && ! isset($elemArr[$elem['dir_id']])) {
+        $selectedDirElem = $form->addElement('checkbox', 'select[' . $elem['dir_id'] . ']');
+        $selectedDirElem->setAttribute('onclick', "setSubNodes(this, 'select[" . $elem['dir_id'] . "-')");
+        $rowOpt = ['RowMenu_select' => $selectedDirElem->toHtml(), 'RowMenu_DirLink' => 'main.php?p=' . $p . '&o=cd&dir_id=' . $elem['dir_id'], 'RowMenu_dir' => CentreonUtils::escapeSecure(
+            $elem['dir_name'],
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_dir_cmnt" => CentreonUtils::escapeSecure(
-            $elem["dir_comment"],
+        ), 'RowMenu_dir_cmnt' => CentreonUtils::escapeSecure(
+            $elem['dir_comment'],
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_empty" => _("Empty directory"), "counter" => 0];
-        $elemArr[$elem['dir_id']] = ["head" => $rowOpt, "elem" => []];
+        ), 'RowMenu_empty' => _('Empty directory'), 'counter' => 0];
+        $elemArr[$elem['dir_id']] = ['head' => $rowOpt, 'elem' => []];
     }
 
     if ($elem['img_id']) {
-        $searchOpt = isset($search) && $search ? "&search=" . $search : "";
+        $searchOpt = isset($search) && $search ? '&search=' . $search : '';
         $selectedImgElem = $form->addElement(
             'checkbox',
-            "select[" . $elem['dir_id'] . "-" . $elem['img_id'] . "]"
+            'select[' . $elem['dir_id'] . '-' . $elem['img_id'] . ']'
         );
-        $rowOpt = ["RowMenu_select" => $selectedImgElem->toHtml(), "RowMenu_ImgLink" => "main.php?p=$p&o=ci&img_id={$elem['img_id']}", "RowMenu_DirLink" => "main.php?p=$p&o=cd&dir_id={$elem['dir_id']}", "RowMenu_dir" => CentreonUtils::escapeSecure(
-            $elem["dir_name"],
+        $rowOpt = ['RowMenu_select' => $selectedImgElem->toHtml(), 'RowMenu_ImgLink' => "main.php?p={$p}&o=ci&img_id={$elem['img_id']}", 'RowMenu_DirLink' => "main.php?p={$p}&o=cd&dir_id={$elem['dir_id']}", 'RowMenu_dir' => CentreonUtils::escapeSecure(
+            $elem['dir_name'],
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_img" => CentreonUtils::escapeSecure(
-            html_entity_decode($elem["dir_alias"] . "/" . $elem["img_path"], ENT_QUOTES, "UTF-8"),
+        ), 'RowMenu_img' => CentreonUtils::escapeSecure(
+            html_entity_decode($elem['dir_alias'] . '/' . $elem['img_path'], ENT_QUOTES, 'UTF-8'),
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_name" => CentreonUtils::escapeSecure(
-            html_entity_decode($elem["img_name"], ENT_QUOTES, "UTF-8"),
+        ), 'RowMenu_name' => CentreonUtils::escapeSecure(
+            html_entity_decode($elem['img_name'], ENT_QUOTES, 'UTF-8'),
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_comment" => CentreonUtils::escapeSecure(
-            html_entity_decode($elem["img_comment"], ENT_QUOTES, "UTF-8"),
+        ), 'RowMenu_comment' => CentreonUtils::escapeSecure(
+            html_entity_decode($elem['img_comment'], ENT_QUOTES, 'UTF-8'),
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
         )];
-        $elemArr[$elem['dir_id']]["elem"][$i] = $rowOpt;
-        $elemArr[$elem['dir_id']]["head"]["counter"]++;
+        $elemArr[$elem['dir_id']]['elem'][$i] = $rowOpt;
+        $elemArr[$elem['dir_id']]['head']['counter']++;
     }
 }
 
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
-/*
- * Calculate available disk's space
- */
+// Calculate available disk's space
 
-$bytes = disk_free_space(\CentreonMedia::CENTREON_MEDIA_PATH);
+$bytes = disk_free_space(CentreonMedia::CENTREON_MEDIA_PATH);
 $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-$class = min((int)log($bytes, 1024), count($units) - 1);
+$class = min((int) log($bytes, 1024), count($units) - 1);
 $availiableSpace = sprintf('%1.2f', $bytes / pow(1024, $class)) . ' ' . $units[$class];
-$tpl->assign("availiableSpace", $availiableSpace);
-$tpl->assign("Available", _("Available"));
+$tpl->assign('availiableSpace', $availiableSpace);
+$tpl->assign('Available', _('Available'));
 
-/*
- * Different messages we put in the template
- */
+// Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 ?>
@@ -164,7 +156,7 @@ $tpl->assign(
 
         function submitO(_i) {
             if (document.forms['form'].elements[_i].selectedIndex == 1 &&
-                confirm('<?php print _("Do you confirm the deletion ?"); ?>')
+                confirm('<?php echo _('Do you confirm the deletion ?'); ?>')
             ) {
                 setO(document.forms['form'].elements[_i].value);
                 document.forms['form'].submit();
@@ -198,12 +190,11 @@ $tpl->assign(
 
     </script>
 <?php
-$actions = [null => _("More actions"), IMAGE_DELETE => _("Delete"), IMAGE_MOVE => _("Move images")];
+$actions = [null => _('More actions'), IMAGE_DELETE => _('Delete'), IMAGE_MOVE => _('Move images')];
 $form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:submitO('o1');"]);
 $form->addElement('select', 'o2', null, $actions, ['onchange' => "javascript:submitO('o2');"]);
 $form->setDefaults(['o1' => null]);
 $form->setDefaults(['o2' => null]);
-
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
@@ -216,10 +207,10 @@ $o2->setSelected(null);
 $tpl->assign('limit', $limit);
 $tpl->assign('p', $p);
 $tpl->assign('session_id', session_id());
-$tpl->assign('syncDir', _("Synchronize Media Directory"));
+$tpl->assign('syncDir', _('Synchronize Media Directory'));
 $tpl->assign('searchM', $search);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listImg.ihtml");
+$tpl->display('listImg.ihtml');

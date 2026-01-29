@@ -1,14 +1,11 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { checkHostsAreMonitored } from 'e2e/commons';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import hostCategories from '../../../fixtures/host-categories/category.json';
 
 const checkFirstHostCategoryFromListing = () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -65,11 +62,7 @@ When('a host category is configured', () => {
 });
 
 When('the user changes the properties of a host category', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains(hostCategories.default.name).click();
   cy.waitUntil(

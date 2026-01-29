@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ interface ReadAttributePathRepositoryInterface
      * @param string $token
      * @param Configuration $configuration
      * @param string $endpointType
-     * 
+     *
      * @return array<mixed>
      */
     public function getData(string $url, string $token, Configuration $configuration, string $endpointType): array;

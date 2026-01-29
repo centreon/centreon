@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -695,7 +695,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
     private function validateParametersForAutoImport(
         ?ContactTemplate $contactTemplate,
         ?string $emailBindAttribute,
-        ?string $userNameBindAttribute
+        ?string $userNameBindAttribute,
     ): void {
         $missingMandatoryParameters = [];
         if ($contactTemplate === null) {
@@ -707,7 +707,7 @@ class CustomConfiguration implements CustomConfigurationInterface, OpenIdCustomC
         if (empty($userNameBindAttribute)) {
             $missingMandatoryParameters[] = 'fullname_bind_attribute';
         }
-        if (! empty($missingMandatoryParameters)) {
+        if ($missingMandatoryParameters !== []) {
             throw ConfigurationException::missingAutoImportMandatoryParameters(
                 $missingMandatoryParameters
             );

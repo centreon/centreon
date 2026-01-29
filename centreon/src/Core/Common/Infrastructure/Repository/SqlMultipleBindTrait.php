@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Repository;
 
@@ -62,7 +62,7 @@ trait SqlMultipleBindTrait
     protected function createMultipleBindParameters(
         array $values,
         string $prefix,
-        QueryParameterTypeEnum $paramType
+        QueryParameterTypeEnum $paramType,
     ): array {
         $placeholders = [];
         $parameters = [];

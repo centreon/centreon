@@ -66,4 +66,3 @@ final class DashboardContactGroupsResponseNormalizer implements NormalizerInterf
         return $data;
     }
 }
-

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ interface ReadMetricRepositoryInterface
      */
     public function findServicesByMetricNamesAndRequestParameters(
         array $metricNames,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -63,7 +63,7 @@ interface ReadMetricRepositoryInterface
     public function findServicesByMetricNamesAndAccessGroupsAndRequestParameters(
         array $metricNames,
         array $accessGroups,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**
@@ -80,7 +80,7 @@ interface ReadMetricRepositoryInterface
     public function findByHostIdAndServiceId(
         int $hostId,
         int $serviceId,
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): array;
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
-use Core\Application\Common\UseCase\CreatedResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
@@ -42,7 +41,6 @@ use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupRequest;
 use Core\HostGroup\Application\UseCase\AddHostGroup\AddHostGroupResponse;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\NewHostGroup;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
@@ -157,7 +155,7 @@ it(
         $this->testedAddHostGroupRequest->name = '';
         $expectedException = AssertionException::minLength(
             $this->testedAddHostGroupRequest->name,
-            strlen($this->testedAddHostGroupRequest->name),
+            mb_strlen($this->testedAddHostGroupRequest->name),
             NewHostGroup::MIN_NAME_LENGTH,
             'NewHostGroup::name'
         );

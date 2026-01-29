@@ -33,35 +33,35 @@
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-if (!isset($centreon->optGen["AjaxFirstTimeReloadMonitoring"])
-    || $centreon->optGen["AjaxFirstTimeReloadMonitoring"] == 0
+if (! isset($centreon->optGen['AjaxFirstTimeReloadMonitoring'])
+    || $centreon->optGen['AjaxFirstTimeReloadMonitoring'] == 0
 ) {
     $tFM = 10;
 } else {
-    $tFM = $centreon->optGen["AjaxFirstTimeReloadMonitoring"] * 1000;
+    $tFM = $centreon->optGen['AjaxFirstTimeReloadMonitoring'] * 1000;
 }
 
-if (!isset($centreon->optGen["AjaxFirstTimeReloadStatistic"])
-    || $centreon->optGen["AjaxFirstTimeReloadStatistic"] == 0
+if (! isset($centreon->optGen['AjaxFirstTimeReloadStatistic'])
+    || $centreon->optGen['AjaxFirstTimeReloadStatistic'] == 0
 ) {
     $tFS = 10;
 } else {
-    $tFS = $centreon->optGen["AjaxFirstTimeReloadStatistic"] * 1000;
+    $tFS = $centreon->optGen['AjaxFirstTimeReloadStatistic'] * 1000;
 }
 
 $sid = session_id();
 $time = time();
 
 $obis = $o;
-if (isset($_GET["problem"])) {
+if (isset($_GET['problem'])) {
     $obis .= '_pb';
 }
-if (isset($_GET["acknowledge"])) {
-    $obis .= '_ack_' . $_GET["acknowledge"];
+if (isset($_GET['acknowledge'])) {
+    $obis .= '_ack_' . $_GET['acknowledge'];
 }
 
 ?>
@@ -73,7 +73,7 @@ if (isset($_GET["acknowledge"])) {
     var _addrXSL = "./include/monitoring/status/Hosts/xsl/host.xsl";
     var _criticality_id = 0;
 
-    <?php include_once "./include/monitoring/status/Common/commonJS.php"; ?>
+    <?php include_once './include/monitoring/status/Common/commonJS.php'; ?>
 
     var _selectedElem = new Array();
 
@@ -84,7 +84,7 @@ if (isset($_GET["acknowledge"])) {
 
         if (document.getElementById('host_name')) {
             var h = document.getElementById('host_name');
-            h.innerHTML = '<?php echo addslashes(_("Hosts"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Hosts')); ?>';
             h.indice = 'host_name';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -92,7 +92,7 @@ if (isset($_GET["acknowledge"])) {
             h.style.cursor = "pointer";
 
             var h = document.getElementById('current_state');
-            h.innerHTML = '<?php echo addslashes(_("Status"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Status')); ?>';
             h.indice = 'current_state';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -100,7 +100,7 @@ if (isset($_GET["acknowledge"])) {
             h.style.cursor = "pointer";
 
             var h = document.getElementById('ip');
-            h.innerHTML = '<?php echo addslashes(_("IP Address"))?>';
+            h.innerHTML = '<?php echo addslashes(_('IP Address')); ?>';
             h.indice = 'ip';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -108,7 +108,7 @@ if (isset($_GET["acknowledge"])) {
             h.style.cursor = "pointer";
 
             var h = document.getElementById('last_state_change');
-            h.innerHTML = '<?php echo addslashes(_("Duration"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Duration')); ?>';
             h.indice = 'last_state_change';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -117,7 +117,7 @@ if (isset($_GET["acknowledge"])) {
 
             var h = document.getElementById('last_hard_state_change');
             if (h) {
-                h.innerHTML = '<?php echo addslashes(_("Hard State Duration"))?>';
+                h.innerHTML = '<?php echo addslashes(_('Hard State Duration')); ?>';
                 h.indice = 'last_hard_state_change';
                 h.onclick = function () {
                     change_type_order(this.indice)
@@ -126,7 +126,7 @@ if (isset($_GET["acknowledge"])) {
             }
 
             var h = document.getElementById('last_check');
-            h.innerHTML = '<?php echo addslashes(_("Last Check"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Last Check')); ?>';
             h.indice = 'last_check';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -134,7 +134,7 @@ if (isset($_GET["acknowledge"])) {
             h.style.cursor = "pointer";
 
             var h = document.getElementById('current_check_attempt');
-            h.innerHTML = '<?php echo addslashes(_("Tries"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Tries')); ?>';
             h.indice = 'current_check_attempt';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -143,9 +143,9 @@ if (isset($_GET["acknowledge"])) {
 
             var h = document.getElementById('criticality_id');
             if (h) {
-                h.innerHTML = '<?php echo addslashes("S"); ?>';
+                h.innerHTML = '<?php echo addslashes('S'); ?>';
                 h.indice = 'criticality_id';
-                h.title = "<?php echo _("Sort by severity"); ?>";
+                h.title = "<?php echo _('Sort by severity'); ?>";
                 h.onclick = function () {
                     change_type_order(this.indice)
                 };
@@ -153,7 +153,7 @@ if (isset($_GET["acknowledge"])) {
             }
 
             var h = document.getElementById('plugin_output');
-            h.innerHTML = '<?php echo addslashes(_("Status information"))?>';
+            h.innerHTML = '<?php echo addslashes(_('Status information')); ?>';
             h.indice = 'plugin_output';
             h.onclick = function () {
                 change_type_order(this.indice)
@@ -257,7 +257,7 @@ if (isset($_GET["acknowledge"])) {
         proc.setCallback(function(t){monitoringCallBack(t); proc = null;});
         proc.setXml(_addrXML + "?" + 'search=' + _host_search + '&num=' + _num + '&limit=' + _limit +
             '&sort_type=' + _sort_type + '&order=' + _order + '&date_time_format_status=' + _date_time_format_status +
-            '&o=' + _o + '&p=' + _p + '&time=<?php print time(); ?>&criticality=' + _criticality_id +
+            '&o=' + _o + '&p=' + _p + '&time=<?php echo time(); ?>&criticality=' + _criticality_id +
             '&statusHost=' + statusHost + '&statusFilter=' + statusFilter + "&sSetOrderInMemory=" + sSetOrderInMemory
         );
         proc.setXslt(_addrXSL);

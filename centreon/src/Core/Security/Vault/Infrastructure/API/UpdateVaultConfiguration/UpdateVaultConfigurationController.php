@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ final class UpdateVaultConfigurationController extends AbstractController
     public function __invoke(
         UpdateVaultConfiguration $useCase,
         DefaultPresenter $presenter,
-        Request $request
+        Request $request,
     ): object {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
@@ -82,7 +82,7 @@ final class UpdateVaultConfigurationController extends AbstractController
      * @return UpdateVaultConfigurationRequest
      */
     private function createDtoRequest(
-        array $decodedRequest
+        array $decodedRequest,
     ): UpdateVaultConfigurationRequest {
         $updateVaultConfigurationRequest = new UpdateVaultConfigurationRequest();
         $updateVaultConfigurationRequest->address = $decodedRequest['address'];

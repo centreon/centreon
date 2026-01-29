@@ -1,39 +1,25 @@
 <?php
+
 /*
- * Copyright 2005-2015 CENTREON
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give CENTREON
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of CENTREON choice, provided that
- * CENTREON also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once "Centreon/Object/Relation/Relation.php";
+require_once 'Centreon/Object/Relation/Relation.php';
 
 /**
  * Class
@@ -44,21 +30,25 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
 {
     /** @var Centreon_Object_Service_Template */
     public $firstObject;
+
     /** @var Centreon_Object_Host_Template */
     public $secondObject;
+
     /** @var string */
-    protected $relationTable = "host_service_relation";
+    protected $relationTable = 'host_service_relation';
+
     /** @var string */
-    protected $firstKey = "service_service_id";
+    protected $firstKey = 'service_service_id';
+
     /** @var string */
-    protected $secondKey = "host_host_id";
+    protected $secondKey = 'host_host_id';
 
     /**
      * Centreon_Object_Relation_Service_Template_Host constructor
      *
-     * @param \Pimple\Container $dependencyInjector
+     * @param Pimple\Container $dependencyInjector
      */
-    public function __construct(\Pimple\Container $dependencyInjector)
+    public function __construct(Pimple\Container $dependencyInjector)
     {
         parent::__construct($dependencyInjector);
         $this->firstObject = new Centreon_Object_Service_Template($dependencyInjector);
@@ -75,7 +65,7 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      */
     public function insert($fkey, $skey = null): void
     {
-        $sql = "INSERT INTO $this->relationTable ($this->secondKey, $this->firstKey) VALUES (?, ?)";
+        $sql = "INSERT INTO {$this->relationTable} ({$this->secondKey}, {$this->firstKey}) VALUES (?, ?)";
         $this->db->query($sql, [$fkey, $skey]);
     }
 
@@ -89,53 +79,54 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      * @param string $sort
      * @param array $filters
      * @param string $filterType
+     * @param mixed $offset
      *
-     * @return array
      * @throws Exception
+     * @return array
      */
-    public function getMergedParameters($firstTableParams = [], $secondTableParams = [], $count = -1, $offset = 0, $order = null, $sort = "ASC", $filters = [], $filterType = "OR")
+    public function getMergedParameters($firstTableParams = [], $secondTableParams = [], $count = -1, $offset = 0, $order = null, $sort = 'ASC', $filters = [], $filterType = 'OR')
     {
-        if (!isset($this->firstObject) || !isset($this->secondObject)) {
+        if (! isset($this->firstObject) || ! isset($this->secondObject)) {
             throw new Exception('Unsupported method on this object');
         }
-        $fString = "";
-        $sString = "";
+        $fString = '';
+        $sString = '';
         foreach ($firstTableParams as $fparams) {
-            if ($fString != "") {
-                $fString .= ",";
+            if ($fString != '') {
+                $fString .= ',';
             }
-            $fString .= "h.".$fparams;
+            $fString .= 'h.' . $fparams;
         }
         foreach ($secondTableParams as $sparams) {
-            if ($fString != "" || $sString != "") {
-                $sString .= ",";
+            if ($fString != '' || $sString != '') {
+                $sString .= ',';
             }
-            $sString .= "h2.".$sparams;
+            $sString .= 'h2.' . $sparams;
         }
-        $sql = "SELECT ".$fString.$sString."
-        		FROM ".$this->firstObject->getTableName()." h,".$this->relationTable."
-        		JOIN ".$this->secondObject->getTableName(). " h2 ON ".$this->relationTable.".".$this->firstKey." = h2.".$this->secondObject->getPrimaryKey() ."
-        		WHERE h.".$this->firstObject->getPrimaryKey()." = ".$this->relationTable.".".$this->secondKey;
+        $sql = 'SELECT ' . $fString . $sString . '
+        		FROM ' . $this->firstObject->getTableName() . ' h,' . $this->relationTable . '
+        		JOIN ' . $this->secondObject->getTableName() . ' h2 ON ' . $this->relationTable . '.' . $this->firstKey . ' = h2.' . $this->secondObject->getPrimaryKey() . '
+        		WHERE h.' . $this->firstObject->getPrimaryKey() . ' = ' . $this->relationTable . '.' . $this->secondKey;
         $filterTab = [];
         if (count($filters)) {
             foreach ($filters as $key => $rawvalue) {
-                $sql .= " $filterType $key LIKE ? ";
+                $sql .= " {$filterType} {$key} LIKE ? ";
                 $value = trim($rawvalue);
-                $value = str_replace("_", "\_", $value);
-                $value = str_replace(" ", "\ ", $value);
+                $value = str_replace('_', "\_", $value);
+                $value = str_replace(' ', "\ ", $value);
                 $filterTab[] = $value;
             }
         }
-        if (isset($order) && isset($sort) && (strtoupper($sort) == "ASC" || strtoupper($sort) == "DESC")) {
-            $sql .= " ORDER BY $order $sort ";
+        if (isset($order, $sort)   && (strtoupper($sort) == 'ASC' || strtoupper($sort) == 'DESC')) {
+            $sql .= " ORDER BY {$order} {$sort} ";
         }
         if (isset($count) && $count != -1) {
             $sql = $this->db->limit($sql, $count, $offset);
         }
-        $result = $this->getResult($sql, $filterTab);
-        return $result;
+
+        return $this->getResult($sql, $filterTab);
     }
-    
+
     /**
      * Delete host template / host relation
      * Order has importance
@@ -146,14 +137,14 @@ class Centreon_Object_Relation_Service_Template_Host extends Centreon_Object_Rel
      */
     public function delete($fkey, $skey = null): void
     {
-        if (isset($fkey) && isset($skey)) {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ? AND $this->secondKey = ?";
+        if (isset($fkey, $skey)) {
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ? AND {$this->secondKey} = ?";
             $args = [$skey, $fkey];
         } elseif (isset($skey)) {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->firstKey = ?";
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->firstKey} = ?";
             $args = [$skey];
         } else {
-            $sql = "DELETE FROM $this->relationTable WHERE $this->secondKey = ?";
+            $sql = "DELETE FROM {$this->relationTable} WHERE {$this->secondKey} = ?";
             $args = [$fkey];
         }
         $this->db->query($sql, $args);

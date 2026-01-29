@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,31 +23,25 @@ declare(strict_types=1);
 
 namespace Tests\Core\Security\ProviderConfiguration\Infrastructure\Local\Api\FindConfiguration;
 
-use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Centreon\Domain\Contact\Contact;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfiguration;
-use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\FindConfiguration\FindConfigurationController;
 use Core\Security\ProviderConfiguration\Application\Local\UseCase\FindConfiguration\FindConfigurationPresenterInterface;
+use Core\Security\ProviderConfiguration\Infrastructure\Local\Api\FindConfiguration\FindConfigurationController;
+use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class FindConfigurationControllerTest extends TestCase
 {
-    /**
-     * @var FindConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var FindConfiguration&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var FindConfiguration&\PHPUnit\Framework\MockObject\MockObject */
     private $useCase;
 
-    /**
-     * @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ContainerInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $container;
 
     public function setUp(): void

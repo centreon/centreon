@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): ServiceStatusesCount {
         if ($accessGroupIds === []) {
             $this->createServiceStatusesCountFromRecord([]);
@@ -169,7 +169,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): array {
         if ($accessGroupIds === []) {
             return [];
@@ -196,7 +196,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
             $countStatement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         $countStatement->execute();
-        
+
         $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
         $countResult = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
         $numberOfRows = $countResult ? current($countResult) : 0;
@@ -288,7 +288,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
         SqlRequestParametersTranslator $sqlTranslator,
         bool $calculateNumberOfRows,
         array $accessGroupIds = [],
-        string $aclBindQuery = ''
+        string $aclBindQuery = '',
     ): string {
         $search = $sqlTranslator->translateSearchParameterToSql();
         $typeSearch = $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
@@ -312,7 +312,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
                 SQL;
             $aclSearch = <<<SQL
                 AND acls.group_id IN ({$aclBindQuery})
-                SQL; 
+                SQL;
         }
 
         return <<<SQL
@@ -394,7 +394,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      * @return SqlRequestParametersTranslator
      */
     private function prepareSqlRequestParametersTranslator(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): SqlRequestParametersTranslator {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
@@ -414,8 +414,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sqlTranslator->addNormalizer(
             'status',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
                  */

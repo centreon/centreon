@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\ReadNotificationRepositoryInterface;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRule;
 use Core\Notification\Application\UseCase\FindNotifiableRule\FindNotifiableRuleResponse;
-use Core\Notification\Domain\Model\Contact as NotificationContact;
-use Core\Notification\Domain\Model\TimePeriod;
-use Core\Notification\Domain\Model\Notification;
 use Core\Notification\Domain\Model\Channel;
+use Core\Notification\Domain\Model\Contact as NotificationContact;
 use Core\Notification\Domain\Model\Message;
+use Core\Notification\Domain\Model\Notification;
+use Core\Notification\Domain\Model\TimePeriod;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {

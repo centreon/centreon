@@ -1,4 +1,24 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
@@ -12,10 +32,10 @@ class TrapRepository extends ServiceEntityRepository
      * @param array $templateChainList
      * @return array
      */
-    public function export(array $pollerIds, array $templateChainList = null): array
+    public function export(array $pollerIds, ?array $templateChainList = null): array
     {
         // prevent SQL exception
-        if (!$pollerIds) {
+        if (! $pollerIds) {
             return [];
         }
 
@@ -24,13 +44,13 @@ class TrapRepository extends ServiceEntityRepository
         $sqlFilterList = $list ? " OR tsr.service_id IN ({$list})" : '';
         $sqlFilter = static::exportFilterSql($pollerIds);
         $sql = <<<SQL
-SELECT
-    t.*
-FROM traps AS t
-INNER JOIN traps_service_relation AS tsr ON tsr.traps_id = t.traps_id AND
-    (tsr.service_id IN ({$sqlFilter}){$sqlFilterList})
-GROUP BY t.traps_id
-SQL;
+            SELECT
+                t.*
+            FROM traps AS t
+            INNER JOIN traps_service_relation AS tsr ON tsr.traps_id = t.traps_id AND
+                (tsr.service_id IN ({$sqlFilter}){$sqlFilterList})
+            GROUP BY t.traps_id
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
 
@@ -45,15 +65,15 @@ SQL;
 
     public function truncate(): void
     {
-        $sql = <<<SQL
-TRUNCATE TABLE `traps_service_relation`;
-TRUNCATE TABLE `traps_vendor`;
-TRUNCATE TABLE `traps_preexec`;
-TRUNCATE TABLE `traps_matching_properties`;
-TRUNCATE TABLE `traps_group_relation`;
-TRUNCATE TABLE `traps_group`;
-TRUNCATE TABLE `traps`;
-SQL;
+        $sql = <<<'SQL'
+            TRUNCATE TABLE `traps_service_relation`;
+            TRUNCATE TABLE `traps_vendor`;
+            TRUNCATE TABLE `traps_preexec`;
+            TRUNCATE TABLE `traps_matching_properties`;
+            TRUNCATE TABLE `traps_group_relation`;
+            TRUNCATE TABLE `traps_group`;
+            TRUNCATE TABLE `traps`;
+            SQL;
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
     }
@@ -67,16 +87,16 @@ SQL;
     public static function exportFilterSql(array $pollerIds): string
     {
         $ids = join(',', $pollerIds);
-        $sql = <<<SQL
-SELECT
-    _t.service_service_id
-FROM host_service_relation AS _t
-LEFT JOIN hostgroup AS _hg ON _hg.hg_id = _t.hostgroup_hg_id
-LEFT JOIN hostgroup_relation AS _hgr ON _hgr.hostgroup_hg_id = _hg.hg_id
-INNER JOIN ns_host_relation AS _hr ON _hr.host_host_id = _t.host_host_id OR _hr.host_host_id = _hgr.host_host_id
-WHERE _hr.nagios_server_id IN ({$ids})
-GROUP BY _t.service_service_id
-SQL;
-        return $sql;
+
+        return <<<SQL
+            SELECT
+                _t.service_service_id
+            FROM host_service_relation AS _t
+            LEFT JOIN hostgroup AS _hg ON _hg.hg_id = _t.hostgroup_hg_id
+            LEFT JOIN hostgroup_relation AS _hgr ON _hgr.hostgroup_hg_id = _hg.hg_id
+            INNER JOIN ns_host_relation AS _hr ON _hr.host_host_id = _t.host_host_id OR _hr.host_host_id = _hgr.host_host_id
+            WHERE _hr.nagios_server_id IN ({$ids})
+            GROUP BY _t.service_service_id
+            SQL;
     }
 }

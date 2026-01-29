@@ -52,12 +52,12 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
     );
 
     if (! $samlConfiguration || ! isset($samlConfiguration['custom_configuration'])) {
-        throw new \UnexpectedValueException('SAML configuration is missing');
+        throw new UnexpectedValueException('SAML configuration is missing');
     }
 
     $customConfiguration = json_decode($samlConfiguration['custom_configuration'], true, JSON_THROW_ON_ERROR);
 
-    if (!isset($customConfiguration['requested_authn_context'])) {
+    if (! isset($customConfiguration['requested_authn_context'])) {
         $customConfiguration['requested_authn_context'] = 'minimum';
         $query = <<<'SQL'
                 UPDATE `provider_configuration`
@@ -69,7 +69,7 @@ $updateSamlProviderConfiguration = function (CentreonDB $pearDB) use (&$errorMes
                 QueryParameter::string(
                     'custom_configuration',
                     json_encode($customConfiguration, JSON_THROW_ON_ERROR)
-                )
+                ),
             ]
         );
 
@@ -127,7 +127,7 @@ $addResourceStatusSearchModeOption = function () use ($pearDB, &$errorMessage): 
     $optionExists = $pearDB->fetchFirstColumn("SELECT 1 FROM options WHERE `key` = 'resource_status_search_mode'");
 
     $errorMessage = "Unable to insert option 'resource_status_search_mode' option into table options";
-    if (false === (bool) $optionExists) {
+    if ((bool) $optionExists === false) {
         $pearDB->insert("INSERT INTO `options` (`key`, `value`) VALUES ('resource_status_search_mode', 1)");
     }
 };
@@ -147,7 +147,7 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -157,19 +157,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

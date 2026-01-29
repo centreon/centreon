@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
         private readonly OpenId $openId,
         private readonly WebSSO $webSSO,
         private readonly SAML $saml,
-        private ReadConfigurationRepositoryInterface $readConfigurationRepository
+        private ReadConfigurationRepositoryInterface $readConfigurationRepository,
     ) {
     }
 
@@ -61,7 +61,7 @@ class ProviderAuthenticationFactory implements ProviderAuthenticationFactoryInte
             Provider::OPENID => $this->openId,
             Provider::WEB_SSO => $this->webSSO,
             Provider::SAML => $this->saml,
-            default => throw ProviderException::providerConfigurationNotFound($providerType)
+            default => throw ProviderException::providerConfigurationNotFound($providerType),
         };
 
         $provider->setConfiguration($this->readConfigurationRepository->getConfigurationByType($providerType));

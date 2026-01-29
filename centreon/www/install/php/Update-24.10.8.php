@@ -38,13 +38,13 @@ $updateAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to retrieve data from agent_configuration table';
     $statement = $pearDB->executeQuery(
         <<<'SQL'
-            SELECT `id`, `configuration` FROM `agent_configuration`
-        SQL
+                SELECT `id`, `configuration` FROM `agent_configuration`
+            SQL
     );
 
     $errorMessage = 'Unable to update agent_configuration table';
     $updates = [];
-    while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+    while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
         $config = json_decode($row['configuration'], true);
         if (! is_array($config)) {
             continue;
@@ -77,11 +77,11 @@ $updateAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
         $updatedConfig = json_encode($config);
         $updates[] = [
             'id' => $row['id'],
-            'configuration' => $updatedConfig
+            'configuration' => $updatedConfig,
         ];
     }
 
-    if (! empty($updates)) {
+    if ($updates !== []) {
         $query = 'UPDATE `agent_configuration` SET `configuration` = CASE `id` ';
         $params = [];
         $whereParams = [];
@@ -105,20 +105,20 @@ $updateAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
 };
 
 /**
-  * Add Column connection_mode to agent_configuration table.
-  * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
-  *
-  * @param CentreonDB $pearDB
-  *
-  * @throws CentreonDbException
-  */
-  $addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
+ * Add Column connection_mode to agent_configuration table.
+ * This Column is used to define the connection mode of the agent between ("no-tls","tls","secure","insecure").
+ *
+ * @param CentreonDB $pearDB
+ *
+ * @throws CentreonDbException
+ */
+$addConnectionModeColumnToAgentConfiguration = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to add connection_mode column to agent_configuration table';
     $pearDB->executeStatement(
         <<<'SQL'
-            ALTER TABLE `agent_configuration`
-            ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
-        SQL
+                ALTER TABLE `agent_configuration`
+                ADD COLUMN `connection_mode` ENUM('no-tls', 'secure', 'insecure') DEFAULT 'secure' NOT NULL
+            SQL
     );
 };
 
@@ -135,15 +135,15 @@ try {
 
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
         customContext: [
             'exception' => [
                 'error_message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString()
-            ]
+                'trace' => $exception->getTraceAsString(),
+            ],
         ],
         exception: $exception
     );
@@ -151,7 +151,7 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
@@ -159,16 +159,18 @@ try {
                 'error_to_rollback' => $errorMessage,
                 'exception' => [
                     'error_message' => $rollbackException->getMessage(),
-                    'trace' => $rollbackException->getTraceAsString()
-                ]
+                    'trace' => $rollbackException->getTraceAsString(),
+                ],
             ],
             exception: $rollbackException
         );
-        throw new \Exception(
+
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

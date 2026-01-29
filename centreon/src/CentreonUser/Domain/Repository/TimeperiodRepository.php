@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ class TimeperiodRepository extends AbstractRepositoryRDB implements PaginationRe
             if (
                 array_key_exists('ids', $filters)
                 && is_array($filters['ids'])
-                && [] !== $filters['ids']
+                && $filters['ids'] !== []
             ) {
                 $idsListKey = [];
                 foreach ($filters['ids'] as $x => $id) {

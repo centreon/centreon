@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ class NotificationHostEventConverter
                 self::CASE_UP_AS_STR => HostEvent::Up,
                 self::CASE_DOWN_AS_STR => HostEvent::Down,
                 self::CASE_UNREACHABLE_AS_STR => HostEvent::Unreachable,
-                default => throw new \LogicException('Should never occur, only for phpstan')
+                default => throw new \LogicException('Should never occur, only for phpstan'),
             };
         }
 

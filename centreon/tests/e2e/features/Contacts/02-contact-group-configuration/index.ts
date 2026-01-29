@@ -1,13 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import groups from '../../../fixtures/users/contact.json';
 
 const checkFirstContactGroupFromListing = () => {
-  cy.navigateTo({
-    page: 'Contact Groups',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -51,11 +48,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('a contact group is configured', () => {
-  cy.navigateTo({
-    page: 'Contact Groups',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateContactGroup(groups.defaultGroup);

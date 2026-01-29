@@ -33,7 +33,6 @@ require_once __DIR__ . '/../../../bootstrap.php';
 $version = '24.10.13';
 $errorMessage = '';
 
-
 $alterContactPagerSize = function () use ($pearDB, &$errorMessage): void {
     $errorMessage = 'Unable to alter contact_pager column size in contact table';
     if ($pearDB->isColumnExist('contact', 'contact_pager')) {
@@ -103,7 +102,6 @@ $generateToken = function () use ($pearDB): array {
     );
 
     return ['name' => 'cma-default', 'creator_id' => (int) $admin['contact_id']];
-
 };
 
 /**
@@ -195,7 +193,7 @@ try {
     $alignCMAAgentConfigurationWithNewSchema();
     $pearDB->commit();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $exception) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
@@ -205,19 +203,19 @@ try {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (PDOException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             exception: $rollbackException
         );
 
-        throw new \Exception(
+        throw new Exception(
             "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
             (int) $rollbackException->getCode(),
             $rollbackException
         );
     }
 
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+    throw new Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
 }

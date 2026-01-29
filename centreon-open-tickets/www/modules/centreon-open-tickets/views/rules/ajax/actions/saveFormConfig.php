@@ -1,40 +1,42 @@
 <?php
+
 /*
- * Copyright 2015-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
-$resultat = ["code" => 0, "msg" => 'ok'];
+$resultat = ['code' => 0, 'msg' => 'ok'];
 
 // Load provider class
 if (is_null($get_information['provider_id']) || is_null($get_information['form'])) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set provider_id or form';
-    return ;
+
+    return;
 }
 
-if (!isset($get_information['form']['rule_alias']) ||
-    is_null($get_information['form']['rule_alias']) ||
-    $get_information['form']['rule_alias'] == ''
+if (! isset($get_information['form']['rule_alias'])
+    || is_null($get_information['form']['rule_alias'])
+    || $get_information['form']['rule_alias'] == ''
 ) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set rule name';
-    return ;
+
+    return;
 }
 
 $provider_name = null;
@@ -45,14 +47,15 @@ foreach ($register_providers as $name => $id) {
     }
 }
 
-if (is_null($provider_name) ||
-    !file_exists(
+if (is_null($provider_name)
+    || ! file_exists(
         $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php'
     )
 ) {
     $resultat['code'] = 1;
     $resultat['msg'] = 'Please set a provider';
-    return ;
+
+    return;
 }
 
 require_once $centreon_open_tickets_path . 'providers/' . $provider_name . '/' . $provider_name . 'Provider.class.php';

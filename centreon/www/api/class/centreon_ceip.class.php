@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,8 +83,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP Account and User info.
      *
-     * @return array<string,mixed> with Account/User info
      * @throws PDOException
+     * @return array<string,mixed> with Account/User info
      */
     public function getCeipInfo(): array
     {
@@ -104,11 +104,11 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get the type of the Centreon server.
      *
+     * @throws PDOException
      * @return array{
      *     type: 'central'|'remote',
      *     platform: 'on_premise'|'centreon_cloud',
      * } the type of the server
-     * @throws PDOException
      */
     private function getServerType(): array
     {
@@ -165,18 +165,16 @@ class CentreonCeip extends CentreonWebService
                 : 'user';
 
             // If user have access to monitoring configuration, it's an operator
-            if (0 !== strcmp($role, 'admin') && $this->user->access->page('601') > 0) {
+            if (strcmp($role, 'admin') !== 0 && $this->user->access->page('601') > 0) {
                 $role = 'editor';
             }
         }
 
-        $visitorInformation = [
+        return [
             'id' => mb_substr($this->uuid, 0, 6) . '-' . $this->user->user_id,
             'locale' => $locale,
             'role' => $role,
         ];
-
-        return $visitorInformation;
     }
 
     /**
@@ -225,7 +223,7 @@ class CentreonCeip extends CentreonWebService
             $accountInformation['fingerprint'] = $licenseInfo['fingerprint'];
         }
 
-        if (!empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
+        if (! empty($laccess) && isset($licenseInfo['mode']) && $licenseInfo['mode'] !== 'offline') {
             $accountInformation['LACCESS'] = $laccess;
         }
 
@@ -339,9 +337,8 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get the major and minor versions of Centreon web.
      *
-     * @return array{major: string, minor: string} with major and minor versions
      * @throws PDOException
-     *
+     * @return array{major: string, minor: string} with major and minor versions
      */
     private function getCentreonVersion(): array
     {
@@ -355,24 +352,21 @@ class CentreonCeip extends CentreonWebService
     /**
      * Get CEIP status.
      *
-     * @return bool the status of CEIP
      * @throws PDOException
-     *
+     * @return bool the status of CEIP
      */
     private function isCeipActive(): bool
     {
         $sql = "SELECT `value` FROM `options` WHERE `key` = 'send_statistics' LIMIT 1";
 
-        return '1' === $this->sqlFetchValue($sql);
+        return $this->sqlFetchValue($sql) === '1';
     }
 
     /**
      * Get LACCESS to complete the connection between Pendo and Salesforce.
      *
-     * @return string LACCESS value from options table.
-     *
      * @throws PDOException
-     *
+     * @return string LACCESS value from options table
      */
     private function getLaccess(): string
     {

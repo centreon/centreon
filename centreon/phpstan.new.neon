@@ -1,0 +1,27 @@
+includes:
+    - ../php-tools/phpstan/config/common.neon
+
+parameters:
+
+    level: max
+
+    treatPhpDocTypesAsCertain: false
+
+    scanFiles:
+        - .php-cs-fixer.conf.php
+        - .php-cs-fixer.core.php
+        - .php-cs-fixer.diff.php
+        - .php-cs-fixer.legacy.php
+        - .php-cs-fixer.new.php
+        - rector.conf.php
+        - rector.core.php
+        - rector.diff.php
+        - rector.legacy.php
+        - rector.new.php
+
+    paths:
+        - src/Adaptation
+        - src/App
+
+rules:
+    - Tools\PhpStan\CustomRules\ArchitectureRules\EnumAreSuffixedRule

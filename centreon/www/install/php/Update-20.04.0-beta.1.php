@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,10 +19,10 @@
  *
  */
 
-include_once __DIR__ . "/../../class/centreonLog.class.php";
+include_once __DIR__ . '/../../class/centreonLog.class.php';
 $centreonLog = new CentreonLog();
 
-//error specific content
+// error specific content
 $versionOfTheUpgrade = 'UPGRADE - 20.04.0-beta.1 : ';
 $errorMessage = '';
 
@@ -32,19 +32,17 @@ $errorMessage = '';
 try {
     $pearDB->beginTransaction();
 
-    /*
-     * Move broker xml files to json format
-     */
-    $errorMessage = "Unable to replace broker configuration from xml format to json format";
+    // Move broker xml files to json format
+    $errorMessage = 'Unable to replace broker configuration from xml format to json format';
     $result = $pearDB->query(
-        "SELECT config_id, config_filename
-        FROM cfg_centreonbroker"
+        'SELECT config_id, config_filename
+        FROM cfg_centreonbroker'
     );
 
     $statement = $pearDB->prepare(
-        "UPDATE cfg_centreonbroker
+        'UPDATE cfg_centreonbroker
         SET config_filename = :value
-        WHERE config_id = :id"
+        WHERE config_id = :id'
     );
 
     $configFilenames = [];
@@ -54,40 +52,36 @@ try {
         // saving data for next engine module modifications
         $configFilenames[$row['config_filename']] = $fileName;
 
-        $statement->bindValue(':value', $fileName, \PDO::PARAM_STR);
-        $statement->bindValue(':id', $row['config_id'], \PDO::PARAM_INT);
+        $statement->bindValue(':value', $fileName, PDO::PARAM_STR);
+        $statement->bindValue(':id', $row['config_id'], PDO::PARAM_INT);
 
         $statement->execute();
     }
 
-    /*
-     * Move engine module xml files to json format
-     */
+    // Move engine module xml files to json format
     $errorMessage = "Unable to replace engine's broker modules configuration from xml to json format";
     $result = $pearDB->query(
-        "SELECT bk_mod_id, broker_module
-        FROM cfg_nagios_broker_module"
+        'SELECT bk_mod_id, broker_module
+        FROM cfg_nagios_broker_module'
     );
 
     $statement = $pearDB->prepare(
-        "UPDATE cfg_nagios_broker_module
+        'UPDATE cfg_nagios_broker_module
         SET broker_module = :value
-        WHERE bk_mod_id = :id"
+        WHERE bk_mod_id = :id'
     );
     while ($row = $result->fetch()) {
         $fileName = $row['broker_module'];
         foreach ($configFilenames as $oldName => $newName) {
             $fileName = str_replace($oldName, $newName, $fileName);
         }
-        $statement->bindValue(':value', $fileName, \PDO::PARAM_STR);
-        $statement->bindValue(':id', $row['bk_mod_id'], \PDO::PARAM_INT);
+        $statement->bindValue(':value', $fileName, PDO::PARAM_STR);
+        $statement->bindValue(':id', $row['bk_mod_id'], PDO::PARAM_INT);
 
         $statement->execute();
     }
 
-    /*
-     * Change broker sql output form
-     */
+    // Change broker sql output form
     // set common error message on failure
     $partialErrorMessage = $errorMessage;
 
@@ -136,34 +130,33 @@ try {
     );
 
     $pearDB->commit();
-    $errorMessage = "";
-} catch (\Exception $e) {
+    $errorMessage = '';
+} catch (Exception $e) {
     $pearDB->rollBack();
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
-    throw new \Exception($versionOfTheUpgrade . $errorMessage, (int)$e->getCode(), $e);
+
+    throw new Exception($versionOfTheUpgrade . $errorMessage, (int) $e->getCode(), $e);
 }
 
 /**
  * Queries which don't need rollback and won't throw an exception
  */
 try {
-    /*
-     * replace autologin keys using NULL instead of empty string
-     */
+    // replace autologin keys using NULL instead of empty string
     $pearDB->query("UPDATE `contact` SET `contact_autologin_key` = NULL WHERE `contact_autologin_key` = ''");
-} catch (\Exception $e) {
-    $errorMessage = "Unable to set default contact_autologin_key.";
+} catch (Exception $e) {
+    $errorMessage = 'Unable to set default contact_autologin_key.';
     $centreonLog->insertLog(
         4,
-        $versionOfTheUpgrade . $errorMessage .
-        " - Code : " . (int)$e->getCode() .
-        " - Error : " . $e->getMessage() .
-        " - Trace : " . $e->getTraceAsString()
+        $versionOfTheUpgrade . $errorMessage
+        . ' - Code : ' . (int) $e->getCode()
+        . ' - Error : ' . $e->getMessage()
+        . ' - Trace : ' . $e->getTraceAsString()
     );
 }

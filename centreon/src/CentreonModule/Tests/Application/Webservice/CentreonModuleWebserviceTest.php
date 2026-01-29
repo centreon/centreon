@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,112 +52,112 @@ class CentreonModuleWebserviceTest extends TestCase
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('getList')
             ->will($this->returnCallback(function () {
-                    $funcArgs = func_get_args();
+                $funcArgs = func_get_args();
 
-                    // prepare filters
-                    $funcArgs[0] ??= '-';
-                    $funcArgs[1] = $funcArgs[1] === true ? '1' : ($funcArgs[1] !== false ? '-' : '0');
-                    $funcArgs[2] = $funcArgs[2] === true ? '1' : ($funcArgs[2] !== false ? '-' : '0');
-                    $funcArgs[3] = $funcArgs[3] ? implode('|', $funcArgs[3]) : '-';
-                    $name = implode(',', $funcArgs);
+                // prepare filters
+                $funcArgs[0] ??= '-';
+                $funcArgs[1] = $funcArgs[1] === true ? '1' : ($funcArgs[1] !== false ? '-' : '0');
+                $funcArgs[2] = $funcArgs[2] === true ? '1' : ($funcArgs[2] !== false ? '-' : '0');
+                $funcArgs[3] = $funcArgs[3] ? implode('|', $funcArgs[3]) : '-';
+                $name = implode(',', $funcArgs);
 
-                    $module = new Module();
-                    $module->setId(ModuleSourceTest::$moduleName);
-                    $module->setName($name);
-                    $module->setAuthor('');
-                    $module->setVersion('');
-                    $module->setType(ModuleSource::TYPE);
+                $module = new Module();
+                $module->setId(ModuleSourceTest::$moduleName);
+                $module->setName($name);
+                $module->setAuthor('');
+                $module->setVersion('');
+                $module->setType(ModuleSource::TYPE);
 
-                    return [
-                        ModuleSource::TYPE => [
-                            $module,
-                        ],
-                    ];
+                return [
+                    ModuleSource::TYPE => [
+                        $module,
+                    ],
+                ];
             }));
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('getDetail')
             ->will($this->returnCallback(function () {
-                    $funcArgs = func_get_args();
+                $funcArgs = func_get_args();
 
-                    // prepare filters
-                    $funcArgs[0] ??= '-';
-                    $funcArgs[1] ??= '-';
+                // prepare filters
+                $funcArgs[0] ??= '-';
+                $funcArgs[1] ??= '-';
 
                 if ($funcArgs[0] === ModuleSourceTest::$moduleNameMissing) {
                     return;
                 }
 
-                    $name = implode(',', $funcArgs);
+                $name = implode(',', $funcArgs);
 
-                    $module = new Module;
-                    $module->setId(ModuleSourceTest::$moduleName);
-                    $module->setName($name);
-                    $module->setAuthor('');
-                    $module->setVersion('');
-                    $module->setType(ModuleSource::TYPE);
+                $module = new Module();
+                $module->setId(ModuleSourceTest::$moduleName);
+                $module->setName($name);
+                $module->setAuthor('');
+                $module->setVersion('');
+                $module->setType(ModuleSource::TYPE);
 
-                    return $module;
+                return $module;
             }));
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('install')
             ->will($this->returnCallback(function () {
-                    $funcArgs = func_get_args();
+                $funcArgs = func_get_args();
 
                 if ($funcArgs[0] === '' && $funcArgs[1] === '') {
                     throw new \Exception('');
                 }
 
-                    // prepare filters
-                    $funcArgs[0] = $funcArgs[0] === '' ? '-' : $funcArgs[0];
-                    $funcArgs[1] = $funcArgs[1] === '' ? '-' : $funcArgs[1];
+                // prepare filters
+                $funcArgs[0] = $funcArgs[0] === '' ? '-' : $funcArgs[0];
+                $funcArgs[1] = $funcArgs[1] === '' ? '-' : $funcArgs[1];
 
                 if ($funcArgs[0] === ModuleSourceTest::$moduleNameMissing) {
                     return;
                 }
 
-                    $name = implode(',', $funcArgs);
+                $name = implode(',', $funcArgs);
 
-                    $module = new Module;
-                    $module->setId(ModuleSourceTest::$moduleName);
-                    $module->setName($name);
-                    $module->setAuthor('');
-                    $module->setVersion('');
-                    $module->setType(ModuleSource::TYPE);
+                $module = new Module();
+                $module->setId(ModuleSourceTest::$moduleName);
+                $module->setName($name);
+                $module->setAuthor('');
+                $module->setVersion('');
+                $module->setType(ModuleSource::TYPE);
 
-                    return $module;
+                return $module;
             }));
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('update')
             ->will($this->returnCallback(function () {
-                    $funcArgs = func_get_args();
+                $funcArgs = func_get_args();
 
                 if ($funcArgs[0] === '' && $funcArgs[1] === '') {
                     throw new \Exception('');
                 }
 
-                    // prepare filters
-                    $funcArgs[0] = $funcArgs[0] === '' ? '-' : $funcArgs[0];
-                    $funcArgs[1] = $funcArgs[1] === '' ? '-' : $funcArgs[1];
+                // prepare filters
+                $funcArgs[0] = $funcArgs[0] === '' ? '-' : $funcArgs[0];
+                $funcArgs[1] = $funcArgs[1] === '' ? '-' : $funcArgs[1];
 
                 if ($funcArgs[0] === ModuleSourceTest::$moduleNameMissing) {
                     return;
                 }
 
-                    $name = implode(',', $funcArgs);
+                $name = implode(',', $funcArgs);
 
-                    $module = new Module;
-                    $module->setId(ModuleSourceTest::$moduleName);
-                    $module->setName($name);
-                    $module->setAuthor('');
-                    $module->setVersion('');
-                    $module->setType(ModuleSource::TYPE);
+                $module = new Module();
+                $module->setId(ModuleSourceTest::$moduleName);
+                $module->setName($name);
+                $module->setAuthor('');
+                $module->setVersion('');
+                $module->setType(ModuleSource::TYPE);
 
-                    return $module;
+                return $module;
             }));
         $container[ServiceProvider::CENTREON_MODULE]
             ->method('remove')
             ->will($this->returnCallback(function (): void {
-                    $funcArgs = func_get_args();
+                $funcArgs = func_get_args();
 
                 if ($funcArgs[0] === '' && $funcArgs[1] === '') {
                     throw new \Exception('');

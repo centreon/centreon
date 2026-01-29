@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,8 @@ class CentreonEventSubscriber implements EventSubscriberInterface
         readonly private string $apiVersionLatest,
         readonly private string $apiHeaderName,
         readonly private string $translationPath,
-    ) {}
+    ) {
+    }
 
     /**
      * Returns an array of event names this subscriber wants to listen to.
@@ -136,7 +137,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             $query[RequestParameters::NAME_FOR_LIMIT] ?? RequestParameters::DEFAULT_LIMIT,
             FILTER_VALIDATE_INT
         );
-        if (false === $limit) {
+        if ($limit === false) {
             throw RequestParametersException::integer(RequestParameters::NAME_FOR_LIMIT);
         }
         $this->requestParameters->setLimit($limit);
@@ -145,7 +146,7 @@ class CentreonEventSubscriber implements EventSubscriberInterface
             $query[RequestParameters::NAME_FOR_PAGE] ?? RequestParameters::DEFAULT_PAGE,
             FILTER_VALIDATE_INT
         );
-        if (false === $page) {
+        if ($page === false) {
             throw RequestParametersException::integer(RequestParameters::NAME_FOR_PAGE);
         }
         $this->requestParameters->setPage($page);
@@ -322,21 +323,19 @@ class CentreonEventSubscriber implements EventSubscriberInterface
                     $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
                     $errorCode = $statusCode;
                 }
-            } else {
-                if ($event->getThrowable() instanceof HttpException) {
-                    $errorCode = $event->getThrowable()->getStatusCode();
-                    $statusCode = $event->getThrowable()->getStatusCode();
-                    if (
-                        $statusCode === Response::HTTP_UNPROCESSABLE_ENTITY
-                        && empty($event->getThrowable()->getMessage())
-                    ) {
-                        $message = 'The data sent does not comply with the defined validation constraints';
-                    }
-                } else {
-                    $errorCode = $event->getThrowable()->getCode();
-                    $statusCode = $event->getThrowable()->getCode()
-                        ?: Response::HTTP_INTERNAL_SERVER_ERROR;
+            } elseif ($event->getThrowable() instanceof HttpException) {
+                $errorCode = $event->getThrowable()->getStatusCode();
+                $statusCode = $event->getThrowable()->getStatusCode();
+                if (
+                    $statusCode === Response::HTTP_UNPROCESSABLE_ENTITY
+                    && empty($event->getThrowable()->getMessage())
+                ) {
+                    $message = 'The data sent does not comply with the defined validation constraints';
                 }
+            } else {
+                $errorCode = $event->getThrowable()->getCode();
+                $statusCode = $event->getThrowable()->getCode()
+                    ?: Response::HTTP_INTERNAL_SERVER_ERROR;
             }
             // Manage exception outside controllers
             $event->setResponse(

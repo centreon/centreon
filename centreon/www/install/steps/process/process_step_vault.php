@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once __DIR__ . '/../functions.php';
@@ -52,25 +53,25 @@ try {
         'secret_id' => $parameters['secret_id'],
     ];
 
-    $httpClient = new \Symfony\Component\HttpClient\CurlHttpClient();
+    $httpClient = new Symfony\Component\HttpClient\CurlHttpClient();
     $loginResponse = $httpClient->request('POST', $url, ['json' => $body]);
     $content = json_decode($loginResponse->getContent(), true);
     if (! isset($content['auth']['client_token'])) {
-        throw new \Exception('Unable to authenticate to Vault');
+        throw new Exception('Unable to authenticate to Vault');
     }
 
     /**
-     * @var \Security\Interfaces\EncryptionInterface $encryption
+     * @var Security\Interfaces\EncryptionInterface $encryption
      */
-    $encryption = new \Security\Encryption();
-    (new \Symfony\Component\Dotenv\Dotenv())->bootEnv('/usr/share/centreon/.env');
-    $encryption->setFirstKey($_ENV["APP_SECRET"]);
-    $writeVaultConfigurationRepository =
-        new \Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository(
+    $encryption = new Security\Encryption();
+    (new Symfony\Component\Dotenv\Dotenv())->bootEnv('/usr/share/centreon/.env');
+    $encryption->setFirstKey($_ENV['APP_SECRET']);
+    $writeVaultConfigurationRepository
+        = new Core\Security\Vault\Infrastructure\Repository\FsWriteVaultConfigurationRepository(
             $conf_centreon['centreon_varlib'] . '/vault/vault.json',
-            new \Symfony\Component\Filesystem\Filesystem()
+            new Symfony\Component\Filesystem\Filesystem()
         );
-    $vaultConfiguration = new \Core\Security\Vault\Domain\Model\NewVaultConfiguration(
+    $vaultConfiguration = new Core\Security\Vault\Domain\Model\NewVaultConfiguration(
         $encryption,
         $parameters['address'],
         (int) $parameters['port'],
@@ -80,14 +81,14 @@ try {
     );
     $writeVaultConfigurationRepository->create($vaultConfiguration);
 
-} catch (\Symfony\Component\HttpClient\Exception\TransportException $e) {
+} catch (Symfony\Component\HttpClient\Exception\TransportException $e) {
     $err['connection_error'] = $e->getMessage();
-} catch (\Throwable $e) {
-    $err['connection_error'] = "Unable to create vault configuration";
+} catch (Throwable $e) {
+    $err['connection_error'] = 'Unable to create vault configuration';
 }
 
 if ($err['required'] === []  && trim($err['connection_error']) == '') {
-    $step = new \CentreonLegacy\Core\Install\Step\Step6Vault($dependencyInjector);
+    $step = new CentreonLegacy\Core\Install\Step\Step6Vault($dependencyInjector);
     $step->setVaultConfiguration($parameters);
 }
 

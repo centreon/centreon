@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractObject;
 use Pimple\Container;
 
 /**
@@ -33,20 +34,12 @@ use Pimple\Container;
  */
 class Trap extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $trapCache = [];
-    /** @var array */
-    private $serviceLinkedCache = [];
-
     /** @var string */
     protected $table = 'traps';
+
     /** @var string */
     protected $generateFilename = 'traps.infile';
+
     /** @var null */
     protected $stmtService = null;
 
@@ -76,8 +69,20 @@ class Trap extends AbstractObject
         'traps_downtime',
         'traps_output_transform',
         'traps_customcode',
-        'traps_comments'
+        'traps_comments',
     ];
+
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $trapCache = [];
+
+    /** @var array */
+    private $serviceLinkedCache = [];
 
     /**
      * Trap constructor
@@ -91,70 +96,14 @@ class Trap extends AbstractObject
     }
 
     /**
-     * Build cache of traps
-     *
-     * @return void
-     */
-    private function cacheTrap(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT * FROM traps
-            LEFT JOIN traps_vendor ON traps_vendor.id = traps.manufacturer_id"
-        );
-
-        $stmt->execute();
-        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($values as &$value) {
-            $this->trapCache[$value['traps_id']] = &$value;
-        }
-    }
-
-    /**
-     * Build cache of relations between service and trap
-     *
-     * @return void
-     */
-    private function cacheTrapLinked(): void
-    {
-        $stmt = $this->backendInstance->db->prepare(
-            "SELECT traps_id, service_id
-            FROM traps_service_relation"
-        );
-
-        $stmt->execute();
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            if (!isset($this->serviceLinkedCache[$value['service_id']])) {
-                $this->serviceLinkedCache[$value['service_id']] = [];
-            }
-            $this->serviceLinkedCache[$value['service_id']][] = $value['traps_id'];
-        }
-    }
-
-    /**
-     * Build cache
-     *
-     * @return void|int
-     */
-    private function buildCache()
-    {
-        if ($this->doneCache == 1) {
-            return 0;
-        }
-
-        $this->cacheTrap();
-        $this->cacheTrapLinked();
-        $this->doneCache = 1;
-    }
-
-    /**
      * Generate trap and relations
      *
      * @param int $serviceId
      * @param array $serviceLinkedCache
      * @param array $object
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateObject(int $serviceId, array $serviceLinkedCache, array &$object): void
     {
@@ -182,27 +131,29 @@ class Trap extends AbstractObject
      *
      * @param int $serviceId
      *
-     * @return null|array
      * @throws Exception
+     * @return null|array
      */
     public function getTrapsByServiceId(int $serviceId)
     {
         // Get from the cache
         if (isset($this->serviceLinkedCache[$serviceId])) {
             $this->generateObject($serviceId, $this->serviceLinkedCache[$serviceId], $this->trapCache);
+
             return $this->serviceLinkedCache[$serviceId];
-        } elseif ($this->useCache == 1) {
+        }
+        if ($this->useCache == 1) {
             return null;
         }
 
         // We get unitary
         if (is_null($this->stmtService)) {
             $this->stmtService = $this->backendInstance->db->prepare(
-                "SELECT traps.*, traps_service_relation.service_id
+                'SELECT traps.*, traps_service_relation.service_id
                 FROM traps_service_relation, traps
                 LEFT JOIN traps_vendor ON traps_vendor.id = traps.manufacturer_id
                 WHERE traps_service_relation.service_id = :service_id
-                AND traps_service_relation.traps_id = traps.traps_id"
+                AND traps_service_relation.traps_id = traps.traps_id'
             );
         }
 
@@ -216,6 +167,63 @@ class Trap extends AbstractObject
         }
 
         $this->generateObject($serviceId, $serviceLinkedCache, $trapCache);
+
         return $serviceLinkedCache;
+    }
+
+    /**
+     * Build cache of traps
+     *
+     * @return void
+     */
+    private function cacheTrap(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT * FROM traps
+            LEFT JOIN traps_vendor ON traps_vendor.id = traps.manufacturer_id'
+        );
+
+        $stmt->execute();
+        $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($values as &$value) {
+            $this->trapCache[$value['traps_id']] = &$value;
+        }
+    }
+
+    /**
+     * Build cache of relations between service and trap
+     *
+     * @return void
+     */
+    private function cacheTrapLinked(): void
+    {
+        $stmt = $this->backendInstance->db->prepare(
+            'SELECT traps_id, service_id
+            FROM traps_service_relation'
+        );
+
+        $stmt->execute();
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if (! isset($this->serviceLinkedCache[$value['service_id']])) {
+                $this->serviceLinkedCache[$value['service_id']] = [];
+            }
+            $this->serviceLinkedCache[$value['service_id']][] = $value['traps_id'];
+        }
+    }
+
+    /**
+     * Build cache
+     *
+     * @return void|int
+     */
+    private function buildCache()
+    {
+        if ($this->doneCache == 1) {
+            return 0;
+        }
+
+        $this->cacheTrap();
+        $this->cacheTrapLinked();
+        $this->doneCache = 1;
     }
 }

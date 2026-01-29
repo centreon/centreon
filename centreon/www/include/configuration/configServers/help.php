@@ -1,4 +1,24 @@
 <?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 $help = [];
 $help['name'] = dgettext('help', 'Used for identifying the poller');
 $help['ns_ip_address'] = dgettext('help', 'Address of the poller');
@@ -25,36 +45,36 @@ $help['centreonconnector_path'] = dgettext('help', 'Path with Centreon Connector
 $help['ns_activate'] = dgettext('help', 'Enable or disable poller');
 $help['centreontrapd_init_script'] = dgettext('help', 'Centreontrapd init script to restart process on poller.');
 $help['snmp_trapd_path_conf'] = dgettext(
-    "help",
-    "Light databases will be stored in the specified directory. "
-    . "They are used for synchronizing trap definitions on pollers."
+    'help',
+    'Light databases will be stored in the specified directory. '
+    . 'They are used for synchronizing trap definitions on pollers.'
 );
 $help['pollercmd'] = dgettext(
-    "help",
-    "Those commands can be executed at the end of the file generation generation/restart process. "
-    . "Do not specify macros in the commands, for they will not be replaced. "
-    . "Make sure to have sufficient rights for the Apache user to run these commands."
+    'help',
+    'Those commands can be executed at the end of the file generation generation/restart process. '
+    . 'Do not specify macros in the commands, for they will not be replaced. '
+    . 'Make sure to have sufficient rights for the Apache user to run these commands.'
 );
-$help['description'] = dgettext("help", "Short description of the poller");
+$help['description'] = dgettext('help', 'Short description of the poller');
 $help['http_method'] = dgettext(
-    "help",
-    "What kind of method is needed to reach the Remote Server, HTTP or HTTPS?"
+    'help',
+    'What kind of method is needed to reach the Remote Server, HTTP or HTTPS?'
 );
 $help['http_port'] = dgettext(
-    "help",
-    "On which TCP port is listening the Remote Server?"
+    'help',
+    'On which TCP port is listening the Remote Server?'
 );
 $help['no_check_certificate'] = dgettext(
-    "help",
+    'help',
     "If checked, it won't check the validity of the SSL certificate of the Remote Server."
 );
 $help['no_proxy'] = dgettext(
-    "help",
+    'help',
     "If checked, it won't use the proxy configured in 'Administration > Parameters > Centreon UI' "
-    . "to connect to the Remote Server."
+    . 'to connect to the Remote Server.'
 );
 $help['remote_server_use_as_proxy'] = dgettext(
-    "help",
-    "If disabled, the Central server will send configuration and external commands directly to the poller "
-    . "and will not use the Remote Server as a proxy."
+    'help',
+    'If disabled, the Central server will send configuration and external commands directly to the poller '
+    . 'and will not use the Remote Server as a proxy.'
 );

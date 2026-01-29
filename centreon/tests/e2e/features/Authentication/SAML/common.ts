@@ -1,3 +1,4 @@
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import { ActionClapi } from '../../../commons';
 
 interface SamlConfigValues {
@@ -85,10 +86,7 @@ const saveSamlFormIfEnabled = () => {
 };
 
 const navigateToSamlConfigPage = (): Cypress.Chainable => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(4)')
     .click();
 

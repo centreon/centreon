@@ -7,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,7 @@ use Core\Common\Domain\Exception\CollectionException;
 use Core\Common\Domain\Exception\RepositoryException;
 use LogicException;
 
-it('test with a basic context from a repository exception', function () {
+it('test with a basic context from a repository exception', function (): void {
     try {
         throw new LogicException('logic_message', 100);
     } catch (LogicException $logicException) {
@@ -65,7 +65,7 @@ it('test with a basic context from a repository exception', function () {
                         'context' => [
                             'name' => 'John',
                             'age' => 42,
-                            'previous' => null
+                            'previous' => null,
                         ],
                     ]
                 );
@@ -73,7 +73,7 @@ it('test with a basic context from a repository exception', function () {
     }
 });
 
-it('test with a business context from a repository exception', function () {
+it('test with a business context from a repository exception', function (): void {
     try {
         throw new CollectionException('collection_message', ['name' => 'Anna', 'age' => 25]);
     } catch (CollectionException $collectionException) {
@@ -113,8 +113,8 @@ it('test with a business context from a repository exception', function () {
                             'previous' => [
                                 'name' => 'Anna',
                                 'age' => 25,
-                                'previous' => null
-                            ]
+                                'previous' => null,
+                            ],
                         ],
                     ]
                 );
@@ -122,7 +122,7 @@ it('test with a business context from a repository exception', function () {
     }
 });
 
-it('test with a business context with previous from a repository exception', function () {
+it('test with a business context with previous from a repository exception', function (): void {
     try {
         try {
             throw new LogicException('logic_message', 100);
@@ -179,8 +179,8 @@ it('test with a business context with previous from a repository exception', fun
                             'previous' => [
                                 'name' => 'Anna',
                                 'age' => 25,
-                                'previous' => null
-                            ]
+                                'previous' => null,
+                            ],
                         ],
                     ]
                 );

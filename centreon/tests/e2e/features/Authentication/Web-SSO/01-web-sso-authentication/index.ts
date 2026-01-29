@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 before(() => {
   cy.startContainers();
@@ -27,10 +28,7 @@ Given('an administrator logged in the platform', () => {
 });
 
 When('the administrator first configures the authentication mode', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(3)')
     .click();
   cy.wait('@getWebSSOProvider');

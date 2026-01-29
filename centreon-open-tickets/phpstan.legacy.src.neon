@@ -1,0 +1,18 @@
+includes:
+    - ../php-tools/phpstan/config/common.neon
+
+parameters:
+
+    level: max
+
+    scanFiles:
+        - .php-cs-fixer.conf.php
+        - .php-cs-fixer.diff.php
+        - .php-cs-fixer.legacy.www.php
+        - .php-cs-fixer.legacy.src.php
+        - rector.conf.php
+        - rector.diff.php
+        - rector.legacy.php
+
+    paths:
+        - src/CentreonOpenTickets
