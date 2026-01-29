@@ -2459,6 +2459,7 @@ CREATE TABLE `cfg_nagios_logger` (
   `log_level_macros` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
   `log_level_process` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'info',
   `log_level_runtime` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
+  `log_level_otl` enum('trace', 'debug', 'info', 'warning', 'err', 'critical', 'off') DEFAULT 'err',
   PRIMARY KEY (`id`),
   CONSTRAINT `cfg_nagios_logger_cfg_nagios_id_fk`
     FOREIGN KEY (`cfg_nagios_id`)
