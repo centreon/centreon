@@ -1,11 +1,13 @@
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
 const visitCustomViewPage = () => {
-    cy.visit('/centreon/main.php?p=103');
+     cy.visit(PAGES.monitoring.customViewsLegacy);
     cy.wait('@getTimeZone');
 }
 
 const addCustomView = (name, isPublic): void => {
     // Visit the page 'Home > Custom Views'
-    cy.visit('/centreon/main.php?p=103')
+    cy.visit(PAGES.monitoring.customViewsLegacy);
     cy.wait('@getTimeZone');
     // Wait until the "Show/Hide edit mode" icon is visible
     cy.waitForElementInIframe('#main-content', 'a[title="Show/Hide edit mode"]');

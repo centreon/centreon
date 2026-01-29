@@ -1,3 +1,32 @@
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
+
+interface Contact {
+  alias: string;
+  name: string;
+  email: string;
+  pager: string;
+  template: string;
+  isNotificationsEnabled: string;
+}
+
+interface ContactGroup {
+  name: string;
+  alias: string;
+  linkedContact: string;
+  status: string;
+  comment: string;
+}
+
+interface ContactTemplate {
+  alias: string;
+  name: string;
+  usedContactTemplate: string;
+  defaultPage: string;
+  isNotEnabled: string;
+  timePeriod: string;
+  notCommands: string;
+}
+
 Cypress.Commands.add('addOrUpdateContact', (body: Contact) => {
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[id="contact_alias"]');
@@ -104,12 +133,8 @@ Cypress.Commands.add('loginByDuplicatedOrUpdatedUser', (jsonName: string, login:
   });
 });
 
-Cypress.Commands.add('visitContactsPage', (index: number) => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: index,
-    subMenu: 'Users'
-  });
+Cypress.Commands.add('visitContactsPage', () => {
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -147,7 +172,7 @@ namespace Cypress {
     addOrUpdateContactGroup: (body: ContactGroup) => Cypress.Chainable;
     addOrUpdateContactTemplate: (body: ContactTemplate) => Cypress.Chainable;
     loginByDuplicatedOrUpdatedUser: (jsonName: string, login: string) => Cypress.Chainable;
-    visitContactsPage: (index: number) => Cypress.Chainable;
+    visitContactsPage: () => Cypress.Chainable;
   }
 }
 }

@@ -1,6 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import contacts from '../../../fixtures/users/contact.json';
 
 beforeEach(() => {
@@ -35,11 +36,7 @@ When('one non admin contact has been created', () => {
 When(
   'the user has changed the contact alias by adding a special character',
   () => {
-    cy.navigateTo({
-      page: 'Contacts / Users',
-      rootItemNumber: 3,
-      subMenu: 'Users'
-    });
+    cy.visit(PAGES.configuration.contactsUsersLegacy);
     cy.getIframeBody().contains('user-with-access-to-allmodules').click();
     cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
     cy.getIframeBody()
@@ -66,11 +63,7 @@ Then(
 );
 
 Given('the contact alias contains an accent', () => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.getIframeBody().contains('user-with-access-to-allmodules').click();
   cy.addOrUpdateContact(contacts.contactWithSpecialAlias);
   cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();

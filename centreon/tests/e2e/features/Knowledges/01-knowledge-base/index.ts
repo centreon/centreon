@@ -1,6 +1,7 @@
 /* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { configureKB, getMediaWikiContainerPort } from '../common';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const kb_url = 'http://mediawiki';
 const kb_account = 'WikiSysop';
@@ -68,11 +69,7 @@ Given('a host is configured', () => {
 });
 
 When('the user adds a procedure concerning this host in MediaWiki', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Knowledge Base'
-  });
+  cy.visit(PAGES.configuration.hostsKnowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');
@@ -100,11 +97,7 @@ When('the user adds a procedure concerning this host in MediaWiki', () => {
 });
 
 Then('a link towards this host procedure is available in the configuration', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Name' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
@@ -122,11 +115,7 @@ Then('a link towards this host procedure is available in the configuration', () 
 });
 
 Given('a service is configured', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Hosts' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
@@ -135,11 +124,7 @@ Given('a service is configured', () => {
 });
 
 When('the user adds a procedure concerning this service in MediaWiki', () => {
-  cy.navigateTo({
-    page: 'Services',
-    rootItemNumber: 3,
-    subMenu: 'Knowledge Base'
-  });
+  cy.visit(PAGES.configuration.servicesKnowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');
@@ -167,11 +152,7 @@ When('the user adds a procedure concerning this service in MediaWiki', () => {
 });
 
 Then('a link towards this service procedure is available in configuration', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Hosts' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
@@ -189,11 +170,7 @@ Then('a link towards this service procedure is available in configuration', () =
 });
 
 Given('the knowledge configuration page with procedure', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Knowledge Base'
-  });
+  cy.visit(PAGES.configuration.hostsKnowledgeBaseLegacy);
   cy.wait('@getTimeZone');
   // Wait until the 'Host' search field is visible in the DOM page
   cy.waitForElementInIframe('#main-content', 'input[name="searchHost"]');

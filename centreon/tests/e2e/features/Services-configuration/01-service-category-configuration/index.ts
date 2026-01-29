@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -17,11 +18,7 @@ Given('a user is logged in Centreon', () => {
 });
 
 Then('a service category is configured', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
   cy.getIframeBody()
     .find('tr.ToolbarTR')
     .find('.btc.bt_success')
@@ -78,11 +75,7 @@ Then('the properties are updated', () => {
 });
 
 When('the user duplicate a service category', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
   cy.get('iframe#main-content')
     .its('0.contentDocument.body')
     .find('table tbody')
@@ -134,11 +127,7 @@ Then('the new service category has the same properties', () => {
 });
 
 When('the user delete a service category', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
   cy.get('iframe#main-content')
     .its('0.contentDocument.body')
     .find('table tbody')

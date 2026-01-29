@@ -1,5 +1,6 @@
 import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
 
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 import { searchInput, setUserFilter } from '../common';
 import {
   checkServicesAreMonitored,
@@ -177,7 +178,7 @@ Given('a saved custom filter', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);
