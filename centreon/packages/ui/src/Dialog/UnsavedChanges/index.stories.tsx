@@ -1,8 +1,7 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import { useSnackbar } from '../..';
 import SnackbarProvider from '../../Snackbar/SnackbarProvider';
-
 import UnsavedChangesDialog from '.';
 import '../../ThemeProvider/tailwindcss.css';
 
@@ -32,8 +31,8 @@ const Story = ({ isValidForm, isSubmitting }: Props): JSX.Element => {
   return (
     <SnackbarProvider>
       <UnsavedChangesDialog
-        dialogOpened
         closeDialog={closeDialog}
+        dialogOpened
         discardChanges={discardChanges}
         isSubmitting={isSubmitting}
         isValidForm={isValidForm}
@@ -52,7 +51,7 @@ export const PlaygroundUnsavedChangesDialog = TemplateUnsavedChangesDialog.bind(
 );
 
 export const normal = (): JSX.Element => (
-  <Story isValidForm isSubmitting={false} />
+  <Story isSubmitting={false} isValidForm />
 );
 
 export const withNotValidForm = (): JSX.Element => (

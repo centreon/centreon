@@ -1,10 +1,10 @@
-import { ReactElement } from 'react';
-
 import Typography from '@mui/material/Typography';
 
 import { useMemoComponent } from '@centreon/ui';
 
-import { LineChartHeader } from './models';
+import type { ReactElement } from 'react';
+
+import type { LineChartHeader } from './models';
 import { ussHeaderChartStyles } from './useHeaderStyles';
 
 interface Props {
@@ -22,7 +22,7 @@ const Header = ({ title, header }: Props): ReactElement => {
       <div className={classes.header}>
         <div />
         {displayTitle && (
-          <Typography align="center" variant="body1" className={classes.title}>
+          <Typography align="center" className={classes.title} variant="body1">
             {title}
           </Typography>
         )}

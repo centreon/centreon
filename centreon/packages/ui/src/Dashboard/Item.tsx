@@ -1,23 +1,23 @@
+import { Card, useTheme } from '@mui/material';
+
+import { useAtomValue } from 'jotai';
+import { equals, isNil, omit, type } from 'ramda';
 import {
-  CSSProperties,
-  ForwardedRef,
-  MouseEvent,
-  ReactElement,
+  type CSSProperties,
+  type ForwardedRef,
   forwardRef,
+  type MouseEvent,
+  type ReactElement,
   useEffect,
   useMemo
 } from 'react';
 
-import { useAtomValue } from 'jotai';
-import { equals, isNil, omit, type } from 'ramda';
-
-import { Card, useTheme } from '@mui/material';
-import LoadingSkeleton from '../LoadingSkeleton';
 import ExpandableContainer from '../components/ExpandableContainer';
-import { Parameters } from '../components/ExpandableContainer/models';
+import type { Parameters } from '../components/ExpandableContainer/models';
+import LoadingSkeleton from '../LoadingSkeleton';
 import { useMemoComponent, useViewportIntersection } from '../utils';
-import { useDashboardItemStyles } from './Dashboard.styles';
 import { isResizingItemAtom } from './atoms';
+import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
@@ -84,11 +84,11 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       }
 
       setElement(ref.current);
-    }, [ref]);
+    }, [ref, setElement]);
 
     const newTransform =
       style?.transform &&
-      `translate3d(${style.transform.match(/translate\(([a-z0-9\ \,\-]+)\)/)[1]}, 0px)`;
+      `translate3d(${style.transform.match(/translate\(([a-z0-9 ,-]+)\)/)[1]}, 0px)`;
 
     return useMemoComponent({
       Component: (
@@ -108,15 +108,15 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
               const childrenHeader = equals(type(header), 'Function')
                 ? (header as (params: Parameters) => ReactElement)({
                     isExpanded,
+                    key,
                     label,
                     ref,
-                    key,
                     ...rest
                   })
                 : header;
 
               return (
-                <div key={key} className={classes.widgetSubContainer}>
+                <div className={classes.widgetSubContainer} key={key}>
                   <Card
                     className={classes.widgetContainer}
                     data-padding={!disablePadding}

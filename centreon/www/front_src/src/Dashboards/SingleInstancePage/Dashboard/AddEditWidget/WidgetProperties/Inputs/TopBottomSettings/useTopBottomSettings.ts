@@ -1,8 +1,7 @@
+import { useFormikContext } from 'formik';
+import { equals } from 'ramda';
 import { ChangeEvent, useMemo } from 'react';
 
-import { useFormikContext } from 'formik';
-
-import { equals } from 'ramda';
 import { Widget } from '../../../models';
 import { getProperty } from '../utils';
 

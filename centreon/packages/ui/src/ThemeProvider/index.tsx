@@ -1,29 +1,28 @@
-import { useAtomValue } from 'jotai';
-import { equals, mergeDeepRight } from 'ramda';
-import { CSSInterpolation } from 'tss-react';
-
 import {
-  ButtonProps,
-  InputBaseProps,
+  type ButtonProps,
+  createTheme,
+  type InputBaseProps,
   ThemeProvider as MuiThemeProvider,
-  PaletteOptions,
+  type PaletteOptions,
   StyledEngineProvider,
-  Theme,
-  createTheme
+  type Theme
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeOptions } from '@mui/material/styles/createTheme';
+import type { ThemeOptions } from '@mui/material/styles/createTheme';
+import { GlobalStyles } from '@mui/system';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { equals, mergeDeepRight } from 'ramda';
+import { type ReactNode, useMemo } from 'react';
+import type { CSSInterpolation } from 'tss-react';
 
 import RobotoBoldWoff2 from '../fonts/roboto-bold-webfont.woff2';
 import RobotoLightWoff2 from '../fonts/roboto-light-webfont.woff2';
 import RobotoMediumWoff2 from '../fonts/roboto-medium-webfont.woff2';
 import RobotoRegularWoff2 from '../fonts/roboto-regular-webfont.woff2';
-
-import { GlobalStyles } from '@mui/system';
-import { ReactNode, useMemo } from 'react';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
@@ -277,7 +276,7 @@ const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
   }, [themeMode, overrideTheme]);
 
   return (
-    <StyledEngineProvider injectFirst enableCssLayer>
+    <StyledEngineProvider enableCssLayer injectFirst>
       <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
       <MuiThemeProvider theme={theme}>
         <CssBaseline />

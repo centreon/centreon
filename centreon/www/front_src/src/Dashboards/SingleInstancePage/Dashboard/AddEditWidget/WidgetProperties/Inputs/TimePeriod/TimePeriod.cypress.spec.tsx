@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -8,7 +8,6 @@ import {
   labelTimePeriod,
   labelTo
 } from '../../../../translatedLabels';
-
 import TimePeriod from './TimePeriod';
 import { options } from './useTimePeriod';
 

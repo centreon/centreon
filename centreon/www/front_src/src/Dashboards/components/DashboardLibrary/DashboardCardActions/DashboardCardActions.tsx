@@ -1,5 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
 import {
   Delete as DeleteIcon,
   ContentCopy as DuplicateIcon,
@@ -15,18 +13,19 @@ import {
   IconButton
 } from '@centreon/ui';
 
+import { useTranslation } from 'react-i18next';
+
 import { Dashboard } from '../../../api/models';
 import {
   labelDelete,
   labelDuplicate,
   labelShareWithContacts
 } from '../../../translatedLabels';
+import FavoriteAction from '../DashboardListing/Actions/favoriteAction';
 import {
   labelEditProperties,
   labelMoreActions
 } from '../DashboardListing/translatedLabels';
-
-import FavoriteAction from '../DashboardListing/Actions/favoriteAction';
 import { useStyles } from './DashboardCardActions.styles';
 import useDashboardCardActions from './useDashboardCardActions';
 
@@ -66,27 +65,27 @@ const DashboardCardActions = ({
       <FavoriteAction
         dashboardId={dashboard.id as number}
         isFavorite={dashboard?.isFavorite as boolean}
-        refetch={refetch}
         isFetching={isFetchingListing}
+        refetch={refetch}
       />
       <IconButton
         ariaLabel={labels.labelShareWithContacts}
-        title={labels.labelShareWithContacts}
         onClick={openEditAccessRightModal}
+        title={labels.labelShareWithContacts}
       >
         <ShareIcon fontSize="small" />
       </IconButton>
       <IconButton
         ariaLabel={labels.labelMoreActions}
-        title={labels.labelMoreActions}
         onClick={openMoreActions}
+        title={labels.labelMoreActions}
       >
         <MoreIcon />
       </IconButton>
       <Menu
         anchorEl={moreActionsOpen}
-        open={Boolean(moreActionsOpen)}
         onClose={closeMoreActions}
+        open={Boolean(moreActionsOpen)}
       >
         <ActionsList
           actions={[

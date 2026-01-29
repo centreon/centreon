@@ -1,5 +1,5 @@
-import RichTextEditor from './RichTextEditor';
 import { standardMacros } from './plugins/ToolbarPlugin/MacrosButton';
+import RichTextEditor from './RichTextEditor';
 import { labelAlignPicker } from './translatedLabels';
 
 interface CheckElementStyleOnRichTextEditorProps {

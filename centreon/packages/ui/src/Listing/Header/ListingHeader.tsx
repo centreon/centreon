@@ -1,20 +1,19 @@
-import { DraggableSyntheticListeners, closestCenter } from '@dnd-kit/core';
-import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { equals, find, map, pick, propEq } from 'ramda';
-
 import { TableHead, TableRow } from '@mui/material';
 
-import { ListingVariant } from '@centreon/ui-context';
+import type { ListingVariant } from '@centreon/ui-context';
 
-import { Props as ListingProps, getVisibleColumns } from '..';
-import SortableItems from '../../SortableItems';
-import { Column } from '../models';
-
+import { closestCenter, type DraggableSyntheticListeners } from '@dnd-kit/core';
+import { horizontalListSortingStrategy } from '@dnd-kit/sortable';
+import { equals, find, map, pick, propEq } from 'ramda';
 import { memo, useCallback } from 'react';
+
+import SortableItems from '../../SortableItems';
+import { getVisibleColumns, type Props as ListingProps } from '..';
+import type { Column } from '../models';
 import ListingHeaderCell from './Cell/ListingHeaderCell';
 import {
   SelectActionListingHeaderCell,
-  SelectActionListingHeaderCellProps
+  type SelectActionListingHeaderCellProps
 } from './Cell/SelectActionListingHeaderCell';
 
 type Props = Pick<
@@ -66,9 +65,12 @@ const ListingHeader = ({
     columns
   });
 
-  const getColumnById = (id: string): Column => {
-    return find(propEq(id, 'id'), columns) as Column;
-  };
+  const getColumnById = useCallback(
+    (id: string): Column => {
+      return find(propEq(id, 'id'), columns) as Column;
+    },
+    [columns]
+  );
 
   const Content = useCallback(
     ({
@@ -89,16 +91,24 @@ const ListingHeader = ({
           isInDragOverlay={isInDragOverlay}
           itemRef={itemRef}
           listingVariant={listingVariant}
+          onSort={onSort}
           sortField={sortField}
           sortOrder={sortOrder}
           style={style}
-          onSort={onSort}
           {...listeners}
           {...attributes}
         />
       );
     },
-    [columnConfiguration, columns, sortField, sortOrder]
+    [
+      columnConfiguration,
+      sortField,
+      sortOrder,
+      areColumnsEditable,
+      getColumnById,
+      listingVariant,
+      onSort
+    ]
   );
 
   return (
@@ -106,25 +116,25 @@ const ListingHeader = ({
       <TableRow className="contents" component="div">
         {checkable && (
           <SelectActionListingHeaderCell
+            onSelectAllClick={onSelectAllClick}
+            onSelectRowsWithCondition={onSelectRowsWithCondition}
             predefinedRowsSelection={predefinedRowsSelection}
             rowCount={rowCount}
             selectedRowCount={selectedRowCount}
-            onSelectAllClick={onSelectAllClick}
-            onSelectRowsWithCondition={onSelectRowsWithCondition}
           />
         )}
         <SortableItems
-          updateSortableItemsOnItemsChange
-          Content={Content}
           additionalProps={[sortField, sortOrder]}
+          Content={Content}
           collisionDetection={closestCenter}
           itemProps={['id']}
           items={visibleColumns}
           memoProps={memoProps}
-          sortingStrategy={horizontalListSortingStrategy}
           onDragEnd={({ items }): void => {
             onSelectColumns?.(items);
           }}
+          sortingStrategy={horizontalListSortingStrategy}
+          updateSortableItemsOnItemsChange
         />
       </TableRow>
     </TableHead>

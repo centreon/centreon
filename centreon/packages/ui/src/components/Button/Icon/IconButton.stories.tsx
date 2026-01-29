@@ -1,6 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import { Add as AddIcon } from '@mui/icons-material';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { IconButton } from './IconButton';
 

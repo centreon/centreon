@@ -1,6 +1,6 @@
 import { equals, omit } from 'ramda';
 
-import { BaseProp, Node } from './models';
+import type { BaseProp, Node } from './models';
 
 interface UpdateNodeFromTreeProps<TData> {
   callback: (tree: Node<TData>) => Partial<Node<TData>>;

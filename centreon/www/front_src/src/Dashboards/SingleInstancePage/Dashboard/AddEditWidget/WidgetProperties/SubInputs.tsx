@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { Box, Stack } from '@mui/material';
 
 import { useFormikContext } from 'formik';
 import { equals, isEmpty, isNil, isNotNil, pluck } from 'ramda';
-
-import { Box, Stack } from '@mui/material';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { SubInput } from '../../../../../federatedModules/models';
 import { Widget } from '../models';
-
 import { DefaultComponent, propertiesInputType } from './useWidgetInputs';
 
 interface SubInputsProps {
@@ -84,7 +82,7 @@ const SubInputs = ({
       alignItems={hasRowDirection ? 'flex-end' : undefined}
       direction={hasRowDirection ? 'row' : 'column'}
       gap={hasSubInputs ? 1.5 : 0}
-      sx={{ pr: 1, justifyContent: 'space-between', flexWrap: 'wrap' }}
+      sx={{ flexWrap: 'wrap', justifyContent: 'space-between', pr: 1 }}
     >
       <Box sx={{ pr: 2 }}>{children}</Box>
       {hasSubInputs && (

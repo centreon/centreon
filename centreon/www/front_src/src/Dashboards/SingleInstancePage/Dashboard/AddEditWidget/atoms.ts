@@ -5,7 +5,6 @@ import {
   FederatedWidgetOptionType,
   FederatedWidgetProperties
 } from '../../../../federatedModules/models';
-
 import { Widget } from './models';
 
 export const widgetFormInitialDataAtom = atom<Widget | null>(null);

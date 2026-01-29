@@ -1,15 +1,13 @@
-import { SetStateAction, memo, useState } from 'react';
-
-import dayjs from 'dayjs';
-
 import { Typography } from '@mui/material';
 
 import { DateTimePickerInput } from '@centreon/ui';
 
+import dayjs from 'dayjs';
+import { memo, SetStateAction, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { labelUntil } from '../../translatedLabels';
 import { useStyles } from './DateInput.styles';
-
-import { useTranslation } from 'react-i18next';
 import HelperText from './HelperText';
 
 type SetAtom<Args extends Array<unknown>, Result> = (...args: Args) => Result;
@@ -95,9 +93,9 @@ const DateInput = ({
           className={classes.picker}
           closeOnSelect={false}
           date={customizedDate}
+          onClose={close}
           slotProps={slotProps}
           timeSteps={{ minutes: 1 }}
-          onClose={close}
         />
       </div>
       <HelperText error={error} />

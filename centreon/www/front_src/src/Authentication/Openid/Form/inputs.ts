@@ -1,8 +1,8 @@
+import type { InputProps } from '@centreon/ui';
+import { InputType } from '@centreon/ui';
+
 import { FormikValues } from 'formik';
 import { equals, not, pathEq, prop } from 'ramda';
-
-import { InputType } from '@centreon/ui';
-import type { InputProps } from '@centreon/ui';
 
 import {
   accessGroupsEndpoint,
@@ -13,8 +13,8 @@ import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
   labelAuthenticationMode,
-  labelConditionValue,
   labelConditionsAttributePath,
+  labelConditionValue,
   labelContactGroup,
   labelContactTemplate,
   labelDefineAuthorizedConditionsValues,
@@ -23,12 +23,12 @@ import {
   labelEnableAutoImport,
   labelEnableAutomaticManagement,
   labelEnableConditionsOnIdentityProvider,
-  labelGroupValue,
   labelGroupsAttributePath,
+  labelGroupValue,
   labelMixed,
-  labelRoleValue,
   labelRolesAttributePath,
-  labelRolesMapping
+  labelRolesMapping,
+  labelRoleValue
 } from '../../shared/translatedLabels';
 import {
   labelActivation,

@@ -1,7 +1,7 @@
+import { platformVersionsAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { has } from 'ramda';
-
-import { platformVersionsAtom } from '@centreon/ui-context';
 
 const useIsOpenTicketInstalled = (): boolean => {
   const platform = useAtomValue(platformVersionsAtom);

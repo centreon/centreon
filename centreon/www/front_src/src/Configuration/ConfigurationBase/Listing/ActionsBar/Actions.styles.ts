@@ -2,27 +2,27 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useActionsStyles = makeStyles<{ hasWriteAccess?: boolean }>()(
   (theme, { hasWriteAccess }) => ({
-    bar: {
-      display: 'flex'
+    ActionsList: {
+      width: theme.spacing(19)
     },
     actions: {
       display: 'flex',
       gap: theme.spacing(1.5)
     },
-    searchBar: {
-      width: '100%',
-      paddingInline: hasWriteAccess ? theme.spacing(1) : 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: hasWriteAccess ? 'center' : 'start'
+    bar: {
+      display: 'flex'
     },
     moreActions: {
       [theme.breakpoints.down('md')]: {
         display: 'none'
       }
     },
-    ActionsList: {
-      width: theme.spacing(19)
+    searchBar: {
+      alignItems: 'center',
+      display: 'flex',
+      justifyContent: hasWriteAccess ? 'center' : 'start',
+      paddingInline: hasWriteAccess ? theme.spacing(1) : 0,
+      width: '100%'
     }
   })
 );

@@ -1,6 +1,5 @@
-import { memo } from 'react';
-
 import { equals } from 'ramda';
+import { memo } from 'react';
 
 import { useClockStyles } from './Clock.styles';
 

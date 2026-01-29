@@ -3104,7 +3104,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Grôup_4!\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Group_4\");\r",
 									"pm.collectionVariables.set(\"HostGroup4Alias\", \"I want to break free !\");\r",
 									""
 								],
@@ -3124,6 +3124,79 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n    \"name\": \"{{HostGroup4Name}}\",\n    \"alias\": \"{{HostGroup4Alias}}\",\n    \"comment\": \"   \",\n    \"hosts\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a host group with illegal characters (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"pm.test(\"The host group creation failed due to illegal characters in name\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for error response\", function () {\r",
+									"    const schema = {\r",
+									"        type: \"object\",\r",
+									"        properties: {\r",
+									"            code: { type: \"integer\" },\r",
+									"            message: { type: \"string\" }\r",
+									"        },\r",
+									"        required: [\"code\", \"message\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"HostGroupInvalidName\", \"Test_H_Grôup_4!\");\r",
+									"pm.collectionVariables.set(\"HostGroupInvalidAlias\", \"Invalid characters test\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"{{HostGroupInvalidName}}\",\n    \"alias\": \"{{HostGroupInvalidAlias}}\",\n    \"comment\": \"This should fail due to special characters\",\n    \"hosts\": []\n}",
 							"options": {
 								"raw": {
 									"language": "json"

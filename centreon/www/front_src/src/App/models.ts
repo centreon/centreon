@@ -1,6 +1,6 @@
-import { KeyValuePair } from 'ramda';
-
 import { ListingVariant } from '@centreon/ui-context';
+
+import { KeyValuePair } from 'ramda';
 
 export interface DefaultParameters {
   monitoring_default_acknowledgement_force_active_checks: boolean;

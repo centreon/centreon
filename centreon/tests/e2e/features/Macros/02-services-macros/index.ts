@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+
 import serviceMacros from '../../../fixtures/macros/services.json';
 
 const clickToAddService = () => {

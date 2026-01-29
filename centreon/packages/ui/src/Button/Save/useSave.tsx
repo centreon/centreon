@@ -1,7 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check';
 import SaveIcon from '@mui/icons-material/Save';
+
 import {
-  T,
   always,
   any,
   cond,
@@ -10,11 +10,13 @@ import {
   not,
   or,
   pipe,
-  propEq
+  propEq,
+  T
 } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Props } from '.';
+
+import type { Props } from '.';
 
 interface StartIconConfigProps {
   hasLabel: boolean;
@@ -53,10 +55,10 @@ export const useSave = ({
   const hasLabel = hasValue([labelLoading, labelSave, labelSucceeded]);
 
   const startIconConfig = {
+    enabled: startIcon,
     hasLabel,
     loading,
-    succeeded,
-    enabled: startIcon
+    succeeded
   } as StartIconConfigProps;
 
   const content = useMemo(() => {
@@ -69,7 +71,7 @@ export const useSave = ({
     }
 
     return labelSave ? t(labelSave) : <SaveIcon />;
-  }, [labelLoading, labelSucceeded, labelSave, loading, succeeded]);
+  }, [labelLoading, labelSucceeded, labelSave, loading, succeeded, t]);
 
   const startIconToDisplay = useMemo(() => {
     return cond<Array<StartIconConfigProps>, JSX.Element | null>([
@@ -83,7 +85,7 @@ export const useSave = ({
 
   return {
     content,
-    startIconToDisplay,
-    hasLabel
+    hasLabel,
+    startIconToDisplay
   };
 };
