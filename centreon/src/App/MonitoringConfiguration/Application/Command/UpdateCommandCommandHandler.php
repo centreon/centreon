@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Application\Command;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandComment;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
@@ -72,9 +71,7 @@ final readonly class UpdateCommandCommandHandler
             $existingCommand->updateCommandLine($command->commandLine);
         }
 
-        if ($command->comment instanceof CommandComment) {
-            $existingCommand->updateComment($command->comment);
-        }
+        $existingCommand->updateComment($command->comment);
 
         if ($command->isShellEnabled !== null) {
             $command->isShellEnabled
