@@ -289,6 +289,20 @@ $moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage
     }
 };
 
+$deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage): void {
+    $errorMessage = 'Unable to remove old command pages from topology';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Removing old command pages from topology",
+    );
+    $pearDB->delete(
+        <<<'SQL'
+            DELETE FROM `topology`
+            WHERE `topology_page` IN (60801, 60802, 60803, 60807)
+            SQL
+    );
+};
+
 try {
     // Transactional queries for configuration database
     if (! $pearDB->isTransactionActive()) {
