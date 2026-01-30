@@ -160,11 +160,10 @@ $insertNewCommandsTopologyRights = function (int $aclTopologyId) use ($pearDB, &
     $pearDB->executeStatement(
         <<<'SQL'
             INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right)
-            VALUES (:acl_topo_id, :topology_topology_id, :access_right)
+            VALUES (:acl_topo_id, (SELECT topology_id from topology where topology_page = 60808), :access_right)
             SQL,
         QueryParameters::create([
             QueryParameter::int('acl_topo_id', $aclTopologyId),
-            QueryParameter::int('topology_topology_id', 60808),
             QueryParameter::int('access_right', 1),
         ])
     );
