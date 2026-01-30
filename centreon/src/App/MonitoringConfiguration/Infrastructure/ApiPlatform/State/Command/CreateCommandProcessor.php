@@ -63,8 +63,12 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
+        $name = trim($data->name);
+        Assert::stringNotEmpty($name);
+        $name = preg_replace('/\s+/', '_', $name);
+
         $command = new CreateCommandCommand(
-            name: new CommandName($data->name),
+            name: new CommandName($name),
             type: $type,
             commandLine: new CommandLine($data->commandLine),
             isShellEnabled: $data->isShellEnabled,
