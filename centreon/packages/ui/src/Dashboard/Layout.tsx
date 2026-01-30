@@ -73,13 +73,15 @@ const DashboardLayout = <T extends LayoutItem>({
     };
   }, [resize]);
 
+  const currentLayout = getLayout(layout);
+
   return useMemoComponent({
     Component: (
       <Box ref={containerRef} sx={{ overflowX: 'hidden', overflowY: 'auto' }}>
         <Box className={classes.container}>
           <ReactGridLayout
             gridConfig={{ cols: columns, margin: [12, 12], rowHeight }}
-            layout={getLayout(layout)}
+            layout={currentLayout}
             onLayoutChange={changeLayout}
             onResizeStart={startResize}
             onResizeStop={stopResize}
@@ -94,7 +96,7 @@ const DashboardLayout = <T extends LayoutItem>({
         </Box>
       </Box>
     ),
-    memoProps: [columns, layout, isStatic, ...additionalMemoProps]
+    memoProps: [columns, currentLayout, isStatic, ...additionalMemoProps]
   });
 };
 
