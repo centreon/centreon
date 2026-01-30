@@ -64,8 +64,8 @@ final readonly class CreateCommandProcessor implements ProcessorInterface
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
         $name = trim($data->name);
-        Assert::stringNotEmpty($name);
         $name = preg_replace('/\s+/', '_', $name);
+        Assert::stringNotEmpty($name);
 
         $command = new CreateCommandCommand(
             name: new CommandName($name),
