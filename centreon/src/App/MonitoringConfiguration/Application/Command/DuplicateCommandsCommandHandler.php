@@ -83,7 +83,7 @@ final readonly class DuplicateCommandsCommandHandler
                 commandLine: $originalCommand->commandLine,
                 isShellEnabled: $originalCommand->isShellEnabled,
                 isActivated: $originalCommand->isActivated,
-                isFromMonitoringConnector: $originalCommand->isFromMonitoringConnector,
+                isFromMonitoringConnector: false,
                 connector: $originalCommand->connector(),
                 comment: $originalCommand->comment,
             );
