@@ -104,8 +104,12 @@ $updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): vo
 };
 
 /** -------------------------------------- Command redesign updates-------------------------------------- */
-$addNewCommandPage = function () use ($pearDB, &$errorMessage): void {
+$addNewCommandPage = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add new command page topology';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding new command page to topology",
+    );
     $alreadyExist = $pearDB->fetchOne(
         <<<'SQL'
             SELECT 1 FROM topology WHERE topology_page = 60808
@@ -257,8 +261,12 @@ $addCommandRightIntoAction = function (string $commandType, int $accessRight, in
     );
 };
 
-$moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage, $deleteCommandsTopologyRights, $getOrCreateActionGroup, $addCommandRightIntoAction, $insertNewCommandsTopologyRights): void {
+$moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage, $deleteCommandsTopologyRights, $getOrCreateActionGroup, $addCommandRightIntoAction, $insertNewCommandsTopologyRights, $version): void {
     $errorMessage = 'Unable to read acl topology';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Moving command ACL topology into ACL actions",
+    );
     $topologyGroupRelations = $pearDB->fetchAllAssociative(
         <<<'SQL'
             SELECT acl_topology.acl_topo_id, group_topo_rel.acl_group_id FROM acl_topology
@@ -325,7 +333,7 @@ $moveCommandACLTopologyIntoACLActions = function () use ($pearDB, &$errorMessage
     }
 };
 
-$deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage): void {
+$deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to remove old command pages from topology';
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
