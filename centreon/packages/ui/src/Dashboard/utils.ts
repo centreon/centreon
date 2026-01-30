@@ -13,7 +13,7 @@ export const getIsSmallScreenSize = (): boolean =>
 export const getColumnsFromScreenSize = (): number =>
   getIsSmallScreenSize() ? minColumns : maxColumns;
 
-export const getLayout = <T extends Layout>(layout: Array<T>): Array<T> => {
+export const getLayout = <T extends Layout>(layout: Array<T>): Layout => {
   const isSmallScreenSize = getIsSmallScreenSize();
   if (!isSmallScreenSize) {
     return layout;

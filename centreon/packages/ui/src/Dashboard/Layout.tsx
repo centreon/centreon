@@ -1,27 +1,30 @@
 import { Box } from '@mui/material';
 
 import { useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import GridLayout, { type Layout, WidthProvider } from 'react-grid-layout';
+import { ReactElement, useCallback, useEffect, useState } from 'react';
+import {
+  type Layout,
+  LayoutItem,
+  ReactGridLayout,
+  useContainerWidth
+} from 'react-grid-layout';
 
-import { ParentSize, useMemoComponent } from '..';
+import { useMemoComponent } from '..';
 import { isResizingItemAtom } from './atoms';
 import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
 import 'react-grid-layout/css/styles.css';
 
-const ReactGridLayout = WidthProvider(GridLayout);
-
 interface DashboardLayoutProps<T> {
   additionalMemoProps?: Array<unknown>;
-  changeLayout?: (newLayout: Array<Layout>) => void;
-  children: Array<JSX.Element>;
+  changeLayout?: (newLayout: Layout) => void;
+  children: Array<ReactElement>;
   displayGrid?: boolean;
   isStatic?: boolean;
   layout: Array<T>;
 }
 
-const Handle = (axis, ref) => {
+const Handle = (axis: string, ref: React.Ref<HTMLSpanElement>) => {
   return (
     <span
       className={`react-resizable-handle react-resizable-handle-${axis}`}
@@ -38,8 +41,8 @@ const DashboardLayout = <T extends Layout>({
   layout,
   isStatic = false,
   additionalMemoProps = []
-}: DashboardLayoutProps<T>): JSX.Element => {
-  const dashboardContainerRef = useRef<HTMLDivElement | null>(null);
+}: DashboardLayoutProps<T>): ReactElement => {
+  const { width, containerRef } = useContainerWidth();
 
   const { classes } = useDashboardLayoutStyles(isStatic);
 
@@ -52,8 +55,8 @@ const DashboardLayout = <T extends Layout>({
   };
 
   const startResize = useCallback(
-    (_, _e, newItem: T) => {
-      setIsResizingItem(newItem.i);
+    (_: Layout, _e: LayoutItem, newItem: LayoutItem | null) => {
+      setIsResizingItem((newItem as LayoutItem & { id: string })?.id ?? null);
     },
     [setIsResizingItem]
   );
@@ -72,30 +75,23 @@ const DashboardLayout = <T extends Layout>({
 
   return useMemoComponent({
     Component: (
-      <Box
-        ref={dashboardContainerRef}
-        sx={{ overflowX: 'hidden', overflowY: 'auto' }}
-      >
-        <ParentSize>
-          {({ width }): JSX.Element => (
-            <Box className={classes.container}>
-              <ReactGridLayout
-                cols={columns}
-                layout={getLayout(layout)}
-                margin={[12, 12]}
-                onLayoutChange={changeLayout}
-                onResizeStart={startResize}
-                onResizeStop={stopResize}
-                resizeHandle={Handle}
-                resizeHandles={['s', 'e', 'se', 'sw', 'w']}
-                rowHeight={rowHeight}
-                width={width}
-              >
-                {children}
-              </ReactGridLayout>
-            </Box>
-          )}
-        </ParentSize>
+      <Box ref={containerRef} sx={{ overflowX: 'hidden', overflowY: 'auto' }}>
+        <Box className={classes.container}>
+          <ReactGridLayout
+            gridConfig={{ cols: columns, margin: [12, 12], rowHeight }}
+            layout={getLayout(layout)}
+            onLayoutChange={changeLayout}
+            onResizeStart={startResize}
+            onResizeStop={stopResize}
+            resizeConfig={{
+              handleComponent: Handle,
+              handles: ['s', 'e', 'se', 'sw', 'w']
+            }}
+            width={width}
+          >
+            {children}
+          </ReactGridLayout>
+        </Box>
       </Box>
     ),
     memoProps: [columns, layout, isStatic, ...additionalMemoProps]
