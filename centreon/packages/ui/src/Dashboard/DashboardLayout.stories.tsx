@@ -2,12 +2,12 @@ import { Typography } from '@mui/material';
 
 import type { Meta, StoryObj } from '@storybook/react';
 import { ReactElement } from 'react';
-import type { Layout } from 'react-grid-layout';
+import type { LayoutItem } from 'react-grid-layout';
 
 import FluidTypography from '../Typography/FluidTypography';
 import { DashboardLayout } from '.';
 
-interface CustomLayout extends Layout {
+interface CustomLayout extends LayoutItem {
   content: string;
   shouldUseFluidTypography: boolean;
 }

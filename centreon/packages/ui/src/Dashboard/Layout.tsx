@@ -35,7 +35,7 @@ const Handle = (axis: string, ref: React.Ref<HTMLSpanElement>) => {
   );
 };
 
-const DashboardLayout = <T extends Layout>({
+const DashboardLayout = <T extends LayoutItem>({
   children,
   changeLayout,
   layout,
@@ -55,7 +55,7 @@ const DashboardLayout = <T extends Layout>({
   };
 
   const startResize = useCallback(
-    (_: Layout, _e: LayoutItem, newItem: LayoutItem | null) => {
+    (_: Layout, _e: LayoutItem | null, newItem: LayoutItem | null) => {
       setIsResizingItem((newItem as LayoutItem & { id: string })?.id ?? null);
     },
     [setIsResizingItem]
