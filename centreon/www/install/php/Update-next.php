@@ -65,6 +65,44 @@ $fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $vers
     );
 };
 
+$deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to deploy default agent configuration';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Deploying default agent configuration",
+    );
+
+    // Check if default configuration already exists
+    $existingConfig = $pearDB->query(
+        <<<'SQL'
+            SELECT COUNT(*) AS count
+            FROM `agent_configuration`
+            WHERE `name` = 'Default Configuration'
+            SQL
+    )->fetch();
+
+    if ($existingConfig['count'] > 0) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Default agent configuration already exists, skipping deployment",
+        );
+        return;
+    }
+
+    // Insert default configuration
+    $pearDB->insert(
+        <<<'SQL'
+            INSERT INTO `agent_configuration` (`name`, `description`, `settings`)
+            VALUES ('Default Configuration', 'This is the default agent configuration.', '{}')
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully deployed default agent configuration",
+    );
+};
+
 try {
     // DDL statements for real time database
     // TODO add your function calls to update the real time database structure here

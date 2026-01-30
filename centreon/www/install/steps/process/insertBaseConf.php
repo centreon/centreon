@@ -23,7 +23,10 @@ session_start();
 require_once __DIR__ . '/../../../../bootstrap.php';
 require_once '../functions.php';
 
+use App\Kernel;
 use CentreonModule\ServiceProvider;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
 
 $return = ['id' => 'baseconf', 'result' => 1, 'msg' => ''];
 
@@ -88,6 +91,7 @@ try {
     exit;
 }
 
+
 $hostName = gethostname() ?: null;
 // Insert Central to 'platform_topology' table, as first server and parent of all others.
 $centralServerQuery = $link->query("SELECT `id`, `name` FROM nagios_server WHERE localhost = '1'");
@@ -116,6 +120,23 @@ if ($row = $centralServerQuery->fetch()) {
     $stmt->bindValue(':name', $row['name'], PDO::PARAM_STR);
     $stmt->bindValue(':id', (int) $row['id'], PDO::PARAM_INT);
     $stmt->execute();
+
+    $kernel = Kernel::createForWeb();
+    $deployAgentConfiguration = $kernel->getContainer()
+        ->get(DeployDefaultAgentConfigurationForPoller::class);
+    if (! $deployAgentConfiguration instanceof DeployDefaultAgentConfigurationForPoller) {
+        CentreonLog::create()->warning(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'DeployDefaultAgentConfigurationForPoller service not found, skipping default agent configuration deployment'
+        );
+    } else {
+        $request = new DeployDefaultAgentConfigurationForPollerRequest(
+            pollerId: $row['id'],
+            creatorId: 1,
+            creatorName: 'admin',
+        );
+        $deployAgentConfiguration($request);
+    }
 }
 
 // Manage timezone
