@@ -53,6 +53,7 @@ final readonly class DuplicateCommandsCommandHandler
         foreach ($duplicateCommandsCommand->commandIds as $id) {
             $criteria = $criteria->withId($id->value);
         }
+        $criteria = $criteria->withIsFromMonitoringConnector(true);
 
         $originalCommands = $this->repository->findAll($criteria);
         $results = [];
