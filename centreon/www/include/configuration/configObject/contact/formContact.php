@@ -739,7 +739,7 @@ $form->addElement(
 );
 
 if ($centreon->user->admin) {
-    if (!isset($cct['contact_oreon'])) {
+    if (! isset($cct['contact_oreon'])) {
         $cct['contact_oreon'] = '1';
     }
     $useFrontend = (isset($cct['contact_oreon']) && $cct['contact_oreon'] === '1');
