@@ -1002,8 +1002,6 @@ function insertContact(array $ret = []): int
         && $ret['contact_oreon']['contact_oreon'] === '1'
     ) {
         $ret['reach_api_rt']['reach_api_rt'] = '1';
-    } else {
-        $ret['reach_api_rt']['reach_api_rt'] = '0';
     }
 
     if (! $centreon->user->admin) {
@@ -1127,8 +1125,6 @@ function updateContact(int $contactId): void
         && $ret['contact_oreon']['contact_oreon'] === '1'
     ) {
         $ret['reach_api_rt']['reach_api_rt'] = '1';
-    } else {
-        $ret['reach_api_rt']['reach_api_rt'] = '0';
     }
 
     if (! $centreon->user->admin) {
