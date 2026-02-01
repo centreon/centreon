@@ -8,6 +8,8 @@ import { ChangeEvent, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Command } from '../../models';
+import { useUserPermissions } from '../../useUserPermissions';
+
 import {
   labelEnableShellSyntax,
   labelEnableShellSyntaxTooltip
@@ -15,6 +17,8 @@ import {
 
 const EnableShellSyntax = (): ReactElement => {
   const { t } = useTranslation();
+
+  const { canEdit } = useUserPermissions();
 
   const { values, setFieldValue, setFieldTouched } =
     useFormikContext<Command>();
@@ -38,6 +42,7 @@ const EnableShellSyntax = (): ReactElement => {
             size="small"
           />
         }
+        disabled={!canEdit}
         label={t(labelEnableShellSyntax)}
         labelPlacement="start"
         sx={{
