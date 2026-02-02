@@ -49,6 +49,11 @@ export interface InputProps {
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    getOptionLabel?: (option) => string;
+    optionProperty?: string;
+    disableSelectAll?: boolean;
+    limitTags?: number;
+    decoder?;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;

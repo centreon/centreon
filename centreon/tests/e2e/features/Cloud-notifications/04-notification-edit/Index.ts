@@ -16,7 +16,7 @@ import {
 import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import data from '../../../fixtures/notifications/data-for-notification.json';
 
-const contactAfterEdit = 'Guest';
+const contactAfterEdit = 'guest';
 
 const editNotificationBody = { ...notificationBody };
 

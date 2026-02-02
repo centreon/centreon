@@ -33,3 +33,9 @@ export const labelCreationDate = 'Creation date';
 export const labelExpirationDate = 'Expiration date';
 export const labelClear = 'Clear';
 export const labelUntil = 'Until';
+
+export const labelDisabled = 'Disabled';
+export const labelEnabled = 'Enabled';
+export const labelFilters = 'Filters';
+
+export const labelRefresh = 'Refresh';

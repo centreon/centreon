@@ -200,12 +200,12 @@ export const findContactsResponse = {
   },
   result: [
     {
-      id: 4,
-      name: 'centreon-gorgone'
+      alias: 'centreon-gorgone',
+      id: 4
     },
     {
-      id: 17,
-      name: 'Guest'
+      alias: 'Guest',
+      id: 17
     }
   ]
 };
@@ -275,8 +275,8 @@ export const findResourceAccessRuleResponse = (): object => ({
     { id: 5, name: 'Supervisor' }
   ],
   contacts: [
-    { id: 1, name: 'admin admin' },
-    { id: 4, name: 'centreon-gorgone' }
+    { alias: 'admin admin', id: 1 },
+    { alias: 'centreon-gorgone', id: 4 }
   ],
   dataset_filters: [
     {

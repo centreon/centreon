@@ -119,22 +119,22 @@ Given('I am on the API tokens page', () => {
 
 When('I filter tokens by {string} and click on Search', (filterBy: string) => {
   if (filterBy === 'Name') {
-    cy.getByTestId({ testId: 'inputSearch', tag: 'input' }).type(
+    cy.getByTestId({ testId: 'search-bar', tag: 'input' }).type(
       tokensToSearch.name
     );
-    cy.getByTestId({ testId: 'inputSearch', tag: 'input' }).trigger('keydown', {
+    cy.getByTestId({ testId: 'search-bar', tag: 'input' }).trigger('keydown', {
       keyCode: 13,
       which: 13
     });
     return;
   }
 
-  cy.getByLabel({ label: 'Filter options', tag: 'button' }).click();
+  cy.getByLabel({ label: 'Filters', tag: 'button' }).click();
 
   if (filterBy === 'Status') {
     tokensToSearch.status === 'Active'
-      ? cy.contains('Active tokens').click()
-      : cy.contains('Disabled tokens').click();
+      ? cy.getByTestId({testId: "Enabled", tag: "span"}).click()
+      : cy.getByTestId({testId: "Disabled", tag: "span"}).click();
   } else {
     cy.getByLabel({ label: filterBy, tag: 'input' }).click();
     switch (filterBy) {
@@ -160,14 +160,13 @@ When('I filter tokens by {string} and click on Search', (filterBy: string) => {
   }
 
   cy.getByTestId({ testId: 'Search', tag: 'button' }).click();
-  cy.getByLabel({ label: 'Filter options', tag: 'button' }).click();
+  cy.wait('@getTokens');
+  cy.getByLabel({ label: 'Filters', tag: 'button' }).click();
 });
 
 Then(
   'I should see all tokens with a {string} according to the filter',
   (filterBy: string) => {
-    cy.wait('@getTokens');
-
     cy.waitUntil(
       () => {
         let allPromisesResolved: boolean[] = [];

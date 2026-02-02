@@ -1,7 +1,6 @@
-import { useState } from 'react';
-
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 
 import {
   ConfirmDialog,
@@ -16,7 +15,6 @@ import {
   labelDelete,
   labelTokenDeletedSuccessfully
 } from '../../../translatedLabels';
-import useRefetch from '../../../useRefetch';
 import { selectedRowAtom } from '../../atoms';
 
 import Message from './Message';
@@ -37,17 +35,17 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const { showSuccessMessage } = useSnackbar();
-  const [isRetrievingData, setIsRetrievingData] = useState(false);
-  const { isRefetching } = useRefetch({
-    key: isRetrievingData,
-    onSuccess: () => close()
-  });
+
+  const queryClient = useQueryClient();
 
   const selectedRow = useAtomValue(selectedRowAtom);
 
   const success = (): void => {
     showSuccessMessage(t(labelTokenDeletedSuccessfully));
-    setIsRetrievingData(true);
+
+    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
+
+    close();
   };
 
   const { mutateAsync, isMutating } = useMutationQuery<object, Meta>({
@@ -65,8 +63,8 @@ const ConfirmationDeletionModal = ({ open, close }: Props): JSX.Element => {
 
   return (
     <ConfirmDialog
-      cancelDisabled={isMutating || isRefetching}
-      confirmDisabled={isMutating || isRefetching}
+      cancelDisabled={isMutating}
+      confirmDisabled={isMutating}
       data-testid="deleteDialog"
       dialogTitleClassName={classes.title}
       labelCancel={t(labelCancel)}

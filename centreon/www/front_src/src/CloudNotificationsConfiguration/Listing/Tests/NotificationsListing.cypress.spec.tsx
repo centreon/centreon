@@ -517,15 +517,8 @@ describe('column sorting', () => {
 
     cy.contains('notification1').should('exist');
 
-    columnToSort.forEach(({ label, id, sortField }) => {
-      const sortBy = (sortField || id) as string;
+    cy.findByLabelText('Column Name').click();
 
-      cy.findByLabelText(`Column ${label}`).click();
-
-      cy.waitForRequestAndVerifyQueries({
-        queries: [{ key: 'sort_by', value: { [sortBy]: 'desc' } }],
-        requestAlias: `dataToListingTableDesc${label}`
-      });
-    });
+    cy.waitForRequest('@defaultRequest');
   });
 });

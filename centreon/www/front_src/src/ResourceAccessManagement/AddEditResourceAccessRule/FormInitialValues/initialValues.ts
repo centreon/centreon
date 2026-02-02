@@ -51,7 +51,7 @@ const formatDatasetFilter = (datasetFilter: DatasetFilter): Array<Dataset> => {
 const formatDatasetFilters = (
   datasetFilters: Array<DatasetFilter>
 ): Array<Array<Dataset>> =>
-  datasetFilters.map((datasetFilter) => formatDatasetFilter(datasetFilter));
+  datasetFilters?.map((datasetFilter) => formatDatasetFilter(datasetFilter));
 
 export const getInitialValues = ({
   contactGroups,

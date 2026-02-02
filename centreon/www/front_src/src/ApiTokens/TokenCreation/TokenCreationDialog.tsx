@@ -1,7 +1,7 @@
 import { Formik } from 'formik';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { number, object, string } from 'yup';
-import { useAtomValue } from 'jotai';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -10,10 +10,8 @@ import {
   PersonalInformation
 } from '../TokenListing/models';
 import { labelFieldRequired } from '../translatedLabels';
-import useRefetch from '../useRefetch';
 
 import FormCreation from './Form';
-import { CreatedToken } from './models';
 import useCreateToken from './useCreateToken';
 
 interface Props {
@@ -27,7 +25,7 @@ const TokenCreationDialog = ({
 }: Props): JSX.Element => {
   const { t } = useTranslation();
   const { createToken, data, isMutating } = useCreateToken();
-  const { isRefetching } = useRefetch({ key: (data as CreatedToken)?.token });
+
   const currentUser = useAtomValue(userAtom);
 
   const msgError = t(labelFieldRequired);
@@ -39,8 +37,7 @@ const TokenCreationDialog = ({
     }).required(msgError),
     tokenName: string().required(),
     user: object().shape({
-      id: number().required(),
-      name: string().required()
+      id: number().required()
     })
   });
 
@@ -68,7 +65,6 @@ const TokenCreationDialog = ({
         data={data}
         isDialogOpened={isDialogOpened}
         isMutating={isMutating}
-        isRefetching={isRefetching}
       />
     </Formik>
   );

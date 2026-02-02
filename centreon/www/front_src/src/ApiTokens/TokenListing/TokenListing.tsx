@@ -3,41 +3,27 @@ import { useTranslation } from 'react-i18next';
 
 import Divider from '@mui/material/Divider';
 
-import { MemoizedListing as Listing, useResizeObserver } from '@centreon/ui';
+import { MemoizedListing as Listing } from '@centreon/ui';
 
 import TokenCreationButton from '../TokenCreation';
 import { labelApiToken } from '../translatedLabels';
 
 import Actions from './Actions';
-import Refresh from './Actions/Refresh';
 import { useColumns } from './ComponentsColumn/useColumns';
 import Title from './Title';
 import { selectedRowAtom } from './atoms';
 import { useStyles } from './tokenListing.styles';
-import { useTokenListing } from './useTokenListing';
+import useListing from './useListing';
+import useLoadData from './useLoadData';
 
-interface Props {
-  id: string;
-}
-
-const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
+const TokenListing = (): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
   const setSelectRow = useSetAtom(selectedRowAtom);
 
-  const { width } = useResizeObserver<HTMLElement>({
-    ref: document.getElementById(id)
-  });
+  const { data, isLoading } = useLoadData();
 
-  const {
-    dataListing,
-    changePage,
-    changeLimit,
-    onSort,
-    sortedField,
-    sortOrder,
-    refetch
-  } = useTokenListing({});
+  const { changePage, changeSort, page, setLimit, sortf, sorto } = useListing();
 
   const { columns, selectedColumnIds, onSelectColumns, onResetColumns } =
     useColumns();
@@ -52,33 +38,24 @@ const TokenListing = ({ id = 'root' }: Props): JSX.Element | null => {
       <Divider className={classes.divider} />
       <Listing
         innerScrollDisabled
-        actions={
-          <Actions
-            buttonCreateToken={<TokenCreationButton />}
-            refresh={
-              <Refresh isLoading={dataListing?.isLoading} onRefresh={refetch} />
-            }
-            width={width}
-          />
-        }
-        actionsBarMemoProps={[dataListing?.isLoading, width]}
+        actions={<Actions buttonCreateToken={<TokenCreationButton />} />}
         columnConfiguration={{ selectedColumnIds, sortable: true }}
         columns={columns}
-        currentPage={(dataListing?.page || 1) - 1}
+        currentPage={(page || 1) - 1}
         getId={({ name, user }) => `${name}-${user.id}`}
-        limit={dataListing?.limit}
-        loading={dataListing?.isLoading}
-        memoProps={[width]}
-        rows={dataListing?.rows}
-        sortField={sortedField}
-        sortOrder={sortOrder}
-        totalRows={dataListing?.total}
-        onLimitChange={changeLimit}
+        limit={data?.meta.limit}
+        loading={isLoading}
+        memoProps={[columns, page, sorto, sortf]}
+        rows={data?.result}
+        sortField={sortf}
+        sortOrder={sorto}
+        totalRows={data?.meta.total}
+        onLimitChange={setLimit}
         onPaginate={changePage}
         onResetColumns={onResetColumns}
         onRowClick={selectRow}
         onSelectColumns={onSelectColumns}
-        onSort={onSort}
+        onSort={changeSort}
       />
     </div>
   );

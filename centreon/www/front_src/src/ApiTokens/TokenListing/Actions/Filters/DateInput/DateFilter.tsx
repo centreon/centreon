@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import dayjs from 'dayjs';
-import { equals } from 'ramda';
+import { equals, map, pipe, propEq, reject } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -10,7 +10,6 @@ import {
 } from '@centreon/ui';
 
 import { dataDuration } from '../../../../TokenCreation/models';
-import { useStyles } from '../filter.styles';
 import { Property } from '../models';
 
 import DateInput from './DateInput';
@@ -22,7 +21,6 @@ interface Props {
 }
 
 const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
   const { date, setDate } = dataDate;
   const { format } = useLocaleDateTimeFormat();
@@ -60,14 +58,15 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
     handleCustomizeCase();
   };
 
-  const data = useMemo(() => {
-    return dataDuration.map((item) => ({
+  const data = pipe(
+    reject(propEq('neverExpire', 'id')),
+    map((item) => ({
       ...item,
       name: equals(item.id, 'customize')
-        ? item.name
-        : `${property} ${item.name}`
-    }));
-  }, [property]);
+        ? t(item.name)
+        : t(`${property} ${item.name}`)
+    }))
+  )(dataDuration);
 
   const currentValue = useMemo(() => {
     return date ? { id: 0, name: format({ date, formatString: 'LLL' }) } : null;
@@ -76,13 +75,14 @@ const DateFilter = ({ label, dataDate, property }: Props): JSX.Element => {
   return (
     <>
       <SelectInput
-        className={classes.input}
         disableClearable={false}
         getOptionItemLabel={(option) => option?.name}
         id={label.trim()}
-        inputProps={{ value: currentValue?.name ?? '' }}
         label={t(label)}
         options={data}
+        textFieldSlotsAndSlotProps={{
+          slotProps: { htmlInput: { value: currentValue?.name ?? '' } }
+        }}
         value={currentValue}
         onChange={handleChange}
       />
