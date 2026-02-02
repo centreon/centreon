@@ -1004,6 +1004,10 @@ function insertContact(array $ret = []): int
         $ret['reach_api_rt']['reach_api_rt'] = '1';
     }
 
+    if (! $centreon->user->admin) {
+        $ret = filterNonAdminFields($ret);
+    }
+
     try {
         $bindParams = sanitizeFormContactParameters($ret);
     } catch (InvalidArgumentException $exception) {
@@ -1121,10 +1125,6 @@ function updateContact(int $contactId): void
         && $ret['contact_oreon']['contact_oreon'] === '1'
     ) {
         $ret['reach_api_rt']['reach_api_rt'] = '1';
-    }
-
-    if (! $centreon->user->admin) {
-        $ret = filterNonAdminFields($ret);
     }
 
     try {
