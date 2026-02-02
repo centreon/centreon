@@ -1,27 +1,27 @@
 import { useCallback, useMemo } from 'react';
 
-import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, has, inc, map, pluck, filter } from 'ramda';
+import { equals, filter, inc, map, pluck } from 'ramda';
+import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import {
   IconButton,
   ListItemText,
   Tooltip,
   TypographyProps
 } from '@mui/material';
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 
 import {
   MultiConnectedAutocompleteField,
   buildListingEndpoint
 } from '@centreon/ui';
 
+import { contactsEndpoint } from '../../../api/endpoints';
+import { Contact } from '../../models';
 import { labelAdmin, labelExcludedUsers } from '../../translatedLabels';
 import { getField } from '../utils';
-import { Contact } from '../../models';
-import { contactsEndpoint } from '../../../api/endpoints';
 
 const excludedUsersFieldName = 'passwordExpiration.excludedUsers';
 
@@ -68,15 +68,13 @@ const ExcludedUsers = (): JSX.Element => {
     });
 
   const getRenderedOptionText = useCallback((option): JSX.Element => {
-    const { alias, email, is_admin: isAdmin } = option;
+    const { alias, is_admin: isAdmin } = option;
 
     return (
       <div className={classes.option}>
         <ListItemText
           primary={alias}
           primaryTypographyProps={optionTypographyProps}
-          secondary={email}
-          secondaryTypographyProps={optionTypographyProps}
         />
         {isAdmin && (
           <Tooltip
@@ -103,7 +101,7 @@ const ExcludedUsers = (): JSX.Element => {
     equals(option.alias, value.alias);
 
   const filterOptions = (options): Array<Contact> =>
-    filter((option) => has('email', option), options);
+    filter((option) => !equals(option.id, option.alias), options);
 
   const getOptionLabel = (option): string => option.alias;
 
@@ -113,7 +111,7 @@ const ExcludedUsers = (): JSX.Element => {
   });
 
   const formattedUsers = useMemo(
-    () => map((user) => ({ alias: user, id: user, name: user }), excludedUsers),
+    () => map((user) => ({ alias: user, id: user }), excludedUsers),
     [excludedUsers]
   );
 

@@ -60,37 +60,33 @@ Feature:
     And the JSON should be equal to:
     """
     {
-      "notification_id": 1,
-      "channels": {
-        "email": {
-          "subject": "Hello world !",
-          "formatted_message": "a formatted message",
-          "contacts": [
-            {
-              "email_address": "user1@mail.com",
-              "full_name": "user-name1"
+        "notification_id": 1,
+        "channels": {
+            "email": {
+                "subject": "Hello world !",
+                "formatted_message": "a formatted message",
+                "contacts": [
+                    {
+                      "email_address": "user1@mail.com",
+                      "full_name": "user-name1"
+                    },
+                    {
+                      "email_address": "admin@centreon.com",
+                      "full_name": "admin admin"
+                    },
+                    {
+                      "email_address": "guest@localhost",
+                      "full_name": "Guest"
+                    },
+                    {
+                      "email_address": "user@localhost",
+                      "full_name": "User"
+                    }
+                ]
             },
-            {
-              "email_address": "user2@mail.com",
-              "full_name": "user-name2"
-            },
-            {
-              "email_address": "admin@centreon.com",
-              "full_name": "admin admin"
-            },
-            {
-              "email_address": "guest@localhost",
-              "full_name": "Guest"
-            },
-            {
-              "email_address": "user@localhost",
-              "full_name": "User"
-            }
-          ]
-        },
-        "slack": null,
-        "sms": null
-      }
+            "slack": null,
+            "sms": null
+        }
     }
     """
 
@@ -656,7 +652,7 @@ Feature:
     Then the response code should be "200"
     And the JSON should be equal to:
     """
-      {
+    {
         "id": 1,
         "name": "notification-name",
         "timeperiod": {
@@ -675,22 +671,22 @@ Feature:
         "users": [
             {
                 "id": 20,
-                "name": "user-name1"
+                "alias": "user-alias1"
             },
             {
                 "id": 21,
-                "name": "user-name2"
+                "alias": "user-alias2"
             }
         ],
         "contactgroups": [
-          {
-            "id": 3,
-            "name": "Guest"
-          },
-          {
-            "id": 5,
-            "name": "Supervisors"
-          }
+            {
+                "id": 3,
+                "name": "Guest"
+            },
+            {
+                "id": 5,
+                "name": "Supervisors"
+            }
         ],
         "resources": [
             {
@@ -725,7 +721,7 @@ Feature:
                 ]
             }
         ]
-      }
+    }
     """
 
   Scenario: Notification details as non-admin
@@ -807,11 +803,11 @@ Feature:
         "users": [
             {
                 "id": 20,
-                "name": "test-user"
+                "alias": "test-user"
             },
             {
                 "id": 21,
-                "name": "user-name1"
+                "alias": "user-alias1"
             }
         ],
         "contactgroups": [
@@ -994,75 +990,75 @@ Feature:
     And the JSON should be equal to:
     """
     {
-          "id": 1,
-          "name": "notification-name-updated",
-          "timeperiod": {
-              "id": 1,
-              "name": "24x7"
-          },
-          "is_activated": true,
-          "messages": [
-              {
-                  "channel": "Slack",
-                  "subject": "Hello world !",
-                  "message": "just a small message",
-                  "formatted_message": "a formatted message"
-              }
-          ],
-          "users": [
-              {
-                  "id": 20,
-                  "name": "user-name1"
-              },
-              {
-                  "id": 21,
-                  "name": "user-name2"
-              }
-          ],
-          "contactgroups": [
+        "id": 1,
+        "name": "notification-name-updated",
+        "timeperiod": {
+            "id": 1,
+            "name": "24x7"
+        },
+        "is_activated": true,
+        "messages": [
             {
-              "id": 3,
-              "name": "Guest"
+                "channel": "Slack",
+                "subject": "Hello world !",
+                "message": "just a small message",
+                "formatted_message": "a formatted message"
+            }
+        ],
+        "users": [
+            {
+                "id": 20,
+                "alias": "user-alias1"
             },
             {
-              "id": 5,
-              "name": "Supervisors"
+                "id": 21,
+                "alias": "user-alias2"
             }
-          ],
-          "resources": [
-              {
-                  "type": "hostgroup",
-                  "events": 5,
-                  "ids": [
-                      {
-                          "id": 53,
-                          "name": "Linux-Servers"
-                      },
-                      {
-                          "id": 56,
-                          "name": "Printers"
-                      }
-                  ],
-                  "extra": {
-                      "event_services": 2
-                  }
-              },
-              {
-                  "type": "servicegroup",
-                  "events": 5,
-                  "ids": [
-                      {
-                          "id": 1,
-                          "name": "service-grp1"
-                      },
-                      {
-                          "id": 2,
-                          "name": "service-grp2"
-                      }
-                  ]
-              }
-          ]
-      }
+        ],
+        "contactgroups": [
+            {
+                "id": 3,
+                "name": "Guest"
+            },
+            {
+                "id": 5,
+                "name": "Supervisors"
+            }
+        ],
+        "resources": [
+            {
+                "type": "hostgroup",
+                "events": 5,
+                "ids": [
+                    {
+                        "id": 53,
+                        "name": "Linux-Servers"
+                    },
+                    {
+                        "id": 56,
+                        "name": "Printers"
+                    }
+                ],
+                "extra": {
+                    "event_services": 2
+                }
+            },
+            {
+                "type": "servicegroup",
+                "events": 5,
+                "ids": [
+                    {
+                        "id": 1,
+                        "name": "service-grp1"
+                    },
+                    {
+                        "id": 2,
+                        "name": "service-grp2"
+                    }
+                ]
+            }
+        ]
+    }
     """
 
   Scenario: Notification update as non-admin
@@ -1171,11 +1167,11 @@ Feature:
           "users": [
               {
                   "id": 20,
-                  "name": "test-user"
+                  "alias": "test-user"
               },
               {
                   "id": 21,
-                  "name": "user-name1"
+                  "alias": "user-alias1"
               }
           ],
           "contactgroups": [],

@@ -57,7 +57,7 @@ const ConnectedAutocompleteField = (
     open,
     exclusionOptionProperty = 'id',
     searchConditions = [],
-    getRenderedOptionText = (option): string => option.name?.toString(),
+    getRenderedOptionText = (option): string => option?.name?.toString(),
     getRequestHeaders,
     displayOptionThumbnail,
     queryKey,

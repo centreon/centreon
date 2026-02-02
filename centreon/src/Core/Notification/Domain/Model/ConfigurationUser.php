@@ -32,6 +32,7 @@ class ConfigurationUser
      * @param int $id
      * @param string $name
      * @param string $email
+     * @param string $alias
      *
      * @throws AssertionFailedException
      */
@@ -39,8 +40,12 @@ class ConfigurationUser
         private readonly int $id,
         private readonly string $name,
         private readonly string $email,
+        private readonly string $alias,
     ) {
         Assertion::positiveInt($id, 'User::id');
+        Assertion::notEmpty($name, 'User::name');
+        Assertion::notEmpty($email, 'User::email');
+        Assertion::notEmpty($alias, 'User::alias');
     }
 
     /**
@@ -71,5 +76,10 @@ class ConfigurationUser
     public function getEmail(): string
     {
         return $this->email;
+    }
+
+    public function getAlias(): string
+    {
+        return $this->alias;
     }
 }

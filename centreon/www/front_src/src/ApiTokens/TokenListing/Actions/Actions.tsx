@@ -1,34 +1,24 @@
+import TokenFilter from './Filters';
 import { useStyles } from './actions.styles';
-import Search from './Search';
-import TokenFilter from './Filter';
+import Refresh from './Refresh';
 
 interface Props {
   buttonCreateToken: React.ReactNode;
-  refresh: React.ReactNode;
-  width?: number;
 }
 
-const Actions = ({
-  refresh,
-  buttonCreateToken,
-  width = 0
-}: Props): JSX.Element => {
-  const { classes } = useStyles({ width });
-
-  const displaySearch = Boolean(width);
+const Actions = ({ buttonCreateToken }: Props): JSX.Element => {
+  const { classes } = useStyles();
 
   return (
     <div className={classes.container}>
       <div className={classes.subContainer}>
         {buttonCreateToken}
-        {refresh}
+        <Refresh />
       </div>
-      {displaySearch && (
-        <div className={classes.subContainerSearch}>
-          <Search />
-          <TokenFilter />
-        </div>
-      )}
+
+      <div className={classes.subContainerSearch}>
+        <TokenFilter />
+      </div>
     </div>
   );
 };

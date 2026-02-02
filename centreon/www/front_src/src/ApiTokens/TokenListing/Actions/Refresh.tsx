@@ -1,24 +1,25 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 
 import IconRefresh from '@mui/icons-material/Refresh';
 
 import { IconButton } from '@centreon/ui';
 
-import { labelRefresh } from '../../../../Resources/translatedLabels';
+import { labelRefresh } from '../../translatedLabels';
 
-interface Props {
-  isLoading: boolean;
-  onRefresh: () => void;
-}
-
-const Refresh = ({ onRefresh, isLoading }: Props): JSX.Element => {
+const Refresh = (): JSX.Element => {
   const { t } = useTranslation();
+
+  const queryClient = useQueryClient();
+
+  const onRefresh = (): void => {
+    queryClient.invalidateQueries({ queryKey: ['listTokens'] });
+  };
 
   return (
     <IconButton
       ariaLabel={t(labelRefresh) as string}
       data-testid="Refresh"
-      disabled={isLoading}
       size="small"
       title={t(labelRefresh) as string}
       onClick={onRefresh}

@@ -4,7 +4,7 @@ import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 const token = {
   duration: '7 days',
   name: 'myToken',
-  user: 'Guest'
+  user: 'guest'
 };
 
 beforeEach(() => {

@@ -18,6 +18,7 @@ import { userAtom } from '@centreon/ui-context';
 
 import { CreateTokenFormValues } from '../TokenListing/models';
 import { getEndpointConfiguredUser } from '../api/endpoints';
+import { Parameters } from '../api/models';
 import {
   labelCancel,
   labelClose,
@@ -26,7 +27,6 @@ import {
   labelName,
   labelUser
 } from '../translatedLabels';
-import { Parameters } from '../api/models';
 
 import InputCalendar from './InputCalendar/inputCalendar';
 import Title from './Title';
@@ -40,13 +40,11 @@ interface Props {
   data?: ResponseError | CreatedToken;
   isDialogOpened: boolean;
   isMutating: boolean;
-  isRefetching: boolean;
 }
 
 const FormCreation = ({
   data,
   isMutating,
-  isRefetching,
   isDialogOpened,
   closeDialog
 }: Props): JSX.Element => {
@@ -70,7 +68,7 @@ const FormCreation = ({
     resetForm
   } = useFormikContext<CreateTokenFormValues>();
 
-  const { token, duration, tokenName, user } = useCreateTokenFormValues({
+  const { token, duration, tokenName } = useCreateTokenFormValues({
     data,
     values
   });
@@ -123,7 +121,7 @@ const FormCreation = ({
 
   const labelConfirm = token ? t(labelClose) : t(labelGenerateNewToken);
 
-  const confirmDisabled = !dirty || !isValid || isRefetching || isMutating;
+  const confirmDisabled = !dirty || !isValid || isMutating;
 
   return (
     <Dialog
@@ -173,12 +171,14 @@ const FormCreation = ({
         className={classes.input}
         dataTestId={labelUser}
         disabled={Boolean(token) || !canManageApiTokens}
-        field="name"
+        field="alias"
         getEndpoint={getUsersEndpoint}
+        getOptionLabel={(option): string => option?.alias || ''}
+        getRenderedOptionText={(option): string => option?.alias || ''}
         id="user"
         label={t(labelUser)}
         required={!token}
-        value={user}
+        value={values.user}
         onChange={changeUser}
       />
       {token && <TokenInput token={token} />}

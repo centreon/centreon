@@ -1,6 +1,6 @@
 import { FormHelperText } from '@mui/material';
 
-import { useStyles } from '../filter.styles';
+import { useStyles } from '../Filters.styles';
 
 interface Props {
   className?: string;

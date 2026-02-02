@@ -65,9 +65,14 @@ export type NamedEntity = {
   name: string;
 };
 
+export type Contact = {
+  alias: string;
+  id: number;
+};
+
 export enum DeleteType {
-  MultipleItems,
-  SingleItem
+  MultipleItems = 'MultipleItems',
+  SingleItem = 'SingleItem'
 }
 
 export interface DeleteResourceAccessRuleType {
