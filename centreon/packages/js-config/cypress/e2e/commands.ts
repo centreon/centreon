@@ -272,7 +272,10 @@ Cypress.Commands.add(
         .wait('@getNavigationList');
     }
 
-    cy.visit(`${Cypress.config().baseUrl}`)
+    return cy
+      .visit(`${Cypress.config().baseUrl}`)
+      .getByLabel({ label: 'Alias', tag: 'input' })
+      .should('be.visible')
       .fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
@@ -281,16 +284,15 @@ Cypress.Commands.add(
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
           `{selectAll}{backspace}${credential.password}`
         );
-      })
-      .getByLabel({ label: 'Connect', tag: 'button' })
-      .click();
+        cy.getByLabel({ label: 'Connect', tag: 'button' }).click();
 
-    return cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
-        cy.wait('@getNavigationList');
-        cy.get('.MuiAlert-message').should('not.be.visible');
-      }
-    });
+        return cy.get('.MuiAlert-message').then(($snackbar) => {
+          if ($snackbar.text().includes('Login succeeded')) {
+            cy.wait('@getNavigationList');
+            cy.get('.MuiAlert-message').should('not.be.visible');
+          }
+        });
+      });
   }
 );
 
