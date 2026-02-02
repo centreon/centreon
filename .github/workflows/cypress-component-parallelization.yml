@@ -221,7 +221,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type_of_report: [test-results, test-reports, test-coverage]
+        type_of_report: [test-results, test-reports]
     steps:
       - name: Merge Artifacts
         uses: actions/upload-artifact/merge@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
