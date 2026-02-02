@@ -294,7 +294,7 @@
         var radioYes = document.getElementById('reach_api_rt_yes');
         var radioNo = document.getElementById('reach_api_rt_no');
 
-        if (frontEndYes) {
+        if (frontEndYes && radioYes && radioNo) {
             if (frontEndYes.checked) {
                 radioYes.checked = true;
                 radioYes.disabled = true;
