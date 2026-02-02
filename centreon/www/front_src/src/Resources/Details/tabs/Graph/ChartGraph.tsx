@@ -49,7 +49,8 @@ const ChartGraph = ({
 
   const { data } = useFetchQuery<LineChartData>({
     baseEndpoint: '',
-    getEndpoint: () => `${graphEndpoint}?start=${graphTimeParameters?.start}&end=${graphTimeParameters?.end}`,
+    getEndpoint: () =>
+      `${graphEndpoint}?start=${graphTimeParameters?.start}&end=${graphTimeParameters?.end}`,
     getQueryKey: () => [
       'graphPerformance',
       graphTimeParameters?.start,
