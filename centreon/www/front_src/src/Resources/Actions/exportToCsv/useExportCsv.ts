@@ -113,7 +113,6 @@ const useExportCsv = ({
       }
     ];
 
-
     const filtersParameters = {
       search: {
         ...(getSearch({
@@ -148,13 +147,13 @@ const useExportCsv = ({
 
     const paginationParameters = includePagination
       ? {
-        limit: listing?.meta?.limit || 10,
-        page: listing?.meta?.page || 1,
-        sort: {
-          [sort?.[0] as string]: sort?.[1] || '',
-          last_status_change: 'desc'
+          limit: listing?.meta?.limit || 10,
+          page: listing?.meta?.page || 1,
+          sort: {
+            [sort?.[0] as string]: sort?.[1] || '',
+            last_status_change: 'desc'
+          }
         }
-      }
       : {};
 
     const types = getCriteriaIds('resource_types');

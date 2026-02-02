@@ -387,6 +387,7 @@ describe('Dashboards', () => {
       cy.waitForRequest('@createDashboard');
       cy.url().should(
         'equal',
+        // biome-ignore lint: test purpose
         'http://localhost:9092/home/dashboards/library/1?edit=true'
       );
     });
@@ -801,6 +802,7 @@ describe('Dashboards', () => {
     cy.waitForRequest('@createDashboard');
     cy.url().should(
       'equal',
+      // biome-ignore lint: test purpose
       'http://localhost:9092/home/dashboards/library/1?edit=true'
     );
   });
