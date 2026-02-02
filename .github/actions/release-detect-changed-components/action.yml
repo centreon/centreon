@@ -11,8 +11,8 @@ inputs:
 
 outputs:
   changed_components:
-    description: changedccomponent list
-    value: ${{ steps.detect.outputs.changed_components }}
+    description: changed component list
+    value: ${{ steps.detect-changed-components.outputs.changed_components }}
 
 runs:
   using: composite
