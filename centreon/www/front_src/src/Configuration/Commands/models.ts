@@ -11,6 +11,7 @@ export interface CommandsListItem extends NamedEntity {
   serviceTemplatesCount: number;
   type: string;
   commandLine: string;
+  isFromMonitoringConnectors?: boolean;
 }
 
 export interface Command {

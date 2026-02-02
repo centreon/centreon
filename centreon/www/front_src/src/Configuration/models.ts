@@ -31,7 +31,7 @@ export type Filters = {
 } & Record<string, string | boolean>;
 
 export interface Actions {
-  delete?: boolean;
+  delete?: (row?) => boolean;
   duplicate?: boolean;
   enableDisable?: boolean;
   massive?:

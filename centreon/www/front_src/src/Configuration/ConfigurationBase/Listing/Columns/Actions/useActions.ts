@@ -24,7 +24,7 @@ const useActions = (row): UseActionsState => {
   const openDuplicateModal = (): void =>
     setResourcesToDuplicate([hostGroupEntity]);
 
-  const canDelete = !!actions?.delete;
+  const canDelete = !!actions?.delete(row);
   const canDuplicate = !!actions?.duplicate;
 
   return {
