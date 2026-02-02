@@ -42,7 +42,7 @@ const EnableShellSyntax = (): ReactElement => {
             size="small"
           />
         }
-        disabled={!canEdit}
+        disabled={!canEdit || values.isFromMonitoringConnector}
         label={t(labelEnableShellSyntax)}
         labelPlacement="start"
         sx={{

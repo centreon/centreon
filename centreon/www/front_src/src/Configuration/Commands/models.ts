@@ -21,6 +21,7 @@ export interface Command {
   comment?: string | null;
   isShellEnabled: boolean;
   connector?: { id: string; name: string } | null;
+  isFromMonitoringConnector: boolean;
 }
 
 export interface Payload {

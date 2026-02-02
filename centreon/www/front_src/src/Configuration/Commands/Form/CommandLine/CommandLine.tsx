@@ -7,7 +7,6 @@ import { IconButton, Tooltip } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useUserPermissions } from '../../useUserPermissions';
 import TooltipContent from './TooltipContent';
 import { useCommandLine } from './useCommandLine';
 
@@ -29,8 +28,6 @@ import {
 const CommandLine = (): ReactElement => {
   const { t } = useTranslation();
 
-  const { canEdit } = useUserPermissions();
-
   const {
     macros,
     changeMacro,
@@ -38,7 +35,8 @@ const CommandLine = (): ReactElement => {
     insertMacroIntoCommand,
     textFieldRef,
     values,
-    error
+    error,
+    disabled
   } = useCommandLine();
 
   return (
@@ -51,7 +49,7 @@ const CommandLine = (): ReactElement => {
           label={t(labelPollerGlobalMacros)}
           onChange={changeMacro('globalMarco')}
           value={macros.globalMarco}
-          disabled={!canEdit}
+          disabled={disabled}
         />
         <SingleConnectedAutocompleteField
           decoder={JSONLDEntitiesListDecoder}
@@ -60,7 +58,7 @@ const CommandLine = (): ReactElement => {
           label={t(labelInstalledPlugins)}
           onChange={changeMacro('installedPlugin')}
           value={macros.installedPlugin}
-          disabled={!canEdit}
+          disabled={disabled}
         />
         <SingleConnectedAutocompleteField
           decoder={JSONLDEntitiesListDecoder}
@@ -69,7 +67,7 @@ const CommandLine = (): ReactElement => {
           label={t(labelStandardMacros)}
           onChange={changeMacro('standardMacro')}
           value={macros.standardMacro}
-          disabled={!canEdit}
+          disabled={disabled}
         />
       </div>
       <div className="flex flex-column justify-center items-center pl-2">
@@ -90,7 +88,7 @@ const CommandLine = (): ReactElement => {
       <div className="flex flex-col justify-between items-end">
         <IconButton
           data-testid="Insert global marco"
-          disabled={!macros.globalMarco || !canEdit}
+          disabled={!macros.globalMarco || disabled}
           icon={<ArrowIcon fontSize="small" />}
           onClick={insertMacroIntoCommand('globalMarco')}
           title={t(labelInsert)}
@@ -98,7 +96,7 @@ const CommandLine = (): ReactElement => {
         />
         <IconButton
           data-testid="Insert installed plugin"
-          disabled={!macros.installedPlugin || !canEdit}
+          disabled={!macros.installedPlugin || disabled}
           icon={<ArrowIcon fontSize="small" />}
           onClick={insertMacroIntoCommand('installedPlugin')}
           title={t(labelInsert)}
@@ -106,7 +104,7 @@ const CommandLine = (): ReactElement => {
         />
         <IconButton
           data-testid="Insert standard marco"
-          disabled={!macros.standardMacro || !canEdit}
+          disabled={!macros.standardMacro || disabled}
           icon={<ArrowIcon fontSize="small" />}
           onClick={insertMacroIntoCommand('standardMacro')}
           title={t(labelInsert)}
@@ -131,7 +129,7 @@ const CommandLine = (): ReactElement => {
           }
         }}
         value={values?.commandLine}
-        disabled={!canEdit}
+        disabled={disabled}
       />
     </div>
   );

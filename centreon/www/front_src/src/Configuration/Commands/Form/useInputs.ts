@@ -60,7 +60,8 @@ export const useInputs = (): {
               label: t(labelName),
               required: true,
               type: InputType.Text,
-              getDisabled: () => !canEdit
+              getDisabled: ({ isFromMonitoringConnector }) =>
+                !canEdit || isFromMonitoringConnector
             },
             {
               custom: { Component: Box },
@@ -116,7 +117,8 @@ export const useInputs = (): {
               fieldName: 'connector',
               label: t(labelSelectOptimizationConnector),
               type: InputType.SingleConnectedAutocomplete,
-              getDisabled: () => !canEdit
+              getDisabled: ({ isFromMonitoringConnector }) =>
+                !canEdit || isFromMonitoringConnector
             },
             {
               custom: { Component: Box },
@@ -137,7 +139,8 @@ export const useInputs = (): {
         text: {
           multilineRows: 3
         },
-        getDisabled: () => !canEdit,
+        getDisabled: ({ isFromMonitoringConnector }) =>
+          !canEdit || isFromMonitoringConnector,
         type: InputType.Text
       }
     ]

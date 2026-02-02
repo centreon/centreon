@@ -54,12 +54,14 @@ export const commandDecoder = JsonDecoder.object<Command>(
     ),
     isShellEnabled: JsonDecoder.boolean,
     name: JsonDecoder.string,
-    type: JsonDecoder.string
+    type: JsonDecoder.string,
+    isFromMonitoringConnector: JsonDecoder.boolean
   },
   'Command',
   {
     commandLine: 'command_line',
-    isShellEnabled: 'is_shell_enabled'
+    isShellEnabled: 'is_shell_enabled',
+    isFromMonitoringConnector: 'is_from_monitoring_connector'
   }
 );
 

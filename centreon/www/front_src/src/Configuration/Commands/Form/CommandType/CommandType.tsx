@@ -76,7 +76,7 @@ const CommandType = (): ReactElement => {
             aria-label={t(name)}
             checked={equals(id, value)}
             control={<Radio />}
-            disabled={!canEdit}
+            disabled={!canEdit || values.isFromMonitoringConnector}
             label={t(name)}
             name={name}
             value={id}
