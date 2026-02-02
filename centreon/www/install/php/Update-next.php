@@ -76,6 +76,7 @@ $addOpentelemetryLogLevelColumn = function () use ($pearDB, &$errorMessage): voi
                 SQL
         );
     }
+};
 
 /** -------------------------------------- Broker Instances CMA fields -------------------------------------- */
 $updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): void {
