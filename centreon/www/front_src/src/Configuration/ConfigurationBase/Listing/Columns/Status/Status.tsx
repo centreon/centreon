@@ -3,7 +3,9 @@ import { Tooltip } from '@mui/material';
 import { ComponentColumnProps } from '@centreon/ui';
 import { Switch } from '@centreon/ui/components';
 
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { configurationAtom } from '../../../atoms';
 
 import {
   labelDisabled,
@@ -18,6 +20,13 @@ const Status = ({ row }: ComponentColumnProps): JSX.Element => {
   const { classes } = useStyles();
 
   const { isMutating, change, checked } = useStatus({ row });
+
+  const configuration = useAtomValue(configurationAtom);
+  const actions = configuration?.actions;
+
+  if (!actions?.enableDisable?.(row)) {
+    return;
+  }
 
   return (
     <Tooltip title={checked ? t(labelEnabled) : t(labelDisabled)}>

@@ -3,11 +3,11 @@ import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { Tooltip } from '@centreon/ui/components';
 
 import { useFormikContext } from 'formik';
-import { equals } from 'ramda';
+import { equals, values as ramdaValues } from 'ramda';
 import { ChangeEvent, ReactElement, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { Command } from '../../models';
+import { Command, CommandType } from '../../models';
 import {
   labelCheck,
   labelDiscovery,
@@ -17,7 +17,7 @@ import {
 } from '../../translatedLabels';
 import { useUserPermissions } from '../../useUserPermissions';
 
-const CommandType = (): ReactElement => {
+const Type = (): ReactElement => {
   const { t } = useTranslation();
 
   const { values, setFieldValue, setFieldTouched } =
@@ -25,42 +25,32 @@ const CommandType = (): ReactElement => {
 
   const value = values?.type;
 
-  const {
-    canEditCheckCommands,
-    canEditNotificationCommands,
-    canEditDiscoveryCommands,
-    canEditMiscellaneousCommands
-  } = useUserPermissions();
+  const { editorPermissions } = useUserPermissions();
 
   const options = useMemo(
     () => [
       {
-        canEdit: canEditNotificationCommands,
+        canEdit: editorPermissions[CommandType.Notification],
         id: 'Notification',
         name: labelNotification
       },
       {
-        canEdit: canEditCheckCommands,
+        canEdit: editorPermissions[CommandType.Check],
         id: 'Check',
         name: labelCheck
       },
       {
-        canEdit: canEditMiscellaneousCommands,
+        canEdit: editorPermissions[CommandType.Miscellaneous],
         id: 'Miscellaneous',
         name: labelMiscellaneous
       },
       {
-        canEdit: canEditDiscoveryCommands,
+        canEdit: editorPermissions[CommandType.Discovery],
         id: 'Discovery',
         name: labelDiscovery
       }
     ],
-    [
-      canEditNotificationCommands,
-      canEditCheckCommands,
-      canEditMiscellaneousCommands,
-      canEditDiscoveryCommands
-    ]
+    ramdaValues(editorPermissions)
   );
 
   const change = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -87,4 +77,4 @@ const CommandType = (): ReactElement => {
   );
 };
 
-export default CommandType;
+export default Type;

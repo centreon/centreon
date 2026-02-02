@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { includes, keys, pickBy } from 'ramda';
 import ConfigurationBase from '../ConfigurationBase';
 import { ResourceType } from '../models';
 import useColumns from './Columns/useColumns';
@@ -36,15 +37,19 @@ const Commands = (): ReactElement => {
 
   const { api, filtersConfiguration } = useCommands();
 
-  const { canEdit } = useUserPermissions();
+  const { canEdit, editorPermissions } = useUserPermissions();
 
   return (
     <ConfigurationBase<Filters>
       actions={{
-        delete: ({ isFromMonitoringConnectors }) => !isFromMonitoringConnectors,
-        duplicate: true,
+        delete: ({ isFromMonitoringConnectors, type }) =>
+          !isFromMonitoringConnectors &&
+          includes(type, keys(pickBy(Boolean, editorPermissions))),
+        duplicate: ({ type }) =>
+          includes(type, keys(pickBy(Boolean, editorPermissions))),
         edit: canEdit,
-        enableDisable: true,
+        enableDisable: ({ type }) =>
+          includes(type, keys(pickBy(Boolean, editorPermissions))),
         viewDetails: true
       }}
       api={api}

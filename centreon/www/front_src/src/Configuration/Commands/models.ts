@@ -33,11 +33,18 @@ export interface Payload {
   connector: string | null;
 }
 
+export enum CommandType {
+  Notification = 'Notification',
+  Check = 'Check',
+  Miscellaneous = 'Miscellaneous',
+  Discovery = 'Discovery'
+}
+
 export interface Filters {
   name: string;
   enabled: boolean;
   disabled: boolean;
-  type: Array<'Notification' | 'Check' | 'Miscellaneous' | 'Discovery'>;
+  type: Array<CommandType>;
   is_from_monitoring_connector: boolean;
 }
 

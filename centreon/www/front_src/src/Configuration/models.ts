@@ -32,8 +32,8 @@ export type Filters = {
 
 export interface Actions {
   delete?: (row?) => boolean;
-  duplicate?: boolean;
-  enableDisable?: boolean;
+  duplicate?: (row?) => boolean;
+  enableDisable?: (row?) => boolean;
   massive?:
     | boolean
     | {
