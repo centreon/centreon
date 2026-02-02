@@ -1,6 +1,6 @@
-import { CancelToken } from 'axios';
-
 import { getData, putData } from '@centreon/ui';
+
+import { CancelToken } from 'axios';
 
 import {
   PasswordSecurityPolicy,
@@ -8,7 +8,6 @@ import {
   PasswordSecurityPolicyToAPI
 } from '../Local/models';
 import { Provider } from '../models';
-
 import { adaptPasswordSecurityPolicyToAPI } from './adapters';
 import { authenticationProvidersEndpoint } from './endpoints';
 

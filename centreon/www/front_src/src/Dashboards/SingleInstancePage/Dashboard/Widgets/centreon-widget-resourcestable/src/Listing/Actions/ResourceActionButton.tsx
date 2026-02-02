@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { IconButton } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelActionNotPermitted } from '../translatedLabels';
 
@@ -30,9 +30,9 @@ const ResourceActionButton = ({
       ariaLabel={t(label) as string}
       data-testid={testId}
       disabled={disabled}
+      onClick={onClick}
       size="large"
       title={title}
-      onClick={onClick}
     >
       {icon}
     </IconButton>

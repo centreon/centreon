@@ -1,9 +1,8 @@
-import { useTransition } from 'react';
+import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
-
-import { ListingVariant, userAtom } from '@centreon/ui-context';
+import { useTransition } from 'react';
 
 interface ViewerMode {
   isPending: boolean;

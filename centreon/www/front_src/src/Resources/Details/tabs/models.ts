@@ -1,7 +1,6 @@
 import { LazyExoticComponent } from 'react';
 
 import { ResourceEndpoints } from '../../models';
-
 import { TabProps } from '.';
 
 export type TabEndpoints = Omit<ResourceEndpoints, 'details'>;

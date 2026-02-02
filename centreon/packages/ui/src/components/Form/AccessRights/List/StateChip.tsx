@@ -1,7 +1,6 @@
 import { Chip } from '@mui/material';
 
-import { ItemState } from '../models';
-
+import type { ItemState } from '../models';
 import { useListStyles } from './List.styles';
 
 interface Props {

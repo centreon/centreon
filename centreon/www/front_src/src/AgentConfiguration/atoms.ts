@@ -1,7 +1,9 @@
 import { SelectEntry } from '@centreon/ui';
+
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { equals, findIndex, remove } from 'ramda';
+
 import { AgentType } from './models';
 import {
   baseKey,

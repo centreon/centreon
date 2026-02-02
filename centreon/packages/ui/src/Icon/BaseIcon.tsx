@@ -1,7 +1,7 @@
-import { has } from 'ramda';
+import { SvgIcon, type SvgIconProps, type SvgIconTypeMap } from '@mui/material';
+import type { OverridableComponent } from '@mui/material/OverridableComponent';
 
-import { SvgIcon, SvgIconProps, SvgIconTypeMap } from '@mui/material';
-import { OverridableComponent } from '@mui/material/OverridableComponent';
+import { has } from 'ramda';
 
 interface Props extends SvgIconProps {
   Icon: JSX.Element | OverridableComponent<SvgIconTypeMap>;

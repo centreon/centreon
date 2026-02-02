@@ -4,42 +4,42 @@ export const useHostConfigurationsStyle = makeStyles()((theme) => ({
   addButton: {
     width: '100%'
   },
-  deleteContainer: {
-    height: '50%',
-    borderTop: `1px solid ${theme.palette.divider}`,
-    borderBottom: `1px solid ${theme.palette.divider}`,
-    borderRight: `1px solid ${theme.palette.divider}`,
-    borderRadius: `${theme.shape.borderRadius}px`,
-    width: theme.spacing(2),
-    position: 'absolute',
-    top: 15,
-    right: 0
-  },
   deleteButton: {
     position: 'absolute',
-    top: 'calc(50% - 16px)',
-    right: '-16px'
+    right: '-16px',
+    top: 'calc(50% - 16px)'
+  },
+  deleteContainer: {
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    borderRadius: `${theme.shape.borderRadius}px`,
+    borderRight: `1px solid ${theme.palette.divider}`,
+    borderTop: `1px solid ${theme.palette.divider}`,
+    height: '50%',
+    position: 'absolute',
+    right: 0,
+    top: 15,
+    width: theme.spacing(2)
   },
   deleteIcon: {
-    color: theme.palette.action.disabled,
     '&:hover': {
       color: theme.palette.error.main
-    }
-  },
-  hostConfigurations: {
-    paddingTop: theme.spacing(0.75),
-    display: 'flex',
-    flexDirection: 'column',
-    overflowY: 'auto',
-    maxHeight: '210px'
-  },
-  input: {
-    backgroundColor: theme.palette.background.default
+    },
+    color: theme.palette.action.disabled
   },
   divider: {
     borderStyle: 'dashed',
     marginBottom: theme.spacing(3),
     width: '90%'
+  },
+  hostConfigurations: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxHeight: '210px',
+    overflowY: 'auto',
+    paddingTop: theme.spacing(0.75)
+  },
+  input: {
+    backgroundColor: theme.palette.background.default
   }
 }));
 

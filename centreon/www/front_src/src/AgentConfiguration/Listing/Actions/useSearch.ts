@@ -1,7 +1,7 @@
 import debounce from '@mui/utils/debounce';
-import { useAtom } from 'jotai';
 
 import { useQueryClient } from '@tanstack/react-query';
+import { useAtom } from 'jotai';
 import { useRef } from 'react';
 
 import { filtersAtom } from '../../atoms';
@@ -32,5 +32,5 @@ export const useSearch = (): UseSearch => {
     searchDebounced.current(target.value);
   };
 
-  return { onChange, filters };
+  return { filters, onChange };
 };

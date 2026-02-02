@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import UnorderedListIcon from '@mui/icons-material/FormatListBulleted';
+import OrderedListIcon from '@mui/icons-material/FormatListNumbered';
 
 import {
   $isListNode,
@@ -15,14 +16,11 @@ import {
 } from '@lexical/utils';
 import { $getSelection, $isRootOrShadowRoot } from 'lexical';
 import { equals, isNil } from 'ramda';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import UnorderedListIcon from '@mui/icons-material/FormatListBulleted';
-import OrderedListIcon from '@mui/icons-material/FormatListNumbered';
 
 import { Menu } from '../../../components';
 import { labelOrderedList, labelUnorderedList } from '../../translatedLabels';
-
 import { useStyles } from './ToolbarPlugin.styles';
 
 const options = [

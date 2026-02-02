@@ -18,7 +18,11 @@ on:
           - FULL # Centreon components + libs
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   release-trigger-builds:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     runs-on: ubuntu-24.04
     steps:

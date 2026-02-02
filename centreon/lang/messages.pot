@@ -1747,6 +1747,7 @@ msgstr ""
 msgid "Authentication"
 msgstr ""
 
+#: centreon/src/App/Security/Infrastructure/Security/TokenAuthenticator.php
 #: centreon/src/Security/TokenAPIAuthenticator.php
 msgid "Authentication Required"
 msgstr ""
@@ -12511,6 +12512,7 @@ msgstr ""
 msgid "No contacts found"
 msgstr ""
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/front_translate.php
 msgid "No data available for this period"
 msgstr ""

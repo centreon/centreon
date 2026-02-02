@@ -1,8 +1,7 @@
-import { useMemo } from 'react';
-
-import { T, always, cond, gt } from 'ramda';
-
 import { useTheme } from '@mui/material';
+
+import { always, cond, gt, T } from 'ramda';
+import { useMemo } from 'react';
 
 import centreonWallpaperLg from '../assets/centreon-wallpaper-lg.jpg';
 import centreonWallpaperSm from '../assets/centreon-wallpaper-sm.jpg';

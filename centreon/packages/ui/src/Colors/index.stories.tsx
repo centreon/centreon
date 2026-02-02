@@ -1,11 +1,10 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-
 import { Paper } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
 
-import StoryBookThemeProvider from '../StoryBookThemeProvider';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
+import StoryBookThemeProvider from '../StoryBookThemeProvider';
 import { ColorStory } from '.';
 
 export default {

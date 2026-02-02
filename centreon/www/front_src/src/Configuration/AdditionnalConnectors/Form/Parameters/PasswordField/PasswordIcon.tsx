@@ -1,15 +1,14 @@
-import { ReactElement } from 'react';
-
 import SaveIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import RestartIcon from '@mui/icons-material/RestartAlt';
 
-import { T, always, cond, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { IconButton } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
+
+import { always, cond, equals, T } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { PasswordActionState } from '../../../models';
 import {
@@ -47,10 +46,10 @@ const PasswordIcon = ({
       equals(PasswordActionState.Disabled),
       always(
         <IconButton
-          size="small"
-          onClick={handleEdit}
-          title={t(labelEditPassword)}
           dataTestid={'button_edit'}
+          onClick={handleEdit}
+          size="small"
+          title={t(labelEditPassword)}
         >
           <EditIcon fontSize="small" />
         </IconButton>
@@ -60,10 +59,10 @@ const PasswordIcon = ({
       equals(PasswordActionState.Reset),
       always(
         <IconButton
-          size="small"
-          onClick={handleReset}
-          title={t(labelRevertToPreviousPassword)}
           dataTestid={'button_reset'}
+          onClick={handleReset}
+          size="small"
+          title={t(labelRevertToPreviousPassword)}
         >
           <RestartIcon fontSize="small" />
         </IconButton>
@@ -74,21 +73,21 @@ const PasswordIcon = ({
       always(
         <div className="flex gap-1 justify-end">
           <Button
-            size="small"
-            variant="secondary"
-            onClick={handleReset}
             className="min-w-[40px]"
             data-testid={'button_cancel'}
+            onClick={handleReset}
+            size="small"
+            variant="secondary"
           >
             <CloseIcon className="text-sm" />
           </Button>
           <Button
-            variant="secondary"
-            size="small"
-            onClick={changePasswordState(PasswordActionState.Reset)}
-            disabled={isEmpty}
             className="min-w-[40px]"
             data-testid={'button_save'}
+            disabled={isEmpty}
+            onClick={changePasswordState(PasswordActionState.Reset)}
+            size="small"
+            variant="secondary"
           >
             <SaveIcon className="text-sm" />
           </Button>

@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-
 import Typography, { TypographyProps } from '@mui/material/Typography';
+
+import { ReactNode } from 'react';
 
 interface Props {
   msg: ReactNode;

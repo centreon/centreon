@@ -1,7 +1,9 @@
 import { TextField } from '@centreon/ui';
+
 import { SetStateAction } from 'jotai';
 import { Dispatch } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import useText from './useText';
 
 interface Props<TFilters> {
@@ -19,15 +21,15 @@ const Text = <TFilters,>({
 }: Props<TFilters>) => {
   const { t } = useTranslation();
 
-  const { change, value } = useText<TFilters>({ name, filters, setFilters });
+  const { change, value } = useText<TFilters>({ filters, name, setFilters });
 
   return (
     <TextField
-      fullWidth
       dataTestId={label}
+      fullWidth
       label={t(label)}
-      value={value}
       onChange={change}
+      value={value}
     />
   );
 };

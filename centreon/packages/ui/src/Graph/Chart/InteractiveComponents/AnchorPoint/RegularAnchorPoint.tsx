@@ -1,13 +1,11 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { isNil, prop } from 'ramda';
 
 import { bisectDate, getDates } from '../../../common/timeSeries';
-import { TimeValue } from '../../../common/timeSeries/models';
-
-import { GetYAnchorPoint } from './models';
-import useTickGraph from './useTickGraph';
-
+import type { TimeValue } from '../../../common/timeSeries/models';
 import AnchorPoint from '.';
+import type { GetYAnchorPoint } from './models';
+import useTickGraph from './useTickGraph';
 
 interface Props {
   lineColor: string;
@@ -45,10 +43,10 @@ const RegularAnchorPoint = ({
   hasSecondUnit
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
-    timeSeries,
-    xScale,
+    hasSecondUnit,
     maxLeftAxisCharacters,
-    hasSecondUnit
+    timeSeries,
+    xScale
   });
 
   if (isNil(timeTick)) {
