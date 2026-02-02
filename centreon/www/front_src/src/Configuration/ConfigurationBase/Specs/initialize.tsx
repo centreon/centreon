@@ -3,13 +3,13 @@ import { capitalize } from '@mui/material';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import i18next from 'i18next';
-import { atom, createStore, Provider } from 'jotai';
+import { Provider, atom, createStore } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
-import { FilterConfiguration, ResourceType } from '../../models';
 import ConfigurationBase from '..';
+import { FilterConfiguration, ResourceType } from '../../models';
 import {
   columns,
   columnsAtomKey,
@@ -133,7 +133,7 @@ const initialize = ({
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
                   actions={{
-                    delete: true,
+                    delete: () => true,
                     duplicate: true,
                     edit: true,
                     enableDisable: true,
