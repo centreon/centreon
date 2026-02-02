@@ -113,15 +113,50 @@ if ($pdoStatement->execute()) {
         ];
     }
 }
+
+// Get children that share the same URL as their parent
+if (! empty($breadcrumbData)) {
+    $childrenStatement = $pearDB->prepare(
+        'SELECT child.topology_page AS child_page, parent.topology_page AS parent_page
+        FROM topology AS parent
+        INNER JOIN topology AS child
+            ON child.topology_parent = parent.topology_page
+            AND child.topology_url = parent.topology_url
+        WHERE parent.topology_page IN (' . implode(',', array_keys($breadcrumbData)) . ')
+            AND parent.topology_url IS NOT NULL'
+    );
+    $childrenStatement->execute();
+    $children = [];
+    while ($childrenResult = $childrenStatement->fetch(PDO::FETCH_ASSOC)) {
+        if (! isset($children[(int) $childrenResult['parent_page']])) {
+            $children[(int) $childrenResult['parent_page']] = (int) $childrenResult['child_page'];
+        }
+    }
+
+    // Check access rights for each breadcrumb
+    foreach ($breadcrumbData as $page => $details) {
+        $hasAccess = $centreon->user->access->page($page);
+        if ($hasAccess && isset($children[$page])) {
+            // If there's a child page with the same URL, check access to the child page
+            $hasAccess = $centreon->user->access->page($children[$page]);
+        }
+        $breadcrumbData[$page]['has_access'] = $hasAccess;
+    }
+}
+
 ?>
 <div class="pathway">
 <?php
+
 if ($centreon->user->access->page($p)) {
     $flag = '';
     foreach ($breadcrumbData as $page => $details) {
         echo $flag;
+        $href = $details['has_access']
+            ? ($details['is_react'] ? "{$basePath}{$details['url']}" : "main.php?p={$page}{$details['opt']}")
+            : null;
         ?>
-        <a href="<?= $details['is_react'] ? "{$basePath}{$details['url']}" : "main.php?p={$page}{$details['opt']}"; ?>"
+        <a<?= $href ? " href=\"{$href}\"" : ''; ?>
             <?= $details['is_react'] ? ' isreact="isreact"' : ''; ?> class="pathWay"><?= _($details['name']); ?></a>
         <?php
         $flag = '<span class="pathWayBracket" >  &nbsp;&#62;&nbsp; </span>';
