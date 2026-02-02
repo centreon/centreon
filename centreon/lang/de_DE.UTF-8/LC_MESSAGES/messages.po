@@ -15980,6 +15980,7 @@ msgid "The value cannot be null"
 msgstr "Der Wert kann nicht NULL sein"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 msgid "The value contains unauthorized characters"
 msgstr ""
 
