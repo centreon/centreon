@@ -1,10 +1,10 @@
-import { equals } from 'ramda';
-
 import {
   SeverityCode,
   useFetchQuery,
   usePluralizedTranslation
 } from '@centreon/ui';
+
+import { equals } from 'ramda';
 
 import { getBAEndpoint } from '../../api/endpoints';
 import { businessActivityDecoder } from '../api/decoders';

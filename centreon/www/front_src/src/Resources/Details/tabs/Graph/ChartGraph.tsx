@@ -4,20 +4,21 @@ import {
   type LineChartData,
   type Parameters,
   type TooltipData,
-  useFetchQuery,
-} from "@centreon/ui";
-import { path } from "ramda";
-import { type ReactElement, type RefObject, useState } from "react";
+  useFetchQuery
+} from '@centreon/ui';
 
-import FederatedComponent from "../../../../components/FederatedComponents";
-import { graphsCapNumber } from "../../../constants";
-import MemoizedGraphActions from "../../../Graph/Performance/GraphActions";
-import type { Resource } from "../../../models";
-import TooManyElementsCard from "../../../TooManyElementsCard";
-import type { ResourceDetails } from "../../models";
-import Comment from "./Comment";
-import { useChartGraphStyles } from "./chartGraph.styles";
-import useRetrieveTimeLine from "./useRetrieveTimeLine";
+import { path } from 'ramda';
+import { type ReactElement, type RefObject, useState } from 'react';
+
+import FederatedComponent from '../../../../components/FederatedComponents';
+import { graphsCapNumber } from '../../../constants';
+import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
+import type { Resource } from '../../../models';
+import TooManyElementsCard from '../../../TooManyElementsCard';
+import type { ResourceDetails } from '../../models';
+import Comment from './Comment';
+import { useChartGraphStyles } from './chartGraph.styles';
+import useRetrieveTimeLine from './useRetrieveTimeLine';
 
 interface Props {
   graphTimeParameters?: Parameters;
@@ -28,7 +29,7 @@ interface Props {
 const ChartGraph = ({
   graphTimeParameters,
   resource,
-  updatedGraphInterval,
+  updatedGraphInterval
 }: Props) => {
   const { classes } = useChartGraphStyles();
 
@@ -37,33 +38,33 @@ const ChartGraph = ({
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const graphEndpoint = path<string>(
-    ["links", "endpoints", "performance_graph"],
-    resource,
+    ['links', 'endpoints', 'performance_graph'],
+    resource
   );
 
   const timelineEndpoint = path<string>(
-    ["links", "endpoints", "timeline"],
-    resource,
+    ['links', 'endpoints', 'timeline'],
+    resource
   );
 
   const { data, isLoading, isFetching } = useFetchQuery<LineChartData>({
     getEndpoint: () =>
       `${graphEndpoint}?start=${graphTimeParameters?.start}&end=${graphTimeParameters?.end}`,
     getQueryKey: () => [
-      "graphPerformance",
+      'graphPerformance',
       graphTimeParameters?.start,
       graphTimeParameters?.end,
-      graphEndpoint,
+      graphEndpoint
     ],
     queryOptions: {
       enabled: !!graphTimeParameters && !!graphEndpoint,
-      suspense: false,
-    },
+      suspense: false
+    }
   });
 
   const timeLineData = useRetrieveTimeLine({
-    timelineEndpoint,
     graphTimeParameters,
+    timelineEndpoint
   });
 
   const getInterval = (interval: Interval): void => {
@@ -104,36 +105,36 @@ const ChartGraph = ({
   return (
     <>
       <FederatedComponent
+        getShapeLines={getShapeLines}
         path="/anomaly-detection/enableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
         type={resource?.type}
-        getShapeLines={getShapeLines}
       />
       <LineChart
-        loading={isFetching || isLoading || !data}
         annotationEvent={{ data: timeLineData }}
         containerStyle={classes.container}
-        getRef={getRef}
         data={data}
         end={graphTimeParameters?.end}
-        height={280}
-        legend={{ mode: "grid", placement: "bottom" }}
-        lineStyle={{ lineWidth: 1 }}
+        getRef={getRef}
         header={{ extraComponent: graphActions }}
+        height={280}
+        legend={{ mode: 'grid', placement: 'bottom' }}
+        lineStyle={{ lineWidth: 1 }}
+        loading={isFetching || isLoading || !data}
+        start={graphTimeParameters?.start}
+        timeShiftZones={{ enable: true, getInterval }}
         tooltip={{
           renderComponent: ({
             data,
-            hideTooltip,
+            hideTooltip
           }: TooltipData): ReactElement => (
             <Comment
               commentDate={data}
               hideAddCommentTooltip={hideTooltip}
               resource={resource}
             />
-          ),
+          )
         }}
-        start={graphTimeParameters?.start}
-        timeShiftZones={{ enable: true, getInterval }}
         zoomPreview={{ enable: true, getInterval }}
         {...rest}
       />

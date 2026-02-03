@@ -1,5 +1,7 @@
 import type { SelectEntry } from '@centreon/ui';
+
 import { ComponentType, LazyExoticComponent } from 'react';
+
 import {
   SelectType,
   WidgetType

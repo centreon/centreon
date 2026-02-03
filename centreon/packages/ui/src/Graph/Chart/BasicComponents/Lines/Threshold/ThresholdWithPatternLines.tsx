@@ -1,12 +1,11 @@
-import { PatternLines } from '@visx/pattern';
-import { ScaleLinear } from 'd3-scale';
-
 import { useTheme } from '@mui/material/styles';
 
-import { LineChartData } from '../../../../common/models';
-import { adjustGraphData } from '../../../helpers/index';
-import { PatternOrientation } from '../../../models';
+import { PatternLines } from '@visx/pattern';
+import type { ScaleLinear } from 'd3-scale';
 
+import type { LineChartData } from '../../../../common/models';
+import { adjustGraphData } from '../../../helpers/index';
+import type { PatternOrientation } from '../../../models';
 import BasicThreshold from './BasicThreshold';
 import useScaleThreshold from './useScaleThreshold';
 

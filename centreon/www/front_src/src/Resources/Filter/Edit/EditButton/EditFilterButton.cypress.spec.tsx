@@ -1,15 +1,14 @@
-import { Provider } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import EditFiltersPanel from '..';
+import { Provider } from 'jotai';
+
 import useListing from '../../../Listing/useListing';
 import Context, { ResourceContext } from '../../../testUtils/Context';
 import useFilter from '../../../testUtils/useFilter';
 import { labelDelete, labelManageFilters } from '../../../translatedLabels';
 import { defaultSortField, defaultSortOrder } from '../../Criterias/default';
 import { Filter } from '../../models';
-
+import EditFiltersPanel from '..';
 import EditFilter from '.';
 
 let context: object;

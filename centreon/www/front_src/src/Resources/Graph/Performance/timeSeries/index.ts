@@ -1,7 +1,6 @@
 import { Scale } from '@visx/visx';
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import {
-  path,
   add,
   addIndex,
   any,
@@ -16,6 +15,7 @@ import {
   max,
   min,
   not,
+  path,
   pipe,
   prop,
   propEq,

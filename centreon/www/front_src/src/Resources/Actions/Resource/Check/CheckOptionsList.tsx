@@ -1,5 +1,3 @@
-import { makeStyles } from 'tss-react/mui';
-
 import IconCheck from '@mui/icons-material/CheckOutlined';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
@@ -9,9 +7,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Popper from '@mui/material/Popper';
 
+import { makeStyles } from 'tss-react/mui';
+
 import { labelCheck, labelForcedCheck } from '../../../translatedLabels';
 import { Data } from '../../model';
-
 import Text from './Text';
 
 const useStyles = makeStyles()((theme) => ({
@@ -89,12 +88,12 @@ const CheckOptionsList = ({
       open={open}
       placement="bottom-start"
     >
-      <List disablePadding className={classes.container}>
+      <List className={classes.container} disablePadding>
         <ListItem disableGutters disablePadding>
           <ListItemButton
-            disableGutters
             className={classes.button}
             disabled={disableCheck}
+            disableGutters
             onClick={onClickCheck}
           >
             <Icon display={isDefaultChecked} />
@@ -109,9 +108,9 @@ const CheckOptionsList = ({
         <Divider variant="middle" />
         <ListItem disableGutters disablePadding>
           <ListItemButton
-            disableGutters
             className={classes.button}
             disabled={disableForcedCheck}
+            disableGutters
             onClick={onClickForcedCheck}
           >
             <Icon display={!isDefaultChecked} />

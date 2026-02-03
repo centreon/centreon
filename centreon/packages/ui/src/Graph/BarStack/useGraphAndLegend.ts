@@ -1,7 +1,8 @@
 import { scaleBand, scaleLinear } from '@visx/scale';
 import { pluck } from 'ramda';
 import { useMemo } from 'react';
-import { BarType } from './models';
+
+import type { BarType } from './models';
 
 interface UseGraphandLegendProps {
   data: Array<BarType>;
@@ -77,8 +78,8 @@ export const useGraphAndLegend = ({
 
   return {
     barStackData,
+    keys,
     xScale,
-    yScale,
-    keys
+    yScale
   };
 };

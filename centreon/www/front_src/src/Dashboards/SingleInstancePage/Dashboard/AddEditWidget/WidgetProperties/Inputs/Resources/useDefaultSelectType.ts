@@ -1,8 +1,9 @@
 import { useFormikContext } from 'formik';
 import { equals, isEmpty } from 'ramda';
 import { useCallback, useMemo } from 'react';
-import { Resource } from '../../../../Widgets/models';
+
 import { labelPleaseSelectAResource } from '../../../../translatedLabels';
+import { Resource } from '../../../../Widgets/models';
 import {
   DefaultResourceType,
   SelectType,
@@ -13,7 +14,7 @@ import {
 
 interface UseDefaultSelectTypeData {
   selectType?: SelectType;
-  value?: WidgetDataResource[];
+  value?: Array<WidgetDataResource>;
 }
 
 const useDefaultSelectTypeData = ({
@@ -66,7 +67,7 @@ const useDefaultSelectTypeData = ({
               item?.requied &&
               isEmpty(resources)
             ) {
-              return { resourceType, resources: labelPleaseSelectAResource };
+              return { resources: labelPleaseSelectAResource, resourceType };
             }
             return null;
           });
@@ -102,8 +103,8 @@ const useDefaultSelectTypeData = ({
   validateDefaultSelectTypeData();
 
   return {
-    getDefaultRequiredSelectType,
-    getDefaultDisabledSelectType
+    getDefaultDisabledSelectType,
+    getDefaultRequiredSelectType
   };
 };
 

@@ -1,8 +1,9 @@
 import { isEmpty } from 'ramda';
 import { useMemo } from 'react';
-import { ChartAxis } from '../../Chart/models';
-import { Data } from '../Axes/models';
-import { Thresholds } from '../models';
+
+import type { ChartAxis } from '../../Chart/models';
+import type { Data } from '../Axes/models';
+import type { Thresholds } from '../models';
 import { getFormattedAxisValues } from '../utils';
 
 interface UseComputeYAxisMaxCharactersProps {
@@ -30,12 +31,12 @@ export const useComputeYAxisMaxCharacters = ({
   const maxLeftValue = useMemo(
     () =>
       getFormattedAxisValues({
-        threshold: thresholds?.critical ?? [],
         axisUnit: axis?.axisYLeft?.unit ?? firstUnit,
-        timeSeries: graphData?.timeSeries ?? [],
-        thresholdUnit,
+        base: graphData?.baseAxis,
         lines: graphData?.lines ?? [],
-        base: graphData?.baseAxis
+        threshold: thresholds?.critical ?? [],
+        thresholdUnit,
+        timeSeries: graphData?.timeSeries ?? []
       }),
     [
       thresholds?.critical,
@@ -51,12 +52,12 @@ export const useComputeYAxisMaxCharacters = ({
   const maxRightValue = useMemo(
     () =>
       getFormattedAxisValues({
-        threshold: thresholds?.critical ?? [],
         axisUnit: axis?.axisYRight?.unit ?? secondUnit,
-        timeSeries: graphData.timeSeries ?? [],
-        thresholdUnit,
+        base: graphData.baseAxis,
         lines: graphData.lines ?? [],
-        base: graphData.baseAxis
+        threshold: thresholds?.critical ?? [],
+        thresholdUnit,
+        timeSeries: graphData.timeSeries ?? []
       }),
     [
       thresholds?.critical,

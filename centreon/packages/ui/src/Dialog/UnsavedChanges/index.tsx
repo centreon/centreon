@@ -2,7 +2,6 @@ import { not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Modal } from '../../components/Modal';
-
 import {
   labelDiscard,
   labelDoYouWantToQuit,
@@ -51,9 +50,9 @@ const UnsavedChangesDialog = ({
   return (
     <Modal
       hasCloseButton
+      onClose={closeDialog}
       open={dialogOpened}
       size="medium"
-      onClose={closeDialog}
     >
       <Modal.Header>{t(labelTitle)}</Modal.Header>
       <Modal.Body>{t(labelMessage)}</Modal.Body>

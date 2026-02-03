@@ -17,7 +17,7 @@
           "name": "Workhours"
         },
         {
-          "id": "non-workhours",
+          "id": "nonworkhours",
           "name": "Non-workhours"
         }
       ]

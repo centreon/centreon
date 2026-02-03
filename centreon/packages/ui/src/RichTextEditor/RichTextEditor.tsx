@@ -1,3 +1,5 @@
+import { Typography } from '@mui/material';
+
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
@@ -10,11 +12,9 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode } from '@lexical/rich-text';
 import anylogger from 'anylogger';
-import { EditorState, LexicalEditor } from 'lexical';
+import type { EditorState, LexicalEditor } from 'lexical';
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { Typography } from '@mui/material';
 
 import ContentEditable from './ContentEditable';
 import AutoCompleteLinkPlugin from './plugins/AutoLinkPlugin/index';
@@ -198,7 +198,6 @@ const RichTextEditor = ({
         </div>
         <div>
           <RichTextPlugin
-            ErrorBoundary={LexicalErrorBoundary}
             contentEditable={
               <ContentEditable
                 className={contentClassName || ''}
@@ -212,14 +211,15 @@ const RichTextEditor = ({
                 inputClassname={inputClassname}
                 minInputHeight={minInputHeight}
                 namespace={namespace}
+                onBlur={onBlur}
                 placeholder={placeholder}
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
                 setHtmlString={setHtmlString}
-                onBlur={onBlur}
               />
             }
+            ErrorBoundary={LexicalErrorBoundary}
             placeholder={null}
           />
           <HistoryPlugin />

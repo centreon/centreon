@@ -4,6 +4,8 @@ ARG FROM_IMAGE_VERSION=develop
 FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-alma8:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
+ARG MAJOR_VERSION
+ARG WEB_MINOR_VERSION
 
 COPY --chmod=755 ./.github/docker/centreon-web/alma8/entrypoint /usr/share/centreon
 COPY --chown=apache:apache ./.github/docker/centreon-web/alma8/configuration /usr/share/centreon/www/install/tmp
@@ -19,7 +21,14 @@ elif [[ "$STABILITY" == "stable" ]]; then
 fi
 dnf config-manager --set-disabled 'centreon-plugin*unstable*' --set-disabled 'centreon-plugin*testing*'
 
-dnf install -y /tmp/packages-centreon/centreon-*.rpm
+if [[ "$STABILITY" == "stable" ]]; then
+  dnf install -y \
+    centreon-poller-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
+    centreon-trap-${MAJOR_VERSION}.${WEB_MINOR_VERSION} \
+    centreon-web-${MAJOR_VERSION}.${WEB_MINOR_VERSION}
+else
+  dnf install -y /tmp/packages-centreon/centreon-*.rpm
+fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 

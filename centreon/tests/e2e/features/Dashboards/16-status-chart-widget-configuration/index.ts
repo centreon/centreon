@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import {
   checkHostsAreMonitored,
   checkMetricsAreMonitored,
@@ -501,8 +501,8 @@ When('the dashboard administrator clicks on a random resource', () => {
   cy.get('[data-testid="Legend"] > *')
     .first()
     .find('a')
-    .then(($link) => {
-      const href = $link.attr('href');
+    .then((link) => {
+      const href = link.attr('href');
       if (href) {
         cy.log('First link found:', href);
         cy.visit(href);

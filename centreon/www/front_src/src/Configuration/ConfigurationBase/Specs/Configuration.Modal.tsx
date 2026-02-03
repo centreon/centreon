@@ -62,9 +62,9 @@ export default (resourceType): void => {
 
         cy.waitForRequest('@create').then(({ request }) => {
           expect(request.body).to.deep.equals({
-            name: 'Name abc',
             alias: 'Alias abc',
-            coordinates: 'Coordinates abc'
+            coordinates: 'Coordinates abc',
+            name: 'Name abc'
           });
         });
 
@@ -130,9 +130,9 @@ export default (resourceType): void => {
 
         cy.waitForRequest('@update').then(({ request }) => {
           expect(request.body).to.deep.equals({
-            name: 'Name abc',
             alias: 'Alias abc',
-            coordinates: 'Coordinates abc'
+            coordinates: 'Coordinates abc',
+            name: 'Name abc'
           });
         });
 

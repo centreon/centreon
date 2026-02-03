@@ -1,6 +1,6 @@
 import { equals, fromPairs, startsWith } from 'ramda';
 
-import { QueryParameter } from '../models';
+import type { QueryParameter } from '../models';
 
 const setUrlQueryParameters = (
   queryParameters: Array<QueryParameter>

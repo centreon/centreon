@@ -1,14 +1,19 @@
-import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
-
-import { ScaleLinear } from 'd3-scale';
+import type { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
+import {
+  type MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import useAxisY from '../../../common/Axes/useAxisY';
 import { getTimeValue } from '../../../common/timeSeries';
-import { Line, TimeValue } from '../../../common/timeSeries/models';
+import type { Line, TimeValue } from '../../../common/timeSeries/models';
 import {
-  computPixelsToShiftMouse,
-  computeGElementMarginLeft
+  computeGElementMarginLeft,
+  computPixelsToShiftMouse
 } from '../../../common/utils';
 import { margin } from '../../common';
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
@@ -57,11 +62,8 @@ const useTickGraph = ({
       (
         guidingLinesRef.current?.parentElement?.parentElement?.attributes
           ?.transform.value || ''
-      ).match(/translate\(([0-9\.]+), ([0-9\.]+)\)/)?.[1] || '0',
-    [
-      guidingLinesRef.current?.parentElement?.parentElement?.attributes
-        ?.transform.value
-    ]
+      ).match(/translate\(([0-9.]+), ([0-9.]+)\)/)?.[1] || '0',
+    []
   );
 
   const positionX = mousePosition
@@ -80,13 +82,13 @@ const useTickGraph = ({
     const pixelToShift = computPixelsToShiftMouse(xScale);
     const mousePositionTimeTick = mousePosition
       ? getTimeValue({
+          marginLeft: computeGElementMarginLeft({
+            hasSecondUnit,
+            maxCharacters: maxLeftAxisCharacters
+          }),
           timeSeries,
           x: mousePosition[0] - pixelToShift,
-          xScale,
-          marginLeft: computeGElementMarginLeft({
-            maxCharacters: maxLeftAxisCharacters,
-            hasSecondUnit
-          })
+          xScale
         })?.timeTick
       : 0;
     const timeTickValue = mousePosition
@@ -111,12 +113,12 @@ const useTickGraph = ({
   }, [mousePosition]);
 
   return {
+    guidingLinesRef,
     positionX,
     positionY,
     tickAxisBottom,
     tickAxisLeft,
-    tickAxisRight,
-    guidingLinesRef
+    tickAxisRight
   };
 };
 export default useTickGraph;

@@ -1,9 +1,15 @@
-import { RenderHookResult, renderHook, waitFor } from '@testing-library/react';
+import {
+  type RenderHookResult,
+  renderHook,
+  waitFor
+} from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
 
 import TestQueryProvider from '../TestQueryProvider';
-
-import useFetchQuery, { UseFetchQueryProps, UseFetchQueryState } from '.';
+import useFetchQuery, {
+  type UseFetchQueryProps,
+  type UseFetchQueryState
+} from '.';
 
 const mockedShowErrorMessage = jest.fn();
 

@@ -108,8 +108,8 @@ When('the user saves the Clock timer widget', () => {
   cy.getByTestId({ testId: 'confirm' }).click({ force: true });
   cy.waitUntil(
     () =>
-      cy.get('body').then(($body) => {
-        const element = $body.find('div[class^="MuiAlert-message"]');
+      cy.get('body').then((body) => {
+        const element = body.find('div[class^="MuiAlert-message"]');
 
         return element.length > 0 && element.is(':visible');
       }),
