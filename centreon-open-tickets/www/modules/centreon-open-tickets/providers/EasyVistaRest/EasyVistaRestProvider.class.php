@@ -42,7 +42,6 @@ class EasyVistaRestProvider extends AbstractProvider
     public const ARG_CUSTOM_EZV = 15;
     public const ARG_REQUESTOR_MAIL = 17;
     public const ARG_RECIPIENT_MAIL = 18;
-    
 
     protected $close_advanced = 1;
 
@@ -64,8 +63,8 @@ class EasyVistaRestProvider extends AbstractProvider
         self::ARG_CATALOG_GUID => 'catalog_guid',
         self::ARG_CATALOG_CODE => 'catalog_code',
         self::ARG_REQUESTOR_MAIL => 'requestor_mail',
-        self::ARG_RECIPIENT_MAIL => 'recipient_mail'
-    ];  
+        self::ARG_RECIPIENT_MAIL => 'recipient_mail',
+    ];
 
     /*
     * checks if all mandatory fields have been filled
@@ -99,7 +98,7 @@ class EasyVistaRestProvider extends AbstractProvider
                 try {
                     $this->closeTicketEzv($k);
                     $tickets[$k]['status'] = 1;
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     if ($this->doCloseTicketContinueOnError()) {
                         $tickets[$k]['status'] = 1;
                     } else {
@@ -216,15 +215,15 @@ class EasyVistaRestProvider extends AbstractProvider
             ],
             [
                 'Arg' => self::ARG_CATALOG_CODE,
-                'Value' => '{$select.ezv_catalog_code.value}'
+                'Value' => '{$select.ezv_catalog_code.value}',
             ],
             [
                 'Arg' => self::ARG_REQUESTOR_MAIL,
-                'Value' => '{$select.ezv_requestor_mail.id}'
+                'Value' => '{$select.ezv_requestor_mail.id}',
             ],
             [
                 'Arg' => self::ARG_RECIPIENT_MAIL,
-                'Value' => '{$select.ezv_recipient_mail.id}'
+                'Value' => '{$select.ezv_recipient_mail.id}',
             ],
         ];
     }
