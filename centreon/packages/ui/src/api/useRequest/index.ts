@@ -1,15 +1,11 @@
-import { useState, useEffect } from 'react';
+import axios from "axios";
+import { defaultTo, includes, or, path, pathOr } from "ramda";
+import { useEffect, useState } from "react";
+import { JsonDecoder } from "ts.data.json";
+import useSnackbar from "../../Snackbar/useSnackbar";
+import useCancelTokenSource from "../useCancelTokenSource";
 
-import 'ulog';
-import axios from 'axios';
-import { pathOr, defaultTo, path, includes, or } from 'ramda';
-import anylogger from 'anylogger';
-import { JsonDecoder } from 'ts.data.json';
-
-import useCancelTokenSource from '../useCancelTokenSource';
-import useSnackbar from '../../Snackbar/useSnackbar';
-
-const log = anylogger('API Request');
+const log = console;
 
 export interface RequestParams<TResult> {
   decoder?: JsonDecoder.Decoder<TResult>;
@@ -28,8 +24,8 @@ const useRequest = <TResult>({
   request,
   decoder,
   getErrorMessage,
-  defaultFailureMessage = 'Oops, something went wrong',
-  httpCodesBypassErrorSnackbar = []
+  defaultFailureMessage = "Oops, something went wrong",
+  httpCodesBypassErrorSnackbar = [],
 }: RequestParams<TResult>): RequestResult<TResult> => {
   const { token, cancel } = useCancelTokenSource();
   const { showErrorMessage } = useSnackbar();
@@ -44,8 +40,8 @@ const useRequest = <TResult>({
     log.error(error);
 
     const message = or(
-      pathOr(undefined, ['response', 'data', 'message'], error),
-      pathOr(defaultFailureMessage, ['response', 'data'], error)
+      pathOr(undefined, ["response", "data", "message"], error),
+      pathOr(defaultFailureMessage, ["response", "data"], error),
     );
 
     const errorMessage = defaultTo(message, getErrorMessage?.(error));
@@ -74,8 +70,8 @@ const useRequest = <TResult>({
         }
 
         const hasACorrespondingHttpCode = includes(
-          path<number>(['response', 'status'], error) as number,
-          httpCodesBypassErrorSnackbar
+          path<number>(["response", "status"], error) as number,
+          httpCodesBypassErrorSnackbar,
         );
 
         if (hasACorrespondingHttpCode) {
