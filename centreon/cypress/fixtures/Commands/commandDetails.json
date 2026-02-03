@@ -15,5 +15,6 @@
 		"id": 4,
 		"name": "Telegraf"
 	},
-	"comment": "some comment"
+	"comment": "some comment",
+	"is_from_monitoring_connector": false
 }

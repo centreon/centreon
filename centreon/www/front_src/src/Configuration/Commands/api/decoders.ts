@@ -23,7 +23,8 @@ const commandsDecoder = JsonDecoder.object<CommandsListItem>(
     name: JsonDecoder.string,
     servicesCount: JsonDecoder.number,
     serviceTemplatesCount: JsonDecoder.number,
-    type: JsonDecoder.string
+    type: JsonDecoder.string,
+    isFromMonitoringConnectors: JsonDecoder.optional(JsonDecoder.boolean)
   },
   'Command',
   {
@@ -32,7 +33,8 @@ const commandsDecoder = JsonDecoder.object<CommandsListItem>(
     hostTemplatesCount: 'used_host_templates_count',
     isActivated: 'is_activated',
     servicesCount: 'used_services_count',
-    serviceTemplatesCount: 'used_service_templates_count'
+    serviceTemplatesCount: 'used_service_templates_count',
+    isFromMonitoringConnectors: 'is_from_monitoring_connectors'
   }
 );
 
@@ -52,12 +54,14 @@ export const commandDecoder = JsonDecoder.object<Command>(
     ),
     isShellEnabled: JsonDecoder.boolean,
     name: JsonDecoder.string,
-    type: JsonDecoder.string
+    type: JsonDecoder.string,
+    isFromMonitoringConnector: JsonDecoder.boolean
   },
   'Command',
   {
     commandLine: 'command_line',
-    isShellEnabled: 'is_shell_enabled'
+    isShellEnabled: 'is_shell_enabled',
+    isFromMonitoringConnector: 'is_from_monitoring_connector'
   }
 );
 
