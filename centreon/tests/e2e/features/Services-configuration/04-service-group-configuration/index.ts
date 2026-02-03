@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/services/service.json';
 
@@ -38,17 +39,13 @@ Then('a service group is configured', () => {
       template: 'Ping-LAN'
     })
     .addServiceGroup({
-      name: data.service_group.service1.name,
-      hostsAndServices: [[data.hosts.host1.name, data.services.service1.name]]
+      hostsAndServices: [[data.hosts.host1.name, data.services.service1.name]],
+      name: data.service_group.service1.name
     });
 });
 
 When('the user changes the properties of a service group', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
     .find('tr.list_one')
@@ -83,11 +80,7 @@ When('the user changes the properties of a service group', () => {
 });
 
 Then('the properties of the service group are updated', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table.ListTable')
     .find('tr.list_one')
@@ -115,20 +108,16 @@ Then('the properties of the service group are updated', () => {
 });
 
 When('the user duplicates a service group', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table tbody')
     .find('tr.list_one')
-    .each(($row) => {
-      cy.wrap($row)
+    .each((row) => {
+      cy.wrap(row)
         .find('td.ListColLeft')
-        .then(($td) => {
-          if ($td.text().includes(data.service_group.service1.name)) {
-            cy.wrap($row)
+        .then((td) => {
+          if (td.text().includes(data.service_group.service1.name)) {
+            cy.wrap(row)
               .find('td.ListColPicker')
               .find('div.md-checkbox')
               .click();
@@ -179,20 +168,16 @@ Then('the new service group has the same properties', () => {
 });
 
 When('the user deletes a service group', () => {
-  cy.navigateTo({
-    page: 'Service Groups',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesGroupsLegacy);
   cy.enterIframe('iframe#main-content')
     .find('table tbody')
     .find('tr.list_one')
-    .each(($row) => {
-      cy.wrap($row)
+    .each((row) => {
+      cy.wrap(row)
         .find('td.ListColLeft')
-        .then(($td) => {
-          if ($td.text().includes(data.service_group.service1.name)) {
-            cy.wrap($row)
+        .then((td) => {
+          if (td.text().includes(data.service_group.service1.name)) {
+            cy.wrap(row)
               .find('td.ListColPicker')
               .find('div.md-checkbox')
               .click();

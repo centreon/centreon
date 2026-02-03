@@ -1,7 +1,3 @@
-import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
-
 import {
   Box,
   CircularProgress,
@@ -12,8 +8,12 @@ import {
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
-import { useHostTooltipContentStyles } from '../StatusGrid.styles';
+import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+
 import { ResourceData } from '../models';
+import { useHostTooltipContentStyles } from '../StatusGrid.styles';
 import {
   labelClickHereForDetails,
   labelExpressionIn,
@@ -21,7 +21,6 @@ import {
   labelParent
 } from '../translatedLabels';
 import { getBooleanRuleLink, getColor } from '../utils';
-
 import useBooleanTooltipContent from './useBooleanTooltipContent';
 
 interface Props {

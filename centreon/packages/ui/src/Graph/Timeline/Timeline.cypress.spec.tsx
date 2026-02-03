@@ -1,43 +1,45 @@
 import { userAtom } from '@centreon/ui-context';
-import { Provider, createStore } from 'jotai';
+
+import { createStore, Provider } from 'jotai';
+
+import type { Tooltip } from './models';
 import Timeline from './Timeline';
-import { Tooltip } from './models';
 
 const data = [
   {
-    start: '2024-09-09T10:57:42+02:00',
+    color: 'green',
     end: '2024-09-09T11:15:00+02:00',
-    color: 'green'
+    start: '2024-09-09T10:57:42+02:00'
   },
   {
-    start: '2024-09-09T11:15:00+02:00',
+    color: 'red',
     end: '2024-09-09T11:30:00+02:00',
-    color: 'red'
+    start: '2024-09-09T11:15:00+02:00'
   },
   {
-    start: '2024-09-09T11:30:00+02:00',
+    color: 'gray',
     end: '2024-09-09T11:45:00+02:00',
-    color: 'gray'
+    start: '2024-09-09T11:30:00+02:00'
   },
   {
-    start: '2024-09-09T11:45:00+02:00',
+    color: 'green',
     end: '2024-09-09T12:00:00+02:00',
-    color: 'green'
+    start: '2024-09-09T11:45:00+02:00'
   },
   {
-    start: '2024-09-09T12:00:00+02:00',
+    color: 'red',
     end: '2024-09-09T12:20:00+02:00',
-    color: 'red'
+    start: '2024-09-09T12:00:00+02:00'
   },
   {
-    start: '2024-09-09T12:20:00+02:00',
+    color: 'gray',
     end: '2024-09-09T12:40:00+02:00',
-    color: 'gray'
+    start: '2024-09-09T12:20:00+02:00'
   },
   {
-    start: '2024-09-09T12:40:00+02:00',
+    color: 'green',
     end: '2024-09-09T12:57:42+02:00',
-    color: 'green'
+    start: '2024-09-09T12:40:00+02:00'
   }
 ];
 
@@ -48,11 +50,11 @@ const TooltipContent = ({ start, end, color, duration }: Tooltip) => (
   <div
     data-testid="tooltip-content"
     style={{
+      alignItems: 'center',
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
       gap: '10px',
+      justifyContent: 'center',
       padding: '5px'
     }}
   >
@@ -64,7 +66,7 @@ const TooltipContent = ({ start, end, color, duration }: Tooltip) => (
 );
 
 const store = createStore();
-store.set(userAtom, { timezone: 'Europe/Paris', locale: 'en' });
+store.set(userAtom, { locale: 'en', timezone: 'Europe/Paris' });
 
 const initialize = (displayDefaultTooltip = true): void => {
   cy.mount({
@@ -78,8 +80,8 @@ const initialize = (displayDefaultTooltip = true): void => {
         >
           <Timeline
             data={data}
-            startDate={startDate}
             endDate={endDate}
+            startDate={startDate}
             TooltipContent={displayDefaultTooltip ? undefined : TooltipContent}
           />
         </div>

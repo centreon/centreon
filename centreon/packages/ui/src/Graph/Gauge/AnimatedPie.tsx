@@ -1,10 +1,10 @@
-import { animated, to, useTransition } from '@react-spring/web';
-import { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
-import { equals, includes, isNil, pluck } from 'ramda';
-
 import { Typography } from '@mui/material';
 
-import { Thresholds } from '../common/models';
+import { animated, to, useTransition } from '@react-spring/web';
+import type { PieArcDatum, ProvidedProps } from '@visx/shape/lib/shapes/Pie';
+import { equals, includes, isNil, pluck } from 'ramda';
+
+import type { Thresholds } from '../common/models';
 
 type AnimatedStyles = { endAngle: number; opacity: number; startAngle: number };
 

@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/commands/command.json';
 
@@ -38,21 +39,17 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user creates a command', () => {
-  cy.navigateTo({
-    page: 'Checks',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsChecksLegacy);
   cy.wait('@getTimeZone');
   // Click on the "ADD" button
   cy.getIframeBody().contains('a', '+ ADD').click();
   cy.addCommands({
     ...data.check,
-    commandLine: data.check.command_line,
-    isShell: data.check.is_shell,
     argumentExample: data.check.argument_example,
+    commandLine: data.check.command_line,
     connectorId: data.check.connector_id,
-    graphTemplateId: data.check.graph_template_id
+    graphTemplateId: data.check.graph_template_id,
+    isShell: data.check.is_shell
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -73,11 +70,7 @@ Then('the command is displayed in the list', () => {
 });
 
 When('the user changes the properties of a command', () => {
-  cy.navigateTo({
-    page: 'Checks',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsChecksLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
@@ -87,11 +80,11 @@ When('the user changes the properties of a command', () => {
   cy.getIframeBody().contains(data.check.name).click();
   cy.updateCommands({
     ...data.miscellaneous,
-    commandLine: data.miscellaneous.command_line,
-    isShell: data.miscellaneous.is_shell,
     argumentExample: data.miscellaneous.argument_example,
+    commandLine: data.miscellaneous.command_line,
     connectorId: data.miscellaneous.connector_id,
-    graphTemplateId: data.miscellaneous.graph_template_id
+    graphTemplateId: data.miscellaneous.graph_template_id,
+    isShell: data.miscellaneous.is_shell
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -115,20 +108,16 @@ Then('the properties are updated', () => {
   cy.getIframeBody().contains(data.miscellaneous.name).click();
   cy.checkValuesOfCommands(data.miscellaneous.name, {
     ...data.miscellaneous,
-    commandLine: data.miscellaneous.command_line,
-    isShell: data.miscellaneous.is_shell,
     argumentExample: data.miscellaneous.argument_example,
+    commandLine: data.miscellaneous.command_line,
     connectorId: data.miscellaneous.connector_id,
-    graphTemplateId: data.miscellaneous.graph_template_id
+    graphTemplateId: data.miscellaneous.graph_template_id,
+    isShell: data.miscellaneous.is_shell
   });
 });
 
 When('the user duplicates a command', () => {
-  cy.navigateTo({
-    page: 'Miscellaneous',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsMiscellaneousLegacy);
   cy.wait('@getTimeZone');
   // Wait for the "Command" search field to be charged on the DOM
   cy.waitForElementInIframe('#main-content', 'input[name="searchC"]');
@@ -147,21 +136,17 @@ Then('the new command has the same properties', () => {
   cy.getIframeBody().contains('a', `${data.miscellaneous.name}_1`).click();
   cy.checkValuesOfCommands(`${data.miscellaneous.name}_1`, {
     ...data.miscellaneous,
-    commandLine: data.miscellaneous.command_line,
-    isShell: data.miscellaneous.is_shell,
     argumentExample: data.miscellaneous.argument_example,
+    commandLine: data.miscellaneous.command_line,
     connectorId: data.miscellaneous.connector_id,
-    graphTemplateId: data.miscellaneous.graph_template_id
+    graphTemplateId: data.miscellaneous.graph_template_id,
+    isShell: data.miscellaneous.is_shell
   });
 });
 
 When('the user deletes a command', () => {
   // Go to "Configuration > Commands > Miscellaneous"
-  cy.navigateTo({
-    page: 'Miscellaneous',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsMiscellaneousLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
@@ -190,11 +175,11 @@ When('the user creates a {string} command', (type: string) => {
   cy.getIframeBody().contains('a', '+ ADD').click();
   cy.addCommands({
     ...commandData,
-    commandLine: commandData.command_line,
-    isShell: commandData.is_shell,
     argumentExample: commandData.argument_example,
+    commandLine: commandData.command_line,
     connectorId: commandData.connector_id,
-    graphTemplateId: commandData.graph_template_id
+    graphTemplateId: commandData.graph_template_id,
+    isShell: commandData.is_shell
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -215,11 +200,7 @@ Then('the command is displayed on the {string} page', (type: string) => {
 });
 
 Given('a service being configured', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   // Click on the "Add" button
   cy.getIframeBody().contains('a', 'Add').click();
   // Wait for the "Service description" to be in the DOM
@@ -269,11 +250,7 @@ Given('a host being configured', () => {
 });
 
 When('the user selects a check command on the host form', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.waitForElementInIframe(
     '#main-content',
     'a:contains("generic-active-host")'

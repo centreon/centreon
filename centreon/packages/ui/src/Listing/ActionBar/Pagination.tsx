@@ -1,8 +1,7 @@
-import { memo } from 'react';
+import TablePagination from '@mui/material/TablePagination';
 
 import { equals } from 'ramda';
-
-import TablePagination from '@mui/material/TablePagination';
+import { memo } from 'react';
 
 const Pagination = (props): JSX.Element => (
   <TablePagination

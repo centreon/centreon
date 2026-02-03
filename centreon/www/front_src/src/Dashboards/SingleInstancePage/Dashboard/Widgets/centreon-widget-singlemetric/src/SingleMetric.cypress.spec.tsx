@@ -1,14 +1,13 @@
-import { Provider, createStore } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
 
 import { Data } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
-import Graph from './Graph';
 import { getMetricsEndpoint } from './api/endpoints';
+import Graph from './Graph';
 import { FormThreshold, ValueFormat } from './models';
 
 const panelData: Data = {
@@ -16,9 +15,9 @@ const panelData: Data = {
     {
       id: 1,
       name: 'Ping_1',
-      unit: 'ms',
       serviceId: 1,
-      serviceName: 'Service_1'
+      serviceName: 'Service_1',
+      unit: 'ms'
     },
     {
       id: 2,
@@ -33,22 +32,22 @@ const panelData: Data = {
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
     },
     {
-      resourceType: 'service',
       resources: [
         {
           id: 1,
           name: 'Service_1'
         }
-      ]
+      ],
+      resourceType: 'service'
     }
   ]
 };
@@ -58,29 +57,29 @@ const diskUsedMetricData: Data = {
     {
       id: 1,
       name: 'Disk',
-      unit: 'B',
       serviceId: 1,
-      serviceName: 'Service_1'
+      serviceName: 'Service_1',
+      unit: 'B'
     }
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
     },
     {
-      resourceType: 'service',
       resources: [
         {
           id: 1,
           name: 'Service_1'
         }
-      ]
+      ],
+      resourceType: 'service'
     }
   ]
 };
@@ -121,12 +120,12 @@ const emptyServiceMetrics: Data = {
   metrics: [],
   resources: [
     {
-      resourceType: 'host',
-      resources: []
+      resources: [],
+      resourceType: 'host'
     },
     {
-      resourceType: 'service',
-      resources: []
+      resources: [],
+      resourceType: 'service'
     }
   ]
 };
@@ -141,13 +140,13 @@ const metaServiceData: Data = {
   ],
   resources: [
     {
-      resourceType: 'meta-service',
       resources: [
         {
           id: 1,
           name: 'M1'
         }
-      ]
+      ],
+      resourceType: 'meta-service'
     }
   ]
 };
@@ -185,7 +184,7 @@ const initializeComponent = ({
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
-      path: `${getMetricsEndpoint({ hostId: 1, serviceId: 1, metricName: data.metrics?.[0]?.name })}**`,
+      path: `${getMetricsEndpoint({ hostId: 1, metricName: data.metrics?.[0]?.name, serviceId: 1 })}**`,
       response: lineChart
     });
 
@@ -366,7 +365,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
@@ -487,7 +486,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
@@ -597,7 +596,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {

@@ -1,3 +1,5 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 interface Contact {
   alias: string;
   name: string;
@@ -126,8 +128,8 @@ Cypress.Commands.add(
       .getByLabel({ label: 'Connect', tag: 'button' })
       .click();
 
-    return cy.get('.MuiAlert-message').then(($snackbar) => {
-      if ($snackbar.text().includes('Login succeeded')) {
+    return cy.get('.MuiAlert-message').then((snackbar) => {
+      if (snackbar.text().includes('Login succeeded')) {
         cy.wait('@getNavigationList');
         cy.get('.MuiAlert-message').should('not.be.visible');
       }
@@ -135,17 +137,13 @@ Cypress.Commands.add(
   }
 );
 
-Cypress.Commands.add('visitContactsPage', (index: number) => {
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: index,
-    subMenu: 'Users'
-  });
+Cypress.Commands.add('visitContactsPage', () => {
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
 });
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addOrUpdateContact: (body: Contact) => Cypress.Chainable;
@@ -155,9 +153,7 @@ declare global {
         jsonName: string,
         login: string
       ) => Cypress.Chainable;
-      visitContactsPage: (index: number) => Cypress.Chainable;
+      visitContactsPage: () => Cypress.Chainable;
     }
   }
 }
-
-export {};

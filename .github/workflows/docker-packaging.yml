@@ -19,7 +19,11 @@ on:
       - ".github/docker/Dockerfile.packaging-*"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   get-environment:
+    needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/get-environment.yml
     with:
@@ -27,7 +31,7 @@ jobs:
 
   dockerize:
     needs: [get-environment]
-    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
+#    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
     strategy:
       fail-fast: false

@@ -1,8 +1,3 @@
-import { ChangeEvent, useState } from 'react';
-
-import { isEmpty, isNil, pipe, trim } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Grid, Typography } from '@mui/material';
 
 import {
@@ -12,6 +7,10 @@ import {
   useRequest,
   useSnackbar
 } from '@centreon/ui';
+
+import { isEmpty, isNil, pipe, trim } from 'ramda';
+import { ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { commentResources } from '../../../../Actions/api';
 import { ResourceDetails } from '../../../../Details/models';
@@ -81,14 +80,14 @@ const AddCommentForm = ({
 
   return (
     <Dialog
-      open
       confirmDisabled={!canConfirm}
       labelConfirm={t(labelAdd)}
       labelTitle={t(labelAddComment)}
-      submitting={sending}
       onCancel={onClose}
       onClose={onClose}
       onConfirm={confirm}
+      open
+      submitting={sending}
     >
       <Grid container direction="column" spacing={2}>
         <Grid item>
@@ -96,16 +95,16 @@ const AddCommentForm = ({
         </Grid>
         <Grid item>
           <TextField
-            autoFocus
-            multiline
-            required
             ariaLabel={t(labelComment)}
+            autoFocus
             error={getError()}
             label={t(labelComment)}
+            multiline
+            onChange={changeComment}
+            required
             rows={3}
             style={{ width: 300 }}
             value={comment}
-            onChange={changeComment}
           />
         </Grid>
       </Grid>

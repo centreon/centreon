@@ -21,6 +21,7 @@ centreon/Crashpad
 centreon/**/.X*
 centreon/www/widgets/**/static
 centreon/.com.google.Chrome*
+centreon/centreon-frontend.code-workspace
 **/build-storybook.log
 centreon/centreon-frontend.code-workspace
 

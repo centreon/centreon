@@ -1,7 +1,3 @@
-import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, includes, split, type } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   FormControlLabel,
   FormGroup,
@@ -10,10 +6,13 @@ import {
   RadioGroup
 } from '@mui/material';
 
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, includes, path, split, type } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { useMemoComponent } from '../..';
 import { getNormalizedId } from '../../utils';
-
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from './models';
 
 const Radio = ({
   dataTestId,
@@ -33,12 +32,12 @@ const Radio = ({
     if (includes(value, ['true', 'false'])) {
       if (change) {
         change({
-          setFieldValue,
-          value: equals(value, 'true'),
-          values,
           setFieldTouched,
+          setFieldValue,
+          setTouched,
           setValues,
-          setTouched
+          value: equals(value, 'true'),
+          values
         });
 
         return;
@@ -50,7 +49,7 @@ const Radio = ({
     }
 
     if (change) {
-      change({ setFieldValue, value, values, setFieldTouched, setValues });
+      change({ setFieldTouched, setFieldValue, setValues, value, values });
 
       return;
     }
@@ -69,9 +68,9 @@ const Radio = ({
       <FormGroup>
         <FormLabel>{t(label)}</FormLabel>
         <RadioGroup
+          onChange={changeRadio}
           row={radio?.row || false}
           value={value}
-          onChange={changeRadio}
         >
           {radio?.options?.map(({ value: optionValue, label: optionLabel }) => (
             <FormControlLabel

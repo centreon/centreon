@@ -1,6 +1,6 @@
-import { equals, includes } from 'ramda';
-
 import { SeverityCode, useFetchQuery } from '@centreon/ui';
+
+import { equals, includes } from 'ramda';
 
 import { metricsDecoder } from '../api/decoders';
 import { ResourceData } from '../models';

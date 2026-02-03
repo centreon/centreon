@@ -1,7 +1,9 @@
 import { SelectEntry } from '@centreon/ui';
+
 import { useFormikContext } from 'formik';
 import { equals, isEmpty, isNil } from 'ramda';
 import { ChangeEvent, useCallback, useMemo } from 'react';
+
 import {
   AgentConfigurationForm,
   ConnectionMode,
@@ -132,14 +134,14 @@ export const useHostConfiguration = ({
 
   return {
     changeAddress,
+    changeCMAToken,
     changePort,
     changeStringInput,
-    selectHost,
     hostErrors,
     hostTouched,
     isInsecureMode,
     isSecureMode,
-    changeCMAToken,
+    selectHost,
     token
   };
 };

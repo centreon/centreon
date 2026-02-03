@@ -38,7 +38,11 @@ env:
   e2e_directory: centreon-open-tickets/tests/e2e
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   get-environment:
+    needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
@@ -262,6 +266,7 @@ jobs:
           module_name: ${{ env.module }}
           dependencies_lock_file: ${{ env.e2e_directory }}/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: './features'
 
   package:
     needs:
@@ -285,7 +290,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bookworm, jammy]
+        distrib: [el8, el9, bookworm]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -296,9 +301,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
+          # - package_extension: deb
+          #   image: packaging-nfpm-jammy
+          #   distrib: jammy
 
     runs-on: ubuntu-24.04
 
@@ -545,6 +550,7 @@ jobs:
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-rpm:
     needs: [get-environment, changes, package]

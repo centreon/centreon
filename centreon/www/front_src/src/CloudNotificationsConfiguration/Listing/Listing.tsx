@@ -1,12 +1,9 @@
-import { useEffect, useState } from 'react';
+import { MemoizedListing as Listing } from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { prop } from 'ramda';
+import { useEffect, useState } from 'react';
 
-import { MemoizedListing as Listing } from '@centreon/ui';
-
-import { editedNotificationIdAtom, panelModeAtom } from '../Panel/atom';
-import { PanelMode } from '../Panel/models';
 import {
   isPanelOpenAtom,
   limitAtom,
@@ -17,9 +14,10 @@ import {
   sortFieldAtom,
   sortOrderAtom
 } from '../atom';
-
-import { Actions } from './Header';
+import { editedNotificationIdAtom, panelModeAtom } from '../Panel/atom';
+import { PanelMode } from '../Panel/models';
 import useListingColumns from './columns';
+import { Actions } from './Header';
 import useLoadingNotifications from './useLoadNotifications';
 
 const NotificationsListing = (): JSX.Element => {
@@ -87,8 +85,8 @@ const NotificationsListing = (): JSX.Element => {
 
   return (
     <Listing
-      checkable
       actions={<Actions />}
+      checkable
       columnConfiguration={{
         selectedColumnIds,
         sortable: true
@@ -107,13 +105,6 @@ const NotificationsListing = (): JSX.Element => {
         selectedRows
       ]}
       moveTablePagination={isPannelOpen}
-      predefinedRowsSelection={predefinedRowsSelection}
-      rows={listingData?.result}
-      selectedRows={selectedRows}
-      sortField={sortf}
-      sortOrder={sorto}
-      totalRows={listingData?.meta.total}
-      widthToMoveTablePagination={panelWidth}
       onLimitChange={setLimit}
       onPaginate={changePage}
       onResetColumns={resetColumns}
@@ -121,6 +112,13 @@ const NotificationsListing = (): JSX.Element => {
       onSelectColumns={setSelectedColumnIds}
       onSelectRows={setSelectedRows}
       onSort={changeSort}
+      predefinedRowsSelection={predefinedRowsSelection}
+      rows={listingData?.result}
+      selectedRows={selectedRows}
+      sortField={sortf}
+      sortOrder={sorto}
+      totalRows={listingData?.meta.total}
+      widthToMoveTablePagination={panelWidth}
     />
   );
 };

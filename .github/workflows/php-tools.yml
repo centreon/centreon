@@ -19,10 +19,12 @@ on:
       - "php-tools/**"
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   backend-lint:
+    needs: [dependency-scan]
     runs-on: ubuntu-24.04
-
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 

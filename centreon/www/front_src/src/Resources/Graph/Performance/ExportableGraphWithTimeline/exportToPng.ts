@@ -23,16 +23,16 @@ const exportToPng = async ({
   const translateY = getTranslation(element.offsetHeight);
   const translateX = getTranslation(element.offsetWidth);
 
-  return toBlob(element, {
+  const blob = await toBlob(element, {
     backgroundColor,
     height: element.offsetHeight * ratio,
     style: {
       transform: `translate(-${translateX}px, -${translateY}px) scale(${ratio})`
     },
     width: element.offsetWidth * ratio
-  }).then((blob) => {
-    return saveAs(blob, `${title}-${dateTime}.png`);
   });
+
+  return saveAs(blob, `${title}-${dateTime}.png`);
 };
 
 export default exportToPng;

@@ -30,7 +30,11 @@ on:
           - onprem
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   check-inputs:
+    needs: [dependency-scan]
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     steps:
@@ -65,6 +69,7 @@ jobs:
         shell: bash
 
   release:
+    needs: [dependency-scan]
     if: ${{ github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     outputs:

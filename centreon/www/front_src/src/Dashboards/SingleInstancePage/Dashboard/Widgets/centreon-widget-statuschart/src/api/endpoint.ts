@@ -1,6 +1,6 @@
-import { equals, flatten } from 'ramda';
-
 import { buildListingEndpoint } from '@centreon/ui';
+
+import { equals, flatten } from 'ramda';
 
 import { Resource } from '../../../models';
 

@@ -1,8 +1,3 @@
-import { Fragment, useCallback } from 'react';
-
-import { t } from 'i18next';
-import { isEmpty, isNil } from 'ramda';
-
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Box,
@@ -13,12 +8,15 @@ import {
   Typography
 } from '@mui/material';
 
+import { t } from 'i18next';
+import { isEmpty, isNil } from 'ramda';
+import { Fragment, useCallback } from 'react';
+
 import memoizeComponent from '../../../memoizedComponent';
 import {
   labelConfigure,
   labelNotAuthorizedToAccessConfiguration
 } from '../../../translatedLabels';
-
 import { Contact, ContactGroup } from './models';
 
 interface Props {
@@ -53,10 +51,10 @@ const Contacts = ({
         <Tooltip title={tooltipTitle}>
           <IconButton
             color={iconColor}
+            onClick={goToConfiguration}
             size="small"
             sx={{ justifySelf: 'flex-end', marginRight: 1 }}
             title={t(tooltipTitle)}
-            onClick={goToConfiguration}
           >
             <SettingsIcon fontSize="small" />
           </IconButton>
@@ -93,12 +91,11 @@ const Contacts = ({
         py: 1
       }}
     >
-      <>
-        {headers}
-        <span />
+      {headers}
+      <span />
 
-        <Divider sx={{ gridColumn: '1 / -1' }} />
-      </>
+      <Divider sx={{ gridColumn: '1 / -1' }} />
+
       {contacts?.map((contact) => {
         return (
           <Fragment key={contact.alias}>

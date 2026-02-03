@@ -1,4 +1,4 @@
-import { Metric } from './timeSeries/models';
+import type { Metric } from './timeSeries/models';
 
 export interface LineChartData {
   global;

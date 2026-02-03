@@ -1,11 +1,9 @@
-import { memo } from 'react';
-
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, map, not, pipe } from 'ramda';
+import { memo } from 'react';
 
 import { bisectDate } from '../../Graph';
 import { TimeValue } from '../../models';
-
 import AnchorPoint from '.';
 
 interface StackData {
