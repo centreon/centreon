@@ -66,11 +66,6 @@ parameters:
 			path: www/modules/centreon-open-tickets/providers/BmcItsm/BmcItsmProvider.class.php
 
 		-
-			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) k must contain 3 or more characters\.$#'
-			count: 4
-			path: www/modules/centreon-open-tickets/providers/EasyVistaRest/EasyVistaRestProvider.class.php
-
-		-
 			message: '#^\[CENTREON\-RULE\]\: \(VariableLengthCustomRule\) ch must contain 3 or more characters\.$#'
 			count: 2
 			path: www/modules/centreon-open-tickets/providers/EasyvistaSoap/EasyvistaSoapProvider.class.php

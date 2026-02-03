@@ -94,16 +94,16 @@ class EasyVistaRestProvider extends AbstractProvider
     public function closeTicket(&$tickets): void
     {
         if ($this->doCloseTicket()) {
-            foreach ($tickets as $k => $v) {
+            foreach ($tickets as $ticket => $v) {
                 try {
-                    $this->closeTicketEzv($k);
-                    $tickets[$k]['status'] = 1;
+                    $this->closeTicketEzv($ticket);
+                    $tickets[$ticket]['status'] = 1;
                 } catch (Exception $e) {
                     if ($this->doCloseTicketContinueOnError()) {
-                        $tickets[$k]['status'] = 1;
+                        $tickets[$ticket]['status'] = 1;
                     } else {
-                        $tickets[$k]['status'] = -1;
-                        $tickets[$k]['msg_error'] = $e->getMessage();
+                        $tickets[$ticket]['status'] = -1;
+                        $tickets[$ticket]['msg_error'] = $e->getMessage();
                     }
                 }
             }
