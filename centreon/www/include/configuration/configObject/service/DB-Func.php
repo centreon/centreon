@@ -31,6 +31,7 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
@@ -4422,6 +4423,9 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  */
 function callApi(string $url, string $httpMethod, array $payload): array
 {
+    // Convert URL to localhost to avoid proxy/load balancer issues
+    $url = InternalApiClient::convertToLocalUrl($url);
+
     $client = new CurlHttpClient();
     $response = $client->request(
         $httpMethod,
@@ -4432,6 +4436,9 @@ function callApi(string $url, string $httpMethod, array $payload): array
                 'Cookie' => CentreonSession::resolveSessionCookie(),
             ],
             'body' => json_encode($payload),
+            // Skip SSL verification for localhost calls
+            'verify_peer' => false,
+            'verify_host' => false,
         ]
     );
 

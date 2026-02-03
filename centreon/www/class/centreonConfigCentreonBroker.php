@@ -24,6 +24,7 @@ use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
@@ -1320,6 +1321,9 @@ class CentreonConfigCentreonBroker
                 Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
             );
 
+            // Convert URL to localhost to avoid proxy/load balancer issues
+            $url = InternalApiClient::convertToLocalUrl($url);
+
             foreach ($groups as $group) {
                 $payload = $this->buildPayload($group);
                 $response = $client->request(
@@ -1328,6 +1332,9 @@ class CentreonConfigCentreonBroker
                     [
                         'headers' => $headers,
                         'body' => json_encode($payload),
+                        // Skip SSL verification for localhost calls
+                        'verify_peer' => false,
+                        'verify_host' => false,
                     ],
                 );
                 if ($response->getStatusCode() !== 201) {

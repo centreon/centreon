@@ -26,6 +26,7 @@ if (! isset($centreon)) {
 }
 
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Infrastructure\Common\Api\Router;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -432,6 +433,9 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
+    // Convert URL to localhost to avoid proxy/load balancer issues
+    $url = InternalApiClient::convertToLocalUrl($url);
+
     $headers = [
         'Content-Type' => 'application/json',
         'Cookie' => CentreonSession::resolveSessionCookie(),
@@ -442,6 +446,9 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         [
             'headers' => $headers,
             'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+            // Skip SSL verification for localhost calls
+            'verify_peer' => false,
+            'verify_host' => false,
         ],
     );
 
@@ -515,6 +522,9 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
+    // Convert URL to localhost to avoid proxy/load balancer issues
+    $url = InternalApiClient::convertToLocalUrl($url);
+
     $headers = [
         'Content-Type' => 'application/json',
         'Cookie' => CentreonSession::resolveSessionCookie(),
@@ -525,6 +535,9 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         [
             'headers' => $headers,
             'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
+            // Skip SSL verification for localhost calls
+            'verify_peer' => false,
+            'verify_host' => false,
         ],
     );
 
@@ -587,7 +600,19 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $response = $client->request('DELETE', $url, ['headers' => $headers]);
+        // Convert URL to localhost to avoid proxy/load balancer issues
+        $url = InternalApiClient::convertToLocalUrl($url);
+
+        $response = $client->request(
+            'DELETE',
+            $url,
+            [
+                'headers' => $headers,
+                // Skip SSL verification for localhost calls
+                'verify_peer' => false,
+                'verify_host' => false,
+            ]
+        );
 
         if ($response->getStatusCode() !== 204) {
             $content = json_decode($response->getContent(false), true);
