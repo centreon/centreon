@@ -1,19 +1,18 @@
-import { useCallback, useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { equals, isEmpty, path, split } from 'ramda';
-import { useTranslation } from 'react-i18next';
+import { type FormikValues, useFormikContext } from "formik";
+import { equals, isEmpty, path, split } from "ramda";
+import { useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
-  SingleConnectedAutocompleteField,
   buildListingEndpoint,
-  useMemoComponent
-} from '../..';
-import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
+  SingleConnectedAutocompleteField,
+  useMemoComponent,
+} from "../..";
+import MultiConnectedAutocompleteField from "../../InputField/Select/Autocomplete/Connected/Multi";
 
-import { InputPropsWithoutGroup, InputType } from './models';
+import { type InputPropsWithoutGroup, InputType } from "./models";
 
-const defaultFilterKey = 'name';
+const defaultFilterKey = "name";
 
 const ConnectedAutocomplete = ({
   dataTestId,
@@ -26,7 +25,7 @@ const ConnectedAutocomplete = ({
   change,
   additionalMemoProps,
   type,
-  disableSortedOptions = false
+  disableSortedOptions = false,
 }: InputPropsWithoutGroup): JSX.Element => {
   const { t } = useTranslation();
 
@@ -45,15 +44,15 @@ const ConnectedAutocomplete = ({
         search: {
           conditions: [
             ...(connectedAutocomplete?.additionalConditionParameters || []),
-            ...(parameters.search?.conditions || [])
+            ...(parameters.search?.conditions || []),
           ],
-          ...parameters.search
+          ...parameters.search,
         },
-        sort: { [filterKey]: 'ASC' }
-      }
+        sort: { [filterKey]: "ASC" },
+      },
     });
 
-  const fieldNamePath = split('.', fieldName);
+  const fieldNamePath = split(".", fieldName);
 
   const changeAutocomplete = useCallback(
     (_, value): void => {
@@ -71,7 +70,7 @@ const ConnectedAutocomplete = ({
 
       setFieldTouched(fieldName, true);
     },
-    [fieldName, touched, additionalMemoProps]
+    [fieldName, touched, additionalMemoProps],
   );
 
   const blur = (): void => setFieldTouched(fieldName, true);
@@ -82,7 +81,7 @@ const ConnectedAutocomplete = ({
         ? false
         : equals(option[filterKey], value[filterKey]);
     },
-    [filterKey]
+    [filterKey],
   );
 
   const value = path(fieldNamePath, values);
@@ -99,7 +98,7 @@ const ConnectedAutocomplete = ({
       isMultiple
         ? MultiConnectedAutocompleteField
         : SingleConnectedAutocompleteField,
-    [isMultiple]
+    [isMultiple],
   );
 
   return useMemoComponent({
@@ -112,11 +111,13 @@ const ConnectedAutocomplete = ({
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
+        getOptionLabel={connectedAutocomplete?.getOptionLabel}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}
         name={fieldName}
+        optionProperty={connectedAutocomplete?.optionProperty}
         required={isRequired}
         value={value ?? null}
         onBlur={blur}
@@ -129,8 +130,8 @@ const ConnectedAutocomplete = ({
       disabled,
       isRequired,
       additionalMemoProps,
-      connectedAutocomplete
-    ]
+      connectedAutocomplete,
+    ],
   });
 };
 

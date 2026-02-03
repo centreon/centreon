@@ -144,7 +144,7 @@
     "ulog": "^2.0.0-beta.19"
   },
   "peerDependencies": {
-    "@centreon/ui-context": "file:../ui-context",
+    "@centreon/ui-context": "workspace:*",
     "@dnd-kit/core": "6.x",
     "@dnd-kit/sortable": "6.x",
     "@dnd-kit/utilities": "3.x",

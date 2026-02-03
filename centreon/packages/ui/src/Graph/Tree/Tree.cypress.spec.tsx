@@ -23,8 +23,10 @@ const validateTree = (tree): void => {
   });
 };
 
-interface InitializeProps
-  extends Pick<TreeProps<SimpleData | ComplexData>, 'treeLink' | 'children'> {
+interface InitializeProps extends Pick<
+  TreeProps<SimpleData | ComplexData>,
+  'treeLink' | 'children'
+> {
   data?: Node<SimpleData | ComplexData>;
   isDefaultExpanded?: (data: SimpleData | ComplexData) => boolean;
 }
