@@ -22,6 +22,9 @@ export const useDashboardLayoutStyles = makeStyles<boolean>()(
       '& .react-grid-item.resizing': {
         boxShadow: theme.shadows[3]
       },
+      '& .react-grid-layout': {
+        position: 'relative'
+      },
       '& .react-resizable-handle': {
         backgroundColor: theme.palette.action.focus,
         backgroundImage: 'none',

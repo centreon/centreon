@@ -1,18 +1,16 @@
-import 'ulog';
 import { useEffect } from 'react';
 
 import {
-  useMutation,
   UseMutationOptions,
-  UseMutationResult
+  UseMutationResult,
+  useMutation
 } from '@tanstack/react-query';
-import { JsonDecoder } from 'ts.data.json';
-import anylogger from 'anylogger';
 import { includes, omit } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
 
-import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
+import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 
 export enum Method {
   DELETE = 'DELETE',
@@ -52,7 +50,7 @@ export type UseMutationQueryProps<T, TMeta> = {
   'mutationFn' | 'onError' | 'onMutate' | 'onSuccess' | 'mutateAsync' | 'mutate'
 >;
 
-const log = anylogger('API Request');
+const log = console;
 
 export type UseMutationQueryState<T, TMeta> = Omit<
   UseMutationResult<T | ResponseError>,

@@ -46,14 +46,14 @@ export interface InputProps {
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
+    decoder?;
+    disableSelectAll?: boolean;
     endpoint?: string;
     filterKey?: string;
-    getRenderedOptionText?: (option) => string | JSX.Element;
     getOptionLabel?: (option) => string;
-    optionProperty?: string;
-    disableSelectAll?: boolean;
+    getRenderedOptionText?: (option) => string | JSX.Element;
     limitTags?: number;
-    decoder?;
+    optionProperty?: string;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;

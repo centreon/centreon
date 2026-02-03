@@ -54,8 +54,7 @@ export interface GroupsMappingToAPI extends SharedGroupsMappingToAPI {
   endpoint: EndpointToAPI;
 }
 
-export interface AuthConditionsToApi
-  extends SharedAuthenticationConditionsToAPI {
+export interface AuthConditionsToApi extends SharedAuthenticationConditionsToAPI {
   blacklist_client_addresses: Array<string>;
   endpoint: EndpointToAPI;
   trusted_client_addresses: Array<string>;

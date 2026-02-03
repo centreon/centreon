@@ -8,8 +8,10 @@ import { Chip, Typography, useTheme } from '@mui/material';
 
 import { DraggableSelectEntry, SortableListProps } from './SortableList';
 
-interface ContentProps
-  extends Pick<DraggableSelectEntry, 'name' | 'createOption' | 'id'> {
+interface ContentProps extends Pick<
+  DraggableSelectEntry,
+  'name' | 'createOption' | 'id'
+> {
   attributes;
   id: string;
   index: number;

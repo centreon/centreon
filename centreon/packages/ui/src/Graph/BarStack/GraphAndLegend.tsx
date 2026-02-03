@@ -7,16 +7,15 @@ import Graph from './Graph';
 import { gap, legendMaxHeight, legendMaxWidth } from './constants';
 import { BarStackProps } from './models';
 
-interface Props
-  extends Pick<
-    BarStackProps,
-    | 'data'
-    | 'displayValues'
-    | 'onSingleBarClick'
-    | 'unit'
-    | 'TooltipContent'
-    | 'tooltipProps'
-  > {
+interface Props extends Pick<
+  BarStackProps,
+  | 'data'
+  | 'displayValues'
+  | 'onSingleBarClick'
+  | 'unit'
+  | 'TooltipContent'
+  | 'tooltipProps'
+> {
   colorScale;
   displayLegend: boolean;
   height: number;

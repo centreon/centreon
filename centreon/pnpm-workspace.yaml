@@ -5,3 +5,4 @@ packages:
   - 'www/widgets'
   - 'tests/rest_api'
   - 'doc/API'
+  - 'tests/performance'

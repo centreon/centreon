@@ -338,8 +338,6 @@ describe('Dashboard', () => {
           );
           assert.equal(dashboard.layout[2].name, 'centreon-widget-input');
         });
-
-      cy.makeSnapshot();
     });
   });
 
