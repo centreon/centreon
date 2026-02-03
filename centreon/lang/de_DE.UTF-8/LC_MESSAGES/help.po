@@ -2685,11 +2685,11 @@ msgstr "Suchtimeout"
 
 #: centreon/www/include/options/media/images/help.php
 msgid ""
-"Select a local file to upload. You can upload jpg, png, gif and gd2 files. "
+"Select a local file to upload. You can upload jpg, png, gif, gd2 and svg files. "
 "Multiple images can be uploaded together inside archives like zip, tar, "
 "tar.gz or tar.bz2."
 msgstr ""
-"Wählen Sie eine Datei für den Upload. Es können jpg, png, gif und gd2-"
+"Wählen Sie eine Datei für den Upload. Es können jpg, png, gif, gd2 und svg-"
 "Dateien hochgeladen werden. Mehrere Bilder können in Archiven (zip, tar, "
 "tar.gz, tar.bz2) gleichzeitig hochgeladen werden."
 
