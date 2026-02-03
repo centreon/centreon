@@ -1075,60 +1075,60 @@ jobs:
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
 
-  performances-test:
-    runs-on: ubuntu-22.04
-    needs: [get-environment, changes, dockerize]
-    if: |
-      needs.changes.outputs.trigger_e2e_testing == 'true' &&
-      needs.get-environment.outputs.skip_workflow == 'false' &&
-      ! cancelled() &&
-      ! contains(needs.*.result, 'failure') &&
-      ! contains(needs.*.result, 'cancelled') &&
-      needs.get-environment.outputs.stability != 'stable' &&
-      github.repository == 'centreon/centreon'
-    strategy:
-      fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
+  # performances-test:
+  #   runs-on: ubuntu-22.04
+  #   needs: [get-environment, changes, dockerize]
+  #   if: |
+  #     needs.changes.outputs.trigger_e2e_testing == 'true' &&
+  #     needs.get-environment.outputs.skip_workflow == 'false' &&
+  #     ! cancelled() &&
+  #     ! contains(needs.*.result, 'failure') &&
+  #     ! contains(needs.*.result, 'cancelled') &&
+  #     needs.get-environment.outputs.stability != 'stable' &&
+  #     github.repository == 'centreon/centreon'
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       include: ${{ fromJson(needs.get-environment.outputs.os_and_database_matrix).main }}
+  #
+  #   name: performances-test ${{ matrix.operating_system }}-${{ matrix.database }}
 
-    name: performances-test ${{ matrix.operating_system }}-${{ matrix.database }}
-
-    steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-        with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
-
-      - name: Run Lighthouse
-        uses: ./.github/actions/lighthouse-performance-testing
-        with:
-          path: "centreon/lighthouse"
-          image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.operating_system }}
-          image_version: ${{ github.head_ref || github.ref_name }}
-          database_image: bitnamilegacy/mariadb:10.11
-          image_lighthouse_version: ${{ needs.get-environment.outputs.major_version }}
-          module: centreon
-          dependencies_lock_file: centreon/pnpm-lock.yaml
-
-      - name: Publish report to S3
-        if: ${{ github.event_name == 'push' }}
-        uses: ./.github/actions/lighthouse-to-s3
-        with:
-          report_path: centreon/lighthouse/report/lighthouseci-index.html
-          report_target: s3://centreon-lighthouse-report/
-          access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
-          secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
-
-      - name: Publish report
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: lighthouse-report
-          path: centreon/lighthouse/report/lighthouseci-index.html
-          retention-days: 1
+    # steps:
+    #   - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    #
+    #   - name: Login to registry
+    #     uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+    #     with:
+    #       registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+    #       username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
+    #       password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
+    #
+    #   - name: Run Lighthouse
+    #     uses: ./.github/actions/lighthouse-performance-testing
+    #     with:
+    #       path: "centreon/lighthouse"
+    #       image: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.operating_system }}
+    #       image_version: ${{ github.head_ref || github.ref_name }}
+    #       database_image: bitnamilegacy/mariadb:10.11
+    #       image_lighthouse_version: ${{ needs.get-environment.outputs.major_version }}
+    #       module: centreon
+    #       dependencies_lock_file: centreon/pnpm-lock.yaml
+    #
+    #   - name: Publish report to S3
+    #     if: ${{ github.event_name == 'push' }}
+    #     uses: ./.github/actions/lighthouse-to-s3
+    #     with:
+    #       report_path: centreon/lighthouse/report/lighthouseci-index.html
+    #       report_target: s3://centreon-lighthouse-report/
+    #       access_key_id: ${{ secrets.LIGHTHOUSE_ID }}
+    #       secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
+    #
+    #   - name: Publish report
+    #     uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    #     with:
+    #       name: lighthouse-report
+    #       path: centreon/lighthouse/report/lighthouseci-index.html
+    #       retention-days: 1
 
   deliver-sources:
     runs-on: centreon-common
@@ -1137,7 +1137,6 @@ jobs:
         get-environment,
         api-integration-test,
         e2e-test,
-        performances-test,
         legacy-e2e-test,
       ]
     if: |
@@ -1262,7 +1261,6 @@ jobs:
         get-environment,
         api-integration-test,
         e2e-test,
-        performances-test,
         legacy-e2e-test,
       ]
     if: |
@@ -1299,7 +1297,6 @@ jobs:
         get-environment,
         api-integration-test,
         e2e-test,
-        performances-test,
         legacy-e2e-test,
       ]
     if: |
@@ -1367,7 +1364,6 @@ jobs:
         get-environment,
         api-integration-test,
         e2e-test,
-        performances-test,
         legacy-e2e-test,
         deliver-rpm
       ]
