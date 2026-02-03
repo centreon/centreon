@@ -1,3 +1,5 @@
+name: cypress-e2e-test
+
 on:
   workflow_call:
     inputs:
@@ -34,10 +36,6 @@ on:
       package_directory:
         required: false
         type: string
-      test_tags:
-        required: false
-        type: string
-        default: "not @ignore"
       dependencies_lock_file:
         required: true
         type: string
@@ -46,11 +44,9 @@ on:
         description: "The test execution and the test plan keys and ids"
         required: true
         type: string
-      is_cloud:
-        description: "Define if the version is targeting cloud"
-        required: false
-        type: boolean
-        default: false
+      is_nightly:
+        required: true
+        type: string
     secrets:
       registry_username:
         required: true
@@ -60,14 +56,16 @@ on:
         required: true
       xray_client_secret:
         required: true
-      artifactory_internal_repo_username:
-        required: false
-      artifactory_internal_repo_password:
-        required: false
+      jira_base_url:
+        required: true
+      jira_user_email:
+        required: true
+      jira_api_token:
+        required: true
 
 jobs:
   cypress-e2e-test-list:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     outputs:
       features: ${{ steps.list-features.outputs.features }}
 
@@ -75,28 +73,23 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
-        with:
-          version: 8
-          run_install: false
-          standalone: true
-
       - name: List features
         id: list-features
         run: |
-          pnpm add -g @cucumber/cucumber@10.8.0
           cd ${{ inputs.module_name }}
-          cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]'
-          echo "features=$(cucumber-js ${{ inputs.features_path }} --tags "${{ inputs.test_tags }}" --no-strict --dry-run -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   cypress-e2e-test-run:
-    if: ${{ needs.cypress-e2e-test-list.outputs.features != '' && toJson(fromJson(needs.cypress-e2e-test-list.outputs.features)) != '[]' }}
     needs: [cypress-e2e-test-list]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         feature: ${{ fromJson(needs.cypress-e2e-test-list.outputs.features) }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.module_name }}/tests/e2e
     name: ${{ matrix.feature }}
 
     env:
@@ -105,25 +98,53 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Restore packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }}
           key: ${{ inputs.package_cache_key }}
           fail-on-cache-miss: true
 
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: ${{ inputs.dependencies_lock_file }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        shell: bash
+        env:
+          CYPRESS_INSTALL_BINARY: "0"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+
+      - name: Install Cypress binary
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        with:
+          timeout_seconds: 120
+          max_attempts: 10
+          retry_wait_seconds: 30
+          retry_on: error
+          command: cd ${{ inputs.module_name }}/tests/e2e && pnpm cypress install --force
+
       - name: Move packages
         if: "${{ inputs.package_cache_key != '' && inputs.package_directory != '' && contains(matrix.feature, 'platform-') }}"
         run: |
           mkdir -p ${{ inputs.package_directory }}
-          mv ./*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
+          mv ../../../*.${{ contains(inputs.os, 'alma') && 'rpm' || 'deb' }} ${{ inputs.package_directory }}
         shell: bash
 
       - name: Login to Registry
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
@@ -131,11 +152,11 @@ jobs:
 
       - name: Restore standard slim image from cache
         id: cache-docker-slim
-        uses: actions/cache/restore@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         continue-on-error: true
         timeout-minutes: 6
         with:
-          path: /tmp/cache/docker-image
+          path: ./docker-image
           key: docker-image-${{ env.SLIM_IMAGE_NAME }}-${{ env.IMAGE_TAG }}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
@@ -143,40 +164,43 @@ jobs:
       - name: Load standard slim image
         if: ${{ steps.cache-docker-slim.outputs.cache-hit == 'true' }}
         run: |
-          docker load --input /tmp/cache/docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
+          docker load --input ../../../docker-image/${{ env.SLIM_IMAGE_NAME }}.tar
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
-      - name: Test Execution Key
+      - name: Get test execution Key
         id: get-test-execution-key
         run: |
           test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
-          echo "The Test Execution KEY : $test_execution_key"
-          echo "test_execution_key=$test_execution_key" >> $GITHUB_OUTPUT
+          echo "The Test Execution KEY: $test_execution_key"
+          echo "test_execution_key=$test_execution_key" >> $GITHUB_ENV
         shell: bash
 
-      - name: Cypress e2e testing
-        uses: ./.github/actions/cypress-e2e-testing
+      - name: Add sso-proxy to /etc/hosts
+        run: echo "127.0.0.1 sso-proxy" | sudo tee -a /etc/hosts
+        shell: bash
+
+      - name: Cypress end-to-end testing
+        uses: cypress-io/github-action@b8ba51a856ba5f4c15cf39007636d4ab04f23e3c # v6.10.2
         with:
-          name: ${{ inputs.name }}
-          database_image: ${{ inputs.database_image }}
-          web_image_os: ${{ inputs.os }}
-          web_image_version: ${{ env.IMAGE_TAG }}
-          openid_image_version: ${{ inputs.major_version }}
-          saml_image_version: ${{ inputs.major_version }}
-          module: centreon
-          feature_file_path: ${{ matrix.feature }}
-          test_tags: ${{ inputs.test_tags }}
-          dependencies_lock_file: ${{ inputs.dependencies_lock_file }}
-          test_execution_key: ${{ steps.get-test-execution-key.outputs.test_execution_key }}
-          stability: ${{ inputs.stability }}
-          is_cloud: ${{ inputs.is_cloud }}
-          artifactory_internal_repo_username: ${{ secrets.artifactory_internal_repo_username }}
-          artifactory_internal_repo_password: ${{ secrets.artifactory_internal_repo_password }}
+          command: pnpm run cypress:run --browser electron --spec features/**/${{ matrix.feature }}
+          install: false
+          working-directory: ${{ inputs.module_name }}/tests/e2e
+        env:
+          CYPRESS_VERIFY_TIMEOUT: "60000"
+          CYPRESS_DATABASE_IMAGE: ${{ inputs.database_image }}
+          CYPRESS_WEB_IMAGE_OS: ${{ inputs.os }}
+          CYPRESS_WEB_IMAGE_VERSION: ${{ env.IMAGE_TAG }}
+          CYPRESS_OPENID_IMAGE_VERSION: ${{ inputs.major_version }}
+          CYPRESS_SAML_IMAGE_VERSION: ${{ inputs.major_version }}
+
+      - name: Ensure logs directory exists
+        run: mkdir -p ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/
+        shell: bash
 
       - name: Replace / with - in the feature path
         id: feature-path
-        if: always()
+        if: ${{ ! cancelled() }}
         run: |
           feature_name="${{ matrix.feature }}"
           feature_name_with_dash="${feature_name//\//-}"
@@ -185,43 +209,35 @@ jobs:
 
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-results-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/
           retention-days: 1
 
-      - name: Check for test retries
-        id: check_retries
-        if: always()
+      - name: Move retries.json to reports directory and display warnings
+        if: ${{ ! cancelled() }}
         run: |
-            retriesFile="${{ inputs.module_name }}/tests/e2e/results/hasRetries.json"
+            retriesFile="${{ inputs.module_name }}/tests/e2e/results/retries.json"
             if [ -f "$retriesFile" ]; then
-              retries=$(jq '.' $retriesFile)
-              if [ "$retries" != "{}" ]; then
-                echo "Test retries: $retries"
-                retriesHtml="<h2>:warning:The following tests were retried during execution:</h2><table><tr><th>Feature</th><th>Test Scenario</th></tr>"
-                # Generate the HTML rows
-                retriesHtml+=$(jq -r 'to_entries | .[] | "<tr><td>\(.key | split(" > ")[0])</td><td>\(.key | split(" > ")[1])</td></tr>"' $retriesFile)
-                retriesHtml+="</table>"
-                echo "$retriesHtml" >> $GITHUB_STEP_SUMMARY
-                retriesJson=$(echo "$retries" | jq -c '.')
-                echo "retries=$retriesJson" >> $GITHUB_OUTPUT
-              fi
+              jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+                echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+              done
+              mv $retriesFile "${{ inputs.module_name }}/tests/e2e/results/reports/${{ steps.feature-path.outputs.feature_name_with_dash }}-retries.json"
             fi
         shell: bash
 
       - name: Upload test reports
-        if: failure()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        if: ${{ ! cancelled() }}
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-test-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/reports/*.json
           retention-days: 1
 
       - name: Upload xray reports
-        if: always()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        if: ${{ ! cancelled() }}
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-xray-reports-${{ steps.feature-path.outputs.feature_name_with_dash }}
           path: ${{ inputs.module_name }}/tests/e2e/results/cucumber-logs/*.json
@@ -230,14 +246,17 @@ jobs:
   # This action is only for NIGHTLY and testing branches
   import-reports-to-xray:
     needs: [cypress-e2e-test-run]
-    if: ${{ always() && (inputs.stability == 'testing' || github.event_name == 'schedule') }}
-    runs-on: ubuntu-22.04
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled') &&
+      (inputs.stability == 'testing' || github.event_name == 'schedule')
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
-          version: 8
+          version: 10
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
@@ -258,7 +277,7 @@ jobs:
         run: |
           test_execution_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_execution_key_'${{ inputs.os }})
           test_plan_key=$(echo '${{ inputs.xray_keys_and_ids }}' | jq -r '.test_plan_key_'${{ inputs.os }})
-          echo "The Test Execution KEY : $test_execution_key"
+          echo "The Test Execution KEY: $test_execution_key"
           echo "The Test Plan KEY: $test_plan_key"
 
       - name: Import results to xray
@@ -270,15 +289,17 @@ jobs:
 
   cypress-e2e-test-report:
     needs: [cypress-e2e-test-run]
-    if: failure()
-    runs-on: ubuntu-22.04
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
         with:
-          version: 8
+          version: 10
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
@@ -288,37 +309,72 @@ jobs:
           merge-multiple: true
 
       - name: Merge reports
-        run: pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+        run: |
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+
+          if ls ${{ inputs.name }}-json-reports/*retries.json 1> /dev/null 2>&1; then
+            cat ${{ inputs.name }}-json-reports/*retries.json | jq -s add > retries.json
+          else
+            echo "{}" > retries.json
+          fi
         shell: bash
 
       - name: Publish report
+        if: needs.cypress-e2e-test-run.result == 'failure'
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-report
           path: mochawesome.json
           format: cypress
-          urlFilePrefix: centreon
+
+      - name: Display retries summary
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const retriesFile = 'retries.json';
+            const retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
+            if (Object.keys(retries).length > 0) {
+              const outputTable = [
+                [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
+              ];
+              const warningTitle = `${Object.keys(retries).length} tests were retried during execution`;
+
+              let warningBody = JSON.stringify(retries, null, 2);
+              for (const testName in retries) {
+                const featureName = testName.split('>')[0];
+                const scenarioName = testName.split('>').slice(1).join('>');
+                outputTable.push([featureName, scenarioName, String(retries[testName])]);
+              }
+
+              // Display json to allow collect of metrics
+              core.warning(warningBody, { title: warningTitle });
+
+              core.summary
+                .addHeading(`Retries Summary`)
+                .addTable(outputTable)
+                .addDetails(`Content of ${retriesFile}`, fs.readFileSync(retriesFile, 'utf8'))
+                .write();
+            }
 
   regroup-artifacts:
     needs: [cypress-e2e-test-run, import-reports-to-xray, cypress-e2e-test-report]
-    if: always()
-    runs-on: ubuntu-22.04
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         type_of_report: [test-results, test-reports, xray-reports]
     steps:
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Merging Artifacts
+        uses: ./.github/actions/merge-artifacts
         if: ${{ ( contains(needs.cypress-e2e-test-run.result, 'failure') && ( matrix.type_of_report == 'test-results' || matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'xray-reports' }}
         with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-          delete-merged: false # cannot be set to true due to random fails: Failed to DeleteArtifact: Unable to make request: ECONNRESET
-          retention-days: 1
-
-      - name: Delete merged artifacts
-        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
-        with:
-          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
-          failOnError: false
+          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          source_paths: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**
+          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
+          github_token: ${{ secrets.GITHUB_TOKEN }}

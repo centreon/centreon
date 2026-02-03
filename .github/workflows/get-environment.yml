@@ -1,0 +1,811 @@
+on:
+  workflow_call:
+    inputs:
+      version_file:
+        required: true
+        type: string
+      nightly_manual_trigger:
+        required: false
+        type: boolean
+      labels:
+        required: false
+        type: string
+        default: ""
+    outputs:
+      latest_major_version:
+        description: "latest major version"
+        value: ${{ jobs.get-environment.outputs.latest_major_version }}
+      previous_release_bundle_tag:
+        description: "previous release bundle tag"
+        value: ${{ jobs.get-environment.outputs.previous_release_bundle_tag }}
+      is_cloud:
+        description: "context of release (cloud or not cloud)"
+        value: ${{ jobs.get-environment.outputs.is_cloud }}
+      linked_dev_branch:
+        description: "linked develop branch"
+        value: ${{ jobs.get-environment.outputs.linked_dev_branch }}
+      linked_stable_branch:
+        description: "linked stable branch"
+        value: ${{ jobs.get-environment.outputs.linked_stable_branch }}
+      major_version:
+        description: "major version"
+        value: ${{ jobs.get-environment.outputs.major_version }}
+      minor_version:
+        description: "minor version"
+        value: ${{ jobs.get-environment.outputs.minor_version }}
+      release:
+        description: "release"
+        value: ${{ jobs.get-environment.outputs.release }}
+      stability:
+        description: "branch stability (stable, testing, unstable, canary)"
+        value: ${{ jobs.get-environment.outputs.stability }}
+      target_stability:
+        description: "Final target branch stability (stable, testing, unstable, canary or not defined if not a pull request)"
+        value: ${{ jobs.get-environment.outputs.target_stability }}
+      release_type:
+        description: "type of release (hotfix, release or not defined if not a release)"
+        value: ${{ jobs.get-environment.outputs.release_type }}
+      os_and_database_matrix:
+        description: "matrix to use for dockerize and test jobs"
+        value: ${{ jobs.get-environment.outputs.os_and_database_matrix }}
+      is_targeting_feature_branch:
+        description: "if it is a PR, check if targeting a feature branch"
+        value: ${{ jobs.get-environment.outputs.is_targeting_feature_branch }}
+      is_nightly:
+        description: "if the current workflow run is considered a nightly"
+        value: ${{ jobs.get-environment.outputs.is_nightly }}
+      skip_workflow:
+        description: "if the current workflow should be skipped"
+        value: ${{ jobs.get-environment.outputs.skip_workflow }}
+      labels:
+        description: "list of labels on the PR"
+        value: ${{ jobs.get-environment.outputs.labels }}
+
+jobs:
+  get-environment:
+    runs-on: ubuntu-24.04
+    outputs:
+      latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
+      previous_release_bundle_tag: ${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag }}
+      is_cloud: ${{ steps.detect_cloud_version.outputs.isCloud }}
+      linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
+      linked_stable_branch: ${{ steps.linked_branches.outputs.linked_stable_branch }}
+      major_version: ${{ steps.get_version.outputs.major_version }}
+      minor_version: ${{ steps.get_version.outputs.minor_version }}
+      release: ${{ steps.get_release.outputs.release }}
+      stability: ${{ steps.get_stability.outputs.stability }}
+      target_stability: ${{ steps.get_stability.outputs.target_stability }}
+      release_type: ${{ steps.get_release_type.outputs.release_type }}
+      os_and_database_matrix: ${{ steps.get_os_database_matrix.outputs.result }}
+      is_targeting_feature_branch: ${{ steps.get_stability.outputs.is_targeting_feature_branch }}
+      is_nightly: ${{ steps.get_nightly_status.outputs.is_nightly }}
+      skip_workflow: ${{ steps.skip_workflow.outputs.result }}
+      labels: ${{ steps.has_skip_label.outputs.labels }}
+
+    steps:
+      - name: Check if PR has skip label
+        id: has_skip_label
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            let hasSkipLabel = false;
+            let labels = [];
+
+            if (${{ contains(fromJSON('["pull_request", "pull_request_target"]') , github.event_name) }} === true) {
+              try {
+                const fetchedLabels = await github.rest.issues.listLabelsOnIssue({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number
+                });
+                fetchedLabels.data.forEach(({ name }) => {
+                  labels.push(name);
+                  if (name === '${{ format('skip-workflow-{0}', github.workflow) }}') {
+                    hasSkipLabel = true;
+                  }
+                });
+              } catch (e) {
+                core.warning(`failed to list labels: ${e}`);
+              }
+            } else if ('${{ github.event_name }}' === 'workflow_dispatch' && '${{ inputs.labels }}'.length > 0) {
+              labels = '${{ inputs.labels }}'
+                .split(',')
+                .map(label => label.trim())
+                .filter(label => label.length > 0);
+            }
+
+            core.setOutput('labels', labels);
+
+            return hasSkipLabel;
+
+      - name: Checkout sources (current branch)
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        with:
+          fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
+
+      # get latest major version to detect cloud / on-prem versions
+      - name: Checkout sources (develop branch)
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        with:
+          ref: develop
+          path: centreon-develop
+          sparse-checkout: .version
+
+      - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
+        name: Get workflow triggered paths
+        id: get_workflow_triggered_paths
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+
+            let paths = [];
+
+            const workflowFilePath = '${{ github.workflow_ref }}'.replace('${{ github.repository }}/', '').split('@').shift();
+
+            if (fs.existsSync(workflowFilePath)) {
+              const workflowFileContent = fs.readFileSync(workflowFilePath, 'utf8');
+              const workflowFileContentLines = workflowFileContent.split('\n');
+
+              let hasReadOn = false;
+              let hasReadPullRequest = false;
+              let hasReadPaths = false;
+              for (const line of workflowFileContentLines) {
+                if (line.match(/^on:\s*$/)) {
+                  hasReadOn = true;
+                  continue;
+                }
+                if (line.match(/^\s{2}pull_request(_target)?:\s*$/)) {
+                  hasReadPullRequest = true;
+                  continue;
+                }
+                if (line.match(/^\s{4}paths:\s*$/)) {
+                  hasReadPaths = true;
+                  continue;
+                }
+
+                if (hasReadOn && hasReadPullRequest && hasReadPaths) {
+                  const matches = line.match(/^\s{6}-\s['"]?(.+?)['"]?\s*$/);
+                  if (matches) {
+                    paths.push(matches[1].trim());
+                  } else {
+                    break;
+                  }
+                }
+              }
+            }
+
+            if (paths.length === 0) {
+              paths = ['**'];
+            }
+
+            console.log(paths);
+
+            return paths;
+
+      - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
+        name: Get push changes
+        id: get_push_changes
+        uses: tj-actions/changed-files@2f7c5bfce28377bc069a65ba478de0a74aa0ca32 # v46.0.1
+        with:
+          since_last_remote_commit: true
+          json: true
+          escape_json: false
+          files: ${{ join(fromJSON(steps.get_workflow_triggered_paths.outputs.result), ';') }}
+          files_separator: ';'
+
+      - name: Check if current workflow should be skipped
+        id: skip_workflow
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            if (/^bump-.+/.test('${{ github.head_ref || github.ref_name }}')) {
+              core.notice('skipping workflow because it is a bump branch');
+              return true;
+            }
+
+            if (${{ steps.has_skip_label.outputs.result }} === false) {
+              return false;
+            }
+
+            const label = '${{ format('skip-workflow-{0}', github.workflow) }}';
+            if ('${{ steps.get_push_changes.outputs.any_changed }}' === 'true') {
+              try {
+                await github.rest.issues.removeLabel({
+                  name: label,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number
+                });
+                core.notice(`label ${label} removed because changes were detected on last push.`);
+              } catch (e) {
+                core.warning(`failed to remove label ${label}: ${e}`);
+              }
+
+              return false;
+            }
+
+            return true;
+
+      - name: Store latest major version
+        id: latest_major_version
+        run: |
+          . centreon-develop/.version
+          echo "latest_major_version=$MAJOR" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - if: ${{ github.event_name == 'pull_request' }}
+        name: Get nested pull request path
+        id: pr_path
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const prPath = ['${{ github.head_ref }}', '${{ github.base_ref }}'];
+
+            const result = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100,
+              state: 'open'
+            });
+
+            let found = true;
+            while (found) {
+              found = false;
+              result.data.forEach(({ head: { ref: headRef }, base: { ref: baseRef} }) => {
+                if (headRef === prPath[prPath.length - 1] && ! prPath.includes(baseRef)) {
+                  found = true;
+                  prPath.push(baseRef);
+                }
+              });
+            }
+
+            return prPath;
+
+      - name: Get stability
+        id: get_stability
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const ref = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME;
+            const refType = process.env.GITHUB_REF_TYPE; // 'branch' or 'tag'
+            const eventName = process.env.GITHUB_EVENT_NAME;
+
+            console.log(`Ref: ${ref}`);
+            console.log(`Ref Type: ${refType}`);
+            console.log(`Event Name: ${eventName}`);
+
+            const getStability = (ref) => {
+              const refName = ref.replace(/^refs\/(heads|tags)\//, '');
+              console.log(`Determining stability for refName: ${refName}`);
+
+              switch (true) {
+                case /(^develop$)|(^dev-\d{2}\.\d{2}\.x$)|(^prepare-release-cloud.*)/.test(refName):
+                  console.log(`Matched 'unstable' pattern`);
+                  return 'unstable';
+                case /(^release.+)|(^hotfix.+)/.test(refName):
+                  console.log(`Matched 'testing' pattern`);
+                  return 'testing';
+                case /(^master$)|(^\d{2}\.\d{2}\.x$)/.test(refName):
+                  console.log(`Matched 'stable' pattern`);
+                  return 'stable';
+                default:
+                  console.log(`No match found, defaulting to 'canary'`);
+                  return 'canary';
+              }
+            };
+
+            // Handle tags like centreon-web-XX.YY.z or centreon-pp-manager-XX.YY.z FIRST
+            // to allow promote for centreon packages (centreon-web, etc)
+            // Handle tags like release-cloud-YYYYMMNN-XX.YY or release-onprem-YYYYMMNN-XX.YY SECOND
+            // to allow promote for extra packages (lua-curl, libzmq, etc)
+            const isStableTag = (tag) => {
+              const matched =
+                /^centreon-[a-z0-9-]+-\d{2}\.\d{2}\.\d+$/.test(tag) ||
+                /^release-(cloud|onprem)-\d{8}-\d{2}\.\d{2}$/.test(tag);
+              console.log(`Checking if tag '${tag}' matches stable tag pattern: ${matched}`);
+              return matched;
+            };
+
+            let stability;
+            if (eventName === 'push' && refType === 'tag') {
+              console.log(`Push event on a tag detected.`);
+              stability = isStableTag(ref) ? 'stable' : getStability(ref);
+            } else {
+              stability = getStability(ref);
+            }
+
+            console.log(`Final stability: ${stability}`);
+            core.setOutput('stability', stability);
+
+            let isTargetingFeatureBranch = false;
+
+            if (${{ contains(fromJSON('["pull_request"]') , github.event_name) }} === true) {
+              console.log(`Evaluating pull request target path for feature branch detection`);
+              let targetStability = 'canary';
+              const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
+              prPath.shift(); // remove current branch
+
+              if (prPath.length && getStability(prPath[0]) === 'canary') {
+                console.log(`First target branch is canary — flagging as targeting feature branch`);
+                isTargetingFeatureBranch = true;
+              }
+
+              prPath.every((branchName) => {
+                console.log(`checking stability of ${branchName}`)
+                targetStability = getStability(branchName);
+
+                if (targetStability !== 'canary') {
+                  console.log(`Found a non-canary target: ${branchName}, stop checking`);
+                  return false;
+                }
+
+                return true;
+              });
+
+              console.log(`Final target stability: ${targetStability}`);
+              core.setOutput('target_stability', targetStability);
+            }
+
+            core.setOutput('is_targeting_feature_branch', isTargetingFeatureBranch);
+
+      - name: Get version from ${{ inputs.version_file }}
+        id: get_version
+        run: |
+          if [[ "${{ inputs.version_file }}" == *.version* ]]; then
+            . .version
+            . ${{ inputs.version_file }}
+            VERSION="$MAJOR.$MINOR"
+          elif [[ "${{ inputs.version_file }}" == */insertBaseConf.sql ]]; then
+            VERSION=$(grep version ${{ inputs.version_file }} | cut -d "'" -f 4 | awk 'NR==2')
+          elif [[ "${{ inputs.version_file }}" == */conf.php ]]; then
+            VERSION=$(cat ${{ inputs.version_file }}| grep mod_release | cut -d'=' -f2 | cut -d'"' -f2 | cut -d"'" -f2)
+          elif [[ "${{ inputs.version_file }}" == */configs.xml ]]; then
+            VERSION=$(sed -n 's|\s*<version>\(.*\)</version>|\1|p' ${{ inputs.version_file }} 2>/dev/null)
+          elif [[ "${{ inputs.version_file }}" == */pom.xml ]]; then
+            VERSION=$(grep '<revision>.*</revision>' ${{ inputs.version_file }} | cut -d '>' -f 2 | cut -d - -f 1)
+          elif [[ "${{ inputs.version_file }}" == */*.spectemplate ]]; then
+            VERSION=$(grep 'Version: ' ${{ inputs.version_file }} | rev | cut -d' ' -f1 | rev)
+          elif [[ "${{ inputs.version_file }}" == */.env ]]; then
+            VERSION=$(sed -e '/\[[2-9][0-9].[0-9][0-9].[0-9]+\]/p' ${{ inputs.version_file }} | cut -d '=' -f 2)
+          else
+            echo "Unable to parse version file ${{ inputs.version_file }}"
+            exit 1
+          fi
+
+          if grep -E '^[2-9][0-9]\.[0-9][0-9]\.[0-9]+' <<<"$VERSION" >/dev/null 2>&1 ; then
+            n=${VERSION//[!0-9]/ }
+            a=(${n//\./ })
+            echo "major_version=${a[0]}.${a[1]}" >> $GITHUB_OUTPUT
+            MAJOR=${a[0]}.${a[1]}
+            echo "minor_version=${a[2]}" >> $GITHUB_OUTPUT
+          else
+            echo "Cannot parse version number from ${{ inputs.version_file }}"
+            exit 1
+          fi
+        shell: bash
+
+      - name: "Get release: 1 for testing / stable, <date>.<commit_sha> for others"
+        id: get_release
+        run: |
+          if [[ "${{ steps.get_stability.outputs.stability }}" == "testing" || "${{ steps.get_stability.outputs.stability }}" == "stable" ]]; then
+            RELEASE="1"
+          else
+            RELEASE="$(date +%s).$(echo ${{ github.sha }} | cut -c -7)"
+          fi
+
+          echo "release=$RELEASE" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: "Get release type: hotfix, release or not defined if not a release"
+        id: get_release_type
+        run: |
+          # Set REF_NAME (branch or tag)
+          REF_NAME="${{ github.head_ref || github.ref_name }}"
+
+          # Get ref type (branch or tag)
+          REF_TYPE="${{ github.ref_type }}"  # 'branch' or 'tag'
+          RELEASE_TYPE=""
+
+          # Get release type based on ref type
+          # if ref_type is a branch => use prefix of branch name
+          # if ref_type is a tag => use comment associated to the tag
+          if [[ "$REF_TYPE" == "branch" ]]; then
+            BASE=$(echo "$REF_NAME" | cut -d '-' -f 1)
+            if [[ "$BASE" == "hotfix" || "$BASE" == "release" ]]; then
+              RELEASE_TYPE="$BASE"
+            fi
+          elif [[ "$REF_TYPE" == "tag" ]]; then
+            # Get tag message (requires fetch of tags and history for annotated tags)
+            git fetch --tags --force
+            TAG_MSG=$(git for-each-ref refs/tags/"$REF_NAME" --format='%(contents)')
+            if echo "$TAG_MSG" | grep -q -i 'hotfix'; then
+              RELEASE_TYPE="hotfix"
+            elif echo "$TAG_MSG" | grep -q -i 'release'; then
+              RELEASE_TYPE="release"
+            fi
+          fi
+
+          if [[ -n "$RELEASE_TYPE" ]]; then
+            echo "ref_type is: $REF_TYPE"
+            echo "release_type is: $RELEASE_TYPE"
+            echo "release_type=$RELEASE_TYPE" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
+      - name: Detect nightly status
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        id: get_nightly_status
+        env:
+          NIGHTLY_MANUAL_TRIGGER: ${{ inputs.nightly_manual_trigger }}
+        with:
+          script: |
+            const getNightlyInput = () => {
+              const nightly_manual_trigger = process.env.NIGHTLY_MANUAL_TRIGGER;
+              console.log(nightly_manual_trigger);
+              if (typeof nightly_manual_trigger === 'undefined' || nightly_manual_trigger === '' || '${{ github.repository }}'.match(/^workflow-.*$/)) {
+                return 'false';
+              } else if (context.eventName === 'schedule' || context.eventName === 'workflow_dispatch' && nightly_manual_trigger === 'true' ) {
+                return 'true';
+              }
+              return 'false';
+            };
+
+            core.setOutput('is_nightly', getNightlyInput());
+
+      - name: "Detect cloud version"
+        id: detect_cloud_version
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const eventName = process.env.GITHUB_EVENT_NAME;
+            const ref = process.env.GITHUB_REF;         // full ref like refs/heads/develop or refs/tags/...
+            const refName = process.env.GITHUB_REF_NAME; // just the branch/tag name
+            const baseRef = process.env.GITHUB_BASE_REF; // only set for pull_request
+
+            let releaseScope = "unknown";
+
+            // handle if triggering event is a pull_request
+            // finalTargetBranch can be develop, dev-XX.YY.x, release-XX.YY-next, hotfix-XX.YY-next
+            if ( "${{ github.event_name }}" === "pull_request" ) {
+              const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
+              const finalTargetBranch = prPath.pop();
+              console.log(`finalTargetBranch is: ${finalTargetBranch}`)
+
+              // if finalTarget branch is develop => it is a cloud version
+              if (['develop'].includes(finalTargetBranch)) {
+                releaseScope = "cloud";
+              } else {
+                // compare developMajorVersion and currentMajorVersion
+                const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
+                const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+
+                // if major version is higher than develop major version => it is a cloud version
+                // if month number is not 04 or 10 => it is a cloud version
+                // anything else => onprem
+
+                const toTuple = v => v.split('.').map(Number); // ['24','10'] → [24,10]
+                const [curMajor, curMinor]     = toTuple(currentMajorVersion);
+                const [devMajor, devMinor]     = toTuple(developMajorVersion);
+                const newerThanDevelop        = curMajor > devMajor || (curMajor === devMajor && curMinor > devMinor);
+                const isCloudCandidate        = newerThanDevelop || ![4,10].includes(curMinor);
+
+                releaseScope = isCloudCandidate ? "cloud" : "onprem";
+              }
+            }
+            // handle if triggering event is a push_tag of a release
+            else if (eventName === "push" && ref.startsWith("refs/tags/")) {
+              console.log(`🏷️ Tag pushed: ${refName}`);
+              // Extract scope (cloud on onprem) from tag description
+              // Format expected: "release-cloud-20270800-27.08 or release-onprem-20270800-24.10"
+
+              // get release bundle
+              // Get the commit SHA that this tag points to
+              const tagRef = await github.rest.git.getRef({
+                owner,
+                repo,
+                ref: `tags/${refName}`
+              });
+
+              let targetSha = tagRef.data.object.sha;
+
+
+              // Resolve to commit SHA (if annotated tag)
+              if (tagRef.data.object.type === "tag") {
+                const tagObj = await github.rest.git.getTag({
+                  owner,
+                  repo,
+                  tag_sha: targetSha,
+                });
+                targetSha = tagObj.data.object.sha;
+              }
+              console.log(`📌 Commit SHA from tag: ${targetSha}`);
+
+              const releaseTags = await github.paginate(
+                github.rest.git.listMatchingRefs,
+                {
+                  owner,
+                  repo,
+                  ref: "tags/release-",
+                }
+              );
+              console.log(`🔍 Found ${releaseTags.length} release-* tags`);
+
+              let matchingTag = null;
+
+              // Find all refs/tags and filter to find the matching release-* tags
+              const tags = await github.paginate(github.rest.git.listMatchingRefs, {
+                owner,
+                repo,
+                ref: "tags/"
+              });
+
+              for (const tag of releaseTags) {
+                let tagSha = tag.object.sha;
+                if (tag.object.type === "tag") {
+                  const tagObj = await github.rest.git.getTag({
+                    owner,
+                    repo,
+                    tag_sha: tagSha,
+                  });
+                  tagSha = tagObj.data.object.sha;
+                }
+
+                console.log(`🧷 Tag ${tag.ref} -> commit SHA: ${tagSha}`);
+
+                if (tagSha === targetSha) {
+                  matchingTag = tag.ref;
+                  break;
+                }
+              }
+
+              if (!matchingTag) {
+                core.setFailed(`❌ No matching release-* tag found on commit: ${targetSha}`);
+                return;
+              }
+
+              const bundleTag = matchingTag.replace("refs/tags/", "");
+              const scope = bundleTag.split("-")[1];
+
+              if (!["cloud", "onprem"].includes(scope)) {
+                core.setFailed(`❌ Unknown scope in bundle tag: ${bundleTag}`);
+                return;
+              }
+
+              releaseScope = scope;
+            }
+            // handle if triggering event is a push
+            else if (ref.startsWith("refs/heads/") && (eventName === "push" || eventName === "workflow_dispatch")) {
+              const branch = ref.replace("refs/heads/", "");
+              console.log(`🚀 Push to branch: ${branch}`);
+
+              // compare developMajorVersion and curentMajorVersion
+              const developMajorVersion = "${{ steps.latest_major_version.outputs.latest_major_version }}";
+              const currentMajorVersion = "${{ steps.get_version.outputs.major_version }}";
+
+              // if major version is higher than develop major version => it is a cloud version
+              // if month number is not 04 or 10 => it is a cloud version
+              // anything else => onprem
+              const isCloudCandidate =
+                Number(currentMajorVersion) >= Number(developMajorVersion) ||
+                !currentMajorVersion.match(/\.(04|10)$/);
+              releaseScope = isCloudCandidate ? "cloud" : "onprem";
+            }
+            // in any other case, fail the run
+            else {
+              core.setFailed(`❌ Unsupported event: ${eventName}`);
+              return;
+            }
+
+            // Set isCloud if releaseScope value is "cloud"
+            const isCloud = releaseScope === "cloud";
+
+            console.log(`📦 releaseScope: ${releaseScope}`);
+            core.setOutput("releaseScope", releaseScope);
+            core.setOutput("isCloud", isCloud);
+
+      - name: Detect linked dev and stable branches
+        id: linked_branches
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            let linkedDevBranch = 'develop';
+            let linkedStableBranch = 'master';
+            if ('${{ steps.detect_cloud_version.outputs.isCloud }}' === 'false') {
+              linkedDevBranch = 'dev-' + '${{ steps.get_version.outputs.major_version }}' + '.x';
+              linkedStableBranch = '${{ steps.get_version.outputs.major_version }}' + '.x';
+            }
+            core.setOutput('linked_dev_branch', linkedDevBranch);
+            core.setOutput('linked_stable_branch', linkedStableBranch);
+
+      - name: Get previous release bundle tag
+        id: get_previous_release_bundle_tag
+        env:
+          IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
+          STABILITY: ${{ steps.get_stability.outputs.stability }}
+          MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            if (process.env.STABILITY !== 'testing' && process.env.STABILITY !== 'stable') {
+              core.setOutput('previous_release_bundle_tag', '');
+              return;
+            }
+
+            let execOutput = '';
+            let execError = '';
+            const execOptions = {
+              listeners: {
+                stdout: (data) => {
+                  execOutput += data.toString();
+                },
+                stderr: (data) => {
+                  execError += data.toString();
+                }
+              },
+              silent: true
+            };
+
+            let previousStableBundleSha = '';
+            let previousStableBundleTag = '';
+
+            await exec.exec(
+              `bash -c "git ls-remote --tags origin 'refs/tags/release-${process.env.IS_CLOUD === 'true' && 'cloud' || 'onprem'}-*' | grep -v '{}' | sort -t'-' -k4r,4 -k3r,3"`,
+              [],
+              execOptions
+            );
+
+            for (const line of execOutput.split('\n')) {
+              const tag = line.trim();
+              const matches = tag.match(/^(.+)\s+.+\/(release-(cloud|onprem)-\d{8}-(\d{2}\.\d{2}))$/);
+              if (matches && Number(matches[4]) <= Number(process.env.MAJOR_VERSION)) {
+                previousStableBundleSha = matches[1];
+                previousStableBundleTag = matches[2];
+                break;
+              } else {
+                console.log(`Ignoring non-matching tag: ${tag}`);
+              }
+            }
+
+            console.log(`Previous release bundle tag is: ${previousStableBundleTag} (${previousStableBundleSha})`);
+
+            core.setOutput('previous_release_bundle_tag', previousStableBundleTag);
+
+      - name: Detect operating systems and databases to test
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        id: get_os_database_matrix
+        with:
+          script: |
+            const alma9_mariadb = {
+              "operating_system": "alma9",
+              "database": "mariadb:10.11",
+              "test_tags": "not @ignore"
+            };
+            const alma8_mariadb = {
+              "operating_system": "alma8",
+              "database": "mariadb:10.11",
+              "test_tags": "not @ignore and @system"
+            };
+            const bookworm_mysql = {
+              "operating_system": "bookworm",
+              "database": "mysql:8.0",
+              "test_tags": "not @ignore"
+            };
+
+            const getDailyConfig = (configs) => {
+              const today = new Date();
+              const dayOfWeek = today.getDay(); // 0=sunday, 1=monday, ..., 6=saturday
+
+              // If it's weekend, use the default configuration
+              if (dayOfWeek === 0 || dayOfWeek === 6) {
+                return configs[0];
+              }
+
+              // Reference date: January 1, 2025
+              const referenceDate = new Date('2025-01-01');
+
+              // Calculate the number of working days since January 1
+              let workingDays = 0;
+              const currentDate = new Date(referenceDate);
+
+              while (currentDate < today) {
+                const dayOfWeek = currentDate.getDay();
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+                  workingDays++;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+              }
+
+              // Alternating balanced on 3 configurations
+              const configIndex = workingDays % configs.length;
+
+              return configs[configIndex];
+            };
+
+            const configs = [alma9_mariadb, alma8_mariadb, bookworm_mysql];
+
+            const main = alma9_mariadb;
+
+            let matrix = {
+              "main": [main],
+              "operating_systems": [main],
+              "databases": [main],
+            };
+
+            if ('${{ steps.get_nightly_status.outputs.is_nightly }}' == 'true') {
+              const dailyConfig = getDailyConfig(configs);
+
+              matrix = {
+                "main": [dailyConfig],
+                "operating_systems": [dailyConfig],
+                "databases": [dailyConfig],
+              };
+            }
+
+            if (
+              ${{ contains(steps.has_skip_label.outputs.labels, 'database') && 'true' || 'false' }}
+              || ${{ contains(steps.has_skip_label.outputs.labels, 'system') && 'true' || 'false' }}
+            ) {
+              matrix = {
+                ...matrix,
+                "operating_systems": configs,
+                "databases": configs,
+              };
+            }
+
+            console.log(matrix);
+
+            return matrix;
+
+      - name: Display info in job summary
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const outputTable = [
+              [{data: 'Name', header: true}, {data: 'Value', header: true}],
+              ['latest_major_version', '${{ steps.latest_major_version.outputs.latest_major_version }}'],
+              ['is_cloud', '${{ steps.detect_cloud_version.outputs.isCloud }}'],
+              ['previous_release_bundle_tag', '${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag || '<em>not found</em>' }}'],
+              ['linked_dev_branch', '${{ steps.linked_branches.outputs.linked_dev_branch }}'],
+              ['linked_stable_branch', '${{ steps.linked_branches.outputs.linked_stable_branch }}'],
+              ['major_version', '${{ steps.get_version.outputs.major_version }}'],
+              ['minor_version', '${{ steps.get_version.outputs.minor_version }}'],
+              ['release', '${{ steps.get_release.outputs.release }}'],
+              ['stability', '${{ steps.get_stability.outputs.stability }}'],
+              ['release_type', '${{ steps.get_release_type.outputs.release_type || '<em>not defined because this is not a release</em>' }}'],
+              ['is_targeting_feature_branch', '${{ steps.get_stability.outputs.is_targeting_feature_branch }}'],
+              ['is_nightly', '${{ steps.get_nightly_status.outputs.is_nightly }}'],
+              ['skip_workflow', '${{ steps.skip_workflow.outputs.result }}'],
+              ['labels', '${{ steps.has_skip_label.outputs.labels }}'],
+            ];
+
+            outputTable.push(['target_stability', '${{ steps.get_stability.outputs.target_stability || '<em>not defined because current run is not triggered by pull request event</em>' }}']);
+
+            core.summary
+              .addHeading(`${context.workflow} environment outputs`)
+              .addTable(outputTable);
+
+            if ("${{ github.event_name }}" === "pull_request") {
+              const prPath = ${{ steps.pr_path.outputs.result || '[]' }};
+              const mainBranchName = prPath.pop();
+              let codeBlock = `
+                %%{ init: { 'gitGraph': { 'mainBranchName': '${mainBranchName}', 'showCommitLabel': false } } }%%
+                gitGraph
+                  commit`;
+              prPath.reverse().forEach((branchName) => {
+                codeBlock = `${codeBlock}
+                  branch ${branchName}
+                  checkout ${branchName}
+                  commit`;
+              });
+
+              core.summary
+                .addHeading('Git workflow')
+                .addCodeBlock(
+                  codeBlock,
+                  "mermaid"
+                );
+            }
+
+            core.summary.write();
