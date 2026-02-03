@@ -118,7 +118,7 @@ jobs:
         shell: bash
 
       - name: Archive test results
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ failure() }}
         with:
           name: ${{ inputs.name }}-component-test-results-${{ matrix.spec }}
@@ -130,7 +130,7 @@ jobs:
 
       - name: Archive test reports
         if: ${{ ! cancelled() }}
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ inputs.name }}-component-test-reports-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/cypress/results/*.json
@@ -141,7 +141,7 @@ jobs:
         shell: bash
 
       - name: Archive test coverage
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ inputs.name }}-component-test-coverage-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
@@ -205,7 +205,7 @@ jobs:
         shell: bash
 
       - name: Archive HTML code coverage
-        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
           path: coverage/lcov-report
@@ -319,7 +319,7 @@ jobs:
         type_of_report: [test-results, test-reports, test-coverage]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        uses: actions/upload-artifact/merge@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: |
           (needs.cypress-component-test-run.result == 'failure' && contains(fromJson('["test-results", "test-reports"]'), matrix.type_of_report)) ||
           matrix.type_of_report == 'test-coverage'
