@@ -278,7 +278,7 @@ jobs:
               | jq -r '.object.sha'
           )
 
-          # Exit if NEW_BRANC_SHA is not set at all
+          # Exit if NEW_BRANCH_SHA is not set at all
           if [[ -z "$NEW_BRANCH_SHA" || "$NEW_BRANCH_SHA" == "null" ]]; then
             echo "[ERROR] NEW_BRANCH_SHA could not be resolved and set, exiting."
             exit 1
@@ -290,7 +290,6 @@ jobs:
           # Output the vars
           # NEW_BRANCH_SHA
           echo "new_branch_sha=$NEW_BRANCH_SHA" >> $GITHUB_OUTPUT
-
 
         env:
           GH_TOKEN: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
@@ -333,7 +332,7 @@ jobs:
           # Loading component changed into array
           mapfile -t COMPONENTS_OSS_CHANGED < component-commit-lists-dir/changed-components.txt
 
-          # Accept the branche types listed below, nothing else
+          # Accept the branch types listed below, nothing else
           # release prefixed branches: standard release type (release-xxxxx)
           # hotfix prefixed branches: hotfix release type (hotfix-xxxxx)
           # develop: start of a new major version (not a release) (develop)
