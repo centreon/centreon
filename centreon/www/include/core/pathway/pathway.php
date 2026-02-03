@@ -115,7 +115,7 @@ if ($pdoStatement->execute()) {
 }
 
 // Get children that share the same URL as their parent
-if (! empty($breadcrumbData)) {
+if ($breadcrumbData !== []) {
     $childrenStatement = $pearDB->prepare(
         'SELECT child.topology_page AS child_page, parent.topology_page AS parent_page
         FROM topology AS parent
