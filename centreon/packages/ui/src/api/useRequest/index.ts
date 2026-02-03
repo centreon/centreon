@@ -1,9 +1,11 @@
-import axios from "axios";
-import { defaultTo, includes, or, path, pathOr } from "ramda";
-import { useEffect, useState } from "react";
-import { JsonDecoder } from "ts.data.json";
-import useSnackbar from "../../Snackbar/useSnackbar";
-import useCancelTokenSource from "../useCancelTokenSource";
+import { useEffect, useState } from 'react';
+
+import axios from 'axios';
+import { defaultTo, includes, or, path, pathOr } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
+
+import useSnackbar from '../../Snackbar/useSnackbar';
+import useCancelTokenSource from '../useCancelTokenSource';
 
 const log = console;
 
@@ -24,8 +26,8 @@ const useRequest = <TResult>({
   request,
   decoder,
   getErrorMessage,
-  defaultFailureMessage = "Oops, something went wrong",
-  httpCodesBypassErrorSnackbar = [],
+  defaultFailureMessage = 'Oops, something went wrong',
+  httpCodesBypassErrorSnackbar = []
 }: RequestParams<TResult>): RequestResult<TResult> => {
   const { token, cancel } = useCancelTokenSource();
   const { showErrorMessage } = useSnackbar();
@@ -40,8 +42,8 @@ const useRequest = <TResult>({
     log.error(error);
 
     const message = or(
-      pathOr(undefined, ["response", "data", "message"], error),
-      pathOr(defaultFailureMessage, ["response", "data"], error),
+      pathOr(undefined, ['response', 'data', 'message'], error),
+      pathOr(defaultFailureMessage, ['response', 'data'], error)
     );
 
     const errorMessage = defaultTo(message, getErrorMessage?.(error));
@@ -70,8 +72,8 @@ const useRequest = <TResult>({
         }
 
         const hasACorrespondingHttpCode = includes(
-          path<number>(["response", "status"], error) as number,
-          httpCodesBypassErrorSnackbar,
+          path<number>(['response', 'status'], error) as number,
+          httpCodesBypassErrorSnackbar
         );
 
         if (hasACorrespondingHttpCode) {

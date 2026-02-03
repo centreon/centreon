@@ -5,10 +5,10 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import anylogger from "anylogger";
 import { has, includes, isNil, not, omit } from "ramda";
 import { useEffect, useMemo, useRef } from "react";
 import { JsonDecoder } from "ts.data.json";
+
 import useSnackbar from "../../Snackbar/useSnackbar";
 import { useDeepCompare } from "../../utils";
 import { CatchErrorProps, customFetch, ResponseError } from "../customFetch";

@@ -1,21 +1,23 @@
+import { useEffect } from 'react';
+
 import {
   UseMutationOptions,
   UseMutationResult,
-  useMutation,
-} from "@tanstack/react-query";
-import { includes, omit } from "ramda";
-import { useEffect } from "react";
-import { JsonDecoder } from "ts.data.json";
-import useSnackbar from "../../Snackbar/useSnackbar";
-import { useDeepCompare } from "../../utils";
-import { CatchErrorProps, customFetch, ResponseError } from "../customFetch";
+  useMutation
+} from '@tanstack/react-query';
+import { includes, omit } from 'ramda';
+import { JsonDecoder } from 'ts.data.json';
+
+import useSnackbar from '../../Snackbar/useSnackbar';
+import { useDeepCompare } from '../../utils';
+import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
 
 export enum Method {
-  DELETE = "DELETE",
-  GET = "GET",
-  PATCH = "PATCH",
-  POST = "POST",
-  PUT = "PUT",
+  DELETE = 'DELETE',
+  GET = 'GET',
+  PATCH = 'PATCH',
+  POST = 'POST',
+  PUT = 'PUT'
 }
 
 interface Variables<TMeta, T> {
@@ -35,24 +37,24 @@ export type UseMutationQueryProps<T, TMeta> = {
   onError?: (
     error: ResponseError,
     variables: Variables<TMeta, T>,
-    context: unknown,
+    context: unknown
   ) => unknown;
   onMutate?: (variables: Variables<TMeta, T>) => Promise<unknown> | unknown;
   onSuccess?: (
     data: ResponseError | T,
     variables: Variables<TMeta, T>,
-    context: unknown,
+    context: unknown
   ) => unknown;
 } & Omit<
   UseMutationOptions<{ _meta?: TMeta; payload: T }>,
-  "mutationFn" | "onError" | "onMutate" | "onSuccess" | "mutateAsync" | "mutate"
+  'mutationFn' | 'onError' | 'onMutate' | 'onSuccess' | 'mutateAsync' | 'mutate'
 >;
 
 const log = console;
 
 export type UseMutationQueryState<T, TMeta> = Omit<
   UseMutationResult<T | ResponseError>,
-  "isError" | "mutate" | "mutateAsync"
+  'isError' | 'mutate' | 'mutateAsync'
 > & {
   isError: boolean;
   isMutating: boolean;
@@ -61,8 +63,8 @@ export type UseMutationQueryState<T, TMeta> = Omit<
     variables: Variables<TMeta, T>,
     rest?: Pick<
       UseMutationQueryProps<T, TMeta>,
-      "onError" | "onMutate" | "onSettled" | "onSuccess"
-    >,
+      'onError' | 'onMutate' | 'onSettled' | 'onSuccess'
+    >
   ) => Promise<ResponseError | T>;
 };
 
@@ -78,7 +80,7 @@ const useMutationQuery = <T extends object, TMeta>({
   onError,
   onSuccess,
   onSettled,
-  baseEndpoint,
+  baseEndpoint
 }: UseMutationQueryProps<T, TMeta>): UseMutationQueryState<T, TMeta> => {
   const { showErrorMessage } = useSnackbar();
 
@@ -88,7 +90,7 @@ const useMutationQuery = <T extends object, TMeta>({
     Variables<TMeta, T>
   >({
     mutationFn: (
-      variables: Variables<TMeta, T>,
+      variables: Variables<TMeta, T>
     ): Promise<T | ResponseError> => {
       const { _meta, payload } = variables || {};
 
@@ -99,12 +101,12 @@ const useMutationQuery = <T extends object, TMeta>({
         defaultFailureMessage,
         endpoint: getEndpoint(_meta as TMeta),
         headers: new Headers({
-          "Content-Type": "application/x-www-form-urlencoded",
-          ...fetchHeaders,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...fetchHeaders
         }),
         isMutation: true,
         method,
-        payload,
+        payload
       });
     },
     onError,
@@ -117,7 +119,7 @@ const useMutationQuery = <T extends object, TMeta>({
         return;
       }
       onSuccess?.(data, variables, context);
-    },
+    }
   });
 
   const manageError = (): void => {
@@ -126,7 +128,7 @@ const useMutationQuery = <T extends object, TMeta>({
       log.error(data.message);
       const hasACorrespondingHttpCode = includes(
         data?.statusCode || 0,
-        httpCodesBypassErrorSnackbar,
+        httpCodesBypassErrorSnackbar
       );
 
       if (!hasACorrespondingHttpCode) {
@@ -139,13 +141,13 @@ const useMutationQuery = <T extends object, TMeta>({
     () => {
       manageError();
     },
-    useDeepCompare([queryData.data]),
+    useDeepCompare([queryData.data])
   );
 
   return {
-    ...omit(["isError"], queryData),
+    ...omit(['isError'], queryData),
     isError: (queryData.data as ResponseError | undefined)?.isError || false,
-    isMutating: queryData.isPending,
+    isMutating: queryData.isPending
   };
 };
 
