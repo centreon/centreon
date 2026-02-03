@@ -6463,6 +6463,7 @@ msgstr ""
 
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Filters"
 msgstr "Filtros"
