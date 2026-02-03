@@ -21,6 +21,10 @@ on:
       features_path:
         required: true
         type: string
+      test_tags:
+        required: false
+        type: string
+        default: "not @ignore"
       config_file:
         required: false
         type: string
@@ -46,7 +50,9 @@ jobs:
   behat-test-list:
     runs-on: ubuntu-24.04
     outputs:
+      test_tags: ${{ steps.list-features.outputs.test_tags }}
       features: ${{ steps.list-features.outputs.features }}
+      has_features: ${{ steps.list-features.outputs.features != '' && toJson(fromJson(steps.list-features.outputs.features)) != '[]' && 'true' || 'false' }}
 
     steps:
       - name: Checkout sources
@@ -55,12 +61,37 @@ jobs:
       - name: List features
         id: list-features
         run: |
+          set -o pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y cucumber
+
+          TEST_TAGS_INPUT="${{ inputs.test_tags }}"
+          CUCUMBER_TAGS=()
+          if [ -n "$TEST_TAGS_INPUT" ]; then
+            while IFS= read -r RAW_TAG; do
+              RAW_TAG=$(echo "$RAW_TAG" | sed -e 's/^ *//g' -e 's/ *$//g')
+              if [[ "$RAW_TAG" == not\ * ]]; then
+                TAG="${RAW_TAG#not }"
+                CUCUMBER_TAGS+=(--tags "~$TAG")
+              elif [ -n "$RAW_TAG" ]; then
+                CUCUMBER_TAGS+=(--tags "$RAW_TAG")
+              fi
+            done <<< "$(echo "$TEST_TAGS_INPUT" | sed 's/ and /\n/g')"
+
+            TEST_TAGS=$(echo "$TEST_TAGS_INPUT" | sed -e 's#not #~#g' -e 's# and #\&\&#g')
+          fi
+          echo "test_tags=$TEST_TAGS" >> $GITHUB_OUTPUT
+
           cd ${{ inputs.module_name }}
-          echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          FEATURES=$(cucumber ${{ inputs.features_path }} "${CUCUMBER_TAGS[@]}" -f json | jq -r '.[].uri' | sed -e 's#${{ inputs.features_path }}/*##g' | sort | jq -R -s -c 'split("\n")[:-1]')
+          echo $FEATURES
+          echo "features=$FEATURES" >> $GITHUB_OUTPUT
 
   behat-test-run:
+    if: ${{ needs.behat-test-list.outputs.features != '' && toJson(fromJson(needs.behat-test-list.outputs.features)) != '[]' }}
     needs: [behat-test-list]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -73,19 +104,19 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Login to registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
           username: ${{ secrets.registry_username }}
           password: ${{ secrets.registry_password }}
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@6d7209f44a25a59e904b1ee9f3b0c33ab2cd888d # v2.29.0
+        uses: shivammathur/setup-php@c541c155eee45413f5b09a52248675b1a2575231 # v2.31.1
         with:
-          php-version: 8.1
+          php-version: 8.2
           coverage: none
         env:
           COMPOSER_TOKEN: ${{ secrets.composer_token }}
@@ -138,7 +169,7 @@ jobs:
           rm -rf xunit-reports && mkdir xunit-reports
           BASE_DIRECTORY=$(pwd)
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --tags '${{ needs.behat-test-list.outputs.test_tags }}' --colors --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: ${{ !cancelled() }}
@@ -180,7 +211,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Download Artifacts
         uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
@@ -195,29 +226,27 @@ jobs:
           path: '${{ inputs.name }}-xunit-reports/**/*.xml'
 
   regroup-artifacts:
-    needs: [behat-test-run, behat-test-report]
-    if: always()
+    needs: [behat-test-list, behat-test-run, behat-test-report]
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled') &&
+      needs.behat-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         type_of_report: [test-logs, test-reports]
     steps:
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Merging Artifacts
-        uses: ./.github/actions/merge-artifacts
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         if: ${{ contains(needs.behat-test-run.result, 'failure') }}
         with:
-          target_name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
-          source_paths: |
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.xml
-            ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}/**/*.txt
-          source_name_pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}
+          pattern: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
+          retention-days: 1
 
       - name: Delete merged artifacts
-        uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
+        uses: geekyeggo/delete-artifact@24928e75e6e6590170563b8ddae9fac674508aa1 # v5.0.0
         with:
           name: ${{ inputs.name }}-${{ inputs.os }}-${{ matrix.type_of_report }}-*
           failOnError: false

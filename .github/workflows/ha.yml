@@ -20,9 +20,7 @@ on:
       - "centreon-ha/**"
   push:
     branches:
-      - develop
       - dev-[2-9][0-9].[0-9][0-9].x
-      - master
       - "[2-9][0-9].[0-9][0-9].x"
       - 'release-[2-9][0-9].[0-9][0-9]-next'
       - 'hotfix-[2-9][0-9].[0-9][0-9]-next'
@@ -44,7 +42,7 @@ jobs:
     needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
-      version_file: centreon-ha/.env
+      version_file: .version.centreon-ha
       labels: ${{ inputs.labels || '' }}
 
   changes:
@@ -93,11 +91,11 @@ jobs:
             image: packaging-nfpm-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-bullseye
-            distrib: bullseye
-          - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
+          - package_extension: deb
+            image: packaging-noble
+            distrib: noble
 
     runs-on: ubuntu-24.04
 
@@ -200,7 +198,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [bullseye, bookworm]
+        distrib: [bookworm, noble]
     steps:
       - name: Checkout sources
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -228,7 +226,8 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bullseye, bookworm]
+        distrib: [el8, el9, bookworm, noble]
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2

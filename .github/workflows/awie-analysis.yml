@@ -73,7 +73,7 @@ jobs:
     uses: centreon/security-tools/.github/workflows/checkmarx-analysis.yml@main
     with:
       module_directory: centreon-awie
-      module_name: centreon-awie-dev-${{ needs.get-environment.outputs.major_version }}.x
+      module_name: centreon-awie-dev-${{ needs.get-environment.outputs.major_version }}.0
       exclude_list:
     secrets:
       base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
