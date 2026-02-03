@@ -40,6 +40,7 @@ final readonly class ResourceListCommandTransformer implements TransformerInterf
             type: $from->type->name,
             commandLine: $from->commandLine->value,
             isActivated: $from->isActivated ?? false,
+            isFromMonitoringConnector: $from->isFromMonitoringConnector,
         );
     }
 }
