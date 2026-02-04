@@ -1,6 +1,6 @@
 <style>
 {literal}
-    /* Si l'input interne est disabled (géré par votre PHP), le parent md-radio se grise tout seul */
+    /* If the input is disabled, change the style accordingly */
     .md-radio:has(input[disabled]) {
         opacity: 0.5;
         pointer-events: none;
