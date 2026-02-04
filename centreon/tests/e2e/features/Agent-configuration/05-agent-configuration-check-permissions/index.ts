@@ -20,6 +20,12 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-3.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-4.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
+  );
 });
 
 beforeEach(() => {
@@ -63,7 +69,7 @@ Given('an admin user is in the Agents Configuration page', () => {
 });
 
 When('the user clicks on Add', () => {
-  cy.contains('button', 'Add agent configuration').click();
+  cy.contains('button', 'Add').click();
 });
 
 Then('a pop-up menu with the form is displayed', () => {
@@ -121,7 +127,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'have.text',
-    'Central'
+    'Poller-5'
   );
   cy.getByLabel({
     label: 'Public certificate (.crt, .cert, .cer)',
@@ -189,7 +195,7 @@ Then(
 );
 
 When('the user deletes the Agents Configuration', () => {
-  cy.getByTestId({ testId: 'Delete' }).eq(0).click();
+  cy.getByTestId({ testId: 'Delete' }).eq(1).click();
   cy.contains('button', 'Delete').click();
   cy.wait('@deleteAgents');
 });
@@ -237,7 +243,7 @@ Given('an agent configuration already created linked with two pollers', () => {
     agentsConfiguration.telegraf1.name
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.contains('Poller-4').click();
   cy.contains('Poller-1').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
@@ -304,7 +310,14 @@ When(
       bodyContent: {
         action: 'addfilter_instance',
         object: 'ACLRESOURCE',
-        values: 'All Resources;Central'
+        values: 'All Resources;Poller-4'
+      }
+    });
+    cy.setUserTokenApiV1().executeActionViaClapi({
+      bodyContent: {
+        action: 'addfilter_instance',
+        object: 'ACLRESOURCE',
+        values: 'All Resources;Poller-5'
       }
     });
     cy.setUserTokenApiV1().executeActionViaClapi({
@@ -323,6 +336,7 @@ Then('the user can view the agent configuration linked to the pollers', () => {
     'contain',
     agentsConfiguration.telegraf1.name
   );
+  cy.wait('@getAgentsPage');
   cy.get('*[role="rowgroup"]').should('contain', '2 pollers');
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
@@ -342,10 +356,10 @@ Then(
     );
     cy.get('[class^="MuiChip-label MuiChip-labelMedium"]')
       .eq(0)
-      .should('have.text', 'Central');
+      .should('have.text', 'Poller-1');
     cy.get('[class^="MuiChip-label MuiChip-labelMedium"]')
       .eq(1)
-      .should('have.text', 'Poller-1');
+      .should('have.text', 'Poller-4');
     cy.getByLabel({
       label: 'Public certificate (.crt, .cert, .cer)',
       tag: 'input'
@@ -427,7 +441,10 @@ When('the user adds a second agent configuration', () => {
 Then('only the filtered pollers are listed in the Pollers field', () => {
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
   cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
-    'Central'
+    'Poller-5'
+  );
+  cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
+    'Poller-4'
   );
   cy.get('[class^="MuiPopper-root MuiAutocomplete-popper"]').contains(
     'Poller-1'

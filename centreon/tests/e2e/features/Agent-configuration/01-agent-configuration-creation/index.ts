@@ -20,6 +20,9 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-4.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
+  );
 });
 
 beforeEach(() => {
@@ -43,6 +46,10 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/administration/tokens'
   }).as('addToken');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/configuration/monitoring-servers?page=*'
+  }).as('getPollers');
 });
 
 after(() => {
