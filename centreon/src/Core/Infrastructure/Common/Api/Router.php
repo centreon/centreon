@@ -236,15 +236,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 $parameters['base_uri'] .= '/';
             }
 
-            $generatedRoute = $this->router->generate($name, $parameters, self::ABSOLUTE_URL);
-
-            // Clean up double slashes
-            $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '/', $generatedRoute);
-
-            if ($generatedRoute === null) {
-                throw new \Exception('Error occurred during regular expression search and replace.');
-            }
-
+            $generatedRoute = $this->generate($name, $parameters, self::ABSOLUTE_URL);
             return $generatedRoute;
         } finally {
             // Restore original context
