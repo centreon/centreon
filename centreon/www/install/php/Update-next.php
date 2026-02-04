@@ -121,8 +121,8 @@ $addNewCommandPage = function () use ($pearDB, &$errorMessage, $version): void {
 
     $pearDB->executeStatement(
         <<<'SQL'
-            INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`)
-            VALUES ( 'Commands', '/configuration/commands', '1', '1', 608, 60808, 1, 1)
+            INSERT INTO `topology` (`topology_name`, `topology_url`, `readonly`, `is_react`, `topology_parent`, `topology_page`, `topology_order`, `topology_group`, `topology_url_substitute`)
+            VALUES ( 'Commands', '/configuration/commands', '1', '1', 608, 60808, 1, 1, './include/configuration/configObject/command/command.php')
             SQL
     );
 };
