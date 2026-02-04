@@ -22,7 +22,7 @@ on:
 
 jobs:
   dependency-scan:
-    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@ignore
 
   publish-package:
     needs: [dependency-scan]
