@@ -4423,27 +4423,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  */
 function callApi(string $url, string $httpMethod, array $payload): array
 {
-    // Convert URL to localhost to avoid proxy/load balancer issues
-    $url = InternalApiClient::convertToLocalUrl($url);
+    $client = new InternalApiClient();
 
-    $client = new CurlHttpClient();
-    $response = $client->request(
-        $httpMethod,
-        $url,
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Cookie' => CentreonSession::resolveSessionCookie(),
-            ],
-            'body' => json_encode($payload),
-            // Skip SSL verification for localhost calls
-            'verify_peer' => false,
-            'verify_host' => false,
-        ]
-    );
-
-    $status = $response->getStatusCode();
-    $content = json_decode($response->getContent(false), true);
-
-    return ['status_code' => $status, 'content' => $content];
+    return $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 }

@@ -23,14 +23,82 @@ declare(strict_types=1);
 
 namespace Core\Common\Infrastructure\Api;
 
+use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 /**
- * Utility class for converting URLs to localhost for internal API calls.
+ * Client for making internal API calls that stay on localhost.
  * This avoids issues with proxies, load balancers, and HTTPS termination.
  */
 final class InternalApiClient
 {
     private const DEFAULT_LOCAL_HOST = '127.0.0.1';
     private const DEFAULT_LOCAL_SCHEME = 'http';
+
+    private HttpClientInterface $httpClient;
+
+    /**
+     * @param HttpClientInterface|null $httpClient HTTP client (defaults to CurlHttpClient with SSL verification disabled)
+     */
+    public function __construct(?HttpClientInterface $httpClient = null)
+    {
+        $this->httpClient = $httpClient ?? new CurlHttpClient([
+            'verify_peer' => false,
+            'verify_host' => false,
+        ]);
+    }
+
+    /**
+     * Make an internal API request using localhost.
+     *
+     * @param string $url The original URL (will be converted to localhost)
+     * @param string $httpMethod HTTP method (GET, POST, PATCH, PUT, DELETE)
+     * @param string $sessionCookie The session cookie for authentication
+     * @param array<string, mixed> $payload Request body payload (will be JSON encoded)
+     * @param array<string, string> $additionalHeaders Additional headers to include
+     *
+     * @throws TransportExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws \JsonException
+     *
+     * @return array{status_code: int, content: mixed}
+     */
+    public function request(
+        string $url,
+        string $httpMethod,
+        string $sessionCookie,
+        array $payload = [],
+        array $additionalHeaders = [],
+    ): array {
+        $localUrl = self::convertToLocalUrl($url);
+
+        $headers = array_merge(
+            [
+                'Content-Type' => 'application/json',
+                'Cookie' => $sessionCookie,
+            ],
+            $additionalHeaders
+        );
+
+        $options = ['headers' => $headers];
+
+        if (! empty($payload)) {
+            $options['body'] = json_encode($payload, JSON_THROW_ON_ERROR);
+        }
+
+        $response = $this->httpClient->request($httpMethod, $localUrl, $options);
+
+        return [
+            'status_code' => $response->getStatusCode(),
+            'content' => json_decode($response->getContent(false), true),
+        ];
+    }
 
     /**
      * Convert an external URL to a localhost URL for internal API calls.
@@ -68,19 +136,5 @@ final class InternalApiClient
         }
 
         return $localUrl;
-    }
-
-    /**
-     * Get the default options for internal HTTP client requests.
-     * These options disable SSL verification since we're calling localhost.
-     *
-     * @return array{verify_peer: bool, verify_host: bool}
-     */
-    public static function getDefaultHttpOptions(): array
-    {
-        return [
-            'verify_peer' => false,
-            'verify_host' => false,
-        ];
     }
 }

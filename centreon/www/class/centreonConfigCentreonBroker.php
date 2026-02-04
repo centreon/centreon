@@ -1303,11 +1303,8 @@ class CentreonConfigCentreonBroker
         /** @var Core\Infrastructure\Common\Api\Router $router */
         $router = $kernel->getContainer()->get(Core\Infrastructure\Common\Api\Router::class)
         ?? throw new LogicException('Router not found in container');
-        $client = new Symfony\Component\HttpClient\CurlHttpClient();
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Cookie' => CentreonSession::resolveSessionCookie(),
-        ];
+        $client = new InternalApiClient();
+        $sessionCookie = CentreonSession::resolveSessionCookie();
         $parameters = ['brokerId' => $configId];
         if ($basePath) {
             $parameters['base_uri'] = $basePath;
@@ -1321,26 +1318,14 @@ class CentreonConfigCentreonBroker
                 Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL,
             );
 
-            // Convert URL to localhost to avoid proxy/load balancer issues
-            $url = InternalApiClient::convertToLocalUrl($url);
-
             foreach ($groups as $group) {
                 $payload = $this->buildPayload($group);
-                $response = $client->request(
-                    'POST',
-                    $url,
-                    [
-                        'headers' => $headers,
-                        'body' => json_encode($payload),
-                        // Skip SSL verification for localhost calls
-                        'verify_peer' => false,
-                        'verify_host' => false,
-                    ],
-                );
-                if ($response->getStatusCode() !== 201) {
-                    $content = json_decode($response->getContent(false));
+                $response = $client->request($url, 'POST', $sessionCookie, $payload);
 
-                    throw new Exception($content->message ?? 'Unexpected return status');
+                if ($response['status_code'] !== 201) {
+                    $message = $response['content']['message'] ?? 'Unexpected return status';
+
+                    throw new Exception($message);
                 }
             }
         }

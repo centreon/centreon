@@ -2968,36 +2968,20 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  */
 function callHostApi(string $url, string $httpMethod, array $payload): array
 {
-    // Convert URL to localhost to avoid proxy/load balancer issues
-    $url = InternalApiClient::convertToLocalUrl($url);
+    $client = new InternalApiClient();
+    $response = $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 
-    $client = new CurlHttpClient();
-    $response = $client->request(
-        $httpMethod,
-        $url,
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Cookie' => CentreonSession::resolveSessionCookie(),
-            ],
-            'body' => json_encode($payload, JSON_THROW_ON_ERROR),
-            // Skip SSL verification for localhost calls
-            'verify_peer' => false,
-            'verify_host' => false,
-        ],
-    );
-
-    $status = $response->getStatusCode();
+    $status = $response['status_code'];
     if (
         ($httpMethod === 'POST' && $status !== 201)
         || ($httpMethod === 'PATCH' && $status !== 204)
     ) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+        $message = $response['content']['message'] ?? 'Unexpected return status';
 
-        throw new Exception($content->message ?? 'Unexpected return status');
+        throw new Exception($message);
     }
 
-    return ['status_code' => $status, 'content' => json_decode($response->getContent(false), true)];
+    return $response;
 }
 
 /**
