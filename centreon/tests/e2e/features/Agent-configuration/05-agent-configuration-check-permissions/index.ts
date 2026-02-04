@@ -109,6 +109,11 @@ Given('an agent configuration is already created', () => {
   cy.get('*[role="rowgroup"]').should('contain', 'Telegraf');
 });
 
+When('the user clicks on the already created agent', () => {
+  cy.contains('telegraf-001').click();
+  cy.wait('@getAgentsDetails');
+});
+
 When('the user clicks on the line of the Agents Configuration', () => {
   cy.get('*[role="row"]').eq(1).click({ force: true });
   cy.wait('@getAgentsDetails');
