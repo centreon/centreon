@@ -88,7 +88,7 @@ final class InternalApiClient
 
         $options = ['headers' => $headers];
 
-        if (! empty($payload)) {
+        if ($payload !== []) {
             $options['body'] = json_encode($payload, JSON_THROW_ON_ERROR);
         }
 
