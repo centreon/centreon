@@ -694,43 +694,25 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
                 AND c.command_name IN ({$commandPlaceholders})
             SQL;
 
-        // if one of the filters is set, we need to add the AND clause
-        if ($hostIds !== [] || $pollerIds !== []) {
-            $sql .= <<<'SQL'
-                    AND (
-                SQL;
-        }
+        $conditions = [];
 
         if ($hostIds !== []) {
             [$hostBindValues, $hostPlaceholders] = $this->createMultipleBindQuery($hostIds, ':host_');
-            $sql .= <<<SQL
-                    h.host_id IN ({$hostPlaceholders})
-                SQL;
+            $conditions[] = "h.host_id IN ({$hostPlaceholders})";
             $bindValues += $hostBindValues;
         }
 
         if ($pollerIds !== []) {
             [$pollerBindValues, $pollerPlaceholders] = $this->createMultipleBindQuery($pollerIds, ':poller_');
-            // if hosts filter is also set, we need to add the OR clause
-            if ($hostIds !== []) {
-                $sql .= <<<'SQL'
-                        OR
-                    SQL;
-            }
-            $sql .= <<<SQL
-                    h.host_id IN (
-                        SELECT hr.host_host_id FROM `:db`.ns_host_relation hr
-                        WHERE hr.nagios_server_id IN ({$pollerPlaceholders})
-                    )
-                SQL;
+            $conditions[] = "h.host_id IN (
+                SELECT hr.host_host_id FROM `:db`.ns_host_relation hr
+                WHERE hr.nagios_server_id IN ({$pollerPlaceholders})
+            )";
             $bindValues += $pollerBindValues;
         }
 
-        // close the AND clause if one of the filters is set
-        if ($hostIds !== [] || $pollerIds !== []) {
-            $sql .= <<<'SQL'
-                    )
-                SQL;
+        if ($conditions !== []) {
+            $sql .= ' AND (' . implode(' OR ', $conditions) . ')';
         }
 
         $statement = $this->db->prepare($this->translateDbName($sql));
