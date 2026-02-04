@@ -27,7 +27,6 @@
 		"cypress:ui": "cypress open --component --browser=chrome",
 		"cypress:run": "cypress run --component --browser=chrome",
 		"cypress:run:coverage": "cypress run --component --browser=chrome --env codeCoverageTasksRegistered=true",
-		"generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
 		"preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api.yaml"
 	},
 	"devDependencies": {
