@@ -1,20 +1,21 @@
 import { useSetAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useCallback, useRef } from 'react';
+
 import PageSkeleton from '../../PageSkeleton';
 import { DataTable } from '../DataTable';
 import { PageHeader } from '../Header';
 import { PageLayout } from '../Layout';
-import DeleteModal from './DeleteModal';
-import AddModal from './Form/AddModal';
-import UpdateModal from './Form/UpdateModal';
-import Listing from './Listing';
 import {
   canDeleteSubItemsAtom,
   formLabelButtonsAtom,
   openFormModalAtom
 } from './atoms';
+import DeleteModal from './DeleteModal';
+import AddModal from './Form/AddModal';
+import UpdateModal from './Form/UpdateModal';
 import { useGetItems } from './hooks/useGetItems';
+import Listing from './Listing';
 import type { CrudPageRootProps } from './models';
 
 export const CrudPageRoot = <
@@ -41,11 +42,11 @@ export const CrudPageRoot = <
     TData,
     TFilters
   >({
-    queryKeyName,
-    filtersAtom,
+    baseEndpoint,
     decoder,
+    filtersAtom,
     getSearchParameters,
-    baseEndpoint
+    queryKeyName
   });
 
   const setOpenFormModal = useSetAtom(openFormModalAtom);
@@ -73,7 +74,7 @@ export const CrudPageRoot = <
     previousFormLabelButtonsRef.current = form.labels;
   }
 
-  const add = useCallback(() => setOpenFormModal('add'), []);
+  const add = useCallback(() => setOpenFormModal('add'), [setOpenFormModal]);
 
   if (isLoading && !hasItems) {
     return <PageSkeleton displayHeaderAndNavigation={false} />;
@@ -89,7 +90,7 @@ export const CrudPageRoot = <
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
-        <>
+        <div className="h-full w-full">
           <DataTable
             isEmpty={isDataEmpty}
             variant={isDataEmpty ? 'grid' : 'listing'}
@@ -97,47 +98,47 @@ export const CrudPageRoot = <
             {isDataEmpty && !isLoading ? (
               <DataTable.EmptyState
                 aria-label="create"
-                data-testid="create-agent-configuration"
+                buttonCreateTestId="create-crudpage"
                 labels={{
-                  title: labels.welcome.title,
+                  actions: labels?.actions,
                   description: labels.welcome.description,
-                  actions: labels?.actions
+                  title: labels.welcome.title
                 }}
                 onCreate={add}
               />
             ) : (
               <Listing
-                total={total}
-                isLoading={isLoading}
-                rows={items}
                 columns={columns}
-                subItems={subItems}
+                filters={filters}
+                isLoading={isLoading}
                 labels={{
                   add: labels.actions.create,
                   search: labels.listing.search
                 }}
-                filters={filters}
+                rows={items}
+                subItems={subItems}
+                total={total}
               />
             )}
           </DataTable>
           <DeleteModal<TData>
-            listingQueryKey={queryKeyName}
             deleteEndpoint={deleteItem.deleteEndpoint}
             labels={deleteItem.labels}
+            listingQueryKey={queryKeyName}
             modalSize={deleteItem.modalSize}
           />
           <AddModal
-            title={form.labels.add.title}
             Form={form.Form}
             modalSize={form.modalSize}
+            title={form.labels.add.title}
           />
           <UpdateModal<TItem, TItemForm>
-            title={form.labels.update.title}
             Form={form.Form}
             modalSize={form.modalSize}
+            title={form.labels.update.title}
             {...form.getItem}
           />
-        </>
+        </div>
       </PageLayout.Body>
     </PageLayout>
   );

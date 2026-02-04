@@ -1,20 +1,13 @@
 import { Listing } from '@centreon/ui';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { isNotNil } from 'ramda';
+
 import { useTranslation } from 'react-i18next';
-import {
-  changeSortAtom,
-  limitAtom,
-  openFormModalAtom,
-  pageAtom,
-  sortFieldAtom,
-  sortOrderAtom
-} from '../atoms';
+
 import { AgentConfigurationListing } from '../models';
 import { labelCollapse, labelExpand } from '../translatedLabels';
 import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
 import DeleteModal from './DeleteModal';
+import { useListing } from './useListing';
 
 interface Props {
   rows: Array<AgentConfigurationListing>;
@@ -24,46 +17,52 @@ interface Props {
 
 const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   const { t } = useTranslation();
+
   const columns = useColumns();
 
-  const [page, setPage] = useAtom(pageAtom);
-  const [limit, setLimit] = useAtom(limitAtom);
-  const sortOrder = useAtomValue(sortOrderAtom);
-  const sortField = useAtomValue(sortFieldAtom);
-  const changeSort = useSetAtom(changeSortAtom);
-  const setOpenFormModal = useSetAtom(openFormModalAtom);
-
-  const updateAgentConfiguration = ({ id, internalListingParentId }) => {
-    if (isNotNil(internalListingParentId)) {
-      return;
-    }
-
-    setOpenFormModal(id);
-  };
+  const {
+    setPage,
+    changeSort,
+    page,
+    limit,
+    updateAgentConfiguration,
+    resetColumns,
+    selectColumns,
+    selectedColumnIds,
+    setLimit,
+    sortField,
+    sortOrder
+  } = useListing();
 
   return (
     <>
       <Listing
         actions={<Actions />}
+        columnConfiguration={{
+          selectedColumnIds,
+          sortable: true
+        }}
         columns={columns}
+        currentPage={page}
+        limit={limit}
+        loading={isLoading}
+        onLimitChange={setLimit}
+        onPaginate={setPage}
+        onResetColumns={resetColumns}
+        onRowClick={updateAgentConfiguration}
+        onSelectColumns={selectColumns}
+        onSort={changeSort}
+        rows={rows}
+        sortField={sortField}
+        sortOrder={sortOrder}
         subItems={{
           canCheckSubItems: false,
           enable: true,
           getRowProperty: () => 'pollers',
-          labelExpand: t(labelExpand),
-          labelCollapse: t(labelCollapse)
+          labelCollapse: t(labelCollapse),
+          labelExpand: t(labelExpand)
         }}
-        loading={isLoading}
-        onRowClick={updateAgentConfiguration}
-        rows={rows}
-        currentPage={page}
-        onPaginate={setPage}
-        limit={limit}
-        onLimitChange={setLimit}
         totalRows={total}
-        sortField={sortField}
-        sortOrder={sortOrder}
-        onSort={changeSort}
       />
       <DeleteModal />
     </>

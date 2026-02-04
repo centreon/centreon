@@ -1,5 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
+import { checkIfConfigurationIsExported } from '../../../commons';
 import {
   breakSomePollers,
   checkIfConfigurationIsNotExported,
@@ -12,16 +14,15 @@ import {
   testHostName,
   waitPollerListToLoad
 } from '../common';
-import { checkIfConfigurationIsExported } from '../../../commons';
 
 let dateBeforeLogin: Date;
 
 beforeEach(() => {
   cy.startContainers();
   cy.addCheckCommand({
-      command: 'echo "Post command"',
-      enableShell: true,
-      name: "post_command",
+    command: 'echo "Post command"',
+    enableShell: true,
+    name: 'post_command'
   });
   cy.intercept({
     method: 'GET',
@@ -77,11 +78,7 @@ Given('some post-generation commands are configured for each poller', () => {
 });
 
 When('I visit the export configuration page', () => {
-  cy.navigateTo({
-    page: 'Pollers',
-    rootItemNumber: 0,
-    subMenu: 'Pollers'
-  })
+  cy.visit(PAGES.configuration.pollersLegacy)
     .wait('@getTimeZone')
     .then(() => {
       cy.url().should('include', '/centreon/main.php?p=60901');
@@ -105,21 +102,19 @@ When('I select some pollers', () => {
   cy.getIframeBody()
     .find('form .list_one>td')
     .eq(1)
-    .then(($text) => cy.wrap($text.text()).as('pollerName'));
+    .then((text) => cy.wrap(text.text()).as('pollerName'));
 });
 
 When('I click on the Export configuration button', () => {
-  cy.getIframeBody()
-    .find('#exportConfigurationLink')
-    .click({ force: true });
+  cy.getIframeBody().find('#exportConfigurationLink').click({ force: true });
 });
 
 Then('I am redirected to generate page', () => {
-  cy.url().should('include', `/centreon/main.php?p=60902&poller=`);
+  cy.url().should('include', '/centreon/main.php?p=60902&poller=');
 });
 
 Then('the selected poller names are displayed', () => {
-  cy.reload()
+  cy.reload();
   cy.get<string>('@pollerName').then((pollerName) => {
     cy.getIframeBody()
       .find('form span[class="selection"]')
@@ -178,8 +173,8 @@ Then('the configuration is generated on selected pollers', () => {
         .get('iframe#main-content')
         .its('0.contentDocument.body')
         .find('div#console')
-        .then(($el) => {
-          return $el.find('label#progressPct:contains("100%")').length > 0;
+        .then((el) => {
+          return el.find('label#progressPct:contains("100%")').length > 0;
         });
     },
     { timeout: 10000 }
@@ -188,8 +183,8 @@ Then('the configuration is generated on selected pollers', () => {
   checkIfConfigurationIsExported({ dateBeforeLogin, hostName: testHostName });
 });
 
-Then('the selected pollers are {string}', (poller_action: string) => {
-  checkIfMethodIsAppliedToPollers(poller_action);
+Then('the selected pollers are {string}', (pollerAction: string) => {
+  checkIfMethodIsAppliedToPollers(pollerAction);
 
   cy.logout();
 
@@ -200,7 +195,7 @@ Then('the selected pollers are {string}', (poller_action: string) => {
 
 Then('no poller names are displayed', () => {
   cy.get('iframe#main-content')
-        .its('0.contentDocument.body')
+    .its('0.contentDocument.body')
     .find('form span[class="selection"]')
     .eq(0)
     .should('have.value', '');
@@ -224,7 +219,7 @@ Then(
 );
 
 When('I click on the export configuration action and confirm', () => {
-  cy.get('header').get('svg[data-testid="DeviceHubIcon"]').click();
+  cy.get('header').getByLabel({ label: 'Pollers', tag: 'button' }).click();
 
   cy.get('button[data-testid="Export configuration"]').click();
 

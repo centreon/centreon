@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -6,7 +7,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,276 +19,142 @@
  *
  */
 
+use Adaptation\Database\Connection\ConnectionInterface;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+
 require_once __DIR__ . '/../../../bootstrap.php';
 
-/**
- * This file contains changes to be included in the next version.
- * The actual version number should be added in the variable $version.
- */
-$version = '';
+$version = 'xx.xx.x';
+
 $errorMessage = '';
 
-// -------------------------------------------- CEIP Agent Information -------------------------------------------- //
-
 /**
- * @param CentreonDB $pearDBO
- *
- * @throws CentreonDbException
- *
+ * @var ConnectionInterface $pearDB
+ * @var ConnectionInterface $pearDBO
  */
-$createAgentInformationTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
-    $errorMessage = 'Unable to create table agent_information';
-    $pearDBO->executeQuery(
-        <<<SQL
-            CREATE TABLE IF NOT EXISTS `agent_information` (
-                `poller_id` bigint(20) unsigned NOT NULL,
-                `enabled` tinyint(1) NOT NULL DEFAULT 1,
-                `infos` JSON NOT NULL,
-            PRIMARY KEY (`poller_id`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-        SQL
+
+/** -------------------------------------- Host Group Topology -------------------------------------- */
+$fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to fix duplicate Host Groups topology';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [topology] Fixing duplicate Host Groups menu entries",
     );
-};
 
-// -------------------------------------------- Additional Configurations -------------------------------------------- //
-
-/**
- * @param centreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- */
-$addConnectorToTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to retrieve data from topology table';
-    $statement = $pearDB->executeQuery(
-        <<<'SQL'
-            SELECT 1 FROM `topology`
-            WHERE `topology_name` = 'Connectors'
-                AND `topology_parent` = 6
-                AND `topology_page` = 620
-        SQL
-    );
-    $topologyAlreadyExists = (bool) $statement->fetch(\PDO::FETCH_COLUMN);
-
-    $errorMessage = 'Unable to insert into topology';
-    if (! $topologyAlreadyExists) {
-        $pearDB->executeQuery(
-            <<<'SQL'
-                INSERT INTO `topology` (
-                    `topology_name`,
-                    `topology_parent`,
-                    `topology_page`,
-                    `topology_order`,
-                    `topology_group`,
-                    `topology_show`
-                )
-                VALUES ('Connectors', 6, 620, 92, 1, '1')
-            SQL
-        );
-    }
-};
-
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- * @return void
- */
-$changeAccNameInTopology = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to update table topology';
-    $pearDB->executeQuery(
+    $pearDB->update(
         <<<'SQL'
             UPDATE `topology`
-            SET `topology_name` = 'Additional Configurations',
-                `topology_parent` = 620,
-                `topology_page` = 62002
-            WHERE `topology_url` = '/configuration/additional-connector-configurations'
-        SQL
+            SET `topology_url` = '/configuration/hosts/groups',
+                `is_react` = '1',
+                `topology_show` = '1'
+            WHERE `topology_page` = 60102
+            SQL
     );
-};
 
-// -------------------------------------------- Connectors configurations -------------------------------------------- //
-
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- * @return void
- */
-$insertAccConnectors = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to add data to connector table';
-    $pearDB->executeQuery(
-        <<<SQL
-        INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
-        (null,'Centreon Monitoring Agent', 'Centreon Monitoring Agent', 'opentelemetry --processor=centreon_agent --extractor=attributes --host_path=resource_metrics.resource.attributes.host.name --service_path=resource_metrics.resource.attributes.service.name', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
-        (null, 'Telegraf', 'Telegraf', 'opentelemetry --processor=nagios_telegraf --extractor=attributes --host_path=resource_metrics.scope_metrics.data.data_points.attributes.host --service_path=resource_metrics.scope_metrics.data.data_points.attributes.service', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
-        SQL
-    );
-};
-
-// -------------------------------------------- Dashboard Panel -------------------------------------------- //
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- * @return void
- */
-$updatePanelsLayout = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to update table dashboard_panel';
-    $pearDB->executeQuery(
+    // Remove duplicate topology entry 60105 introduced by 25.05 migration
+    $pearDB->delete(
         <<<'SQL'
-            UPDATE `dashboard_panel`
-            SET `layout_x` = `layout_x` * 2,
-                `layout_width` = `layout_width` * 2
+            DELETE FROM `topology`
+            WHERE `topology_page` = 60105
             SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [topology] Successfully removed duplicate Host Groups topology entry",
     );
 };
 
-// -------------------------------------------- Resource Status -------------------------------------------- //
+/** -------------------------------------- Broker Instances CMA fields -------------------------------------- */
+$updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add CMA certificate fields to broker instances table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [broker instances] Adding CMA certificate fields to broker instances table",
+    );
 
-/**
- * @param CentreonDB $pearDBO
- *
- * @throws CentreonDbException
- * @return void
- */
-$addColumnToResourcesTable = function (CentreonDB $pearDBO) use (&$errorMessage): void {
-    $errorMessage = 'Unable to add column flapping to table resources';
-    if (! $pearDBO->isColumnExist('resources', 'flapping')) {
-        $pearDBO->exec(
-            <<<'SQL'
-                ALTER TABLE `resources`
-                ADD COLUMN `flapping` TINYINT(1) NOT NULL DEFAULT 0
-            SQL
+    if (
+        $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_sha'
+        )
+        || $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_cn'
+        )
+        || $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_peremption'
+        )
+    ) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [broker instances] CMA certificate fields already exist in broker instances table, skipping",
         );
+
+        return;
     }
 
-    $errorMessage = 'Unable to add column percent_state_change to table resources';
-    if (! $pearDBO->isColumnExist('resources', 'percent_state_change')) {
-        $pearDBO->exec(
-            <<<'SQL'
-                ALTER TABLE `resources`
-                ADD COLUMN `percent_state_change` FLOAT DEFAULT NULL
+    $pearDBO->query(
+        <<<'SQL'
+            ALTER TABLE `instances`
+            ADD COLUMN `cma_certificate_sha` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate fingerprint',
+            ADD COLUMN `cma_certificate_cn` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate host name',
+            ADD COLUMN `cma_certificate_peremption` INT(11) DEFAULT NULL COMMENT 'CMA certificate peremption timestamp'
             SQL
-        );
-    }
-};
-
-// -------------------------------------------- Broker I/O Configuration -------------------------------------------- //
-
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- * @return void
- */
-$removeConstraintFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    // prevent side effect on the $removeFieldFromBrokerConfiguration function
-    $errorMessage = 'Unable to update table cb_list_values';
-    $pearDB->executeQuery(
-        <<<SQL
-        ALTER TABLE cb_list_values DROP CONSTRAINT `fk_cb_list_values_1`
-        SQL
-    );
-};
-
-/**
- * @param CentreonDB $pearDB
- *
- * @throws CentreonDbException
- *
- * @return void
- */
-$removeFieldFromBrokerConfiguration = function (CentreonDB $pearDB) use (&$errorMessage): void {
-    $errorMessage = 'Unable to remove data from cb_field';
-    $pearDB->executeQuery(
-        <<<SQL
-        DELETE FROM cb_field WHERE fieldname = 'check_replication'
-        SQL
     );
 
-    $errorMessage = 'Unable to remove data from cfg_centreonbroker_info';
-    $pearDB->executeQuery(
-        <<<SQL
-        DELETE FROM cfg_centreonbroker_info WHERE config_key = 'check_replication'
-        SQL
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [broker instances] Successfully added CMA certificate fields to broker instances table",
     );
-};
-
-// -------------------------------------------- Downtimes -------------------------------------------- //
-/**
- * Create index for resources table.
- *
- * @param CentreonDB $realtimeDb
- *
- * @throws CentreonDbException
- */
-$createIndexForDowntimes = function (CentreonDB $realtimeDb) use (&$errorMessage): void {
-    if (! $realtimeDb->isIndexExists('downtimes', 'downtimes_end_time_index')) {
-        $errorMessage = 'Unable to create index for downtimes table';
-        $realtimeDb->executeQuery('CREATE INDEX `downtimes_end_time_index` ON downtimes (`end_time`)');
-    }
 };
 
 try {
     // DDL statements for real time database
-    $createAgentInformationTable($pearDBO);
-    $addColumnToResourcesTable($pearDBO);
-    $createIndexForDowntimes($pearDBO);
+    $updateInstancesTable();
 
     // DDL statements for configuration database
-    $addConnectorToTopology($pearDB);
-    $changeAccNameInTopology($pearDB);
-    $removeConstraintFromBrokerConfiguration($pearDB);
+    // TODO add your function calls to update the configuration database structure here
 
-    // Transactional queries
-    if (! $pearDB->inTransaction()) {
-        $pearDB->beginTransaction();
+    // Transactional queries for configuration database
+    if (! $pearDB->isTransactionActive()) {
+        $pearDB->startTransaction();
     }
 
-    $insertAccConnectors($pearDB);
-    $updatePanelsLayout($pearDB);
-    $removeFieldFromBrokerConfiguration($pearDB);
+    $fixDuplicateHostGroupTopology();
 
-    $pearDB->commit();
+    $pearDB->commitTransaction();
 
-} catch (\Throwable $exception) {
+} catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: " . $errorMessage,
-        customContext: [
-            'exception' => [
-                'error_message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString()
-            ]
-        ],
-        exception: $exception
+        exception: $throwable
     );
+
     try {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
+        if ($pearDB->isTransactionActive()) {
+            $pearDB->rollBackTransaction();
         }
-    } catch (\PDOException $rollbackException) {
+    } catch (ConnectionException $rollbackException) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            customContext: [
-                'error_to_rollback' => $errorMessage,
-                'exception' => [
-                    'error_message' => $rollbackException->getMessage(),
-                    'trace' => $rollbackException->getTraceAsString()
-                ]
-            ],
             exception: $rollbackException
         );
-        throw new \Exception(
-            "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
-            (int) $rollbackException->getCode(),
-            $rollbackException
+
+        throw new RuntimeException(
+            message: "UPGRADE - {$version}: error while rolling back the upgrade operation for : {$errorMessage}",
+            previous: $rollbackException
         );
     }
-    throw new \Exception("UPGRADE - {$version}: " . $errorMessage, (int) $exception->getCode(), $exception);
+
+    throw new RuntimeException(
+        message: "UPGRADE - {$version}: " . $errorMessage,
+        previous: $throwable
+    );
 }

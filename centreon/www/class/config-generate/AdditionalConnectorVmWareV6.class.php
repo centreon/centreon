@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,10 @@
 use Assert\AssertionFailedException;
 use Core\AdditionalConnectorConfiguration\Application\Repository\ReadAccRepositoryInterface;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
-use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, VSphereServer};
+use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VSphereServer, VmWareConfig};
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface;
+use Pimple\Container;
 
 /**
  * Class
@@ -31,6 +34,7 @@ use Core\AdditionalConnectorConfiguration\Domain\Model\VmWareV6\{VmWareConfig, V
  */
 class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
 {
+    use VaultTrait;
     public const CENTREON_SYSTEM_USER = 'centreon';
 
     /**
@@ -40,62 +44,19 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
      * @param ReadAccRepositoryInterface $readAdditionalConnectorRepository
      */
     public function __construct(
+        Container $dependencyInjector,
         private readonly Backend $backend,
-        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository
+        private readonly ReadAccRepositoryInterface $readAdditionalConnectorRepository,
+        private readonly ReadMonitoringServerRepositoryInterface $readyMonitoringServerRepository,
     ) {
-    }
-
-    /**
-     * Generate VM Ware v6 configuration file for plugins.
-     *
-     * @param int $pollerId
-     *
-     * @throws \Exception|AssertionFailedException
-     */
-    private function generate(int $pollerId): void
-    {
-        $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
-            ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
-
-        // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
-        $object = (object) [];
-        if ($additionalConnectorsVMWareV6 !== null) {
-            $ACCParameters = $additionalConnectorsVMWareV6->getParameters()->getDecryptedData();
-
-            $VSphereServers = array_map(function (array $parameters): VSphereServer {
-                return new VSphereServer(
-                    name: $parameters['name'],
-                    url: $parameters['url'],
-                    username: $parameters['username'],
-                    password: $parameters['password']
-                );
-            }, $ACCParameters['vcenters']);
-
-            $vmWareConfig = new VMWareConfig(vSphereServers: $VSphereServers, port: $ACCParameters['port']);
-
-            $object = [
-                'vsphere_server' => array_map(
-                    fn(VSphereServer $vSphereServer): array => [
-                        'name' => $vSphereServer->getName(),
-                        'url' => $vSphereServer->getUrl(),
-                        'username' => $vSphereServer->getUsername(),
-                        'password' => $vSphereServer->getPassword()
-                    ],
-                    $vmWareConfig->getVSphereServers()
-                ),
-                'port' => $vmWareConfig->getPort(),
-            ];
-        }
-        $this->generate_filename = 'centreon_vmware.json';
-        $this->generateFile($object, false);
-        $this->writeFile($this->backend->getPath());
+        parent::__construct($dependencyInjector);
     }
 
     /**
      * @param int $pollerId
      *
-     * @return void
      * @throws AssertionFailedException
+     * @return void
      */
     public function generateFromPollerId(int $pollerId): void
     {
@@ -107,15 +68,15 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
      *
      * @param $dir
      *
-     * @throws \RuntimeException|\Exception
+     * @throws RuntimeException|Exception
      */
     protected function writeFile($dir)
     {
         $fullFile = $dir . '/' . $this->generate_filename;
         if ($handle = fopen($fullFile, 'w')) {
             $content = is_array($this->content) ? json_encode($this->content) : $this->content;
-            if (!fwrite($handle, $content)) {
-                throw new \RuntimeException('Cannot write to file "' . $fullFile . '"');
+            if (! fwrite($handle, $content)) {
+                throw new RuntimeException('Cannot write to file "' . $fullFile . '"');
             }
             fclose($handle);
 
@@ -126,7 +87,68 @@ class AdditionalConnectorVmWareV6 extends AbstractObjectJSON
             chmod($fullFile, 0660);
             chgrp($fullFile, self::CENTREON_SYSTEM_USER);
         } else {
-            throw new \Exception("Cannot open file " . $fullFile);
+            throw new Exception('Cannot open file ' . $fullFile);
         }
+    }
+
+    /**
+     * Generate VM Ware v6 configuration file for plugins.
+     *
+     * @param int $pollerId
+     *
+     * @throws Exception|AssertionFailedException
+     */
+    private function generate(int $pollerId): void
+    {
+        $additionalConnectorsVMWareV6 = $this->readAdditionalConnectorRepository
+            ->findByPollerAndType($pollerId, Type::VMWARE_V6->value);
+
+        $shouldBeEncrypted = $this->readyMonitoringServerRepository->isEncryptionReady($pollerId);
+        // Cast to object to ensure that an empty JSON and not an empty array is write in file if no ACC exists.
+        $object = (object) [];
+        if ($additionalConnectorsVMWareV6 !== null) {
+            $ACCParameters = $additionalConnectorsVMWareV6->getParameters()->getDecryptedData();
+
+            $VSphereServers = array_map(function (array $parameters) use (&$vaultData): VSphereServer {
+                if (
+                    $this->isVaultEnabled
+                    && $this->readVaultRepository !== null
+                    && $this->isAVaultPath($parameters['password'])
+                ) {
+                    $vaultData ??= $this->readVaultRepository->findFromPath($parameters['password']);
+                    $parameters['name'] . '_' . 'password';
+                    if (array_key_exists($parameters['name'] . '_' . 'password', $vaultData)) {
+                        $parameters['password'] = $vaultData[$parameters['name'] . '_' . 'password'];
+                    }
+                }
+
+                return new VSphereServer(
+                    name: $parameters['name'],
+                    url: $parameters['url'],
+                    username: $parameters['username'],
+                    password: $parameters['password']
+                );
+            }, $ACCParameters['vcenters']);
+
+            $vmWareConfig = new VmWareConfig(vSphereServers: $VSphereServers, port: $ACCParameters['port']);
+
+            $object = [
+                'vsphere_server' => array_map(
+                    fn (VSphereServer $vSphereServer): array => [
+                        'name' => $vSphereServer->getName(),
+                        'url' => $vSphereServer->getUrl(),
+                        'username' => $vSphereServer->getUsername(),
+                        'password' => $shouldBeEncrypted
+                            ? 'encrypt::' . $this->engineContextEncryption->crypt($vSphereServer->getPassword())
+                            : $vSphereServer->getPassword(),
+                    ],
+                    $vmWareConfig->getVSphereServers()
+                ),
+                'port' => $vmWareConfig->getPort(),
+            ];
+        }
+        $this->generate_filename = 'centreon_vmware.json';
+        $this->generateFile($object, false);
+        $this->writeFile($this->backend->getPath());
     }
 }

@@ -1,8 +1,8 @@
-import { path } from 'ramda';
-
 import IconLink from '@mui/icons-material/Link';
 
 import type { ComponentColumnProps } from '@centreon/ui';
+
+import { path } from 'ramda';
 
 import UrlColumn from '.';
 

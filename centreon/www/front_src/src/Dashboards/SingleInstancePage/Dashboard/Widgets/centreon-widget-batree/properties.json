@@ -61,5 +61,5 @@
   "singleResourceSelection": true,
   "moduleName": "centreon-widget-batree",
   "canExpand": true,
-  "widgetType": "Real time widgets"
+  "widgetType": "realtime"
 }

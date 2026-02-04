@@ -1,14 +1,13 @@
+import { DashboardLayout } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, lte } from 'ramda';
 import type { Layout } from 'react-grid-layout';
 
-import { DashboardLayout } from '@centreon/ui';
-
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import { AddWidgetPanel } from '../AddEditWidget';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 import type { Panel } from '../models';
-
-import { useAtomValue } from 'jotai';
-import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
 
@@ -75,12 +74,13 @@ const PanelsLayout = ({
                       }
                       displayMoreActions={displayMoreActions}
                       displayShrinkRefresh={
-                        lte(w, 3) &&
+                        lte(w, 6) &&
                         !isNil(options?.name) &&
                         !isEmpty(options?.name)
                       }
+                      expandableData={expandableData}
                       forceDisplayShrinkRefresh={
-                        lte(w, 2) &&
+                        lte(w, 4) &&
                         !isNil(options?.name) &&
                         !isEmpty(options?.name)
                       }
@@ -90,10 +90,9 @@ const PanelsLayout = ({
                           ? getLinkToResourceStatusPage(data, name, options)
                           : undefined
                       }
+                      name={name}
                       pageType={getPageType(data)}
                       setRefreshCount={setRefreshCount}
-                      name={name}
-                      expandableData={expandableData}
                     />
                   )}
                 </>
@@ -108,9 +107,9 @@ const PanelsLayout = ({
               <DashboardPanel
                 dashboardId={dashboardId}
                 id={i}
+                name={name}
                 playlistHash={playlistHash}
                 refreshCount={refreshCount}
-                name={name}
               />
             )}
           </DashboardLayout.Item>

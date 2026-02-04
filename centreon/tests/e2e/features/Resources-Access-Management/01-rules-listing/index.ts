@@ -1,4 +1,5 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -20,14 +21,14 @@ Given(
 );
 
 When('I navigate to the Resource Access Management page', () => {
-  cy.visit(`centreon/administration/resource-access/rules`);
+  cy.visit(PAGES.configuration.resourceAccessRules);
 });
 
 Then(
   'I should see a table with columns: "Name", "Description", "Actions", "Status"',
   () => {
-    cy.get('[class$="-table"]').each(($row) => {
-      cy.wrap($row).within(() => {
+    cy.get('[role="table"]').each((row) => {
+      cy.wrap(row).within(() => {
         cy.contains('Name').should('exist');
         cy.contains('Description').should('exist');
         cy.contains('Actions').should('exist');
@@ -48,8 +49,8 @@ Then('I should see at least 10 rules registered', () => {
   cy.reload();
   cy.waitUntil(
     () => {
-      return cy.get('[class$="-intersectionRow"]').then(($divs) => {
-        return $divs.length === 10;
+      return cy.get('[role="row"]').then((divs) => {
+        return divs.length === 11;
       });
     },
     { interval: 1000, timeout: 10000 }
@@ -68,8 +69,8 @@ When('I click on the next page button', () => {
 });
 
 Then('I should see the next 5 rules displayed', () => {
-  cy.get('[class$="-intersectionRow"]').should('have.length', 5);
-  cy.get('[class$="-root-cell"]').should('be.visible');
+  cy.get('[role="row"]').should('have.length', 6);
+  cy.get('[role="row"]').eq(0).should('exist');
 });
 
 When('I click on the previous page button', () => {
@@ -80,8 +81,8 @@ When('I click on the previous page button', () => {
 });
 
 Then('I should see the previous first 10 rules displayed', () => {
-  cy.get('[class$="-intersectionRow"]').should('have.length', 10);
-  cy.get('[class$="-root-cell"]').should('be.visible');
+  cy.get('[role="row"]').should('have.length', 11);
+  cy.get('[role="row"]').eq(0).should('exist');
 });
 
 When(
@@ -98,13 +99,13 @@ When(
 Then('I should see only the rules that match the search query', () => {
   cy.waitUntil(
     () => {
-      return cy.get('[class$="-intersectionRow"]').then(($divs) => {
-        return $divs.length === 1;
+      return cy.get('[role="row"]').then((divs) => {
+        return divs.length === 2;
       });
     },
     { interval: 1000, timeout: 10000 }
   );
-  cy.get('[class$="-text-rowNotHovered"]').contains('Rule2');
+  cy.contains('Rule2').should('exist');
 });
 
 afterEach(() => {

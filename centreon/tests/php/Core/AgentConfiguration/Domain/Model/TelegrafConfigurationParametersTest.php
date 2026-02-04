@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ foreach (
 ) {
     it(
         "should throw an exception when the {$field} is not valid",
-        function () use ($field) : void {
+        function () use ($field): void {
             $this->parameters[$field] = 9999999999;
             new TelegrafConfigurationParameters($this->parameters);
         }
@@ -67,41 +67,103 @@ foreach (
         'conf_private_key',
     ] as $field
 ) {
-    it(
-        "should throw an exception when a {$field} is too short",
-        function () use ($field) : void {
-            $this->parameters[$field] = '';
-
-            new TelegrafConfigurationParameters($this->parameters);
-        }
-    )->throws(
-        AssertionException::notEmptyString("configuration.{$field}")->getMessage()
-    );
-}
-
-foreach (
-    [
-        'otel_public_certificate',
-        'otel_ca_certificate',
-        'otel_private_key',
-        'conf_certificate',
-        'conf_private_key',
-    ] as $field
-) {
-    $tooLong = str_repeat('a', TelegrafConfigurationParameters::MAX_LENGTH + 1);
+    $tooLong = str_repeat('a', TelegrafConfigurationParameters::MAX_LENGTH);
     it(
         "should throw an exception when a {$field} is too long",
-        function () use ($field, $tooLong) : void {
+        function () use ($field, $tooLong): void {
             $this->parameters[$field] = $tooLong;
 
             new TelegrafConfigurationParameters($this->parameters);
         }
     )->throws(
         AssertionException::maxLength(
-            $tooLong,
-            TelegrafConfigurationParameters::MAX_LENGTH + 1,
+            TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . $tooLong,
+            TelegrafConfigurationParameters::MAX_LENGTH + mb_strlen(TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH),
             TelegrafConfigurationParameters::MAX_LENGTH,
             "configuration.{$field}"
         )->getMessage()
     );
+}
+
+foreach (
+    [
+        'conf_certificate',
+        'conf_private_key',
+        'otel_ca_certificate',
+        'otel_private_key',
+        'otel_public_certificate',
+    ] as $field
+) {
+    it(
+        "should add the certificate base path prefix to {$field} when it is not present",
+        function () use ($field): void {
+            $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = 'test.crt' : $this->parameters[$field] = 'test.crt';
+
+            $cmaConfig = new TelegrafConfigurationParameters($this->parameters);
+            $result = $cmaConfig->getData();
+            $field === 'poller_ca_certificate'
+                ? $this->assertEquals($result['hosts'][0][$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
+                : $this->assertEquals($result[$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt');
+        }
+    );
+}
+
+foreach (
+    [
+        'conf_certificate',
+        'conf_private_key',
+        'otel_ca_certificate',
+        'otel_private_key',
+        'otel_public_certificate',
+    ] as $field
+) {
+    it(
+        "should not add the certificate base path prefix to {$field} when it is present",
+        function () use ($field): void {
+            $field === 'poller_ca_certificate' ? $this->parameters['hosts'][0][$field] = 'test.crt' : $this->parameters[$field] = '/etc/pki/test.crt';
+
+            $cmaConfig = new TelegrafConfigurationParameters($this->parameters);
+            $result = $cmaConfig->getData();
+            $field === 'poller_ca_certificate'
+                ? $this->assertEquals($result['hosts'][0][$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt')
+                : $this->assertEquals($result[$field], TelegrafConfigurationParameters::CERTIFICATE_BASE_PATH . 'test.crt');
+        }
+    );
+}
+
+// Path security validation tests
+foreach (
+    [
+        '../cert.crt' => 'relative path with ../',
+        './cert.crt' => 'relative path with ./',
+        'path//cert.crt' => 'double slashes',
+        '.hidden/cert.crt' => 'hidden directory',
+        '/.ssh/cert.crt' => 'hidden directory in root',
+        '/tmp/cert.crt' => 'forbidden directory /tmp',
+        '/root/cert.crt' => 'forbidden directory /root',
+        '/proc/cert.crt' => 'forbidden directory /proc',
+        '/etc/ssl/cert.crt' => '/etc subdirectory other than /etc/pki',
+    ] as $path => $reason
+) {
+    it("should throw an exception for {$reason}: {$path}", function () use ($path): void {
+        $this->parameters['otel_public_certificate'] = $path;
+        new TelegrafConfigurationParameters($this->parameters);
+    })->throws(AssertionException::class);
+}
+
+// Valid custom paths
+foreach (
+    [
+        '/usr/local/certs/cert.crt',
+        '/opt/ssl/cert.crt',
+        '/etc/pki/cert.crt',
+        '/etc/pki/subdir/cert.crt',
+    ] as $path
+) {
+    it("should accept valid custom path: {$path}", function () use ($path): void {
+        $this->parameters['otel_public_certificate'] = $path;
+        $telegrafConfig = new TelegrafConfigurationParameters($this->parameters);
+        $result = $telegrafConfig->getData();
+        $this->assertEquals($result['otel_public_certificate'], $path);
+    });
 }

@@ -1,4 +1,4 @@
-import { LineChartData, Thresholds } from '../common/models';
+import type { LineChartData, Thresholds } from '../common/models';
 
 export interface SingleBarProps {
   baseColor?: string;
@@ -7,4 +7,7 @@ export interface SingleBarProps {
   showLabels?: boolean;
   size?: 'medium' | 'small';
   thresholds: Thresholds;
+  max?: number;
+  direction?: 'column' | 'row';
+  textWidth?: number; // Applied only when the direction is row
 }

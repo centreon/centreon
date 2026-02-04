@@ -15,6 +15,7 @@ Feature: Create a new Agent Configuration
 
   @TEST_MON-151990
   Scenario: Add an agent with mandatory information
+    Given a CMA Token is configured
     Given a non-admin user is in the Agents Configuration page
     When the user clicks on Add
     Then a pop-up menu with the form is displayed

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\User\Application\UseCase\FindUserPermissions;
 
@@ -35,6 +35,7 @@ final class FindUserPermissions
     private array $permissions = [
         'top_counter' => Contact::ROLE_DISPLAY_TOP_COUNTER,
         'poller_statistics' => Contact::ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS,
+        'configuration_host_group_write' => Contact::ROLE_CONFIGURATION_HOSTS_HOST_GROUPS_READ_WRITE,
     ];
 
     public function __invoke(ContactInterface $user): FindUserPermissionsResponse|ResponseStatusInterface
@@ -51,10 +52,9 @@ final class FindUserPermissions
     {
         $permissions = [];
         foreach ($this->permissions as $permissionName => $role) {
-            if ($user->isAdmin() || $user->hasRole($role)) {
+            if ($user->isAdmin() || $user->hasRole($role) || $user->hasTopologyRole($role)) {
                 $permissions[] = new Permission(new NotEmptyString($permissionName), true);
             }
-
         }
 
         return $permissions;

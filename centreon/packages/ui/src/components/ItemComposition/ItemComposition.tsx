@@ -1,13 +1,11 @@
-import { ReactElement } from 'react';
-
-import { gt } from 'ramda';
-
 import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
 import { Typography } from '@mui/material';
 
-import { Button } from '..';
+import { gt } from 'ramda';
+import type { ReactElement } from 'react';
 
+import { Button } from '..';
 import { useItemCompositionStyles } from './ItemComposition.styles';
 
 export type Props = {
@@ -19,6 +17,8 @@ export type Props = {
   labelAdd?: string;
   onAddItem?: () => void;
   secondaryLabel?: string;
+  isAddButtonSticky?: boolean;
+  addButtonClassName?: string;
 };
 
 export const ItemComposition = ({
@@ -29,8 +29,10 @@ export const ItemComposition = ({
   addButtonHidden,
   IconAdd,
   displayItemsAsLinked,
-  secondaryLabel
-}: Props): JSX.Element => {
+  secondaryLabel,
+  isAddButtonSticky,
+  addButtonClassName
+}: Props): ReactElement => {
   const { classes } = useItemCompositionStyles();
 
   const hasMoreThanOneChildren = gt(children.length, 1);
@@ -40,12 +42,14 @@ export const ItemComposition = ({
       <div className={classes.itemCompositionItemsAndLink}>
         <div className={classes.itemCompositionItems}>{children}</div>
         {displayItemsAsLinked && hasMoreThanOneChildren && (
-          <div data-linked className={classes.linkedItems}>
+          <div className={classes.linkedItems} data-linked>
             <LinkIcon className={classes.linkIcon} viewBox="0 0 24 24" />
           </div>
         )}
       </div>
-      <div className={classes.buttonAndSecondaryLabel}>
+      <div
+        className={`flex justify-between items-center w-full ${isAddButtonSticky && 'bg-background-paper sticky bottom-0 z-2'} ${addButtonClassName}`}
+      >
         {!addButtonHidden && (
           <Button
             aria-label={labelAdd}
@@ -53,9 +57,9 @@ export const ItemComposition = ({
             disabled={addbuttonDisabled}
             icon={IconAdd || <AddIcon />}
             iconVariant="start"
+            onClick={onAddItem}
             size="small"
             variant="ghost"
-            onClick={onAddItem}
           >
             {labelAdd}
           </Button>

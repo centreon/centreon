@@ -1,8 +1,10 @@
+import { Typography } from '@mui/material';
+
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
@@ -10,11 +12,9 @@ import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { HeadingNode } from '@lexical/rich-text';
 import anylogger from 'anylogger';
-import { EditorState, LexicalEditor } from 'lexical';
+import type { EditorState, LexicalEditor } from 'lexical';
 import { equals } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
-
-import { Typography } from '@mui/material';
 
 import ContentEditable from './ContentEditable';
 import AutoCompleteLinkPlugin from './plugins/AutoLinkPlugin/index';
@@ -55,12 +55,6 @@ const useStyles = makeStyles<{ toolbarPositions: 'start' | 'end' }>()(
     bold: {
       fontWeight: theme.typography.fontWeightBold
     },
-    container: equals(toolbarPositions, 'end')
-      ? {
-          display: 'flex',
-          flexDirection: 'column-reverse'
-        }
-      : {},
     error: {
       color: theme.palette.error.main,
       fontSize: theme.spacing(1.5),
@@ -190,7 +184,9 @@ const RichTextEditor = ({
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <div className={classes.container}>
+      <div
+        className={`flex ${toolbarPositions === 'end' ? 'flex-col-reverse' : 'flex-col'}`}
+      >
         <div className={classes.toolbar}>
           <ToolbarPlugin
             className={toolbarClassName}
@@ -202,7 +198,6 @@ const RichTextEditor = ({
         </div>
         <div>
           <RichTextPlugin
-            ErrorBoundary={LexicalErrorBoundary}
             contentEditable={
               <ContentEditable
                 className={contentClassName || ''}
@@ -216,14 +211,15 @@ const RichTextEditor = ({
                 inputClassname={inputClassname}
                 minInputHeight={minInputHeight}
                 namespace={namespace}
+                onBlur={onBlur}
                 placeholder={placeholder}
                 resetEditorToInitialStateCondition={
                   resetEditorToInitialStateCondition
                 }
                 setHtmlString={setHtmlString}
-                onBlur={onBlur}
               />
             }
+            ErrorBoundary={LexicalErrorBoundary}
             placeholder={null}
           />
           <HistoryPlugin />

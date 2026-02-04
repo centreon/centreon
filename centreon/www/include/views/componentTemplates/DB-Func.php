@@ -1,43 +1,27 @@
 <?php
 
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
-
 
 function DsHsrTestExistence($name = null)
 {
@@ -49,16 +33,16 @@ function DsHsrTestExistence($name = null)
 
     $query = 'SELECT compo_id FROM giv_components_template WHERE ds_name = :ds_name';
 
-    if (!empty($formValues['host_id'])) {
+    if (! empty($formValues['host_id'])) {
         if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
             $formValues['host_id'] = (int) $matches[1];
             $formValues['service_id'] = (int) $matches[2];
         } else {
-            throw new \InvalidArgumentException('host_id must be a combination of integers');
+            throw new InvalidArgumentException('host_id must be a combination of integers');
         }
     }
 
-    if (!empty($formValues['host_id']) && !empty($formValues['service_id'])) {
+    if (! empty($formValues['host_id']) && ! empty($formValues['service_id'])) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
         $hostId = (filter_var($formValues['host_id'], FILTER_VALIDATE_INT) === false)
             ? null
@@ -72,22 +56,20 @@ function DsHsrTestExistence($name = null)
 
     $stmt = $pearDB->prepare($query);
 
-    $stmt->bindValue(':ds_name', $name, \PDO::PARAM_STR);
+    $stmt->bindValue(':ds_name', $name, PDO::PARAM_STR);
 
-    if (!empty($hostId) && !empty($serviceId)) {
-        $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-        $stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+    if (! empty($hostId) && ! empty($serviceId)) {
+        $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
+        $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }
 
     $stmt->execute();
     $compo = $stmt->fetch();
     if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
         return true;
-    } elseif ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']) {
-        return false;
-    } else {
-        return true;
     }
+
+    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']);
 }
 
 function NameHsrTestExistence($name = null)
@@ -99,16 +81,16 @@ function NameHsrTestExistence($name = null)
         $formValues = $form->getSubmitValues();
     }
     $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
-    if (!empty($formValues['host_id'])) {
+    if (! empty($formValues['host_id'])) {
         if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
             $formValues['host_id'] = (int) $matches[1];
             $formValues['service_id'] = (int) $matches[2];
         } else {
-            throw new \InvalidArgumentException('chartId must be a combination of integers');
+            throw new InvalidArgumentException('chartId must be a combination of integers');
         }
     }
 
-    if (!empty($formValues['host_id']) && !empty($formValues['service_id'])) {
+    if (! empty($formValues['host_id']) && ! empty($formValues['service_id'])) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
         $hostId = (filter_var($formValues['host_id'], FILTER_VALIDATE_INT) === false)
             ? null
@@ -122,31 +104,25 @@ function NameHsrTestExistence($name = null)
 
     $stmt = $pearDB->prepare($query);
 
-    $stmt->bindValue(':name', $name, \PDO::PARAM_STR);
+    $stmt->bindValue(':name', $name, PDO::PARAM_STR);
 
-    if (!empty($hostId) && !empty($serviceId)) {
-        $stmt->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
-        $stmt->bindValue(':serviceId', $serviceId, \PDO::PARAM_INT);
+    if (! empty($hostId) && ! empty($serviceId)) {
+        $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
+        $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }
 
     $stmt->execute();
     $compo = $stmt->fetch();
     if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
         return true;
-    } elseif ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']) {
-        return false;
-    } else {
-        return true;
     }
+
+    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']);
 }
 
 function checkColorFormat($color)
 {
-    if ($color != "" && strncmp($color, '#', 1)) {
-        return false;
-    } else {
-        return true;
-    }
+    return ! ($color != '' && strncmp($color, '#', 1));
 }
 
 /**
@@ -169,7 +145,7 @@ function deleteComponentTemplateInDB($compos = [])
     $stmt = $pearDB->prepare($query);
 
     foreach (array_keys($compos) as $compoId) {
-        $stmt->bindValue(':key_' . $compoId, $compoId, \PDO::PARAM_INT);
+        $stmt->bindValue(':key_' . $compoId, $compoId, PDO::PARAM_INT);
     }
 
     $stmt->execute();
@@ -180,7 +156,7 @@ function defaultOreonGraph()
 {
     global $pearDB;
     $dbResult = $pearDB->query("SELECT DISTINCT compo_id FROM giv_components_template WHERE default_tpl1 = '1'");
-    if (!$dbResult->rowCount()) {
+    if (! $dbResult->rowCount()) {
         $dbResult2 = $pearDB->query("UPDATE giv_components_template SET default_tpl1 = '1' LIMIT 1");
     }
 }
@@ -199,7 +175,7 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
         $stmt = $pearDB->prepare(
             'SELECT * FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1'
         );
-        $stmt->bindValue(':compo_id', $key, \PDO::PARAM_INT);
+        $stmt->bindValue(':compo_id', $key, PDO::PARAM_INT);
         $stmt->execute();
         $row = $stmt->fetch();
         $row['compo_id'] = '';
@@ -208,15 +184,15 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             $val = null;
             foreach ($row as $key2 => $value2) {
                 $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == "name") {
-                    $name = $value2 . "_" . $i;
-                    $value2 = $value2 . "_" . $i;
+                if ($key2 == 'name') {
+                    $name = $value2 . '_' . $i;
+                    $value2 = $value2 . '_' . $i;
                 }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
+                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
+                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
             }
             if (NameHsrTestExistence($name)) {
-                $rq = $val ? "INSERT INTO giv_components_template VALUES (" . $val . ")" : null;
+                $rq = $val ? 'INSERT INTO giv_components_template VALUES (' . $val . ')' : null;
                 $pearDB->query($rq);
             }
         }
@@ -225,7 +201,7 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
 
 function updateComponentTemplateInDB($compoId = null)
 {
-    if (!$compoId) {
+    if (! $compoId) {
         return;
     }
     updateComponentTemplate($compoId);
@@ -233,8 +209,7 @@ function updateComponentTemplateInDB($compoId = null)
 
 function insertComponentTemplateInDB()
 {
-    $compoId = insertComponentTemplate();
-    return ($compoId);
+    return insertComponentTemplate();
 }
 
 function insertComponentTemplate()
@@ -244,8 +219,8 @@ function insertComponentTemplate()
     $formValues = $form->getSubmitValues();
 
     if (
-        (isset($formValues['ds_filled']) && $formValues['ds_filled'] === '1') &&
-        (!isset($formValues['ds_color_area']) || empty($formValues['ds_color_area']))
+        (isset($formValues['ds_filled']) && $formValues['ds_filled'] === '1')
+        && (! isset($formValues['ds_color_area']) || empty($formValues['ds_color_area']))
     ) {
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
@@ -271,7 +246,8 @@ function insertComponentTemplate()
     defaultOreonGraph();
     $result = $pearDB->query('SELECT MAX(compo_id) FROM giv_components_template');
     $compoId = $result->fetch();
-    return ($compoId["MAX(compo_id)"]);
+
+    return $compoId['MAX(compo_id)'];
 }
 
 /**
@@ -283,12 +259,12 @@ function insertComponentTemplate()
  */
 function parseHostIdPostParameter(?string $hostIdParameter): array
 {
-    if (!empty($hostIdParameter)) {
+    if (! empty($hostIdParameter)) {
         if (preg_match('/([0-9]+)-([0-9]+)/', $hostIdParameter, $matches)) {
             $hostId = (int) $matches[1];
             $serviceId = (int) $matches[2];
         } else {
-            throw new \InvalidArgumentException('host_id must be a combination of integers');
+            throw new InvalidArgumentException('host_id must be a combination of integers');
         }
     } else {
         $hostId = null;
@@ -300,7 +276,7 @@ function parseHostIdPostParameter(?string $hostIdParameter): array
 
 function updateComponentTemplate($compoId = null)
 {
-    if (!$compoId) {
+    if (! $compoId) {
         return;
     }
     global $form, $pearDB;
@@ -308,8 +284,8 @@ function updateComponentTemplate($compoId = null)
     $formValues = $form->getSubmitValues();
 
     if (
-        (array_key_exists('ds_filled', $formValues) && $formValues['ds_filled'] === '1') &&
-        (!array_key_exists('ds_color_area', $formValues) || empty($formValues['ds_color_area']))
+        (array_key_exists('ds_filled', $formValues) && $formValues['ds_filled'] === '1')
+        && (! array_key_exists('ds_color_area', $formValues) || empty($formValues['ds_color_area']))
     ) {
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
@@ -327,7 +303,7 @@ function updateComponentTemplate($compoId = null)
         'ds_minmax_int',
         'ds_average',
         'ds_last',
-        'ds_total'
+        'ds_total',
     ];
     foreach ($checkBoxValueToSet as $element) {
         $formValues[$element] ??= '0';
@@ -346,9 +322,9 @@ function updateComponentTemplate($compoId = null)
 
     $stmt = $pearDB->prepare($query);
     foreach ($bindParams as $token => [$paramType, $value]) {
-            $stmt->bindValue($token, $value, $paramType);
+        $stmt->bindValue($token, $value, $paramType);
     }
-    $stmt->bindValue(':compo_id', $compoId, \PDO::PARAM_INT);
+    $stmt->bindValue(':compo_id', $compoId, PDO::PARAM_INT);
     $stmt->execute();
 
     defaultOreonGraph();
@@ -375,25 +351,25 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
             case 'ds_legend':
             case 'comment':
             case 'ds_transparency':
-                if (!empty($inputValue)) {
-                    $inputValue = \HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
-                    $bindParams[':' . $inputName] = empty($inputValue) ? [\PDO::PARAM_STR, null] : [\PDO::PARAM_STR, $inputValue];
+                if (! empty($inputValue)) {
+                    $inputValue = HtmlAnalyzer::sanitizeAndRemoveTags($inputValue);
+                    $bindParams[':' . $inputName] = empty($inputValue) ? [PDO::PARAM_STR, null] : [PDO::PARAM_STR, $inputValue];
                 }
                 break;
             case 'ds_color_line_mode':
                 $bindParams[':' . $inputName] = [
-                    \PDO::PARAM_STR, in_array($inputValue[$inputName], ['0', '1'])
+                    PDO::PARAM_STR, in_array($inputValue[$inputName], ['0', '1'])
                         ? $inputValue[$inputName]
-                        : '0'
+                        : '0',
                 ];
                 break;
             case 'ds_max':
             case 'ds_min':
             case 'ds_minmax_int':
                 $bindParams[':' . $inputName] = [
-                    \PDO::PARAM_STR, in_array($inputValue, ['0', '1'])
+                    PDO::PARAM_STR, in_array($inputValue, ['0', '1'])
                         ? $inputValue
-                        : null
+                        : null,
                 ];
                 break;
             case 'ds_average':
@@ -404,16 +380,16 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
             case 'ds_filled':
             case 'ds_hidecurve':
                 $bindParams[':' . $inputName] = [
-                    \PDO::PARAM_STR, in_array($inputValue, ['0', '1'])
+                    PDO::PARAM_STR, in_array($inputValue, ['0', '1'])
                         ? $inputValue
-                        : '0'
+                        : '0',
                 ];
                 break;
             case 'ds_jumpline':
                 $bindParams[':' . $inputName] = [
-                    \PDO::PARAM_STR, in_array($inputValue, ['0', '1', '2', '3'])
+                    PDO::PARAM_STR, in_array($inputValue, ['0', '1', '2', '3'])
                         ? $inputValue
-                        : '0'
+                        : '0',
                 ];
                 break;
             case 'host_id':
@@ -421,20 +397,21 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
             case 'ds_tickness':
             case 'ds_order':
                 $bindParams[':' . $inputName] = [
-                    \PDO::PARAM_INT, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
+                    PDO::PARAM_INT, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
                         ? null
-                        : (int) $inputValue
+                        : (int) $inputValue,
                 ];
                 break;
             case 'default_tpl1':
                 $bindParams[':' . $inputName] = [
-                    \PDO::PARAM_INT, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
+                    PDO::PARAM_INT, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
                         ? null
-                        : (int) $inputValue
+                        : (int) $inputValue,
                 ];
                 defaultOreonGraph();
                 break;
         }
     }
+
     return $bindParams;
 }

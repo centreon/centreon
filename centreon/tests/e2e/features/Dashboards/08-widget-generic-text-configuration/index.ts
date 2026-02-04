@@ -1,10 +1,9 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import { PatternType } from '@centreon/js-config/cypress/e2e/commands';
-
-import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
+import { PatternType } from '../../../../../packages/js-config/cypress/e2e/commands';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';
 
 before(() => {
   cy.startContainers();
@@ -22,7 +21,7 @@ before(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
@@ -43,11 +42,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.loginByTypeOfUser({
     jsonName: dashboardCreatorUser.login,
@@ -75,7 +74,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -227,7 +226,7 @@ When('the dashboard administrator user deletes one of the widgets', () => {
   cy.getByLabel({ label: 'Delete' }).click();
   cy.getByTestId({ testId: 'save_dashboard' }).click();
   cy.wait('@updateDashboard');
-  cy.getByTestId({ testId: 'RefreshIcon' }).click();
+  cy.getByTestId({ testId: 'refresh' }).click();
 });
 
 Then('only the contents of the other widget are displayed', () => {
@@ -277,8 +276,8 @@ When(
     cy.getByTestId({ testId: 'RichTextEditor' })
       .get('[contenteditable="true"]')
       .type('Link to google website{selectall}', { force: true });
-    cy.getByTestId({ testId: 'LinkIcon' }).click({ force: true });
-    cy.getByTestId({ testId: 'EditIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'link' }).click({ force: true });
+    cy.getByLabel({ label: 'Edit link', tag: 'button' }).click();
     cy.getByTestId({ testId: 'InputLinkField' })
       .eq(1)
       .type('www.google.com{enter}', { force: true });

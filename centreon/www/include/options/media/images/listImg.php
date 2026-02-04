@@ -1,44 +1,37 @@
 <?php
 /*
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+
+if (! isset($centreon)) {
     exit();
 }
 
-include("./include/common/autoNumLimit.php");
-include_once("./class/centreonUtils.class.php");
+include './include/common/autoNumLimit.php';
+include_once './class/centreonUtils.class.php';
 
 $search = null;
 if (isset($_POST['searchM'])) {
@@ -57,94 +50,158 @@ if (isset($_POST['searchM'])) {
     $search = $centreon->historySearch[$url];
 }
 
-$rq = "SELECT SQL_CALC_FOUND_ROWS * FROM view_img_dir "
-    . "LEFT JOIN view_img_dir_relation ON dir_dir_parent_id = dir_id "
-    . "LEFT JOIN view_img ON img_img_id = img_id ";
-if ($search) {
-    $rq .= "WHERE (img_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%' "
-        . "OR dir_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%') ";
+try {
+    $queryParameters = [];
+    $selectQuery = <<<'SQL'
+            SELECT
+                images.*,
+                directories.*
+        SQL;
+    if (
+        $centreon->user->admin === '1'
+        || $centreon->user->access->hasAccessToAllImageFolders
+    ) {
+        $bodyQuery = <<<'SQL'
+                FROM view_img_dir AS `directories`
+                LEFT JOIN view_img_dir_relation AS `vidr`
+                    ON vidr.dir_dir_parent_id = directories.dir_id
+                LEFT JOIN view_img AS `images`
+                    ON images.img_id = vidr.img_img_id
+            SQL;
+    } else {
+        $bodyQuery = <<<'SQL'
+                FROM view_img_dir AS `directories`
+                LEFT JOIN view_img_dir_relation AS `vidr`
+                    ON vidr.dir_dir_parent_id = directories.dir_id
+                LEFT JOIN view_img AS `images`
+                    ON images.img_id = vidr.img_img_id
+                INNER JOIN acl_resources_image_folder_relations armdr
+                    ON armdr.dir_id = vidr.dir_dir_parent_id
+                INNER JOIN acl_resources ar
+                    ON ar.acl_res_id = armdr.acl_res_id
+                INNER JOIN acl_res_group_relations argr
+                    ON argr.acl_res_id = ar.acl_res_id
+                LEFT JOIN acl_group_contacts_relations gcr
+                    ON gcr.acl_group_id = argr.acl_group_id
+                LEFT JOIN acl_group_contactgroups_relations gcgr
+                    ON gcgr.acl_group_id = argr.acl_group_id
+                LEFT JOIN contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = gcgr.cg_cg_id
+                    AND (cgcr.contact_contact_id = :contactId OR gcr.contact_contact_id = :contactId)
+            SQL;
+        $queryParameters[] = QueryParameter::int('contactId', $centreon->user->user_id);
+    }
+
+    if ($search) {
+        $queryParameters[] = QueryParameter::string(
+            'search',
+            '%' . HtmlSanitizer::createFromString($search)->getString() . '%',
+        );
+        $bodyQuery .= <<<'SQL'
+                WHERE (images.img_name LIKE :search OR directories.dir_name LIKE :search) AND directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
+            SQL;
+    } else {
+        $bodyQuery .= <<<'SQL'
+                WHERE directories.dir_name NOT IN ('centreon-map', 'dashboards', 'ppm')
+            SQL;
+    }
+    $rows = $pearDB->fetchOne(
+        sprintf(
+            <<<'SQL'
+                    SELECT COUNT(DISTINCT images.img_id, directories.dir_id) AS nb
+                    %s
+                SQL,
+            $bodyQuery,
+        ),
+        QueryParameters::create($queryParameters),
+    );
+    $bodyQuery .= ' GROUP BY images.img_id, directories.dir_id';
+    $bodyQuery .= ' ORDER BY dir_alias, img_name LIMIT :offset, :limit';
+    $query = $selectQuery . ' ' . $bodyQuery;
+    $queryParameters[] = QueryParameter::int('offset', $num * $limit);
+    $queryParameters[] = QueryParameter::int('limit', $limit);
+
+    /** @var CentreonDB $pearDB */
+    $res = $pearDB->fetchAllAssociative($query, QueryParameters::create($queryParameters));
+} catch (ValueObjectException|CollectionException|ConnectionException $e) {
+    $exception = new RepositoryException(
+        message: 'Unable to retrieve images and directories',
+        context: ['search' => $search, 'contactId' => $centreon->user->user_id],
+        previous: $e
+    );
+    ExceptionLogger::create()->log($exception);
+
+    throw $exception;
 }
-$rq .= "ORDER BY dir_alias, img_name LIMIT " . $num * $limit . ", " . $limit;
 
-$res = $pearDB->query($rq);
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
-
-include("./include/common/checkPagination.php");
+include './include/common/checkPagination.php';
 
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 
-/*
- * start header menu
- */
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_desc", _("Directory"));
-$tpl->assign("headerMenu_img", _("Image"));
-$tpl->assign("headerMenu_comment", _("Comment"));
+// start header menu
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_desc', _('Directory'));
+$tpl->assign('headerMenu_img', _('Image'));
+$tpl->assign('headerMenu_comment', _('Comment'));
 
-$form = new HTML_QuickFormCustom('form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('form', 'POST', '?p=' . $p);
 
-/*
- * Fill a tab with a mutlidimensionnal Array we put in $tpl
- */
+// Fill a tab with a mutlidimensionnal Array we put in $tpl
 $elemArr = [];
-for ($i = 0; $elem = $res->fetchRow(); $i++) {
-    if (isset($elem['dir_id']) && !isset($elemArr[$elem['dir_id']])) {
-        $selectedDirElem = $form->addElement('checkbox', "select[" . $elem['dir_id'] . "]");
-        $selectedDirElem->setAttribute("onclick", "setSubNodes(this, 'select[" . $elem['dir_id'] . "-')");
-        $rowOpt = ["RowMenu_select" => $selectedDirElem->toHtml(), "RowMenu_DirLink" => "main.php?p=" . $p . "&o=cd&dir_id=" . $elem['dir_id'], "RowMenu_dir" => CentreonUtils::escapeSecure(
-            $elem["dir_name"],
+foreach ($res as $i => $elem) {
+    if (isset($elem['dir_id']) && ! isset($elemArr[$elem['dir_id']])) {
+        $selectedDirElem = $form->addElement('checkbox', 'select[' . $elem['dir_id'] . ']');
+        $selectedDirElem->setAttribute('onclick', "setSubNodes(this, 'select[" . $elem['dir_id'] . "-')");
+        $rowOpt = ['RowMenu_select' => $selectedDirElem->toHtml(), 'RowMenu_DirLink' => 'main.php?p=' . $p . '&o=cd&dir_id=' . $elem['dir_id'], 'RowMenu_dir' => CentreonUtils::escapeSecure(
+            $elem['dir_name'],
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_dir_cmnt" => CentreonUtils::escapeSecure(
-            $elem["dir_comment"],
+        ), 'RowMenu_dir_cmnt' => CentreonUtils::escapeSecure(
+            $elem['dir_comment'],
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_empty" => _("Empty directory"), "counter" => 0];
-        $elemArr[$elem['dir_id']] = ["head" => $rowOpt, "elem" => []];
+        ), 'RowMenu_empty' => _('Empty directory'), 'counter' => 0];
+        $elemArr[$elem['dir_id']] = ['head' => $rowOpt, 'elem' => []];
     }
 
     if ($elem['img_id']) {
-        $searchOpt = isset($search) && $search ? "&search=" . $search : "";
+        $searchOpt = isset($search) && $search ? '&search=' . $search : '';
         $selectedImgElem = $form->addElement(
             'checkbox',
-            "select[" . $elem['dir_id'] . "-" . $elem['img_id'] . "]"
+            'select[' . $elem['dir_id'] . '-' . $elem['img_id'] . ']'
         );
-        $rowOpt = ["RowMenu_select" => $selectedImgElem->toHtml(), "RowMenu_ImgLink" => "main.php?p=$p&o=ci&img_id={$elem['img_id']}", "RowMenu_DirLink" => "main.php?p=$p&o=cd&dir_id={$elem['dir_id']}", "RowMenu_dir" => CentreonUtils::escapeSecure(
-            $elem["dir_name"],
+        $rowOpt = ['RowMenu_select' => $selectedImgElem->toHtml(), 'RowMenu_ImgLink' => "main.php?p={$p}&o=ci&img_id={$elem['img_id']}", 'RowMenu_DirLink' => "main.php?p={$p}&o=cd&dir_id={$elem['dir_id']}", 'RowMenu_dir' => CentreonUtils::escapeSecure(
+            $elem['dir_name'],
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_img" => CentreonUtils::escapeSecure(
-            html_entity_decode($elem["dir_alias"] . "/" . $elem["img_path"], ENT_QUOTES, "UTF-8"),
+        ), 'RowMenu_img' => CentreonUtils::escapeSecure(
+            html_entity_decode($elem['dir_alias'] . '/' . $elem['img_path'], ENT_QUOTES, 'UTF-8'),
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_name" => CentreonUtils::escapeSecure(
-            html_entity_decode($elem["img_name"], ENT_QUOTES, "UTF-8"),
+        ), 'RowMenu_name' => CentreonUtils::escapeSecure(
+            html_entity_decode($elem['img_name'], ENT_QUOTES, 'UTF-8'),
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-        ), "RowMenu_comment" => CentreonUtils::escapeSecure(
-            html_entity_decode($elem["img_comment"], ENT_QUOTES, "UTF-8"),
+        ), 'RowMenu_comment' => CentreonUtils::escapeSecure(
+            html_entity_decode($elem['img_comment'], ENT_QUOTES, 'UTF-8'),
             CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
         )];
-        $elemArr[$elem['dir_id']]["elem"][$i] = $rowOpt;
-        $elemArr[$elem['dir_id']]["head"]["counter"]++;
+        $elemArr[$elem['dir_id']]['elem'][$i] = $rowOpt;
+        $elemArr[$elem['dir_id']]['head']['counter']++;
     }
 }
 
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 
-/*
- * Calculate available disk's space
- */
+// Calculate available disk's space
 
-$bytes = disk_free_space(\CentreonMedia::CENTREON_MEDIA_PATH);
+$bytes = disk_free_space(CentreonMedia::CENTREON_MEDIA_PATH);
 $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-$class = min((int)log($bytes, 1024), count($units) - 1);
+$class = min((int) log($bytes, 1024), count($units) - 1);
 $availiableSpace = sprintf('%1.2f', $bytes / pow(1024, $class)) . ' ' . $units[$class];
-$tpl->assign("availiableSpace", $availiableSpace);
-$tpl->assign("Available", _("Available"));
+$tpl->assign('availiableSpace', $availiableSpace);
+$tpl->assign('Available', _('Available'));
 
-/*
- * Different messages we put in the template
- */
+// Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 ?>
@@ -164,7 +221,7 @@ $tpl->assign(
 
         function submitO(_i) {
             if (document.forms['form'].elements[_i].selectedIndex == 1 &&
-                confirm('<?php print _("Do you confirm the deletion ?"); ?>')
+                confirm('<?php echo _('Do you confirm the deletion ?'); ?>')
             ) {
                 setO(document.forms['form'].elements[_i].value);
                 document.forms['form'].submit();
@@ -198,12 +255,19 @@ $tpl->assign(
 
     </script>
 <?php
-$actions = [null => _("More actions"), IMAGE_DELETE => _("Delete"), IMAGE_MOVE => _("Move images")];
+$actions = [null => _('More actions'), IMAGE_DELETE => _('Delete'), IMAGE_MOVE => _('Move images')];
 $form->addElement('select', 'o1', null, $actions, ['onchange' => "javascript:submitO('o1');"]);
 $form->addElement('select', 'o2', null, $actions, ['onchange' => "javascript:submitO('o2');"]);
+if ($centreon->user->admin === '1') {
+    $form->addElement(
+        'button',
+        'syncDir',
+        _('Synchronize Media Directory'),
+        ['onClick' => "openPopup({$p})", 'class' => 'btc bt_info ml-2 mr-1'],
+    );
+}
 $form->setDefaults(['o1' => null]);
 $form->setDefaults(['o2' => null]);
-
 
 $o1 = $form->getElement('o1');
 $o1->setValue(null);
@@ -216,10 +280,9 @@ $o2->setSelected(null);
 $tpl->assign('limit', $limit);
 $tpl->assign('p', $p);
 $tpl->assign('session_id', session_id());
-$tpl->assign('syncDir', _("Synchronize Media Directory"));
 $tpl->assign('searchM', $search);
 
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listImg.ihtml");
+$tpl->display('listImg.ihtml');

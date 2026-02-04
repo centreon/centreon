@@ -1,5 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import ldaps from '../../../fixtures/ldaps/ldap.json';
 
@@ -41,11 +41,7 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user adds a new LDAP configuration', () => {
-  cy.navigateTo({
-    page: 'LDAP',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.ldapsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateLdap(ldaps.default);
@@ -56,11 +52,7 @@ Then('the LDAP configuration is saved with its properties', () => {
 });
 
 Given('one LDAP configuration has been created', () => {
-  cy.navigateTo({
-    page: 'LDAP',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.ldapsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateLdap(ldaps.default);
@@ -83,7 +75,7 @@ Then('all changes are saved', () => {
   cy.getIframeBody()
     .find('textarea[name="ar_description"]')
     .should('have.value', ldaps.ldap1.desc);
-  cy.fixture(`../fixtures/users/user-with-access-to-allmodules.json`).then(
+  cy.fixture('../fixtures/users/user-with-access-to-allmodules.json').then(
     (user) => {
       cy.getIframeBody()
         .find('input[name="bind_dn"]')

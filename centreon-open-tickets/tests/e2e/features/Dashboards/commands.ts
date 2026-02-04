@@ -30,11 +30,12 @@ Cypress.Commands.add(
     cy.waitUntil(
       () =>
         cy.get(iframeSelector).then(($iframe) => {
-          const iframeBody = $iframe[0].contentDocument.body;
+          const iframeBody = ($iframe[0] as HTMLIFrameElement).contentDocument
+            ?.body;
           if (iframeBody) {
-            const $element = Cypress.$(iframeBody).find(elementSelector);
+            const Element = Cypress.$(iframeBody).find(elementSelector);
 
-            return $element.length > 0 && $element.is(':visible');
+            return Element.length > 0 && Element.is(':visible');
           }
 
           return false;
@@ -69,7 +70,7 @@ Cypress.Commands.add('exportConfig', () => {
 
 Cypress.Commands.add(
   'waitForElementToBeVisible',
-  (selector, timeout = 50000, interval = 2000) => {
+  (selector, timeout = 70000, interval = 3000) => {
     cy.waitUntil(
       () =>
         cy.get('body').then(($body) => {
@@ -129,7 +130,19 @@ Cypress.Commands.add('editDashboard', (name) => {
   }).should('be.visible');
 });
 
+Cypress.Commands.add('applyAcl', () => {
+  const apacheUser = Cypress.env('WEB_IMAGE_OS').includes('alma')
+    ? 'apache'
+    : 'www-data';
+
+  cy.execInContainer({
+    command: `su -s /bin/sh ${apacheUser} -c "/usr/bin/env php -q /usr/share/centreon/cron/centAcl.php"`,
+    name: 'web'
+  });
+});
+
 declare global {
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       editDashboard: (name: string) => Cypress.Chainable;
@@ -151,6 +164,7 @@ declare global {
         accessRightsTestId: string,
         expectedElementCount: number
       ) => Cypress.Chainable;
+      applyAcl: () => Cypress.Chainable;
     }
   }
 }

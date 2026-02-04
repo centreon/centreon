@@ -1,18 +1,17 @@
-import { FormikValues, useFormikContext } from 'formik';
-import { equals, prop } from 'ramda';
-
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import MailIcon from '@mui/icons-material/MailOutline';
 import { Typography } from '@mui/material';
 
-import { SelectEntry } from '../InputField/Select';
-import { Listing } from '../api/models';
-
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, prop } from 'ramda';
 import { array, boolean, mixed, number, object, string } from 'yup';
+
+import type { Listing } from '../api/models';
+import type { SelectEntry } from '../InputField/Select';
 import {
-  Group,
-  InputProps,
-  InputPropsWithoutGroup,
+  type Group,
+  type InputProps,
+  type InputPropsWithoutGroup,
   InputType
 } from './Inputs/models';
 
@@ -59,6 +58,7 @@ export const basicFormValidationSchema = object().shape({
   class: selectEntryValidationSchema.nullable().required('Required'),
   custom: string().required('Custom is required'),
   email: string().email('Invalid email').required('Email is required'),
+  file: mixed(),
   group: selectEntryValidationSchema.nullable().required('Required'),
   inviteUsers: array().of(
     object({
@@ -78,8 +78,7 @@ export const basicFormValidationSchema = object().shape({
     })
   ),
   scopes: array().of(string().min(3, '3 characters min').required('Required')),
-  sports: array().of(selectEntryValidationSchema.required('Required')),
-  file: mixed()
+  sports: array().of(selectEntryValidationSchema.required('Required'))
 });
 
 const roleEntries: Array<SelectEntry> = [
@@ -105,6 +104,7 @@ export const basicFormInitialValues = {
   class: { id: 0, name: 'Class 0' },
   custom: '',
   email: '',
+  file: null,
   group: null,
   inviteUsers: [],
   inviteUsers2: [],
@@ -112,7 +112,7 @@ export const basicFormInitialValues = {
   language: 'French',
   name: '',
   notifications: {
-    channels: { Icon: MailIcon, checked: true, label: 'mail' },
+    channels: { checked: true, Icon: MailIcon, label: 'mail' },
     hostevents: ['ok', 'warning'],
     includeServices: { checked: true, label: 'Include services for this host' }
   },
@@ -135,8 +135,7 @@ export const basicFormInitialValues = {
     }
   ],
   scopes: [],
-  sports: [],
-  file: null
+  sports: []
 };
 
 export const classOptions = [...Array(10).keys()].map((idx) => ({
@@ -156,13 +155,17 @@ export const basicFormGroups: Array<Group> = [
   },
   {
     EndIcon: () => <HelpOutlineIcon />,
-    TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
+    name: 'Third group',
+    order: 3,
+    TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>
+  },
+  {
     name: 'Second group',
     order: 2
   },
   {
-    name: 'Third group',
-    order: 3
+    name: 'Fourth group',
+    order: 4
   }
 ];
 
@@ -216,6 +219,12 @@ export const basicFormInputs: Array<InputProps> = [
     type: InputType.Radio
   },
   {
+    fieldName: 'div',
+    group: 'First group',
+    label: 'divider',
+    type: InputType.Divider
+  },
+  {
     additionalLabel: 'Notifications',
     fieldName: '',
     grid: {
@@ -226,12 +235,12 @@ export const basicFormInputs: Array<InputProps> = [
             direction: 'horizontal'
           },
           fieldName: 'notifications.channels',
-          label: 'channels',
+          label: 'mail',
           type: InputType.Checkbox
         },
         {
           fieldName: 'notifications.includeServices',
-          label: 'Iclude services',
+          label: 'Include services for this host',
           type: InputType.Checkbox
         },
         {
@@ -449,13 +458,13 @@ export const basicFormInputs: Array<InputProps> = [
   },
   {
     fieldName: 'file',
-    group: 'First group',
-    label: 'File',
-    type: InputType.File,
     file: {
       accept: 'image/*',
       multiple: true
-    }
+    },
+    group: 'First group',
+    label: 'File',
+    type: InputType.File
   }
 ];
 

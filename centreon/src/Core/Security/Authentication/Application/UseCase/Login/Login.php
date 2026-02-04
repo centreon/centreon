@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,10 @@ use Core\Security\Authentication\Domain\Exception\AclConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationConditionsException;
 use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Exception\PasswordExpiredException;
+use Core\Security\Authentication\Domain\Exception\SSOAuthenticationException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\Authentication\Infrastructure\Provider\AclUpdaterInterface;
+use Core\Security\Authentication\Infrastructure\Provider\OpenId;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Security\Domain\Authentication\Model\Session;
 use Security\Encryption;
@@ -107,23 +109,46 @@ final class Login
 
             $this->updateACL($user);
 
-            $token = null;
             if ($this->sessionRepository->start($this->provider->getLegacySession())) {
                 if ($this->readTokenRepository->hasAuthenticationTokensByToken($this->requestStack->getSession()->getId()) === false) {
                     if ($loginRequest->providerName === Provider::SAML && $this->thirdPartyLoginForm->isActive()) {
-                        // We create an API token in addition of the session token.
                         $this->createAuthenticationTokens(
-                            $token = Encryption::generateRandomString(),
+                            $authToken = Encryption::generateRandomString(),
                             $user,
                             $this->provider->getProviderToken($this->requestStack->getSession()->getId()),
                             $this->provider->getProviderRefreshToken(),
                             $loginRequest->clientIp
                         );
-                        // We pass the token to let the third party login form propagate to the form.
-                        $this->thirdPartyLoginForm->setToken($token);
+                        $this->thirdPartyLoginForm->setToken($authToken);
                     }
 
-                    // Session token To keep the stateful authentication active anyway.
+                    if ($loginRequest->providerName === Provider::OPENID) {
+                        // Store the OpenID ID token in the session for later use
+                        $provider = $this->provider;
+                        if (! $provider instanceof OpenId) {
+                            throw new AuthenticationException('Expected OpenIdProvider for OpenID login');
+                        }
+                        $request = $this->requestStack->getCurrentRequest();
+                        if ($request === null) {
+                            throw new AuthenticationException('Request is not available for OpenID login');
+                        }
+
+                        try {
+                            $request->getSession()
+                                ->set('openid_id_token', $provider->getTokenForSession());
+                        } catch (SSOAuthenticationException $e) {
+                            throw new AuthenticationException('OpenID authentication failed: ' . $e->getMessage(), previous: $e);
+                        }
+
+                        $this->createAuthenticationTokens(
+                            Encryption::generateRandomString(),
+                            $user,
+                            $provider->getProviderToken(),
+                            $provider->getProviderRefreshToken(),
+                            $loginRequest->clientIp
+                        );
+                    }
+
                     $this->createAuthenticationTokens(
                         $this->requestStack->getSession()->getId(),
                         $user,
@@ -132,7 +157,6 @@ final class Login
                         $loginRequest->clientIp
                     );
                 }
-
             }
 
             $redirectionInfo = $this->getRedirectionInfo($user, $loginRequest->refererQueryParameters);

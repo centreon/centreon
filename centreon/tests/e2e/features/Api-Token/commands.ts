@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 Cypress.Commands.add('visitApiTokens', () => {
   cy.intercept({
@@ -7,28 +7,18 @@ Cypress.Commands.add('visitApiTokens', () => {
     url: '/centreon/api/latest/administration/tokens?*'
   }).as('getTokens');
 
-  cy.url().then((url) => {
-    if (url.includes('/administration/api-token')) {
-      cy.visit('/centreon/administration/api-token');
-    } else {
-      cy.navigateTo({
-        page: 'API Tokens',
-        rootItemNumber: 4
-      });
-    }
-  });
+  cy.visit(PAGES.configuration.authenticationTokens);
 
   cy.wait('@getTokens');
 
-  cy.contains('h6', 'API tokens').should('be.visible');
+  cy.contains('h1', 'Authentication tokens').should('be.visible');
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       visitApiTokens: () => Cypress.Chainable;
     }
   }
 }
-
-export {};

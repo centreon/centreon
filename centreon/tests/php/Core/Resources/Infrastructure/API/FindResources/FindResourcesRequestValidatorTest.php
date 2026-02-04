@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ it(
     'should fail if there are no providers',
     function (): void {
         ($this->expectInvalidArgumentException)(
-            fn() => new Validator(new \EmptyIterator()),
+            fn () => new Validator(new \EmptyIterator()),
             Validator::ERROR_NO_PROVIDERS
         );
     }
@@ -112,7 +112,7 @@ foreach ($dataset as [$field, $expectedCode, $value]) {
         "should fail if the field '{$field}' {$message}",
         function () use ($field, $expectedCode, $value): void {
             ($this->expectInvalidArgumentException)(
-                fn() => $this->fakeValidator->validateAndRetrieveRequestParameters([$field => $value]),
+                fn () => $this->fakeValidator->validateAndRetrieveRequestParameters([$field => $value]),
                 $expectedCode
             );
         }

@@ -1,9 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import { useMemoComponent } from '@centreon/ui';
 
-import { labelMonitoringServer } from '../../translatedLabels';
+import { useTranslation } from 'react-i18next';
 
+import { labelMonitoringServer } from '../../translatedLabels';
 import InputGroup from './basicFilter/InputGroup';
 import { BasicCriteria, MemoizedChild } from './model';
 import { findData } from './utils';

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
 use Core\Security\Token\Application\UseCase\DeleteToken\DeleteToken;
-use Core\Security\Token\Domain\Model\Token;
+use Core\Security\Token\Domain\Model\ApiToken;
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter(
@@ -54,7 +54,7 @@ beforeEach(function (): void {
     $this->creationDate = new \DateTimeImmutable();
     $this->expirationDate = $this->creationDate->add(new \DateInterval('P1Y'));
 
-    $this->token = new Token(
+    $this->token = new ApiToken(
         name: new TrimmedString('my-token-name'),
         userId: $this->linkedUser['id'],
         userName: new TrimmedString($this->linkedUser['name']),
@@ -134,10 +134,10 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-   $this->readTokenRepository
-       ->expects($this->once())
-       ->method('findByNameAndUserId')
-       ->willReturn($this->token);
+    $this->readTokenRepository
+        ->expects($this->once())
+        ->method('findByNameAndUserId')
+        ->willReturn($this->token);
 
     $this->user
         ->expects($this->once())

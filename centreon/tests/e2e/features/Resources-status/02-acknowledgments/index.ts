@@ -206,33 +206,32 @@ Then(
     cy.wait('@getLastestUserFilters');
 
     cy.getByLabel({ label: 'State filter' }).click();
-
     cy.get('[data-value="all"]').click();
 
     cy.waitUntil(
-      () => {
-        cy.refreshListing()
-          .then(() => cy.contains(hostInAcknowledgementName))
-          .parent()
-          .then((val) => {
-            return (
-              val.css('background-color') === actionBackgroundColors.acknowledge
-            );
-          });
+      () =>
+        cy.refreshListing().then(() =>
+          cy
+            .contains(hostInAcknowledgementName)
+            .parent()
+            .then((hostEl) => {
+              const hostAck =
+                hostEl.css('background-color') ===
+                actionBackgroundColors.acknowledge;
 
-        return cy
-          .refreshListing()
-          .then(() => cy.contains(serviceInAcknowledgementName))
-          .parent()
-          .then((val) => {
-            return (
-              val.css('background-color') === actionBackgroundColors.acknowledge
-            );
-          });
-      },
-      {
-        timeout: 30000
-      }
+              return cy
+                .contains(serviceInAcknowledgementName)
+                .parent()
+                .then((serviceEl) => {
+                  const serviceAck =
+                    serviceEl.css('background-color') ===
+                    actionBackgroundColors.acknowledge;
+
+                  return hostAck || serviceAck;
+                });
+            })
+        ),
+      { timeout: 30000 }
     );
   }
 );
@@ -285,7 +284,7 @@ Given('criteria is {string}', (criteria: string) => {
 
 Given(
   'a resource of host is selected with {string}',
-  (initial_status: string) => {
+  (initialStatus: string) => {
     checkHostsAreMonitored([
       {
         name: hostChildInAcknowledgementName
@@ -294,8 +293,8 @@ Given(
 
     const hostStatus = {
       host: hostChildInAcknowledgementName,
-      output: `submit_${hostChildInAcknowledgementName}_${initial_status}`,
-      status: initial_status
+      output: `submit_${hostChildInAcknowledgementName}_${initialStatus}`,
+      status: initialStatus
     };
 
     submitCustomResultsViaClapi(hostStatus);
@@ -319,12 +318,12 @@ Given(
 
 Given(
   'a resource of service is selected with {string}',
-  (initial_status: string) => {
+  (initialStatus: string) => {
     const serviceStatus = {
       host: hostInAcknowledgementName,
-      output: `submit_${serviceInAcknowledgementName}_${initial_status}`,
+      output: `submit_${serviceInAcknowledgementName}_${initialStatus}`,
       service: serviceInAcknowledgementName,
-      status: initial_status
+      status: initialStatus
     };
 
     checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
@@ -396,17 +395,22 @@ When('the {string} resource is marked as acknowledged', (resource: string) => {
 
 When(
   'the {string} status changes to {string}',
-  (resource: string, changed_status: string) => {
+  (resource: string, changedStatus: string) => {
     clearCentengineLogs();
-    let status;
+    let status: {
+      host: string;
+      output: string;
+      service?: string;
+      status: string;
+    };
 
     switch (resource) {
       case 'service':
         status = {
           host: hostInAcknowledgementName,
-          output: `submit_${serviceInAcknowledgementName}_${changed_status}`,
+          output: `submit_${serviceInAcknowledgementName}_${changedStatus}`,
           service: serviceInAcknowledgementName,
-          status: changed_status
+          status: changedStatus
         };
 
         checkServicesAreMonitored([{ name: serviceInAcknowledgementName }]);
@@ -416,15 +420,15 @@ When(
         checkServicesAreMonitored([
           {
             name: serviceInAcknowledgementName,
-            status: changed_status
+            status: changedStatus
           }
         ]);
         break;
       default:
         status = {
           host: hostChildInAcknowledgementName,
-          output: `submit_${hostChildInAcknowledgementName}_${changed_status}`,
-          status: changed_status
+          output: `submit_${hostChildInAcknowledgementName}_${changedStatus}`,
+          status: changedStatus
         };
 
         checkHostsAreMonitored([

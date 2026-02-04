@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ class StandardPresenter implements StandardPresenterInterface
         return match (true) {
             $data instanceof ListingResponseInterface => $this->presentListing($data, $context, $format),
             $data instanceof BulkResponseInterface => $this->presentWithoutMeta($data, $context, $format),
-            default => $this->serializer->serialize($data->getData(), $format, $context)
+            default => $this->serializer->serialize($data->getData(), $format, $context),
         };
     }
 

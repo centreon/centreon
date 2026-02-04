@@ -127,13 +127,10 @@ manageApacheAndPhpFpm() {
 }
 
 rebuildSymfonyCache() {
-  echo "Rebuilding Centreon application cache ..."
-  rm -rf /var/cache/centreon/symfony
-
-  if [ "$1" = "rpm" ]; then
-    su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
-  else
-    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+  if [ "$1" = "deb" ]; then
+    echo "Rebuilding Centreon application cache ..."
+    rm -rf /var/cache/centreon/symfony
+    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear -q" || :
   fi
 }
 
@@ -156,15 +153,20 @@ fixCentreonCronPermissions() {
   chmod 0755 /usr/share/centreon/cron/outdated-token-removal.php
   chown -R centreon:centreon /usr/share/centreon/cron/outdated-token-removal.php
 
-  # Update log file permissions which has been potentially created by centreon user
-  APP_LOG_FILE="/var/log/centreon/centreon-web.log"
-  if [ -f "$APP_LOG_FILE" ]; then
-    if [ "$1" = "rpm" ]; then
-      chown apache:apache "$APP_LOG_FILE"
-    else
-      chown www-data:www-data "$APP_LOG_FILE"
+  # Update log files permissions which have been potentially created by centreon user
+  LOG_FILES=(
+    "/var/log/centreon/centreon-web.log"
+    "/var/log/centreon/centreon-tokens.log"
+  )
+  for LOG_FILE in "${LOG_FILES[@]}"; do
+    if [ -f "$LOG_FILE" ]; then
+      if [ "$1" = "rpm" ]; then
+        chown apache:apache "$LOG_FILE"
+      else
+        chown www-data:www-data "$LOG_FILE"
+      fi
     fi
-  fi
+  done
 }
 
 package_type="rpm"
@@ -190,7 +192,7 @@ case "$action" in
     setPhpTimezone $package_type
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
-    fixCentreonCronPermissions
+    fixCentreonCronPermissions $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type

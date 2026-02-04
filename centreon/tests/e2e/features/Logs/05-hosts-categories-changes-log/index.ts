@@ -1,6 +1,5 @@
-/* eslint-disable prettier/prettier */
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import categories from '../../../fixtures/host-categories/category.json';
 
@@ -26,38 +25,28 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('an apiV2 call is made to "Add" a host category', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories.default,
     '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
-Then(
-  'a new host category is displayed on the host categories page',
-  () => {
-    cy.navigateTo({
-      page: 'Categories',
-      rootItemNumber: 3,
-      subMenu: 'Hosts'
-    });
-    cy.wait('@getTimeZone');
-    cy.waitForElementInIframe(
-      '#main-content',
-      `a:contains("${categories.default.name}")`
-    );
-    cy.getIframeBody()
-      .contains('a', categories.default.name)
-      .should('be.visible');
-  }
-);
+Then('a new host category is displayed on the host categories page', () => {
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
+  cy.wait('@getTimeZone');
+  cy.waitForElementInIframe(
+    '#main-content',
+    `a:contains("${categories.default.name}")`
+  );
+  cy.getIframeBody()
+    .contains('a', categories.default.name)
+    .should('be.visible');
+});
 
 Then(
   'a new "Added" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -97,33 +86,27 @@ Then(
 );
 
 Given('a host category is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories.default,
     '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
-When(
-  'an apiV2 call is made to "Delete" the configured host category',
-  () => {
-    cy.deleteSubjectViaAPIv2(
-      '/centreon/api/latest/configuration/hosts/categories/1'
-    );
-  }
-);
+When('an apiV2 call is made to "Delete" the configured host category', () => {
+  cy.deleteSubjectViaApiV2(
+    '/centreon/api/latest/configuration/hosts/categories/1'
+  );
+});
 
 Then(
   'a new "Deleted" line of log is getting added to the page Administration > Log',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
-        '#main-content',
-        'span[class*="badge service_critical"]'
-      );
+      '#main-content',
+      'span[class*="badge service_critical"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_critical', 'Deleted')
       .should('exist');
@@ -137,24 +120,21 @@ Then(
 );
 
 When('an APIv2 call is made to "Update" the configured host category', () => {
-    cy.updateSubjectViaAPIv2(
-        categories.forTest,
-        '/centreon/api/latest/configuration/hosts/categories/1'
-    );
+  cy.updateSubjectViaApiV2(
+    categories.forTest,
+    '/centreon/api/latest/configuration/hosts/categories/1'
+  );
 });
 
 Then(
   'a new "Changed" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
-        '#main-content',
-        'span[class*="badge service_warning"]'
-      );
+      '#main-content',
+      'span[class*="badge service_warning"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_warning', 'Changed')
       .should('exist');
@@ -181,41 +161,53 @@ Then(
       .should('contain.text', categories.forTest.name);
     cy.getIframeBody().contains('td', 'Change by admin').should('exist');
     cy.checkLogDetails(1, 0, 'Field Name', 'Before', 'After');
-    cy.checkLogDetails(1, 1, 'hc_comment', categories.default.comment, categories.forTest.comment);
-    cy.checkLogDetails(1, 2, 'hc_name', categories.default.name, categories.forTest.name);
-    cy.checkLogDetails(1, 3, 'hc_alias', categories.default.alias, categories.forTest.alias);
+    cy.checkLogDetails(
+      1,
+      1,
+      'hc_comment',
+      categories.default.comment,
+      categories.forTest.comment
+    );
+    cy.checkLogDetails(
+      1,
+      2,
+      'hc_name',
+      categories.default.name,
+      categories.forTest.name
+    );
+    cy.checkLogDetails(
+      1,
+      3,
+      'hc_alias',
+      categories.default.alias,
+      categories.forTest.alias
+    );
   }
 );
 
 Given('an enabled host category is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories.default,
     '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
-When(
-  'an APIv2 call is made to "Disable" the configured host category',
-  () => {
-    cy.updateSubjectViaAPIv2(
-        categories.disabled,
-        '/centreon/api/latest/configuration/hosts/categories/1'
-    );
-  }
-);
+When('an APIv2 call is made to "Disable" the configured host category', () => {
+  cy.updateSubjectViaApiV2(
+    categories.disabled,
+    '/centreon/api/latest/configuration/hosts/categories/1'
+  );
+});
 
 Then(
   'a new "DISABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
-        '#main-content',
-        'span[class*="badge service_critical"]'
-      );
+      '#main-content',
+      'span[class*="badge service_critical"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_critical', 'Disabled')
       .should('exist');
@@ -229,34 +221,28 @@ Then(
 );
 
 Given('a disabled host category is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     categories.disabled,
     '/centreon/api/latest/configuration/hosts/categories'
   );
 });
 
-When(
-  'an APIv2 call is made to "Enable" the disabled host category',
-  () => {
-    cy.updateSubjectViaAPIv2(
-        categories.default,
-        '/centreon/api/latest/configuration/hosts/categories/1'
-    );
-}
-);
+When('an APIv2 call is made to "Enable" the disabled host category', () => {
+  cy.updateSubjectViaApiV2(
+    categories.default,
+    '/centreon/api/latest/configuration/hosts/categories/1'
+  );
+});
 
 Then(
   'a new "ENABLED" line of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
-        '#main-content',
-        'span[class*="badge service_ok"]'
-      );
+      '#main-content',
+      'span[class*="badge service_ok"]'
+    );
     cy.getIframeBody()
       .contains('span.badge.service_ok', 'Enabled')
       .should('exist');

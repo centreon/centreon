@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ class ProviderToken extends NewProviderToken
         private int $id,
         private string $token,
         private DateTimeImmutable $creationDate,
-        private ?DateTimeImmutable $expirationDate = null
+        private ?DateTimeImmutable $expirationDate = null,
     ) {
         parent::__construct($this->token, $this->creationDate, $this->expirationDate);
     }

@@ -1,17 +1,17 @@
+import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
+
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { replace } from 'ramda';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter } from 'react-router';
 
-import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
-
 import { externalTranslationEndpoint } from '../App/endpoint';
+import { userEndpoint } from '../api/endpoint';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
-import { userEndpoint } from '../api/endpoint';
-
+import LoginPage from '.';
 import {
   loginEndpoint,
   loginPageCustomisationEndpoint,
@@ -33,8 +33,6 @@ import {
   labelRequired
 } from './translatedLabels';
 import { router } from './useLogin';
-
-import LoginPage from '.';
 
 const labelInvalidCredentials = 'Invalid credentials';
 const labelError = 'This is an error from the server';
@@ -358,8 +356,6 @@ describe('Login Page', () => {
     cy.findByLabelText(labelHideThePassword).click();
 
     cy.findByLabelText(labelPassword).should('have.attr', 'type', 'password');
-
-    cy.makeSnapshot();
   });
 
   it('redirects to the reset page when the submitted password is expired', () => {

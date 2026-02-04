@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,20 +23,18 @@ declare(strict_types=1);
 
 namespace Tests\Core\Application\Platform\UseCase\FindInstallationStatus;
 
-use PHPUnit\Framework\TestCase;
-use Core\Application\Platform\Repository\ReadPlatformRepositoryInterface;
 use Core\Application\Platform\UseCase\FindInstallationStatus\FindInstallationStatus;
+use Core\Platform\Domain\InstallationVerifierInterface;
+use PHPUnit\Framework\TestCase;
 
 class FindInstallationStatusTest extends TestCase
 {
-    /**
-     * @var ReadPlatformRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
-    public $repository;
+    /** @var InstallationVerifierInterface&\PHPUnit\Framework\MockObject\MockObject */
+    public $centreonInstallationVerifier;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(ReadPlatformRepositoryInterface::class);
+        $this->centreonInstallationVerifier = $this->createMock(InstallationVerifierInterface::class);
     }
 
     /**
@@ -44,16 +42,16 @@ class FindInstallationStatusTest extends TestCase
      */
     public function testFindInstallationStatus(): void
     {
-        $useCase = new FindInstallationStatus($this->repository);
+        $useCase = new FindInstallationStatus($this->centreonInstallationVerifier);
 
         $presenter = new FindInstallationStatusPresenterStub();
 
-        $this->repository
+        $this->centreonInstallationVerifier
             ->expects($this->once())
             ->method('isCentreonWebInstallableOrUpgradable')
             ->willReturn(true);
 
-        $this->repository
+        $this->centreonInstallationVerifier
             ->expects($this->once())
             ->method('isCentreonWebInstalled')
             ->willReturn(true);

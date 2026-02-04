@@ -1,0 +1,38 @@
+import { Typography } from '@mui/material';
+
+import { ComponentColumnProps, useLocaleDateTimeFormat } from '@centreon/ui';
+
+import dayjs from 'dayjs';
+import { useTranslation } from 'react-i18next';
+
+import { labelNeverExpire } from '../../../translatedLabels';
+import useStyles from './ExpirationDate.styles';
+
+const dateFormat = 'L LT';
+
+const ExpirationDate = ({
+  row,
+  isHovered
+}: ComponentColumnProps): JSX.Element => {
+  const isExpired = dayjs(dayjs(row.expirationDate)).isBefore(dayjs());
+
+  const { classes } = useStyles({
+    isExpired,
+    isHovered
+  });
+  const { format } = useLocaleDateTimeFormat();
+  const { t } = useTranslation();
+
+  const expirationDate = row.expirationDate
+    ? format({
+        date: row.expirationDate,
+        formatString: dateFormat
+      })
+    : t(labelNeverExpire);
+
+  return (
+    <Typography className={classes.container}>{expirationDate}</Typography>
+  );
+};
+
+export default ExpirationDate;

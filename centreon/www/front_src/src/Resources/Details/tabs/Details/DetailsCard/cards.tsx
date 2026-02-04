@@ -1,6 +1,6 @@
-import { equals, includes, isEmpty, isNil } from 'ramda';
-
 import { SeverityCode } from '@centreon/ui';
+
+import { equals, includes, isEmpty, isNil } from 'ramda';
 
 import ChecksIcon from '../../../../ChecksIcon';
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
@@ -25,6 +25,7 @@ import {
   labelLatency,
   labelMonitoringServer,
   labelNextCheck,
+  labelParentAlias,
   labelPerformanceData,
   labelSeverity,
   labelStatusChangePercentage,
@@ -34,7 +35,6 @@ import {
 import type { ResourceDetails } from '../../../models';
 import ExpandableCard from '../ExpandableCard';
 import type { ChangeExpandedCardsProps } from '../SortableCards/models';
-
 import AcknowledgementCard from './AcknowledegmentCard';
 import CommandLineCard from './CommandLineCard';
 import DetailsLine from './DetailsLine';
@@ -201,8 +201,8 @@ const getDetailCardLines = ({
     },
     {
       line: <DetailsLine line={details.parent?.uuid} />,
-      shouldBeDisplayed: !isNil(details.calculation_type),
-      title: labelCalculationType
+      shouldBeDisplayed: !isNil(details.parent?.uuid),
+      title: labelParentAlias
     },
     {
       isCustomCard: true,

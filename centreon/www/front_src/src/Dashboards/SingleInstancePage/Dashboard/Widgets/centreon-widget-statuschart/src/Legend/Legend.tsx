@@ -1,14 +1,14 @@
+import { Typography } from '@mui/material';
+
+import { Tooltip } from '@centreon/ui/components';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { Link } from 'react-router';
 
-import { Typography } from '@mui/material';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-import { Tooltip } from '@centreon/ui/components';
-
+import { Resource } from '../../../models';
 import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
-
 import { useLegendStyles } from './Legend.styles';
 
 interface Props {
@@ -19,6 +19,7 @@ interface Props {
   total: number;
   unit: 'number' | 'percentage';
   resourceType: string;
+  resources: Array<Resource>;
 }
 
 const Legend = ({
@@ -27,7 +28,8 @@ const Legend = ({
   unit,
   direction,
   getLinkToResourceStatusPage,
-  resourceType
+  resourceType,
+  resources
 }: Props): JSX.Element => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
@@ -52,9 +54,10 @@ const Legend = ({
                 <TooltipContent
                   color={color}
                   label={status}
+                  resources={resources}
+                  resourceType={resourceType}
                   total={total}
                   value={value}
-                  resourceType={resourceType}
                 />
               }
               position="bottom"

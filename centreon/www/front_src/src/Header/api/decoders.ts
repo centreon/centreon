@@ -1,5 +1,5 @@
-import { JsonDecoder } from 'ts.data.json';
 import type { FromDecoder } from 'ts.data.json';
+import { JsonDecoder } from 'ts.data.json';
 
 import type { Alert, AlertDetails, Poller, PollersIssuesList } from './models';
 

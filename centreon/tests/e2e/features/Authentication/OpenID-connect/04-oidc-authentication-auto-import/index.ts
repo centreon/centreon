@@ -1,11 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { configureOpenIDConnect } from '../common';
 import {
   configureACLGroups,
   configureProviderAcls,
   getUserContactId
 } from '../../../../commons';
+import { configureOpenIdConnect } from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['openid'] }).then(() => {
@@ -49,10 +50,7 @@ Given('an administrator is logged in the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -67,15 +65,15 @@ When(
       tag: 'input'
     }).check();
 
-    configureOpenIDConnect();
+    configureOpenIdConnect();
 
     // Auto import users section
-    cy.getByLabel({ label: 'Auto import users' }).click();
+    cy.get('[data-testid="Auto import users-header"]').click();
     cy.getByLabel({ label: 'Enable auto import', tag: 'input' }).check();
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
-    }).type('{selectall}{backspace}contact_template');
+    }).type('{selectall}{backspace}openid_contact_template');
     cy.wait('@getListContactTemplates')
       .get('div[role="presentation"] ul li')
       .eq(-1)
@@ -83,7 +81,7 @@ When(
     cy.getByLabel({
       label: 'Contact template',
       tag: 'input'
-    }).should('have.value', 'contact_template');
+    }).should('have.value', 'openid_contact_template');
     cy.getByLabel({
       label: 'Email attribute path',
       tag: 'input'
@@ -119,7 +117,7 @@ Then(
     cy.wait('@getUserInformation').its('response.statusCode').should('eq', 200);
     cy.url().should('include', '/monitoring/resources');
 
-    cy.logout();
+    cy.logoutViaAPI();
     cy.getByLabel({ label: 'Alias', tag: 'input' }).should('exist');
 
     cy.loginByTypeOfUser({ jsonName: 'admin' })
@@ -147,7 +145,7 @@ Then(
           );
           cy.getByTestId({ tag: 'select', testId: 'contact_template_id' })
             .find(':selected')
-            .contains('contact_template');
+            .contains('openid_contact_template');
         });
     });
   }

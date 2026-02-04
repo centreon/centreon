@@ -1,10 +1,10 @@
-import { makeStyles } from 'tss-react/mui';
-
 import {
-  IconButtonProps,
+  type IconButtonProps,
   IconButton as MuiIconButton,
   Tooltip
 } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 import { getNormalizedId } from '../../utils';
 
@@ -19,6 +19,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   ariaLabel?: string;
+  dataTestid?: string;
   className?: string;
   onClick: (event) => void;
   title?: string | JSX.Element;
@@ -42,6 +43,7 @@ export const IconButton = ({
   title = '',
   ariaLabel,
   className,
+  dataTestid,
   tooltipPlacement,
   tooltipClassName,
   ...props
@@ -59,7 +61,7 @@ export const IconButton = ({
           aria-label={ariaLabel}
           className={cx(classes.button, className)}
           color="primary"
-          data-testid={ariaLabel}
+          data-testid={dataTestid || ariaLabel}
           id={getNormalizedId(ariaLabel || '')}
           {...props}
         />

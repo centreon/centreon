@@ -1,0 +1,107 @@
+import { InputProps, InputType } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { listUsers } from '../../api/endpoints';
+import { tokenAtom } from '../../atoms';
+import { TokenType } from '../../models';
+import {
+  labelDuration,
+  labelName,
+  labelToken,
+  labelType,
+  labelUser
+} from '../../translatedLabels';
+import { tokenTypes } from '../utils';
+import DurationField from './DurationField/DurationField';
+import TokenField from './TokenField/TokenField';
+import TokenCopyWarning from './Warning/Warning';
+
+interface FormInputsState {
+  inputs: Array<InputProps>;
+}
+
+const useFormInputs = (): FormInputsState => {
+  const { t } = useTranslation();
+  const { isAdmin, canManageApiTokens } = useAtomValue(userAtom);
+  const token = useAtomValue(tokenAtom);
+
+  const userSearchConditions = isAdmin
+    ? {}
+    : {
+        field: 'is_admin',
+        values: {
+          $eq: '0'
+        }
+      };
+
+  const inputs = [
+    {
+      dataTestId: labelName,
+      fieldName: 'name',
+      getDisabled: () => token,
+      label: t(labelName),
+      required: true,
+      type: InputType.Text
+    },
+    {
+      autocomplete: {
+        options: tokenTypes
+      },
+      fieldName: 'type',
+      getDisabled: () => token,
+      label: t(labelType),
+      required: true,
+      type: InputType.SingleAutocomplete
+    },
+    {
+      custom: {
+        Component: DurationField
+      },
+      fieldName: 'duration',
+      label: t(labelDuration),
+      required: true,
+      type: InputType.Custom
+    },
+    {
+      connectedAutocomplete: {
+        additionalConditionParameters: [userSearchConditions],
+        endpoint: listUsers,
+        filterKey: 'alias',
+        getOptionLabel: (option): string => option?.alias,
+        getRenderedOptionText: (option): string => option.alias?.toString()
+      },
+      fieldName: 'user',
+      getDisabled: () => !canManageApiTokens || token,
+      hideInput: (values) => equals(values?.type?.id, TokenType.CMA),
+      label: t(labelUser),
+      required: true,
+      type: InputType.SingleConnectedAutocomplete
+    },
+    {
+      custom: {
+        Component: TokenField
+      },
+      fieldName: 'token',
+      hideInput: () => !token,
+      label: t(labelToken),
+      type: InputType.Custom
+    },
+    {
+      custom: {
+        Component: TokenCopyWarning
+      },
+      fieldName: 'warning',
+      hideInput: (values) => !token || equals(values?.type?.id, TokenType.CMA),
+      label: t(labelToken),
+      type: InputType.Custom
+    }
+  ];
+
+  return { inputs };
+};
+
+export default useFormInputs;

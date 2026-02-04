@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,7 +191,7 @@ class DbResourceFactory
                 1 => ResourceStatus::STATUS_NAME_DOWN,
                 2 => ResourceStatus::STATUS_NAME_UNREACHABLE,
                 4 => ResourceStatus::STATUS_NAME_PENDING,
-                default => ResourceStatus::STATUS_NAME_PENDING
+                default => ResourceStatus::STATUS_NAME_PENDING,
             };
         }
 
@@ -201,7 +201,7 @@ class DbResourceFactory
             2 => ResourceStatus::STATUS_NAME_CRITICAL,
             3 => ResourceStatus::STATUS_NAME_UNKNOWN,
             4 => ResourceStatus::STATUS_NAME_PENDING,
-            default => ResourceStatus::STATUS_NAME_PENDING
+            default => ResourceStatus::STATUS_NAME_PENDING,
         };
     }
 
@@ -220,7 +220,7 @@ class DbResourceFactory
             2 => ResourceStatus::SEVERITY_LOW,
             3 => ResourceStatus::SEVERITY_MEDIUM,
             4 => ResourceStatus::SEVERITY_HIGH,
-            default => ResourceStatus::SEVERITY_PENDING
+            default => ResourceStatus::SEVERITY_PENDING,
         };
     }
 

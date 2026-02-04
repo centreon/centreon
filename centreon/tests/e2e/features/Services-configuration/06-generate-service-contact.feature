@@ -1,4 +1,3 @@
-@REQ_MON-151418
 Feature: Generate a service contact configuration
   As a Centreon admin
   I want to apply my service contacts and contact groups defined on the host

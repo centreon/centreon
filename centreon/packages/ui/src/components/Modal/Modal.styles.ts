@@ -8,10 +8,15 @@ const useStyles = makeStyles<{
 }>()((theme, props) => ({
   modal: {
     '& .MuiDialog-paper': {
-      gap: theme.spacing(2),
+      gap: theme.spacing(3),
       padding: theme.spacing(2.5)
     },
     '&[data-size="fullscreen"]': {
+      margin: 0,
+      marginBottom: props?.bottom ?? 0,
+      marginLeft: props?.left ?? 0,
+      marginRight: props?.right ?? 0,
+      marginTop: props?.top ?? 0,
       zIndex: 0
     },
     '&[data-size="fullscreen"] .MuiBackdrop-root': {
@@ -20,18 +25,18 @@ const useStyles = makeStyles<{
     '&[data-size="fullscreen"] .MuiDialog-container': {
       alignItems: 'flex-end',
       height: '100vh',
-      justifyContent: 'flex-end'
+      justifyContent: 'flex-end',
+      position: 'relative'
     },
     '&[data-size="fullscreen"] .MuiDialog-paper': {
-      bottom: props?.bottom ?? 0,
-      height: 'calc(100vh - 90px)',
-      left: props?.left ?? 0,
+      bottom: 0,
+      left: 0,
       margin: 0,
       maxWidth: 'unset',
       paddingBottom: theme.spacing(8),
       position: 'absolute',
-      right: props?.right ?? 0,
-      top: props?.top ?? 0,
+      right: 0,
+      top: 0,
       transition: theme.transitions.create('left')
     },
     '&[data-size="large"] .MuiDialog-paper': {
@@ -46,15 +51,13 @@ const useStyles = makeStyles<{
     },
     '&[data-size="xlarge"] .MuiDialog-paper': {
       maxWidth: '900px',
-      width: 'calc(100% - 64px)'
+      width: 'calc(100% - 78px)'
     }
   },
   modalActions: {
     '&[data-fixed="true"]': {
-      background: theme.palette.background.paper,
       padding: theme.spacing(1, 2.5, 2.5, 0),
-      position: 'fixed',
-      width: '100%'
+      position: 'fixed'
     },
     bottom: 0,
     display: 'flex',
@@ -64,32 +67,6 @@ const useStyles = makeStyles<{
     padding: theme.spacing(1, 0, 0, 0),
     right: 0,
     zIndex: theme.zIndex.modal
-  },
-  modalBody: {
-    '& > p': {
-      '&:first-of-type': {
-        margin: theme.spacing(0, 0, 1, 0)
-      },
-      margin: theme.spacing(1, 0, 1, 0),
-      width: '90%'
-    }
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    right: theme.spacing(1),
-    svg: {
-      opacity: 0.6
-    },
-    top: theme.spacing(1)
-  },
-  modalHeader: {
-    '& .MuiDialogTitle-root': {
-      padding: theme.spacing(0)
-    },
-    display: 'flex',
-    gap: theme.spacing(2),
-
-    justifyContent: 'space-between'
   }
 }));
 

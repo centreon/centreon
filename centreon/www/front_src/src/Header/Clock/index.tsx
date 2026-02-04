@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { useEffect, useRef, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   dateTime: {
@@ -26,21 +25,13 @@ const useStyles = makeStyles()((theme) => ({
 const Clock = (): JSX.Element => {
   const { classes } = useStyles();
 
-  const refreshIntervalRef = useRef<number>();
-  const [dateTime, setDateTime] = useState({
-    date: '',
-    time: ''
-  });
+  const refreshIntervalRef = useRef<number | undefined>(undefined);
+  const [dateTime, setDateTime] = useState(new Date());
 
   const { format, toTime } = useLocaleDateTimeFormat();
 
   const updateDateTime = (): void => {
-    const now = new Date();
-
-    const date = format({ date: now, formatString: 'LL' });
-    const time = toTime(now);
-
-    setDateTime({ date, time });
+    setDateTime(new Date());
   };
 
   useEffect(() => {
@@ -57,16 +48,14 @@ const Clock = (): JSX.Element => {
     };
   }, []);
 
-  const { date, time } = dateTime;
-
   return (
     <div className={classes.dateTime} data-cy="clock">
       <Typography className={classes.nowrap} variant="body2">
-        {date}
+        {format({ date: dateTime, formatString: 'LL' })}
       </Typography>
 
       <Typography className={classes.nowrap} variant="body1">
-        {time}
+        {toTime(dateTime)}
       </Typography>
     </div>
   );

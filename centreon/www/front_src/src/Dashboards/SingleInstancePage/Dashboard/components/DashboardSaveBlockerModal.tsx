@@ -1,6 +1,7 @@
-import { useSetAtom } from 'jotai';
-
 import { ConfirmationModal } from '@centreon/ui/components';
+
+import { useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { DashboardPanel } from '../../../api/models';
 import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
@@ -18,6 +19,8 @@ interface Props {
 }
 
 const DashboardSaveBlockerModal = ({ panels }: Props): JSX.Element => {
+  const { t } = useTranslation();
+
   const { proceedNavigation, blockNavigation } =
     useDashboardSaveBlocker(panels);
   const { saveDashboard } = useSaveDashboard();
@@ -41,17 +44,18 @@ const DashboardSaveBlockerModal = ({ panels }: Props): JSX.Element => {
 
   return (
     <ConfirmationModal
-      hasCloseButton
       atom={isRedirectionBlockedAtom}
+      hasCloseButton
       labels={{
-        cancel: labelDiscard,
-        confirm: labelSave,
-        description: labelIfYouClickOnDiscard,
-        title: labelDoYouWantToSaveChanges
+        cancel: t(labelDiscard),
+        confirm: t(labelSave),
+        description: t(labelIfYouClickOnDiscard),
+        title: t(labelDoYouWantToSaveChanges)
       }}
       onCancel={cancel}
       onClose={close}
       onConfirm={confirm}
+      size="medium"
     />
   );
 };

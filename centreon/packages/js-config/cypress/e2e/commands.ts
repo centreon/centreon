@@ -74,13 +74,89 @@ Cypress.Commands.add('getWebVersion', (): Cypress.Chainable => {
     });
 });
 
-Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
-  return cy
-    .get('iframe#main-content', { timeout: 10000 })
-    .its('0.contentDocument.body')
-    .should('not.be.empty')
-    .then(cy.wrap);
-});
+Cypress.Commands.add(
+  'getIframeBody',
+  (iframeSelector = 'iframe#main-content'): Cypress.Chainable<JQuery<HTMLElement>> => {
+    return cy.waitUntil(
+      () =>
+        cy
+          .get<HTMLIFrameElement>(iframeSelector, { log: false })
+          .then($iframe => {
+            const doc = $iframe[0].contentDocument;
+
+            return Boolean(
+              doc &&
+              doc.readyState === 'complete' &&
+              doc.body &&
+              doc.body.children.length > 0
+            );
+          }),
+      {
+        timeout: 20000,
+        interval: 200,
+        errorMsg: 'Iframe not fully loaded (readyState !== complete)',
+      }
+    ).then(() => {
+      return cy
+        .get<HTMLIFrameElement>(iframeSelector)
+        .then($iframe => {
+          const body = $iframe[0].contentDocument!.body;
+          return cy.wrap(body);
+        });
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'waitForElementInIframe',
+  (iframeSelector, elementSelector) => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get(iframeSelector)
+          .its('0.contentDocument.body')
+          .should('not.be.empty')
+          .then(cy.wrap)
+          .within(() => {
+            const element = Cypress.$(elementSelector);
+
+            return element.length > 0 && element.is(':visible');
+          }),
+      {
+        errorMsg: 'The element is not visible',
+        interval: 5000,
+        timeout: 100000
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error('The element is not visible');
+      }
+    });
+  }
+);
+
+Cypress.Commands.add(
+  'waitForElementToBeVisible',
+  (selector, timeout = 50000, interval = 2000) => {
+    cy.waitUntil(
+      () =>
+        cy.get('body').then(($body) => {
+          const element = $body.find(selector);
+
+          return element.length > 0 && element.is(':visible');
+        }),
+      {
+        errorMsg: `The element '${selector}' is not visible`,
+        interval,
+        timeout
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error(`The element '${selector}' is not visible`);
+      }
+    });
+  }
+);
 
 Cypress.Commands.add(
   'hoverRootMenuItem',
@@ -164,6 +240,12 @@ Cypress.Commands.add('getContainersLogs', () => {
   cy.log('Getting containers logs');
 
   return cy.task('getContainersLogs');
+});
+
+Cypress.Commands.add('getContainerMappedPort', (containerName: string, containerPort: number) => {
+  cy.log(`Getting mapped port ${containerPort} of container ${containerName}`);
+
+  return cy.task('getContainerMappedPort', { containerName, containerPort });
 });
 
 interface CopyFromContainerProps {
@@ -253,7 +335,7 @@ Cypress.Commands.add(
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(
           `{selectAll}{backspace}${credential.login}`
         );
-        cy.getByLabel({ label: 'Password', tag: 'input' }).type(
+        cy.get('input[type="password"]').type(
           `{selectAll}{backspace}${credential.password}`
         );
       })
@@ -280,15 +362,29 @@ Cypress.Commands.add('logout', (): void => {
 
   cy.contains(/^Logout$/).click();
 
-  cy.wait('@logout').its('response.statusCode').should('eq', 302);
+  cy.waitUntil(() =>
+    cy.wait('@logout').then((interception) => {
+      return interception?.response?.statusCode === 302;
+    }),
+    {
+      errorMsg: 'Logout did not complete successfully',
+      timeout: 30000,
+      interval: 2000
+    }
+  );
 
   // https://github.com/cypress-io/cypress/issues/25841
   cy.clearAllCookies();
 });
 
-Cypress.Commands.add('logoutViaAPI', (): Cypress.Chainable => {
+interface LogoutViaAPIProps {
+  failOnError?: boolean;
+}
+
+Cypress.Commands.add('logoutViaAPI', ({ failOnError = true }: LogoutViaAPIProps = {}): Cypress.Chainable => {
   return cy
     .request({
+      failOnStatusCode: failOnError,
       method: 'GET',
       url: '/centreon/authentication/logout'
     })
@@ -473,8 +569,11 @@ Cypress.Commands.add(
 
     const webImage = `docker.centreon.com/centreon/${moduleName}${slimSuffix}-${webOs}:${webVersion}`;
 
-    return cy
-      .task(
+    const timeout = 1200_000; // 20 minutes because docker pull can be very slow (mainly keycloak)
+    const cypressTaskTimeout = Cypress.config('taskTimeout') || 600_000;
+    Cypress.config('taskTimeout', timeout);
+
+    cy.task(
         'startContainers',
         {
           composeFile: composeFilePath,
@@ -484,7 +583,7 @@ Cypress.Commands.add(
           samlImage,
           webImage
         },
-        { timeout: 600000 } // 10 minutes because docker pull can be very slow
+        { timeout }
       )
       .then(() => {
         const baseUrl = 'http://127.0.0.1:4000';
@@ -495,6 +594,10 @@ Cypress.Commands.add(
       })
       .visit('/') // this is necessary to refresh browser cause baseUrl has changed (flash appears in video)
       .setUserTokenApiV1();
+
+    Cypress.config('taskTimeout', cypressTaskTimeout);
+
+    return cy.wrap(null);
   }
 );
 
@@ -539,8 +642,8 @@ Cypress.Commands.add(
     cy.log(`Getting logs from container ${name} ...`);
 
     return cy.getLogDirectory().then((logDirectory) => {
-      let sourcePhpLogs = '/var/log/php8.1-fpm-centreon-error.log';
-      let targetPhpLogs = `${logDirectory}/php8.1-fpm-centreon-error.log`;
+      let sourcePhpLogs = '/var/log/php8.2-fpm-centreon-error.log';
+      let targetPhpLogs = `${logDirectory}/php8.2-fpm-centreon-error.log`;
       let sourceApacheLogs = '/var/log/apache2';
       let targetApacheLogs = `${logDirectory}/apache2`;
       if (Cypress.env('WEB_IMAGE_OS').includes('alma')) {
@@ -907,7 +1010,8 @@ declare global {
       getContainerId: (containerName: string) => Cypress.Chainable;
       getContainerIpAddress: (containerName: string) => Cypress.Chainable;
       getContainersLogs: () => Cypress.Chainable;
-      getIframeBody: () => Cypress.Chainable;
+      getContainerMappedPort: (containerName: string, containerPort: number) => Cypress.Chainable;
+      getIframeBody: (iframeSelector?: string) => Cypress.Chainable;
       getLogDirectory: () => Cypress.Chainable;
       getTimeFromHeader: () => Cypress.Chainable;
       getWebVersion: () => Cypress.Chainable;
@@ -933,7 +1037,7 @@ declare global {
         loginViaApi
       }: LoginByTypeOfUserProps) => Cypress.Chainable;
       logout: () => void;
-      logoutViaAPI: () => Cypress.Chainable;
+      logoutViaAPI: (props?: LogoutViaAPIProps) => Cypress.Chainable;
       moveSortableElement: (direction: string) => Cypress.Chainable;
       navigateTo: ({
         page,
@@ -972,6 +1076,15 @@ declare global {
       stopContainer: ({ name }: StopContainerProps) => Cypress.Chainable;
       stopContainers: () => Cypress.Chainable;
       visitEmptyPage: () => Cypress.Chainable;
+      waitForElementInIframe: (
+        iframeSelector: string,
+        elementSelector: string
+      ) => Cypress.Chainable;
+      waitForElementToBeVisible(
+        selector: string,
+        timeout?: number,
+        interval?: number
+      ): Cypress.Chainable;
     }
   }
 }

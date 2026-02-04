@@ -1,9 +1,13 @@
 import { Form } from '@centreon/ui';
-import { isNil } from 'ramda';
+
+import { find, isNil, propEq } from 'ramda';
+import { ReactElement } from 'react';
+
 import { useAddUpdateAgentConfiguration } from '../hooks/useAddUpdateAgentConfiguration';
 import { AgentConfigurationForm as AgentConfigurationFormModel } from '../models';
 import Buttons from './Buttons';
-import { useInputs } from './useInputs';
+import { useFormStyles } from './Modal.styles';
+import { connectionModes, useInputs } from './useInputs';
 import { useValidationSchema } from './useValidationSchema';
 
 interface Props {
@@ -12,16 +16,19 @@ interface Props {
 }
 
 const defaultInitialValues = {
+  configuration: { port: 4317 },
+  connectionMode: find(propEq('secure', 'id'), connectionModes),
   name: '',
-  type: null,
   pollers: [],
-  configuration: {}
+  type: null
 };
 
 const AgentConfigurationForm = ({
   initialValues,
   isLoading
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
+  const { classes } = useFormStyles();
+
   const { groups, inputs } = useInputs();
 
   const validationSchema = useValidationSchema();
@@ -31,16 +38,17 @@ const AgentConfigurationForm = ({
 
   return (
     <Form<AgentConfigurationFormModel>
-      enableReinitialize
-      Buttons={Buttons}
-      validationSchema={validationSchema}
-      isLoading={isLoading}
-      groups={groups}
-      isCollapsible
       areGroupsOpen
-      inputs={inputs}
+      Buttons={Buttons}
+      enableReinitialize
+      groups={groups}
+      groupsClassName={classes.groups}
       initialValues={values}
+      inputs={inputs}
+      isCollapsible
+      isLoading={isLoading}
       submit={submit}
+      validationSchema={validationSchema}
     />
   );
 };

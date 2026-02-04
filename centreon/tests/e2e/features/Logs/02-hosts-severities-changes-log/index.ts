@@ -1,5 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import severities from '../../../fixtures/host-categories/severity.json';
 
@@ -25,18 +25,14 @@ Given('a user is logged in a Centreon server via APIv2', () => {
 });
 
 When('an apiV2 call is made to "Add" a host severity', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.default,
     '/centreon/api/latest/configuration/hosts/severities'
   );
 });
 
 Then('a new severity is displayed on the hosts severities page', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostCategoriesLegacy);
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe(
     '#main-content',
@@ -50,10 +46,7 @@ Then('a new severity is displayed on the hosts severities page', () => {
 Then(
   'a new "ADDED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -106,14 +99,14 @@ Then(
 );
 
 Given('a host severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.default,
     '/centreon/api/latest/configuration/hosts/severities'
   );
 });
 
 When('an apiV2 call is made to "Delete" the configured host severity', () => {
-  cy.deleteSubjectViaAPIv2(
+  cy.deleteSubjectViaApiV2(
     '/centreon/api/latest/configuration/hosts/severities/1'
   );
 });
@@ -121,10 +114,7 @@ When('an apiV2 call is made to "Delete" the configured host severity', () => {
 Then(
   'a new "DELETED" ligne of log is getting added to the page Administration > Log',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -145,7 +135,7 @@ Then(
 When(
   'an apiV2 call is made to "Update" the parameters of the configured host severity',
   () => {
-    cy.updateSubjectViaAPIv2(
+    cy.updateSubjectViaApiV2(
       severities.changed_severity,
       '/centreon/api/latest/configuration/hosts/severities/1'
     );
@@ -155,10 +145,7 @@ When(
 Then(
   'a new "CHANGED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -208,14 +195,14 @@ Then(
 );
 
 Given('an enabled host severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.default,
     '/centreon/api/latest/configuration/hosts/severities'
   );
 });
 
 When('an apiV2 call is made to "Disable" the configured host severity', () => {
-  cy.updateSubjectViaAPIv2(
+  cy.updateSubjectViaApiV2(
     severities.disabled_severity,
     '/centreon/api/latest/configuration/hosts/severities/1'
   );
@@ -224,10 +211,7 @@ When('an apiV2 call is made to "Disable" the configured host severity', () => {
 Then(
   'a new "DISABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',
@@ -246,14 +230,14 @@ Then(
 );
 
 Given('a disabled host severity is configured via APIv2', () => {
-  cy.addSubjectViaAPIv2(
+  cy.addSubjectViaApiV2(
     severities.disabled_severity,
     '/centreon/api/latest/configuration/hosts/severities'
   );
 });
 
 When('an apiV2 call is made to "Enable" the configured host severity', () => {
-  cy.updateSubjectViaAPIv2(
+  cy.updateSubjectViaApiV2(
     severities.enabled_severity,
     '/centreon/api/latest/configuration/hosts/severities/1'
   );
@@ -262,10 +246,7 @@ When('an apiV2 call is made to "Enable" the configured host severity', () => {
 Then(
   'a new "ENABLED" ligne of log is getting added to the page Administration > Logs',
   () => {
-    cy.navigateTo({
-      page: 'Logs',
-      rootItemNumber: 4
-    });
+    cy.visit(PAGES.configuration.logsLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe(
       '#main-content',

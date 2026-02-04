@@ -1,15 +1,16 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router';
 
 import {
   Method,
   SnackbarProvider,
-  TestQueryProvider,
-  setUrlQueryParameters
+  setUrlQueryParameters,
+  TestQueryProvider
 } from '@centreon/ui';
 import { aclAtom, refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { commentEndpoint } from '../Actions/api/endpoint';
 import { resourcesEndpoint } from '../api/endpoint';
@@ -61,17 +62,16 @@ import {
   labelTo,
   labelYourCommentSent
 } from '../translatedLabels';
-
+import Details from '.';
 import {
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
   selectedResourceDetailsEndpointDerivedAtom,
   selectedResourcesDetailsAtom
 } from './detailsAtoms';
+import { router } from './tabs/Details/DetailsCard/GroupChip';
 import useDetails from './useDetails';
 import useLoadDetails from './useLoadDetails';
-
-import Details from '.';
 
 const resourceServiceId = 1;
 
@@ -138,11 +138,11 @@ const mockAcl = {
 const mockRefreshInterval = 60;
 
 const cardsProperties = [
-  { property: 'last_status_change', label: labelLastStatusChange },
-  { property: 'last_check', label: labelLastCheck },
-  { property: 'last_time_with_no_issue', label: labelLastCheckWithOkStatus },
-  { property: 'next_check', label: labelNextCheck },
-  { property: 'last_notification', label: labelLastNotification }
+  { label: labelLastStatusChange, property: 'last_status_change' },
+  { label: labelLastCheck, property: 'last_check' },
+  { label: labelLastCheckWithOkStatus, property: 'last_time_with_no_issue' },
+  { label: labelNextCheck, property: 'next_check' },
+  { label: labelLastNotification, property: 'last_notification' }
 ];
 
 const DetailsTest = (): JSX.Element => {
@@ -191,8 +191,11 @@ const interceptDetailsRequest = ({ store, dataPath, alias }): void => {
   });
 };
 
-const initialize = (store): void => {
+const initialize = (store) => {
   cy.viewport('macbook-13');
+
+  const navigate = cy.stub();
+  cy.stub(router, 'useNavigate').returns(navigate);
 
   cy.mount({
     Component: (
@@ -207,6 +210,10 @@ const initialize = (store): void => {
       </SnackbarProvider>
     )
   });
+
+  return {
+    navigate
+  };
 };
 
 const initializeTimeLineTab = ({
@@ -716,4 +723,39 @@ describe('Details', () => {
       cy.makeSnapshot();
     });
   }
+
+  it('redirects the user to the host groups configuration page when the host group chip is clicked', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath: 'resources/details/tabs/details/detailsHost.json',
+      store
+    });
+    const { navigate } = initialize(store);
+
+    cy.contains('Linux-servers').realHover();
+    cy.findByLabelText('Linux-servers Configure')
+      .click()
+      .then(() => {
+        expect(navigate).to.be.calledWith(
+          '/configuration/hosts/groups?mode=edit&id=0'
+        );
+      });
+  });
+
+  it('does not display the configuration icon when the endpoint is not available for the current user', () => {
+    const store = getStore();
+
+    interceptDetailsRequest({
+      alias: 'getDetailsWithoutAcknowledgement',
+      dataPath:
+        'resources/details/tabs/details/detailsHostWithoutGroupConfiguration.json',
+      store
+    });
+    initialize(store);
+
+    cy.contains('Linux-servers').realHover();
+    cy.findByLabelText('Linux-servers Configure').should('not.exist');
+  });
 });

@@ -38,7 +38,8 @@
   "data": {
     "resources": {
       "type": "resources",
-      "defaultValue": []
+      "defaultValue": [],
+      "allowRegexOnResourceTypes": ["service"]
     },
     "metrics": {
       "type": "metrics",
@@ -49,5 +50,5 @@
   "customBaseColor": false,
   "moduleName": "centreon-widget-topbottom",
   "canExpand": true,
-  "widgetType": "Real time widgets"
+  "widgetType": "realtime"
 }

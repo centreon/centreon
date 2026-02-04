@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Domain\YesNoDefault;
 use Core\Macro\Domain\Model\Macro;
@@ -632,7 +633,7 @@ it('should present an InvalidArgumentResponse when data are not valid', function
     $request->severityId = 1;
     $request->graphTemplateId = 1;
     $request->serviceTemplateParentId = 1;
-    $request->commandId = 1;
+    $request->commandId = null;
     $request->eventHandlerId = 12;
     $request->checkTimePeriodId = 13;
     $request->notificationTimePeriodId = 14;
@@ -709,10 +710,10 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         new ServiceTemplateInheritance(1, 8),
     ];
 
-    $macroA = new Macro($newServiceTemplateId, 'MACROA', 'A');
+    $macroA = new Macro(null, $newServiceTemplateId, 'MACROA', 'A');
     $macroA->setDescription('');
 
-    $macroB = new Macro($newServiceTemplateId, 'MACROB', 'B');
+    $macroB = new Macro(null, $newServiceTemplateId, 'MACROB', 'B');
     $macroB->setDescription('');
 
     $serviceGroup = new ServiceGroup(1, 'SG-name', 'SG-alias', null, '', true);
@@ -766,6 +767,15 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         acknowledgementTimeout: 0,
     );
 
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $request->commandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
+
     Mock::setMock($this, [
         'user' => [[
             'expected' => [[Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true]],
@@ -813,7 +823,7 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
         'readServiceGroupRepository' => [[
             'method' => 'findByService',
             'expected' => [
-                [$newServiceTemplateId, [['relation' => $serviceGroupRelation, 'serviceGroup' => $serviceGroup]]]
+                [$newServiceTemplateId, [['relation' => $serviceGroupRelation, 'serviceGroup' => $serviceGroup]]],
             ],
         ]],
         'readHostTemplateRepository' => [[
@@ -880,12 +890,11 @@ it('should present an AddServiceTemplateResponse when everything has gone well',
             ->and($expectedMacro->description)->toBe('');
     }
     expect($dto->groups)->toBe(
-       [[
-        'serviceGroupId' => $request->serviceGroups[0]->serviceGroupId,
-        'serviceGroupName' => $serviceGroup->getName(),
-        'hostTemplateId' => $request->serviceGroups[0]->hostTemplateId,
-        'hostTemplateName' => $hostTemplateName,
-       ]]
+        [[
+            'serviceGroupId' => $request->serviceGroups[0]->serviceGroupId,
+            'serviceGroupName' => $serviceGroup->getName(),
+            'hostTemplateId' => $request->serviceGroups[0]->hostTemplateId,
+            'hostTemplateName' => $hostTemplateName,
+        ]]
     );
-
 });

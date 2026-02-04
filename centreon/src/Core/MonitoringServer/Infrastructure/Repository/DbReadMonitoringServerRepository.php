@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\MonitoringServer\Infrastructure\Repository;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Exception\EntityNotFoundException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -35,12 +36,19 @@ use Utility\SqlConcatenator;
 /**
  * @phpstan-type MSResultSet array{
  *     id: int,
- *     name: string
+ *     name: string,
+ *     engine_start_command ?: string|null,
+ *     engine_stop_command ?: string|null,
+ *     engine_restart_command ?: string|null,
+ *     engine_reload_command ?: string|null,
+ *     broker_reload_command ?: string|null
  * }
  */
 class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements ReadMonitoringServerRepositoryInterface
 {
-    use MonitoringServerRepositoryTrait, LoggerTrait, SqlMultipleBindTrait;
+    use MonitoringServerRepositoryTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -88,7 +96,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -153,13 +161,13 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
      */
     public function existByAccessGroups(array $monitoringServerIds, array $accessGroups): array
     {
-         if ($accessGroups === []) {
+        if ($accessGroups === []) {
 
             return [];
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -255,7 +263,7 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
      */
     public function findByHostsIds(array $hostIds): array
     {
-        if (empty($hostIds)) {
+        if ($hostIds === []) {
             return [];
         }
 
@@ -282,6 +290,127 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findCentralByIds(array $ids): ?MonitoringServer
+    {
+        if ($ids === []) {
+            return null;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($ids, ':poller_id_');
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT
+                    ng.`id`,
+                    ng.`name`
+                FROM `:db`.`nagios_server` ng
+                WHERE ng.`id` IN ({$bindQuery})
+                    AND ng.`localhost` = '1'
+                    AND NOT EXISTS (
+                        SELECT 1
+                        FROM `:db`.`remote_servers` rs
+                        WHERE rs.server_id = ng.id
+                    )
+                SQL
+        ));
+
+        foreach ($bindValues as $bindParam => $bindValue) {
+            $statement->bindValue($bindParam, $bindValue, \PDO::PARAM_INT);
+        }
+
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+        $statement->execute();
+
+        /** @var MSResultSet|false */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data ? $this->createMonitoringServerFromArray($data) : null;
+    }
+
+    public function findAll(): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    id,
+                    name,
+                    engine_start_command,
+                    engine_stop_command,
+                    engine_restart_command,
+                    engine_reload_command,
+                    broker_reload_command
+                FROM `:db`.`nagios_server`
+                SQL
+        ));
+        $statement->execute();
+
+        $monitoringServers = [];
+        foreach ($statement->fetchAll(\PDO::FETCH_ASSOC) as $result) {
+            $monitoringServers[] = $this->createMonitoringServerFromArray($result);
+        }
+
+        return $monitoringServers;
+    }
+
+    public function get(int $monitoringServerId): MonitoringServer
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT
+                    id,
+                    name,
+                    engine_start_command,
+                    engine_stop_command,
+                    engine_restart_command,
+                    engine_reload_command,
+                    broker_reload_command
+                FROM `:db`.`nagios_server`
+                WHERE id = :monitoringServerId
+                SQL
+        ));
+        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+        /** @var MSResultSet|false */
+        $data = $statement->fetch(\PDO::FETCH_ASSOC);
+
+        return $data
+            ? $this->createMonitoringServerFromArray($data)
+            : throw new EntityNotFoundException(sprintf('Monitoring Server [%d] does not exist', $monitoringServerId));
+    }
+
+    public function isEncryptionReady(int $monitoringServerId): bool
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:dbstg`.`instances`
+                WHERE instance_id = :monitoringServerId
+                    AND is_encryption_ready = 1
+                SQL
+        ));
+        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+        if ($statement->fetchColumn()) {
+            return true;
+        }
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.`nagios_server`
+                WHERE id = :monitoringServerId
+                    AND is_encryption_ready = 1
+                SQL
+        ));
+        $statement->bindValue(':monitoringServerId', $monitoringServerId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        return (bool) $statement->fetchColumn();
+    }
+
+    /**
      * @param MSResultSet $result
      *
      * @throws AssertionFailedException
@@ -292,7 +421,12 @@ class DbReadMonitoringServerRepository extends AbstractRepositoryRDB implements 
     {
         return new MonitoringServer(
             id: $result['id'],
-            name: $result['name']
+            name: $result['name'],
+            engineStartCommand: $result['engine_start_command'] ?? null,
+            engineStopCommand: $result['engine_stop_command'] ?? null,
+            engineReloadCommand: $result['engine_reload_command'] ?? null,
+            engineRestartCommand: $result['engine_restart_command'] ?? null,
+            brokerReloadCommand: $result['broker_reload_command'] ?? null,
         );
     }
 }

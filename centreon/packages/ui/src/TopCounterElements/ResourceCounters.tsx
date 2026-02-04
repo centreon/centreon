@@ -1,9 +1,8 @@
-import { Fragment } from 'react';
+import type { SeverityCode } from '@centreon/ui';
 
+import { Fragment } from 'react';
 import { Link } from 'react-router';
 import { makeStyles } from 'tss-react/mui';
-
-import { SeverityCode } from '@centreon/ui';
 
 import StatusCounter from './StatusCounter';
 
@@ -58,8 +57,8 @@ export default ({ counters }: CounterProps): JSX.Element => {
               <Link
                 aria-label={ariaLabel}
                 className={classes.link}
-                to={to}
                 onClick={onClick}
+                to={to}
               >
                 <StatusCounter count={count} severityCode={severityCode} />
               </Link>

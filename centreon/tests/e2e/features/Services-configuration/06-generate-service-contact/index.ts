@@ -1,4 +1,5 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/services/service.json';
 
@@ -39,11 +40,7 @@ Given('a service associated to a host is configured', () => {
 });
 
 Given('the user is in the "Notifications" tab', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
   cy.getIframeBody()
     .find('tr[class*="list_"]')

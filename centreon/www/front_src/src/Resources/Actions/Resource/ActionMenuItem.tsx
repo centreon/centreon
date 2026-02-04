@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { MenuItem, MenuItemProps, Tooltip } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelActionNotPermitted } from '../../translatedLabels';
 

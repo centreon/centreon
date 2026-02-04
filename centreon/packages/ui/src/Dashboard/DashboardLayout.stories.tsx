@@ -1,10 +1,9 @@
-import { ComponentMeta } from '@storybook/react';
-import { Layout } from 'react-grid-layout';
-
 import { Typography } from '@mui/material';
 
-import FluidTypography from '../Typography/FluidTypography';
+import type { ComponentMeta } from '@storybook/react';
+import type { Layout } from 'react-grid-layout';
 
+import FluidTypography from '../Typography/FluidTypography';
 import { DashboardLayout } from '.';
 
 interface CustomLayout extends Layout {

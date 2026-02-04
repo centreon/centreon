@@ -291,7 +291,7 @@ export const labelForcedCheckCommandSent =
   'Forced check command sent ! Please refresh the listing to update the data.';
 export const labelUnit = 'Unit';
 export const labelNeedHelpWithSearchBarUsage =
-  'Need help with search bar usage?';
+  'Need help using the search bar?';
 export const labelFindExplanationsAndExamples =
   'Find explanations and examples';
 export const labelHere = 'here';
@@ -310,3 +310,27 @@ export const labelResourceDetailsForcedCheckDescription =
   'Check this resource even outside configured check period';
 
 export const labelYourCommentSent = 'Your comment has been saved.';
+
+export const labelVisibleColumnsOnly = 'Visible columns only';
+export const labelAllColumns = 'All columns';
+export const labelAllPages = 'All pages';
+export const labelCurrentPageOnly = 'Current page only';
+export const labelSelectColumns = 'Select columns';
+export const labelSelecetPages = 'Select pages';
+export const labelNumerOfLines = 'Number of rows';
+export const labelWarningExportToCsv =
+  'Export processing might take some time. The real time data displayed at the output may have changed since the start of processing.';
+export const labelExportProcessingInProgress = 'Export processing in progress';
+export const labelFilteredResources =
+  'You are about to export the status of the resources you have filtered. You can export up to 10,000 rows.';
+export const labelFilterRessources =
+  'Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows.';
+
+export const labelCompact = 'Compact';
+export const labelExtended = 'Extended';
+
+export const labelFreeTextSearchBehavior =
+  'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';
+
+export const labelTooManyGraphsToDisplay =
+  'Too many elements to be displayed (>{{graphsCapNumber}})';

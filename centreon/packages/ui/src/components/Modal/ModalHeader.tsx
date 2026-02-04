@@ -1,8 +1,13 @@
-import { ReactElement, ReactNode } from 'react';
+import {
+  type DialogTitleProps,
+  DialogTitle as MuiDialogTitle
+} from '@mui/material';
 
-import { DialogTitleProps, DialogTitle as MuiDialogTitle } from '@mui/material';
+import type { ReactElement, ReactNode } from 'react';
 
-import { useStyles } from './Modal.styles';
+import '../../../src/ThemeProvider/tailwindcss.css';
+
+import { modalHeader } from './modal.module.css';
 
 export type ModalHeaderProps = {
   children?: ReactNode;
@@ -12,11 +17,13 @@ const ModalHeader = ({
   children,
   ...rest
 }: ModalHeaderProps & DialogTitleProps): ReactElement => {
-  const { classes } = useStyles();
-
   return (
-    <div className={classes.modalHeader}>
-      <MuiDialogTitle color="primary" {...rest}>
+    <div className={modalHeader}>
+      <MuiDialogTitle
+        className="p-0 font-bold text-2xl"
+        color="primary"
+        {...rest}
+      >
         {children}
       </MuiDialogTitle>
     </div>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Host\Infrastructure\Repository;
 
@@ -117,7 +117,7 @@ class ApiReadHostRepository implements ReadHostRepositoryInterface
          */
         $findHosts = function (array $hostNames) use ($url, $options): \Generator {
             // Surround hostnames with double quotes
-            $hostNames = array_map(fn(string $name) => sprintf('"%s"', $name), $hostNames);
+            $hostNames = array_map(fn (string $name) => sprintf('"%s"', $name), $hostNames);
 
             $options['query'] = [
                 'limit' => count($hostNames),
@@ -160,9 +160,8 @@ class ApiReadHostRepository implements ReadHostRepositoryInterface
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
-    ): array
-    {
+        array $accessGroups,
+    ): array {
         throw RepositoryException::notYetImplemented();
     }
 
@@ -210,6 +209,22 @@ class ApiReadHostRepository implements ReadHostRepositoryInterface
      * @inheritDoc
      */
     public function findAll(): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostGroup(int $hostGroupId): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): array
     {
         throw RepositoryException::notYetImplemented();
     }

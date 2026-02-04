@@ -1,20 +1,18 @@
 import { Typography } from '@mui/material';
 
+import type { ReactElement } from 'react';
+
 import {
   EllipsisTypography,
   formatMetricName,
   formatMetricValue
 } from '../../..';
 import { Tooltip } from '../../../components';
-import { Line } from '../../common/timeSeries/models';
-
-import { useLegendHeaderStyles } from './Legend.styles';
+import type { Line } from '../../common/timeSeries/models';
 import LegendContent from './LegendContent';
 import { LegendDisplayMode } from './models';
 
 interface Props {
-  color: string;
-  disabled?: boolean;
   isDisplayedOnSide: boolean;
   isListMode: boolean;
   line: Line;
@@ -25,16 +23,12 @@ interface Props {
 
 const LegendHeader = ({
   line,
-  color,
-  disabled,
   value,
   minMaxAvg,
   isListMode,
   isDisplayedOnSide,
   unit
-}: Props): JSX.Element => {
-  const { classes, cx } = useLegendHeaderStyles({ color });
-
+}: Props): ReactElement => {
   const { name, legend } = line;
 
   const metricName = formatMetricName({ legend, name });
@@ -42,16 +36,14 @@ const LegendHeader = ({
   const legendName = legend || name;
 
   return (
-    <div
-      className={cx(!isListMode ? classes.container : classes.containerList)}
-    >
+    <div className={isListMode ? 'w-fit' : 'w-full'}>
       <Tooltip
         followCursor={false}
         label={
           minMaxAvg ? (
             <div>
               <Typography>{legendName}</Typography>
-              <div className={classes.minMaxAvgContainer}>
+              <div className="flex flex-wrap gap-1 whitespace-nowrap">
                 {minMaxAvg.map(({ label, value: subValue }) => (
                   <LegendContent
                     data={formatMetricValue({
@@ -70,18 +62,10 @@ const LegendHeader = ({
         }
         placement={isListMode ? 'right' : 'top'}
       >
-        <div className={classes.markerAndLegendName}>
-          <div
-            data-icon
-            className={cx(classes.icon, { [classes.disabled]: disabled })}
-          />
+        <div className="flex items-center gap-1">
           <EllipsisTypography
-            className={classes.text}
-            containerClassname={cx(
-              !isListMode && classes.legendName,
-              isListMode && !isDisplayedOnSide && classes.textListBottom,
-              isListMode && isDisplayedOnSide && classes.legendName
-            )}
+            className="text-xs leading-[1.2] font-medium"
+            containerClassname={`w-auto ${(!isListMode || (isListMode && isDisplayedOnSide)) && 'max-w-[166px]'}`}
             data-mode={
               value ? LegendDisplayMode.Compact : LegendDisplayMode.Normal
             }

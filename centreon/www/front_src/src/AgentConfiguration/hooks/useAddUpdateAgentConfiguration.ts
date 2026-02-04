@@ -4,11 +4,13 @@ import {
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikHelpers } from 'formik';
 import { useAtom } from 'jotai';
-import { equals, omit, pluck } from 'ramda';
+import { equals, map, omit, pluck } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import {
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint
@@ -19,6 +21,7 @@ import {
   AgentConfigurationAPI,
   AgentType,
   CMAConfiguration,
+  ConnectionMode,
   TelegrafConfiguration
 } from '../models';
 import {
@@ -32,18 +35,35 @@ const adaptTelegrafConfigurationToAPI = (
   const configuration =
     agentConfiguration.configuration as TelegrafConfiguration;
 
+  const getFieldBasedOnCertificate = (field) =>
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.insecure)
+      ? field
+      : null;
+
   return {
-    ...omit(['pollers'], agentConfiguration),
-    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id,
+    ...omit(['pollers', 'connectionMode'], agentConfiguration),
     configuration: {
-      otel_private_key: configuration.otelPrivateKey,
-      otel_ca_certificate: configuration.otelCaCertificate || null,
-      otel_public_certificate: configuration.otelPublicCertificate,
-      conf_certificate: configuration.confCertificate,
-      conf_private_key: configuration.confPrivateKey,
-      conf_server_port: configuration.confServerPort
-    }
+      conf_certificate: getFieldBasedOnCertificate(
+        configuration.confCertificate
+      ),
+      conf_private_key: getFieldBasedOnCertificate(
+        configuration.confPrivateKey
+      ),
+      conf_server_port: configuration.confServerPort,
+      otel_ca_certificate: getFieldBasedOnCertificate(
+        configuration.otelCaCertificate
+      ),
+      otel_private_key: getFieldBasedOnCertificate(
+        configuration.otelPrivateKey
+      ),
+      otel_public_certificate: getFieldBasedOnCertificate(
+        configuration.otelPublicCertificate
+      )
+    },
+    connection_mode: agentConfiguration?.connectionMode?.id,
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
+    type: (agentConfiguration.type as SelectEntry).id
   };
 };
 
@@ -52,22 +72,52 @@ const adaptCMAConfigurationToAPI = (
 ): AgentConfigurationAPI => {
   const configuration = agentConfiguration.configuration as CMAConfiguration;
 
+  const getFieldBasedOnCertificate = (field) =>
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.secure) ||
+    equals(agentConfiguration?.connectionMode?.id, ConnectionMode.insecure)
+      ? field
+      : null;
+
   return {
-    ...omit(['pollers'], agentConfiguration),
-    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
-    type: (agentConfiguration.type as SelectEntry).id,
+    ...omit(['pollers', 'connectionMode'], agentConfiguration),
     configuration: {
-      is_reverse: configuration.isReverse,
-      otel_ca_certificate: configuration.otelCaCertificate || null,
-      otel_public_certificate: configuration.otelPublicCertificate,
-      otel_private_key: configuration.otelPrivateKey,
+      agent_initiated: configuration.agentInitiated,
       hosts: configuration.hosts.map((host) => ({
         address: host.address,
+        id: host.id,
+        poller_ca_certificate: getFieldBasedOnCertificate(
+          host.pollerCaCertificate
+        ),
+        poller_ca_name: getFieldBasedOnCertificate(host.pollerCaName),
         port: host.port,
-        poller_ca_name: host.pollerCaName || null,
-        poller_ca_certificate: host.pollerCaCertificate || null
-      }))
-    }
+        token: configuration.pollerInitiated
+          ? {
+              creator_id: host?.token?.creatorId,
+              name: host?.token?.name
+            }
+          : null
+      })),
+      otel_ca_certificate: getFieldBasedOnCertificate(
+        configuration.otelCaCertificate
+      ),
+      otel_private_key: getFieldBasedOnCertificate(
+        configuration.otelPrivateKey
+      ),
+      otel_public_certificate: getFieldBasedOnCertificate(
+        configuration.otelPublicCertificate
+      ),
+      poller_initiated: configuration.pollerInitiated,
+      port: configuration.agentInitiated ? configuration?.port : null,
+      tokens: configuration.agentInitiated
+        ? map(
+            ({ name, creatorId }) => ({ creator_id: creatorId, name }),
+            agentConfiguration.configuration.tokens
+          )
+        : []
+    },
+    connection_mode: agentConfiguration?.connectionMode?.id,
+    poller_ids: pluck('id', agentConfiguration.pollers) as Array<number>,
+    type: (agentConfiguration.type as SelectEntry).id
   };
 };
 
@@ -109,7 +159,9 @@ export const useAddUpdateAgentConfiguration =
               : labelAgentConfigurationCreated
           )
         );
-        queryClient.invalidateQueries({ queryKey: ['agent-configurations'] });
+        queryClient.invalidateQueries({
+          queryKey: ['listAgentConfigurations']
+        });
         setOpenFormModal(null);
         setAgentTypeForm(null);
       }
@@ -120,13 +172,13 @@ export const useAddUpdateAgentConfiguration =
       { setSubmitting }: FormikHelpers<AgentConfigurationAPI>
     ) => {
       mutateAsync({
+        _meta: {
+          id: equals(openFormModal, 'add') ? null : openFormModal,
+          setSubmitting
+        },
         payload: equals(agentTypeForm, AgentType.Telegraf)
           ? adaptTelegrafConfigurationToAPI(values)
-          : adaptCMAConfigurationToAPI(values),
-        _meta: {
-          setSubmitting,
-          id: equals(openFormModal, 'add') ? null : openFormModal
-        }
+          : adaptCMAConfigurationToAPI(values)
       });
     };
 

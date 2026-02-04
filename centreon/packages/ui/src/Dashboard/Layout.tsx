@@ -1,15 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { Box } from '@mui/material';
 
 import { useSetAtom } from 'jotai';
-import GridLayout, { Layout, WidthProvider } from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import GridLayout, { type Layout, WidthProvider } from 'react-grid-layout';
 
 import { ParentSize, useMemoComponent } from '..';
-
-import { Box } from '@mui/material';
-import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { isResizingItemAtom } from './atoms';
+import { useDashboardLayoutStyles } from './Dashboard.styles';
 import { getColumnsFromScreenSize, getLayout, rowHeight } from './utils';
+import 'react-grid-layout/css/styles.css';
 
 const ReactGridLayout = WidthProvider(GridLayout);
 
@@ -52,13 +51,16 @@ const DashboardLayout = <T extends Layout>({
     setColumns(getColumnsFromScreenSize());
   };
 
-  const startResize = useCallback((_, _e, newItem: T) => {
-    setIsResizingItem(newItem.i);
-  }, []);
+  const startResize = useCallback(
+    (_, _e, newItem: T) => {
+      setIsResizingItem(newItem.i);
+    },
+    [setIsResizingItem]
+  );
 
   const stopResize = useCallback(() => {
     setIsResizingItem(null);
-  }, []);
+  }, [setIsResizingItem]);
 
   useEffect(() => {
     window.addEventListener('resize', resize);
@@ -66,13 +68,13 @@ const DashboardLayout = <T extends Layout>({
     return (): void => {
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [resize]);
 
   return useMemoComponent({
     Component: (
       <Box
         ref={dashboardContainerRef}
-        sx={{ overflowY: 'auto', overflowX: 'hidden' }}
+        sx={{ overflowX: 'hidden', overflowY: 'auto' }}
       >
         <ParentSize>
           {({ width }): JSX.Element => (
@@ -81,13 +83,13 @@ const DashboardLayout = <T extends Layout>({
                 cols={columns}
                 layout={getLayout(layout)}
                 margin={[12, 12]}
-                resizeHandles={['s', 'e', 'se', 'sw', 'w']}
-                rowHeight={rowHeight}
-                width={width}
                 onLayoutChange={changeLayout}
                 onResizeStart={startResize}
                 onResizeStop={stopResize}
                 resizeHandle={Handle}
+                resizeHandles={['s', 'e', 'se', 'sw', 'w']}
+                rowHeight={rowHeight}
+                width={width}
               >
                 {children}
               </ReactGridLayout>

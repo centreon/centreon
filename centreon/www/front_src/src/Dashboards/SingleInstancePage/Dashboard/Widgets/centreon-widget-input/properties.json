@@ -10,5 +10,5 @@
     }
   },
   "moduleName": "centreon-widget-input",
-  "widgetType": "Generic widgets"
+  "widgetType": "generic"
 }

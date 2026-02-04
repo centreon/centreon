@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { alpha } from '@mui/system';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -25,9 +25,10 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeader: {
     alignItems: 'center',
-    borderBottom: `1px solid ${theme.palette.header.page.border}`,
+    borderBottom: `2px solid ${theme.palette.header.page.border}`,
     display: 'flex',
-    gap: theme.spacing(4)
+    gap: theme.spacing(4),
+    paddingBottom: theme.spacing(0.5)
   },
   pageHeaderActions: {
     '& > button': {
@@ -46,15 +47,14 @@ const useStyles = makeStyles()((theme) => ({
   pageHeaderMain: {
     display: 'flex',
     flexGrow: 1,
-    gap: theme.spacing(1),
-    minHeight: theme.spacing(4.5)
+    gap: theme.spacing(1)
   },
   pageHeaderMenu: {
     alignItems: 'flex-start',
+    alignSelf: 'center',
     display: 'flex',
     position: 'relative',
-    transform: `translateY(-${theme.spacing(0.25)})`,
-    alignSelf: 'center'
+    transform: `translateY(-${theme.spacing(0.25)})`
   },
   pageHeaderMessage: {
     alignItems: 'center',
@@ -86,19 +86,19 @@ const useStyles = makeStyles()((theme) => ({
       display: 'grid'
     },
     '& > span': {
+      alignItems: 'center',
       display: 'flex',
       flexDirection: 'row',
-      gap: theme.spacing(2),
-      alignItems: 'center'
+      gap: theme.spacing(2)
     },
+    alignSelf: 'flex-start',
     display: 'flex',
     flexDirection: 'column',
-    alignSelf: 'flex-start',
     h1: {
       ...theme.typography.h5,
-      fontWeight: theme.typography.fontWeightMedium,
-      margin: theme.spacing(0),
-      lineHeight: '1'
+      fontWeight: theme.typography.fontWeightBold,
+      lineHeight: '1',
+      margin: theme.spacing(0)
     }
   },
   pageHeaderTitleActions: {
@@ -113,11 +113,11 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeaderTitleDescription: {
     color: theme.palette.header.page.description,
+    lineHeight: '1.8',
     maxWidth: '560px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    lineHeight: '1.8'
+    whiteSpace: 'nowrap'
   }
 }));
 

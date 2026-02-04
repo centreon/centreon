@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ use Core\Security\ProviderConfiguration\Domain\OpenId\Model\CustomConfiguration;
 use Exception;
 use Pimple\Container;
 use Security\Domain\Authentication\Interfaces\OpenIdProviderInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
 class OpenId implements ProviderAuthenticationInterface
@@ -54,11 +55,13 @@ class OpenId implements ProviderAuthenticationInterface
 
     /**
      * @param Container $dependencyInjector
+     * @param RequestStack $requestStack
      * @param OpenIdProvider $provider
      */
     public function __construct(
         private Container $dependencyInjector,
-        private OpenIdProviderInterface $provider
+        private RequestStack $requestStack,
+        private OpenIdProviderInterface $provider,
     ) {
     }
 
@@ -176,6 +179,7 @@ class OpenId implements ProviderAuthenticationInterface
             'default_page' => $user->getDefaultPage(),
             'contact_location' => (string) $user->getTimezoneId(),
             'show_deprecated_pages' => $user->isUsingDeprecatedPages(),
+            'show_deprecated_custom_views' => $user->isUsingDeprecatedCustomViews(),
             'reach_api' => $user->hasAccessToApiConfiguration() ? 1 : 0,
             'reach_api_rt' => $user->hasAccessToApiRealTime() ? 1 : 0,
             'contact_theme' => $user->getTheme() ?? 'light',
@@ -312,5 +316,62 @@ class OpenId implements ProviderAuthenticationInterface
     public function getAclConditionsMatches(): array
     {
         return $this->provider->getAclConditionsMatches();
+    }
+
+    public function getTokenForSession(): ?string
+    {
+        return $this->provider->getTokenForSession();
+    }
+
+    /**
+     * Redirect the user to the OIDC end-session endpoint
+     *
+     * @param string $idToken
+     *
+     * @throws Exception
+     *
+     * @return string|null
+     */
+    public function logout(string $idToken, bool $stay = false): string|null
+    {
+        $request = $this->requestStack->getCurrentRequest();
+        if ($request === null) {
+            throw new Exception('Request is not available for OpenID logout');
+        }
+
+        /** @var CustomConfiguration $customConfig */
+        $customConfig = $this->provider->getConfiguration()->getCustomConfiguration();
+        $baseUrl = $customConfig->getBaseUrl();
+        $endSessionEndpoint = $customConfig->getEndSessionEndpoint();
+
+        if (empty($baseUrl) || empty($endSessionEndpoint)) {
+            throw new Exception('Missing required OpenID configuration for logout');
+        }
+
+        $endSessionUrl = $baseUrl . $endSessionEndpoint;
+        $centreonBase = $request->getSchemeAndHttpHost() . $request->getBaseUrl();
+        $postLogout = $centreonBase . '/login';
+
+        $params = [
+            'post_logout_redirect_uri' => $postLogout,
+            'id_token_hint' => $idToken,
+        ];
+
+        $logoutUrl = $endSessionUrl . '?' . http_build_query($params);
+
+        if ($stay !== false) {
+            return $postLogout;
+        }
+
+        try {
+            header('Location: ' . $logoutUrl, true, 302);
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            }
+
+            exit;
+        } catch (Exception $e) {
+            throw new Exception('Failed to redirect to logout URL: ' . $e->getMessage(), previous: $e);
+        }
     }
 }

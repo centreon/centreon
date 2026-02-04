@@ -1,21 +1,20 @@
-import { ChangeEvent } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, split } from 'ramda';
-
 import { Box } from '@mui/material';
+
+import { type FormikValues, useFormikContext } from 'formik';
+import { path, split } from 'ramda';
+import type { ChangeEvent } from 'react';
 
 import { useMemoComponent } from '../..';
 import { Checkbox as CheckboxComponent } from '../../Checkbox';
-
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from './models';
 
 const Checkbox = ({
   checkbox,
   fieldName,
   getDisabled,
   hideInput,
-  dataTestId
+  dataTestId,
+  label
 }: InputPropsWithoutGroup): JSX.Element => {
   const { values, setFieldValue } = useFormikContext<FormikValues>();
 
@@ -41,11 +40,11 @@ const Checkbox = ({
       <Box />
     ) : (
       <CheckboxComponent
-        Icon={value?.Icon}
         checked={value?.checked}
         dataTestId={dataTestId || ''}
         disabled={disabled}
-        label={value?.label}
+        Icon={value?.Icon}
+        label={label}
         labelPlacement={checkbox?.labelPlacement || 'end'}
         onChange={handleChange}
       />

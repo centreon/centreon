@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ final class FindResourcesByParent
         private readonly ContactInterface $contact,
         private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly \Traversable $extraDataProviders
+        private readonly \Traversable $extraDataProviders,
     ) {
     }
 
@@ -70,7 +70,7 @@ final class FindResourcesByParent
      */
     public function __invoke(
         FindResourcesByParentPresenterInterface $presenter,
-        ResourceFilter $filter
+        ResourceFilter $filter,
     ): void {
         try {
             // Save the search and sort provided to be restored later on
@@ -175,6 +175,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
      * @return ResourceEntity[]
      */
     private function findResourcesAsAdmin(ResourceFilter $filter): array
@@ -185,6 +186,7 @@ final class FindResourcesByParent
     /**
      * @param ResourceFilter $filter
      *
+     * @throws \Throwable
      * @return ResourceEntity[]
      */
     private function findParentResources(ResourceFilter $filter): array

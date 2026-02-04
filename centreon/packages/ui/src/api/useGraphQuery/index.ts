@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import dayjs from 'dayjs';
 import {
   equals,
@@ -11,10 +9,10 @@ import {
   pipe,
   pluck
 } from 'ramda';
+import { useRef } from 'react';
 
-import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
-
-import { Metric, Resource, WidgetResourceType } from './models';
+import { buildListingEndpoint, type LineChartData, useFetchQuery } from '../..';
+import { type Metric, type Resource, WidgetResourceType } from './models';
 
 interface CustomTimePeriod {
   end: string;
@@ -36,6 +34,7 @@ interface UseMetricsQueryProps {
     start?: string | null;
     timePeriodType: number;
   };
+  isEnabled?: boolean;
 }
 
 interface UseMetricsQueryState {
@@ -44,6 +43,12 @@ interface UseMetricsQueryState {
   isGraphLoading: boolean;
   isMetricsEmpty: boolean;
   start: string;
+}
+
+interface FormatLegend {
+  host?: string | null;
+  service?: string | null;
+  metric: string;
 }
 
 const getStartEndFromTimePeriod = (
@@ -95,7 +100,8 @@ const useGraphQuery = ({
   refreshInterval = false,
   refreshCount,
   bypassQueryParams = false,
-  prefix
+  prefix,
+  isEnabled = true
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
@@ -130,7 +136,9 @@ const useGraphQuery = ({
         parameters: {
           search: {
             lists: resources.map((resource) => ({
-              field: resourceTypeQueryParameter[resource.resourceType],
+              field: equals(resource.resourceType, 'hostgroup')
+                ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                : resourceTypeQueryParameter[resource.resourceType],
               values: equals(resource.resourceType, 'service')
                 ? pluck('name', resource.resources)
                 : pluck('id', resource.resources)
@@ -150,7 +158,10 @@ const useGraphQuery = ({
       refreshCount || 0
     ],
     queryOptions: {
-      enabled: areResourcesFullfilled(resources) && !isEmpty(definedMetrics),
+      enabled:
+        areResourcesFullfilled(resources) &&
+        !isEmpty(definedMetrics) &&
+        isEnabled,
       refetchInterval: refreshInterval,
       suspense: false
     },
@@ -162,22 +173,107 @@ const useGraphQuery = ({
     data.current = graphData;
   }
 
+  const getCurrentMetrics = () => {
+    if (!data.current) {
+      return undefined;
+    }
+
+    return bypassMetricsExclusion
+      ? data.current.metrics
+      : data.current.metrics.filter(({ metric_id }) => {
+          return pipe(
+            pluck('excludedMetrics'),
+            flatten,
+            includes(metric_id),
+            not
+          )(metrics);
+        });
+  };
+
+  const formatLegend = ({
+    host = null,
+    service = null,
+    metric
+  }: FormatLegend) => {
+    if (!host && !service) {
+      return metric;
+    }
+
+    if (!host) {
+      return `${service}: ${metric}`;
+    }
+
+    if (!service) {
+      return `${host}: ${metric}`;
+    }
+
+    return `${host} ${service}: ${metric}`;
+  };
+
+  const getFormattedMetrics = () => {
+    const metrics = getCurrentMetrics();
+
+    if (equals(metrics?.length, 1)) {
+      return metrics?.map((line) => {
+        const formattedLegend = formatLegend({
+          host: line?.host_name,
+          metric: line?.metric,
+          service: line?.service_name
+        });
+
+        return { ...line, legend: formattedLegend };
+      });
+    }
+
+    return metrics?.map((line) => {
+      const areHostNameRedundant = metrics.every(({ host_name }) =>
+        equals(host_name, line.host_name)
+      );
+      const areServiceNameRedundant = metrics.every(({ service_name }) =>
+        equals(service_name, line.service_name)
+      );
+
+      if (areHostNameRedundant && areServiceNameRedundant) {
+        const formattedLegend = formatLegend({ metric: line.metric });
+
+        return { ...line, legend: formattedLegend };
+      }
+
+      if (areHostNameRedundant) {
+        const formattedLegend = formatLegend({
+          metric: line.metric,
+          service: line.service_name
+        });
+
+        return { ...line, legend: formattedLegend };
+      }
+
+      if (areServiceNameRedundant) {
+        const formattedLegend = formatLegend({
+          host: line.host_name,
+          metric: line.metric
+        });
+
+        return { ...line, legend: formattedLegend };
+      }
+
+      const formattedLegend = formatLegend({
+        host: line.host_name,
+        metric: line.metric,
+        service: line.service_name
+      });
+
+      return { ...line, legend: formattedLegend };
+    });
+  };
+
   const formattedGraphData = data.current
     ? {
         global: {
           base: data.current.base,
           title: ''
         },
-        metrics: bypassMetricsExclusion
-          ? data.current.metrics
-          : data.current.metrics.filter(({ metric_id }) => {
-              return pipe(
-                pluck('excludedMetrics'),
-                flatten,
-                includes(metric_id),
-                not
-              )(metrics);
-            }),
+        metrics: getFormattedMetrics(),
         times: data.current.times
       }
     : undefined;

@@ -1,9 +1,8 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import { Delete as DeleteIcon, Save as SaveIcon } from '@mui/icons-material';
 
-import { IconButton } from '../..';
+import type { Meta, StoryObj } from '@storybook/react';
 
+import { IconButton } from '../..';
 import { ConfirmationTooltip } from './ConfirmationTooltip';
 
 const meta: Meta<typeof ConfirmationTooltip> = {

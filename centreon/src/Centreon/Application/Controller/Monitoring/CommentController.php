@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Monitoring;
@@ -39,101 +40,57 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CommentController extends AbstractController
 {
-    private const COMMENT_RESOURCES_PAYLOAD_VALIDATION_FILE =
-        __DIR__ . '/../../../../../config/json_validator/latest/Centreon/Comment/CommentResources.json';
-
-
-    private const SINGLE_COMMENT_PAYLOAD_VALIDATION_FILE =
-        __DIR__ . '/../../../../../config/json_validator/latest/Centreon/Comment/Comment.json';
+    private const COMMENT_RESOURCES_PAYLOAD_VALIDATION_FILE
+        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/Comment/CommentResources.json';
+    private const SINGLE_COMMENT_PAYLOAD_VALIDATION_FILE
+        = __DIR__ . '/../../../../../config/json_validator/latest/Centreon/Comment/Comment.json';
 
     public function __construct(
         private CommentServiceInterface $commentService,
         private MonitoringServiceInterface $monitoringService,
-        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
-    }
-
-    /**
-     * This function will verify that the contact is authorized to add a comment
-     * on the selected resources
-     *
-     * @param Contact $contact
-     * @param array<string,mixed> $resources
-     * @return boolean
-     */
-    private function hasCommentRightsForResources(Contact $contact, array $resources): bool
-    {
-        if ($contact->isAdmin()) {
-            return true;
-        }
-        /**
-         * Retrieving the current rights of the user for adding comments
-         */
-        $hasHostRights = $contact->hasRole(Contact::ROLE_HOST_ADD_COMMENT);
-        $hasServiceRights = $contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT);
-
-        /**
-         * If the user has no rights at all, do not go further
-         */
-        if (!$hasHostRights && !$hasServiceRights) {
-            return false;
-        }
-
-        foreach ($resources as $resource) {
-            if (
-                ($resource['type'] === ResourceEntity::TYPE_HOST && $hasHostRights)
-                || ($resource['type'] === ResourceEntity::TYPE_SERVICE && $hasServiceRights)
-                || ($resource['type'] === ResourceEntity::TYPE_META && $hasServiceRights)
-            ) {
-                continue;
-            }
-            return false;
-        }
-
-        return true;
     }
 
     /**
      * Entry point to add comments to multiple resources
      *
      * @param Request $request
-     * @return View
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
+     * @return View
      */
     public function addResourcesComment(
-        Request $request
+        Request $request,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
-        * @var Contact $contact
-        */
+         * @var Contact $contact
+         */
         $contact = $this->getUser();
 
-        if (false === $contact->isAdmin()) {
+        if ($contact->isAdmin() === false) {
             $accessGroups = $this->readAccessGroupRepository->findByContact($contact);
             $accessGroupIds = array_map(
-                fn($accessGroup) => $accessGroup->getId(),
+                fn ($accessGroup) => $accessGroup->getId(),
                 $accessGroups
             );
 
-            if (false === $this->readAccessGroupRepository->hasAccessToResources($accessGroupIds)) {
+            if ($this->readAccessGroupRepository->hasAccessToResources($accessGroupIds) === false) {
                 return $this->view(null, Response::HTTP_FORBIDDEN);
             }
         }
 
         $this->commentService->filterByContact($contact);
 
-       /*
-        * Validate the content of the request against the JSON schema validator
-        */
+        // Validate the content of the request against the JSON schema validator
         $payload = $this->validateAndRetrieveDataSent($request, self::COMMENT_RESOURCES_PAYLOAD_VALIDATION_FILE);
 
         /**
          * If user has no rights to add a comment for host and/or service
          * return view with unauthorized HTTP header response
          */
-        if (!$this->hasCommentRightsForResources($contact, $payload['resources'])) {
+        if (! $this->hasCommentRightsForResources($contact, $payload['resources'])) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
@@ -156,11 +113,11 @@ class CommentController extends AbstractController
                 $comments[$resource['id']]->setParentResourceId($resource['parent']['id']);
                 $resourceIds['service'][] = [
                     'host_id' => $resource['parent']['id'],
-                    'service_id' => $resource['id']
+                    'service_id' => $resource['id'],
                 ];
             } elseif ($resource['type'] === ResourceEntity::TYPE_META) {
                 $resourceIds['metaservice'][] = [
-                    'service_id' => $resource['id']
+                    'service_id' => $resource['id'],
                 ];
             }
         }
@@ -175,13 +132,13 @@ class CommentController extends AbstractController
      *
      * @param Request $request
      * @param int $hostId ID of the host
-     * @return View
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
+     * @return View
      */
     public function addHostComment(
         Request $request,
-        int $hostId
+        int $hostId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
         /**
@@ -193,13 +150,11 @@ class CommentController extends AbstractController
         /**
          * Checking that user is allowed to add a comment for a host resource
          */
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_HOST_ADD_COMMENT)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_HOST_ADD_COMMENT)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
-       /*
-        * Validate the content of the request against the JSON schema validator
-        */
+        // Validate the content of the request against the JSON schema validator
         $payload = $this->validateAndRetrieveDataSent($request, self::SINGLE_COMMENT_PAYLOAD_VALIDATION_FILE);
 
         $date = ($payload['date'] !== null) ? new \DateTime($payload['date']) : new \DateTime();
@@ -218,14 +173,14 @@ class CommentController extends AbstractController
      * @param Request $request
      * @param int $hostId ID of service parent (host)
      * @param int $serviceId ID of the service
-     * @return View
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
+     * @return View
      */
     public function addServiceComment(
         Request $request,
         int $hostId,
-        int $serviceId
+        int $serviceId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -234,13 +189,11 @@ class CommentController extends AbstractController
          */
         $contact = $this->getUser();
         $this->commentService->filterByContact($contact);
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
-       /*
-        * Validate the content of the request against the JSON schema validator
-        */
+        // Validate the content of the request against the JSON schema validator
         $payload = $this->validateAndRetrieveDataSent($request, self::SINGLE_COMMENT_PAYLOAD_VALIDATION_FILE);
 
         /**
@@ -267,13 +220,13 @@ class CommentController extends AbstractController
      *
      * @param Request $request
      * @param int $metaId ID of the Meta Service
-     * @return View
-     * @throws \Exception
+     * @throws Exception
      * @throws \InvalidArgumentException
+     * @return View
      */
     public function addMetaServiceComment(
         Request $request,
-        int $metaId
+        int $metaId,
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
@@ -282,13 +235,11 @@ class CommentController extends AbstractController
          */
         $contact = $this->getUser();
         $this->commentService->filterByContact($contact);
-        if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT)) {
+        if (! $contact->isAdmin() && ! $contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
         }
 
-       /*
-        * Validate the content of the request against the JSON schema validator
-        */
+        // Validate the content of the request against the JSON schema validator
         $payload = $this->validateAndRetrieveDataSent($request, self::SINGLE_COMMENT_PAYLOAD_VALIDATION_FILE);
 
         /**
@@ -314,5 +265,46 @@ class CommentController extends AbstractController
         $this->commentService->addServiceComment($comment, $service);
 
         return $this->view(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * This function will verify that the contact is authorized to add a comment
+     * on the selected resources
+     *
+     * @param Contact $contact
+     * @param array<string,mixed> $resources
+     * @return bool
+     */
+    private function hasCommentRightsForResources(Contact $contact, array $resources): bool
+    {
+        if ($contact->isAdmin()) {
+            return true;
+        }
+        /**
+         * Retrieving the current rights of the user for adding comments
+         */
+        $hasHostRights = $contact->hasRole(Contact::ROLE_HOST_ADD_COMMENT);
+        $hasServiceRights = $contact->hasRole(Contact::ROLE_SERVICE_ADD_COMMENT);
+
+        /**
+         * If the user has no rights at all, do not go further
+         */
+        if (! $hasHostRights && ! $hasServiceRights) {
+            return false;
+        }
+
+        foreach ($resources as $resource) {
+            if (
+                ($resource['type'] === ResourceEntity::TYPE_HOST && $hasHostRights)
+                || ($resource['type'] === ResourceEntity::TYPE_SERVICE && $hasServiceRights)
+                || ($resource['type'] === ResourceEntity::TYPE_META && $hasServiceRights)
+            ) {
+                continue;
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }

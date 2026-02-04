@@ -1,4 +1,10 @@
 import {
+  buildListingEndpoint,
+  ListingParameters,
+  QueryParameter
+} from '@centreon/ui';
+
+import {
   equals,
   flatten,
   includes,
@@ -8,14 +14,13 @@ import {
   toUpper
 } from 'ramda';
 
-import {
-  ListingParameters,
-  QueryParameter,
-  buildListingEndpoint
-} from '@centreon/ui';
-
 import { Resource } from '../../../models';
-import { formatBAStatus, formatStatus } from '../../../utils';
+import {
+  buildResourceTypeNameForSearchParameter,
+  formatBAStatus,
+  formatStatus,
+  isResourceString
+} from '../../../utils';
 
 export const resourcesEndpoint = '/monitoring/resources';
 export const hostsEndpoint = '/monitoring/resources/hosts';
@@ -23,10 +28,10 @@ export const hostsEndpoint = '/monitoring/resources/hosts';
 export const baIndicatorsEndpoint =
   '/bam/monitoring/business-activities/indicators';
 export const businessActivitiesEndpoint = '/bam/monitoring/business-activities';
-export const getBAEndpoint = (id): string =>
+export const getBAEndpoint = (id: number): string =>
   `/bam/monitoring/business-activities/${id}`;
 
-export const getBooleanRuleEndpoint = (id): string =>
+export const getBooleanRuleEndpoint = (id: number): string =>
   `/bam/monitoring/indicators/boolean-rules/${id}`;
 
 interface BuildResourcesEndpointProps {
@@ -105,7 +110,9 @@ export const getListingQueryParameters = ({
   page
 }: GetListingQueryParametersProps): ListingParameters => {
   const resourcesToApplyToSearchParameters = resources.filter(
-    ({ resourceType }) => includes(resourceType, resourceTypesSearchParameters)
+    ({ resourceType, resources: resourcesToApply }) =>
+      includes(resourceType, resourceTypesSearchParameters) &&
+      !isResourceString(resourcesToApply)
   );
 
   const searchConditions = resourcesToApplyToSearchParameters.map(
@@ -113,17 +120,31 @@ export const getListingQueryParameters = ({
       return resourcesToApply.map((resource) => ({
         field: resourcesSearchMapping[resourceType],
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }
   );
 
-  const search = isEmpty(flatten(searchConditions))
+  const resourcesWithRegexConditions = resources
+    .filter((resource) => isResourceString(resource.resources))
+    .map((resource) => ({
+      field: buildResourceTypeNameForSearchParameter(resource.resourceType),
+      values: {
+        $rg: resource.resources
+      }
+    }));
+
+  const search = isEmpty(
+    flatten([...searchConditions, ...resourcesWithRegexConditions])
+  )
     ? {}
     : {
         search: {
-          conditions: flatten(searchConditions)
+          conditions: flatten([
+            ...searchConditions,
+            ...resourcesWithRegexConditions
+          ])
         }
       };
 
@@ -178,7 +199,7 @@ export const buildCondensedViewEndpoint = ({
   baseEndpoint,
   statuses
 }: BuildResourcesEndpointProps): string => {
-  const formattedResources = resources.map((resource) => {
+  const resourcesToApply = resources.map((resource) => {
     if (!equals(type, resource.resourceType)) {
       return {
         ...resource,
@@ -189,14 +210,24 @@ export const buildCondensedViewEndpoint = ({
     return { ...resource, resourceType: 'name' };
   });
 
-  const searchConditions = formattedResources.map(
+  const searchConditions = resourcesToApply.map(
     ({ resourceType, resources: resourcesToApply }) => {
-      return resourcesToApply.map((resource) => ({
-        field: resourceType,
-        values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
-        }
-      }));
+      if (isResourceString(resourcesToApply)) {
+        return {
+          field: resourceType,
+          values: {
+            $rg: resourcesToApply
+          }
+        };
+      }
+      return resourcesToApply.map((resource) => {
+        return {
+          field: resourceType,
+          values: {
+            $rg: `^${resource.name}$`
+          }
+        };
+      });
     }
   );
 

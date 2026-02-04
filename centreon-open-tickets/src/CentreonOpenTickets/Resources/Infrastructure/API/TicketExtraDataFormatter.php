@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\Resources\Infrastructure\API\ExtraDataNormalizer\ExtraDataNormalizerInterface;
 
 final class TicketExtraDataFormatter implements ExtraDataNormalizerInterface
-
 {
     use PresenterTrait;
     private const EXTRA_DATA_SOURCE_NAME = 'open_tickets';
@@ -45,11 +44,12 @@ final class TicketExtraDataFormatter implements ExtraDataNormalizerInterface
      */
     public function normalizeExtraDataForResource(mixed $data): array
     {
-        /** @var array{id:int, subject:string, created_at:\DateTimeInterface} $data */
+        /** @var array{id:int, subject:string, created_at:\DateTimeInterface, link:string} $data */
         return [
             'tickets' => [
                 'id' => $data['id'],
                 'subject' => $data['subject'],
+                'link' => $data['link'],
                 'created_at' => $this->formatDateToIso8601($data['created_at']),
             ],
         ];

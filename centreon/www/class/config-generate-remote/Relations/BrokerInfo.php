@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,8 @@
 
 namespace ConfigGenerateRemote\Relations;
 
-use \PDO;
 use ConfigGenerateRemote\Abstracts\AbstractObject;
+use PDO;
 
 /**
  * Class
@@ -32,18 +32,12 @@ use ConfigGenerateRemote\Abstracts\AbstractObject;
  */
 class BrokerInfo extends AbstractObject
 {
-    /** @var int */
-    private $useCache = 1;
-    /** @var int */
-    private $doneCache = 0;
-
-    /** @var array */
-    private $brokerInfoCache = [];
-
     /** @var string */
     protected $table = 'cfg_centreonbroker_info';
+
     /** @var string */
     protected $generateFilename = 'cfg_centreonbroker_info.infile';
+
     /** @var null */
     protected $stmtBrokerInfo = null;
 
@@ -57,8 +51,17 @@ class BrokerInfo extends AbstractObject
         'grp_level',
         'subgrp_id',
         'parent_grp_id',
-        'fieldIndex'
+        'fieldIndex',
     ];
+
+    /** @var int */
+    private $useCache = 1;
+
+    /** @var int */
+    private $doneCache = 0;
+
+    /** @var array */
+    private $brokerInfoCache = [];
 
     /**
      * BrokerInfo constructor
@@ -72,6 +75,63 @@ class BrokerInfo extends AbstractObject
     }
 
     /**
+     * Generate broker info configs
+     *
+     * @param int $configId
+     * @param array $brokerInfoCache
+     *
+     * @throws \Exception
+     * @return void
+     */
+    public function generateObject(int $configId, array $brokerInfoCache): void
+    {
+        foreach ($brokerInfoCache[$configId] as $value) {
+            $this->generateObjectInFile($value);
+        }
+    }
+
+    /**
+     * Get broker information config
+     *
+     * @param int $configId
+     *
+     * @throws \Exception
+     * @return array
+     */
+    public function getBrokerInfoByConfigId(int $configId)
+    {
+        // Get from the cache
+        if (isset($this->brokerInfoCache[$configId])) {
+            $this->generateObject($configId, $this->brokerInfoCache);
+
+            return $this->brokerInfoCache[$configId];
+        }
+        if ($this->useCache === 1) {
+            return [];
+        }
+
+        // We get unitary
+        if (is_null($this->stmtBrokerInfo)) {
+            $this->stmtBrokerInfo = $this->backendInstance->db->prepare(
+                'SELECT *
+                FROM cfg_centreonbroker_info
+                WHERE config_id = :config_id'
+            );
+        }
+
+        $this->stmtBrokerInfo->bindParam(':config_id', $configId, PDO::PARAM_INT);
+        $this->stmtBrokerInfo->execute();
+        $brokerInfoCache = [$config_id => []];
+        foreach ($this->stmtBrokerInfo->fetchAll(PDO::FETCH_ASSOC) as &$value) {
+            $brokerInfoCache[$config_id] = $value;
+        }
+
+        $this->generateObject($configId, $brokerInfoCache);
+
+        return $brokerInfoCache;
+    }
+
+    /**
      * Build cache of broker info
      *
      * @return void
@@ -79,14 +139,14 @@ class BrokerInfo extends AbstractObject
     private function cacheBrokerInfo(): void
     {
         $stmt = $this->backendInstance->db->prepare(
-            "SELECT *
-             FROM cfg_centreonbroker_info"
+            'SELECT *
+             FROM cfg_centreonbroker_info'
         );
 
         $stmt->execute();
         $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($values as &$value) {
-            if (!isset($this->brokerInfoCache[$value['config_id']])) {
+            if (! isset($this->brokerInfoCache[$value['config_id']])) {
                 $this->brokerInfoCache[$value['config_id']] = [];
             }
             $this->brokerInfoCache[$value['config_id']][] = $value;
@@ -104,60 +164,5 @@ class BrokerInfo extends AbstractObject
             $this->cacheBrokerInfo();
             $this->doneCache = 1;
         }
-    }
-
-    /**
-     * Generate broker info configs
-     *
-     * @param int $configId
-     * @param array $brokerInfoCache
-     *
-     * @return void
-     * @throws \Exception
-     */
-    public function generateObject(int $configId, array $brokerInfoCache): void
-    {
-        foreach ($brokerInfoCache[$configId] as $value) {
-            $this->generateObjectInFile($value);
-        }
-    }
-
-    /**
-     * Get broker information config
-     *
-     * @param int $configId
-     *
-     * @return array
-     * @throws \Exception
-     */
-    public function getBrokerInfoByConfigId(int $configId)
-    {
-        // Get from the cache
-        if (isset($this->brokerInfoCache[$configId])) {
-            $this->generateObject($configId, $this->brokerInfoCache);
-            return $this->brokerInfoCache[$configId];
-        } elseif ($this->useCache === 1) {
-            return [];
-        }
-
-        // We get unitary
-        if (is_null($this->stmtBrokerInfo)) {
-            $this->stmtBrokerInfo = $this->backendInstance->db->prepare(
-                "SELECT *
-                FROM cfg_centreonbroker_info
-                WHERE config_id = :config_id"
-            );
-        }
-
-        $this->stmtBrokerInfo->bindParam(':config_id', $configId, PDO::PARAM_INT);
-        $this->stmtBrokerInfo->execute();
-        $brokerInfoCache = [ $config_id => [] ];
-        foreach ($this->stmtBrokerInfo->fetchAll(PDO::FETCH_ASSOC) as &$value) {
-            $brokerInfoCache[$config_id] = $value;
-        }
-
-        $this->generateObject($configId, $brokerInfoCache);
-
-        return $brokerInfoCache;
     }
 }

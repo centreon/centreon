@@ -1,6 +1,6 @@
-import { equals, flatten } from 'ramda';
-
 import { buildListingEndpoint } from '@centreon/ui';
+
+import { equals, flatten } from 'ramda';
 
 import { Resource } from '../../../models';
 
@@ -37,7 +37,7 @@ export const buildResourcesEndpoint = ({
       return resourcesToApply.map((resource) => ({
         field: resourceType,
         values: {
-          $rg: `^${resource.name}$`.replace('/', '\\/')
+          $rg: `^${resource.name}$`
         }
       }));
     }

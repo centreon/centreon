@@ -1,8 +1,7 @@
-import { ChangeEvent } from 'react';
-
 import { useFormikContext } from 'formik';
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { ChangeEvent } from 'react';
 
 import { selectedDatasetFiltersAtom } from '../../../atom';
 import { Dataset, ResourceAccessRule, ResourceTypeEnum } from '../../../models';
@@ -10,6 +9,7 @@ import {
   labelAllBusinessViews,
   labelAllHostGroups,
   labelAllHosts,
+  labelAllImageFolders,
   labelAllServiceGroups
 } from '../../../translatedLabels';
 
@@ -23,7 +23,8 @@ const allOfResourceTypeLabels = {
   [ResourceTypeEnum.HostGroup]: labelAllHostGroups,
   [ResourceTypeEnum.Host]: labelAllHosts,
   [ResourceTypeEnum.ServiceGroup]: labelAllServiceGroups,
-  [ResourceTypeEnum.BusinessView]: labelAllBusinessViews
+  [ResourceTypeEnum.BusinessView]: labelAllBusinessViews,
+  [ResourceTypeEnum.ImageFolder]: labelAllImageFolders
 };
 
 export const useAllOfResourceTypeCheckbox = (

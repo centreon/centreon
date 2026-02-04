@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <htcontact://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -57,9 +42,9 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getList()
     {
@@ -112,27 +97,27 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
         }
 
         $request = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
-                sg.sg_id,
-                sg.sg_name,
-                sg.sg_activate
-            FROM servicegroup sg
-            WHERE sg_name LIKE :serviceGroupName $aclServicegroups
-            ORDER BY sg.sg_name
-            $range
-        SQL;
+                SELECT SQL_CALC_FOUND_ROWS DISTINCT
+                    sg.sg_id,
+                    sg.sg_name,
+                    sg.sg_activate
+                FROM servicegroup sg
+                WHERE sg_name LIKE :serviceGroupName {$aclServicegroups}
+                ORDER BY sg.sg_name
+                {$range}
+            SQL;
 
         $statement = $this->pearDB->prepare($request);
 
-        $statement->bindValue(':serviceGroupName', $queryValues['serviceGroupName'], \PDO::PARAM_STR);
+        $statement->bindValue(':serviceGroupName', $queryValues['serviceGroupName'], PDO::PARAM_STR);
 
         if (isset($queryValues['offset'])) {
-            $statement->bindParam(':offset', $queryValues['offset'], \PDO::PARAM_INT);
-            $statement->bindParam(':limit', $queryValues['limit'], \PDO::PARAM_INT);
+            $statement->bindParam(':offset', $queryValues['offset'], PDO::PARAM_INT);
+            $statement->bindParam(':limit', $queryValues['limit'], PDO::PARAM_INT);
         }
         $statement->execute();
         $serviceGroups = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             $serviceGroups[] = [
                 'id' => htmlentities($record['sg_id']),
                 'text' => $record['sg_name'],
@@ -147,9 +132,9 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
     }
 
     /**
-     * @return array
      * @throws PDOException
      * @throws RestBadRequestException
+     * @return array
      */
     public function getServiceList()
     {
@@ -186,10 +171,10 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
                 $filters[] = ' sg.sg_id IN (' . $acl->getServiceGroupsString() . ') ';
             }
 
-           $filters[] = ' s.service_id IN (' . $acl->getServicesString($this->pearDBMonitoring) . ') ';
+            $filters[] = ' s.service_id IN (' . $acl->getServicesString($this->pearDBMonitoring) . ') ';
         }
 
-        $request = <<<SQL_WRAP
+        $request = <<<'SQL_WRAP'
                 SELECT SQL_CALC_FOUND_ROWS DISTINCT
                     s.service_id,
                     s.service_description,
@@ -242,13 +227,13 @@ class CentreonConfigurationServicegroup extends CentreonConfigurationObjects
         $statement = $this->pearDB->prepare($request);
 
         foreach ($queryValues as $key => $value) {
-            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+            $statement->bindValue($key, $value, PDO::PARAM_INT);
         }
 
         $statement->execute();
 
         $serviceList = [];
-        while ($record = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        while ($record = $statement->fetch(PDO::FETCH_ASSOC)) {
             $serviceList[] = [
                 'id' => $record['host_id'] . '_' . $record['service_id'],
                 'text' => $record['host_name'] . ' - ' . $record['service_description'],

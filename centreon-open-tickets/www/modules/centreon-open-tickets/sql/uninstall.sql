@@ -7,6 +7,7 @@ DROP TABLE `@DB_CENTSTORAGE@`.`mod_open_tickets_data`;
 DROP TABLE `@DB_CENTSTORAGE@`.`mod_open_tickets`;
 
 DELETE FROM topology WHERE topology_page = '60420' AND topology_name = 'Rules';
+DELETE FROM topology WHERE topology_page = '60421' AND topology_name = 'Create Ticket';
 DELETE FROM topology WHERE topology_parent = '604' AND topology_name = 'Open Tickets';
 DELETE FROM topology_JS WHERE id_page = '60420';
 

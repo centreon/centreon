@@ -1,8 +1,9 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
 
-const hostName = 'New-Host-Name';
+let hostName = '';
+let hostWithGeoCoords = 'New-Host-Name-for-geo';
+const hostAddress = '127.0.0.1';
 const services = {
   serviceCritical: {
     host: 'host3',
@@ -30,6 +31,14 @@ const resultsToSubmit = [
     status: 'warning'
   }
 ];
+
+const fillGeographicCoordinates = (value: string) => {
+  //Navigate to the Host Extended Infos tab
+  cy.getIframeBody().contains('a', 'Host Extended Infos').click();
+  // Click outside the form
+  cy.get('body').click(0, 0);
+  cy.getIframeBody().find('input[name="geo_coords"]').type(value);
+};
 
 beforeEach(() => {
   cy.startContainers();
@@ -91,13 +100,9 @@ When('a host is configured', () => {
   cy.submitResults(resultsToSubmit);
 });
 
-When('the user changes the name of a host to "New Host Name"', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
-  cy.wait('@getTimeZone');
+When('the admin changes the name of a host to {string}', (name: string) => {
+  hostName = name;
+  cy.visitHostsListingPage(3);
   cy.getIframeBody().contains(services.serviceOk.host).click({
     force: true
   });
@@ -108,18 +113,17 @@ When('the user changes the name of a host to "New Host Name"', () => {
   cy.wait('@getTimeZone');
 });
 
-Then('the host name is updated to "New Host Name" on the Host Page', () => {
-  cy.exportConfig();
-  cy.getIframeBody().contains(hostName).should('exist');
-});
+Then(
+  'the updated name should be updated on the host page to {string}',
+  (name: string) => {
+    hostName = name;
+    cy.exportConfig();
+    cy.getIframeBody().contains(hostName).should('exist');
+  }
+);
 
-When('the user duplicates a host', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
-  cy.wait('@getTimeZone');
+When('the admin duplicates a host', () => {
+  cy.visitHostsListingPage(3);
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
     .find('select')
@@ -138,13 +142,8 @@ Then('a new host is created with identical fields', () => {
   cy.getIframeBody().contains(`${services.serviceOk.host}_1`).should('exist');
 });
 
-When('the user deletes the host', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
-  cy.wait('@getTimeZone');
+When('the admin deletes the host', () => {
+  cy.visitHostsListingPage(3);
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(2).click();
   cy.getIframeBody()
     .find('select')
@@ -161,4 +160,66 @@ When('the user deletes the host', () => {
 
 Then('the host is not visible in the host list', () => {
   cy.getIframeBody().contains(services.serviceOk.host).should('not.exist');
+});
+
+Given('the admin is on the hosts listing page', () => {
+  cy.visitHostsListingPage(3);
+});
+
+Given('the admin fills in the required fields to create a host', () => {
+  cy.waitForElementInIframe('#main-content', 'input[name="searchH"]');
+  cy.getIframeBody().contains('a', 'Add').click();
+  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
+  cy.getIframeBody()
+    .find('input[name="host_name"]')
+    .clear()
+    .type(hostWithGeoCoords);
+  cy.getIframeBody()
+    .find('input[name="host_alias"]')
+    .clear()
+    .type(hostWithGeoCoords);
+  cy.getIframeBody()
+    .find('input[name="host_address"]')
+    .clear()
+    .type(hostAddress);
+});
+
+When('the admin saves the host', () => {
+  cy.getIframeBody().find('input.btc.bt_success[name^="submit"]').eq(0).click();
+  cy.wait('@getTimeZone');
+});
+
+Then('the host is successfully created', () => {
+  cy.wait('@getTimeZone');
+  cy.getIframeBody().contains(hostWithGeoCoords).should('be.visible');
+});
+
+Then('the geo-coordinates value is truncated {string}', (value: string) => {
+  cy.getIframeBody().contains(hostWithGeoCoords).eq(0).click();
+  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
+  //Navigate to the Host Extended Infos tab
+  cy.getIframeBody().contains('a', 'Host Extended Infos').click();
+  // Click outside the form
+  cy.get('body').click(0, 0);
+  // Check that the setted geo coords value has been truncated
+  cy.getIframeBody()
+    .find('input[name="geo_coords"]')
+    .should('have.value', value);
+});
+
+Given(
+  'the admin enters this non valid value {string} in the geo-coordinates field',
+  (value: string) => {
+    fillGeographicCoordinates(value);
+  }
+);
+
+Given('a host is already configured', () => {
+  hostWithGeoCoords = services.serviceOk.host;
+  cy.getIframeBody().contains('a', hostWithGeoCoords).should('be.visible');
+});
+
+When('the admin opens the edit form on this host', () => {
+  cy.getIframeBody().contains('a', hostWithGeoCoords).click();
+  cy.waitForElementInIframe('#main-content', 'input[name="host_name"]');
 });

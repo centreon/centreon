@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
@@ -42,33 +43,30 @@ beforeEach(function (): void {
     $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class);
     $this->writeHostGroupRepository = $this->createMock(WriteHostGroupRepositoryInterface::class);
     $this->contact = $this->createMock(ContactInterface::class);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
 
     $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
     $this->useCase = new DeleteHostGroup(
         $this->readHostGroupRepository,
         $this->writeHostGroupRepository,
         $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->contact
+        $this->contact,
+        $this->adminResolver
     );
 
     $this->testedHostGroup = new HostGroup(
-        $this->hostgroupId = 1,
-        'hg-name',
-        'hg-alias',
-        '',
-        '',
-        '',
-        null,
-        null,
-        null,
-        GeoCoords::fromString('-2,100'),
-        '',
-        true
+        id: $this->hostgroupId = 1,
+        name: 'hg-name',
+        alias: 'hg-alias',
+        iconId: null,
+        geoCoords: GeoCoords::fromString('-2,100'),
+        comment: '',
+        isActivated: true
     );
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -86,7 +84,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 });
 
 it('should present a ForbiddenResponse when the user does not have the correct role', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -108,7 +106,7 @@ it('should present a ForbiddenResponse when the user does not have the correct r
 });
 
 it('should present a NoContentResponse as admin', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -124,7 +122,7 @@ it('should present a NoContentResponse as admin', function (): void {
 });
 
 it('should present a ForbiddenResponse as allowed READ user', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -147,7 +145,7 @@ it('should present a ForbiddenResponse as allowed READ user', function (): void 
 });
 
 it('should present a NoContentResponse as allowed READ_WRITE user', function (): void {
-    $this->contact
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);

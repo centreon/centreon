@@ -1,12 +1,13 @@
 <?php
+
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
- * 
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,9 +21,9 @@
 
 namespace ConfigGenerateRemote;
 
+use ConfigGenerateRemote\Abstracts\AbstractService;
 use Exception;
 use PDO;
-use ConfigGenerateRemote\Abstracts\AbstractService;
 
 /**
  * Class
@@ -32,27 +33,36 @@ use ConfigGenerateRemote\Abstracts\AbstractService;
  */
 class ServiceTemplate extends AbstractService
 {
-
     /** @var */
     public $loop_stpl;
-    /** @var array|null */
-    protected $hosts = null;
-    /** @var string */
-    protected $table = 'service';
-    /** @var string */
-    protected $generateFilename = 'serviceTemplates.infile';
+
     /** @var array */
     public $serviceCache = [];
+
     /** @var int|null */
     public $currentHostId = null;
+
     /** @var string|null */
     public $currentHostName = null;
+
     /** @var string|null */
     public $currentServiceDescription = null;
+
     /** @var int|null */
     public $currentServiceId = null;
+
+    /** @var array|null */
+    protected $hosts = null;
+
+    /** @var string */
+    protected $table = 'service';
+
+    /** @var string */
+    protected $generateFilename = 'serviceTemplates.infile';
+
     /** @var array */
     protected $loopTpl = [];
+
     /** @var string */
     protected $attributesSelect = '
         service_id,
@@ -85,6 +95,7 @@ class ServiceTemplate extends AbstractService
         service_acknowledgement_timeout,
         graph_id
     ';
+
     /** @var string[] */
     protected $attributesWrite = [
         'service_id',
@@ -113,84 +124,12 @@ class ServiceTemplate extends AbstractService
     ];
 
     /**
-     * Get linked service groups and generate relations
-     *
-     * @param int $serviceId
-     * @return void
-     */
-    private function getServiceGroups(int $serviceId): void
-    {
-        $host = Host::getInstance($this->dependencyInjector);
-        $servicegroup = ServiceGroup::getInstance($this->dependencyInjector);
-        $this->serviceCache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForStpl($serviceId);
-        foreach ($this->serviceCache[$serviceId]['sg'] as &$sg) {
-            if ($host->isHostTemplate($this->currentHostId, $sg['host_host_id'])) {
-                $servicegroup->addServiceInSg(
-                    $sg['servicegroup_sg_id'],
-                    $this->currentServiceId,
-                    $this->currentServiceDescription,
-                    $this->currentHostId,
-                    $this->currentHostName
-                );
-                Relations\ServiceGroupRelation::getInstance($this->dependencyInjector)->addRelationHostService(
-                    $sg['servicegroup_sg_id'],
-                    $sg['host_host_id'],
-                    $serviceId
-                );
-            }
-        }
-    }
-
-    /**
-     * Get service template from id
-     *
-     * @param int $serviceId
-     * @return void
-     */
-    private function getServiceFromId(int $serviceId): void
-    {
-        if (is_null($this->stmtService)) {
-            $this->stmtService = $this->backendInstance->db->prepare(
-                "SELECT $this->attributesSelect
-                FROM service
-                LEFT JOIN extended_service_information
-                ON extended_service_information.service_service_id = service.service_id
-                WHERE service_id = :service_id AND service_activate = '1'"
-            );
-        }
-        $this->stmtService->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-        $this->stmtService->execute();
-        $results = $this->stmtService->fetchAll(PDO::FETCH_ASSOC);
-        $this->serviceCache[$serviceId] = array_pop($results);
-    }
-
-    /**
-     * Get severity from service id
-     *
-     * @param int $serviceId
-     * @return void|int
-     */
-    private function getSeverity(int $serviceId)
-    {
-        if (isset($this->serviceCache[$serviceId]['severity_id'])) {
-            return 0;
-        }
-
-        $this->serviceCache[$serviceId]['severity_id'] =
-            ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
-        if (!is_null($this->serviceCache[$serviceId]['severity_id'])) {
-            Relations\ServiceCategoriesRelation::getInstance($this->dependencyInjector)
-                ->addRelation($this->serviceCache[$serviceId]['severity_id'], $serviceId);
-        }
-    }
-
-    /**
      * Generate service template
      *
      * @param null|int $serviceId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function generateFromServiceId(?int $serviceId)
     {
@@ -198,7 +137,7 @@ class ServiceTemplate extends AbstractService
             return null;
         }
 
-        if (!isset($this->serviceCache[$serviceId])) {
+        if (! isset($this->serviceCache[$serviceId])) {
             $this->getServiceFromId($serviceId);
         }
 
@@ -206,12 +145,13 @@ class ServiceTemplate extends AbstractService
             return null;
         }
         if ($this->checkGenerate($serviceId)) {
-            if (!isset($this->loopTpl[$serviceId])) {
+            if (! isset($this->loopTpl[$serviceId])) {
                 $this->loopTpl[$serviceId] = 1;
                 // Need to go in only to check servicegroup <-> stpl link
                 $this->getServiceTemplates($this->serviceCache[$serviceId]);
                 $this->getServiceGroups($serviceId);
             }
+
             return $this->serviceCache[$serviceId]['service_alias'];
         }
 
@@ -260,8 +200,8 @@ class ServiceTemplate extends AbstractService
      *
      * @param bool $createfile
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     public function reset($createfile = false): void
     {
@@ -271,5 +211,77 @@ class ServiceTemplate extends AbstractService
         $this->currentServiceId = null;
         $this->loop_stpl = [];
         parent::reset($createfile);
+    }
+
+    /**
+     * Get linked service groups and generate relations
+     *
+     * @param int $serviceId
+     * @return void
+     */
+    private function getServiceGroups(int $serviceId): void
+    {
+        $host = Host::getInstance($this->dependencyInjector);
+        $servicegroup = ServiceGroup::getInstance($this->dependencyInjector);
+        $this->serviceCache[$serviceId]['sg'] = $servicegroup->getServiceGroupsForStpl($serviceId);
+        foreach ($this->serviceCache[$serviceId]['sg'] as &$sg) {
+            if ($host->isHostTemplate($this->currentHostId, $sg['host_host_id'])) {
+                $servicegroup->addServiceInSg(
+                    $sg['servicegroup_sg_id'],
+                    $this->currentServiceId,
+                    $this->currentServiceDescription,
+                    $this->currentHostId,
+                    $this->currentHostName
+                );
+                Relations\ServiceGroupRelation::getInstance($this->dependencyInjector)->addRelationHostService(
+                    $sg['servicegroup_sg_id'],
+                    $sg['host_host_id'],
+                    $serviceId
+                );
+            }
+        }
+    }
+
+    /**
+     * Get service template from id
+     *
+     * @param int $serviceId
+     * @return void
+     */
+    private function getServiceFromId(int $serviceId): void
+    {
+        if (is_null($this->stmtService)) {
+            $this->stmtService = $this->backendInstance->db->prepare(
+                "SELECT {$this->attributesSelect}
+                FROM service
+                LEFT JOIN extended_service_information
+                ON extended_service_information.service_service_id = service.service_id
+                WHERE service_id = :service_id AND service_activate = '1'"
+            );
+        }
+        $this->stmtService->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $this->stmtService->execute();
+        $results = $this->stmtService->fetchAll(PDO::FETCH_ASSOC);
+        $this->serviceCache[$serviceId] = array_pop($results);
+    }
+
+    /**
+     * Get severity from service id
+     *
+     * @param int $serviceId
+     * @return void|int
+     */
+    private function getSeverity(int $serviceId)
+    {
+        if (isset($this->serviceCache[$serviceId]['severity_id'])) {
+            return 0;
+        }
+
+        $this->serviceCache[$serviceId]['severity_id']
+            = ServiceCategory::getInstance($this->dependencyInjector)->getServiceSeverityByServiceId($serviceId);
+        if (! is_null($this->serviceCache[$serviceId]['severity_id'])) {
+            Relations\ServiceCategoriesRelation::getInstance($this->dependencyInjector)
+                ->addRelation($this->serviceCache[$serviceId]['severity_id'], $serviceId);
+        }
     }
 }

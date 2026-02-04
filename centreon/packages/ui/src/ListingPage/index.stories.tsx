@@ -1,20 +1,18 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 
-import { useState } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import { Button, Paper, Tab, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
+
+import { useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 import { SearchField } from '..';
 import Listing from '../Listing';
 import { ColumnType } from '../Listing/models';
 import Panel from '../Panel';
-
+import ListingPage, { type ListingPageProps } from '.';
 import Filter from './Filter';
-
-import ListingPage, { ListingPageProps } from '.';
+import '../ThemeProvider/tailwindcss.css';
 
 export default { title: 'Listing Page' };
 
@@ -241,8 +239,8 @@ const DetailsPanel = ({
 }: PanelProps): JSX.Element => (
   <Panel
     header={<DetailsPanelHeader />}
-    selectedTab={<DetailsPanelContent />}
     onClose={onClose}
+    selectedTab={<DetailsPanelContent />}
   />
 );
 
@@ -274,28 +272,28 @@ export const normal = (): JSX.Element => (
 
 export const withOpenPanel = (): JSX.Element => (
   <Template
-    panelOpen
     filter={<FilterWithContent />}
     listing={listing}
     panel={<DetailsPanel />}
+    panelOpen
   />
 );
 
 export const withOpenPanelAndTabs = (): JSX.Element => (
   <Template
-    panelOpen
     filter={<FilterWithContent />}
     listing={listing}
     panel={<DetailsPanelWithTabs />}
+    panelOpen
   />
 );
 
 export const withFilterDetailsAndOpenPanel = (): JSX.Element => (
   <Template
-    panelOpen
     filter={<FilterWithContent />}
     listing={listing}
     panel={<DetailsPanel />}
+    panelOpen
   />
 );
 
@@ -304,10 +302,10 @@ export const withFixedPanel = (): JSX.Element => {
 
   return (
     <Template
-      panelFixed
       filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
       listing={listing}
       panel={<DetailsPanel onClose={(): void => setOpen(false)} />}
+      panelFixed
       panelOpen={open}
     />
   );

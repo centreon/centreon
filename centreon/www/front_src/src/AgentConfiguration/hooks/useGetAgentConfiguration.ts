@@ -1,17 +1,51 @@
 import { useFetchQuery } from '@centreon/ui';
+
 import { useSetAtom } from 'jotai';
-import { equals, isNotNil } from 'ramda';
+import { equals, isEmpty, isNil, isNotNil, map, or } from 'ramda';
 import { useEffect } from 'react';
-import { agentTypes } from '../Form/useInputs';
+
 import { agentConfigurationDecoder } from '../api/decoders';
 import { getAgentConfigurationEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
-import { AgentConfiguration, AgentConfigurationForm } from '../models';
+import { agentTypes, connectionModes } from '../Form/useInputs';
+import {
+  AgentConfiguration,
+  AgentConfigurationForm,
+  AgentType
+} from '../models';
 
 const adaptAgentConfigurationToForm = (
   agentConfiguration: AgentConfiguration
 ): AgentConfigurationForm => ({
   ...agentConfiguration,
+  configuration: {
+    ...agentConfiguration.configuration,
+    ...(equals(AgentType.CMA, agentConfiguration.type) && {
+      hosts: map(
+        (host) => ({
+          ...host,
+          token: or(isNil(host.token), isEmpty(host.token))
+            ? null
+            : {
+                id: `${host.token?.name}_${host.token?.creatorId}`,
+                ...host.token
+              }
+        }),
+        agentConfiguration.configuration?.hosts || []
+      ),
+      tokens: map(
+        ({ name, creatorId }) => ({
+          creatorId,
+          id: `${name}_${creatorId}`,
+          name
+        }),
+        agentConfiguration.configuration?.tokens || []
+      )
+    })
+  },
+  connectionMode: connectionModes.find(({ id }) =>
+    equals(id, agentConfiguration.connectionMode)
+  ),
   type: agentTypes.find(({ id }) => equals(id, agentConfiguration.type))
 });
 
@@ -28,9 +62,9 @@ export const useGetAgentConfiguration = (
   const enabled = isNotNil(id) && !equals('add', id);
 
   const { data, isLoading } = useFetchQuery({
+    decoder: agentConfigurationDecoder,
     getEndpoint: () => getAgentConfigurationEndpoint(id),
     getQueryKey: () => ['agent-configuration', id],
-    decoder: agentConfigurationDecoder,
     queryOptions: {
       enabled,
       suspense: false

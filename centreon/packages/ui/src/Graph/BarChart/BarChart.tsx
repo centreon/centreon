@@ -1,25 +1,25 @@
-import { useRef } from 'react';
-
 import dayjs from 'dayjs';
 import 'dayjs/locale/en';
 import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/pt';
+
+import { Box } from '@mui/material';
+
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { Provider } from 'jotai';
+import type { ReactElement } from 'react';
+import useResizeObserver from 'use-resize-observer';
 
-import { Box } from '@mui/material';
-
-import { ParentSize } from '../../ParentSize';
+import Loading from '../../LoadingSkeleton';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
-import { LineChartProps } from '../Chart/models';
+import type { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
-import { LineChartData, Thresholds } from '../common/models';
-
+import type { LineChartData, Thresholds } from '../common/models';
+import type { BarStyle } from './models';
 import ResponsiveBarChart from './ResponsiveBarChart';
-import { BarStyle } from './models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -27,7 +27,20 @@ dayjs.extend(timezonePlugin);
 
 export interface BarChartProps
   extends Partial<
-    Pick<LineChartProps, 'tooltip' | 'legend' | 'height' | 'axis' | 'header'>
+    Pick<
+      LineChartProps,
+      | 'tooltip'
+      | 'legend'
+      | 'height'
+      | 'axis'
+      | 'header'
+      | 'min'
+      | 'max'
+      | 'boundariesUnit'
+      | 'timeShiftZones'
+      | 'zoomPreview'
+      | 'annotationEvent'
+    >
   > {
   barStyle?: BarStyle;
   data?: LineChartData;
@@ -48,7 +61,16 @@ const BarChart = ({
   height = 500,
   tooltip,
   axis,
-  legend,
+  legend = {
+    display: true,
+    mode: 'grid',
+    placement: 'bottom',
+    showCalculations: {
+      avg: true,
+      max: true,
+      min: true
+    }
+  },
   loading,
   limitLegend,
   thresholdUnit,
@@ -59,10 +81,16 @@ const BarChart = ({
     opacity: 1,
     radius: 0.2
   },
-  skipIntersectionObserver
-}: BarChartProps): JSX.Element => {
-  const { adjustedData } = useChartData({ data, end, start });
-  const lineChartRef = useRef<HTMLDivElement | null>(null);
+  skipIntersectionObserver,
+  min,
+  max,
+  boundariesUnit,
+  zoomPreview,
+  timeShiftZones,
+  annotationEvent
+}: BarChartProps): ReactElement => {
+  const { adjustedData } = useChartData({ data, end, max, min, start });
+  const { ref, width, height: responsiveHeight } = useResizeObserver();
 
   if (loading && !adjustedData) {
     return (
@@ -73,32 +101,41 @@ const BarChart = ({
     );
   }
 
+  if (!adjustedData) {
+    return <div />;
+  }
+
   return (
     <Provider>
-      <Box
-        ref={lineChartRef}
-        sx={{ height: '100%', overflow: 'hidden', width: '100%' }}
-      >
-        <ParentSize>
-          {({ height: responsiveHeight, width }) => (
-            <ResponsiveBarChart
-              axis={axis}
-              barStyle={barStyle}
-              graphData={adjustedData}
-              graphRef={lineChartRef}
-              header={header}
-              height={height || responsiveHeight}
-              legend={legend}
-              limitLegend={limitLegend}
-              orientation={orientation}
-              thresholdUnit={thresholdUnit}
-              thresholds={thresholds}
-              tooltip={tooltip}
-              width={width}
-              skipIntersectionObserver={skipIntersectionObserver}
-            />
-          )}
-        </ParentSize>
+      <Box ref={ref} sx={{ height: '100%', overflow: 'hidden', width: '100%' }}>
+        {!responsiveHeight ? (
+          <Loading height={height || '100%'} width={width} />
+        ) : (
+          <ResponsiveBarChart
+            annotationEvent={annotationEvent}
+            axis={axis}
+            barStyle={barStyle}
+            boundariesUnit={boundariesUnit}
+            end={end}
+            graphData={adjustedData}
+            graphRef={ref}
+            header={header}
+            height={height || responsiveHeight || 0}
+            legend={legend}
+            limitLegend={limitLegend}
+            max={max}
+            min={min}
+            orientation={orientation}
+            skipIntersectionObserver={skipIntersectionObserver}
+            start={start}
+            thresholds={thresholds}
+            thresholdUnit={thresholdUnit}
+            timeShiftZones={timeShiftZones}
+            tooltip={tooltip}
+            width={width || 0}
+            zoomPreview={zoomPreview}
+          />
+        )}
       </Box>
     </Provider>
   );

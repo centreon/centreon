@@ -1,12 +1,13 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { createNotification, enableNotificationFeature } from '../common';
-import notificationBody from '../../../fixtures/notifications/notification-creation.json';
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
 import data from '../../../fixtures/notifications/data-for-notification.json';
+import notificationBody from '../../../fixtures/notifications/notification-creation.json';
+import { createNotification, enableNotificationFeature } from '../common';
 
 const duplicatedNotificationName = 'Duplicated Notification';
 
@@ -69,11 +70,7 @@ afterEach(() => {
 });
 
 Given('a user with access to the Notification Rules page', () => {
-  cy.navigateTo({
-    page: 'Notifications',
-    rootItemNumber: 3,
-    subMenu: 'Notifications'
-  });
+  cy.visit(PAGES.configuration.cloudNotifications);
 });
 
 Given('a Notification Rule is already created', () => {

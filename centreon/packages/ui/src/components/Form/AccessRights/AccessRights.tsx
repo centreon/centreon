@@ -1,13 +1,12 @@
-import { SelectEntry } from '../../..';
-
+import type { SelectEntry } from '../../..';
 import { useAccessRightsStyles } from './AccessRights.styles';
 import Actions from './Actions/Actions';
 import List from './List/List';
 import ListSkeleton from './List/ListSkeleton';
+import type { AccessRightInitialValues, Endpoints, Labels } from './models';
 import Provider from './Provider';
 import ShareInput from './ShareInput/ShareInput';
 import Stats from './Stats/Stats';
-import { AccessRightInitialValues, Endpoints, Labels } from './models';
 import { useAccessRightsChange } from './useAccessRightsChange';
 import { useAccessRightsInitValues } from './useAccessRightsInitValues';
 

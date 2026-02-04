@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Media\Infrastructure\Repository;
 
@@ -27,11 +27,13 @@ use Assert\AssertionFailedException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Domain\Model\Media;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Psr\Log\LoggerInterface;
-use Traversable;
 
 /**
  * @phpstan-type _Media array{
@@ -43,11 +45,112 @@ use Traversable;
  */
 class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRepositoryInterface
 {
+    use SqlMultipleBindTrait;
     private const MAX_ITEMS_BY_REQUEST = 100;
 
     public function __construct(DatabaseConnection $db, readonly private LoggerInterface $logger)
     {
         $this->db = $db;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByRequestParametersAndAccessGroups(
+        RequestParametersInterface $requestParameters,
+        array $accessGroups,
+    ): \Traversable {
+        try {
+            if ($accessGroups === []) {
+                return new \EmptyIterator();
+            }
+
+            $accessGroupIds = array_map(
+                static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
+                $accessGroups
+            );
+
+            [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':access_group_id');
+
+            $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlTranslator->setConcordanceArray([
+                'id' => 'img_id',
+                'name' => 'img_path',
+                'directory' => 'dir_name',
+            ]);
+            $request = <<<SQL_WRAP
+                SELECT SQL_CALC_FOUND_ROWS
+                    `img`.img_id,
+                    `img`.img_path,
+                    `img`.img_comment,
+                    `dir`.dir_name
+                FROM `:db`.`view_img` img
+                INNER JOIN `:db`.`view_img_dir_relation` rel
+                    ON rel.img_img_id = img.img_id
+                INNER JOIN `:db`.`view_img_dir` dir
+                    ON dir.dir_id = rel.dir_dir_parent_id
+                INNER JOIN `:db`.acl_resources_image_folder_relations amdr
+                    ON amdr.dir_id = dir.dir_id
+                INNER JOIN `:db`.acl_res_group_relations argr
+                    ON argr.acl_res_id = amdr.acl_res_id
+                    AND argr.acl_group_id IN ({$bindQuery})
+                SQL_WRAP;
+
+            $searchRequest = $sqlTranslator->translateSearchParameterToSql();
+            if ($searchRequest !== null) {
+                $request .= $searchRequest;
+            }
+
+            // Handle sort
+            $sortRequest = $sqlTranslator->translateSortParameterToSql();
+            $request .= $sortRequest ?? ' ORDER BY img_id';
+            $request .= $sqlTranslator->translatePaginationToSql();
+            $statement = $this->db->prepare($this->translateDbName($request));
+
+            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+                /** @var int $type */
+                $type = key($data);
+                $value = $data[$type];
+                $statement->bindValue($key, $value, $type);
+            }
+
+            foreach ($bindValues as $bindKey => $bindValue) {
+                $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+            }
+
+            $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $statement->execute();
+
+            $result = $this->db->query('SELECT FOUND_ROWS()');
+
+            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
+                $sqlTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+
+            return new class ($statement, $this->createMedia(...)) implements \IteratorAggregate {
+                public function __construct(
+                    readonly private \PDOStatement $statement,
+                    readonly private \Closure $factory,
+                ) {
+                }
+
+                public function getIterator(): \Traversable
+                {
+                    foreach ($this->statement as $result) {
+                        yield ($this->factory)($result);
+                    }
+                }
+            };
+        } catch (\Exception $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while fetching media by request parameters and access groups.',
+                context: [
+                    'request_parameters' => $requestParameters->toArray(),
+                    'access_groups' => $accessGroupIds,
+                ],
+                previous: $e,
+            );
+        }
     }
 
     /**
@@ -87,6 +190,51 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     /**
      * @inheritDoc
      */
+    public function findByIds(array $mediaIds): array
+    {
+        if ($mediaIds === []) {
+            return [];
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery(
+            $mediaIds,
+            ':mediaId_',
+        );
+
+        $request = <<<SQL
+            SELECT
+                `img`.img_id,
+                `img`.img_path,
+                `img`.img_comment,
+                `dir`.dir_name
+            FROM `:db`.`view_img` img
+            INNER JOIN `:db`.`view_img_dir_relation` rel
+                ON rel.img_img_id = img.img_id
+            INNER JOIN `:db`.`view_img_dir` dir
+                ON dir.dir_id = rel.dir_dir_parent_id
+            WHERE `img`.img_id IN ({$bindQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName($request));
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+
+        $statement->execute();
+
+        $result = [];
+        foreach ($statement as $record) {
+            /** @var _Media $record */
+            $result[$record['img_id']] = $this->createMedia($record);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function existsByPath(string $path): bool
     {
         $pathInfo = pathInfo($path);
@@ -95,16 +243,17 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         }
 
         $statement = $this->db->prepare(
-            $this->translateDbName(<<<'SQL'
-                SELECT 1
-                FROM `:db`.`view_img` img
-                INNER JOIN `:db`.`view_img_dir_relation` rel
-                    ON rel.img_img_id = img.img_id
-                INNER JOIN `:db`.`view_img_dir` dir
-                    ON dir.dir_id = rel.dir_dir_parent_id
-                WHERE img_path = :media_name
-                    AND dir.dir_name = :media_path
-                SQL
+            $this->translateDbName(
+                <<<'SQL'
+                    SELECT 1
+                    FROM `:db`.`view_img` img
+                    INNER JOIN `:db`.`view_img_dir_relation` rel
+                        ON rel.img_img_id = img.img_id
+                    INNER JOIN `:db`.`view_img_dir` dir
+                        ON dir.dir_id = rel.dir_dir_parent_id
+                    WHERE img_path = :media_name
+                        AND dir.dir_name = :media_path
+                    SQL
             )
         );
         $statement->bindValue(':media_name', $pathInfo['basename']);
@@ -120,7 +269,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
      *
      * {@inheritDoc}
      */
-    public function findAll(): Traversable&\Countable
+    public function findAll(): \Traversable&\Countable
     {
         $request = <<<'SQL_WRAP'
             SELECT SQL_CALC_FOUND_ROWS
@@ -144,74 +293,81 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
         $statement->execute();
 
         $result = $this->db->query('SELECT FOUND_ROWS()');
+
+        /** @var int<0,max> $totalItems */
         $totalItems = ($result !== false && ($total = $result->fetchColumn()) !== false)
             ? (int) $total
             : 0;
 
-         return new class(
-             $statement,
-             $index,
-             $totalItems,
-             self::MAX_ITEMS_BY_REQUEST,
-             $this->createMedia(...),
-             $this->logger
-         ) implements \IteratorAggregate, \Countable
-         {
-             /** @var list<Media> */
-             private array $findAllCache = [];
+        return new class (
+            $statement,
+            $index,
+            $totalItems,
+            self::MAX_ITEMS_BY_REQUEST,
+            $this->createMedia(...),
+            $this->logger
+        ) implements \IteratorAggregate, \Countable {
+            /** @var list<Media> */
+            private array $findAllCache = [];
 
-             public function __construct(
-                 private readonly \PDOStatement $statement,
-                 private int &$index,
-                 private readonly int $totalItem,
-                 private readonly int $maxItemByRequest,
-                 private readonly \Closure $factory,
-                 private readonly LoggerInterface $logger,
+            /**
+             * @param int<0, max> $totalItem
+             */
+            public function __construct(
+                private readonly \PDOStatement $statement,
+                private int &$index,
+                private readonly int $totalItem,
+                private readonly int $maxItemByRequest,
+                private readonly \Closure $factory,
+                private readonly LoggerInterface $logger,
             ) {
             }
 
-             public function getIterator(): Traversable
-             {
-                 if ($this->findAllCache !== []) {
-                     foreach ($this->findAllCache as $media) {
-                         yield $media;
-                     }
-                 } else {
-                     $itemCounter = 0;
-                     do {
-                         $this->logger->debug(
-                             sprintf('Loading media from %d/%d', $this->index, $this->maxItemByRequest)
-                         );
-                         foreach ($this->statement as $result) {
-                             $itemCounter++;
+            public function getIterator(): \Traversable
+            {
+                if ($this->findAllCache !== []) {
+                    foreach ($this->findAllCache as $media) {
+                        yield $media;
+                    }
+                } else {
+                    $itemCounter = 0;
+                    do {
+                        $this->logger->debug(
+                            sprintf('Loading media from %d/%d', $this->index, $this->maxItemByRequest)
+                        );
+                        foreach ($this->statement as $result) {
+                            $itemCounter++;
 
-                             $this->findAllCache[] = ($this->factory)($result);
-                         }
-                         $this->index += $this->maxItemByRequest;
-                         $this->statement->execute();
-                     } while ($itemCounter < $this->totalItem);
-                     foreach ($this->findAllCache as $media) {
-                         yield $media;
-                     }
-                 }
-             }
+                            $this->findAllCache[] = ($this->factory)($result);
+                        }
+                        $this->index += $this->maxItemByRequest;
+                        $this->statement->execute();
+                    } while ($itemCounter < $this->totalItem);
+                    foreach ($this->findAllCache as $media) {
+                        yield $media;
+                    }
+                }
+            }
 
-             public function count(): int
-             {
-                 return $this->totalItem;
-             }
-         };
+            /**
+             * @return int<0, max>
+             */
+            public function count(): int
+            {
+                return $this->totalItem;
+            }
+        };
     }
 
     /**
      * @inheritDoc
      */
-    public function findByRequestParameters(RequestParametersInterface $requestParameters): Traversable
+    public function findByRequestParameters(RequestParametersInterface $requestParameters): \Traversable
     {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
             'id' => 'img_id',
-            'filename' => 'img_path',
+            'name' => 'img_path',
             'directory' => 'dir_name',
         ]);
         $request = <<<'SQL_WRAP'
@@ -251,14 +407,14 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
             $sqlTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
-        return new class($statement, $this->createMedia(...)) implements \IteratorAggregate {
+        return new class ($statement, $this->createMedia(...)) implements \IteratorAggregate {
             public function __construct(
                 readonly private \PDOStatement $statement,
                 readonly private \Closure $factory,
             ) {
             }
 
-            public function getIterator(): Traversable
+            public function getIterator(): \Traversable
             {
                 foreach ($this->statement as $result) {
                     yield ($this->factory)($result);

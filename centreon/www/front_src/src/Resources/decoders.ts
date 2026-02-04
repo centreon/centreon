@@ -155,6 +155,18 @@ const resourceDecoder = JsonDecoder.object<Resource>(
   'Resource'
 );
 
+export const metricsResourceDecoder = JsonDecoder.object<
+  Omit<Resource, 'uuid'>
+>(
+  {
+    ...commonDecoders,
+    parent: JsonDecoder.optional(
+      JsonDecoder.object<Parent>(commonDecoders, 'ResourceParent')
+    )
+  },
+  'Resource'
+);
+
 const acknowledgementDecoder = JsonDecoder.object<AcknowledgementDetails>(
   {
     author_id: JsonDecoder.number,
@@ -201,7 +213,12 @@ const downtimeDecoder = JsonDecoder.object<Downtime>(
 
 const groupDecoder = JsonDecoder.object<Group>(
   {
-    configuration_uri: JsonDecoder.nullable(JsonDecoder.string),
+    configuration_endpoint: JsonDecoder.optional(
+      JsonDecoder.nullable(JsonDecoder.string)
+    ),
+    configuration_uri: JsonDecoder.optional(
+      JsonDecoder.nullable(JsonDecoder.string)
+    ),
     ...namedEntityDecoder
   },
   'group'

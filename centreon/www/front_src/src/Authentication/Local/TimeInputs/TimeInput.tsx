@@ -1,16 +1,14 @@
-import { useCallback, useMemo } from 'react';
-
-import dayjs from 'dayjs';
-import { path, and, equals, gt, subtract } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { SelectChangeEvent, Typography } from '@mui/material';
 
 import { SelectField, useMemoComponent } from '@centreon/ui';
 
-import { Unit } from '../models';
+import dayjs from 'dayjs';
+import { and, equals, gt, path, subtract } from 'ramda';
+import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
+import { Unit } from '../models';
 import {
   getDaysOptions,
   getHoursOptions,
@@ -161,15 +159,17 @@ const TimeInput = ({
       <div className={classes.timeInput}>
         <SelectField
           dataTestId={`${inputLabel} ${name}`}
-          inputProps={{
-            'aria-label': `${t(inputLabel)} ${t(label)}`,
-            'data-testid': dataTestId
-          }}
           name={name}
+          onChange={changeInput}
           options={getTimeOptions[unit]({ max: maxOption, min: minOption })}
           required={required}
           selectedOptionId={inputValue}
-          onChange={changeInput}
+          slotProps={{
+            input: {
+              'aria-label': `${t(inputLabel)} ${t(label)}`,
+              'data-testid': dataTestId
+            }
+          }}
         />
         <Typography>{t(label)}</Typography>
       </div>

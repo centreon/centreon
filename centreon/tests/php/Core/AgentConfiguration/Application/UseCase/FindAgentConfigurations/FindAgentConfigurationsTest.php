@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ namespace Tests\Core\AgentConfiguration\Application\UseCase\FindAgentConfigurati
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\AgentConfiguration\Domain\Model\Type;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\AgentConfigurationDto;
@@ -34,7 +33,9 @@ use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\FindAgen
 use Core\AgentConfiguration\Application\UseCase\FindAgentConfigurations\PollerDto;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\TelegrafConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Poller;
+use Core\AgentConfiguration\Domain\Model\Type;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -50,7 +51,7 @@ beforeEach(function (): void {
     );
 });
 
-it('should present a Forbidden Response when user does not have topology role', function () {
+it('should present a Forbidden Response when user does not have topology role', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -64,7 +65,7 @@ it('should present a Forbidden Response when user does not have topology role', 
         ->toBe(AgentConfigurationException::accessNotAllowed()->getMessage());
 });
 
-it('should retrieve agent configurations without calculating ACL for an admin', function () {
+it('should retrieve agent configurations without calculating ACL for an admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -82,7 +83,7 @@ it('should retrieve agent configurations without calculating ACL for an admin', 
     ($this->useCase)($this->presenter);
 });
 
-it('should retrieve agent configurations without calculating ACL for a non admin', function () {
+it('should retrieve agent configurations without calculating ACL for a non admin', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -100,7 +101,7 @@ it('should retrieve agent configurations without calculating ACL for a non admin
     ($this->useCase)($this->presenter);
 });
 
-it('should present an ErrorResponse when a generic exception is thrown', function () {
+it('should present an ErrorResponse when a generic exception is thrown', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -124,41 +125,47 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->toBe(AgentConfigurationException::errorWhileRetrievingObjects()->getMessage());
 });
 
-it('should present a FindAgentConfigurationsResponse when no errors occurred', function () {
+it('should present a FindAgentConfigurationsResponse when no errors occurred', function (): void {
     $acOne = new AgentConfiguration(
         id: 1,
         name: 'acOne',
         type: Type::TELEGRAF,
-        configuration: new TelegrafConfigurationParameters([
-            'otel_server_address' => '10.10.10.10',
-            'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
-            'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
-        ])
+        connectionMode: ConnectionModeEnum::SECURE,
+        configuration: new TelegrafConfigurationParameters(
+            [
+                'otel_server_address' => '10.10.10.10',
+                'otel_server_port' => 453,
+                'otel_public_certificate' => 'public_certif',
+                'otel_ca_certificate' => 'ca_certif',
+                'otel_private_key' => 'otel-key',
+                'conf_server_port' => 454,
+                'conf_certificate' => 'conf-certif',
+                'conf_private_key' => 'conf-key',
+            ]
+        )
     );
 
     $acTwo = new AgentConfiguration(
         id: 2,
         name: 'acTwo',
         type: Type::TELEGRAF,
-        configuration: new TelegrafConfigurationParameters([
-            'otel_server_address' => '10.10.10.11',
-            'otel_server_port' => 453,
-            'otel_public_certificate' => 'public_certif',
-            'otel_ca_certificate' => 'ca_certif',
-            'otel_private_key' => 'otel-key',
-            'conf_server_port' => 454,
-            'conf_certificate' => 'conf-certif',
-            'conf_private_key' => 'conf-key'
-        ])
+        connectionMode: ConnectionModeEnum::SECURE,
+        configuration: new TelegrafConfigurationParameters(
+            [
+                'otel_server_address' => '10.10.10.11',
+                'otel_server_port' => 453,
+                'otel_public_certificate' => 'public_certif',
+                'otel_ca_certificate' => 'ca_certif',
+                'otel_private_key' => 'otel-key',
+                'conf_server_port' => 454,
+                'conf_certificate' => 'conf-certif',
+                'conf_private_key' => 'conf-key',
+            ]
+        )
     );
 
-    $pollerOne = new Poller(1, 'poller_1');
-    $pollerTwo = new Poller(2, 'poller_2');
+    $pollerOne = new Poller(1, 'poller_1', true);
+    $pollerTwo = new Poller(2, 'poller_2', false);
 
     $this->user
         ->expects($this->once())
@@ -187,9 +194,9 @@ it('should present a FindAgentConfigurationsResponse when no errors occurred', f
 
     ($this->useCase)($this->presenter);
 
-    expect($this->presenter->data)
+    expect(value: $this->presenter->data)
         ->toBeInstanceOf(FindAgentConfigurationsResponse::class)
-        ->and($this->presenter->data->agentConfigurations)
+        ->and(value: $this->presenter->data->agentConfigurations)
         ->toBeArray()
         ->and($this->presenter->data->agentConfigurations[0])
         ->toBeInstanceOf(AgentConfigurationDto::class)

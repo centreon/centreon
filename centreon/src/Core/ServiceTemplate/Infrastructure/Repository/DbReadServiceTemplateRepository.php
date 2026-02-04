@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,7 +188,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
     public function findByIdAndAccessGroups(int $serviceTemplateId, array $accessGroups): ?ServiceTemplate
     {
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
         $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
@@ -301,6 +301,8 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $request = $this->findServiceTemplatesRequest();
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
+        $sqlConcatenator->appendGroupBy('service.service_id, esi.esi_action_url, esi.esi_icon_image, esi.esi_icon_image_alt, esi.esi_notes, esi.esi_notes_url, esi.graph_id');
+        $sqlConcatenator->appendWhere("service_register = '0'");
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -325,18 +327,21 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
-         if ($accessGroups === []) {
+        if ($accessGroups === []) {
             $this->debug('No access group for this user, return empty');
 
             return [];
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
+
+        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
+
         $this->info('Searching for service templates');
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(RequestParameters::CONCORDANCE_MODE_STRICT);
@@ -349,9 +354,14 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         $sqlTranslator->addNormalizer('is_locked', new BoolToEnumNormalizer());
 
         $serviceTemplates = [];
-        $request = $this->findServiceTemplatesRequest($accessGroupIds);
+        $request = $this->findServiceTemplatesRequest();
         $sqlConcatenator = new SqlConcatenator();
         $sqlConcatenator->defineSelect($request);
+        $sqlConcatenator->appendGroupBy('service.service_id, esi.esi_action_url, esi.esi_icon_image, esi.esi_icon_image_alt, esi.esi_notes, esi.esi_notes_url, esi.graph_id');
+        if (! empty($subRequest)) {
+            $sqlConcatenator->appendWhere('scr.sc_id IN (' . $subRequest . ')');
+        }
+        $sqlConcatenator->appendWhere("service_register = '0'");
         $sqlTranslator->translateForConcatenator($sqlConcatenator);
         $sql = $sqlConcatenator->__toString();
         $statement = $this->db->prepare($this->translateDbName($sql));
@@ -381,12 +391,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function exists(int $serviceTemplateId): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.service
-            WHERE service_id = :id
-                AND service_register = '0'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.service
+                WHERE service_id = :id
+                    AND service_register = '0'
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':id', $serviceTemplateId, \PDO::PARAM_INT);
@@ -400,12 +411,13 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     public function existsByName(TrimmedString $serviceTemplateName): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.service
-            WHERE service_description = :name
-                AND service_register = '0'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.service
+                WHERE service_description = :name
+                    AND service_register = '0'
+                SQL
         );
         $statement = $this->db->prepare($request);
         $statement->bindValue(':name', (string) $serviceTemplateName);
@@ -621,7 +633,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
         return match ($value) {
             '0' => YesNoDefault::No,
             '1' => YesNoDefault::Yes,
-            default => YesNoDefault::Default
+            default => YesNoDefault::Default,
         };
     }
 
@@ -648,7 +660,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
                 'f' => NotificationType::Flapping,
                 's' => NotificationType::DowntimeScheduled,
                 'n' => NotificationType::None,
-                default => throw new \Exception("Notification type '{$type}' unknown")
+                default => throw new \Exception("Notification type '{$type}' unknown"),
             };
         }
 
@@ -662,14 +674,7 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
      */
     private function findServiceTemplatesRequest(array $accessGroupIds = []): string
     {
-        $subRequest = $this->generateServiceCategoryAclSubRequest($accessGroupIds);
-        $categoryAcls = empty($subRequest)
-             ? ''
-             : <<<SQL
-                 AND scr.sc_id IN ({$subRequest})
-                 SQL;
-
-        return <<<SQL
+        return <<<'SQL'
             SELECT service_id,
                    service.cg_additive_inheritance,
                    service.contact_additive_inheritance,
@@ -723,15 +728,6 @@ class DbReadServiceTemplateRepository extends AbstractRepositoryRDB implements R
             LEFT JOIN `:db`.host
                 ON host.host_id = hsr.host_host_id
                 AND host.host_register = '0'
-            WHERE service_register = '0'
-                {$categoryAcls}
-            GROUP BY service.service_id,
-                esi.esi_action_url,
-                esi.esi_icon_image,
-                esi.esi_icon_image_alt,
-                esi.esi_notes,
-                esi.esi_notes_url,
-                esi.graph_id
             SQL;
     }
 }

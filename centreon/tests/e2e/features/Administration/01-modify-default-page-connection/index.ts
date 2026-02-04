@@ -1,5 +1,5 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -30,11 +30,7 @@ Given('an admin user is logged in a Centreon server', () => {
 Given(
   'the user replaced the default page connection with Home > Dashboards',
   () => {
-    cy.navigateTo({
-      page: 'My Account',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    });
+    cy.visit(PAGES.configuration.accountParametersLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="contact_name"]');
     cy.getIframeBody()
@@ -68,11 +64,7 @@ Given('an non-admin user is logged in a Centreon server', () => {
 });
 
 Given('the user has access to all menus', () => {
-  cy.navigateTo({
-    page: 'Menus Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclMenusAccessLegacy);
   cy.getIframeBody().contains('a', 'name-non-admin-ACLMENU').click();
   cy.wait('@getTimeZone');
   cy.waitForElementInIframe('#main-content', 'input[name="acl_topo_name"]');
@@ -85,11 +77,7 @@ Given('the user has access to all menus', () => {
 Given(
   'the user replaced the default page connection with Configuration > Hosts',
   () => {
-    cy.navigateTo({
-      page: 'My Account',
-      rootItemNumber: 4,
-      subMenu: 'Parameters'
-    });
+    cy.visit(PAGES.configuration.accountParametersLegacy);
     cy.wait('@getTimeZone');
     cy.waitForElementInIframe('#main-content', 'input[name="contact_name"]');
     cy.getIframeBody()

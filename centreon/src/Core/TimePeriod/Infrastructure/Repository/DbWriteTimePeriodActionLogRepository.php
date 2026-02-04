@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
         private readonly ReadTimePeriodRepositoryInterface $readTimePeriodRepository,
         private readonly ContactInterface $contact,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -177,7 +177,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                             5 => 'friday',
                             6 => 'saturday',
                             7 => 'sunday',
-                            default => throw new RepositoryException('Should never happen')
+                            default => throw new RepositoryException('Should never happen'),
                         };
                         $days[$dayAsString] = $day->getTimeRange()->__toString();
                     }
@@ -195,7 +195,7 @@ class DbWriteTimePeriodActionLogRepository extends AbstractRepositoryRDB impleme
                     $value = implode(
                         ',',
                         array_map(
-                            fn(Template $tpl) => $tpl->getId(),
+                            fn (Template $tpl) => $tpl->getId(),
                             $value
                         )
                     );

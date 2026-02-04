@@ -1,5 +1,5 @@
 import { equals, isNil, startsWith } from 'ramda';
-import { JsonDecoder } from 'ts.data.json';
+import type { JsonDecoder } from 'ts.data.json';
 
 import { Method } from './useMutationQuery';
 
@@ -91,15 +91,6 @@ export const customFetch = <T>({
               additionalInformation: data,
               isError: true,
               message: data.message || defaultFailureMessage,
-              statusCode: response.status
-            };
-          }
-
-          if (equals(response.status, 207)) {
-            return {
-              data: data.results,
-              isError: false,
-              message: '',
               statusCode: response.status
             };
           }

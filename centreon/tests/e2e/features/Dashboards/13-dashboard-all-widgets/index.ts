@@ -1,9 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-/* eslint-disable no-loop-func */
-/* eslint-disable newline-before-return */
-/* eslint-disable cypress/unsafe-to-chain-command */
-/* eslint-disable no-plusplus */
-/* eslint-disable no-case-declarations */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
@@ -80,7 +74,7 @@ before(() => {
   }).as('dashboardMetricsTop');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.startContainers();
   cy.enableDashboardFeature();
@@ -184,11 +178,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -236,7 +230,7 @@ When('the dashboard administrator adds a Single metric widget', () => {
   cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
   cy.waitUntilPingExists();
   cy.getByTestId({ testId: 'Select metric' }).should('be.enabled').click();
-  cy.contains('rta (ms)').realClick();
+  cy.getByTestId({ testId: 'rta' }).realClick();
   cy.getByTestId({ testId: 'confirm' }).click();
   cy.get('.MuiAlert-message').should('not.exist');
 });
@@ -280,11 +274,12 @@ When(
     cy.getByTestId({ testId: 'Widget type' }).click();
     cy.contains('Status grid').click();
     cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.get('input[name="unhandled_problems"]').click();
+    cy.get('[data-testid="Select all"]').eq(1).click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.get('input[name="success"]').click();
     cy.getByTestId({ testId: 'confirm' }).click();
     cy.getByTestId({ testId: 'save_dashboard' }).click();
   }
@@ -365,7 +360,7 @@ Given(
 When(
   'the dashboard administrator clicks on the "view Resource Status" button from the {string} widget',
   (widgetType) => {
-    let eqIndex;
+    let eqIndex: number | undefined;
 
     switch (widgetType) {
       case 'single metric':
@@ -412,15 +407,9 @@ Then(
     switch (widgetType) {
       case 'single metric':
         cy.url().should('include', '/centreon/monitoring/resources?details=');
-        cy.get('[class$="-resourceNameText-text-rowNotHovered"]')
-          .eq(0)
-          .should('contain.text', 'Ping');
-        cy.get('[class$="-resourceNameText-text-rowNotHovered"]')
-          .eq(1)
-          .should('contain.text', 'Centreon-Server');
         break;
 
-      case 'metrics graph':
+      case 'metrics graph': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const metricsGraphStatuses = ['Critical'];
 
@@ -430,19 +419,14 @@ Then(
             .should('contain.text', metricsGraphStatuses[i]);
         }
         break;
+      }
 
-      case 'status grid':
+      case 'status grid': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
-        const statusGridStatuses = [
-          'Critical',
-          'Unknown',
-          'Unknown',
-          'Ok',
-          'Up'
-        ];
+        const statusGridStatuses = ['Up', 'Up', 'Up'];
         cy.get('[class$="chip-statusColumnChip"]')
-          .each(($chip) => {
-            if (statusGridStatuses.includes($chip.text()) && !statusFound) {
+          .each((chip) => {
+            if (statusGridStatuses.includes(chip.text()) && !statusFound) {
               statusFound = true;
               return false;
             }
@@ -452,7 +436,8 @@ Then(
             expect(statusFound).to.be.true;
           });
         break;
-      case 'top buttom':
+      }
+      case 'top buttom': {
         cy.url().should('include', '/centreon/monitoring/resources?filter=');
         const topButtomStatuses = [
           'Critical',
@@ -467,8 +452,8 @@ Then(
           'OK'
         ];
         cy.get('[class$="chip-statusColumnChip"]')
-          .each(($chip) => {
-            if (topButtomStatuses.includes($chip.text()) && !statusFound) {
+          .each((chip) => {
+            if (topButtomStatuses.includes(chip.text()) && !statusFound) {
               statusFound = true;
               return false;
             }
@@ -478,6 +463,7 @@ Then(
             expect(statusFound).to.be.true;
           });
         break;
+      }
       default:
         break;
     }

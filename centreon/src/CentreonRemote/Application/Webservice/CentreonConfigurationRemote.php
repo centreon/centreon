@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -371,6 +371,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      */
     public function postLinkCentreonRemoteServer(): array
     {
+        global $pearDB;
         // retrieve post values to be used in other classes
         $_POST = json_decode(file_get_contents('php://input'), true);
 
@@ -542,6 +543,15 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
             ]);
         }
 
+        // Update session to reload ACL
+        $sid = session_id();
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                UPDATE session SET update_acl = '1' WHERE session_id = :sessionId
+                SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['sessionId' => $sid]);
+
         return ['success' => true, 'task_id' => $taskId];
     }
 
@@ -581,7 +591,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         string $httpMethod,
         string $httpPort,
         bool $noCheckCertificate,
-        bool $noProxy
+        bool $noProxy,
     ): void {
         $currentDate = date('Y-m-d H:i:s');
 

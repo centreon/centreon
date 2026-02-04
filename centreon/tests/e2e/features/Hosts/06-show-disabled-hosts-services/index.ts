@@ -1,6 +1,6 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { checkHostsAreMonitored, checkServicesAreMonitored } from 'e2e/commons';
+import { checkHostsAreMonitored, checkServicesAreMonitored } from 'commons';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const services = {
   serviceOk: { host: 'host2', name: 'service_test_ok', template: 'Ping-LAN' }
@@ -48,22 +48,14 @@ Given('a host with configured services', () => {
 });
 
 Given('the host is disabled', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('img[alt="Disabled"]').eq(1).click();
   cy.exportConfig();
 });
 
 When('the user visit the menu of services configuration', () => {
-  cy.navigateTo({
-    page: 'Services by host',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesByHostLegacy);
   cy.wait('@getTimeZone');
 });
 

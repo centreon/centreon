@@ -1,9 +1,10 @@
 import { equals, props } from 'ramda';
 import { memo, useMemo } from 'react';
+
 import { useGraphAndLegendStyles } from './BarStack.styles';
-import Graph from './Graph';
 import { gap, legendMaxHeight, legendMaxWidth } from './constants';
-import { BarStackProps } from './models';
+import Graph from './Graph';
+import type { BarStackProps } from './models';
 
 interface Props
   extends Pick<
@@ -73,17 +74,17 @@ const GraphAndLegend = ({
       style={{ height }}
     >
       <Graph
-        isVerticalBar={isVerticalBar}
-        data={data}
-        width={graphWidth}
-        height={graphHeight}
         colorScale={colorScale}
-        unit={unit}
-        total={total}
+        data={data}
         displayValues={displayValues}
+        height={graphHeight}
+        isVerticalBar={isVerticalBar}
         onSingleBarClick={onSingleBarClick}
-        tooltipProps={tooltipProps}
         TooltipContent={TooltipContent}
+        tooltipProps={tooltipProps}
+        total={total}
+        unit={unit}
+        width={graphWidth}
       />
       {mustDisplayLegend && (
         <div

@@ -227,27 +227,19 @@ contents:
       group: "centreon"
       mode: 0755
 
+  - src: "../bin/console.new"
+    dst: "/usr/share/centreon/bin/console.new"
+    file_info:
+      owner: "centreon"
+      group: "centreon"
+      mode: 0755
+
   - src: "../bin/migration"
     dst: "/usr/share/centreon/bin/migration"
     file_info:
       owner: "centreon"
       group: "centreon"
       mode: 0755
-
-  - src: "../composer.json"
-    dst: "/usr/share/centreon/composer.json"
-    file_info:
-      mode: 0664
-
-  - src: "../composer.lock"
-    dst: "/usr/share/centreon/composer.lock"
-    file_info:
-      mode: 0664
-
-  - src: "../symfony.lock"
-    dst: "/usr/share/centreon/symfony.lock"
-    file_info:
-      mode: 0664
 
   - src: "../bootstrap.php"
     dst: "/usr/share/centreon/bootstrap.php"
@@ -266,6 +258,11 @@ contents:
 
   - src: "../config"
     dst: "/usr/share/centreon/config"
+    file_info:
+      mode: 0664
+
+  - src: "../config.new"
+    dst: "/usr/share/centreon/config.new"
     file_info:
       mode: 0664
 
@@ -427,7 +424,8 @@ overrides:
     depends:
       - centreon-common >= ${MAJOR_VERSION}
       - centreon-common < ${NEXT_MAJOR_VERSION}
-      - centreon-perl-libs
+      - centreon-perl-libs >= ${MAJOR_VERSION}
+      - centreon-perl-libs < ${NEXT_MAJOR_VERSION}
       - centreon-poller = ${VERSION}-${RELEASE}${DIST}
       - centreon-broker-cbd >= ${MAJOR_VERSION}
       - centreon-broker-cbd < ${NEXT_MAJOR_VERSION}
@@ -452,10 +450,12 @@ overrides:
       - php-zip
       - php-pear
       - php-json
+      - php-process
       - openssl
       - perl-DBD-MySQL
       - perl-DBI
       - perl-HTML-Parser
+      - perl(File::Which)
       - perl(Net::SNMP)
       - rrdtool
       - rrdtool-perl
@@ -509,36 +509,23 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
   deb:
     depends:
       - "centreon-common (>= ${MAJOR_VERSION}~)"
       - "centreon-common (<< ${NEXT_MAJOR_VERSION}~)"
-      - centreon-perl-libs
+      - "centreon-perl-libs (>= ${MAJOR_VERSION}~)"
+      - "centreon-perl-libs (<< ${NEXT_MAJOR_VERSION}~)"
       - centreon-poller (= ${VERSION}-${RELEASE}${DIST})
       - "centreon-broker-cbd (>= ${MAJOR_VERSION}~)"
       - "centreon-broker-cbd (<< ${NEXT_MAJOR_VERSION}~)"
+      - libfile-which-perl
       - lsb-release
       - "mariadb-client | mysql-client"
       - cron
       - apache2
-      - php8.2
-      - php8.2-cli
-      - php8.2-fpm
-      - php8.2-curl
-      - php8.2-intl
-      - php8.2-xml
-      - php8.2-dom
-      - php8.2-gd
-      - php8.2-mbstring
-      - php8.2-xml
-      - php8.2-mysql
-      - php8.2-zip
-      - php8.2-snmp
-      - php8.2-ldap
-      - php8.2-readline
-      - php8.2-sqlite3
-      - php-pear
       - rrdtool
       - locales
       - gettext
@@ -596,13 +583,35 @@ overrides:
       - centreon-widget-servicegroup-monitoring
       - centreon-widget-single-metric
       - centreon-widget-tactical-overview
+    recommends:
+      - logrotate
 
 rpm:
   summary: Centreon WebUI
   compression: zstd
+  scripts:
+    posttrans: ./scripts/centreon-web-posttrans.sh
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
 
 deb:
   compression: zstd
+  predepends:
+    - php8.2
+    - php8.2-cli
+    - php8.2-fpm
+    - php8.2-curl
+    - php8.2-intl
+    - php8.2-xml
+    - php8.2-dom
+    - php8.2-gd
+    - php8.2-mbstring
+    - php8.2-xml
+    - php8.2-mysql
+    - php8.2-zip
+    - php8.2-snmp
+    - php8.2-ldap
+    - php8.2-readline
+    - php8.2-sqlite3
+    - php-pear

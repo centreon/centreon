@@ -25,6 +25,18 @@ properties:
     minimum: 1
     nullable: true
     example: null
+  check_command_id:
+    type: integer
+    description: "Check command ID."
+    minimum: 1
+    nullable: true
+    example: null
+  check_command_args:
+    type: array
+    items:
+      type: string
+      description: "Arguments of the check command."
+    example: ["80", "90"]
   max_check_attempts:
     type: integer
     description: "Define the number of times that the monitoring engine will retry the service check command if it returns any non-OK state."
@@ -78,14 +90,14 @@ properties:
     example: true
   service_categories:
     type: array
-    descriptions: "IDs of service categories linked to this service."
+    description: "IDs of service categories linked to this service."
     items:
       type: integer
       description: "Service category ID"
     example: [ 1, 2 ]
   service_groups:
     type: array
-    descriptions: "IDs of service groups linked to this service."
+    description: "IDs of service groups linked to this service."
     items:
       type: integer
       description: "Service group ID"

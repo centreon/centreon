@@ -1,23 +1,31 @@
-import { equals, isEmpty, isNil, pick } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Autocomplete,
-  AutocompleteProps,
+  type AutocompleteProps,
   CircularProgress,
   InputAdornment,
-  InputProps,
+  type InputProps,
   useTheme
 } from '@mui/material';
-import { AutocompleteSlotsAndSlotProps } from '@mui/material/Autocomplete';
-import { TextFieldSlotsAndSlotProps } from '@mui/material/TextField';
-import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
+import type {
+  AutocompleteRenderOptionState,
+  AutocompleteSlotsAndSlotProps
+} from '@mui/material/Autocomplete';
+import type { TextFieldSlotsAndSlotProps } from '@mui/material/TextField';
+import type { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
-import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
-import { SelectEntry } from '..';
+import { equals, isEmpty, isNil, pick } from 'ramda';
+import {
+  type ForwardedRef,
+  forwardRef,
+  type HTMLAttributes,
+  type ReactElement
+} from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { getNormalizedId } from '../../../utils';
 import TextField from '../../Text';
 import { labelClear, labelOpen, searchLabel } from '../../translatedLabels';
+import type { SelectEntry } from '..';
 import Option from '../Option';
 import { useAutoCompleteStyles } from './autoComplete.styles';
 
@@ -33,6 +41,11 @@ export type Props = {
   error?: string;
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
+  renderOption?: (
+    renderProps: HTMLAttributes<HTMLLIElement>,
+    option: SelectEntry,
+    state: AutocompleteRenderOptionState
+  ) => ReactElement;
   label: string;
   loading?: boolean;
   onTextChange?;
@@ -52,7 +65,7 @@ export type Props = {
 > &
   UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
 
-const LoadingIndicator = (): JSX.Element => {
+const LoadingIndicator = (): ReactElement => {
   const { classes } = useAutoCompleteStyles({});
 
   return (
@@ -90,10 +103,11 @@ const AutocompleteField = forwardRef(
       forceInputRenderValue = false,
       textFieldSlotsAndSlotProps,
       autocompleteSlotsAndSlotProps,
+      renderOption,
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
-  ): JSX.Element => {
+  ): ReactElement => {
     const { classes, cx } = useAutoCompleteStyles({ hideInput });
     const { t } = useTranslation();
     const theme = useTheme();
@@ -107,7 +121,24 @@ const AutocompleteField = forwardRef(
       );
     };
 
-    const renderInput = (params): JSX.Element => {
+    const renderOptions = renderOption
+      ? renderOption
+      : (props, option): ReactElement => {
+          return (
+            <li
+              className={classes.options}
+              {...(props as HTMLAttributes<HTMLLIElement>)}
+            >
+              <Option
+                thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
+              >
+                {getOptionItemLabel(option)}
+              </Option>
+            </li>
+          );
+        };
+
+    const renderInput = (params): ReactElement => {
       return (
         <TextField
           {...params}
@@ -121,17 +152,24 @@ const AutocompleteField = forwardRef(
           error={error}
           externalValueForAutoSize={autocompleteProps?.value?.name}
           label={label}
+          onChange={onTextChange}
           placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
           required={required}
-          value={
-            inputValue ||
-            (forceInputRenderValue
-              ? getOptionItemLabel(autocompleteProps?.value || undefined)
-              : undefined) ||
-            undefined
-          }
-          onChange={onTextChange}
           slotProps={{
+            htmlInput: {
+              ...params.inputProps,
+              'aria-label': label,
+              'data-testid': dataTestId || label,
+              id: getNormalizedId(label || ''),
+              ...(forceInputRenderValue
+                ? {
+                    value: getOptionItemLabel(
+                      autocompleteProps?.value || undefined
+                    )
+                  }
+                : {}),
+              ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+            },
             input: {
               ...params.InputProps,
               endAdornment: (
@@ -160,29 +198,21 @@ const AutocompleteField = forwardRef(
                 marginDense: classes.inputLabel,
                 shrink: classes.inputLabelShrink
               }
-            },
-            htmlInput: {
-              ...params.inputProps,
-              'aria-label': label,
-              'data-testid': dataTestId || label,
-              id: getNormalizedId(label || ''),
-              ...(forceInputRenderValue
-                ? {
-                    value: getOptionItemLabel(
-                      autocompleteProps?.value || undefined
-                    )
-                  }
-                : {}),
-              ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
             }
           }}
+          value={
+            inputValue ||
+            (forceInputRenderValue
+              ? getOptionItemLabel(autocompleteProps?.value || undefined)
+              : undefined) ||
+            undefined
+          }
         />
       );
     };
 
     return (
       <Autocomplete
-        disableClearable
         classes={{
           groupLabel: classes.inputLabel,
           inputRoot: cx([
@@ -192,6 +222,7 @@ const AutocompleteField = forwardRef(
           popper: classes.popper,
           root: classes.textfield
         }}
+        disableClearable
         forcePopupIcon={displayPopupIcon}
         getOptionLabel={(option): string =>
           (option as SelectEntry)?.name?.toString() || ''
@@ -202,20 +233,7 @@ const AutocompleteField = forwardRef(
         options={options}
         ref={ref}
         renderInput={renderInput}
-        renderOption={(props, option): JSX.Element => {
-          return (
-            <li
-              className={classes.options}
-              {...(props as HTMLAttributes<HTMLLIElement>)}
-            >
-              <Option
-                thumbnailUrl={displayOptionThumbnail ? option.url : undefined}
-              >
-                {getOptionItemLabel(option)}
-              </Option>
-            </li>
-          );
-        }}
+        renderOption={renderOptions}
         size="small"
         slotProps={{
           ...autocompleteSlotsAndSlotProps?.slotProps,

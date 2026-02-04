@@ -3,7 +3,7 @@ properties:
   monitoring_server_id:
     type: integer
     description: "ID of the host's monitoring server"
-    exmaple: 1
+    example: 1
   name:
     type: string
     description: "Host name"
@@ -23,7 +23,7 @@ properties:
   snmp_version:
     type: string
     nullable: true
-    enum: [1, 2c, 3]
+    enum: ['1', '2c', '3']
     description: |
       Version of the SNMP agent.
 
@@ -44,6 +44,17 @@ properties:
     description: "Severity ID"
     example: 1
     nullable: true
+  check_command_id:
+    type: integer
+    description: "Check command ID"
+    example: 1
+    nullable: true
+  check_command_args:
+    type: array
+    description: "Check command arguments"
+    items:
+      type: string
+    example: ["0", "OK"]
   check_timeperiod_id:
     type: integer
     description: "Check command timeperiod ID"
@@ -70,6 +81,19 @@ properties:
 
       Once the host has been retried max_check_attempts times without a change in its status,
       it will revert to being scheduled at its "normal" check interval rate.
+  event_handler_enabled:
+    type: integer
+    description: |
+      Indicates whether the event handler is enabled or not
+
+      * `0` - STATUS_DISABLED
+      * `1` - STATUS_ENABLED
+      * `2` - STATUS_DEFAULT (inheritance of its parent's value. If there is no parent, the values used will be that of Centreon Engine)
+  event_handler_command_id:
+    type: integer
+    description: "Event handler command ID"
+    example: 1
+    nullable: true
   note_url:
     type: string
     nullable: true
@@ -124,6 +148,11 @@ properties:
       type: object
       required: ['name', 'value', 'is_password', 'description']
       properties:
+        id:
+          type: integer
+          description: "Macro ID (only for existing macros)"
+          example: 1
+          nullable: true
         name:
           type: string
           description: "Name of the macro"

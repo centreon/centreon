@@ -16,7 +16,7 @@ properties:
   snmp_version:
     type: string
     nullable: true
-    enum: [1, 2c, 3]
+    enum: ['1', '2c', '3']
     description: |
       Version of the SNMP agent.
 
@@ -32,6 +32,17 @@ properties:
     description: "Severity ID"
     example: 1
     nullable: true
+  check_command_id:
+    type: integer
+    description: "Check command ID"
+    example: 1
+    nullable: true
+  check_command_args:
+    type: array
+    description: "Check command arguments"
+    items:
+      type: string
+    example: ["0", "OK"]
   check_timeperiod_id:
     type: integer
     description: "Check command timeperiod ID"
@@ -102,6 +113,11 @@ properties:
       type: object
       required: ['name', 'value', 'is_password', 'description']
       properties:
+        id:
+          type: integer
+          description: "Macro ID (only for existing macros)"
+          example: 1
+          nullable: true
         name:
           type: string
           description: "Name of the macro"

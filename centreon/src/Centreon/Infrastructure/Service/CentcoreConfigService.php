@@ -1,5 +1,24 @@
 <?php
 
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 namespace Centreon\Infrastructure\Service;
 
 /**
@@ -10,12 +29,9 @@ namespace Centreon\Infrastructure\Service;
 class CentcoreConfigService
 {
     public const CONF_WEB = 'instCentWeb.conf';
-
     public const MACROS_DELIMITER_TEMPLATE = '@%s@';
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $macros;
 
     /**
@@ -90,7 +106,6 @@ class CentcoreConfigService
             'centreonbroker_lib' => '/usr/share/centreon/lib/centreon-broker',
             'centreonbroker_varlib' => '/var/lib/centreon-broker',
             'centreonbroker_log' => '/var/log/centreon-broker',
-            'centreonbroker_cbmod' => '/usr/lib64/nagios/cbmod.so',
             'centreonbroker_etc' => '/etc/centreon-broker',
             'centreonplugins' => '/usr/lib/centreon/plugins',
             'centreon_plugins' => '/usr/lib/centreon/plugins',
@@ -106,7 +121,6 @@ class CentcoreConfigService
          * centreonbroker_lib -> nagios_server.centreonbroker_module_path
          * centreonbroker_varlib -> cfg_centreonbroker.cache_directory
          * centreonbroker_log
-         * centreonbroker_cbmod
          * centreonbroker_etc
          * centreonplugins -> cfg_resource.resource_line (resource_name: $CENTREONPLUGINS$)
          * centreon_plugins

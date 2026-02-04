@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ namespace Core\Common\Infrastructure\Repository;
 
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Component\HttpClient\AmpHttpClient;
 use Utility\Interfaces\UUIDGeneratorInterface;
 
 class WriteVaultRepository extends AbstractVaultRepository implements WriteVaultRepositoryInterface
@@ -33,7 +33,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
     public function __construct(
         private readonly UUIDGeneratorInterface $uuidGenerator,
         protected ReadVaultConfigurationRepositoryInterface $configurationRepository,
-        protected HttpClientInterface $httpClient
+        protected AmpHttpClient $httpClient,
     ) {
         parent::__construct($configurationRepository, $httpClient);
     }
@@ -63,7 +63,7 @@ class WriteVaultRepository extends AbstractVaultRepository implements WriteVault
         }
 
         // Delete unwanted data
-        foreach ($deletes as $deleteKey => $deleteValue) {
+        foreach (array_keys($deletes) as $deleteKey) {
             unset($payload[$deleteKey]);
         }
         // Add new data

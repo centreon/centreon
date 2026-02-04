@@ -1,6 +1,6 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { ChartAxis } from '../../Chart/models';
+import type { ChartAxis } from '../../Chart/models';
 
 interface DsData {
   ds_color_area: string;
@@ -9,7 +9,8 @@ interface DsData {
   ds_invert: string | null;
   ds_legend: string | null;
   ds_order: string | null;
-  ds_stack: string | null;
+  ds_stack: string | boolean | null;
+  ds_stack_key?: string | null;
   ds_transparency: number;
 }
 
@@ -20,7 +21,7 @@ export interface Metric {
   critical_low_threshold: number | null;
   data: Array<number | null>;
   displayAs?: 'line' | 'bar';
-  ds_data?: DsData;
+  ds_data: DsData;
   legend: string;
   maximum_value: number | null;
   metric: string;
@@ -29,6 +30,8 @@ export interface Metric {
   unit: string;
   warning_high_threshold: number | null;
   warning_low_threshold: number | null;
+  service_name: string | null;
+  host_name: string | null;
 }
 
 type TimeSeries = { timeTick: string };
@@ -54,6 +57,7 @@ export interface Line {
   minimum_value: number | null;
   name: string;
   stackOrder: number | null;
+  stackKey: string | null;
   transparency: number;
   unit: string;
 }

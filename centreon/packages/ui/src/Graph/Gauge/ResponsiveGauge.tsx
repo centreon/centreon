@@ -1,27 +1,26 @@
-import { useRef } from 'react';
+import { Box, useTheme } from '@mui/material';
 
 import { Group } from '@visx/group';
 import { Tooltip } from '@visx/visx';
 import { flatten, head, pluck } from 'ramda';
-
-import { Box, useTheme } from '@mui/material';
+import { useRef } from 'react';
 
 import { Tooltip as MuiTooltip } from '../../components/Tooltip';
 import { margins } from '../common/margins';
 import { formatMetricValueWithUnit } from '../common/timeSeries';
-import { Metric } from '../common/timeSeries/models';
+import type { Metric } from '../common/timeSeries/models';
 import { useTooltipStyles } from '../common/useTooltipStyles';
 import { getColorFromDataAndTresholds } from '../common/utils';
-
+import type { GaugeProps } from './models';
 import PieData from './PieData';
 import Thresholds from './Thresholds';
-import { GaugeProps } from './models';
 
 interface Props extends Pick<GaugeProps, 'thresholds' | 'baseColor'> {
   displayAsRaw?: boolean;
   height: number;
   metric: Metric;
   width: number;
+  max?: number;
 }
 
 const ResponsiveGauge = ({
@@ -30,7 +29,8 @@ const ResponsiveGauge = ({
   thresholds,
   metric,
   displayAsRaw,
-  baseColor
+  baseColor,
+  max
 }: Props): JSX.Element => {
   const { classes } = useTooltipStyles();
   const svgRef = useRef<SVGSVGElement>(null);
@@ -53,11 +53,13 @@ const ResponsiveGauge = ({
         pluck('value', thresholds.critical)
       ])
     : [0];
-  const adaptedMaxValue = Math.max(
-    metric.maximum_value || 0,
-    Math.max(...thresholdValues) * 1.1,
-    head(metric.data) as number
-  );
+  const adaptedMaxValue =
+    max ||
+    Math.max(
+      metric.maximum_value || 0,
+      Math.max(...thresholdValues) * 1.1,
+      head(metric.data) as number
+    );
 
   const pieColor = getColorFromDataAndTresholds({
     baseColor,
@@ -91,6 +93,7 @@ const ResponsiveGauge = ({
         placement="top"
       >
         <svg height={height} ref={svgRef} width={width}>
+          <title>gauge</title>
           <Group
             left={centerX + margins.left}
             top={centerY + margins.top + baseSize / 8}

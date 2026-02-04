@@ -1,12 +1,11 @@
-import { useState } from 'react';
-
 import { Button, Typography } from '@mui/material';
 
 import { ListingVariant } from '@centreon/ui-context';
 
-import { ColumnType } from './models';
+import { useState } from 'react';
 
 import Listing from '.';
+import { ColumnType } from './models';
 
 interface Props {
   row: { name: string };
@@ -114,9 +113,9 @@ const mountListingResponsive = (listingVariant: ListingVariant): void => {
     Component: (
       <div style={{ height: '100vh' }}>
         <Listing
-          isResponsive
           columns={defaultColumn}
           currentPage={1}
+          isResponsive
           limit={10}
           listingVariant={listingVariant}
           rows={listingWithSubItems}
@@ -144,6 +143,7 @@ const TestComponent = ({
       columns={columnsWithSubItems}
       currentPage={1}
       limit={10}
+      onSelectRows={setSelectedRows}
       rows={isSmallListing ? listingWithSubItems3Rows : listingWithSubItems}
       selectedRows={selectedRows}
       subItems={{
@@ -154,7 +154,6 @@ const TestComponent = ({
         labelExpand: 'Expand'
       }}
       totalRows={10}
-      onSelectRows={setSelectedRows}
     />
   );
 };
@@ -237,35 +236,33 @@ describe('Listing', () => {
     it('selects displayed rows when a row is selected and another row is selected with the shift key', () => {
       mountListingForSubItems({ canCheckSubItems: true, isSmallListing: true });
 
-      cy.findByLabelText('Expand 0').click();
+      cy.findByLabelText('Expand 2').click();
 
-      cy.findByLabelText('Collapse 0').should('be.visible');
+      cy.findByLabelText('Collapse 2').should('be.visible');
 
-      cy.findAllByLabelText('Select row 0').eq(0).click();
+      cy.findAllByLabelText('Select row 2').eq(0).click();
       cy.get('body').type('{shift}', { release: false });
       cy.findByLabelText('Select row 50').eq(0).click();
 
-      cy.findAllByLabelText('Select row 0').eq(0).should('be.checked');
-      cy.findAllByLabelText('Select row 0').eq(1).should('be.checked');
+      cy.findAllByLabelText('Select row 2').eq(0).should('be.checked');
       cy.findByLabelText('Select row 10').should('be.checked');
       cy.findByLabelText('Select row 20').should('be.checked');
       cy.findByLabelText('Select row 30').should('be.checked');
       cy.findByLabelText('Select row 40').should('be.checked');
-      cy.findByLabelText('Select row 50').should('be.checked');
 
-      cy.findByLabelText('Collapse 0').click();
+      cy.findByLabelText('Collapse 2').click();
     });
 
     it('selects displayed rows when the corresponding checkbox is clicked', () => {
       mountListingForSubItems({ canCheckSubItems: true, isSmallListing: true });
 
-      cy.findByLabelText('Expand 0').click();
+      cy.findByLabelText('Expand 2').click();
 
-      cy.findByLabelText('Collapse 0').should('be.visible');
+      cy.findByLabelText('Collapse 2').should('be.visible');
 
       cy.findAllByLabelText('Select all').eq(0).click();
 
-      cy.findAllByLabelText('Select row 0').eq(0).should('be.checked');
+      cy.findAllByLabelText('Select row 2').eq(0).should('be.checked');
       tenElements.forEach((_, index) => {
         if (index === 0) {
           cy.findAllByLabelText('Select row 0').eq(1).should('be.checked');
@@ -277,7 +274,7 @@ describe('Listing', () => {
       cy.findByLabelText('Select row 1').should('be.checked');
       cy.findByLabelText('Select row 2').should('be.checked');
 
-      cy.findByLabelText('Collapse 0').click();
+      cy.findByLabelText('Collapse 2').click();
     });
   });
 

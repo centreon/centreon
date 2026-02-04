@@ -1,5 +1,8 @@
+import { Theme } from '@mui/material';
+
+import { getResourcesUrl, getStatusColors, SeverityCode } from '@centreon/ui';
+
 import {
-  T,
   always,
   cond,
   equals,
@@ -10,12 +13,9 @@ import {
   isNil,
   length,
   lt,
-  lte
+  lte,
+  T
 } from 'ramda';
-
-import { Theme } from '@mui/material';
-
-import { SeverityCode, getResourcesUrl, getStatusColors } from '@centreon/ui';
 
 import { IndicatorType } from './models';
 
@@ -116,7 +116,7 @@ export const getStatusFromThresholds = ({
 };
 
 const getBALink = (id: number): string => {
-  return `/main.php?p=20701&o=d&ba_id=${id}`;
+  return `/monitoring/bam/bas/${id}`;
 };
 
 export const getBooleanRuleLink = (id: number): string => {
@@ -176,3 +176,5 @@ export const getMetricsEndpoint = ({ resouceType, id, parentId }): string => {
 
   return `/monitoring/hosts/${parentId}/services/${id}/metrics`;
 };
+
+export const seeMoreTileId = 'see-more';

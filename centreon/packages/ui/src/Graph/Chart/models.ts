@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-
 import type { ScaleLinear } from 'd3-scale';
+import type { ReactNode } from 'react';
 
 import type { BarStyle } from '../BarChart/models';
 import type {
@@ -8,14 +7,13 @@ import type {
   Axis as AxisYLeft,
   AxisYRight
 } from '../common/Axes/models';
-import type { LineChartData } from '../common/models';
+import type { AdditionalLineProps, LineChartData } from '../common/models';
 import type { Line, TimeValue } from '../common/timeSeries/models';
-
-import type { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 import type {
   AreaRegularLines,
   AreaStackedLines
 } from './BasicComponents/Lines/models';
+import type { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 import type { TimelineEvent } from './InteractiveComponents/Annotations/models';
 
 export interface LineChartEndpoint {
@@ -110,17 +108,21 @@ export interface LineStyle {
 export interface LineChartProps {
   annotationEvent?: AnnotationEvent;
   axis?: ChartAxis;
-  barStyle?: BarStyle;
+  barStyle?: BarStyle | Array<BarStyle & { metricId: number }>;
   displayAnchor?: DisplayAnchor;
   header?: LineChartHeader;
   height?: number | null;
   legend?: LegendModel;
-  lineStyle?: LineStyle;
+  lineStyle?: LineStyle | Array<LineStyle & { metricId: number }>;
   timeShiftZones?: InteractedZone;
   tooltip?: Tooltip;
   width: number;
   zoomPreview?: InteractedZone;
   skipIntersectionObserver?: boolean;
+  additionalLines?: Array<AdditionalLineProps>;
+  min?: number;
+  max?: number;
+  boundariesUnit?: string;
 }
 
 export interface Area {
@@ -171,6 +173,16 @@ export interface LegendModel {
   mode: 'grid' | 'list';
   placement: 'bottom' | 'left' | 'right';
   renderExtraComponent?: ReactNode;
+  showCalculations?: {
+    min: boolean;
+    max: boolean;
+    avg: boolean;
+  };
+  secondaryClick?: (props: {
+    element: EventTarget | null;
+    metricId: number | string;
+    position: [number, number];
+  }) => void;
 }
 
 export interface GetDate {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ final class FindAgentConfigurations
         private readonly ContactInterface $user,
         private readonly ReadAgentConfigurationRepositoryInterface $readRepository,
         private readonly RequestParametersInterface $requestParameters,
-        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+        private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
     ) {
     }
 
@@ -81,7 +81,16 @@ final class FindAgentConfigurations
 
             $presenter->presentResponse($this->createResponse($agentConfigurations));
         } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['user_id' => $this->user->getId()]);
+            $this->error($ex->getMessage(), [
+                'user_id' => $this->user->getId(),
+                'exception' => [
+                    'type' => $ex::class,
+                    'message' => $ex->getMessage(),
+                    'previous_type' => ! is_null($ex->getPrevious()) ? $ex->getPrevious()::class : null,
+                    'previous_message' => $ex->getPrevious()?->getMessage() ?? null,
+                    'trace' => $ex->getTraceAsString(),
+                ],
+            ]);
             $presenter->presentResponse(new ErrorResponse(AgentConfigurationException::errorWhileRetrievingObjects()));
         }
     }
@@ -109,6 +118,7 @@ final class FindAgentConfigurations
                 $pollerDto = new PollerDto();
                 $pollerDto->id = $poller->getId();
                 $pollerDto->name = $poller->getName();
+                $pollerDto->isCentral = $poller->isCentral() ?? false;
 
                 return $pollerDto;
             }, $pollers);

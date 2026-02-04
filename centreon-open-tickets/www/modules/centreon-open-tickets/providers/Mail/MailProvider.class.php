@@ -1,26 +1,26 @@
 <?php
+
 /*
- * Copyright 2016-2019 Centreon (http://www.centreon.com/)
- *
- * Centreon is a full-fledged industry-strength solution that meets
- * the needs in IT infrastructure and application monitoring for
- * service performance.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,*
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
 
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception as MailerException;
+use PHPMailer\PHPMailer\PHPMailer;
 
 require_once __DIR__ . '/library/PHPMailer.php';
 require_once __DIR__ . '/library/Exception.php';
@@ -28,6 +28,14 @@ require_once __DIR__ . '/library/Exception.php';
 class MailProvider extends AbstractProvider
 {
     protected $attach_files = 1;
+
+    public function validateFormatPopup()
+    {
+        $result = ['code' => 0, 'message' => 'ok'];
+        $this->validateFormatPopupLists($result);
+
+        return $result;
+    }
 
     protected function setDefaultValueMain($body_html = 0)
     {
@@ -37,9 +45,9 @@ class MailProvider extends AbstractProvider
     protected function setDefaultValueExtra()
     {
         $this->default_data['from'] = '{$user.email}';
-        $this->default_data['subject'] =
-            'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path' .
-            '/providers/Abstract/templates/display_title.ihtml"}';
+        $this->default_data['subject']
+            = 'Issue {$ticket_id} - {include file="file:$centreon_open_tickets_path'
+            . '/providers/Abstract/templates/display_title.ihtml"}';
         $this->default_data['clones']['headerMail'] = [];
         $this->default_data['ishtml'] = 'yes';
     }
@@ -71,9 +79,9 @@ class MailProvider extends AbstractProvider
     {
         $tpl = $this->initSmartyTemplate('providers/Mail/templates');
 
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
-        $tpl->assign("img_brick", "./modules/centreon-open-tickets/images/brick.png");
-        $tpl->assign("header", ["mail" => _("Mail")]);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
+        $tpl->assign('img_brick', './modules/centreon-open-tickets/images/brick.png');
+        $tpl->assign('header', ['mail' => _('Mail')]);
 
         // Form
         $from_html = '<input size="50" name="from" type="text" value="' . $this->getFormValue('from') . '" />';
@@ -81,19 +89,19 @@ class MailProvider extends AbstractProvider
         $subject_html = '<input size="50" name="subject" type="text" value="'
             . $this->getFormValue('subject')
             . '" />';
-        $ishtml_html = '<div class="md-checkbox md-checkbox-inline">' .
-            '<input type="checkbox" id="ishtml" name="ishtml" value="yes" ' .
-            ($this->getFormValue('ishtml') === 'yes' ? 'checked' : '') . '/>' .
-            '<label class="empty-label" for="ishtml"></label></div>';
+        $ishtml_html = '<div class="md-checkbox md-checkbox-inline">'
+            . '<input type="checkbox" id="ishtml" name="ishtml" value="yes" '
+            . ($this->getFormValue('ishtml') === 'yes' ? 'checked' : '') . '/>'
+            . '<label class="empty-label" for="ishtml"></label></div>';
 
-        $array_form = ['from' => ['label' => _("From") . $this->required_field, 'html' => $from_html], 'to' => ['label' => _("To") . $this->required_field, 'html' => $to_html], 'subject' => ['label' => _("Subject") . $this->required_field, 'html' => $subject_html], 'header' => ['label' => _("Headers")], 'ishtml' => ['label' => _("Use html"), 'html' => $ishtml_html]];
+        $array_form = ['from' => ['label' => _('From') . $this->required_field, 'html' => $from_html], 'to' => ['label' => _('To') . $this->required_field, 'html' => $to_html], 'subject' => ['label' => _('Subject') . $this->required_field, 'html' => $subject_html], 'header' => ['label' => _('Headers')], 'ishtml' => ['label' => _('Use html'), 'html' => $ishtml_html]];
 
         // Clone part
-        $headerMailName_html = '<input id="headerMailName_#index#" size="20" name="headerMailName[#index#]" ' .
-            'type="text" />';
-        $headerMailValue_html = '<input id="headerMailValue_#index#" size="20" name="headerMailValue[#index#]" ' .
-            'type="text" />';
-        $array_form['headerMail'] = [['label' => _("Name"), 'html' => $headerMailName_html], ['label' => _("Value"), 'html' => $headerMailValue_html]];
+        $headerMailName_html = '<input id="headerMailName_#index#" size="20" name="headerMailName[#index#]" '
+            . 'type="text" />';
+        $headerMailValue_html = '<input id="headerMailValue_#index#" size="20" name="headerMailValue[#index#]" '
+            . 'type="text" />';
+        $array_form['headerMail'] = [['label' => _('Name'), 'html' => $headerMailName_html], ['label' => _('Value'), 'html' => $headerMailValue_html]];
 
         $tpl->assign('form', $array_form);
         $this->config['container1_html'] .= $tpl->fetch('conf_container1extra.ihtml');
@@ -119,30 +127,27 @@ class MailProvider extends AbstractProvider
         ) ? $this->submitted_config['ishtml'] : '';
     }
 
-    public function validateFormatPopup()
-    {
-        $result = ['code' => 0, 'message' => 'ok'];
-        $this->validateFormatPopupLists($result);
-        return $result;
-    }
-
     protected function doSubmit($db_storage, $contact, $host_problems, $service_problems)
     {
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
+        /**
+         * @phpstan-ignore-next-line
+         * FIXME $contact['name'] => Offset 'name' does not exist on string => $contact is a string or an array ??
+         */
+        $values = "('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')";
+
         try {
-            $db_storage->query(
-                "INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES
-                ('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')"
-            );
+            $db_storage->query("INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES {$values}");
             $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
         } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();
+
             return $result;
         }
 
         $tpl = $this->initSmartyTemplate();
-        $tpl->assign("centreon_open_tickets_path", $this->centreon_open_tickets_path);
+        $tpl->assign('centreon_open_tickets_path', $this->centreon_open_tickets_path);
         $tpl->assign('user', $contact);
         $tpl->assign('host_selected', $host_problems);
         $tpl->assign('service_selected', $service_problems);
@@ -169,7 +174,7 @@ class MailProvider extends AbstractProvider
                 $mail->addAttachment($file['filepath'], $file['filename']);
             }
 
-            $headers = "From: " . $from;
+            $headers = 'From: ' . $from;
 
             if (isset($this->rule_data['clones']['headerMail'])) {
                 foreach ($this->rule_data['clones']['headerMail'] as $values) {
@@ -193,14 +198,14 @@ class MailProvider extends AbstractProvider
                     'data_type' => self::DATA_TYPE_JSON,
                     'data' => json_encode(
                         [
-                            'mail' => $mail->getSentMIMEMessage()
+                            'mail' => $mail->getSentMIMEMessage(),
                         ]
-                    )
+                    ),
                 ]
             );
         } catch (MailerException $e) {
             $result['ticket_error_message'] = 'Mailer Error: ' . $mail->ErrorInfo;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result['ticket_error_message'] = 'Mailer Error: ' . $e->getMessage();
         }
 

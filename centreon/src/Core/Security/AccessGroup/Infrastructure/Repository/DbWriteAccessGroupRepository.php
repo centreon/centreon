@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,18 +91,32 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
     public function addLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void
     {
         $accessGroupsIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
         $aclResourceIds = $this->findEnabledAclResourceIdsByAccessGroupIds($accessGroupsIds);
-
         $this->addLinksBetweenHostGroupAndResourceIds($hostGroupId, $aclResourceIds);
+    }
+
+    public function addLinksBetweenHostGroupAndResourceAccessGroup(int $hostGroupId, int $resourceAccessGroup): void
+    {
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<'SQL'
+                    INSERT INTO `:db`.`acl_resources_hg_relations` (acl_res_id, hg_hg_id)
+                    VALUES (:acl_group_id, :hg_hg_id)
+                    SQL
+            )
+        );
+        $statement->bindValue(':acl_group_id', $resourceAccessGroup, \PDO::PARAM_INT);
+        $statement->bindValue(':hg_hg_id', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
     }
 
     public function addLinksBetweenHostGroupAndResourceIds(int $hostGroupId, array $resourceIds): void
     {
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 
@@ -125,6 +139,44 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
 
     /**
      * {@inheritDoc}
+     */
+    public function removeLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void
+    {
+        $accessGroupsIds = array_map(
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
+            $accessGroups
+        );
+
+        if ($accessGroupsIds === []) {
+            return;
+        }
+
+        [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupsIds, ':group_id_');
+
+        $statement = $this->db->prepare(
+            $this->translateDbName(
+                <<<SQL
+                    DELETE FROM `:db`.`acl_resources_hg_relations`
+                    WHERE hg_hg_id = :hg_hg_id
+                    AND acl_res_id IN (
+                        SELECT acl_res_id
+                        FROM `:db`.`acl_res_group_relations`
+                        WHERE acl_group_id IN ({$bindQuery})
+                    )
+                    SQL
+            )
+        );
+
+        $statement->bindValue(':hg_hg_id', $hostGroupId, \PDO::PARAM_INT);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+
+        $statement->execute();
+    }
+
+    /**
+     * {@inheritDoc}
      *
      * If the ACLs are not properly set for the contact, it is possible to create
      * a service group in the GUI you cannot see just after creation.
@@ -134,12 +186,12 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
     public function addLinksBetweenServiceGroupAndAccessGroups(int $serviceGroupId, array $accessGroups): void
     {
         $accessGroupsIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
         $aclResourceIds = $this->findEnabledAclResourceIdsByAccessGroupIds($accessGroupsIds);
-        if ([] === $aclResourceIds) {
+        if ($aclResourceIds === []) {
             return;
         }
 
@@ -166,11 +218,11 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
     public function updateAclGroupsFlag(array $accessGroups): void
     {
         $accessGroupsIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
-        if ([] === $accessGroupsIds) {
+        if ($accessGroupsIds === []) {
             return;
         }
 
@@ -217,7 +269,7 @@ class DbWriteAccessGroupRepository extends AbstractRepositoryDRB implements Writ
      */
     private function findEnabledAclResourceIdsByAccessGroupIds(array $accessGroupIds): array
     {
-        if ([] === $accessGroupIds) {
+        if ($accessGroupIds === []) {
             return [];
         }
 

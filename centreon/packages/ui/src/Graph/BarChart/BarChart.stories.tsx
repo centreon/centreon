@@ -1,11 +1,16 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
+import '../../ThemeProvider/tailwindcss.css';
 
-import { LineChartData } from '../common/models';
+import { ClickAwayListener } from '@mui/material';
+
+import { useState } from 'react';
+
+import type { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
-
+import dataPingServiceStackeKey from '../mockedData/pingServiceWithStackedKeys.json';
 import BarChart from './BarChart';
 
 const meta: Meta<typeof BarChart> = {
@@ -42,6 +47,11 @@ export const withCenteredZero: Story = {
     ...defaultArgs,
     axis: {
       isCenteredZero: true
+    },
+    legend: {
+      mode: 'grid',
+      placement: 'bottom',
+      showCalculations: { avg: true, max: false, min: false }
     }
   },
   render: Template
@@ -113,7 +123,6 @@ export const stackedVerticalCenteredZero: Story = {
 export const thresholds: Story = {
   args: {
     ...defaultArgs,
-    thresholdUnit: 'ms',
     thresholds: {
       critical: [
         {
@@ -128,7 +137,8 @@ export const thresholds: Story = {
           value: 0.05
         }
       ]
-    }
+    },
+    thresholdUnit: 'ms'
   },
   render: Template
 };
@@ -140,7 +150,6 @@ export const thresholdsVertical: Story = {
       isCenteredZero: true
     },
     orientation: 'vertical',
-    thresholdUnit: 'ms',
     thresholds: {
       critical: [
         {
@@ -155,7 +164,8 @@ export const thresholdsVertical: Story = {
           value: 0.05
         }
       ]
-    }
+    },
+    thresholdUnit: 'ms'
   },
   render: Template
 };
@@ -164,7 +174,6 @@ export const thresholdStacked: Story = {
   args: {
     ...defaultArgs,
     data: dataPingServiceStacked,
-    thresholdUnit: 'ms',
     thresholds: {
       critical: [
         {
@@ -179,7 +188,8 @@ export const thresholdStacked: Story = {
           value: 0.05
         }
       ]
-    }
+    },
+    thresholdUnit: 'ms'
   },
   render: Template
 };
@@ -191,6 +201,45 @@ export const customBarStyle: Story = {
       opacity: 0.5,
       radius: 0.5
     }
+  },
+  render: Template
+};
+
+export const customBarStyleForABar: Story = {
+  args: {
+    ...defaultArgs,
+    barStyle: [
+      {
+        metricId: 10,
+        opacity: 0.5,
+        radius: 0.5
+      },
+      {
+        metricId: 1,
+        opacity: 0.2,
+        radius: 0.3
+      }
+    ]
+  },
+  render: Template
+};
+
+export const customBarStyleForABarStacked: Story = {
+  args: {
+    ...defaultArgs,
+    barStyle: [
+      {
+        metricId: 10,
+        opacity: 0.5,
+        radius: 0.5
+      },
+      {
+        metricId: 1,
+        opacity: 0.2,
+        radius: 0.3
+      }
+    ],
+    data: dataPingServiceStacked
   },
   render: Template
 };
@@ -208,6 +257,75 @@ export const mixedStackedVertical: Story = {
     ...defaultArgs,
     data: dataPingServiceMixedStacked,
     orientation: 'vertical'
+  },
+  render: Template
+};
+
+export const mixedStackedMinMax: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceMixedStacked,
+    max: 20,
+    min: 10
+  },
+  render: Template
+};
+
+const LegendSecondaryClick = (args) => {
+  const [position, setPosition] = useState<Array<[number, number]> | null>(
+    null
+  );
+
+  return (
+    <>
+      <Template
+        {...args}
+        legend={{
+          secondaryClick: ({ position }) => setPosition(position)
+        }}
+      />
+      {position && (
+        <ClickAwayListener onClickAway={() => setPosition(null)}>
+          <div
+            className="absolute py-1 px-2 rounded-sm bg-background-widget shadow-md"
+            onClose={() => setPosition(null)}
+            open={Boolean(position)}
+            style={{ left: position?.[0], top: position?.[1] }}
+          >
+            menu
+          </div>
+        </ClickAwayListener>
+      )}
+    </>
+  );
+};
+
+export const withLegendSecondaryClick: Story = {
+  args: defaultArgs,
+  render: (args) => (
+    <LegendSecondaryClick
+      {...args}
+      data={dataPingService as unknown as LineChartData}
+    />
+  )
+};
+
+export const stackKey: Story = {
+  args: {
+    ...defaultArgs,
+    data: dataPingServiceStackeKey
+  },
+  render: Template
+};
+
+export const withControlledCalculations: Story = {
+  args: {
+    ...defaultArgs,
+    legend: {
+      mode: 'grid',
+      placement: 'bottom',
+      showCalculations: { avg: true, max: false, min: false }
+    }
   },
   render: Template
 };

@@ -31,6 +31,8 @@ export const retrievedSAMLConfiguration = {
   logout_from: true,
   logout_from_url: 'https://idp/saml',
   remote_login_url: 'https://idp/saml',
+  requested_authn_context: false,
+  requested_authn_context_comparison: 'exact',
   roles_mapping: {
     apply_only_first_role: true,
     attribute_path: 'info.items.role',

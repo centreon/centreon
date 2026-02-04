@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,11 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\UseCase\FindProviderConfigurations;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Security\ProviderConfiguration\Application\Repository\ReadConfigurationRepositoryInterface;
 
 final class FindProviderConfigurations
 {
-    use LoggerTrait;
-
     /** @var ProviderConfigurationDtoFactoryInterface[] */
     private array $providerResponseFactories;
 
@@ -72,9 +69,10 @@ final class FindProviderConfigurations
             $response->providerConfigurations = $responses;
 
             $presenter->presentResponse($response);
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+        } catch (\Throwable $e) {
+            $presenter->setResponseStatus(
+                new ErrorResponse($e->getMessage(), exception: $e),
+            );
 
             return;
         }

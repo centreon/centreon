@@ -57,9 +57,6 @@ class DowntimeRecurrentContext extends CentreonContext
         $this->currentPage = new HostConfigurationPage($this);
         $this->currentPage->setproperties($this->host);
         $this->currentPage->save();
-        $this->currentPage = new HostGroupConfigurationPage($this);
-        $this->currentPage->setProperties($this->hostGroup);
-        $this->currentPage->save();
         $this->currentPage = new ServiceConfigurationPage($this);
         $this->currentPage->setProperties($this->service);
         $this->currentPage->save();
@@ -88,7 +85,7 @@ class DowntimeRecurrentContext extends CentreonContext
             'days' => array(7, 1, 2, 3, 4, 5, 6),
             'start' => $this->startDate->format('H:i'),
             'end' => $endDateTest,
-            'hostgroup_relation' => $this->hostGroup['name']
+            'host_relation' => $this->host['name']
         ));
         $this->currentPage->save();
     }

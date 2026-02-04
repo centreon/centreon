@@ -19,13 +19,13 @@
  * limitations under the License.
  */
 
-require_once "../../require.php";
+require_once '../../require.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonDB.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . "www/class/centreonXMLBGRequest.class.php";
+require_once $centreon_path . 'www/class/centreonXMLBGRequest.class.php';
 require_once $centreon_path . 'www/modules/centreon-open-tickets/class/rule.php';
 
 session_start();
@@ -49,24 +49,24 @@ function service_ack(bool $autoCloseActionPopup)
     global $cmd, $centreon, $centreon_path;
 
     // Smarty template initialization
-    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $path = $centreon_path . 'www/widgets/open-tickets/src/';
     $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
-    $template->assign('stickyLabel', _("Sticky"));
-    $template->assign('persistentLabel', _("Persistent"));
-    $template->assign('authorLabel', _("Author"));
-    $template->assign('notifyLabel', _("Notify"));
-    $template->assign('commentLabel', _("Comment"));
+    $template->assign('stickyLabel', _('Sticky'));
+    $template->assign('persistentLabel', _('Persistent'));
+    $template->assign('authorLabel', _('Author'));
+    $template->assign('notifyLabel', _('Notify'));
+    $template->assign('commentLabel', _('Comment'));
     $template->assign('forceCheckLabel', _('Force active checks'));
-    $template->assign('fixedLabel', _("Fixed"));
-    $template->assign('durationLabel', _("Duration"));
-    $template->assign('startLabel', _("Start"));
-    $template->assign('endLabel', _("End"));
+    $template->assign('fixedLabel', _('Fixed'));
+    $template->assign('durationLabel', _('Duration'));
+    $template->assign('startLabel', _('Start'));
+    $template->assign('endLabel', _('End'));
     $template->assign('selection', $_REQUEST['selection']);
     $template->assign('author', $centreon->user->alias);
     $template->assign('cmd', $cmd);
 
-    $title = _("Service Acknowledgement");
+    $title = _('Service Acknowledgement');
     $template->assign('defaultMessage', sprintf(_('Acknowledged by %s'), $centreon->user->alias));
     $persistent_checked = '';
     if (isset($centreon->optGen['monitoring_ack_persistent']) && $centreon->optGen['monitoring_ack_persistent']) {
@@ -94,7 +94,7 @@ function service_ack(bool $autoCloseActionPopup)
     }
     $template->assign('force_active_checked', $force_active_checked);
     $template->assign('titleLabel', $title);
-    $template->assign('submitLabel', _("Acknowledge"));
+    $template->assign('submitLabel', _('Acknowledge'));
     $template->assign('autoCloseActionPopup', $autoCloseActionPopup);
     $template->display('acknowledge.ihtml');
 }
@@ -113,11 +113,11 @@ function schedule_check(bool $isService, bool $isForced, bool $autoCloseActionPo
     $selection = filter_var($_REQUEST['selection'], FILTER_SANITIZE_STRING);
 
     // Smarty template initialization
-    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $path = $centreon_path . 'www/widgets/open-tickets/src/';
     $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
     $template->assign('selection', $selection);
-    $template->assign('titleLabel', _("Scheduling checks"));
+    $template->assign('titleLabel', _('Scheduling checks'));
     $template->assign('forced', $isForced);
     $template->assign('isService', $isService);
     $template->assign('autoCloseActionPopup', $autoCloseActionPopup ? 'true' : 'false');
@@ -129,7 +129,7 @@ function format_popup()
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path;
 
     $uniq_id = uniqid();
-    $title = $cmd == 3 ? _("Open Service Ticket") : _("Open Host Ticket");
+    $title = $cmd == 3 ? _('Open Service Ticket') : _('Open Host Ticket');
 
     $result = $rule->getFormatPopupProvider(
         $preferences['rule'],
@@ -138,8 +138,8 @@ function format_popup()
             'user' => [
                 'name' => $centreon->user->name,
                 'alias' => $centreon->user->alias,
-                'email' => $centreon->user->email
-            ]
+                'email' => $centreon->user->email,
+            ],
         ],
         $widgetId,
         $uniq_id,
@@ -148,7 +148,7 @@ function format_popup()
     );
 
     // Smarty template initialization
-    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $path = $centreon_path . 'www/widgets/open-tickets/src/';
     $template = SmartyBC::createSmartyTemplate($path . 'templates/', './');
 
     $provider_infos = $rule->getAliasAndProviderId($preferences['rule']);
@@ -160,10 +160,11 @@ function format_popup()
     $template->assign('title', $title);
     $template->assign('cmd', $cmd);
     $template->assign('selection', $_REQUEST['selection']);
-    $template->assign('continue', (!is_null($result) && isset($result['format_popup'])) ? 0 : 1);
+    $template->assign('continue', (! is_null($result) && isset($result['format_popup'])) ? 0 : 1);
     $template->assign(
         'attach_files_enable',
-        (!is_null($result)
+        (
+            ! is_null($result)
             && isset($result['attach_files_enable'])
             && $result['attach_files_enable'] === 'yes'
         ) ? 1 : 0
@@ -171,12 +172,13 @@ function format_popup()
 
     $template->assign(
         'formatPopupProvider',
-        (!is_null($result)
+        (
+            ! is_null($result)
             && isset($result['format_popup'])
         ) ? $result['format_popup'] : ''
     );
 
-    $template->assign('submitLabel', _("Open"));
+    $template->assign('submitLabel', _('Open'));
 
     $template->display('formatpopup.ihtml');
 }
@@ -185,7 +187,7 @@ function remove_tickets()
 {
     global $cmd, $widgetId, $rule, $preferences, $centreon, $centreon_path, $centreon_bg;
 
-    $path = $centreon_path . "www/widgets/open-tickets/src/";
+    $path = $centreon_path . 'www/widgets/open-tickets/src/';
     $provider_infos = $rule->getAliasAndProviderId($preferences['rule']);
 
     // Smarty template initialization
@@ -200,20 +202,20 @@ function remove_tickets()
 }
 
 try {
-    if (!isset($_SESSION['centreon']) || !isset($_REQUEST['cmd']) || !isset($_REQUEST['selection'])) {
+    if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['cmd']) || ! isset($_REQUEST['selection'])) {
         throw new Exception('Missing data');
     }
     $db = new CentreonDB();
     if (CentreonSession::checkSession(session_id(), $db) == 0) {
         throw new Exception('Invalid session');
     }
-    /** @var \Centreon $centreon */
+    /** @var Centreon $centreon */
     $centreon = $_SESSION['centreon'];
     $oreon = $centreon;
     $cmd = $_REQUEST['cmd'];
 
     $widgetId = $_REQUEST['widgetId'];
-    $selections = explode(",", $_REQUEST['selection']);
+    $selections = explode(',', $_REQUEST['selection']);
 
     $widgetObj = new CentreonWidget($centreon, $db);
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
@@ -226,20 +228,20 @@ try {
         remove_tickets();
     } elseif ($cmd == 70) {
         service_ack((bool) $preferences['auto_close_action_popup']);
-    //schedule service forced check
+        // schedule service forced check
     } elseif ($cmd == 80) {
         schedule_check(true, true, (bool) $preferences['auto_close_action_popup']);
-    // schedule service check
+        // schedule service check
     } elseif ($cmd == 81) {
         schedule_check(true, false, (bool) $preferences['auto_close_action_popup']);
-    // schedule host forced check
+        // schedule host forced check
     } elseif ($cmd == 82) {
         schedule_check(false, true, (bool) $preferences['auto_close_action_popup']);
-    // schedule host check
+        // schedule host check
     } elseif ($cmd == 83) {
         schedule_check(false, false, (bool) $preferences['auto_close_action_popup']);
     }
 } catch (Exception $e) {
-    echo $e->getMessage() . "<br/>";
+    echo $e->getMessage() . '<br/>';
 }
 ?>

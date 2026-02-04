@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ class AddTokenValidation
     public function __construct(
         private readonly ReadTokenRepositoryInterface $readTokenRepository,
         private readonly ReadContactRepositoryInterface $readContactRepository,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -52,7 +52,7 @@ class AddTokenValidation
     public function assertIsValidName(string $name, int $userId): void
     {
         $trimmedName = trim($name);
-        if ($this->readTokenRepository->existsByNameANdUserId($trimmedName, $userId)) {
+        if ($this->readTokenRepository->existsByNameAndUserId($trimmedName, $userId)) {
             $this->error('Token name already exists', ['name' => $trimmedName, 'userId' => $userId]);
 
             throw TokenException::nameAlreadyExists($trimmedName);
@@ -68,11 +68,10 @@ class AddTokenValidation
      */
     public function assertIsValidUser(int $userId): void
     {
-        if (! $this->user->isAdmin() && $this->user->getId() !== $userId && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS))
-        {
+        if (! $this->user->isAdmin() && $this->user->getId() !== $userId && ! $this->user->hasRole(Contact::ROLE_MANAGE_TOKENS)) {
             throw TokenException::notAllowedToCreateTokenForUser($userId);
         }
-        if (false === $this->readContactRepository->exists($userId)) {
+        if ($this->readContactRepository->exists($userId) === false) {
             throw TokenException::invalidUserId($userId);
         }
     }

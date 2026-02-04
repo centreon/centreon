@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,8 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'snmp_version' => $response->snmpVersion,
                         'timezone_id' => $response->timezoneId,
                         'severity_id' => $response->severityId,
+                        'check_command_id' => $response->checkCommandId,
+                        'check_command_args' => $response->checkCommandArgs,
                         'check_timeperiod_id' => $response->checkTimeperiodId,
                         'max_check_attempts' => $response->maxCheckAttempts,
                         'normal_check_interval' => $response->normalCheckInterval,
@@ -67,14 +69,13 @@ class AddHostTemplateSaasPresenter extends AbstractPresenter implements AddHostT
                         'event_handler_enabled' => $response->eventHandlerEnabled,
                         'event_handler_command_id' => $response->eventHandlerCommandId,
                         'macros' => array_map(
-                            function ($macro) {
-                                return [
-                                    'name' => $macro['name'],
-                                    'value' => $macro['isPassword'] ? null : $macro['value'],
-                                    'is_password' => $macro['isPassword'],
-                                    'description' => $this->emptyStringAsNull($macro['description']),
-                                ];
-                            },
+                            fn ($macro) => [
+                                'id' => $macro['id'],
+                                'name' => $macro['name'],
+                                'value' => $macro['isPassword'] ? null : $macro['value'],
+                                'is_password' => $macro['isPassword'],
+                                'description' => $this->emptyStringAsNull($macro['description']),
+                            ],
                             $response->macros
                         ),
                     ]

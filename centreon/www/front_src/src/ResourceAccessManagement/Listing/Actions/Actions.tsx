@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import { Box } from '@mui/material';
 
 import { ComponentColumnProps } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
 
 import { DeleteButton } from '../../Actions/Delete';
 import useDelete from '../../Actions/Delete/useDelete';
@@ -13,7 +13,6 @@ import {
   labelDeleteResourceAccessRule,
   labelDuplicate
 } from '../../translatedLabels';
-
 import useActionsStyles from './Actions.styles';
 
 const Actions = ({ row }: ComponentColumnProps): JSX.Element => {

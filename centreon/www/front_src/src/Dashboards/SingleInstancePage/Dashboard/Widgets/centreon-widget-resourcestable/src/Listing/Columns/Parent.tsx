@@ -1,15 +1,11 @@
 import { type ComponentColumnProps, EllipsisTypography } from '@centreon/ui';
 
 import { getStatus } from '../utils';
-
-import useStyle from './Columns.styles';
 import StatusChip from './ServiceSubItemColumn/StatusChip';
 
 const ParentResourceColumn = ({
   row
 }: ComponentColumnProps): JSX.Element | null => {
-  const { classes } = useStyle();
-
   const status = row?.parent?.status?.name;
 
   if (!row.parent) {
@@ -18,13 +14,13 @@ const ParentResourceColumn = ({
 
   return (
     <>
-      <div className={classes.resourceDetailsCell}>
+      <div className="flex items-center flex-nowrap">
         <StatusChip
           content={getStatus(status?.toLowerCase())?.label}
           severityCode={getStatus(status?.toLowerCase())?.severity}
         />
       </div>
-      <EllipsisTypography className={classes.resourceNameText} variant="body2">
+      <EllipsisTypography className="pl-1" variant="body2">
         {row.parent?.name || ''}
       </EllipsisTypography>
     </>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,11 +146,12 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
             }
             $serviceCategoriesFields = implode(',', array_keys($bindServiceCategoriesIds));
 
-            $request = $this->translateDbName(<<<"SQL"
-                DELETE FROM `:db`.service_categories_relation
-                WHERE service_service_id = :service_id
-                AND sc_id IN ({$serviceCategoriesFields})
-                SQL
+            $request = $this->translateDbName(
+                <<<"SQL"
+                    DELETE FROM `:db`.service_categories_relation
+                    WHERE service_service_id = :service_id
+                    AND sc_id IN ({$serviceCategoriesFields})
+                    SQL
             );
 
             $statement = $this->db->prepare($request);

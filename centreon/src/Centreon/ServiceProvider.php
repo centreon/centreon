@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,48 +21,47 @@
 
 namespace Centreon;
 
-use Pimple\Container;
-use Pimple\Psr11\ServiceLocator;
-use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
+use Centreon\Application\Validation;
 use Centreon\Application\Webservice;
+use Centreon\Domain\Repository\CfgCentreonBrokerInfoRepository;
+use Centreon\Domain\Repository\CfgCentreonBrokerRepository;
+use Centreon\Domain\Service\BrokerConfigurationService;
+use Centreon\Domain\Service\FrontendComponentService;
+use Centreon\Domain\Service\I18nService;
+use Centreon\Infrastructure\Event;
 use Centreon\Infrastructure\Provider\AutoloadServiceProviderInterface;
 use Centreon\Infrastructure\Service;
-use Centreon\Infrastructure\Event;
-use Centreon\Infrastructure\Service\CentreonWebserviceService;
-use Centreon\Infrastructure\Service\CentreonClapiService;
 use Centreon\Infrastructure\Service\CentcoreConfigService;
+use Centreon\Infrastructure\Service\CentreonClapiService;
 use Centreon\Infrastructure\Service\CentreonDBManagerService;
-use Centreon\Domain\Service\I18nService;
-use Centreon\Domain\Service\FrontendComponentService;
-use Centreon\Domain\Service\BrokerConfigurationService;
-use Centreon\Domain\Repository\CfgCentreonBrokerRepository;
-use Centreon\Domain\Repository\CfgCentreonBrokerInfoRepository;
+use Centreon\Infrastructure\Service\CentreonWebserviceService;
+use CentreonACL as CACL;
 use CentreonClapi\CentreonACL;
-use Centreon\Application\Validation;
+use CentreonLegacy\ServiceProvider as LegacyServiceProvider;
+use Pimple\Container;
+use Pimple\Psr11\ServiceLocator;
+use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
+use Symfony\Component\Serializer;
 use Symfony\Component\Validator;
 use Symfony\Component\Validator\Constraints;
-use CentreonACL as CACL;
-use Doctrine\Common\Annotations\AnnotationReader;
-use Symfony\Component\Serializer;
-use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 
 class ServiceProvider implements AutoloadServiceProviderInterface
 {
-    //webservices
+    // webservices
     public const CENTREON_WEBSERVICE = 'centreon.webservice';
     public const MENU_WEBSERVICE = 'centreon.menu.webservice';
 
-    //services
+    // services
     public const CENTREON_PAGINATION = 'centreon.pagination';
     public const CENTREON_I18N_SERVICE = 'centreon.i18n_service';
     public const CENTREON_FRONTEND_COMPONENT_SERVICE = 'centreon.frontend_component_service';
     public const CENTREON_BROKER_CONFIGURATION_SERVICE = 'centreon.broker_configuration_service';
 
-    //repositories
+    // repositories
     public const CENTREON_BROKER_REPOSITORY = 'centreon.broker_repository';
     public const CENTREON_BROKER_INFO_REPOSITORY = 'centreon.broker_info_repository';
 
-    //managers and infrastructure services
+    // managers and infrastructure services
     public const CENTREON_DB_MANAGER = 'centreon.db-manager';
     public const CENTREON_CLAPI = 'centreon.clapi';
     public const UPLOAD_MANGER = 'upload.manager';
@@ -79,27 +78,25 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     public const CENTREON_GLOBAL_ACL = 'centreon.global.acl';
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function register(Container $pimple): void
     {
 
-        //init global yml config from src/Centreon
+        // init global yml config from src/Centreon
         $pimple[static::YML_CONFIG] = function (Container $pimple) {
-            return $pimple[\CentreonLegacy\ServiceProvider::CONFIGURATION]->getModuleConfig(__DIR__);
+            return $pimple[LegacyServiceProvider::CONFIGURATION]->getModuleConfig(__DIR__);
         };
 
         $pimple[static::CENTREON_WEBSERVICE] = function (Container $container): CentreonWebserviceService {
-            $service = new CentreonWebserviceService();
-
-            return $service;
+            return new CentreonWebserviceService();
         };
 
         $pimple[static::CENTREON_WEBSERVICE]
-            ->add(Application\Webservice\TopologyWebservice::class)
-            ->add(Application\Webservice\ContactGroupsWebservice::class)
-            ->add(Application\Webservice\ImagesWebservice::class)
-            ->add(Application\Webservice\AclGroupWebservice::class)
+            ->add(Webservice\TopologyWebservice::class)
+            ->add(Webservice\ContactGroupsWebservice::class)
+            ->add(Webservice\ImagesWebservice::class)
+            ->add(Webservice\AclGroupWebservice::class)
             // add webservice to get translation from centreon and its extensions
             ->add(Webservice\CentreonI18n::class)
             // add webservice to get frontend hooks and pages installed by modules and widgets
@@ -108,13 +105,11 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         $pimple[static::CENTREON_I18N_SERVICE] = function (Container $pimple): I18nService {
             $phpstan_needs_this_variable = $pimple['translator']; // bind lang
 
-            $service = new I18nService(
+            return new I18nService(
                 $pimple[LegacyServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION],
                 $pimple['finder'],
                 $pimple['filesystem']
             );
-
-            return $service;
         };
 
         $pimple[static::CENTREON_FRONTEND_COMPONENT_SERVICE] = function (Container $pimple): FrontendComponentService {
@@ -127,9 +122,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         };
 
         $pimple[static::CENTREON_CLAPI] = function (Container $container): CentreonClapiService {
-            $service = new CentreonClapiService();
-
-            return $service;
+            return new CentreonClapiService();
         };
 
         $pimple[static::CENTREON_DB_MANAGER] = function (Container $container): CentreonDBManagerService {
@@ -139,27 +132,25 @@ class ServiceProvider implements AutoloadServiceProviderInterface
             ];
 
             $locator = new ServiceLocator($container, $services);
-            $service = new CentreonDBManagerService($locator);
 
-            return $service;
+            return new CentreonDBManagerService($locator);
         };
 
         $pimple[static::CENTREON_PAGINATION] = function (Container $container): Service\CentreonPaginationService {
-            $service = new Service\CentreonPaginationService(
+            return new Service\CentreonPaginationService(
                 new ServiceLocator(
                     $container,
                     Service\CentreonPaginationService::dependencies()
                 )
             );
-
-            return $service;
         };
 
         $pimple['centreon.user'] = function (Container $container): ?\CentreonUser {
             // @codeCoverageIgnoreStart
-            if (!empty($GLOBALS['centreon']->user) && $GLOBALS['centreon']->user instanceof \CentreonUser) {
+            if (! empty($GLOBALS['centreon']->user) && $GLOBALS['centreon']->user instanceof \CentreonUser) {
                 return $GLOBALS['centreon']->user;
-            } elseif (php_sapi_name() !== 'cli' && session_status() == PHP_SESSION_NONE) {
+            }
+            if (php_sapi_name() !== 'cli' && session_status() == PHP_SESSION_NONE) {
                 session_start();
             }
 
@@ -167,11 +158,8 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         };
 
         $pimple[static::CENTREON_ACL] = function (Container $container): CentreonACL {
-            $service = new CentreonACL($container);
-
-            return $service;
+            return new CentreonACL($container);
         };
-
 
         $pimple[static::CENTREON_GLOBAL_ACL] = function (): CACL {
             $service = new CACL($_SESSION['centreon']->user->user_id, $_SESSION['centreon']->user->admin);
@@ -180,9 +168,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
         };
 
         $pimple['centreon.config'] = function (): CentcoreConfigService {
-            $service = new CentcoreConfigService();
-
-            return $service;
+            return new CentcoreConfigService();
         };
 
         /**
@@ -191,25 +177,20 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         // @todo class is available via centreon.db-manager
         $pimple[static::CENTREON_BROKER_REPOSITORY] = function (Container $container): CfgCentreonBrokerRepository {
-            $service = new CfgCentreonBrokerRepository($container['configuration_db']);
-
-            return $service;
+            return new CfgCentreonBrokerRepository($container['configuration_db']);
         };
 
         // @todo class is available via centreon.db-manager
-        $pimple[static::CENTREON_BROKER_INFO_REPOSITORY] =
-            function (Container $container): CfgCentreonBrokerInfoRepository {
-                $service = new CfgCentreonBrokerInfoRepository($container['configuration_db']);
-
-                return $service;
+        $pimple[static::CENTREON_BROKER_INFO_REPOSITORY]
+            = function (Container $container): CfgCentreonBrokerInfoRepository {
+                return new CfgCentreonBrokerInfoRepository($container['configuration_db']);
             };
 
         /**
          * Services
          */
-
-        $pimple[static::CENTREON_BROKER_CONFIGURATION_SERVICE] =
-            function (Container $container): BrokerConfigurationService {
+        $pimple[static::CENTREON_BROKER_CONFIGURATION_SERVICE]
+            = function (Container $container): BrokerConfigurationService {
                 $service = new BrokerConfigurationService();
                 $service->setBrokerInfoRepository($container[ServiceProvider::CENTREON_BROKER_INFO_REPOSITORY]);
 
@@ -241,7 +222,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
 
         $pimple[static::SERIALIZER_OBJECT_NORMALIZER] = function (): Serializer\Normalizer\ObjectNormalizer {
             $classMetadataFactory = new Serializer\Mapping\Factory\ClassMetadataFactory(
-                new Serializer\Mapping\Loader\AnnotationLoader(new AnnotationReader())
+                new Serializer\Mapping\Loader\AttributeLoader()
             );
 
             return new Serializer\Normalizer\ObjectNormalizer(
@@ -265,27 +246,25 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     /**
      * Register services related with validation
      *
-     * @param \Pimple\Container $pimple
+     * @param Container $pimple
      */
     public function registerValidator(Container $pimple): void
     {
         $pimple[static::VALIDATOR] = function (Container $container): Validator\Validator\ValidatorInterface {
             return Validator\Validation::createValidatorBuilder()
-                    ->addMethodMapping('loadValidatorMetadata')
-                    ->setConstraintValidatorFactory($container[ServiceProvider::CENTREON_VALIDATOR_FACTORY])
-                    ->setTranslator($container[ServiceProvider::CENTREON_VALIDATOR_TRANSLATOR])
-                    ->getValidator();
+                ->addMethodMapping('loadValidatorMetadata')
+                ->setConstraintValidatorFactory($container[ServiceProvider::CENTREON_VALIDATOR_FACTORY])
+                ->setTranslator($container[ServiceProvider::CENTREON_VALIDATOR_TRANSLATOR])
+                ->getValidator();
         };
 
-        $pimple[static::CENTREON_VALIDATOR_FACTORY] =
-            function (Container $container): Validation\CentreonValidatorFactory {
-                $service = new Validation\CentreonValidatorFactory($container);
-
-                return $service;
+        $pimple[static::CENTREON_VALIDATOR_FACTORY]
+            = function (Container $container): Validation\CentreonValidatorFactory {
+                return new Validation\CentreonValidatorFactory($container);
             };
 
-        $pimple[static::CENTREON_VALIDATOR_TRANSLATOR] =
-            function (Container $container): Validation\CentreonValidatorTranslator {
+        $pimple[static::CENTREON_VALIDATOR_TRANSLATOR]
+            = function (Container $container): Validation\CentreonValidatorTranslator {
                 return new Validation\CentreonValidatorTranslator($container['centreon.user']);
             };
 
@@ -295,7 +274,7 @@ class ServiceProvider implements AutoloadServiceProviderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function order(): int
     {

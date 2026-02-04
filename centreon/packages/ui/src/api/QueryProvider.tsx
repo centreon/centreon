@@ -1,6 +1,5 @@
-import { ReactNode } from 'react';
-
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 
 const defaultCacheTime = 5 * 1_000;
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ final class LoginResponse implements ResponseStatusInterface
     public function __construct(
         private readonly string $redirectUri,
         private readonly bool $redirectIsReact,
-        private readonly ?Exception $exception = null
+        private readonly ?Exception $exception = null,
     ) {
     }
 

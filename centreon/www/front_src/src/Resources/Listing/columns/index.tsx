@@ -1,8 +1,8 @@
-import { T, equals, head, pipe, propOr, split } from 'ramda';
-
-import { ColumnType } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
+import { ColumnType, truncate } from '@centreon/ui';
 import { FeatureFlags } from '@centreon/ui-context';
+
+import { equals, head, pipe, propOr, split, T } from 'ramda';
 
 import { Visualization } from '../../models';
 import {
@@ -28,8 +28,6 @@ import {
   labelStatus,
   labelTries
 } from '../../translatedLabels';
-import truncate from '../../truncate';
-
 import ChecksColumn from './Checks';
 import GraphColumn from './Graph';
 import NotificationColumn from './Notification';
@@ -100,8 +98,8 @@ export const getColumns = ({
             id: 'status',
             label: t(labelStatus),
             rowMemoProps: ['status', 'severity_code', 'type'],
-            sortField: 'status_severity_code',
             sortable: true,
+            sortField: 'status_severity_code',
             type: ColumnType.component,
             width: 'max-content'
           }
@@ -112,8 +110,8 @@ export const getColumns = ({
       id: 'resource',
       label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component,
       width: 'max-content'
     },
@@ -135,8 +133,8 @@ export const getColumns = ({
             id: 'parent_resource',
             label: t(parentLabel),
             rowMemoProps: ['parent'],
-            sortField: 'parent_name',
             sortable: true,
+            sortField: 'parent_name',
             type: ColumnType.component,
             width: 'max-content'
           }
@@ -154,8 +152,8 @@ export const getColumns = ({
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
       label: t(labelDuration),
-      sortField: 'last_status_change',
       sortable: true,
+      sortField: 'last_status_change',
       type: ColumnType.string,
       width: 'max-content'
     },
@@ -180,7 +178,7 @@ export const getColumns = ({
         propOr('', 'information'),
         split('\n'),
         head,
-        truncate
+        (information: string) => truncate({ content: information })
       ) as (row) => string,
       id: 'information',
       label: t(labelInformation),
@@ -196,8 +194,8 @@ export const getColumns = ({
       label: t(labelSeverity),
       rowMemoProps: ['severity_level'],
       shortLabel: 'S',
-      sortField: 'severity_level',
       sortable: true,
+      sortField: 'severity_level',
       type: ColumnType.component
     },
     {
@@ -246,8 +244,8 @@ export const getColumns = ({
             id: 'parent_alias',
             label: t(labelParentAlias),
             rowMemoProps: ['parent'],
-            sortField: 'parent_alias',
             sortable: true,
+            sortField: 'parent_alias',
             type: ColumnType.string,
             width: 'max-content'
           }

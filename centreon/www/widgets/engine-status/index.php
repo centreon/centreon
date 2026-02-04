@@ -1,85 +1,109 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-require_once "../require.php";
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Enum\QueryParameterTypeEnum;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+
+require_once '../require.php';
+require_once '../widget-error-handling.php';
 require_once $centreon_path . 'www/class/centreon.class.php';
 require_once $centreon_path . 'www/class/centreonSession.class.php';
 require_once $centreon_path . 'www/class/centreonWidget.class.php';
 require_once $centreon_path . 'www/class/centreonDuration.class.php';
 require_once $centreon_path . 'www/class/centreonUtils.class.php';
-require_once $centreon_path . 'www/class/centreonACL.class.php';
 require_once $centreon_path . 'www/class/centreonHost.class.php';
+require_once $centreon_path . 'www/include/common/sqlCommonFunction.php';
 require_once $centreon_path . 'bootstrap.php';
 
 CentreonSession::start(1);
 
-if (!isset($_SESSION['centreon']) || !isset($_REQUEST['widgetId'])) {
+if (! isset($_SESSION['centreon']) || ! isset($_REQUEST['widgetId'])) {
     exit;
 }
+
 $centreon = $_SESSION['centreon'];
 $widgetId = filter_var($_REQUEST['widgetId'], FILTER_VALIDATE_INT);
 
 try {
     if ($widgetId === false) {
-        throw new \InvalidArgumentException('Widget ID must be an integer');
+        throw new InvalidArgumentException('Widget ID must be an integer');
     }
 
-    $db_centreon = $dependencyInjector['configuration_db'];
-    $db = $dependencyInjector['realtime_db'];
+    /**
+     * @var CentreonDB $configurationDatabase
+     */
+    $configurationDatabase = $dependencyInjector['configuration_db'];
 
-    if ($centreon->user->admin == 0) {
-        $access = new CentreonACL($centreon->user->get_id());
-        $grouplist = $access->getAccessGroups();
-        $grouplistStr = $access->getAccessGroupsString();
-    }
+    /**
+     * @var CentreonDB $realtimeDatabase
+     */
+    $realtimeDatabase = $dependencyInjector['realtime_db'];
 
-    $widgetObj = new CentreonWidget($centreon, $db_centreon);
+    $widgetObj = new CentreonWidget($centreon, $configurationDatabase);
+
+    /**
+     * @var array{
+     *     poller: string,
+     *     avg-l: string,
+     *     max-e: string,
+     *     avg-e: string,
+     *     autoRefresh: string
+     * } $preferences
+     */
     $preferences = $widgetObj->getWidgetPreferences($widgetId);
 
-    $autoRefresh = filter_var($preferences['autoRefresh'], FILTER_VALIDATE_INT);
+    if (empty($preferences['poller'])) {
+        throw new InvalidArgumentException('Please select a poller');
+    }
+
+    $autoRefresh = filter_var(
+        $preferences['autoRefresh'],
+        FILTER_VALIDATE_INT,
+    );
+
     if ($autoRefresh === false || $autoRefresh < 5) {
         $autoRefresh = 30;
     }
+
     $variablesThemeCSS = match ($centreon->user->theme) {
-        'light' => "Generic-theme",
-        'dark' => "Centreon-Dark",
-        default => throw new \Exception('Unknown user theme : ' . $centreon->user->theme),
+        'light' => 'Generic-theme',
+        'dark' => 'Centreon-Dark',
+        default => throw new Exception('Unknown user theme : ' . $centreon->user->theme),
     };
-} catch (InvalidArgumentException $e) {
-    echo $e->getMessage() . "<br/>";
+
+    $theme = $variablesThemeCSS === 'Generic-theme'
+        ? $variablesThemeCSS . '/Variables-css'
+        : $variablesThemeCSS;
+} catch (Exception $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+        message: 'Error while using engine-status widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme ?? 'Generic-theme/Variables-css');
+
     exit;
 }
 
@@ -87,100 +111,154 @@ try {
 $path = $centreon_path . 'www/widgets/engine-status/src/';
 $template = SmartyBC::createSmartyTemplate($path, './');
 
-$dataLat = [];
-$dataEx = [];
-$dataSth = [];
-$dataSts = [];
-$db = new CentreonDB("centstorage");
+$latencyData = [];
+$executionTimeData = [];
+$hostStatusesData = [];
+$serviceStatusesData = [];
 
-$instances = [];
-if (isset($preferences['poller']) && $preferences['poller']) {
-    $pollerIds = explode(',', $preferences['poller']);
-    $queryPoller = '';
-    foreach ($pollerIds as $pollerId) {
-        $instances[] = (int) $pollerId;
+['parameters' => $parameters, 'placeholderList' => $pollerList] = createMultipleBindParameters(
+    explode(',', $preferences['poller']),
+    'poller_id',
+    QueryParameterTypeEnum::INTEGER,
+);
+
+$queryParameters = QueryParameters::create($parameters);
+
+$queryLatency = <<<SQL
+    SELECT
+        1 AS realtime,
+        MAX(h.latency) AS h_max,
+        AVG(h.latency) AS h_moy,
+        MAX(s.latency) AS s_max,
+        AVG(s.latency) AS s_moy
+    FROM hosts h
+    INNER JOIN services s
+        ON h.host_id = s.host_id
+    WHERE
+        h.instance_id IN ({$pollerList})
+        AND s.enabled = '1'
+        AND s.check_type = '0'
+    SQL;
+
+$queryExecutionTime = <<<SQL
+        SELECT
+            1 AS realtime,
+            MAX(h.execution_time) AS h_max,
+            AVG(h.execution_time) AS h_moy,
+            MAX(s.execution_time) AS s_max,
+            AVG(s.execution_time) AS s_moy
+        FROM hosts h
+        INNER JOIN services s
+            ON h.host_id = s.host_id
+        WHERE
+            h.instance_id IN ({$pollerList})
+            AND s.enabled = '1'
+            AND s.check_type = '0';
+    SQL;
+
+try {
+    foreach ($realtimeDatabase->iterateAssociative($queryLatency, $queryParameters) as $record) {
+        $record['h_max'] = round($record['h_max'], 3);
+        $record['h_moy'] = round($record['h_moy'], 3);
+        $record['s_max'] = round($record['s_max'], 3);
+        $record['s_moy'] = round($record['s_moy'], 3);
+        $latencyData[] = $record;
     }
+} catch (ConnectionException $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_SQL,
+        message: 'Error retrieving latency data for engine-status widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme);
+
+    exit;
 }
 
-if ($instances !== []) {
-    $queryLat = "SELECT
+try {
+    foreach ($realtimeDatabase->iterateAssociative($queryExecutionTime, $queryParameters) as $record) {
+        $record['h_max'] = round($record['h_max'], 3);
+        $record['h_moy'] = round($record['h_moy'], 3);
+        $record['s_max'] = round($record['s_max'], 3);
+        $record['s_moy'] = round($record['s_moy'], 3);
+        $executionTimeData[] = $record;
+    }
+} catch (ConnectionException $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_SQL,
+        message: 'Error retrieving execution time data for engine-status widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme);
+
+    exit;
+}
+
+$queryHostStatuses = <<<SQL
+        SELECT
             1 AS REALTIME,
-            MAX(T1.latency) AS h_max,
-            AVG(T1.latency) AS h_moy,
-            MAX(T2.latency) AS s_max,
-            AVG(T2.latency) AS s_moy
-            FROM hosts T1, services T2
-            WHERE T1.instance_id IN (" . implode(',', $instances) . ")
-            AND T1.host_id = T2.host_id
-            AND T2.enabled = '1'
-            AND T2.check_type = '0'";
-    $queryEx = "SELECT
+            SUM(h.state = 1) AS Dow,
+            SUM(h.state = 2) AS Un,
+            SUM(h.state = 0) AS Up,
+            SUM(h.state = 4) AS Pend
+        FROM hosts h
+        WHERE h.instance_id IN ({$pollerList})
+          AND h.enabled = 1
+          AND h.name NOT LIKE '%Module%'
+    SQL;
+
+$queryServiceStatuses = <<<SQL
+        SELECT
             1 AS REALTIME,
-            MAX(T1.execution_time) AS h_max,
-            AVG(T1.execution_time) AS h_moy,
-            MAX(T2.execution_time) AS s_max,
-            AVG(T2.execution_time) AS s_moy
-            FROM hosts T1, services T2
-            WHERE T1.instance_id IN (" . implode(',', $instances) . ") AND T1.host_id = T2.host_id
-            AND T2.enabled = '1'
-            AND T2.check_type = '0'";
+            SUM(s.state = 2) AS Cri,
+            SUM(s.state = 1) AS Wa,
+            SUM(s.state = 0) AS Ok,
+            SUM(s.state = 4) AS Pend,
+            SUM(s.state = 3) AS Unk
+        FROM services s
+        INNER JOIN hosts h
+            ON h.host_id = s.host_id
+        WHERE h.instance_id IN ({$pollerList})
+          AND s.enabled = 1
+          AND h.name NOT LIKE '%Module%'
+    SQL;
 
-    $res = $db->query($queryLat);
-    $res2 = $db->query($queryEx);
+try {
+    $hostStatusesData = $realtimeDatabase->fetchAllAssociative($queryHostStatuses, $queryParameters);
+} catch (ConnectionException $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_SQL,
+        message: 'Error retrieving host statuses data for engine-status widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme);
 
-    while ($row = $res->fetch()) {
-        $row['h_max'] = round($row['h_max'], 3);
-        $row['h_moy'] = round($row['h_moy'], 3);
-        $row['s_max'] = round($row['s_max'], 3);
-        $row['s_moy'] = round($row['s_moy'], 3);
-        $dataLat[] = $row;
-    }
+    exit;
+}
 
-    while ($row = $res2->fetch()) {
-        $row['h_max'] = round($row['h_max'], 3);
-        $row['h_moy'] = round($row['h_moy'], 3);
-        $row['s_max'] = round($row['s_max'], 3);
-        $row['s_moy'] = round($row['s_moy'], 3);
-        $dataEx[] = $row;
-    }
+try {
+    $serviceStatusesData = $realtimeDatabase->fetchAllAssociative($queryServiceStatuses, $queryParameters);
+} catch (ConnectionException $exception) {
+    CentreonLog::create()->error(
+        logTypeId: CentreonLog::TYPE_SQL,
+        message: 'Error retrieving service statuses data for engine-status widget: ' . $exception->getMessage(),
+        customContext: [
+            'widget_id' => $widgetId,
+        ],
+        exception: $exception
+    );
+    showError($exception->getMessage(), $theme);
 
-    $querySth = "SELECT
-                1 AS REALTIME,
-                SUM(CASE WHEN h.state = 1 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Dow,
-                SUM(CASE WHEN h.state = 2 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Un,
-                SUM(CASE WHEN h.state = 0 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Up,
-                SUM(CASE WHEN h.state = 4 AND h.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Pend
-                FROM hosts h WHERE h.instance_id IN (" . implode(',', $instances) . ")";
-
-    $querySts = "SELECT
-                1 AS REALTIME,
-                SUM(CASE WHEN s.state = 2 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Cri,
-                SUM(CASE WHEN s.state = 1 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Wa,
-                SUM(CASE WHEN s.state = 0 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Ok,
-                SUM(CASE WHEN s.state = 4 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Pend,
-                SUM(CASE WHEN s.state = 3 AND s.enabled = 1 AND h.name NOT LIKE '%Module%'
-                THEN 1 ELSE 0 END) AS Unk
-                FROM services s, hosts h
-                WHERE h.host_id = s.host_id AND h.instance_id IN (" . implode(',', $instances) . ")";
-
-    $res = $db->query($querySth);
-    $res2 = $db->query($querySts);
-
-    while ($row = $res->fetch()) {
-        $dataSth[] = $row;
-    }
-
-    while ($row = $res2->fetch()) {
-        $dataSts[] = $row;
-    }
+    exit;
 }
 
 $avg_l = $preferences['avg-l'];
@@ -192,12 +270,12 @@ $template->assign('widgetId', $widgetId);
 $template->assign('autoRefresh', $autoRefresh);
 $template->assign('preferences', $preferences);
 $template->assign('max_e', $max_e);
-$template->assign('dataSth', $dataSth);
-$template->assign('dataSts', $dataSts);
-$template->assign('dataEx', $dataEx);
-$template->assign('dataLat', $dataLat);
+$template->assign('dataSth', $hostStatusesData);
+$template->assign('dataSts', $serviceStatusesData);
+$template->assign('dataEx', $executionTimeData);
+$template->assign('dataLat', $latencyData);
 $template->assign(
     'theme',
-    $variablesThemeCSS === 'Generic-theme' ? $variablesThemeCSS . '/Variables-css' : $variablesThemeCSS
+    $theme
 );
 $template->display('engine-status.ihtml');

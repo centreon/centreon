@@ -1,0 +1,19 @@
+Core\HostGroup\Domain\Model\HostGroup:
+  attributes:
+    id:
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
+    name:
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
+    alias:
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
+    geoCoords:
+      serialized_name: 'geo_coords'
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
+    comment:
+      groups: ['HostGroup:Add', 'HostGroup:List', 'HostGroup:Get']
+    iconId:
+      serialized_name: 'icon_id'
+      groups: ['HostGroup:Add']
+    isActivated:
+      serialized_name: 'is_activated'
+      groups: ['HostGroup:List', 'HostGroup:Get']

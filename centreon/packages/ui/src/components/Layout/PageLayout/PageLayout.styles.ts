@@ -4,8 +4,8 @@ export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
-    overflow: 'hidden',
-    height: '100%'
+    height: '100%',
+    overflow: 'hidden'
   },
   pageLayoutActions: {
     '& > span': {
@@ -20,16 +20,16 @@ export const useStyles = makeStyles()((theme) => ({
     paddingBottom: theme.spacing(1.5)
   },
   pageLayoutBody: {
-    '&[data-has-background="true"]': {
-      backgroundColor: theme.palette.layout.body.background
-    },
     '&[data-has-actions="true"]': {
       gridTemplateRows: 'min-content auto'
+    },
+    '&[data-has-background="true"]': {
+      backgroundColor: theme.palette.layout.body.background
     },
     display: 'grid',
     gridTemplateRows: 'auto',
     overflow: 'hidden',
-    padding: theme.spacing(1.5, 3, 1.5)
+    padding: theme.spacing(0, 3, 1.5)
   },
   pageLayoutHeader: {
     '[data-variant="fixed-header"] &': {

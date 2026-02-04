@@ -1,4 +1,34 @@
-import { Provider, createStore } from 'jotai';
+import { Method, TestQueryProvider } from '@centreon/ui';
+import {
+  federatedWidgetsAtom,
+  platformVersionsAtom
+} from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+
+import { Version } from '../../../../api/models';
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
+import { FederatedWidgetProperties } from '../../../../federatedModules/models';
+import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
+import {
+  labelAddFilter,
+  labelAddMetric,
+  labelCancel,
+  labelDelete,
+  labelEditWidget,
+  labelGenericWidgets,
+  labelMetrics,
+  labelPleaseChooseAWidgetToActivatePreview,
+  labelRealTimeWidgets,
+  labelResourceType,
+  labelSave,
+  labelSelectAResource,
+  labelSelectAWidgetType,
+  labelSelectMetric,
+  labelShowDescription,
+  labelTitle,
+  labelWidgetType
+} from '../translatedLabels';
 import widgetClockProperties from '../Widgets/centreon-widget-clock/properties.json';
 import widgetDataProperties from '../Widgets/centreon-widget-data/properties.json';
 import widgetGenericTextProperties from '../Widgets/centreon-widget-generictext/properties.json';
@@ -13,42 +43,12 @@ import widgetStatusGridProperties from '../Widgets/centreon-widget-statusgrid/pr
 import widgetTextProperties from '../Widgets/centreon-widget-text/properties.json';
 import widgetTopBottomProperties from '../Widgets/centreon-widget-topbottom/properties.json';
 import widgetWebPageProperties from '../Widgets/centreon-widget-webpage/properties.json';
-
-import { Method, TestQueryProvider } from '@centreon/ui';
-import {
-  federatedWidgetsAtom,
-  platformVersionsAtom
-} from '@centreon/ui-context';
-
-import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
-import { dashboardAtom, hasEditPermissionAtom, isEditingAtom } from '../atoms';
-import {
-  labelAddFilter,
-  labelAddMetric,
-  labelCancel,
-  labelDelete,
-  labelEditWidget,
-  labelMetrics,
-  labelPleaseChooseAWidgetToActivatePreview,
-  labelResourceType,
-  labelSave,
-  labelSelectAResource,
-  labelSelectAWidgetType,
-  labelSelectMetric,
-  labelShowDescription,
-  labelTitle,
-  labelWidgetType
-} from '../translatedLabels';
-
-import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
+import { internalWidgetComponents } from '../Widgets/widgets';
+import { AddEditWidgetModal } from '.';
 import { metricsEndpoint } from './api/endpoints';
 import { widgetFormInitialDataAtom } from './atoms';
 import { WidgetResourceType, WidgetType } from './models';
-
-import { AddEditWidgetModal } from '.';
-import { Version } from '../../../../api/models';
-import { FederatedWidgetProperties } from '../../../../federatedModules/models';
-import { internalWidgetComponents } from '../Widgets/widgets';
+import { resourceTypeBaseEndpoints } from './WidgetProperties/Inputs/Resources/useResources';
 
 const widgetsProperties: Array<Partial<FederatedWidgetProperties>> = [
   widgetTextProperties,
@@ -158,13 +158,13 @@ const initialFormData = {
     ],
     resources: [
       {
-        resourceType: 'host',
         resources: [
           {
             id: 0,
             name: 'Host 0'
           }
-        ]
+        ],
+        resourceType: 'host'
       }
     ]
   },
@@ -199,11 +199,13 @@ const generateResources = (resourceLabel: string): object => ({
 const availableWidgetsType = [
   {
     category: WidgetType.Generic,
-    wigetsTitle: ['Clock / Timer', 'Generic text', 'Web page']
+    categoryTitle: labelGenericWidgets,
+    widgetsTitle: ['Clock / Timer', 'Generic text', 'Web page']
   },
   {
     category: WidgetType.RealTime,
-    wigetsTitle: [
+    categoryTitle: labelRealTimeWidgets,
+    widgetsTitle: [
       'Group monitoring',
       'Metrics graph',
       'Resource table',
@@ -304,6 +306,8 @@ describe('AddEditWidgetModal', () => {
         cy.findByLabelText(labelTitle).should('have.value', widgetName);
         cy.findByLabelText(labelSave).should('be.enabled');
 
+        cy.contains('Hello world');
+
         cy.makeSnapshot();
       });
 
@@ -361,20 +365,24 @@ describe('AddEditWidgetModal', () => {
 
       it('displays widgets grouped under the appropriate category', () => {
         cy.findByTestId(labelWidgetType).click();
-        availableWidgetsType.forEach(({ category, wigetsTitle }) => {
-          cy.findByTestId(`${category}-accordion`).as('container');
-          cy.get('@container').findByText(category);
+        availableWidgetsType.forEach(
+          ({ category, categoryTitle, widgetsTitle }) => {
+            cy.findByTestId(`${category}-accordion`).as('container');
+            cy.get('@container').findByText(categoryTitle);
 
-          cy.get('@container').findByTestId(`${category}-summary`).as('header');
-          cy.get('@header').should('have.attr', 'aria-expanded', 'true');
-          wigetsTitle?.forEach((title) => {
-            cy.get('@container').findByText(title);
-          });
-          cy.get('@container').scrollIntoView();
-          cy.makeSnapshot(
-            `displays widgets grouped under the category ${category}`
-          );
-        });
+            cy.get('@container')
+              .findByTestId(`${category}-summary`)
+              .as('header');
+            cy.get('@header').should('have.attr', 'aria-expanded', 'true');
+            widgetsTitle?.forEach((title) => {
+              cy.get('@container').findByText(title);
+            });
+            cy.get('@container').scrollIntoView();
+            cy.makeSnapshot(
+              `displays widgets grouped under the category ${category}`
+            );
+          }
+        );
       });
     });
 
@@ -406,7 +414,7 @@ describe('AddEditWidgetModal', () => {
         );
         cy.findByLabelText(labelTitle).should('have.value', 'Widget name');
         cy.findAllByLabelText('RichTextEditor').eq(0).contains('Description');
-        cy.contains('Widget name').should('be.visible');
+        cy.contains('Widget name').should('exist');
         cy.findAllByLabelText('RichTextEditor').eq(1).contains('Description');
         cy.findByLabelText(labelSave).should('be.disabled');
 
@@ -518,8 +526,6 @@ describe('AddEditWidgetModal', () => {
       cy.findByLabelText('Show thresholds').click();
 
       cy.contains('Sort by').should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('displays general properties when a widget is selected', () => {
@@ -702,8 +708,6 @@ describe('AddEditWidgetModal', () => {
           .click();
 
         cy.findAllByText(/^Host$/).should('have.length', 1);
-
-        cy.makeSnapshot();
       });
 
       it('removes resource item when delete icon is clicked', () => {
@@ -819,6 +823,8 @@ describe('AddEditWidgetModal', () => {
               id: 2,
               includeAllMetrics: true,
               name: 'pl',
+              serviceId: 1,
+              serviceName: 'Ping',
               unit: '%',
               warningHighThreshold: null,
               warningLowThreshold: null

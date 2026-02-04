@@ -1,9 +1,27 @@
 <?php
-$help = [];
 
 /*
- * LDAP Information
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
  */
+
+$help = [];
+
+// LDAP Information
 $help['ar_name'] = dgettext('help', 'Name of configuration');
 $help['ar_description'] = dgettext('help', 'Short description of configuration');
 $help['ldap_auth_enable'] = dgettext('help', 'Enable LDAP authentication');
@@ -66,6 +84,6 @@ $help['ldap_sync_interval'] = dgettext(
 );
 $help['ldap_auto_sync'] = dgettext(
     'help',
-    "If enabled, a user LDAP synchronization will be performed on login to update contact's data and calculate " .
-    "new Centreon ACLs."
+    "If enabled, a user LDAP synchronization will be performed on login to update contact's data and calculate "
+    . 'new Centreon ACLs.'
 );

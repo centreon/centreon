@@ -5,7 +5,6 @@ import {
   FederatedWidgetOptionType,
   FederatedWidgetProperties
 } from '../../../../federatedModules/models';
-
 import { Widget } from './models';
 
 export const widgetFormInitialDataAtom = atom<Widget | null>(null);
@@ -13,8 +12,6 @@ export const widgetFormInitialDataAtom = atom<Widget | null>(null);
 export const widgetPropertiesAtom = atom<FederatedWidgetProperties | undefined>(
   undefined
 );
-
-export const singleMetricSelectionAtom = atom<boolean | undefined>(undefined);
 
 export const singleResourceSelectionAtom = atom<boolean | undefined>(undefined);
 
@@ -125,7 +122,7 @@ export const timezoneInputKeyDerivedAtom = atom<string | undefined>((get) => {
 
 export const widgetPropertiesMetaPropertiesDerivedAtom = atom<Pick<
   FederatedWidgetProperties,
-  'singleResourceSelection' | 'customBaseColor' | 'singleMetricSelection'
+  'singleResourceSelection' | 'customBaseColor'
 > | null>((get) => {
   const widgetProperties = get(widgetPropertiesAtom);
 
@@ -135,7 +132,6 @@ export const widgetPropertiesMetaPropertiesDerivedAtom = atom<Pick<
 
   return {
     customBaseColor: widgetProperties.customBaseColor,
-    singleMetricSelection: widgetProperties.singleMetricSelection,
     singleResourceSelection: widgetProperties.singleResourceSelection
   };
 });

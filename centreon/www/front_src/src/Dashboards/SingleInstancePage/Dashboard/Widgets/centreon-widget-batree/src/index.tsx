@@ -1,12 +1,10 @@
 import FederatedComponent from '../../../../../../components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
 import { WidgetProps } from './models';
 
 const Widget = ({
   panelData,
-  store,
   id,
   dashboardId,
   globalRefreshInterval,
@@ -23,17 +21,16 @@ const Widget = ({
 
   return (
     <FederatedComponent
-      path="/bam/widget"
-      panelData={panelData}
-      store={store}
-      panelOptions={panelOptions}
-      globalRefreshInterval={globalRefreshInterval}
-      refreshCount={refreshCount}
-      isFromPreview={isFromPreview}
-      id={id}
-      playlistHash={playlistHash}
       dashboardId={dashboardId}
+      globalRefreshInterval={globalRefreshInterval}
+      id={id}
+      isFromPreview={isFromPreview}
+      panelData={panelData}
+      panelOptions={panelOptions}
+      path="/bam/widget"
+      playlistHash={playlistHash}
       queryClient={queryClient}
+      refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
     />
   );

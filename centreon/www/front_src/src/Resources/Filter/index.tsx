@@ -1,13 +1,23 @@
+import CloseIcon from '@mui/icons-material/Close';
 import {
-  type KeyboardEvent,
-  type RefObject,
-  Suspense,
-  lazy,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
-import SelectFilter from './Fields/SelectFilter';
+  Box,
+  CircularProgress,
+  ClickAwayListener,
+  MenuItem,
+  Paper,
+  Popper
+} from '@mui/material';
+
+import {
+  getData,
+  IconButton,
+  LoadingSkeleton,
+  Filter as MemoizedFilter,
+  SearchField,
+  type SelectEntry,
+  useRequest
+} from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -32,29 +42,17 @@ import {
   remove,
   uniq
 } from 'ramda';
+import {
+  type KeyboardEvent,
+  lazy,
+  type RefObject,
+  Suspense,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import CloseIcon from '@mui/icons-material/Close';
-import {
-  Box,
-  CircularProgress,
-  ClickAwayListener,
-  MenuItem,
-  Paper,
-  Popper
-} from '@mui/material';
-
-import {
-  IconButton,
-  LoadingSkeleton,
-  Filter as MemoizedFilter,
-  SearchField,
-  type SelectEntry,
-  getData,
-  useRequest
-} from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
 import {
   labelClearFilter,
@@ -64,17 +62,15 @@ import {
   labelSearchBar,
   labelStateFilter
 } from '../translatedLabels';
-
 import {
   type DynamicCriteriaParametersAndValues,
   getAutocompleteSuggestions,
   getDynamicCriteriaParametersAndValue,
   replaceMiddleSpace
 } from './Criterias/searchQueryLanguage';
-import FilterLoadingSkeleton from './FilterLoadingSkeleton';
-import SearchHelp from './SearchHelp';
 import { selectedStatusByResourceTypeAtom } from './criteriasNewInterface/basicFilter/atoms';
-import { escapeRegExpSpecialChars } from './criteriasNewInterface/utils';
+import SelectFilter from './Fields/SelectFilter';
+import FilterLoadingSkeleton from './FilterLoadingSkeleton';
 import {
   applyCurrentFilterDerivedAtom,
   applyFilterDerivedAtom,
@@ -92,6 +88,7 @@ import {
   standardFilterById,
   unhandledProblemsFilter
 } from './models';
+import SearchHelp from './SearchHelp';
 import useBackToVisualizationByAll from './useBackToVisualizationByAll';
 import useFilterByModule from './useFilterByModule';
 
@@ -104,9 +101,9 @@ export const renderEndAdornmentFilter = (onClear) => (): JSX.Element => {
       <IconButton
         ariaLabel={t(labelClearFilter) as string}
         data-testid={labelClearFilter}
+        onClick={onClear}
         size="small"
         title={t(labelClearFilter) as string}
-        onClick={onClear}
       >
         <CloseIcon color="action" fontSize="small" />
       </IconButton>
@@ -119,10 +116,6 @@ interface DynamicCriteriaResult {
 }
 
 const useStyles = makeStyles()((theme) => ({
-  End: {
-    display: 'flex',
-    flexDirection: 'row'
-  },
   autocompletePopper: {
     zIndex: theme.zIndex.tooltip
   },
@@ -133,6 +126,10 @@ const useStyles = makeStyles()((theme) => ({
     gridGap: theme.spacing(1),
     gridTemplateColumns: '1fr auto 175px',
     width: '100%'
+  },
+  End: {
+    display: 'flex',
+    flexDirection: 'row'
   },
   loader: { display: 'flex', justifyContent: 'center' },
   searchbarContainer: {
@@ -210,7 +207,7 @@ const Filter = (): JSX.Element => {
 
     const lastValue = last(values);
 
-    const selectedValues = remove(-1, 1, values).map(escapeRegExpSpecialChars);
+    const selectedValues = remove(-1, 1, values);
 
     sendDynamicCriteriaValueRequests({
       endpoint: buildAutocompleteEndpoint({
@@ -228,7 +225,7 @@ const Filter = (): JSX.Element => {
           ],
           regex: {
             fields: ['name'],
-            value: escapeRegExpSpecialChars(lastValue || '')
+            value: lastValue || ''
           }
         }
       })
@@ -577,12 +574,10 @@ const Filter = (): JSX.Element => {
             <div data-testid={labelSearchBar}>
               <Box className={classes.searchbarContainer}>
                 <SearchField
-                  fullWidth
-                  EndAdornment={renderEndAdornmentFilter(clearFilters)}
                   disabled={isCriteriasPanelOpen}
+                  EndAdornment={renderEndAdornmentFilter(clearFilters)}
+                  fullWidth
                   inputRef={searchRef as RefObject<HTMLInputElement>}
-                  placeholder={t(labelSearch) as string}
-                  value={search}
                   onBlur={blurInput}
                   onChange={prepareSearch}
                   onClick={(): void => {
@@ -590,6 +585,8 @@ const Filter = (): JSX.Element => {
                   }}
                   onFocus={(): void => setIsSearchFieldFocused(true)}
                   onKeyDown={inputKey}
+                  placeholder={t(labelSearch) as string}
+                  value={search}
                 />
                 <Suspense
                   fallback={
@@ -622,11 +619,11 @@ const Filter = (): JSX.Element => {
                     return (
                       <MenuItem
                         key={suggestion}
-                        selected={index === selectedSuggestionIndex}
                         onClick={(): void => {
                           acceptAutocompleteSuggestionAtIndex(index);
                           searchRef?.current?.focus();
                         }}
+                        selected={index === selectedSuggestionIndex}
                       >
                         {suggestion}
                       </MenuItem>
@@ -648,11 +645,11 @@ const Filter = (): JSX.Element => {
           ) : (
             <SelectFilter
               ariaLabel={t(labelStateFilter)}
+              onChange={changeFilter}
               options={options.map(pick(['id', 'name', 'type', 'testId']))}
               selectedOptionId={
                 canDisplaySelectedFilter ? currentFilter.id : ''
               }
-              onChange={changeFilter}
             />
           )}
         </div>

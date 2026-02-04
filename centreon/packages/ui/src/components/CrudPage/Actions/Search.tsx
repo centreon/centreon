@@ -1,4 +1,5 @@
 import { SearchField } from '@centreon/ui';
+
 import { useActionsStyles } from './Actions.styles';
 import Filters from './Filters';
 import { useSearch } from './useSearch';
@@ -14,21 +15,22 @@ const Search = ({ label, filters }: Props): JSX.Element => {
   const { change } = useSearch();
 
   return (
-    <SearchField
-      className={classes.search}
-      debounced
-      fullWidth
-      dataTestId={label}
-      placeholder={label}
-      onChange={change}
-      textFieldSlotsAndSlotProps={{
-        slotProps: {
-          input: {
-            endAdornment: <Filters label="filters" filters={filters} />
+    <div className={classes.search}>
+      <SearchField
+        dataTestId={label}
+        debounced
+        fullWidth
+        onChange={change}
+        placeholder={label}
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            input: {
+              endAdornment: <Filters filters={filters} label="filters" />
+            }
           }
-        }
-      }}
-    />
+        }}
+      />
+    </div>
   );
 };
 

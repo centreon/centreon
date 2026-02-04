@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,25 +25,26 @@ namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
 final class UpdateHostGroupRequest
 {
-    public string $name = '';
+    /**
+     * @param int $id
+     * @param string $name
+     * @param string $alias
+     * @param string|null $geoCoords
+     * @param string $comment
+     * @param int|null $iconId
+     * @param int[]|null $hosts
+     * @param int[] $resourceAccessRules
+     */
+    public function __construct(
+        public int $id = 0,
+        public string $name = '',
+        public string $alias = '',
+        public ?string $geoCoords = null,
+        public string $comment = '',
+        public ?int $iconId = null,
+        public ?array $hosts = null,
+        public array $resourceAccessRules = [],
+    ) {
 
-    public string $alias = '';
-
-    public string $notes = '';
-
-    public string $notesUrl = '';
-
-    public string $actionUrl = '';
-
-    public ?int $iconId = null;
-
-    public ?int $iconMapId = null;
-
-    public ?int $rrdRetention = null;
-
-    public ?string $geoCoords = null;
-
-    public string $comment = '';
-
-    public bool $isActivated = true;
+    }
 }

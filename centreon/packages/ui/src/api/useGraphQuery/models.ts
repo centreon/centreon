@@ -1,4 +1,4 @@
-import { SelectEntry } from '../..';
+import type { SelectEntry } from '../..';
 
 export interface Resource {
   resourceType: string;

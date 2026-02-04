@@ -1,33 +1,242 @@
 type: object
-required: ["name", "type", "pollerIds", "configuration"]
+required: ["name", "type", "poller_ids", "configuration"]
 properties:
   name:
     type: string
-    description: "configuration name"
-    example: "my-cfg-name"
+    description: Configuration name.
+    example: my-cfg-name
+
   type:
     type: string
-    description: |
-      Type of configuration
+    description: Type of agent configuration.
+    enum: [telegraf, centreon-agent]
+    example: centreon-agent
 
-      Supported types:
-        * telegraf
-        * centreon-agent
-    example: telegraf
+  connection_mode:
+    type: string
+    description: Connection mode for the configuration.
+    enum: [secure, no-tls, insecure]
+    default: secure
+    example: secure
+
   poller_ids:
     type: array
     items:
       type: integer
-    description: Poller ID(s) associated with the configuration
+    description: Poller ID(s) associated with the configuration.
     example: [1, 12]
+
   configuration:
     type: object
-    description: |
-      Configuration parameters, varies depending on the type.
-    example:
-      otel_public_certificate: "my-otel-certificate-name"
-      otel_ca_certificate: null
-      otel_private_key: "my-otel-private-key-name"
-      conf_server_port: 1443
-      conf_certificate: "my-certificate-name"
-      conf_private_key: "my-private-key-name"
+    description: Configuration parameters, varies depending on the type.
+    oneOf:
+      - title: Configuration for `centreon-agent`
+        type: object
+        required:
+          - poller_initiated
+          - port
+          - agent_initiated
+          - otel_public_certificate
+          - otel_ca_certificate
+          - otel_private_key
+          - tokens
+          - hosts
+        properties:
+          poller_initiated:
+            type: boolean
+            description: Connection initiated by poller.
+            example: true
+
+          port:
+            type: integer
+            description: Port used for connection (mandatory for agent initiated connection).
+            nullable: true
+
+          agent_initiated:
+            type: boolean
+            description: Connection initiated by agent.
+            example: true
+
+          otel_public_certificate:
+            type: [string, null]
+            description: |
+              Path of the public certificate.
+              - Must end with `.crt`,`.cert` or `.cer`
+              - No path traversal allowed: `../`, `./`, or `//`
+              - Automatically prefixed with `/etc/pki/`
+            example: otel-cert.crt
+
+          otel_ca_certificate:
+            type: [string, null]
+            description: |
+              Path of the CA certificate used by the agent.
+              - Must end with `.crt` or `.cer`
+              - No path traversal allowed
+              - Automatically prefixed with `/etc/pki/`
+            example: ca-cert.cer
+
+          otel_private_key:
+            type: [string, null]
+            description: |
+              Path of the private key.
+              - Must end with `.key`
+              - No path traversal allowed
+              - Automatically prefixed with `/etc/pki/`
+            example: otel-private-key.key
+
+          tokens:
+            type: array
+            description: List of tokens.
+            items:
+              type: object
+              required: [name, creator_id]
+              properties:
+                name:
+                  type: string
+                  description: Token name.
+                  example: cmaToken-01
+                creator_id:
+                  type: integer
+                  description: ID of the token creator.
+                  example: 12
+
+          hosts:
+            type: array
+            description: Hosts for reverse mode.
+            items:
+              type: object
+              required:
+                - id
+                - address
+                - port
+                - poller_ca_certificate
+                - poller_ca_name
+                - token
+              properties:
+                id:
+                  type: integer
+                  description: Unique ID of the host.
+                  example: 1
+                address:
+                  type: string
+                  description: Host address.
+                  example: 192.168.10.20
+                port:
+                  type: integer
+                  description: Port used to connect to the host.
+                  example: 1234
+                poller_ca_certificate:
+                  type: [string, null]
+                  description: CA certificate expected by the host.
+                  example: poller-ca-cert.crt
+                poller_ca_name:
+                  type: [string, null]
+                  description: CA name for the host.
+                  example: CentreonCA
+                token:
+                  type: [object, null]
+                  description: Token used for the host.
+                  properties:
+                    name:
+                      type: string
+                      example: token-01
+                    creator_id:
+                      type: integer
+                      example: 10
+
+        example:
+          poller_initiated: true
+          agent_initiated: true
+          otel_public_certificate: otel-reverse.crt
+          otel_ca_certificate: ca-certif.crt
+          otel_private_key: otel.key
+          tokens:
+            - name: token-01
+              creator_id: 10
+            - name: token-02
+              creator_id: 20
+          hosts:
+            - id: 1
+              address: 192.168.0.1
+              port: 1234
+              poller_ca_certificate: poller-1-ca.crt
+              poller_ca_name: CA-One
+              token:
+                name: host-token-1
+                creator_id: 10
+            - id: 2
+              address: 192.168.0.2
+              port: 5678
+              poller_ca_certificate: poller-2-ca.crt
+              poller_ca_name: CA-Two
+              token:
+                name: host-token-2
+                creator_id: 10
+
+      - title: Configuration for `telegraf`
+        type: object
+        required:
+          - otel_public_certificate
+          - otel_ca_certificate
+          - otel_private_key
+          - conf_server_port
+          - conf_certificate
+          - conf_private_key
+        properties:
+          otel_public_certificate:
+            type: [string, null]
+            description: |
+              Path of the public certificate.
+              - Must end with `.crt`,`.cert` or `.cer`
+              - No path traversal allowed
+              - Automatically prefixed with `/etc/pki/`
+            example: otel-cert.crt
+
+          otel_ca_certificate:
+            type: [string, null]
+            description: |
+              Path of CA certificate.
+              - Must end with `.crt`,`.cert` or `.cer`
+              - No path traversal allowed
+              - Automatically prefixed with `/etc/pki/`
+            example: telegraf-ca.crt
+
+          otel_private_key:
+            type: [string, null]
+            description: |
+              Path of the private key.
+              - Must end with `.key`
+              - No path traversal allowed
+              - Automatically prefixed with `/etc/pki/`
+            example: otel-key.key
+
+          conf_server_port:
+            type: integer
+            description: Port for the configuration server.
+            example: 1443
+
+          conf_certificate:
+            type: [string, null]
+            description: |
+              Path to certificate for the configuration server.
+              - Must end with `.crt` or `.cer`
+              - No path traversal allowed
+              - Automatically prefixed with `/etc/pki/`
+            example: conf-cert.crt
+
+          conf_private_key:
+            type: [string, null]
+            description: |
+              Private key for the configuration server.
+              - Must end with `.key`
+              - No path traversal allowed
+              - Automatically prefixed with `/etc/pki/`
+            example: conf-key.key
+
+        example:
+          otel_public_certificate: otel-cert.crt
+          otel_ca_certificate: telegraf-ca.crt
+          otel_private_key: otel-key.key
+          conf_server_port: 1443
+          conf_certificate: conf-cert.crt
+          conf_private_key: conf-key.key

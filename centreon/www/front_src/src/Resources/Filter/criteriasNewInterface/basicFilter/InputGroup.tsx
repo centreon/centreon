@@ -1,16 +1,15 @@
-import { equals, isNil, propEq, reject } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   MultiConnectedAutocompleteField,
   type SelectEntry
 } from '@centreon/ui';
 
+import { equals, isNil, propEq, reject } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import type { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import type { ChangedCriteriaParams, SectionType } from '../model';
 import useInputData from '../useInputsData';
 import { removeDuplicateFromObjectArray } from '../utils';
-
 import { useStyles } from './sections/sections.style';
 import useSectionsData from './sections/useSections';
 
@@ -95,15 +94,17 @@ const InputGroup = ({
         onDelete
       }}
       className={classes.input}
+      disableSortedOptions
+      exclusionOptionProperty="name"
       field="name"
       filterOptions={getUniqueOptions}
       getEndpoint={getEndpoint}
       isOptionEqualToValue={isOptionEqualToValue}
       label={t(currentLabel) as string}
+      onChange={handleChange}
       placeholder={t(currentLabel)}
       search={dataByFilterName?.autocompleteSearch}
       value={value}
-      onChange={handleChange}
     />
   );
 };

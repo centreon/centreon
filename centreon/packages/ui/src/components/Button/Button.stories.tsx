@@ -1,6 +1,8 @@
-import { Meta, StoryObj } from '@storybook/react';
+import '../../ThemeProvider/tailwindcss.css';
 
 import { Add as AddIcon } from '@mui/icons-material';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { Button } from './Button';
 
@@ -30,5 +32,29 @@ export const AsDanger: Story = {
   args: {
     ...Default.args,
     isDanger: true
+  }
+};
+
+export const small: Story = {
+  args: {
+    ...Default.args,
+    size: 'small'
+  }
+};
+
+export const smallWithIcon: Story = {
+  args: {
+    ...Default.args,
+    icon: <AddIcon />,
+    iconVariant: 'start',
+    size: 'small'
+  }
+};
+
+export const smallDanger: Story = {
+  args: {
+    ...Default.args,
+    isDanger: true,
+    size: 'small'
   }
 };

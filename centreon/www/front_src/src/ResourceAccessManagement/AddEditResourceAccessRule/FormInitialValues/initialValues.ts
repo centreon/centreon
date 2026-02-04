@@ -17,8 +17,8 @@ export const getEmptyInitialValues = (): Omit<ResourceAccessRule, 'id'> => ({
     [
       {
         allOfResourceType: false,
-        resourceType: ResourceTypeEnum.Empty,
-        resources: []
+        resources: [],
+        resourceType: ResourceTypeEnum.Empty
       }
     ]
   ],
@@ -36,8 +36,8 @@ const nestedObjectToArray = (
       ...datasets,
       {
         allOfResourceType: isEmpty(element.resources),
-        resourceType: element.resourceType,
-        resources: element.resources
+        resources: element.resources,
+        resourceType: element.resourceType
       }
     ];
   }
@@ -46,8 +46,8 @@ const nestedObjectToArray = (
     ...datasets,
     {
       allOfResourceType: isEmpty(element.resources),
-      resourceType: element.resourceType,
-      resources: element.resources
+      resources: element.resources,
+      resourceType: element.resourceType
     }
   ];
 
@@ -63,7 +63,7 @@ const formatDatasetFilter = (datasetFilter: DatasetFilter): Array<Dataset> => {
 const formatDatasetFilters = (
   datasetFilters: Array<DatasetFilter>
 ): Array<Array<Dataset>> =>
-  datasetFilters.map((datasetFilter) => formatDatasetFilter(datasetFilter));
+  datasetFilters?.map((datasetFilter) => formatDatasetFilter(datasetFilter));
 
 export const getInitialValues = ({
   contactGroups,
@@ -73,10 +73,10 @@ export const getInitialValues = ({
   isActivated,
   name
 }): Omit<ResourceAccessRule, 'id'> => ({
-  allContactGroups: contactGroups.all,
-  allContacts: contacts.all,
-  contactGroups: contactGroups.values,
-  contacts: contacts.values,
+  allContactGroups: contactGroups?.all,
+  allContacts: contacts?.all,
+  contactGroups: contactGroups?.values,
+  contacts: contacts?.values,
   datasetFilters: formatDatasetFilters(datasetFilters),
   description,
   isActivated,

@@ -1,8 +1,9 @@
-import { equals } from 'ramda';
-
-import { PaletteOptions, alpha } from '@mui/material';
+import { alpha, type PaletteOptions } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals } from 'ramda';
+
 import {
   colorBlue50,
   colorBlue400,
@@ -161,8 +162,6 @@ export const lightPalette: PaletteOptions = {
   action: {
     acknowledged: '#745F35',
     acknowledgedBackground: '#DFD2B9',
-    inFlapping: '#064A3F',
-    inFlappingBackground: '#D8F3EF',
     activatedOpacity: 0.12,
     active: '#666666',
     disabled: '#999999',
@@ -173,6 +172,8 @@ export const lightPalette: PaletteOptions = {
     hoverOpacity: 0.06,
     inDowntime: '#512980',
     inDowntimeBackground: '#E5D8F3',
+    inFlapping: '#064A3F',
+    inFlappingBackground: '#D8F3EF',
     selected: 'rgba(102, 102, 102, 0.3)',
     selectedOpacity: 0.3
   },
@@ -211,7 +212,7 @@ export const lightPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#4A4A4A',
+      border: '#EDEDED',
       description: '#4A4A4A',
       title: '#000000'
     }
@@ -295,6 +296,8 @@ export const lightPalette: PaletteOptions = {
   },
   warning: {
     contrastText: '#000',
+    dark: '#FC7E00',
+    light: '#FCC481',
     main: '#FD9B27'
   }
 };
@@ -303,8 +306,6 @@ export const darkPalette: PaletteOptions = {
   action: {
     acknowledged: '#DFD2B9',
     acknowledgedBackground: '#745F35',
-    inFlapping: '#D8F3EF',
-    inFlappingBackground: '#064A3F',
     activatedOpacity: 0.3,
     active: '#B5B5B5',
     disabled: '#999999',
@@ -315,6 +316,8 @@ export const darkPalette: PaletteOptions = {
     hoverOpacity: 0.16,
     inDowntime: '#E5D8F3',
     inDowntimeBackground: '#512980',
+    inFlapping: '#D8F3EF',
+    inFlappingBackground: '#064A3F',
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5
   },
@@ -353,7 +356,7 @@ export const darkPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#bdbdbd',
+      border: '#666666',
       description: '#bdbdbd',
       title: '#fff'
     }

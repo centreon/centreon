@@ -1,4 +1,4 @@
-import { Metric } from './timeSeries/models';
+import type { Metric } from './timeSeries/models';
 
 export interface LineChartData {
   global;
@@ -15,4 +15,11 @@ export interface Thresholds {
   critical: Array<Threshold>;
   enabled: boolean;
   warning: Array<Threshold>;
+}
+
+export interface AdditionalLineProps {
+  yValue: number;
+  text?: string;
+  color: string;
+  unit: string;
 }

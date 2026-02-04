@@ -1,7 +1,3 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, includes, isEmpty, isNil, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { alpha, useTheme } from '@mui/material';
 
 import {
@@ -13,20 +9,25 @@ import {
 } from '@centreon/ui';
 import { featureFlagsDerivedAtom, userAtom } from '@centreon/ui-context';
 
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, includes, isEmpty, isNil, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { userEndpoint } from '../../App/endpoint';
 import Actions from '../Actions';
-import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
 import {
   resourcesToAcknowledgeAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom,
   selectedVisualizationAtom
 } from '../Actions/actionsAtoms';
+import { forcedCheckInlineEndpointAtom } from '../Actions/Resource/Check/checkAtoms';
+import { rowColorConditions } from '../colors';
 import {
   openDetailsTabIdAtom,
   panelWidthStorageAtom,
-  selectedResourceUuidAtom,
-  selectedResourcesDetailsAtom
+  selectedResourcesDetailsAtom,
+  selectedResourceUuidAtom
 } from '../Details/detailsAtoms';
 import { graphTabId } from '../Details/tabs';
 import {
@@ -34,14 +35,14 @@ import {
   searchAtom,
   setCriteriaAndNewFilterDerivedAtom
 } from '../Filter/filterAtoms';
-import { rowColorConditions } from '../colors';
 import { type Resource, type SortOrder, Visualization } from '../models';
 import {
+  labelCompact,
+  labelExtended,
   labelForcedCheckCommandSent,
   labelSelectAtLeastOneColumn,
   labelStatus
 } from '../translatedLabels';
-
 import {
   defaultSelectedColumnIds,
   defaultSelectedColumnIdsforViewByHost,
@@ -237,9 +238,9 @@ const ResourceListing = (): JSX.Element => {
 
   return (
     <Listing
-      checkable
       actions={<Actions onRefresh={initAutorefreshAndLoad} />}
       actionsBarMemoProps={[selectedResourceDetails]}
+      checkable
       columnConfiguration={{
         selectedColumnIds,
         sortable: areColumnsSortable
@@ -265,9 +266,17 @@ const ResourceListing = (): JSX.Element => {
         enabledAutoRefresh,
         selectedResourceDetails,
         themeMode,
-        columns
+        columns,
+        selectedColumnIds
       ]}
       moveTablePagination={isPanelOpen}
+      onLimitChange={changeLimit}
+      onPaginate={changePage}
+      onResetColumns={resetColumns}
+      onRowClick={selectResource}
+      onSelectColumns={selectColumns}
+      onSelectRows={setSelectedResources}
+      onSort={changeSort}
       predefinedRowsSelection={predefinedRowsSelection}
       rowColorConditions={[
         resourceDetailsOpenCondition,
@@ -288,16 +297,13 @@ const ResourceListing = (): JSX.Element => {
       viewerModeConfiguration={{
         disabled: isPending,
         onClick: changeViewModeTableResources,
-        title: user_interface_density
+        title: t(
+          equals(user_interface_density, 'compact')
+            ? labelCompact
+            : labelExtended
+        )
       }}
       widthToMoveTablePagination={panelWidth}
-      onLimitChange={changeLimit}
-      onPaginate={changePage}
-      onResetColumns={resetColumns}
-      onRowClick={selectResource}
-      onSelectColumns={selectColumns}
-      onSelectRows={setSelectedResources}
-      onSort={changeSort}
     />
   );
 };

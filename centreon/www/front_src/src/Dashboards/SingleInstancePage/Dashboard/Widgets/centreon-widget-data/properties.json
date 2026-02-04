@@ -143,6 +143,6 @@
       }
     }
   },
-  "widgetType": "Real time widgets",
+  "widgetType": "realtime",
   "moduleName": "centreon-widget-data"
 }

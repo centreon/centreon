@@ -1,8 +1,8 @@
-ARG VERSION
+ARG MAJOR_VERSION
 
 FROM almalinux:8 AS web_dependencies
 
-ARG VERSION
+ARG MAJOR_VERSION
 ARG IS_CLOUD
 ARG STABILITY
 
@@ -23,10 +23,10 @@ dnf config-manager --set-enabled powertools
 dnf install -y epel-release
 
 if [[ "${IS_CLOUD}" == "true" ]]; then
-  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${VERSION}/el8/centreon-${VERSION}-internal.repo
-  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${VERSION}-internal.repo
+  dnf config-manager --add-repo https://$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal/${MAJOR_VERSION}/el8/centreon-${MAJOR_VERSION}-internal.repo
+  sed -i "s#packages.centreon.com/rpm-standard-internal#$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_USERNAME):$(cat /run/secrets/ARTIFACTORY_INTERNAL_REPO_PASSWORD)@packages.centreon.com/rpm-standard-internal#" /etc/yum.repos.d/centreon-${MAJOR_VERSION}-internal.repo
 else
-  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${VERSION}/el8/centreon-${VERSION}.repo
+  dnf config-manager --add-repo https://packages.centreon.com/rpm-standard/${MAJOR_VERSION}/el8/centreon-${MAJOR_VERSION}.repo
 fi
 
 dnf config-manager --set-enabled 'centreon*'
@@ -87,10 +87,7 @@ dnf install -y libfaketime
 # install php dependencies #
 ############################
 
-dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
-dnf module reset -y php
-dnf module install -y php:remi-8.2
-
+dnf module enable -y php:8.2
 dnf install -y \
   php-common \
   php-cli \
@@ -133,15 +130,29 @@ COPY --chmod=755 ./.github/docker/centreon-web/init/* /etc/init.d/
 
 FROM web_dependencies AS web_dependencies_collect
 
+ARG COLLECT_MINOR_VERSION
+ARG COMMON_MINOR_VERSION
+ARG GORGONE_MINOR_VERSION
+ARG MAJOR_VERSION
+ARG STABILITY
+
 RUN bash -e <<EOF
 
-dnf install -y \
-  centreon-common \
-  centreon-gorgone \
-  centreon-engine \
-  centreon-broker-cbmod \
-  centreon-broker-cbd \
-  centreon-connector
+if [[ "$STABILITY" == "stable" ]]; then
+  dnf install -y \
+    centreon-common-${MAJOR_VERSION}.${COMMON_MINOR_VERSION} \
+    centreon-gorgone-${MAJOR_VERSION}.${GORGONE_MINOR_VERSION} \
+    centreon-engine-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-broker-cbd-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION} \
+    centreon-connector-${MAJOR_VERSION}.${COLLECT_MINOR_VERSION}
+else
+  dnf install -y \
+    centreon-common \
+    centreon-gorgone \
+    centreon-engine \
+    centreon-broker-cbd \
+    centreon-connector
+fi
 
 dnf clean all --enablerepo=*
 

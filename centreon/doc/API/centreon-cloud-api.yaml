@@ -1,4 +1,4 @@
-openapi: 3.1.0
+openapi: 3.0.1
 info:
   title: Centreon Web RestAPI for Cloud
   description: |
@@ -14,7 +14,7 @@ info:
         margin: auto;
       ">
         Many more endpoints are available but not included in this document yet.
-        Please refer to the <a href="https://docs-api.centreon.com/api/centreon-web/24.10/">OnPrem API page</a> if you are looking for a specific endpoint.
+        Please refer to the <a href="https://docs-api.centreon.com/api/centreon-web/25.10/">OnPrem API page</a> if you are looking for a specific endpoint.
         Bear in mind that not all endpoints described in the OnPrem API page are available on a cloud platform, in particular those related to the administration of the Centreon platform.
       </p>
     </blockquote>
@@ -74,9 +74,9 @@ paths:
   /configuration/hosts/{host_id}:
     $ref: './latest/Cloud/Configuration/Host/PartialUpdateHost.yaml'
   /configuration/hosts/groups:
-    $ref: './latest/Cloud/Configuration/HostGroups/AddAndFindHostGroups.yaml'
+    $ref: './latest/Cloud/Configuration/HostGroup/AddAndFindHostGroups.yaml'
   /configuration/hosts/groups/{hostgroup_id}:
-    $ref: './latest/Cloud/Configuration/HostGroups/FindAndUpdateHostGroup.yaml'
+    $ref: './latest/Cloud/Configuration/HostGroup/GetAndUpdateHostGroup.yaml'
   /configuration/hosts/templates:
     $ref: './latest/Cloud/Configuration/HostTemplate/AddAndFindHostTemplates.yaml'
   /configuration/hosts/templates/{host_template_id}:

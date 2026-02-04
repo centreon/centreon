@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     {
         $upgradeFilePath = $this->installDir . '/sql/centstorage/Update-CSTG-' . $version . '.sql';
         if (is_readable($upgradeFilePath)) {
-            $this->db->switchToDb($this->db->getStorageDbName());
+            $this->db->switchToDb($this->db->getConnectionConfig()->getDatabaseNameRealTime());
             $this->runSqlFile($upgradeFilePath);
         }
     }
@@ -154,7 +154,7 @@ class DbWriteUpdateRepository extends AbstractRepositoryDRB implements WriteUpda
     {
         $upgradeFilePath = $this->installDir . '/sql/centreon/Update-DB-' . $version . '.sql';
         if (is_readable($upgradeFilePath)) {
-            $this->db->switchToDb($this->db->getCentreonDbName());
+            $this->db->switchToDb($this->db->getConnectionConfig()->getDatabaseNameConfiguration());
             $this->runSqlFile($upgradeFilePath);
         }
     }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,8 @@ class NewServiceFactory
         $newService->setRecoveryNotificationDelay($request->recoveryNotificationDelay);
         $newService->setFirstNotificationDelay($request->firstNotificationDelay);
         $newService->setAcknowledgementTimeout($request->acknowledgementTimeout);
-        $newService->setGeoCoords($request->geoCoords === ''
+        $newService->setGeoCoords(
+            $request->geoCoords === ''
             ? null
             : GeoCoords::fromString($request->geoCoords)
         );

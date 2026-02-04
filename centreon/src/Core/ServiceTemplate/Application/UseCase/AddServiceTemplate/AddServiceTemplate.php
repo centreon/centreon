@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -65,7 +67,8 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 
 final class AddServiceTemplate
 {
-    use LoggerTrait,VaultTrait;
+    use LoggerTrait;
+    use VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups;
@@ -88,6 +91,7 @@ final class AddServiceTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
@@ -218,7 +222,7 @@ final class AddServiceTemplate
                 $vaultPath = $vaultPaths['_SERVICE' . $macro->getName()];
                 $this->uuid ??= $this->getUuidFromPath($vaultPath);
 
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPath);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPath);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());
@@ -255,7 +259,7 @@ final class AddServiceTemplate
      */
     private function linkServiceTemplateToServiceCategories(int $serviceTemplateId, AddServiceTemplateRequest $request): void
     {
-        if (empty($request->serviceCategories)) {
+        if ($request->serviceCategories === []) {
 
             return;
         }
@@ -275,7 +279,7 @@ final class AddServiceTemplate
      */
     private function linkServiceTemplateToServiceGroups(int $serviceTemplateId, AddServiceTemplateRequest $request): void
     {
-        if (empty($request->serviceGroups)) {
+        if ($request->serviceGroups === []) {
 
             return;
         }
@@ -368,7 +372,7 @@ final class AddServiceTemplate
         $response->firstNotificationDelay = $serviceTemplate->getFirstNotificationDelay();
         $response->acknowledgementTimeout = $serviceTemplate->getAcknowledgementTimeout();
         $response->macros = array_map(
-            fn(Macro $macro): MacroDto => new MacroDto(
+            fn (Macro $macro): MacroDto => new MacroDto(
                 $macro->getName(),
                 $macro->getValue(),
                 $macro->isPassword(),
@@ -378,16 +382,16 @@ final class AddServiceTemplate
         );
 
         $response->categories = array_map(
-            fn(ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
+            fn (ServiceCategory $category) => ['id' => $category->getId(), 'name' => $category->getName()],
             $serviceCategories
         );
 
         $hostTemplateNames = $this->readHostTemplateRepository->findNamesByIds(array_map(
-            fn(array $group): int => (int) $group['relation']->getHostId(),
+            fn (array $group): int => (int) $group['relation']->getHostId(),
             $serviceGroups
         ));
         $response->groups = array_map(
-            fn(array $group) => [
+            fn (array $group) => [
                 'serviceGroupId' => $group['serviceGroup']->getId(),
                 'serviceGroupName' => $group['serviceGroup']->getName(),
                 'hostTemplateId' => (int) $group['relation']->getHostId(),
@@ -431,6 +435,16 @@ final class AddServiceTemplate
      */
     private function createServiceTemplate(AddServiceTemplateRequest $request): int
     {
+        if ($request->commandId !== null) {
+            $command = $this->readCommandRepository->findById($request->commandId);
+            if ($command === null) {
+                throw CommandException::errorWhileRetrieving();
+            }
+            if ($command->isCentreonMonitoringAgentCommand()) {
+                $request->checkFreshness = 1;
+                $request->freshnessThreshold = 120;
+            }
+        }
         $newServiceTemplate = $this->createNewServiceTemplate($request);
         $this->storageEngine->startTransaction();
         try {
@@ -502,7 +516,7 @@ final class AddServiceTemplate
     {
         $updatedMacros = [];
         foreach ($macros as $key => $macro) {
-            if (false === $macro->isPassword()) {
+            if ($macro->isPassword() === false) {
                 $updatedMacros[$key] = $macro;
                 continue;
             }
@@ -510,7 +524,7 @@ final class AddServiceTemplate
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_SERVICE' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(),$macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

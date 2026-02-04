@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, IconButton, Link, Paper, Popper } from '@mui/material';
 
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
@@ -8,13 +9,11 @@ import {
   $getSelection,
   $isRangeSelection,
   $isTextNode,
-  LexicalEditor
+  type LexicalEditor
 } from 'lexical';
 import { dec, equals, gt, isNil, replace } from 'ramda';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import EditIcon from '@mui/icons-material/Edit';
-import { Box, IconButton, Link, Paper, Popper } from '@mui/material';
 
 import InputField from '../../InputField/Text';
 import { editLinkModeAtom, isInsertingLinkAtom, linkValueAtom } from '../atoms';
@@ -59,7 +58,7 @@ const FloatingLinkEditor = ({
   const [editedUrl, setEditedUrl] = useState('');
 
   const [editMode, setEditMode] = useAtom(editLinkModeAtom);
-  const [linkUrl, setLinkUrl] = useAtom(linkValueAtom);
+  const [linkUrl, _setLinkUrl] = useAtom(linkValueAtom);
 
   const rangeRect = getDOMRangeRect(nativeSelection, rootElement);
 
@@ -83,13 +82,13 @@ const FloatingLinkEditor = ({
         setEditMode(false);
       }
     },
-    [setEditMode, setLinkUrl]
+    [setEditMode, editor.dispatchCommand, openLinkInNewTab]
   );
 
   const enterInEditMode = useCallback(() => {
     setEditedUrl(linkUrl);
     setEditMode(true);
-  }, [linkUrl]);
+  }, [linkUrl, setEditMode]);
 
   const changeValue = useCallback((event): void => {
     const { value } = event.target;
@@ -120,7 +119,7 @@ const FloatingLinkEditor = ({
     const nodeHeight = rangeRect.height;
 
     setTooltipPosition({ x: nodeX, y: nodeY + nodeHeight });
-  }, [rangeRect?.x, rangeRect?.y]);
+  }, [rangeRect?.x, rangeRect?.y, rangeRect, nativeSelection]);
 
   if (isNil(rangeRect)) {
     return null;
@@ -134,8 +133,8 @@ const FloatingLinkEditor = ({
 
   return (
     <Popper
-      open
       anchorEl={rootElement}
+      open
       placement="top-start"
       sx={{ zIndex: 'tooltip' }}
     >
@@ -151,8 +150,6 @@ const FloatingLinkEditor = ({
             autoFocus
             dataTestId="InputLinkField"
             label={t(labelInputLink)}
-            size="small"
-            value={editedUrl}
             onBlur={(event): void => {
               const { value } = event.target;
 
@@ -165,6 +162,8 @@ const FloatingLinkEditor = ({
             }}
             onChange={changeValue}
             onKeyUp={acceptOrCancelNewLinkValue}
+            size="small"
+            value={editedUrl}
           />
         ) : (
           <Box component="span" sx={{ margin: '10px' }}>
@@ -179,9 +178,9 @@ const FloatingLinkEditor = ({
             </Link>
             <IconButton
               aria-label={labelEditLink}
+              onClick={enterInEditMode}
               size="small"
               sx={{ marginLeft: '5px' }}
-              onClick={enterInEditMode}
             >
               <EditIcon fontSize="small" />
             </IconButton>
@@ -243,7 +242,7 @@ const useFloatingTextFormatToolbar = ({
         setIsText(false);
       }
     });
-  }, [editor, editLinkMode]);
+  }, [editor, editLinkMode, setLinkUrl]);
 
   useEffect(() => {
     document.addEventListener('selectionchange', updatePopup);

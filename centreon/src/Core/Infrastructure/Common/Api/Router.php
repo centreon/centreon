@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,10 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
      * {@inheritDoc}
      *
      * @param string $name
-     * @param array<string,mixed> $parameters
+     * @param array{
+     *   base_uri?: string,
+     *   ...<string, mixed>
+     * } $parameters
      * @param int $referenceType
      *
      * @throws \Exception
@@ -79,20 +82,46 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     public function generate(string $name, array $parameters = [], int $referenceType = self::ABSOLUTE_PATH): string
     {
         $parameters['base_uri'] ??= $this->getBaseUri();
+        $doubleBaseUri = '';
         if (! empty($parameters['base_uri'])) {
+            $doubleBaseUri = $parameters['base_uri'] . '/' . $parameters['base_uri'];
+            $doubleBaseUri = preg_replace('/(?<!:)(\/{2,})/', '$2/', $doubleBaseUri);
+
+            if ($doubleBaseUri === null) {
+                throw new \Exception('Error occured during regular expression search and replace.');
+            }
+
             $parameters['base_uri'] .= '/';
         }
 
         // Manage URL Generation for HTTPS and Legacy nested route generation calls
         $context = $this->router->getContext();
-        if ($_SERVER['REQUEST_SCHEME'] === 'https') {
-                $context->setScheme($_SERVER['REQUEST_SCHEME']);
+        $forwardedProtoHeader = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? null;
+        if ($forwardedProtoHeader) {
+            // It could be possible that HTTP_X_FORWARDED_PROTO contains multiple comma-separated values e.g "https,http"
+            $proto = mb_strtolower(trim(explode(',', $forwardedProtoHeader)[0]));
+            $scheme = $proto === 'https' ? 'https' : 'http';
+            $context = $this->router->getContext();
+            $context->setScheme($scheme);
+        } elseif ($_SERVER['REQUEST_SCHEME'] === 'https') {
+            $context->setScheme($_SERVER['REQUEST_SCHEME']);
         }
+
         if ($_SERVER['SERVER_NAME'] !== 'localhost') {
             $context->setHost($_SERVER['SERVER_NAME']);
         }
 
         $generatedRoute = $this->router->generate($name, $parameters, $referenceType);
+
+        // remove double slashes
+        $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
+
+        if ($generatedRoute === null) {
+            throw new \Exception('Error occured during regular expression search and replace.');
+        }
+
+        // remove double identical prefixes due to progressive migration
+        $generatedRoute = str_replace($doubleBaseUri, $parameters['base_uri'], $generatedRoute);
 
         // remove double slashes
         $generatedRoute = preg_replace('/(?<!:)(\/{2,})/', '$2/', $generatedRoute);
@@ -152,10 +181,11 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     /**
      * @param string $cacheDir
+     * @param null|string $buildDir
      *
      * @return string[]
      */
-    public function warmUp(string $cacheDir)
+    public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
         return [];
     }

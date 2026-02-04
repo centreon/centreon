@@ -1,11 +1,11 @@
-import { T, always, cond, equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router';
-
 import DvrIcon from '@mui/icons-material/Dvr';
 import { Box, CardActionArea, Typography } from '@mui/material';
 
 import { EllipsisTypography, HostIcon, ServiceIcon } from '@centreon/ui';
+
+import { always, cond, equals, T } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { Link, useNavigate } from 'react-router';
 
 import type { Resource } from '../../../models';
 import { getResourcesUrl } from '../../../utils';
@@ -15,14 +15,14 @@ import {
   BooleanRuleIcon,
   MetaServiceIcon
 } from './Icons';
+import { IndicatorType, type ResourceData } from './models';
 import State from './State';
 import { useTileStyles } from './StatusGrid.styles';
-import { IndicatorType, type ResourceData } from './models';
 import { labelSeeMore } from './translatedLabels';
 import { getLink } from './utils';
 
 interface Props {
-  data: ResourceData | null;
+  data: ResourceData;
   isBAResourceType: boolean;
   isSmallestSize: boolean;
   resources: Array<Resource>;
@@ -30,6 +30,7 @@ interface Props {
   type: string;
   tileSize?: number;
   isMediumSize?: boolean;
+  isSeeMoreTile?: boolean;
 }
 
 export const router = {
@@ -45,12 +46,13 @@ const Tile = ({
   resources,
   isBAResourceType,
   tileSize,
-  isMediumSize
+  isMediumSize,
+  isSeeMoreTile
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
   const { classes } = useTileStyles({
-    tileSize,
-    isMediumSize
+    isMediumSize,
+    tileSize
   });
 
   const Icon = cond([
@@ -66,9 +68,9 @@ const Tile = ({
   const getLinkToResourceStatus = ({ isForOneResource }): string => {
     if (isBAResourceType) {
       const url = getLink({
-        hostId: data?.parentId,
-        id: data?.resourceId || data?.id,
-        name: data?.name,
+        hostId: data.parentId,
+        id: data.resourceId || data.id,
+        name: data.name,
         type
       });
 
@@ -85,7 +87,7 @@ const Tile = ({
     });
   };
 
-  if (isNil(data)) {
+  if (isSeeMoreTile) {
     return (
       <Link
         aria-label={t(labelSeeMore)}
@@ -114,11 +116,11 @@ const Tile = ({
   const displayStatusTile =
     data.is_acknowledged || data.is_in_downtime || data.is_in_flapping;
 
-  if (isSmallestSize && !isNil(data)) {
+  if (isSmallestSize && !isSeeMoreTile) {
     return (
       <Link
         className={classes.link}
-        data-testid={`link to ${data?.name}`}
+        data-testid={`link to ${data.name}`}
         target="_blank"
         to={getLinkToResourceStatus({ isForOneResource: true })}
       >

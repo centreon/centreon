@@ -1,18 +1,24 @@
 name: gherkin-lint
-description: Gherkin linter
-
+description: "Check the linting of the gherkin files"
 inputs:
   features_path:
-    description: "The path to the feature files"
+    description: The path to the feature files
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Install Gherkin Lint
-      run: npm install gherkin-lint@4.2.2
-      shell: bash
+    - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+      with:
+        node-version: 24
+
+    - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+      with:
+        version: 10
+        run_install: |
+          cwd: ".github/actions/gherkin-lint"
+          args: [--ignore-scripts, --frozen-lockfile]
 
     - name: Run Gherkin Lint
-      run: ./node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc ${{ inputs.features_path }}
+      run: ./.github/actions/gherkin-lint/node_modules/.bin/gherkin-lint -c ./.github/actions/gherkin-lint/.gherkin-lintrc ${{ inputs.features_path }}
       shell: bash
