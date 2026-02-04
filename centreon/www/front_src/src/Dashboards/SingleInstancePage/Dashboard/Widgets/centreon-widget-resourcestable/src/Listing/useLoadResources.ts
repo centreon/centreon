@@ -107,6 +107,7 @@ const useLoadResources = ({
     getQueryKey: () => [
       widgetPrefixQuery,
       'resourcestable',
+      isOpenTicketEnabled,
       displayType,
       JSON.stringify(states),
       JSON.stringify(statuses),
