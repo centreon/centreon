@@ -28,7 +28,6 @@ if (! isset($centreon)) {
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Infrastructure\Common\Api\Router;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])

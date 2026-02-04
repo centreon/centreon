@@ -236,8 +236,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 $parameters['base_uri'] .= '/';
             }
 
-            $generatedRoute = $this->generate($name, $parameters, self::ABSOLUTE_URL);
-            return $generatedRoute;
+            return $this->generate($name, $parameters, self::ABSOLUTE_URL);
         } finally {
             // Restore original context
             $context->setHost($originalHost);

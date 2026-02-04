@@ -192,7 +192,7 @@ class InternalApiClientTest extends TestCase
             ->method('request')
             ->with(
                 'GET',
-                $this->callback(fn($url) => str_contains($url, '127.0.0.1')),
+                $this->callback(fn ($url) => str_contains($url, '127.0.0.1')),
                 $this->anything()
             )
             ->willReturn($mockResponse);
@@ -240,9 +240,7 @@ class InternalApiClientTest extends TestCase
             ->with(
                 'POST',
                 $this->anything(),
-                $this->callback(function ($options) use ($payload) {
-                    return isset($options['body']) && $options['body'] === json_encode($payload);
-                })
+                $this->callback(fn ($options) => isset($options['body']) && $options['body'] === json_encode($payload))
             )
             ->willReturn($mockResponse);
 
@@ -262,7 +260,7 @@ class InternalApiClientTest extends TestCase
             ->with(
                 'GET',
                 $this->anything(),
-                $this->callback(fn($options) => !isset($options['body']))
+                $this->callback(fn ($options) => ! isset($options['body']))
             )
             ->willReturn($mockResponse);
 
@@ -282,10 +280,8 @@ class InternalApiClientTest extends TestCase
             ->with(
                 $this->anything(),
                 $this->anything(),
-                $this->callback(function ($options) {
-                    return isset($options['headers']['Content-Type'])
-                        && $options['headers']['Content-Type'] === 'application/json';
-                })
+                $this->callback(fn ($options) => isset($options['headers']['Content-Type'])
+                        && $options['headers']['Content-Type'] === 'application/json')
             )
             ->willReturn($mockResponse);
 
@@ -305,10 +301,8 @@ class InternalApiClientTest extends TestCase
             ->with(
                 $this->anything(),
                 $this->anything(),
-                $this->callback(function ($options) {
-                    return isset($options['headers']['Cookie'])
-                        && $options['headers']['Cookie'] === self::TEST_SESSION_COOKIE;
-                })
+                $this->callback(fn ($options) => isset($options['headers']['Cookie'])
+                        && $options['headers']['Cookie'] === self::TEST_SESSION_COOKIE)
             )
             ->willReturn($mockResponse);
 
