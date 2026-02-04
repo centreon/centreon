@@ -122,12 +122,20 @@ $createAccTables = function () use ($pearDB, &$errorMessage, $version): void {
     );
 
     // Add port column to additional_connector_configuration if not exists
-    $pearDB->query(
-        <<<'SQL'
-            ALTER TABLE `additional_connector_configuration`
-            ADD COLUMN `port` INT UNSIGNED NOT NULL DEFAULT 443 AFTER `type`;
-            SQL
-    );
+    if (
+        ! $pearDB->columnExists(
+            $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'additional_connector_configuration',
+            'port'
+        )
+    ) {
+        $pearDB->query(
+            <<<'SQL'
+                ALTER TABLE `additional_connector_configuration`
+                ADD COLUMN `port` INT UNSIGNED NOT NULL DEFAULT 443 AFTER `type`;
+                SQL
+        );
+    }
 
     // acc_item
     $pearDB->query(
