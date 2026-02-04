@@ -2,6 +2,7 @@ import { useFormikContext } from 'formik';
 import { ChangeEvent, RefObject, useRef, useState } from 'react';
 
 import { Command, NamedEntity } from '../../models';
+import { useUserPermissions } from '../../useUserPermissions';
 
 interface UseCommandLineState {
   macros: {
@@ -15,6 +16,7 @@ interface UseCommandLineState {
   textFieldRef: RefObject<HTMLInputElement | null>;
   error: string | boolean;
   values: Command;
+  disabled: boolean;
 }
 
 export const useCommandLine = (): UseCommandLineState => {
@@ -38,6 +40,7 @@ export const useCommandLine = (): UseCommandLineState => {
     (_, value): void => {
       setMacros({ ...macros, [property]: value });
     };
+  const { canEdit } = useUserPermissions();
 
   const insertMacroIntoCommand = (property: string) => (): void => {
     const macro = macros[property].name;
@@ -66,6 +69,8 @@ export const useCommandLine = (): UseCommandLineState => {
     }, 0);
   };
 
+  const disabled = !canEdit || values.isFromMonitoringConnector;
+
   return {
     changeCommand,
     changeMacro,
@@ -73,6 +78,7 @@ export const useCommandLine = (): UseCommandLineState => {
     insertMacroIntoCommand,
     macros,
     textFieldRef,
-    values
+    values,
+    disabled
   };
 };

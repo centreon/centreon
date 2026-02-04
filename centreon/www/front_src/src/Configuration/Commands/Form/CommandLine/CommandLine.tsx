@@ -7,12 +7,16 @@ import { IconButton, Tooltip } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import TooltipContent from './TooltipContent';
+import { useCommandLine } from './useCommandLine';
+
 import {
+  JSONLDEntitiesListDecoder,
   getGlobalMacrosEndpoint,
   getPluginsEndpoint,
-  getStandardMacrosEndpoint,
-  JSONLDEntitiesListDecoder
+  getStandardMacrosEndpoint
 } from '../../api';
+
 import {
   labelCommandLine,
   labelInsert,
@@ -20,8 +24,6 @@ import {
   labelPollerGlobalMacros,
   labelStandardMacros
 } from '../../translatedLabels';
-import TooltipContent from './TooltipContent';
-import { useCommandLine } from './useCommandLine';
 
 const CommandLine = (): ReactElement => {
   const { t } = useTranslation();
@@ -33,7 +35,8 @@ const CommandLine = (): ReactElement => {
     insertMacroIntoCommand,
     textFieldRef,
     values,
-    error
+    error,
+    disabled
   } = useCommandLine();
 
   return (
@@ -46,6 +49,7 @@ const CommandLine = (): ReactElement => {
           label={t(labelPollerGlobalMacros)}
           onChange={changeMacro('globalMarco')}
           value={macros.globalMarco}
+          disabled={disabled}
         />
         <SingleConnectedAutocompleteField
           decoder={JSONLDEntitiesListDecoder}
@@ -54,6 +58,7 @@ const CommandLine = (): ReactElement => {
           label={t(labelInstalledPlugins)}
           onChange={changeMacro('installedPlugin')}
           value={macros.installedPlugin}
+          disabled={disabled}
         />
         <SingleConnectedAutocompleteField
           decoder={JSONLDEntitiesListDecoder}
@@ -62,6 +67,7 @@ const CommandLine = (): ReactElement => {
           label={t(labelStandardMacros)}
           onChange={changeMacro('standardMacro')}
           value={macros.standardMacro}
+          disabled={disabled}
         />
       </div>
       <div className="flex flex-column justify-center items-center pl-2">
@@ -82,7 +88,7 @@ const CommandLine = (): ReactElement => {
       <div className="flex flex-col justify-between items-end">
         <IconButton
           data-testid="Insert global marco"
-          disabled={!macros.globalMarco}
+          disabled={!macros.globalMarco || disabled}
           icon={<ArrowIcon fontSize="small" />}
           onClick={insertMacroIntoCommand('globalMarco')}
           title={t(labelInsert)}
@@ -90,7 +96,7 @@ const CommandLine = (): ReactElement => {
         />
         <IconButton
           data-testid="Insert installed plugin"
-          disabled={!macros.installedPlugin}
+          disabled={!macros.installedPlugin || disabled}
           icon={<ArrowIcon fontSize="small" />}
           onClick={insertMacroIntoCommand('installedPlugin')}
           title={t(labelInsert)}
@@ -98,7 +104,7 @@ const CommandLine = (): ReactElement => {
         />
         <IconButton
           data-testid="Insert standard marco"
-          disabled={!macros.standardMacro}
+          disabled={!macros.standardMacro || disabled}
           icon={<ArrowIcon fontSize="small" />}
           onClick={insertMacroIntoCommand('standardMacro')}
           title={t(labelInsert)}
@@ -123,6 +129,7 @@ const CommandLine = (): ReactElement => {
           }
         }}
         value={values?.commandLine}
+        disabled={disabled}
       />
     </div>
   );

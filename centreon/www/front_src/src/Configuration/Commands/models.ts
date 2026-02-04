@@ -11,6 +11,7 @@ export interface CommandsListItem extends NamedEntity {
   serviceTemplatesCount: number;
   type: string;
   commandLine: string;
+  isFromMonitoringConnectors?: boolean;
 }
 
 export interface Command {
@@ -20,6 +21,7 @@ export interface Command {
   comment?: string | null;
   isShellEnabled: boolean;
   connector?: { id: string; name: string } | null;
+  isFromMonitoringConnector: boolean;
 }
 
 export interface Payload {
@@ -31,11 +33,18 @@ export interface Payload {
   connector: string | null;
 }
 
+export enum CommandType {
+  Notification = 'Notification',
+  Check = 'Check',
+  Miscellaneous = 'Miscellaneous',
+  Discovery = 'Discovery'
+}
+
 export interface Filters {
   name: string;
   enabled: boolean;
   disabled: boolean;
-  type: Array<'Notification' | 'Check' | 'Miscellaneous' | 'Discovery'>;
+  type: Array<CommandType>;
   is_from_monitoring_connector: boolean;
 }
 

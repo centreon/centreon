@@ -3,12 +3,10 @@ import { userPermissionsAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 import { or } from 'ramda';
 import { useMemo } from 'react';
+import { CommandType } from './models';
 
 interface UseUserPermissions {
-  canEditCheckCommands?: boolean;
-  canEditNotificationCommands?: boolean;
-  canEditDiscoveryCommands?: boolean;
-  canEditMiscellaneousCommands?: boolean;
+  editorPermissions: Record<CommandType, boolean | undefined>;
   canViewCheckCommands?: boolean;
   canViewNotificationCommands?: boolean;
   canViewDiscoveryCommands?: boolean;
@@ -43,18 +41,18 @@ export const useUserPermissions = (): UseUserPermissions => {
 
   const editorPermissions = useMemo(
     () => ({
-      canEditCheckCommands: userPermissions?.manage_check_commands,
-      canEditDiscoveryCommands: userPermissions?.manage_discovery_commands,
-      canEditMiscellaneousCommands:
+      [CommandType.Check]: userPermissions?.manage_check_commands,
+      [CommandType.Discovery]: userPermissions?.manage_discovery_commands,
+      [CommandType.Miscellaneous]:
         userPermissions?.manage_miscellaneous_commands,
-      canEditNotificationCommands: userPermissions?.manage_notification_commands
+      [CommandType.Notification]: userPermissions?.manage_notification_commands
     }),
     []
   );
 
   return {
     ...viewerPermissions,
-    ...editorPermissions,
+    editorPermissions,
     canEdit: Object.values(editorPermissions).some(Boolean)
   };
 };

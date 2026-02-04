@@ -144,6 +144,11 @@ final class ListCommandResource
             description: 'Indicates whether the command is activated or not',
         )]
         public bool $isActivated,
+
+        #[ApiProperty(
+            description: 'Indicates whether the command comes from a monitoring connector',
+        )]
+        public bool $isFromMonitoringConnector,
     ) {
     }
 

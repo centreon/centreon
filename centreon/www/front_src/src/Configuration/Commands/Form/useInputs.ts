@@ -4,7 +4,7 @@ import { Group, InputProps, InputType } from '@centreon/ui';
 
 import { useTranslation } from 'react-i18next';
 
-import { connectorsEndpoint, JSONLDEntitiesListDecoder } from '../api';
+import { JSONLDEntitiesListDecoder, connectorsEndpoint } from '../api';
 import {
   labelAdditionalInformation,
   labelCommandLine,
@@ -15,6 +15,7 @@ import {
   labelName,
   labelSelectOptimizationConnector
 } from '../translatedLabels';
+import { useUserPermissions } from '../useUserPermissions';
 import CommandLine from './CommandLine/CommandLine';
 import CommandType from './CommandType/CommandType';
 import EnableShellSyntax from './EnableShellSyntax/EnableShellSyntax';
@@ -26,6 +27,8 @@ export const useInputs = (): {
 } => {
   const { classes } = useInputsStyles();
   const { t } = useTranslation();
+
+  const { canEdit } = useUserPermissions();
 
   const titleAttributes = {
     classes: { root: classes.titleGroup },
@@ -56,7 +59,9 @@ export const useInputs = (): {
               fieldName: 'name',
               label: t(labelName),
               required: true,
-              type: InputType.Text
+              type: InputType.Text,
+              getDisabled: ({ isFromMonitoringConnector }) =>
+                !canEdit || isFromMonitoringConnector
             },
             {
               custom: { Component: Box },
@@ -73,7 +78,7 @@ export const useInputs = (): {
         type: InputType.Grid
       },
       {
-        additionalLabel: t(labelCommandType),
+        additionalLabel: `${t(labelCommandType)} *`,
         custom: { Component: CommandType },
         fieldName: 'commandType',
         group: t(labelGeneralInformation),
@@ -82,7 +87,7 @@ export const useInputs = (): {
         type: InputType.Custom
       },
       {
-        additionalLabel: t(labelCommandLine),
+        additionalLabel: `${t(labelCommandLine)} *`,
         custom: { Component: CommandLine },
         fieldName: 'commandLine',
         group: t(labelGeneralInformation),
@@ -111,7 +116,9 @@ export const useInputs = (): {
               },
               fieldName: 'connector',
               label: t(labelSelectOptimizationConnector),
-              type: InputType.SingleConnectedAutocomplete
+              type: InputType.SingleConnectedAutocomplete,
+              getDisabled: ({ isFromMonitoringConnector }) =>
+                !canEdit || isFromMonitoringConnector
             },
             {
               custom: { Component: Box },
@@ -132,6 +139,8 @@ export const useInputs = (): {
         text: {
           multilineRows: 3
         },
+        getDisabled: ({ isFromMonitoringConnector }) =>
+          !canEdit || isFromMonitoringConnector,
         type: InputType.Text
       }
     ]

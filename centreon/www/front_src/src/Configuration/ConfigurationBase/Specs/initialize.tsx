@@ -3,13 +3,13 @@ import { capitalize } from '@mui/material';
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
 import i18next from 'i18next';
-import { atom, createStore, Provider } from 'jotai';
+import { Provider, atom, createStore } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
-import { FilterConfiguration, ResourceType } from '../../models';
 import ConfigurationBase from '..';
+import { FilterConfiguration, ResourceType } from '../../models';
 import {
   columns,
   columnsAtomKey,
@@ -48,7 +48,7 @@ export const mockActionsRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'enable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).enable()}`,
+    path: `**${getEndpoints(resourceType).enable?.()}`,
     response: {
       results: [{ href: '/resources/1', message: null, status: 204 }]
     }
@@ -57,7 +57,7 @@ export const mockActionsRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'disable',
     method: Method.POST,
-    path: `**${getEndpoints(resourceType).disable()}`,
+    path: `**${getEndpoints(resourceType).disable?.()}`,
     response: {
       results: [{ href: '/resources/1', message: null, status: 204 }]
     }
@@ -83,7 +83,7 @@ export const mockModalRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'getDetails',
     method: Method.GET,
-    path: `**${getEndpoints(resourceType).getOne({ id: 1 })}`,
+    path: `**${getEndpoints(resourceType).getOne?.({ id: 1 })}`,
     response
   });
 
@@ -97,7 +97,7 @@ export const mockModalRequests = (resourceType): void => {
   cy.interceptAPIRequest({
     alias: 'update',
     method: Method.PUT,
-    path: `**${getEndpoints(resourceType).update({ id: 1 })}`,
+    path: `**${getEndpoints(resourceType).update?.({ id: 1 })}`,
     response: {}
   });
 };
@@ -133,10 +133,10 @@ const initialize = ({
               <div style={{ height: '100vh' }}>
                 <ConfigurationBase
                   actions={{
-                    delete: true,
-                    duplicate: true,
+                    delete: () => true,
+                    duplicate: () => true,
                     edit: true,
-                    enableDisable: true,
+                    enableDisable: () => true,
                     massive: true,
                     viewDetails: true
                   }}
