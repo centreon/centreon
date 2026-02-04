@@ -53,8 +53,8 @@ if (isset($ret) && is_array($ret) && $ret['topology_page'] != '' && $p != $ret['
 $centreon->user->access->updatePollerACL();
 
 // Build poller listing for ACL
-$serverResult =
-    $centreon->user->access->getPollerAclConf(
+$serverResult
+    = $centreon->user->access->getPollerAclConf(
         [
             'fields' => ['id', 'name', 'last_restart'],
             'order' => ['name'],
