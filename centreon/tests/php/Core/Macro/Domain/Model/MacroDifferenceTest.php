@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,58 +29,56 @@ use Core\Macro\Domain\Model\Macro;
 use Core\Macro\Domain\Model\MacroDifference;
 
 beforeEach(function (): void {
-
     // DIRECT MACROS - not changed
-    $this->hostMacroA = new Macro(1, 'NAMEA', 'valueA');
-    $this->hostMacroB = new Macro(1, 'NAMEB', 'valueB');
+    $this->hostMacroA = new Macro(null, 1, 'NAMEA', 'valueA');
+    $this->hostMacroB = new Macro(null, 1, 'NAMEB', 'valueB');
     // DIRECT MACROS - deleted
-    $this->hostMacroC = new Macro(1, 'NAMEC', 'valueC');
+    $this->hostMacroC = new Macro(null, 1, 'NAMEC', 'valueC');
     // DIRECT MACROS - added
-    $this->hostMacroD = new Macro(1, 'NAMED', 'valueD');
+    $this->hostMacroD = new Macro(null, 1, 'NAMED', 'valueD');
     // DIRECT MACROS - value changed => updated
-    $this->hostMacroE = new Macro(1, 'NAMEE', 'valueE');
-    $this->hostMacroE_edit = new Macro(1, 'NAMEE', 'valueE_edit');
+    $this->hostMacroE = new Macro(null, 1, 'NAMEE', 'valueE');
+    $this->hostMacroE_edit = new Macro(null, 1, 'NAMEE', 'valueE_edit');
     // DIRECT MACROS - description changed => updated
-    $this->hostMacroF = new Macro(1, 'NAMEF', 'valueF');
+    $this->hostMacroF = new Macro(null, 1, 'NAMEF', 'valueF');
     $this->hostMacroF->setDescription('descriptionF');
-    $this->hostMacroF_edit = new Macro(1, 'NAMEF', 'valueF');
+    $this->hostMacroF_edit = new Macro(null, 1, 'NAMEF', 'valueF');
     $this->hostMacroF_edit->setDescription('descriptionF_edit');
     // DIRECT MACROS - isPassword changed => updated
-    $this->hostMacroG = new Macro(1, 'NAMEG', 'valueG');
-    $this->hostMacroG_edit = new Macro(1, 'NAMEG', 'valueG');
+    $this->hostMacroG = new Macro(null, 1, 'NAMEG', 'valueG');
+    $this->hostMacroG_edit = new Macro(null, 1, 'NAMEG', 'valueG');
     $this->hostMacroG_edit->setIsPassword(true);
 
     // INHERITED MACROS - not changed
-    $this->hostMacroH = new Macro(2, 'NAMEH', 'valueH');
-    $this->hostMacroH_edit = new Macro(1, 'NAMEH', 'valueH');
+    $this->hostMacroH = new Macro(null, 2, 'NAMEH', 'valueH');
+    $this->hostMacroH_edit = new Macro(null, 1, 'NAMEH', 'valueH');
     // INHERITED MACROS - value changed => added
-    $this->hostMacroI = new Macro(2, 'NAMEI', 'valueI');
-    $this->hostMacroI_edit = new Macro(1, 'NAMEI', 'valueI_edit');
+    $this->hostMacroI = new Macro(null, 2, 'NAMEI', 'valueI');
+    $this->hostMacroI_edit = new Macro(null, 1, 'NAMEI', 'valueI_edit');
     // INHERITED MACROS - isPassword changed => added
-    $this->hostMacroJ = new Macro(2, 'NAMEJ', 'valueJ');
-    $this->hostMacroJ_edit = new Macro(1, 'NAMEJ', 'valueJ');
+    $this->hostMacroJ = new Macro(null, 2, 'NAMEJ', 'valueJ');
+    $this->hostMacroJ_edit = new Macro(null, 1, 'NAMEJ', 'valueJ');
     $this->hostMacroJ_edit->setIsPassword(true);
     // INHERITED MACROS - set description on unchanged inherited macro => common
-    $this->hostMacroK = new Macro(2, 'NAMEK', 'valueK');
-    $this->hostMacroK_edit = new Macro(1, 'NAMEK', 'valueK');
+    $this->hostMacroK = new Macro(null, 2, 'NAMEK', 'valueK');
+    $this->hostMacroK_edit = new Macro(null, 1, 'NAMEK', 'valueK');
     $this->hostMacroK_edit->setDescription('descriptionK');
     // INHERITED MACROS - value reverted to inherted => deleted
-    $this->hostMacroL_inherited = new Macro(2, 'NAMEL', 'valueL_inherit');
-    $this->hostMacroL = new Macro(1, 'NAMEL', 'valueL');
-    $this->hostMacroL_edit = new Macro(1, 'NAMEL', 'valueL_inherit');
+    $this->hostMacroL_inherited = new Macro(null, 2, 'NAMEL', 'valueL_inherit');
+    $this->hostMacroL = new Macro(null, 1, 'NAMEL', 'valueL');
+    $this->hostMacroL_edit = new Macro(null, 1, 'NAMEL', 'valueL_inherit');
 
     // COMMAND MACROS - value is set => added
     $this->commandMacroM = new CommandMacro(1, CommandMacroType::Host, 'NAMEM');
-    $this->hostMacroM = new Macro(1, 'NAMEM', 'valueM');
+    $this->hostMacroM = new Macro(null, 1, 'NAMEM', 'valueM');
     // COMMAND MACROS - isPassword is set => added
     $this->commandMacroN = new CommandMacro(1, CommandMacroType::Host, 'NAMEN');
-    $this->hostMacroN = new Macro(1, 'NAMEN', '');
+    $this->hostMacroN = new Macro(null, 1, 'NAMEN', '');
     $this->hostMacroN->setIsPassword(true);
     // COMMAND MACROS - value is reverted/let to empty => deleted
     $this->commandMacroO = new CommandMacro(1, CommandMacroType::Host, 'NAMEO');
-    $this->hostMacroO = new Macro(1, 'NAMEO', 'valueO');
-    $this->hostMacroO_edit = new Macro(1, 'NAMEO', '');
-
+    $this->hostMacroO = new Macro(null, 1, 'NAMEO', 'valueO');
+    $this->hostMacroO_edit = new Macro(null, 1, 'NAMEO', '');
 });
 
 it('should compute macros has expected', function (): void {
@@ -97,11 +95,11 @@ it('should compute macros has expected', function (): void {
         $this->hostMacroO->getName() => $this->hostMacroO,
     ];
     $inheritedMacros = [
-         $this->hostMacroH->getName() => $this->hostMacroH,
-         $this->hostMacroI->getName() => $this->hostMacroI,
-         $this->hostMacroJ->getName() => $this->hostMacroJ,
-         $this->hostMacroK->getName() => $this->hostMacroK,
-         $this->hostMacroL_inherited->getName() => $this->hostMacroL_inherited,
+        $this->hostMacroH->getName() => $this->hostMacroH,
+        $this->hostMacroI->getName() => $this->hostMacroI,
+        $this->hostMacroJ->getName() => $this->hostMacroJ,
+        $this->hostMacroK->getName() => $this->hostMacroK,
+        $this->hostMacroL_inherited->getName() => $this->hostMacroL_inherited,
     ];
     $commandMacros = [
         $this->commandMacroM->getName() => $this->commandMacroM,
@@ -153,8 +151,8 @@ it('should compute macros has expected', function (): void {
 
     $macrosDiff = new MacroDifference();
     $macrosDiff->compute($directMacros, $inheritedMacros, $commandMacros, $afterMacros);
-    expect($macrosDiff->addedMacros)->toBe($addedMacros)
-        ->and($macrosDiff->updatedMacros)->toBe($updatedMacros)
-        ->and($macrosDiff->removedMacros)->tobe($removedMacros)
-        ->and($macrosDiff->unchangedMacros)->toBe($unchangedMacros);
- });
+    expect($macrosDiff->addedMacros)->toEqual($addedMacros)
+        ->and($macrosDiff->updatedMacros)->toEqual($updatedMacros)
+        ->and($macrosDiff->removedMacros)->toEqual($removedMacros)
+        ->and($macrosDiff->unchangedMacros)->toEqual($unchangedMacros);
+});

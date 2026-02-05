@@ -1,0 +1,50 @@
+post:
+  tags:
+    - Host group
+  summary: "enable/disable multiple host groups"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            ids:
+              type: array
+              items:
+                type: integer
+              description: "List of host group IDs to enable/disable"
+              example: [ 1, 2 ]
+          required:
+            - ids
+  description: |
+    enable/disable multiple host groups from configuration
+  parameters:
+    - $ref: 'QueryParameter/EnableDisable.yaml'
+  responses:
+    '200':
+      description: "Objects enable/disable"
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                href:
+                  type: string
+                  format: uri
+                  description: "URI to the enable/disabled host group"
+                status:
+                  type: integer
+                  description: "HTTP Status Code of the operation"
+                message:
+                  type: string
+                  nullable: true
+                  description: "Error message for non 204 status"
+    '401':
+      $ref: '../../Common/Response/Unauthorized.yaml'
+    '403':
+      $ref: '../../Common/Response/Forbidden.yaml'
+    '500':
+      $ref: '../../Common/Response/InternalServerError.yaml'

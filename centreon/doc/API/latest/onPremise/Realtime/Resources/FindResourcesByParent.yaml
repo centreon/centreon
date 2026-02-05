@@ -20,6 +20,7 @@ get:
     * parent_name
     * parent_status
     * in_downtime
+    * in_flapping
     * acknowledged
     * last_status_change
     * tries

@@ -1,11 +1,11 @@
+import {
+  formatMetricValueWithUnit,
+  getMetricWithLatestData,
+  LineChartData
+} from '@centreon/ui';
+
 import { equals, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import {
-  LineChartData,
-  formatMetricValueWithUnit,
-  getMetricWithLatestData
-} from '@centreon/ui';
 
 import { FormThreshold } from './models';
 import {
@@ -20,6 +20,7 @@ interface Props {
   displayAsRaw?: boolean;
   metricName?: string;
   thresholds: FormThreshold;
+  isMetaServiceSelected?: boolean;
 }
 
 interface UseThresholdsState {
@@ -46,7 +47,11 @@ const useThresholds = ({
   const isDefaultCritical = equals(thresholds.criticalType, 'default');
 
   if (isEmpty(data?.metrics)) {
-    return undefined;
+    return {
+      critical: [],
+      enabled: false,
+      warning: []
+    };
   }
 
   const warningThresholds = isDefaultWarning

@@ -50,21 +50,32 @@ export default ({
       },
       setupNodeEvents: async (cypressOn, config) => {
         const on = require('cypress-on-fix')(cypressOn)
-        installLogsPrinter(on);
+        installLogsPrinter(on, {
+          commandTrimLength: 5000,
+          defaultTrimLength: 5000,
+        });
+        on("task", {
+          logVersion(message) {
+            console.log(`[LOG]: ${message}`);
+            return null;
+          },
+        });
         await esbuildPreprocessor(on, config);
         tasks(on);
 
         return plugins(on, config);
       },
       specPattern,
-      supportFile: 'support/e2e.{js,jsx,ts,tsx}'
+      supportFile: 'support/e2e.{js,jsx,ts,tsx}',
+      testIsolation: true,
     },
     env: {
       ...env,
-      DATABASE_IMAGE: 'bitnami/mariadb:10.11',
+      DATABASE_IMAGE: 'bitnamilegacy/mariadb:10.11',
       OPENID_IMAGE_VERSION: process.env.MAJOR || '24.04',
       SAML_IMAGE_VERSION: process.env.MAJOR || '24.04',
       STABILITY: 'unstable',
+      TARGET_STABILITY: 'unstable',
       WEB_IMAGE_OS: 'alma9',
       WEB_IMAGE_VERSION: webImageVersion
     },
@@ -72,11 +83,14 @@ export default ({
     requestTimeout: 20000,
     retries: {
       openMode: 0,
-      runMode: 2
+      runMode: process.env.CI ? 2 : 0
     },
     screenshotsFolder: `${resultsFolder}/screenshots`,
-    video: isDevelopment,
-    videoCompression: 0,
+    // Ensure previous run assets are removed to avoid accumulation
+    trashAssetsBeforeRuns: true,
+    video: true,
+    // Keep files small in CI, but fast locally
+    videoCompression: process.env.CI ? 32 : 0,
     videosFolder: `${resultsFolder}/videos`,
     viewportHeight: 1080,
     viewportWidth: 1920

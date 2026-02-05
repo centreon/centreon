@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Application\Controller;
@@ -33,6 +34,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\NotModifiedResponse;
 use Core\Application\Common\UseCase\PaymentRequiredResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Application\Common\UseCase\UnauthorizedResponse;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
@@ -52,6 +54,11 @@ abstract class AbstractController extends AbstractFOSRestController
     public const ROLE_API_CONFIGURATION = 'ROLE_API_CONFIGURATION';
     public const ROLE_API_CONFIGURATION_EXCEPTION_MESSAGE = 'You are not authorized to access this resource';
 
+    /**
+     * @param ResponseStatusInterface $response
+     *
+     * @return Response
+     */
     public function createResponse(ResponseStatusInterface $response): Response
     {
         $statusCode = match(true) {
@@ -64,7 +71,8 @@ abstract class AbstractController extends AbstractFOSRestController
             $response instanceof NotFoundResponse => Response::HTTP_NOT_FOUND,
             $response instanceof NotModifiedResponse => Response::HTTP_NOT_MODIFIED,
             $response instanceof PaymentRequiredResponse => Response::HTTP_PAYMENT_REQUIRED,
-            default => Response::HTTP_INTERNAL_SERVER_ERROR
+            $response instanceof UnauthorizedResponse => Response::HTTP_UNAUTHORIZED,
+            default => Response::HTTP_INTERNAL_SERVER_ERROR,
         };
 
         return match($statusCode) {
@@ -72,7 +80,7 @@ abstract class AbstractController extends AbstractFOSRestController
             default => new JsonResponse([
                 'code' => $statusCode,
                 'message' => $response->getMessage(),
-            ], $statusCode)
+            ], $statusCode),
         };
     }
 

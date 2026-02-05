@@ -1,19 +1,17 @@
-import { Suspense, lazy, memo } from 'react';
-
-import { Formik } from 'formik';
-import { useAtomValue } from 'jotai';
-import { T, equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
 
 import { FallbackPage, LoadingSkeleton, WallpaperPage } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
+import { Formik } from 'formik';
+import { useAtomValue } from 'jotai';
+import { equals, isNil, T } from 'ramda';
+import { lazy, memo, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import { MainLoaderWithoutTranslation } from '../Main/MainLoader';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
-
 import CustomText from './CustomText';
 import { LoginFormValues } from './models';
 import {
@@ -22,6 +20,7 @@ import {
   labelLogin,
   labelPoweredByCentreon
 } from './translatedLabels';
+import useGetLoginCustomData from './useGetLoginCustomData';
 import useLogin from './useLogin';
 import useValidationSchema from './validationSchema';
 
@@ -72,10 +71,11 @@ const LoginPage = (): JSX.Element => {
   const { t } = useTranslation();
   const validationSchema = useValidationSchema();
 
+  const { loginPageCustomisation } = useGetLoginCustomData();
+
   const {
     submitLoginForm,
     providersConfiguration,
-    loginPageCustomisation,
     authenticationError,
     hasForcedProvider
   } = useLogin();
@@ -96,8 +96,6 @@ const LoginPage = (): JSX.Element => {
     );
   }
 
-  const hasProvidersConfiguration = !isNil(providersConfiguration);
-
   return (
     <div>
       <Suspense fallback={<LoadingSkeleton />}>
@@ -105,57 +103,51 @@ const LoginPage = (): JSX.Element => {
           wallpaperAlt={t(labelCentreonWallpaper)}
           wallpaperSource={loginPageCustomisation.imageSource}
         >
-          <>
-            <Suspense fallback={<LoadingSkeleton height={50} width={250} />}>
-              <LoginHeader loginPageCustomisation={loginPageCustomisation} />
-            </Suspense>
-            {equals(loginPageCustomisation.textPosition, 'top') && (
-              <CustomText loginPageCustomisation={loginPageCustomisation} />
-            )}
-            <Typography variant="h5">{t(labelLogin)}</Typography>
-            <div>
-              <Formik<LoginFormValues>
-                validateOnMount
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={submitLoginForm}
+          <Suspense fallback={<LoadingSkeleton height={50} width={250} />}>
+            <LoginHeader loginPageCustomisation={loginPageCustomisation} />
+          </Suspense>
+          {equals(loginPageCustomisation.textPosition, 'top') && (
+            <CustomText loginPageCustomisation={loginPageCustomisation} />
+          )}
+          <Typography variant="h5">{t(labelLogin)}</Typography>
+          <div>
+            <Formik<LoginFormValues>
+              initialValues={initialValues}
+              onSubmit={submitLoginForm}
+              validateOnMount
+              validationSchema={validationSchema}
+            >
+              <Suspense
+                fallback={
+                  <LoadingSkeleton height={45} variant="text" width={250} />
+                }
               >
-                <Suspense
-                  fallback={
-                    <LoadingSkeleton height={45} variant="text" width={250} />
-                  }
-                >
-                  <LoginForm />
-                </Suspense>
-              </Formik>
-              {hasProvidersConfiguration && (
-                <Suspense
-                  fallback={
-                    <LoadingSkeleton height={45} variant="text" width={250} />
-                  }
-                >
-                  <ExternalProviders
-                    providersConfiguration={providersConfiguration}
-                  />
-                </Suspense>
-              )}
-            </div>
-            {equals(loginPageCustomisation.textPosition, 'bottom') && (
-              <CustomText loginPageCustomisation={loginPageCustomisation} />
-            )}
-            <div className={classes.poweredByAndVersion}>
+                <LoginForm />
+              </Suspense>
+            </Formik>
+            <Suspense
+              fallback={
+                <LoadingSkeleton height={45} variant="text" width={250} />
+              }
+            >
+              <ExternalProviders
+                providersConfiguration={providersConfiguration}
+              />
+            </Suspense>
+          </div>
+          {equals(loginPageCustomisation.textPosition, 'bottom') && (
+            <CustomText loginPageCustomisation={loginPageCustomisation} />
+          )}
+          <div className={classes.poweredByAndVersion}>
+            <Typography variant="body2">{t(labelPoweredByCentreon)}</Typography>
+            {isNil(platformVersions) ? (
+              <LoadingSkeleton variant="text" width="40%" />
+            ) : (
               <Typography variant="body2">
-                {t(labelPoweredByCentreon)}
+                v. {platformVersions?.web.version}
               </Typography>
-              {isNil(platformVersions) ? (
-                <LoadingSkeleton variant="text" width="40%" />
-              ) : (
-                <Typography variant="body2">
-                  v. {platformVersions?.web.version}
-                </Typography>
-              )}
-            </div>
-          </>
+            )}
+          </div>
         </WallpaperPage>
       </Suspense>
     </div>

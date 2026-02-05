@@ -1,6 +1,6 @@
 import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import notificationBody from '../../fixtures/notifications/notification-creation.json';
+import type notificationBody from '../../fixtures/notifications/notification-creation.json';
 
 const cloudNotificationLogFile =
   '/var/log/centreon-broker/centreon-cloud-notifications.log';
@@ -77,9 +77,9 @@ const setBrokerNotificationsOutput = ({
     bodyContent: addOutputBody
   });
 
-  let brokerIOID = '';
+  let brokerIoid = '';
 
-  const getBrokerIOIdByNameBody = {
+  const getBrokerIoIdByNameBody = {
     action: 'LISTOUTPUT',
     object: 'CENTBROKERCFG',
     values: `${configName}`
@@ -87,20 +87,20 @@ const setBrokerNotificationsOutput = ({
 
   return cy
     .executeActionViaClapi({
-      bodyContent: getBrokerIOIdByNameBody
+      bodyContent: getBrokerIoIdByNameBody
     })
     .then((response) => {
-      const listBrokersIO = response.body.result;
-      const brokerIO = listBrokersIO.find(
-        (currentBrokerIO) => currentBrokerIO.name === name
+      const listBrokersIo = response.body.result;
+      const brokerIo = listBrokersIo.find(
+        (currentBrokerIo) => currentBrokerIo.name === name
       );
-      if (brokerIO) {
-        brokerIOID = brokerIO.id;
+      if (brokerIo) {
+        brokerIoid = brokerIo.id;
 
         const setOutputPathBody = {
           action: 'SETOUTPUT',
           object: 'CENTBROKERCFG',
-          values: `${configName};${brokerIOID};path;/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua`
+          values: `${configName};${brokerIoid};path;/usr/share/centreon-broker/lua/centreon-cloud-notifications.lua`
         };
         cy.executeActionViaClapi({
           bodyContent: setOutputPathBody
@@ -109,7 +109,7 @@ const setBrokerNotificationsOutput = ({
         const setOutputCategoryBody = {
           action: 'SETOUTPUT',
           object: 'CENTBROKERCFG',
-          values: `${configName};${brokerIOID};category;neb`
+          values: `${configName};${brokerIoid};category;neb`
         };
         cy.executeActionViaClapi({
           bodyContent: setOutputCategoryBody
@@ -134,7 +134,7 @@ const notificationSentCheck = ({
   contain?: boolean;
   logs: string | Array<string>;
 }): Cypress.Chainable => {
-  cy.log(`checking logs`);
+  cy.log('checking logs');
 
   const command =
     typeof logs === 'string' || logs instanceof String
@@ -164,7 +164,7 @@ const notificationSentCheck = ({
 };
 
 const notificationSentCount = (count: number): void => {
-  cy.log(`checking notification logs count`);
+  cy.log('checking notification logs count');
 
   let errorMessage = 'Notification count not found';
 
@@ -191,7 +191,7 @@ const notificationSentCount = (count: number): void => {
           const currentLineCount = +match[1];
 
           if (currentLineCount < count) {
-            errorMessage = `Notification count: ${currentLineCount} (expected: ${{ count }})`;
+            errorMessage = `Notification count: ${currentLineCount} (expected: ${count})`;
             cy.log(errorMessage);
           }
 
@@ -247,13 +247,13 @@ const initializeDataFiles = (): void => {
   const resources: Array<{ id: number; parent: { id: number }; type: string }> =
     [];
 
-  // The first service will got an id of 28
-  for (let i = 28; i < 1028; i += 1) {
+  // The first service will got an id of 40
+  for (let i = 0; i < 1000; i += 1) {
     // Generate values for centreon_storage_services.txt
     values = [
       15, // host_id
-      `service_${i - 27}`, // description
-      i, // service_id
+      `service_${i}`, // description
+      i + 40, // service_id
       0, // acknowledged
       0, // acknowledgement_type
       '', // action_url
@@ -270,7 +270,7 @@ const initializeDataFiles = (): void => {
       1, // default_flap_detection
       0, // default_notify
       1, // default_passive_checks
-      `service_${i - 27}`, // display_name
+      `service_${i}`, // display_name
       1, // enabled
       '', // event_handler
       1, // event_handler_enabled
@@ -325,9 +325,9 @@ const initializeDataFiles = (): void => {
 
     // Generate values for centreon_services.txt
     values = [
-      i, // service_id
+      i + 40, // service_id
       3, // service_template_model_stm_id
-      `service_${i - 27}`, // service_description
+      `service_${i}`, // service_description
       2, // service_is_volatile
       1, // service_max_check_attempts
       0, // service_active_checks_enabled
@@ -352,11 +352,11 @@ const initializeDataFiles = (): void => {
     centreonServicesValues += `${values}\n`;
 
     // Generate values for host_service_relation.txt
-    values = `15\t${i}\n`;
+    values = `15\t${i + 40}\n`;
     hostServiceRelationValues += values;
 
     // Generate payload-check.json
-    resources.push({ id: i, parent: { id: 15 }, type: 'service' });
+    resources.push({ id: i + 40, parent: { id: 15 }, type: 'service' });
   }
 
   cy.writeFile(

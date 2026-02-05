@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\Service\Domain\Model\ServiceRelation;
 use Core\Service\Domain\Model\TinyService;
 
 interface ReadServiceRepositoryInterface
@@ -88,6 +89,30 @@ interface ReadServiceRepositoryInterface
      * @return list<int>
      */
     public function findServiceIdsLinkedToHostId(int $hostId): array;
+
+    /**
+     * Find all service IDs link to the host through host groups.
+     *
+     * @param int $hostId Host ID for which the services are linked
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function findServiceIdsLinkedToHostThroughHostGroups(int $hostId): array;
+
+    /**
+     * Find service IDs that are exclusively linked to the host.
+     * These are services that should be deleted when the host is deleted
+     * because they are not used by any other host.
+     *
+     * @param int $hostId Host ID for which to find exclusively linked services
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function findServiceIdsExclusivelyLinkedToHostId(int $hostId): array;
 
     /**
      * Indicates whether the service name already exists.
@@ -165,6 +190,30 @@ interface ReadServiceRepositoryInterface
      */
     public function findByRequestParameterAndAccessGroup(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
+
+    /**
+     * Find services relations with host group.
+     *
+     * param int $hostGroupId
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return ServiceRelation[]
+     */
+    public function findServiceRelationsByHostGroupId(int $hostGroupId): array;
+
+    /**
+     * Find a service name by its ID.
+     *
+     * @param int $serviceId
+     *
+     * @throws \Throwable
+     *
+     * @return string|null
+     */
+    public function findNameById(int $serviceId): ?string;
 }

@@ -1,4 +1,4 @@
-import NumberField, { NumberProps } from './Number';
+import NumberField, { type NumberProps } from './Number';
 
 const initialize = (props: NumberProps): void => {
   cy.mount({
@@ -68,10 +68,14 @@ describe('Number field', () => {
     initialize({
       dataTestId: 'test',
       defaultValue: 25,
-      inputProps: {
-        min: 2
-      },
-      onChange: cy.stub()
+      onChange: cy.stub(),
+      textFieldSlotsAndSlotProps: {
+        slotProps: {
+          htmlInput: {
+            min: 2
+          }
+        }
+      }
     });
 
     cy.get('input').should('have.value', '25');

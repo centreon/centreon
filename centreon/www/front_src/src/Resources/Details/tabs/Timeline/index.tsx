@@ -1,16 +1,14 @@
-import { useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { path, equals, isEmpty, isNil, prop } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Paper, Stack } from '@mui/material';
 
 import type { ListingModel, SearchParameter } from '@centreon/ui';
 import { MultiAutocompleteField, useRequest } from '@centreon/ui';
 
-import type { TabProps } from '..';
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, path, prop } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import TimePeriodButtonGroup from '../../../Graph/Performance/TimePeriods';
 import {
   customTimePeriodAtom,
@@ -19,15 +17,15 @@ import {
 } from '../../../Graph/Performance/TimePeriods/timePeriodAtoms';
 import { labelEvent } from '../../../translatedLabels';
 import InfiniteScroll from '../../InfiniteScroll';
-
+import type { TabProps } from '..';
 import AddCommentButton from './Addcomment';
 import AddCommentArea from './Addcomment/AddCommentArea';
+import { listTimelineEvents } from './api';
+import { listTimelineEventsDecoder } from './api/decoders';
 import { types } from './Event';
 import Events from './Events';
 import ExportToCsv from './ExportToCsv';
 import LoadingSkeleton from './LoadingSkeleton';
-import { listTimelineEvents } from './api';
-import { listTimelineEventsDecoder } from './api/decoders';
 import type { TimelineEvent, Type } from './models';
 
 type TimelineListing = ListingModel<TimelineEvent>;
@@ -79,23 +77,15 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
       return undefined;
     }
 
-    return {
-      conditions: [
-        {
-          field: 'date',
-          values: {
-            $gt: start,
-            $lt: end
-          }
-        }
-      ],
-      lists: [
-        {
-          field: 'type',
-          values: selectedTypes.map(prop('id'))
-        }
-      ]
-    };
+    const conditions = [
+      { field: 'type', values: { $in: selectedTypes.map(prop('id')) } },
+      {
+        field: '$and',
+        value: [{ date: { $gt: start } }, { date: { $lt: end } }]
+      }
+    ];
+
+    return { conditions };
   };
 
   const timelineEndpoint = path(['links', 'endpoints', 'timeline'], details);
@@ -150,19 +140,19 @@ const TimelineTab = ({ details }: TabProps): JSX.Element => {
           <Paper className={classes.filterHeader}>
             <TimePeriodButtonGroup disableGraphOptions disablePaper />
             <MultiAutocompleteField
+              chipProps={{ onDelete }}
               label={t(labelEvent)}
               limitTags={3}
+              onChange={changeSelectedTypes}
               options={translatedTypes}
               value={selectedTypes}
-              onChange={changeSelectedTypes}
-              chipProps={{ onDelete }}
             />
           </Paper>
           <div className={classes.containerActions}>
             {details && (
               <AddCommentButton
-                resources={[details]}
                 onClick={prepareToAddComment}
+                resources={[details]}
               />
             )}
             {displayCsvExport && (

@@ -21,8 +21,8 @@ on:
         type: string
         description: 'The frontend dependencies lock file path'
       is_nightly:
-        required: true
-        type: boolean
+        required: false
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
       - name: List of specs
         id: list-specs
@@ -62,14 +62,14 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d # v3.0.0
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
-          version: 8
+          version: 10
           run_install: false
 
-      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
         with:
           node-version: 20
           cache: pnpm
@@ -85,7 +85,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
 
       - name: Install Cypress binary
-        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           timeout_seconds: 120
           max_attempts: 10
@@ -94,7 +94,7 @@ jobs:
           command: cd ${{ inputs.module_name }} && pnpm cypress install --force
 
       - name: Cypress web component testing
-        uses: cypress-io/github-action@0da3c06ed8217b912deea9d8ee69630baed1737e # v6.7.6
+        uses: cypress-io/github-action@e65cba2e7319696fc0fdc4d5a319b737aec4ba1c # v6.10.3
         with:
           browser: chrome
           component: true
@@ -105,12 +105,20 @@ jobs:
           publish-summary: false
           env: codeCoverageTasksRegistered=true
 
-      - name: Clean up code coverage results
+      - name: Move retries.json to reports directory and display warnings
+        if: ${{ ! cancelled() }}
+        run: |
+          retriesFile="${{ inputs.module_name }}/cypress/results/retries.json"
+          if [ -f "$retriesFile" ]; then
+            jq 'to_entries | .[].key' $retriesFile | while read -r testName; do
+              echo "::warning::Following test was retried during execution: $testName (retries: $(jq ".$testName" $retriesFile))"
+            done
+            mv $retriesFile "${{ inputs.module_name }}/cypress/results/${{ matrix.spec }}-retries.json"
+          fi
         shell: bash
-        run: node centreon/packages/js-config/cypress/component/excludeNodeModulesFromCoverage.js ${{ inputs.module_name }}/.nyc_output/out.json
 
       - name: Archive test results
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: ${{ failure() }}
         with:
           name: ${{ inputs.name }}-component-test-results-${{ matrix.spec }}
@@ -121,44 +129,46 @@ jobs:
           retention-days: 1
 
       - name: Archive test reports
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        if: ${{ ! cancelled() }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ inputs.name }}-component-test-reports-${{ matrix.spec }}
           path: ${{ inputs.module_name }}/cypress/results/*.json
           retention-days: 1
 
       - name: Change coverage report name
-        run: mv ${{ inputs.module_name }}/.nyc_output/out.json ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
+        run: mv ${{ inputs.module_name }}/coverage/coverage-final.json ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
         shell: bash
 
       - name: Archive test coverage
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ inputs.name }}-component-test-coverage-${{ matrix.spec }}
-          path: ${{ inputs.module_name }}/.nyc_output/${{ matrix.spec }}-out.json
+          path: ${{ inputs.module_name }}/coverage/${{ matrix.spec }}-out.json
           retention-days: 1
 
   cypress-component-coverage-report:
     needs: [cypress-component-test-run]
-    if: always()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
-          version: 8
+          version: 10
 
       - name: Download coverage reports
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           pattern: ${{ inputs.name }}-component-test-coverage-*
-          path: .nyc_output/
+          path: coverage/
           merge-multiple: true
 
-      - uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+      - uses: aws-actions/configure-aws-credentials@00943011d9042930efac3dcd3a170e4273319bc8 # v5.1.0
         if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop' }}
         with:
           aws-region: eu-west-1
@@ -173,7 +183,8 @@ jobs:
 
       - name: Merge coverage reports
         run: |
-          pnpx nyc merge .nyc_output
+          pnpx nyc merge coverage
+          mkdir .nyc_output
           mv coverage.json .nyc_output/out.json
         shell: bash
 
@@ -194,7 +205,7 @@ jobs:
         shell: bash
 
       - name: Archive HTML code coverage
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         with:
           name: ${{ steps.title.outputs.replaced }}-${{ inputs.name }}-code-coverage
           path: coverage/lcov-report
@@ -228,18 +239,20 @@ jobs:
 
   cypress-component-test-report:
     needs: [cypress-component-test-run]
-    if: failure()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2 # v4.0.0
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
-          version: 8
+          version: 10
 
       - name: Download Artifacts
-        uses: actions/download-artifact@87c55149d96e628cc2ef7e6fc2aab372015aec85 # v4.1.3
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
         with:
           pattern: ${{ inputs.name }}-component-test-reports-*
           path: ${{ inputs.name }}-json-reports
@@ -247,20 +260,58 @@ jobs:
 
       - name: Merge reports
         run: |
-          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*.json" > mochawesome.json
+          pnpx mochawesome-merge "${{ inputs.name }}-json-reports/**/*-report.json" > mochawesome.json
+
+          if ls ${{ inputs.name }}-json-reports/**/*retries.json 1> /dev/null 2>&1; then
+            cat ${{ inputs.name }}-json-reports/**/*retries.json | jq -s add > retries.json
+          else
+            echo "{}" > retries.json
+          fi
         shell: bash
 
       - name: Publish report
+        if: needs.cypress-component-test-run.result == 'failure'
         uses: ./.github/actions/publish-report
         with:
           check_name: ${{ inputs.name }}-report
           path: mochawesome.json
           format: cypress
-          urlFilePrefix: centreon
+
+      - name: Display retries summary
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const retriesFile = 'retries.json';
+            const retries = JSON.parse(fs.readFileSync(retriesFile, 'utf8'));
+            if (Object.keys(retries).length > 0) {
+              const outputTable = [
+                [{data: 'Feature', header: true}, {data: 'Scenario', header: true}, {data: 'Retries', header: true}],
+              ];
+              const warningTitle = `${Object.keys(retries).length} tests were retried during execution`;
+
+              let warningBody = JSON.stringify(retries, null, 2);
+              for (const testName in retries) {
+                const featureName = testName.split('>')[0];
+                const scenarioName = testName.split('>').slice(1).join('>');
+                outputTable.push([featureName, scenarioName, String(retries[testName])]);
+              }
+
+              // Display json to allow collect of metrics
+              core.warning(warningBody, { title: warningTitle });
+
+              core.summary
+                .addHeading(`Retries Summary`)
+                .addTable(outputTable)
+                .addDetails(`Content of ${retriesFile}`, fs.readFileSync(retriesFile, 'utf8'))
+                .write();
+            }
 
   regroup-artifacts:
     needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run]
-    if: always()
+    if: |
+      ! cancelled() &&
+      ! contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -268,8 +319,10 @@ jobs:
         type_of_report: [test-results, test-reports, test-coverage]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
-        if: ${{ ( contains(needs.cypress-component-test-run.result, 'failure') && ( matrix.type_of_report == 'test-reports' ) ) || matrix.type_of_report == 'test-coverage' }}
+        uses: actions/upload-artifact/merge@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: |
+          (needs.cypress-component-test-run.result == 'failure' && contains(fromJson('["test-results", "test-reports"]'), matrix.type_of_report)) ||
+          matrix.type_of_report == 'test-coverage'
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}
           pattern: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
@@ -277,24 +330,10 @@ jobs:
           retention-days: 1
 
       - name: Delete merged artifacts
-        if: ${{ matrix.type_of_report != 'test-coverage' || needs.cypress-component-test-run.result == 'success' }}
+        if: |
+          needs.cypress-component-test-run.result == 'success' ||
+          matrix.type_of_report != 'test-coverage'
         uses: geekyeggo/delete-artifact@f275313e70c08f6120db482d7a6b98377786765b # v5.1.0
         with:
           name: ${{ inputs.name }}-component-${{ matrix.type_of_report }}-*
           failOnError: false
-
-  create-jira-nightly-ticket:
-    needs: [cypress-component-coverage-report, cypress-component-test-report, cypress-component-test-run, regroup-artifacts]
-    runs-on: ubuntu-24.04
-    if: |
-      inputs.is_nightly == 'true' && github.run_attempt == 1 &&
-      (failure() || cancelled())
-    steps:
-      - name: Create Jira ticket if nightly build failure
-        uses: ./.github/actions/create-jira-ticket
-        with:
-          jira_base_url: ${{ secrets.jira_base_url }}
-          jira_user_email: ${{ secrets.jira_user_email }}
-          jira_api_token: ${{ secrets.jira_api_token }}
-          module_name: "centreon-web"
-          ticket_labels: '["Nightly", "Pipeline", "nightly-${{ github.ref_name }}", "cypress-e2e"]'

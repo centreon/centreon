@@ -1,20 +1,8 @@
-import {
-  T,
-  equals,
-  head,
-  insert,
-  map,
-  pipe,
-  propEq,
-  propOr,
-  reject,
-  split
-} from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
-import { ColumnType } from '@centreon/ui';
 import type { Column } from '@centreon/ui';
+import { ColumnType, truncate } from '@centreon/ui';
 import { FeatureFlags } from '@centreon/ui-context';
+
+import { equals, head, pipe, propOr, split, T } from 'ramda';
 
 import { Visualization } from '../../models';
 import {
@@ -40,13 +28,10 @@ import {
   labelStatus,
   labelTries
 } from '../../translatedLabels';
-import truncate from '../../truncate';
-
 import ChecksColumn from './Checks';
 import GraphColumn from './Graph';
 import NotificationColumn from './Notification';
 import ParentResourceColumn from './Parent';
-import ParentAliasColumn from './ParentAlias';
 import ResourceColumn from './Resource';
 import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
@@ -54,33 +39,6 @@ import StateColumn from './State';
 import StatusColumn from './Status';
 import ActionUrlColumn from './Url/Action';
 import NotesUrlColumn from './Url/Notes';
-
-interface StyleProps {
-  isHovered: boolean;
-}
-
-const useStyles = makeStyles<StyleProps>()((theme, { isHovered }) => ({
-  extraSmallChip: {
-    height: theme.spacing(1.25),
-    lineHeight: theme.spacing(1.25),
-    minWidth: theme.spacing(1.25)
-  },
-  resourceDetailsCell: {
-    alignItems: 'center',
-    display: 'flex',
-    flexWrap: 'nowrap'
-  },
-  resourceNameItem: {
-    lineHeight: 1,
-    whiteSpace: 'nowrap'
-  },
-  resourceNameText: {
-    color: isHovered
-      ? theme.palette.text.primary
-      : theme.palette.text.secondary,
-    paddingLeft: theme.spacing(0.5)
-  }
-}));
 
 export interface ColumnProps {
   actions;
@@ -117,42 +75,70 @@ export const getColumns = ({
   featureFlags,
   t
 }: ColumnProps): Array<Column> => {
+  const isViewByService = equals(visualization, Visualization.Service);
+  const isViewByHost = equals(visualization, Visualization.Host);
+
+  const resourceLabel = isViewByHost
+    ? labelHost
+    : isViewByService
+      ? labelService
+      : labelResource;
+
+  const parentLabel = isViewByService ? labelHost : labelParent;
+
   const columns = [
-    {
-      Component: StatusColumn({ actions, t }),
-      clickable: true,
-      getRenderComponentOnRowUpdateCondition: T,
-      hasHoverableComponent: true,
-      id: 'status',
-      label: t(labelStatus),
-      rowMemoProps: ['status', 'severity_code', 'type'],
-      sortField: 'status_severity_code',
-      sortable: true,
-      type: ColumnType.component,
-      width: 'max-content'
-    },
+    ...(isViewByHost
+      ? []
+      : [
+          {
+            Component: StatusColumn({ actions, t }),
+            clickable: true,
+            getRenderComponentOnRowUpdateCondition: T,
+            hasHoverableComponent: true,
+            id: 'status',
+            label: t(labelStatus),
+            rowMemoProps: ['status', 'severity_code', 'type'],
+            sortable: true,
+            sortField: 'status_severity_code',
+            type: ColumnType.component,
+            width: 'max-content'
+          }
+        ]),
     {
       Component: ResourceColumn,
       getRenderComponentOnRowUpdateCondition: T,
       id: 'resource',
-      label: t(labelResource),
+      label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
+      sortable: true,
       sortField: 'name',
-      sortable: true,
       type: ColumnType.component,
       width: 'max-content'
     },
-    {
-      Component: ParentResourceColumn,
-      getRenderComponentOnRowUpdateCondition: T,
-      id: 'parent_resource',
-      label: t(labelParent),
-      rowMemoProps: ['parent'],
-      sortField: 'parent_name',
-      sortable: true,
-      type: ColumnType.component,
-      width: 'max-content'
-    },
+    ...(isViewByHost
+      ? [
+          {
+            Component: SubItem,
+            displaySubItemsCaret: true,
+            id: 'services',
+            label: t(labelServices),
+            type: ColumnType.component,
+            width: 'max-content'
+          }
+        ]
+      : [
+          {
+            Component: ParentResourceColumn,
+            getRenderComponentOnRowUpdateCondition: T,
+            id: 'parent_resource',
+            label: t(parentLabel),
+            rowMemoProps: ['parent'],
+            sortable: true,
+            sortField: 'parent_name',
+            type: ColumnType.component,
+            width: 'max-content'
+          }
+        ]),
     {
       Component: GraphColumn({ onClick: actions.onDisplayGraph }),
       getRenderComponentOnRowUpdateCondition: T,
@@ -166,8 +152,8 @@ export const getColumns = ({
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
       label: t(labelDuration),
-      sortField: 'last_status_change',
       sortable: true,
+      sortField: 'last_status_change',
       type: ColumnType.string,
       width: 'max-content'
     },
@@ -192,7 +178,7 @@ export const getColumns = ({
         propOr('', 'information'),
         split('\n'),
         head,
-        truncate
+        (information: string) => truncate({ content: information })
       ) as (row) => string,
       id: 'information',
       label: t(labelInformation),
@@ -208,8 +194,8 @@ export const getColumns = ({
       label: t(labelSeverity),
       rowMemoProps: ['severity_level'],
       shortLabel: 'S',
-      sortField: 'severity_level',
       sortable: true,
+      sortField: 'severity_level',
       type: ColumnType.component
     },
     {
@@ -250,17 +236,20 @@ export const getColumns = ({
       type: ColumnType.string,
       width: 'max-content'
     },
-    {
-      Component: ParentAliasColumn,
-      getFormattedString: ({ parent }): string => parent?.alias,
-      id: 'parent_alias',
-      label: t(labelParentAlias),
-      rowMemoProps: ['parent'],
-      sortField: 'parent_alias',
-      sortable: true,
-      type: ColumnType.string,
-      width: 'max-content'
-    },
+    ...(isViewByHost
+      ? []
+      : [
+          {
+            getFormattedString: ({ parent }): string => parent?.alias,
+            id: 'parent_alias',
+            label: t(labelParentAlias),
+            rowMemoProps: ['parent'],
+            sortable: true,
+            sortField: 'parent_alias',
+            type: ColumnType.string,
+            width: 'max-content'
+          }
+        ]),
     {
       getFormattedString: ({ fqdn }): string => fqdn,
       id: 'fqdn',
@@ -302,52 +291,5 @@ export const getColumns = ({
     }
   ];
 
-  if (equals(visualization, Visualization.Service)) {
-    const changeResourceLabel = (column: Column): Column =>
-      equals(column.label, labelResource)
-        ? { ...column, label: t(labelService) }
-        : column;
-
-    const changeParentLabel = (column: Column): Column =>
-      equals(column.label, labelParent)
-        ? { ...column, label: t(labelHost) }
-        : column;
-
-    const columnsForVisualizationByService = pipe(
-      map(changeResourceLabel),
-      map(changeParentLabel)
-    )(columns);
-
-    return columnsForVisualizationByService;
-  }
-
-  if (equals(visualization, Visualization.Host)) {
-    const subItemColumn = {
-      Component: SubItem,
-      displaySubItemsCaret: true,
-      id: 'services',
-      label: t(labelServices),
-      type: ColumnType.component,
-      width: 'max-content'
-    };
-
-    const changeResourceLabel = (column: Column): Column =>
-      equals(column.label, labelResource)
-        ? { ...column, label: t(labelHost) }
-        : column;
-
-    const columnsForVisualizationByHost = pipe(
-      reject(propEq('status', 'id')),
-      reject(propEq('parent_resource', 'id')),
-      reject(propEq('parent_alias', 'id')),
-      insert(1, subItemColumn),
-      map(changeResourceLabel)
-    )(columns) as Array<Column>;
-
-    return columnsForVisualizationByHost;
-  }
-
   return columns;
 };
-
-export { useStyles as useColumnStyles };

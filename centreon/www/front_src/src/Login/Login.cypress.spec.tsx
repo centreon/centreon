@@ -1,17 +1,17 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { replace } from 'ramda';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { replace } from 'ramda';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import { externalTranslationEndpoint } from '../App/endpoint';
+import { userEndpoint } from '../api/endpoint';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
-import { userEndpoint } from '../api/endpoint';
-
+import LoginPage from '.';
 import {
   loginEndpoint,
   loginPageCustomisationEndpoint,
@@ -33,8 +33,6 @@ import {
   labelRequired
 } from './translatedLabels';
 import { router } from './useLogin';
-
-import LoginPage from '.';
 
 const labelInvalidCredentials = 'Invalid credentials';
 const labelError = 'This is an error from the server';
@@ -200,8 +198,6 @@ const mockPostLoginServerError = (): void => {
 };
 
 const setupBeforeEach = (): void => {
-  cy.clock(mockNow);
-
   cy.interceptAPIRequest({
     alias: 'getTranslations',
     method: Method.GET,
@@ -232,6 +228,8 @@ const setupBeforeEach = (): void => {
 
 describe('Login Page', () => {
   beforeEach(() => {
+    cy.clock(mockNow);
+
     setupBeforeEach();
   });
 
@@ -267,7 +265,10 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal('{"login":"admin","password":"centreon"}');
+      expect(request.body).to.deep.equal({
+        login: 'admin',
+        password: 'centreon'
+      });
     });
 
     cy.waitForRequest('@getUser');
@@ -294,15 +295,15 @@ describe('Login Page', () => {
     cy.findByLabelText(labelConnect).click();
 
     cy.waitForRequest('@postLogin').then(({ request }) => {
-      expect(request.body).equal(
-        '{"login":"invalid_alias","password":"invalid_password"}'
-      );
+      expect(request.body).to.deep.equal({
+        login: 'invalid_alias',
+        password: 'invalid_password'
+      });
     });
 
     cy.contains(labelInvalidCredentials)
       .should('be.visible')
       .then(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(useNavigate).to.not.have.been.called;
       });
 
@@ -355,8 +356,6 @@ describe('Login Page', () => {
     cy.findByLabelText(labelHideThePassword).click();
 
     cy.findByLabelText(labelPassword).should('have.attr', 'type', 'password');
-
-    cy.makeSnapshot();
   });
 
   it('redirects to the reset page when the submitted password is expired', () => {
@@ -395,7 +394,6 @@ describe('Login Page', () => {
     cy.contains(labelError)
       .should('be.visible')
       .then(() => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         expect(useNavigate).to.not.have.been.called;
       });
 

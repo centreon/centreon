@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Contact\Domain\Model\ContactGroup;
 use Core\Notification\Application\Exception\NotificationException;
 use Core\Notification\Application\Repository\NotificationResourceRepositoryInterface;
@@ -62,6 +63,7 @@ final class UpdateNotification
         private readonly NotificationFactory $notificationFactory,
         private readonly NotificationResourceFactory $notificationResourceFactory,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -130,7 +132,7 @@ final class UpdateNotification
         array $messages,
         array $users,
         array $contactGroups,
-        array $resources
+        array $resources,
     ): void {
         try {
             $this->dataStorageEngine->startTransaction();
@@ -161,7 +163,7 @@ final class UpdateNotification
     private function updateResources(int $notificationId, array $resources): void
     {
         foreach ($this->resourceRepositoryProvider->getRepositories() as $repository) {
-            if (! $this->user->isAdmin()) {
+            if (! $this->adminResolver->isAdmin($this->user)) {
                 $this->deleteResourcesForUserWithACL($repository, $notificationId);
             } else {
                 $repository->deleteAllByNotification($notificationId);
@@ -184,7 +186,7 @@ final class UpdateNotification
      */
     private function updateContactGroups(int $notificationId, array $contactGroups): void
     {
-        if (! $this->user->isAdmin()) {
+        if (! $this->adminResolver->isAdmin($this->user)) {
             $this->deleteContactGroupsForUserWithACL($notificationId);
         } else {
             $this->writeNotificationRepository->deleteContactGroupsFromNotification($notificationId);
@@ -202,7 +204,7 @@ final class UpdateNotification
      */
     private function deleteResourcesForUserWithACL(
         NotificationResourceRepositoryInterface $repository,
-        int $notificationId
+        int $notificationId,
     ): void {
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
         $existingResources = $repository->findByNotificationIdAndAccessGroups($notificationId, $accessGroups);
@@ -232,7 +234,8 @@ final class UpdateNotification
         );
         if ($contactGroups !== []) {
             $contactGroupsIds = array_map(
-                fn (ContactGroup $contactGroup): int => $contactGroup->getId(), $contactGroups
+                fn (ContactGroup $contactGroup): int => $contactGroup->getId(),
+                $contactGroups
             );
             $this->writeNotificationRepository->deleteContactGroupsByNotificationAndContactGroupIds(
                 $notificationId,

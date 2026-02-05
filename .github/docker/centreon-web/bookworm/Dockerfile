@@ -1,9 +1,11 @@
 ARG REGISTRY_URL=docker.centreon.com/centreon
 ARG FROM_IMAGE_VERSION=develop
 
-FROM ${REGISTRY_URL}/centreon-web-dependencies-bookworm:${FROM_IMAGE_VERSION}
+FROM ${REGISTRY_URL}/centreon-web-dependencies-collect-bookworm:${FROM_IMAGE_VERSION}
 
 ARG STABILITY
+ARG MAJOR_VERSION
+ARG WEB_MINOR_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -24,7 +26,14 @@ fi
 
 apt-get update
 
-apt-get install -y /tmp/packages-centreon/centreon-*.deb
+if [[ "$STABILITY" == "stable" ]]; then
+  apt-get install -y \
+    centreon-poller=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
+    centreon-trap=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1 \
+    centreon-web=${MAJOR_VERSION}.${WEB_MINOR_VERSION}-*+deb12u1
+else
+  apt-get install -y /tmp/packages-centreon/centreon-*.deb
+fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php/8.2/mods-available/timezone.ini
 phpenmod -v 8.2 timezone
@@ -37,6 +46,7 @@ systemctl stop centengine
 systemctl stop cbd
 systemctl stop apache2
 systemctl stop php8.2-fpm
+systemctl stop snmpd
 
 apt-get clean
 
@@ -47,3 +57,4 @@ EXPOSE 80
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 ENV CENTREON_DATASET="1"
+ENV CENTREON_LANG="en_US"

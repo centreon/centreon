@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\MonitoringServer\UseCase;
@@ -27,8 +28,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Exception\TimeoutException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\MonitoringServer\Exception\ConfigurationMonitoringServerException;
-use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface;
+use Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -51,19 +52,19 @@ class ReloadAllConfigurations
         private readonly MonitoringServerRepositoryInterface $monitoringServerRepository,
         private readonly MonitoringServerConfigurationRepositoryInterface $configurationRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private readonly ContactInterface $contact
+        private readonly ContactInterface $contact,
     ) {
     }
 
     /**
      * @throws ConfigurationMonitoringServerException
-     * @throws \Centreon\Domain\Exception\TimeoutException
+     * @throws TimeoutException
      */
     public function execute(): void
     {
         try {
             if ($this->contact->isAdmin()) {
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParameters();
+                $monitoringServers = $this->monitoringServerRepository->findServersWithoutRequestParameters();
             } else {
                 if (
                     ! $this->contact->hasTopologyRole(Contact::ROLE_CONFIGURATION_MONITORING_SERVER_READ)
@@ -77,11 +78,11 @@ class ReloadAllConfigurations
 
                 $accessGroups = $this->readAccessGroupRepositoryInterface->findByContact($this->contact);
 
-                $monitoringServers = $this->monitoringServerRepository->findServersWithRequestParametersAndAccessGroups(
+                $monitoringServers = $this->monitoringServerRepository->findAllServersWithAccessGroups(
                     $accessGroups
                 );
             }
-        } catch(AccessDeniedException $ex) {
+        } catch (AccessDeniedException $ex) {
             throw new AccessDeniedException($ex->getMessage());
         } catch (\Throwable $ex) {
             throw ConfigurationMonitoringServerException::errorRetrievingMonitoringServers($ex);

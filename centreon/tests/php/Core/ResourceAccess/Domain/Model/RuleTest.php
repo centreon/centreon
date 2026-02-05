@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,21 +155,6 @@ it('should throw an exception when rules name is an string exceeding max size', 
         Rule::MAX_NAME_LENGTH,
         'Rule::name'
     )->getMessage(),
-);
-
-it('should throw an exception when linked contact groups and contacts are empty arrays', function (): void {
-    new Rule(
-        id: 1,
-        name: 'FULL',
-        description: 'Full access',
-        linkedContacts: [],
-        linkedContactGroups: [],
-        datasets: $this->datasets,
-        isEnabled: true
-    );
-})->throws(
-    \InvalidArgumentException::class,
-    'At least one contact or contactgroup should be linked to the rule'
 );
 
 it('should throw an exception when linked contacts is not an array of int', function (): void {

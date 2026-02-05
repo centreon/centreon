@@ -1,19 +1,16 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
+import { buildListingEndpoint, Method, TestQueryProvider } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { useAtomValue } from 'jotai';
 import { replace } from 'ramda';
-import { BrowserRouter as Router } from 'react-router-dom';
-
-import { Method, TestQueryProvider, buildListingEndpoint } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { BrowserRouter as Router } from 'react-router';
 
 import {
   authenticationProvidersEndpoint,
   contactsEndpoint
 } from '../api/endpoints';
 import { Provider } from '../models';
-
+import LocalAuthentication from '.';
 import {
   defaultPasswordSecurityPolicyAPI,
   defaultPasswordSecurityPolicyWithNullValues,
@@ -54,8 +51,6 @@ import {
   labelWeak
 } from './translatedLabels';
 
-import LocalAuthentication from '.';
-
 dayjs.extend(duration);
 
 const LocalAuthenticationTestWithJotai = (): JSX.Element => (
@@ -86,13 +81,6 @@ const setComponentBeforeEach = (): void => {
 
   cy.viewport(1200, 1000);
 };
-
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
 
 describe('Authentication', () => {
   beforeEach(() => {

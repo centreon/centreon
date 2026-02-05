@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,49 +19,34 @@
  *
  */
 
- declare(strict_types=1);
+declare(strict_types=1);
 
 namespace Core\Dashboard\Infrastructure\API\FindMetricsTop;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTop;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTopRequest;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 
 final class FindMetricsTopController extends AbstractController
 {
-    private const METRIC_NAME_PARAMETER = 'metric_name';
-
     /**
      * @param FindMetricsTop $useCase
      * @param FindMetricsTopPresenter $presenter
-     * @param Request $request
+     * @param FindMetricsTopRequest $request
      *
      * @return Response
      */
-    public function __invoke(FindMetricsTop $useCase, FindMetricsTopPresenter $presenter, Request $request): Response
-    {
+    public function __invoke(
+        FindMetricsTop $useCase,
+        FindMetricsTopPresenter $presenter,
+        #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)] FindMetricsTopRequest $request,
+    ): Response {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
-        $useCase($presenter, $this->createRequest($request));
+        $useCase($presenter, $request);
 
         return $presenter->show();
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return FindMetricsTopRequest
-     */
-    private function createRequest(Request $request): FindMetricsTopRequest
-    {
-        $metricName = $request->query->get(self::METRIC_NAME_PARAMETER)
-            ?? throw new \InvalidArgumentException("missing mandatory parameter 'metric_name'");
-        $findMetricsTopRequest = new FindMetricsTopRequest();
-
-        $findMetricsTopRequest->metricName = (string) $metricName;
-
-        return $findMetricsTopRequest;
     }
 }

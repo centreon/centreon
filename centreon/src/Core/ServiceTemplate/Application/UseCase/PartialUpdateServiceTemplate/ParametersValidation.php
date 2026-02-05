@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInt
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Core\TimePeriod\Application\Repository\ReadTimePeriodRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
@@ -70,7 +71,7 @@ class ParametersValidation
     {
         $formattedName = ServiceTemplate::formatName($newName) ?? '';
         if (
-            '' !== $formattedName
+            $formattedName !== ''
             && $currentName !== $formattedName
             && $this->readServiceTemplateRepository->existsByName(
                 new TrimmedString($formattedName)
@@ -83,17 +84,45 @@ class ParametersValidation
     }
 
     /**
+     * @param int $id
      * @param int|null $serviceTemplateId
      *
      * @throws ServiceTemplateException
      * @throws \Throwable
      */
-    public function assertIsValidServiceTemplate(?int $serviceTemplateId): void
+    public function assertIsValidServiceTemplate(int $id, ?int $serviceTemplateId): void
     {
-        if ($serviceTemplateId !== null && ! $this->readServiceTemplateRepository->exists($serviceTemplateId)) {
+        if ($serviceTemplateId === null) {
+
+            return;
+        }
+
+        if ($id === $serviceTemplateId) {
+            $this->error('Service template cannot inherit from itself', ['service_template_id' => $serviceTemplateId]);
+
+            throw ServiceTemplateException::circularTemplateInheritance();
+        }
+
+        if (! $this->readServiceTemplateRepository->exists($serviceTemplateId)) {
             $this->error('Service template does not exist', ['service_template_id' => $serviceTemplateId]);
 
             throw ServiceTemplateException::idDoesNotExist('service_template_id', $serviceTemplateId);
+        }
+
+        // check circular inheritance
+        $inheritanceArray = $this->readServiceTemplateRepository->findParents($serviceTemplateId);
+        $parentsIds = array_map(
+            static fn (ServiceTemplateInheritance $inheritancePair): int => $inheritancePair->getParentId(),
+            $inheritanceArray
+        );
+
+        if (in_array($id, $parentsIds, true)) {
+            $this->error(
+                'Service template cannot inherit from a template that inherits from it',
+                ['service_template_id' => $serviceTemplateId]
+            );
+
+            throw ServiceTemplateException::circularTemplateInheritance();
         }
     }
 
@@ -233,7 +262,7 @@ class ParametersValidation
     public function assertServiceCategories(
         array $serviceCategoriesIds,
         ContactInterface $contact,
-        array $accessGroups
+        array $accessGroups,
     ): void {
         if ($contact->isAdmin()) {
             $serviceCategoriesIdsFound = $this->readServiceCategoryRepository->findAllExistingIds(
@@ -264,9 +293,8 @@ class ParametersValidation
         array $serviceGroupDtos,
         int $serviceTemplateId,
         ContactInterface $contact,
-        array $accessGroups
-    ): void
-    {
+        array $accessGroups,
+    ): void {
         if ($serviceGroupDtos === []) {
             return;
         }

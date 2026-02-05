@@ -1,0 +1,12 @@
+{
+    "default": {
+        "name": "service-category",
+        "alias": "service-category test",
+        "is_activated": true
+        },
+    "service-category-changed": {
+        "name": "service-category-changed",
+        "alias": "service-category test-changed",
+        "is_activated": false
+        }
+}

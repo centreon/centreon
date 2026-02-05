@@ -1,0 +1,87 @@
+name: awie-analysis
+run-name: ${{ (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.nightly_manual_trigger == 'true')) && format('awie-analysis nightly {0}', github.ref_name) || '' }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+    inputs:
+      nightly_manual_trigger:
+        description: 'Set to true for nightly run'
+        required: true
+        default: false
+        type: boolean
+  schedule:
+    - cron: "0 3 * * 1-5"
+  pull_request:
+    paths:
+      - "centreon-awie/**"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - "centreon-awie/**"
+
+env:
+  module: awie
+
+jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
+  get-environment:
+    needs: [dependency-scan]
+    if: github.repository == 'centreon/centreon'
+    uses: ./.github/workflows/get-environment.yml
+    with:
+      version_file: centreon-awie/www/modules/centreon-awie/conf.php
+
+  dispatch-to-maintained-branches:
+    needs: [get-environment]
+    if: |
+      github.run_attempt == 1 &&
+      github.event_name == 'schedule' &&
+      github.ref_name == 'develop' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - run: |
+          NIGHTLY_TARGETS=("dev-24.04.x" "dev-24.10.x" "dev-25.10.x")
+          for target in "${NIGHTLY_TARGETS[@]}"; do
+            echo "[INFO] - Dispatching nightly run to $target branch."
+            gh workflow run awie-analysis.yml -r "$target" -f nightly_manual_trigger=true
+          done
+        shell: bash
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  code_scan:
+    needs: [get-environment]
+    if: |
+      needs.get-environment.outputs.is_targeting_feature_branch != 'true' &&
+      github.event.pull_request.draft != 'true' &&
+      needs.get-environment.outputs.skip_workflow == 'false'
+    uses: centreon/security-tools/.github/workflows/checkmarx-analysis.yml@main
+    with:
+      module_directory: centreon-awie
+      module_name: centreon-awie-${{ needs.get-environment.outputs.linked_dev_branch }}
+      exclude_list:
+    secrets:
+      base_uri: ${{ secrets.AST_RND_SCANS_BASE_URI }}
+      cx_tenant: ${{ secrets.AST_RND_SCANS_TENANT }}
+      cx_client_id: ${{ secrets.AST_RND_SCANS_CLIENT_ID }}
+      cx_client_secret: ${{ secrets.AST_RND_SCANS_CLIENT_SECRET }}
+
+  set-skip-label:
+    needs: [get-environment, code_scan]
+    if: needs.get-environment.outputs.skip_workflow == 'false'
+    uses: ./.github/workflows/set-pull-request-skip-label.yml

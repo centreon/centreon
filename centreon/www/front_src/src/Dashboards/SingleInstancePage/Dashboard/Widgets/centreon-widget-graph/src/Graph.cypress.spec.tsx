@@ -1,14 +1,19 @@
-import { Provider, createStore } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { equals } from 'ramda';
+
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
-import WidgetLineChart from './LineChart';
 import { graphEndpoint } from './api/endpoints';
-import { Data, FormThreshold, FormTimePeriod, PanelOptions } from './models';
+import WidgetLineChart from './LineChart';
+import type {
+  Data,
+  FormThreshold,
+  FormTimePeriod,
+  PanelOptions
+} from './models';
 
 const serviceMetrics: Data = {
   metrics: [
@@ -25,13 +30,13 @@ const serviceMetrics: Data = {
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
     }
   ]
 };
@@ -39,6 +44,27 @@ const serviceMetrics: Data = {
 const emptyServiceMetrics: Data = {
   metrics: [],
   resources: []
+};
+
+const metaServiceData: Data = {
+  metrics: [
+    {
+      id: 1,
+      name: 'free',
+      unit: ''
+    }
+  ],
+  resources: [
+    {
+      resources: [
+        {
+          id: 1,
+          name: 'M1'
+        }
+      ],
+      resourceType: 'meta-service'
+    }
+  ]
 };
 
 const disabledThreshold: FormThreshold = {
@@ -83,6 +109,38 @@ const customTimePeriod: FormTimePeriod = {
   timePeriodType: -1
 };
 
+const legendPositions = ['left', 'bottom', 'right'] as const;
+
+const legendProperties = [
+  { mode: 'list' as const, positions: legendPositions },
+  { mode: 'grid' as const, positions: legendPositions }
+];
+
+const legendData = [
+  {
+    graphDataPath: 'Widgets/Graph/legend/lineChartWithRedundantHostName.json',
+    resourcesType: 'host'
+  },
+  {
+    graphDataPath:
+      'Widgets/Graph/legend/lineChartWithRedundantServiceName.json',
+    resourcesType: 'service'
+  },
+  {
+    graphDataPath:
+      'Widgets/Graph/legend/lineChartWithRedundantHostAndServiceName.json',
+    resourcesType: 'host and service'
+  }
+];
+
+const checkLegendHeader = () => {
+  cy.findByLabelText('cpu').contains('cpu').should('be.visible');
+  cy.findByLabelText('cpu').contains('%').should('be.visible');
+
+  cy.findByLabelText('cpu: avg').contains('cpu: avg').should('be.visible');
+  cy.findByLabelText('cpu: avg').contains('%').should('be.visible');
+};
+
 interface InitializeComponentProps
   extends Partial<
     Pick<
@@ -114,6 +172,7 @@ interface InitializeComponentProps
   isPublic?: boolean;
   threshold?: FormThreshold;
   timePeriod?: FormTimePeriod;
+  graphDataPath?: string;
 }
 
 const initializeComponent = ({
@@ -121,6 +180,7 @@ const initializeComponent = ({
   threshold = defaultThreshold,
   timePeriod = defaultTimePeriod,
   isPublic = false,
+  graphDataPath = 'Widgets/Graph/lineChart.json',
   ...panelOptions
 }: InitializeComponentProps): void => {
   const store = createStore();
@@ -128,7 +188,7 @@ const initializeComponent = ({
 
   cy.viewport('macbook-13');
 
-  cy.fixture('Widgets/Graph/lineChart.json').then((lineChart) => {
+  cy.fixture(graphDataPath).then((lineChart) => {
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
@@ -198,14 +258,15 @@ describe('Graph Widget', () => {
     initializeComponent({});
 
     cy.waitForRequest('@getLineChart').then(({ request }) => {
-      expect(request.url.search).to.include('metric_names=[cpu,cpu%20AVG]');
+      expect(request.url.search).to.include('metric_names[]=cpu');
+      expect(request.url.search).to.include('metric_names[]=cpu%20AVG');
       expect(request.url.search).to.include(
         'search=%7B%22%24and%22%3A%5B%7B%22hostgroup.id%22%3A%7B%22%24in%22%3A%5B1%5D%7D%7D%5D%7D'
       );
     });
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
+
     cy.findByTestId('warning-line-65').should('be.visible');
     cy.findByTestId('warning-line-70').should('be.visible');
     cy.findByTestId('critical-line-85').should('be.visible');
@@ -226,9 +287,9 @@ describe('Graph Widget', () => {
 
   it('displays the line chart without thresholds when thresholds are disabled', () => {
     initializeComponent({ threshold: disabledThreshold });
+    cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
     cy.findByTestId('warning-line-65').should('not.exist');
     cy.findByTestId('warning-line-70').should('not.exist');
     cy.findByTestId('critical-line-85').should('not.exist');
@@ -239,6 +300,7 @@ describe('Graph Widget', () => {
 
   it('displays the line chart with customized warning threshold', () => {
     initializeComponent({ threshold: warningThreshold });
+    cy.waitForRequest('@getLineChart');
 
     cy.findByTestId('warning-line-20').should('be.visible');
 
@@ -250,6 +312,7 @@ describe('Graph Widget', () => {
 
   it('displays the line chart with customized critical threshold', () => {
     initializeComponent({ threshold: criticalThreshold });
+    cy.waitForRequest('@getLineChart');
 
     cy.findByTestId('warning-line-10').should('be.visible');
     cy.findByTestId('critical-line-20').should('be.visible');
@@ -274,8 +337,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.makeSnapshot();
   });
@@ -285,8 +347,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.makeSnapshot();
   });
@@ -313,8 +374,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.makeSnapshot();
   });
@@ -326,8 +386,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
@@ -343,8 +402,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
@@ -358,8 +416,7 @@ describe('Graph Widget', () => {
 
     cy.waitForRequest('@getLineChart');
 
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
@@ -373,12 +430,108 @@ describe('Graph Widget', () => {
     });
 
     cy.waitForRequest('@getLineChart');
-
-    cy.contains('cpu (%)').should('be.visible');
-    cy.contains('cpu AVG (%)').should('be.visible');
+    checkLegendHeader();
 
     cy.findByTestId('stacked-bar-1-0-40').should('have.attr', 'opacity');
 
     cy.makeSnapshot();
+  });
+
+  it('sends a request with meta-service when the corresponding data is provided', () => {
+    initializeComponent({
+      data: metaServiceData
+    });
+
+    cy.waitForRequest('@getLineChart').then(({ request }) => {
+      const searchParameters = request.url.searchParams;
+
+      expect(searchParameters.get('search')).to.equal(
+        '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
+      );
+      expect(searchParameters.get('metrics_names')).to.equal(null);
+    });
+  });
+
+  legendProperties.forEach(({ mode, positions }) => {
+    positions.forEach((position) => {
+      it(`displays the legend with a scrollbar for placement: ${position} and mode: ${mode}.`, () => {
+        cy.fixture(
+          'Widgets/Graph/legend/serviceMetricsForScrollableLegend.json'
+        ).then((data) => {
+          initializeComponent({
+            data,
+            graphDataPath:
+              'Widgets/Graph/legend/lineChartForScrollableLegend.json',
+            legendDisplayMode: mode,
+            legendPlacement: position,
+            showLegend: true
+          });
+        });
+        cy.waitForRequest('@getLineChart');
+        cy.get('path').its('length').should('eq', 100);
+
+        cy.get('[data-legend="true"]').as('legendContainer');
+        cy.get('@legendContainer').should('have.css', 'overflow-Y', 'auto');
+        cy.get('@legendContainer').should(
+          'have.css',
+          'overflow-X',
+          position !== 'bottom' ? 'hidden' : 'auto'
+        );
+
+        cy.findByText('Legend 1 Centreon-Server').should('exist');
+
+        cy.get('@legendContainer').scrollTo('bottom');
+
+        cy.findByText('Legend 99 Centreon-Server').should('exist');
+      });
+    });
+  });
+
+  legendData.forEach(({ resourcesType, graphDataPath }) => {
+    it(`do not display the ${resourcesType} name from the legend and tooltip when it's redundant`, () => {
+      initializeComponent({
+        graphDataPath,
+        showLegend: true
+      });
+      cy.waitForRequest('@getLineChart');
+
+      cy.get('[data-legend="true"]').as('legendContainer');
+
+      cy.get('path[data-metric=1]').realHover();
+      cy.findByRole('tooltip').as('tooltip');
+
+      cy.fixture(graphDataPath).then((data) => {
+        data.metrics.forEach(({ host_name, service_name, metric }) => {
+          if (equals(resourcesType, 'host')) {
+            cy.get('@legendContainer').should('not.contain', host_name);
+            cy.get('@legendContainer').should('contain', metric);
+            cy.get('@tooltip').should('not.contain', host_name);
+            cy.get('@tooltip').should('contain', metric);
+
+            return;
+          }
+          if (equals(resourcesType, 'service')) {
+            cy.get('@legendContainer').should('not.contain', service_name);
+            cy.get('@legendContainer').should('contain', metric);
+
+            cy.get('@tooltip').should('not.contain', service_name);
+            cy.get('@tooltip').should('contain', metric);
+
+            return;
+          }
+          cy.get('@legendContainer').should('not.contain', host_name);
+          cy.get('@legendContainer').should('not.contain', service_name);
+          cy.get('@legendContainer').should('contain', metric);
+
+          cy.get('@tooltip').should('not.contain', host_name);
+          cy.get('@tooltip').should('not.contain', service_name);
+          cy.get('@tooltip').should('contain', metric);
+        });
+
+        cy.makeSnapshot(
+          `do not display the ${resourcesType} name from the legend and tooltip when it's redundant`
+        );
+      });
+    });
   });
 });

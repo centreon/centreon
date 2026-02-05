@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace Core\AdditionalConnectorConfiguration\Application\Factory;
+
 use Core\AdditionalConnectorConfiguration\Domain\Model\Acc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\NewAcc;
 use Core\AdditionalConnectorConfiguration\Domain\Model\Type;
@@ -33,7 +34,8 @@ use Security\Interfaces\EncryptionInterface;
  */
 class AccFactory
 {
-    public function __construct(private readonly EncryptionInterface $encryption){
+    public function __construct(private readonly EncryptionInterface $encryption)
+    {
     }
 
     /**
@@ -51,8 +53,7 @@ class AccFactory
         int $createdBy,
         array $parameters,
         ?string $description = null,
-    ): NewAcc
-    {
+    ): NewAcc {
         return new NewAcc(
             name: $name,
             type: $type,
@@ -87,8 +88,7 @@ class AccFactory
         \DateTimeImmutable $updatedAt,
         array $parameters,
         ?string $description = null,
-    ): Acc
-    {
+    ): Acc {
         return new Acc(
             id: $id,
             name: $name,
@@ -119,8 +119,7 @@ class AccFactory
         int $updatedBy,
         array $parameters,
         ?string $description = null,
-    ): Acc
-    {
+    ): Acc {
         return new Acc(
             id: $acc->getId(),
             name: $name,

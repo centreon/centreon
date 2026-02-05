@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2021 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -64,12 +49,12 @@ class CentreonContact
      * @param array $order |i.e: array('contact_name', 'ASC')
      * @param array $limit |i.e: array($limit, $offset)
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getContactTemplates($fields = [], $filters = [], $order = [], $limit = [])
     {
-        $fieldStr = "*";
+        $fieldStr = '*';
         if (count($fields)) {
             $fieldStr = implode(', ', $fields);
         }
@@ -77,11 +62,11 @@ class CentreonContact
         foreach ($filters as $k => $v) {
             $filterStr .= " AND {$k} LIKE '{$this->db->escape($v)}' ";
         }
-        $orderStr = "";
+        $orderStr = '';
         if (count($order) === 2) {
             $orderStr = " ORDER BY {$order[0]} {$order[1]} ";
         }
-        $limitStr = "";
+        $limitStr = '';
         if (count($limit) === 2) {
             $limitStr = " LIMIT {$limit[0]},{$limit[1]}";
         }
@@ -94,6 +79,7 @@ class CentreonContact
         while ($row = $res->fetchRow()) {
             $arr[] = $row;
         }
+
         return $arr;
     }
 
@@ -103,26 +89,26 @@ class CentreonContact
      * @param CentreonDB $db
      * @param int $contactId
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public static function getContactGroupsFromContact($db, $contactId)
     {
-        $sql = "SELECT cg_id, cg_name
+        $sql = 'SELECT cg_id, cg_name
             FROM contactgroup_contact_relation r, contactgroup cg 
             WHERE cg.cg_id = r.contactgroup_cg_id
-            AND r.contact_contact_id = " . $db->escape($contactId);
+            AND r.contact_contact_id = ' . $db->escape($contactId);
         $stmt = $db->query($sql);
 
         $cgs = [];
         while ($row = $stmt->fetchRow()) {
             $cgs[$row['cg_id']] = $row['cg_name'];
         }
+
         return $cgs;
     }
 
     /**
-     *
      * @param int $field
      * @return array
      */
@@ -199,16 +185,16 @@ class CentreonContact
      * @param array $values
      * @param array $options
      *
-     * @return array
      * @throws PDOException
+     * @return array
      */
     public function getObjectForSelect2($values = [], $options = [])
     {
         global $centreon;
         $items = [];
 
-        # get list of authorized contacts
-        if (!$centreon->user->access->admin) {
+        // get list of authorized contacts
+        if (! $centreon->user->access->admin) {
             $cAcl = $centreon->user->access->getContactAclConf(
                 ['fields' => ['contact_id'], 'get_row' => 'contact_id', 'keys' => ['contact_id'], 'conditions' => ['contact_id' => ['IN', $values]]],
                 false
@@ -217,19 +203,19 @@ class CentreonContact
 
         $listValues = '';
         $queryValues = [];
-        if (!empty($values)) {
+        if (! empty($values)) {
             foreach ($values as $k => $v) {
                 $listValues .= ':contact' . $v . ',';
-                $queryValues['contact' . $v] = (int)$v;
+                $queryValues['contact' . $v] = (int) $v;
             }
             $listValues = rtrim($listValues, ',');
         } else {
             $listValues .= '""';
         }
 
-        # get list of selected contacts
-        $query = "SELECT contact_id, contact_name FROM contact " .
-            "WHERE contact_id IN (" . $listValues . ") ORDER BY contact_name ";
+        // get list of selected contacts
+        $query = 'SELECT contact_id, contact_name FROM contact '
+            . 'WHERE contact_id IN (' . $listValues . ') ORDER BY contact_name ';
 
         $stmt = $this->db->prepare($query);
 
@@ -241,14 +227,15 @@ class CentreonContact
         $stmt->execute();
 
         while ($row = $stmt->fetch()) {
-            # hide unauthorized contacts
+            // hide unauthorized contacts
             $hide = false;
-            if (!$centreon->user->access->admin && !in_array($row['contact_id'], $cAcl)) {
+            if (! $centreon->user->access->admin && ! in_array($row['contact_id'], $cAcl)) {
                 $hide = true;
             }
 
             $items[] = ['id' => $row['contact_id'], 'text' => $row['contact_name'], 'hide' => $hide];
         }
+
         return $items;
     }
 
@@ -257,17 +244,17 @@ class CentreonContact
      *
      * @param string $alias
      *
-     * @return int|null
      * @throws PDOException
+     * @return int|null
      */
     public function findContactIdByAlias(string $alias): ?int
     {
         $contactId = null;
 
         $statement = $this->db->prepare(
-            "SELECT contact_id
+            'SELECT contact_id
             FROM contact
-            WHERE contact_alias = :contactAlias"
+            WHERE contact_alias = :contactAlias'
         );
         $statement->bindValue(':contactAlias', $alias, PDO::PARAM_STR);
         $statement->execute();
@@ -282,8 +269,8 @@ class CentreonContact
     /**
      * Get password security policy
      *
-     * @return array<string,mixed>
      * @throws PDOException
+     * @return array<string,mixed>
      */
     public function getPasswordSecurityPolicy(): array
     {
@@ -297,7 +284,7 @@ class CentreonContact
 
         $customConfiguration = json_decode($configuration['custom_configuration'], true);
 
-        if (!array_key_exists('password_security_policy', $customConfiguration)) {
+        if (! array_key_exists('password_security_policy', $customConfiguration)) {
             throw new Exception('Security Policy not found in custom configuration');
         }
 
@@ -312,10 +299,126 @@ class CentreonContact
     }
 
     /**
+     * Check if a password respects configured policy
+     *
+     * @param string $password
+     * @param int|null $contactId
+     *
+     * @throws Exception
+     * @return void
+     */
+    public function respectPasswordPolicyOrFail(string $password, ?int $contactId): void
+    {
+        $passwordSecurityPolicy = $this->getPasswordSecurityPolicy();
+
+        $this->respectPasswordCharactersOrFail($passwordSecurityPolicy, $password);
+
+        if ($contactId !== null) {
+            $this->respectPasswordChangePolicyOrFail(
+                $passwordSecurityPolicy,
+                $password,
+                $contactId,
+            );
+        }
+    }
+
+    /**
+     * Find last password creation date by contact id
+     *
+     * @param int $contactId
+     *
+     * @throws PDOException
+     * @return DateTimeImmutable|null
+     */
+    public function findLastPasswordCreationDate(int $contactId): ?DateTimeImmutable
+    {
+        $creationDate = null;
+
+        $statement = $this->db->prepare(
+            'SELECT creation_date
+            FROM contact_password
+            WHERE contact_id = :contactId
+            ORDER BY creation_date DESC LIMIT 1'
+        );
+        $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+        $statement->execute();
+
+        if ($row = $statement->fetch()) {
+            $creationDate = (new DateTimeImmutable())->setTimestamp((int) $row['creation_date']);
+        }
+
+        return $creationDate;
+    }
+
+    /**
+     * Add new password to a contact
+     *
+     * @param int $contactId
+     * @param string $hashedPassword
+     *
+     * @throws PDOException
+     * @return void
+     */
+    public function addPasswordByContactId(int $contactId, string $hashedPassword): void
+    {
+        $statement = $this->db->prepare(
+            'INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`)
+            VALUES (:password, :contactId, :creationDate)'
+        );
+        $statement->bindValue(':password', $hashedPassword, PDO::PARAM_STR);
+        $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+        $statement->bindValue(':creationDate', time(), PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * Replace stored password for a contact
+     *
+     * @param int $contactId
+     * @param string $oldHashedPassword
+     * @param string $newHashedPassword
+     *
+     * @throws PDOException
+     * @return void
+     */
+    public function replacePasswordByContactId(
+        int $contactId,
+        string $oldHashedPassword,
+        string $newHashedPassword,
+    ): void {
+        $statement = $this->db->prepare(
+            'UPDATE `contact_password`
+            SET password = :newPassword
+            WHERE contact_id = :contactId
+            AND password = :oldPassword'
+        );
+        $statement->bindValue(':oldPassword', $oldHashedPassword, PDO::PARAM_STR);
+        $statement->bindValue(':newPassword', $newHashedPassword, PDO::PARAM_STR);
+        $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
+        $statement->execute();
+    }
+
+    /**
+     * add new contact password and delete old passwords
+     *
+     * @param int $contactId
+     * @param string $hashedPassword
+     *
+     * @throws PDOException
+     * @return void
+     */
+    public function renewPasswordByContactId(int $contactId, string $hashedPassword): void
+    {
+        $this->addPasswordByContactId($contactId, $hashedPassword);
+
+        $this->deleteOldPasswords($contactId);
+    }
+
+    /**
      * Get excluded users from password expiration policy
      *
-     * @return string[]
      * @throws PDOException
+     * @return string[]
      */
     private function getPasswordExpirationExcludedUsers(): array
     {
@@ -337,44 +440,20 @@ class CentreonContact
     }
 
     /**
-     * Check if a password respects configured policy
-     *
-     * @param string $password
-     * @param int|null $contactId
-     *
-     * @return void
-     * @throws PDOException
-     */
-    public function respectPasswordPolicyOrFail(string $password, ?int $contactId): void
-    {
-        $passwordSecurityPolicy = $this->getPasswordSecurityPolicy();
-
-        $this->respectPasswordCharactersOrFail($passwordSecurityPolicy, $password);
-
-        if ($contactId !== null) {
-            $this->respectPasswordChangePolicyOrFail(
-                $passwordSecurityPolicy,
-                $password,
-                $contactId,
-            );
-        }
-    }
-
-    /**
      * Check if a password respects configured policy about characters (length, special characters, ...)
      *
      * @param array<string,mixed> $passwordPolicy
      * @param string $password
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     private function respectPasswordCharactersOrFail(array $passwordPolicy, string $password): void
     {
         $doesRespectPassword = true;
 
         $errorMessage = sprintf(
-            _("Your password must be %d characters long"),
+            _('Your password must be %d characters long'),
             (int) $passwordPolicy['password_length']
         );
         if (strlen($password) < (int) $passwordPolicy['password_length']) {
@@ -384,15 +463,15 @@ class CentreonContact
         $characterRules = [
             'has_uppercase_characters' => [
                 'pattern' => '/[A-Z]/',
-                'error_message' =>  _("uppercase characters"),
+                'error_message' =>  _('uppercase characters'),
             ],
             'has_lowercase_characters' => [
                 'pattern' => '/[a-z]/',
-                'error_message' =>  _("lowercase characters"),
+                'error_message' =>  _('lowercase characters'),
             ],
             'has_numbers' => [
                 'pattern' => '/[0-9]/',
-                'error_message' =>  _("numbers"),
+                'error_message' =>  _('numbers'),
             ],
             'has_special_characters' => [
                 'pattern' => '/[' . SecurityPolicy::SPECIAL_CHARACTERS_LIST . ']/',
@@ -404,7 +483,7 @@ class CentreonContact
         foreach ($characterRules as $characterRule => $characterRuleParameters) {
             if ((bool) $passwordPolicy[$characterRule] === true) {
                 $characterPolicyErrorMessages[] = $characterRuleParameters['error_message'];
-                if (!preg_match($characterRuleParameters['pattern'], $password)) {
+                if (! preg_match($characterRuleParameters['pattern'], $password)) {
                     $doesRespectPassword = false;
                 }
             }
@@ -415,36 +494,9 @@ class CentreonContact
                 $errorMessage .= ' ' . _('and must contain') . ' : '
                     . implode(', ', $characterPolicyErrorMessages) . '.';
             }
+
             throw new Exception($errorMessage);
         }
-    }
-
-    /**
-     * Find last password creation date by contact id
-     *
-     * @param int $contactId
-     *
-     * @return DateTimeImmutable|null
-     * @throws PDOException
-     */
-    public function findLastPasswordCreationDate(int $contactId): ?DateTimeImmutable
-    {
-        $creationDate = null;
-
-        $statement = $this->db->prepare(
-            "SELECT creation_date
-            FROM contact_password
-            WHERE contact_id = :contactId
-            ORDER BY creation_date DESC LIMIT 1"
-        );
-        $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-        $statement->execute();
-
-        if ($row = $statement->fetch()) {
-            $creationDate = (new DateTimeImmutable())->setTimestamp((int) $row['creation_date']);
-        }
-
-        return $creationDate;
     }
 
     /**
@@ -454,8 +506,8 @@ class CentreonContact
      * @param string $password
      * @param int $contactId
      *
-     * @return void
      * @throws Exception
+     * @return void
      */
     private function respectPasswordChangePolicyOrFail(array $passwordPolicy, string $password, int $contactId): void
     {
@@ -464,7 +516,7 @@ class CentreonContact
         if ($passwordCreationDate !== null) {
             $delayBeforeNewPassword = (int) $passwordPolicy['delay_before_new_password'];
             $isPasswordCanBeChanged = $passwordCreationDate->getTimestamp() + $delayBeforeNewPassword < time();
-            if (!$isPasswordCanBeChanged) {
+            if (! $isPasswordCanBeChanged) {
                 throw new Exception(
                     _("You can't change your password because the delay before changing password is not over.")
                 );
@@ -473,7 +525,7 @@ class CentreonContact
 
         if ((bool) $passwordPolicy['can_reuse_passwords'] === false) {
             $statement = $this->db->prepare(
-                "SELECT id, password FROM `contact_password` WHERE `contact_id` = :contactId"
+                'SELECT id, password FROM `contact_password` WHERE `contact_id` = :contactId'
             );
             $statement->bindParam(':contactId', $contactId, PDO::PARAM_INT);
             $statement->execute();
@@ -483,8 +535,8 @@ class CentreonContact
                 if (password_verify($password, $contactPassword['password'])) {
                     throw new Exception(
                         _(
-                            "Your password has already been used. "
-                            . "Please choose a different password from the previous three."
+                            'Your password has already been used. '
+                            . 'Please choose a different password from the previous three.'
                         )
                     );
                 }
@@ -493,76 +545,12 @@ class CentreonContact
     }
 
     /**
-     * Add new password to a contact
-     *
-     * @param int $contactId
-     * @param string $hashedPassword
-     *
-     * @return void
-     * @throws PDOException
-     */
-    public function addPasswordByContactId(int $contactId, string $hashedPassword): void
-    {
-        $statement = $this->db->prepare(
-            'INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`)
-            VALUES (:password, :contactId, :creationDate)'
-        );
-        $statement->bindValue(':password', $hashedPassword, PDO::PARAM_STR);
-        $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-        $statement->bindValue(':creationDate', time(), PDO::PARAM_INT);
-        $statement->execute();
-    }
-
-    /**
-     * Replace stored password for a contact
-     *
-     * @param int $contactId
-     * @param string $oldHashedPassword
-     * @param string $newHashedPassword
-     *
-     * @return void
-     * @throws PDOException
-     */
-    public function replacePasswordByContactId(
-        int $contactId,
-        string $oldHashedPassword,
-        string $newHashedPassword
-    ): void {
-        $statement = $this->db->prepare(
-            'UPDATE `contact_password`
-            SET password = :newPassword
-            WHERE contact_id = :contactId
-            AND password = :oldPassword'
-        );
-        $statement->bindValue(':oldPassword', $oldHashedPassword, PDO::PARAM_STR);
-        $statement->bindValue(':newPassword', $newHashedPassword, PDO::PARAM_STR);
-        $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
-        $statement->execute();
-    }
-
-    /**
-     * add new contact password and delete old passwords
-     *
-     * @param int $contactId
-     * @param string $hashedPassword
-     *
-     * @return void
-     * @throws PDOException
-     */
-    public function renewPasswordByContactId(int $contactId, string $hashedPassword): void
-    {
-        $this->addPasswordByContactId($contactId, $hashedPassword);
-
-        $this->deleteOldPasswords($contactId);
-    }
-
-    /**
      * Delete old passwords to store only 3 last passwords
      *
      * @param int $contactId
      *
-     * @return void
      * @throws PDOException
+     * @return void
      */
     private function deleteOldPasswords(int $contactId): void
     {
@@ -575,7 +563,7 @@ class CentreonContact
         $statement->bindValue(':contactId', $contactId, PDO::PARAM_INT);
         $statement->execute();
 
-        //If 3 or more passwords are saved, delete the oldest ones.
+        // If 3 or more passwords are saved, delete the oldest ones.
         if (($result = $statement->fetchAll()) && count($result) > 3) {
             $maxCreationDateToDelete = $result[3]['creation_date'];
             $statement = $this->db->prepare(

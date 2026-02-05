@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,68 +23,69 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Repository;
 
-use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\DatabaseConnection;
-use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
-use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface as WriteRepositoryInterface;
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Security\ProviderConfiguration\Application\SAML\Repository\WriteSAMLConfigurationRepositoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\ACLConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implements WriteRepositoryInterface
+class DbWriteSAMLConfigurationRepository extends DatabaseRepository implements WriteSAMLConfigurationRepositoryInterface
 {
-    use LoggerTrait;
-
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
-
     /**
      * @inheritDoc
      */
     public function updateConfiguration(Configuration $configuration): void
     {
-        $this->info('Updating SAML Provider in DBMS');
-        $statement = $this->db->prepare(
-            $this->translateDbName(
-                'UPDATE `:db`.`provider_configuration` SET
-                `custom_configuration` = :customConfiguration, `is_active` = :isActive, `is_forced` = :isForced
-                WHERE `name`= :name'
-            )
-        );
+        try {
+            $customConfiguration = json_encode(
+                $this->buildCustomConfigurationFromSAMLConfiguration($configuration),
+                JSON_THROW_ON_ERROR
+            );
+        } catch (\JsonException $e) {
+            throw new RepositoryException(
+                message: 'Could not encode SAML custom configuration to JSON: ' . $e->getMessage(),
+                context: ['configuration' => $configuration],
+                previous: $e
+            );
+        }
 
-        $statement->bindValue(
-            ':customConfiguration',
-            json_encode($this->buildCustomConfigurationFromSAMLConfiguration($configuration))
-        );
-        $statement->bindValue(':name', Provider::SAML);
-        $statement->bindValue(':isActive', $configuration->isActive() ? '1' : '0');
-        $statement->bindValue(':isForced', $configuration->isForced() ? '1' : '0');
-        $statement->execute();
+        try {
+            $query = $this->connection->createQueryBuilder()
+                ->update('`:db`.`provider_configuration`')
+                ->set('`custom_configuration`', ':customConfiguration')
+                ->set('`is_active`', ':isActive')
+                ->set('`is_forced`', ':isForced')
+                ->where('`name` = :name')
+                ->getQuery();
 
-        /** @var CustomConfiguration $customConfiguration */
-        $customConfiguration = $configuration->getCustomConfiguration();
-        $authorizationRules = $customConfiguration->getACLConditions()->getRelations();
+            $queryParameters = QueryParameters::create(
+                [
+                    QueryParameter::string('customConfiguration', $customConfiguration),
+                    QueryParameter::bool('isActive', $configuration->isActive()),
+                    QueryParameter::bool('isForced', $configuration->isForced()),
+                    QueryParameter::string('name', Provider::SAML),
+                ]
+            );
 
-        $this->info('Removing existing authorization rules');
-        $this->deleteAuthorizationRules();
-        $this->info('Inserting new authorization rules');
-        $this->insertAuthorizationRules($authorizationRules);
-
-        $contactGroupRelations = $customConfiguration->getGroupsMapping()->getContactGroupRelations();
-
-        $this->info('Removing existing group mappings');
-        $this->deleteContactGroupRelations();
-        $this->info('Inserting new group mappings');
-        $this->insertContactGroupRelations($contactGroupRelations);
+            $this->connection->update($this->translateDbName($query), $queryParameters);
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not update SAML configuration: ' . $e->getMessage(),
+                context: ['configuration' => $configuration],
+                previous: $e
+            );
+        }
     }
 
     /**
@@ -92,16 +93,28 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
      */
     public function deleteAuthorizationRules(): void
     {
-        $query = sprintf("SELECT id FROM provider_configuration WHERE name='%s'", Provider::SAML);
-        $statement = $this->db->query($query);
-        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int) $result['id'];
-            $deleteStatement = $this->db->prepare(
-                'DELETE FROM security_provider_access_group_relation
-                    WHERE provider_configuration_id = :providerConfigurationId'
+        try {
+            $query = $this->connection->createQueryBuilder()
+                ->select('id')
+                ->from('`:db`.`provider_configuration`')
+                ->where('`name` = :name')
+                ->getQuery();
+
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
+            $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
+
+            $query = $this->connection->createQueryBuilder()
+                ->delete('`:db`.`security_provider_access_group_relation`')
+                ->where('`provider_configuration_id` = :providerConfigurationId')
+                ->getQuery();
+
+            $queryParameters = QueryParameters::create([QueryParameter::int('providerConfigurationId', $providerConfigurationId)]);
+            $this->connection->delete($this->translateDbName($query), $queryParameters);
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not delete authorization rules for SAML configuration: ' . $e->getMessage(),
+                previous: $e
             );
-            $deleteStatement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
-            $deleteStatement->execute();
         }
     }
 
@@ -110,35 +123,125 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
      */
     public function insertAuthorizationRules(array $authorizationRules): void
     {
-        $query = sprintf("SELECT id FROM provider_configuration WHERE name='%s'", Provider::SAML);
-        $statement = $this->db->query($query);
-        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int) $result['id'];
-            $insertStatement = $this->db->prepare(
-                'INSERT INTO security_provider_access_group_relation
-                    (claim_value, access_group_id, provider_configuration_id, priority)
-                    VALUES (:claimValue, :accessGroupId, :providerConfigurationId, :priority)'
+        if ($authorizationRules === []) {
+            throw new RepositoryException(
+                message: 'No authorization rules to insert for SAML configuration.',
+                context: ['authorizationRules' => $authorizationRules]
             );
+        }
 
-            foreach ($authorizationRules as $authorizationRule) {
-                $insertStatement->bindValue(':claimValue', $authorizationRule->getClaimValue());
-                $insertStatement->bindValue(
-                    ':accessGroupId',
-                    $authorizationRule->getAccessGroup()->getId(),
-                    \PDO::PARAM_INT
+        try {
+            $query = $this->connection->createQueryBuilder()
+                ->select('id')
+                ->from('`:db`.`provider_configuration`')
+                ->where('`name` = :name')
+                ->getQuery();
+
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
+            $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
+
+            $batchInsertParameters = new BatchInsertParameters();
+            foreach ($authorizationRules as $index => $authorizationRule) {
+                $batchInsertParameters->add(
+                    $index,
+                    QueryParameters::create([
+                        QueryParameter::string('claimValue', $authorizationRule->getClaimValue()),
+                        QueryParameter::int('accessGroupId', $authorizationRule->getAccessGroup()->getId()),
+                        QueryParameter::int('providerConfigurationId', $providerConfigurationId),
+                        QueryParameter::int('priority', $authorizationRule->getPriority()),
+                    ])
                 );
-                $insertStatement->bindValue(
-                    ':providerConfigurationId',
-                    $providerConfigurationId,
-                    \PDO::PARAM_INT
-                );
-                $insertStatement->bindValue(
-                    ':priority',
-                    $authorizationRule->getPriority(),
-                    \PDO::PARAM_INT
-                );
-                $insertStatement->execute();
             }
+
+            $this->connection->batchInsert(
+                $this->translateDbName('`:db`.`security_provider_access_group_relation`'),
+                ['claim_value', 'access_group_id', 'provider_configuration_id', 'priority'],
+                $batchInsertParameters
+            );
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not insert authorization rules for SAML configuration: ' . $e->getMessage(),
+                context: ['authorizationRules' => $authorizationRules],
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteContactGroupRelations(): void
+    {
+        try {
+            $query = $this->connection->createQueryBuilder()
+                ->select('id')
+                ->from('`:db`.`provider_configuration`')
+                ->where('`name` = :name')
+                ->getQuery();
+
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
+            $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
+
+            $query = $this->connection->createQueryBuilder()
+                ->delete('`:db`.`security_provider_contact_group_relation`')
+                ->where('`provider_configuration_id` = :providerConfigurationId')
+                ->getQuery();
+
+            $queryParameters = QueryParameters::create([QueryParameter::int('providerConfigurationId', $providerConfigurationId)]);
+            $this->connection->delete($this->translateDbName($query), $queryParameters);
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not delete contact group relations:' . $e->getMessage(),
+                previous: $e
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function insertContactGroupRelations(array $contactGroupRelations): void
+    {
+        if ($contactGroupRelations === []) {
+            throw new RepositoryException(
+                message: 'No contact group relations to insert for SAML configuration.',
+                context: ['contactGroupRelations' => $contactGroupRelations]
+            );
+        }
+
+        try {
+            $query = $this->connection->createQueryBuilder()
+                ->select('id')
+                ->from('`:db`.`provider_configuration`')
+                ->where('`name` = :name')
+                ->getQuery();
+
+            $queryParameters = QueryParameters::create([QueryParameter::string('name', Provider::SAML)]);
+            $providerConfigurationId = $this->connection->fetchOne($this->translateDbName($query), $queryParameters);
+
+            $batchInsertParameters = new BatchInsertParameters();
+            foreach ($contactGroupRelations as $index => $contactGroupRelation) {
+                $batchInsertParameters->add(
+                    $index,
+                    QueryParameters::create([
+                        QueryParameter::string('claimValue', $contactGroupRelation->getClaimValue()),
+                        QueryParameter::int('contactGroupId', $contactGroupRelation->getContactGroup()->getId()),
+                        QueryParameter::int('providerConfigurationId', $providerConfigurationId),
+                    ])
+                );
+            }
+
+            $this->connection->batchInsert(
+                $this->translateDbName('`:db`.`security_provider_contact_group_relation`'),
+                ['claim_value', 'contact_group_id', 'provider_configuration_id'],
+                $batchInsertParameters
+            );
+        } catch (QueryBuilderException|ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                message: 'Could not insert contact group relations for SAML configuration: ' . $e->getMessage(),
+                context: ['contactGroupRelations' => $contactGroupRelations],
+                previous: $e
+            );
         }
     }
 
@@ -159,6 +262,8 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
             'entity_id_url' => $customConfiguration->getEntityIDUrl(),
             'certificate' => $customConfiguration->getPublicCertificate(),
             'user_id_attribute' => $customConfiguration->getUserIdAttribute(),
+            'requested_authn_context' => $customConfiguration->hasRequestedAuthnContext(),
+            'requested_authn_context_comparison' => $customConfiguration->getRequestedAuthnContextComparison()->value,
             'logout_from' => $customConfiguration->getLogoutFrom(),
             'logout_from_url' => $customConfiguration->getLogoutFromUrl(),
             'auto_import' => $customConfiguration->isAutoImportEnabled(),
@@ -173,57 +278,6 @@ class DbWriteSAMLConfigurationRepository extends AbstractRepositoryDRB implement
                 $customConfiguration->getGroupsMapping()
             ),
         ];
-    }
-
-    /**
-     * Delete Contact Group relations.
-     */
-    private function deleteContactGroupRelations(): void
-    {
-        $query = sprintf("SELECT id FROM provider_configuration WHERE name='%s'", Provider::SAML);
-        $statement = $this->db->query($query);
-        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int) $result['id'];
-            $deleteStatement = $this->db->prepare(
-                'DELETE FROM security_provider_contact_group_relation
-                    WHERE provider_configuration_id = :providerConfigurationId'
-            );
-            $deleteStatement->bindValue(':providerConfigurationId', $providerConfigurationId, \PDO::PARAM_INT);
-            $deleteStatement->execute();
-        }
-    }
-
-    /**
-     * Insert Contact Group Relations.
-     *
-     * @param ContactGroupRelation[] $contactGroupRelations
-     */
-    private function insertContactGroupRelations(array $contactGroupRelations): void
-    {
-        $query = sprintf("SELECT id FROM provider_configuration WHERE name='%s'", Provider::SAML);
-        $statement = $this->db->query($query);
-        if ($statement !== false && ($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
-            $providerConfigurationId = (int) $result['id'];
-            $insertStatement = $this->db->prepare(
-                'INSERT INTO security_provider_contact_group_relation
-                    (claim_value, contact_group_id, provider_configuration_id)
-                        VALUES (:claimValue, :contactGroupId, :providerConfigurationId)'
-            );
-            foreach ($contactGroupRelations as $contactGroupRelation) {
-                $insertStatement->bindValue(':claimValue', $contactGroupRelation->getClaimValue());
-                $insertStatement->bindValue(
-                    ':contactGroupId',
-                    $contactGroupRelation->getContactGroup()->getId(),
-                    \PDO::PARAM_INT
-                );
-                $insertStatement->bindValue(
-                    ':providerConfigurationId',
-                    $providerConfigurationId,
-                    \PDO::PARAM_INT
-                );
-                $insertStatement->execute();
-            }
-        }
     }
 
     /**

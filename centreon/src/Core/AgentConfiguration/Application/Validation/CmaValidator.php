@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,23 +23,36 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Application\Validation;
 
+use Centreon\Domain\Common\Assertion\AssertionException;
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParameters\CmaConfigurationParameters;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
+use Core\Host\Application\Repository\ReadHostRepositoryInterface;
+use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
+use Core\Security\Token\Domain\Model\JwtToken;
 
 /**
  * @phpstan-import-type _CmaParameters from CmaConfigurationParameters
  */
 class CmaValidator implements TypeValidatorInterface
 {
+    public function __construct(
+        private readonly ReadHostRepositoryInterface $readHostRepository,
+        private readonly ReadTokenRepositoryInterface $tokenRepository,
+        private readonly ContactInterface $user,
+    ) {
+    }
+
     /**
      * @inheritDoc
      */
     public function isValidFor(Type $type): bool
     {
-        return Type::CMA === $type;
+        return $type === Type::CMA;
     }
 
     /**
@@ -49,45 +62,117 @@ class CmaValidator implements TypeValidatorInterface
     {
         /** @var _CmaParameters $configuration */
         $configuration = $request->configuration;
-        foreach ($configuration as $key => $value) {
-            if (
-                (
-                    str_ends_with($key, '_certificate')
-                    || str_ends_with($key, '_key')
-                )
-                && (is_string($value) || is_null($value))
-            ) {
-                $this->validateFilename("configuration.{$key}", $value);
+
+        if ($configuration['agent_initiated'] === false && $configuration['poller_initiated'] === false) {
+            throw AgentConfigurationException::atLeastOneConnectionModeIsRequired();
+        }
+
+        $this->validateAgentInitiatedConnection($configuration, $request->connectionMode);
+        $this->validatePollerInitiatedConnection($configuration);
+    }
+
+    /**
+     * @param _CmaParameters $configuration
+     * @param ConnectionModeEnum $connectionMode
+     */
+    private function validateAgentInitiatedConnection(array $configuration, ConnectionModeEnum $connectionMode): void
+    {
+        if ($configuration['agent_initiated'] === false) {
+            return;
+        }
+        if ($configuration['port'] === null) {
+            throw AgentConfigurationException::portIsMandatory();
+        }
+
+        if ($connectionMode !== ConnectionModeEnum::NO_TLS) {
+            $this->validateFilename(
+                'configuration.otel_public_certificate',
+                $configuration['otel_public_certificate'],
+                true
+            );
+            $this->validateFilename(
+                'configuration.otel_ca_certificate',
+                $configuration['otel_ca_certificate'],
+                true
+            );
+            $this->validateFilename(
+                'configuration.otel_private_key',
+                $configuration['otel_private_key'],
+                false
+            );
+        }
+
+        if ($configuration['tokens'] === []) {
+            throw AgentConfigurationException::tokensAreMandatory();
+        }
+        $this->validateTokens($configuration['tokens']);
+    }
+
+    /**
+     * @param _CmaParameters $configuration
+     */
+    private function validatePollerInitiatedConnection(array $configuration): void
+    {
+        if ($configuration['poller_initiated'] === false) {
+            return;
+        }
+
+        foreach ($configuration['hosts'] as $host) {
+            $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate'], true);
+
+            if (! $this->readHostRepository->exists(hostId: $host['id'])) {
+                throw AgentConfigurationException::invalidHostId($host['id']);
             }
 
-            if ($key === 'hosts') {
-                foreach ($value as $host) {
-                    /** @var array{
-                     *		address: string,
-                     *		port: int,
-                     *		poller_ca_certificate: ?string,
-                     *		poller_ca_name: ?string
-                     *	} $host
-                     */
-                    $this->validateFilename('configuration.hosts[].poller_ca_certificate', $host['poller_ca_certificate']);
-                }
+            if ($host['token'] === null) {
+                throw AgentConfigurationException::tokensAreMandatory();
             }
+            $this->validateTokens([$host['token']]);
         }
     }
 
     /**
+     * Validates filename extension.
+     *
      * @param string $name
      * @param ?string $value
+     * @param bool $isCertificate (default true)
+     *
+     * @throws AssertionException
+     */
+    private function validateFilename(string $name, ?string $value, bool $isCertificate = true): void
+    {
+        $pattern = $isCertificate
+            ? '/^(?!.*\.(cer|crt|cert)$).+$/'
+            : '/^(?!.*\.key$).+$/';
+
+        if ($value !== null && preg_match($pattern, $value)) {
+            throw new AssertionException(
+                sprintf("File path or format '%s' (%s) is invalid", $value, $name)
+            );
+        }
+    }
+
+    /**
+     * @param array<array{name:string,creator_id:int}> $tokens
      *
      * @throws AgentConfigurationException
      */
-    private function validateFilename(string $name, ?string $value): void
+    private function validateTokens(array $tokens): void
     {
-        if (
-            $value !== null
-            && 1 === preg_match('/\.\/|\.\.\/|\.cert$|\.crt$|\.key$/', $value)
-        ) {
-            throw AgentConfigurationException::invalidFilename($name, (string) $value);
+        foreach ($tokens as $token) {
+            if (! $this->user->isAdmin() && $token['creator_id'] !== $this->user->getId() && ! $this->user->hasRole('ROLE_MANAGE_TOKENS')) {
+                throw AgentConfigurationException::invalidToken($token['name'], $token['creator_id']);
+            }
+            $tokenObj = $this->tokenRepository->findByNameAndUserId($token['name'], $token['creator_id']);
+            if (
+                $tokenObj === null
+                || ! $tokenObj instanceof JwtToken
+                || $tokenObj->isRevoked()
+                || ($tokenObj->getExpirationDate() !== null && $tokenObj->getExpirationDate() < new \DateTimeImmutable())
+            ) {
+                throw AgentConfigurationException::invalidToken($token['name'], $token['creator_id']);
+            }
         }
     }
 }

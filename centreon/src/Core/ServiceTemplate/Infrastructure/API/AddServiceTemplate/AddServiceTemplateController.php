@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,14 +175,14 @@ final class AddServiceTemplateController extends AbstractController
         $dto->severityId = $request['severity_id'];
         $dto->serviceCategories = $request['service_categories'] ?? [];
 
-        foreach ($request['service_groups'] as $macro) {
+        foreach ($request['service_groups'] ?? [] as $macro) {
             $dto->serviceGroups[] = new ServiceGroupDto(
                 $macro['host_template_id'],
                 $macro['service_group_id']
             );
         }
 
-        foreach ($request['macros'] as $macro) {
+        foreach ($request['macros'] ?? [] as $macro) {
             $dto->macros[] = new MacroDto(
                 $macro['name'],
                 $macro['value'],

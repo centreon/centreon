@@ -1,19 +1,18 @@
+import { ConfirmDialog } from '@centreon/ui';
+
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog } from '@centreon/ui';
 
 import {
   labelCancel,
   labelDelete,
   labelDeleteResourceAccessRule,
   labelDeleteResourceAccessRuleDialogMessage,
-  labelDeleteResourceAccessRuleWarning,
   labelDeleteResourceAccessRules,
   labelDeleteResourceAccessRulesDialogMessage,
-  labelDeleteResourceAccessRulesWarning
+  labelDeleteResourceAccessRulesWarning,
+  labelDeleteResourceAccessRuleWarning
 } from '../../translatedLabels';
-
 import useDeleteConfirmationDialogStyles from './DeleteConfirmationDialog.styles';
 import useDelete from './useDelete';
 
@@ -45,16 +44,17 @@ const DeleteConfirmationDialog = (): JSX.Element => {
     <ConfirmDialog
       confirmDisabled={isLoading}
       dialogConfirmButtonClassName={classes.confimButton}
+      dialogContentTextProps={{ component: 'div' }}
       dialogPaperClassName={classes.paper}
       labelCancel={t(labelCancel)}
       labelConfirm={t(labelDelete)}
       labelMessage={dialogMessage}
       labelSecondMessage={dialogSecondMessage}
       labelTitle={dialogTitle}
-      open={isDialogOpen}
-      submitting={isLoading}
       onCancel={closeDialog}
       onConfirm={submit}
+      open={isDialogOpen}
+      submitting={isLoading}
     />
   );
 };

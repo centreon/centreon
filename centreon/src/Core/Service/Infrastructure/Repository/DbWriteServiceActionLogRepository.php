@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2024 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         private readonly ContactInterface $contact,
         private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly WriteActionLogRepositoryInterface $writeActionLogRepository,
-        DatabaseConnection $db
+        DatabaseConnection $db,
     ) {
         $this->db = $db;
     }
@@ -97,17 +97,19 @@ class DbWriteServiceActionLogRepository extends AbstractRepositoryRDB implements
         $failedDeletions = [];
         foreach ($serviceIds as $serviceId) {
             try {
-                $service = $this->readServiceRepository->findById($serviceId);
-                if ($service === null) {
+                if (! $this->readServiceRepository->exists($serviceId)) {
                     throw new RepositoryException(sprintf('Cannot find service to delete (ID: %d).', $serviceId));
                 }
+
+                $serviceName = $this->readServiceRepository->findNameById($serviceId)
+                    ?? throw new RepositoryException(sprintf('Cannot find service name (ID: %d).', $serviceId));
 
                 $this->writeServiceRepository->delete($serviceId);
 
                 $actionLog = new ActionLog(
                     ActionLog::OBJECT_TYPE_SERVICE,
                     $serviceId,
-                    $service->getName(),
+                    $serviceName,
                     ActionLog::ACTION_TYPE_DELETE,
                     $this->contact->getId()
                 );

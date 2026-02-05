@@ -1,7 +1,7 @@
+import { Column, ColumnType } from '@centreon/ui';
+
 import { map, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Column, ColumnType } from '@centreon/ui';
 
 import {
   labelActions,
@@ -14,7 +14,6 @@ import {
   labelShares
 } from '../translatedLabels';
 import useIsViewerUser from '../useIsViewerUser';
-
 import Actions from './Actions/Actions';
 import Description from './Decription';
 import Role from './Role';
@@ -33,8 +32,8 @@ const useColumns = (): {
       getFormattedString: ({ name, shares }) => shares && name,
       id: 'name',
       label: t(labelName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.string
     },
     ...(isViewer
@@ -82,8 +81,8 @@ const useColumns = (): {
       getFormattedString: ({ createdBy }): string => createdBy?.name,
       id: 'created_by',
       label: t(labelCreator),
-      sortField: 'created_by',
       sortable: true,
+      sortField: 'created_by',
       type: ColumnType.string
     },
     {
@@ -91,8 +90,8 @@ const useColumns = (): {
       getFormattedString: ({ createdAt }): string => createdAt?.slice(0, 10),
       id: 'created_at',
       label: t(labelCreationDate),
-      sortField: 'created_at',
       sortable: true,
+      sortField: 'created_at',
       type: ColumnType.string
     },
     {
@@ -100,8 +99,8 @@ const useColumns = (): {
       getFormattedString: ({ updatedAt }): string => updatedAt?.slice(0, 10),
       id: 'updated_at',
       label: t(labelLastUpdate),
-      sortField: 'updated_at',
       sortable: true,
+      sortField: 'updated_at',
       type: ColumnType.string
     },
     ...(isViewer

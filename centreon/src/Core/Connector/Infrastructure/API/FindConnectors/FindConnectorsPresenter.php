@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class FindConnectorsPresenter extends AbstractPresenter implements FindConnector
                     'command_line' => $connector->commandLine,
                     'description' => $this->emptyStringAsNull($connector->description),
                     'commands' => array_map(
-                        fn(array $command) => [
+                        fn (array $command) => [
                             'id' => $command['id'],
                             'type' => CommandTypeConverter::toInt($command['type']),
                             'name' => $command['name'],

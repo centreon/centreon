@@ -1,9 +1,10 @@
-import { FormikValues } from 'formik';
+import type { SvgIconProps, TypographyProps } from '@mui/material';
 
-import { SvgIconProps, TypographyProps } from '@mui/material';
+import type { FormikValues } from 'formik';
 
-import { SelectEntry } from '../../InputField/Select';
-import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
+import type { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
+import type { SelectEntry } from '../../InputField/Select';
+import type { QueryParameter } from '../../queryParameters/models';
 
 export enum InputType {
   Switch = 0,
@@ -20,7 +21,8 @@ export enum InputType {
   Checkbox = 11,
   CheckboxGroup = 12,
   List = 13,
-  File = 14
+  File = 14,
+  Divider = 15
 }
 
 interface FieldsTableGetRequiredProps {
@@ -55,10 +57,16 @@ export interface InputProps {
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
+    customQueryParameters: Array<QueryParameter>;
     chipColor?: string;
     endpoint?: string;
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    getOptionLabel?: (option) => string;
+    optionProperty?: string;
+    disableSelectAll?: boolean;
+    limitTags?: number;
+    decoder?;
   };
   file?: {
     multiple?: boolean;
@@ -133,4 +141,5 @@ export interface Group {
   name: string;
   order: number;
   titleAttributes?: TypographyProps;
+  isDividerHidden?: boolean;
 }

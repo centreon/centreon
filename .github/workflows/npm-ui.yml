@@ -1,0 +1,34 @@
+name: npm-ui
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/npm-ui.yml"
+      - ".github/workflows/npm-publish-package.yml"
+      - "centreon/packages/ui/**"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+    paths:
+      - ".github/workflows/npm-ui.yml"
+      - ".github/workflows/npm-publish-package.yml"
+      - "centreon/packages/ui/**"
+
+jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
+  publish-package:
+    needs: [dependency-scan]
+    if: github.repository == 'centreon/centreon'
+    uses: ./.github/workflows/npm-publish-package.yml
+    with:
+      package_directory: "centreon/packages/ui"
+    secrets:
+      npm_token: ${{ secrets.NPM_TOKEN }}

@@ -1,6 +1,5 @@
-import { memo } from 'react';
-
 import { equals } from 'ramda';
+import { memo } from 'react';
 
 import { useClockStyles } from './Clock.styles';
 
@@ -16,7 +15,7 @@ const BackgroundColor = ({
   return (
     <div
       className={classes.background}
-      data-hasDescription={hasDescription}
+      data-has-description={hasDescription}
       style={{
         backgroundColor: backgroundColor ?? '#255891'
       }}

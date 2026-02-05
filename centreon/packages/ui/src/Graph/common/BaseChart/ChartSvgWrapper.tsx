@@ -1,15 +1,14 @@
-import { MutableRefObject } from 'react';
-
 import { Group } from '@visx/visx';
 import { equals } from 'ramda';
+import type { MutableRefObject, ReactElement } from 'react';
 
 import { margin } from '../../Chart/common';
-import { ChartAxis } from '../../Chart/models';
+import type { ChartAxis } from '../../Chart/models';
 import Axes from '../Axes';
 import Grids from '../Grids';
-import { Line, TimeValue } from '../timeSeries/models';
-
-import { extraMargin } from './useComputeBaseChartDimensions';
+import type { Line, TimeValue } from '../timeSeries/models';
+import { useMarginTop } from '../useMarginTop';
+import { computeGElementMarginLeft } from '../utils';
 
 interface Props {
   allUnits: Array<string>;
@@ -27,6 +26,9 @@ interface Props {
   svgRef: MutableRefObject<SVGSVGElement | null>;
   timeSeries: Array<TimeValue>;
   xScale;
+  maxAxisCharacters?: number;
+  hasSecondUnit?: boolean;
+  title?: string;
 }
 
 const ChartSvgWrapper = ({
@@ -44,22 +46,34 @@ const ChartSvgWrapper = ({
   axis,
   children,
   orientation = 'horizontal',
-  allUnits
-}: Props): JSX.Element => {
+  allUnits,
+  maxAxisCharacters = 0,
+  hasSecondUnit,
+  title
+}: Props): ReactElement => {
   const isHorizontal = equals(orientation, 'horizontal');
+
+  const marginTop = useMarginTop({ title, units: allUnits });
 
   return (
     <svg
       aria-label="graph"
-      height={graphHeight + margin.top}
+      height={graphHeight + marginTop}
       ref={svgRef}
       width="100%"
     >
-      <Group.Group left={margin.left + extraMargin / 2} top={margin.top}>
+      <title>chart</title>
+      <Group.Group
+        left={computeGElementMarginLeft({
+          hasSecondUnit,
+          maxCharacters: maxAxisCharacters
+        })}
+        top={marginTop}
+      >
         {showGridLines && (
           <Grids
             gridLinesType={gridLinesType}
-            height={graphHeight - margin.top}
+            height={graphHeight - margin.bottom}
             leftScale={isHorizontal ? leftScale : xScale}
             width={graphWidth}
             xScale={isHorizontal ? xScale : leftScale}

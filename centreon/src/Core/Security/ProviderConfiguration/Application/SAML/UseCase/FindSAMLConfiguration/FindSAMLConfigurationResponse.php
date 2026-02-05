@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ use Core\Security\ProviderConfiguration\Domain\Model\AuthenticationConditions;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
+use Core\Security\ProviderConfiguration\Domain\SAML\Model\RequestedAuthnContextComparisonEnum;
 
 /**
  * @phpstan-type _authorizationRules array{
@@ -47,40 +48,33 @@ use Core\Security\ProviderConfiguration\Domain\Model\GroupsMapping;
  */
 final class FindSAMLConfigurationResponse
 {
-    /** @var bool */
     public bool $isActive = false;
 
-    /** @var bool */
     public bool $isForced = false;
 
-    /** @var bool */
     public bool $isAutoImportEnabled = false;
 
     /** @var array<string,int|string>|null */
     public ?array $contactTemplate = null;
 
-    /** @var string|null */
     public ?string $emailBindAttribute = null;
 
-    /** @var string|null */
     public ?string $userNameBindAttribute = null;
 
-    /** @var string */
     public string $remoteLoginUrl = '';
 
-    /** @var string */
     public string $entityIdUrl = '';
 
-    /** @var string */
     public ?string $publicCertificate = '';
 
-    /** @var string */
     public string $userIdAttribute = '';
 
-    /** @var bool */
+    public bool $requestAuthnContext = false;
+
+    public RequestedAuthnContextComparisonEnum $requestedAuthnContextComparison;
+
     public bool $logoutFrom = true;
 
-    /** @var string|null */
     public ?string $logoutFromUrl = null;
 
     /** @var _aclConditions|array{} */
@@ -128,16 +122,14 @@ final class FindSAMLConfigurationResponse
      */
     public static function authorizationRulesToArray(array $authorizationRules): array
     {
-        return array_map(function (AuthorizationRule $authorizationRule) {
-            return [
-                'claim_value' => $authorizationRule->getClaimValue(),
-                'access_group' => [
-                    'id' => $authorizationRule->getAccessGroup()->getId(),
-                    'name' => $authorizationRule->getAccessGroup()->getName(),
-                ],
-                'priority' => $authorizationRule->getPriority(),
-            ];
-        }, $authorizationRules);
+        return array_map(fn (AuthorizationRule $authorizationRule) => [
+            'claim_value' => $authorizationRule->getClaimValue(),
+            'access_group' => [
+                'id' => $authorizationRule->getAccessGroup()->getId(),
+                'name' => $authorizationRule->getAccessGroup()->getName(),
+            ],
+            'priority' => $authorizationRule->getPriority(),
+        ], $authorizationRules);
     }
 
     /**
@@ -198,7 +190,7 @@ final class FindSAMLConfigurationResponse
     public static function contactGroupRelationsToArray(array $contactGroupRelations): array
     {
         return array_map(
-            fn(ContactGroupRelation $contactGroupRelation) => [
+            fn (ContactGroupRelation $contactGroupRelation) => [
                 'group_value' => $contactGroupRelation->getClaimValue(),
                 'contact_group' => [
                     'id' => $contactGroupRelation->getContactGroup()->getId(),

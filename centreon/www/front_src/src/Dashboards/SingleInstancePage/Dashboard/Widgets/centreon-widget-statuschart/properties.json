@@ -82,8 +82,11 @@
       "type": "resources",
       "defaultValue": [],
       "required": false,
-      "excludedResourceTypes": ["meta-service"]
+      "excludedResourceTypes": ["meta-service"],
+      "allowEmptyResources": true
     }
   },
-  "moduleName": "centreon-widget-statuschart"
+  "moduleName": "centreon-widget-statuschart",
+  "canExpand": true,
+  "widgetType": "realtime"
 }

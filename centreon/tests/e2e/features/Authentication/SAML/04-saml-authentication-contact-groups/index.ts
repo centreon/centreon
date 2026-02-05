@@ -1,16 +1,17 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
-import {
-  configureSAML,
-  initializeSAMLUser,
-  navigateToSAMLConfigPage
-} from '../common';
 import { configureProviderAcls, getUserContactId } from '../../../../commons';
+import {
+  configureSaml,
+  initializeSamlUser,
+  navigateToSamlConfigPage,
+  saveSamlFormIfEnabled
+} from '../common';
 
 before(() => {
   cy.startContainers({ profiles: ['saml'] }).then(() => {
     configureProviderAcls();
-    initializeSAMLUser();
+    initializeSamlUser();
   });
 });
 
@@ -48,16 +49,16 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the Groups mapping and saves',
   () => {
-    navigateToSAMLConfigPage();
+    navigateToSamlConfigPage();
 
     cy.getByLabel({
       label: 'Enable SAMLv2 authentication',
       tag: 'input'
     }).check();
 
-    configureSAML();
+    configureSaml();
 
-    cy.getByLabel({ label: 'Groups mapping' }).click();
+    cy.get('[data-testid="Groups mapping-header"]').click();
 
     cy.getByLabel({
       label: 'Enable automatic management',
@@ -90,9 +91,7 @@ When(
       tag: 'input'
     }).should('have.value', 'Supervisors');
 
-    cy.getByLabel({ label: 'save button', tag: 'button' }).click();
-
-    cy.wait('@updateSAMLProvider').its('response.statusCode').should('eq', 204);
+    saveSamlFormIfEnabled();
 
     cy.logout();
   }

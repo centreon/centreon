@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,6 +161,14 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function nameAlreadyExistsByAccessGroups(string $hostGroupName, array $accessGroups): bool
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findByHost(int $hostId): array
     {
         throw RepositoryException::notYetImplemented();
@@ -186,6 +194,30 @@ class ApiReadHostGroupRepository implements ReadHostGroupRepositoryInterface
      * @inheritDoc
      */
     public function hasAccessToAllHostGroups(array $accessGroupIds): bool
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostsCountByIds(array $hostGroupIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findLinkedHosts(int $hostGroupId): array
     {
         throw RepositoryException::notYetImplemented();
     }

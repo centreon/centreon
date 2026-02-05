@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ interface ReadNotificationRepositoryInterface
     public function findUsersByNotificationIdUserAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -152,7 +152,7 @@ interface ReadNotificationRepositoryInterface
     public function countContactsByNotificationIdsAndAccessGroup(
         array $notificationIds,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -169,7 +169,7 @@ interface ReadNotificationRepositoryInterface
     public function findContactGroupsByNotificationIdAndAccessGroups(
         int $notificationId,
         ContactInterface $user,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -205,4 +205,15 @@ interface ReadNotificationRepositoryInterface
      * @return Notification[]
      */
     public function findAll(?RequestParametersInterface $requestParameters): array;
+
+    /**
+     * Return the dependency ids where the given host group is the only one linked to.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findLastNotificationDependencyIdsByHostGroup(int $hostGroupId): array;
 }

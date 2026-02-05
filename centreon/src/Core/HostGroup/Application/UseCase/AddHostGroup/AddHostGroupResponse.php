@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,29 +23,20 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
-final class AddHostGroupResponse
+use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\HostGroup\Domain\Model\HostGroupRelation;
+
+final readonly class AddHostGroupResponse implements StandardResponseInterface
 {
-    public int $id = 0;
+    public function __construct(private readonly HostGroupRelation $data)
+    {
+    }
 
-    public string $name = '';
-
-    public string $alias = '';
-
-    public string $notes = '';
-
-    public string $notesUrl = '';
-
-    public string $actionUrl = '';
-
-    public ?int $iconId = null;
-
-    public ?int $iconMapId = null;
-
-    public ?int $rrdRetention = null;
-
-    public ?string $geoCoords = null;
-
-    public string $comment = '';
-
-    public bool $isActivated = true;
+    /**
+     * @return HostGroupRelation
+     */
+    public function getData(): HostGroupRelation
+    {
+        return $this->data;
+    }
 }

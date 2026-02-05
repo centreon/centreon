@@ -1,28 +1,27 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom, userAtom } from '@centreon/ui-context';
 
-import Widget from '..';
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import {
   labelNoHostsFound,
   labelNoServicesFound
 } from '../../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../../utils';
+import Widget from '..';
+import { resourcesEndpoint } from '../api/endpoints';
 import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { router } from '../StatusGridStandard/Tile';
 import { Data, PanelOptions } from '../StatusGridStandard/models';
+import { router } from '../StatusGridStandard/Tile';
 import {
   labelAllMetricsAreWorkingFine,
   labelMetricName,
   labelSeeMore,
   labelValue
 } from '../StatusGridStandard/translatedLabels';
-import { hostsEndpoint, resourcesEndpoint } from '../api/endpoints';
-
 import {
   condensedOptions,
   hostOptions,
@@ -32,6 +31,7 @@ import {
   linkToResourcePing,
   noResources,
   resources,
+  resourcesRegex,
   seeMoreOptions,
   serviceOptions,
   services
@@ -93,7 +93,7 @@ const hostsRequests = (noValues = false): void => {
     cy.interceptAPIRequest({
       alias: 'getHostResources',
       method: Method.GET,
-      path: `./api/latest${hostsEndpoint}?**`,
+      path: `./api/latest${resourcesEndpoint}?**`,
       response: noValues ? emptyData : data
     });
 
@@ -274,7 +274,7 @@ describe('View by host', () => {
 
       cy.contains('Passive_server_1').trigger('mouseover');
 
-      cy.waitForRequest('@getHostTooltipDetails');
+      cy.waitForRequest('@getHostResources');
       cy.waitForRequest('@getDowntime');
 
       cy.get('[data-resourceName="Passive_server_1"]').should(
@@ -335,6 +335,20 @@ describe('View by host', () => {
       cy.contains(labelNoHostsFound).should('be.visible');
     });
   });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    hostsRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: hostOptions
+    });
+
+    cy.waitForRequest('@getHostResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
 });
 
 describe('View by service', () => {
@@ -391,8 +405,8 @@ describe('View by service', () => {
       cy.findAllByText('Centreon-Server').should('have.length', 7);
       cy.contains('February 1, 2021').should('be.visible');
 
-      cy.contains(labelMetricName).should('be.visible');
-      cy.contains(labelValue).should('be.visible');
+      cy.contains(labelMetricName).should('exist');
+      cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
       cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
@@ -414,8 +428,8 @@ describe('View by service', () => {
       cy.findAllByText('Centreon-Server').should('have.length', 7);
       cy.contains('February 1, 2021').should('be.visible');
 
-      cy.contains(labelMetricName).should('be.visible');
-      cy.contains(labelValue).should('be.visible');
+      cy.contains(labelMetricName).should('exist');
+      cy.contains(labelValue).should('exist');
 
       cy.contains('rta').should('be.visible');
       cy.contains('1').should('have.css', 'color', 'rgb(253, 155, 39)');
@@ -527,6 +541,20 @@ describe('View by service', () => {
       cy.contains(labelNoServicesFound).should('be.visible');
     });
   });
+
+  it('handles regex resources when the appropriate data is provided', () => {
+    servicesRequests();
+    initialize({
+      data: { resources: resourcesRegex },
+      options: serviceOptions
+    });
+
+    cy.waitForRequest('@getServiceResources').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"parent_name":{"$rg":"^H1$"}}]},{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
 });
 
 const initializeSeeMore = (): void => {
@@ -599,6 +627,20 @@ describe('Condensed view', () => {
       cy.clock(new Date(2021, 1, 1, 0, 0, 0), ['Date']);
       statusRequests();
       initialize({ data: { resources }, options: condensedOptions });
+    });
+
+    it('handles regex resources when the appropriate data is provided', () => {
+      statusRequests();
+      initialize({
+        data: { resources: resourcesRegex },
+        options: condensedOptions
+      });
+
+      cy.waitForRequest('@getStatuses').then(({ request }) => {
+        expect(request.url.searchParams.get('search')).to.equal(
+          '{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]},{"$or":[{"host.name":{"$rg":"^H1$"}}]}]}'
+        );
+      });
     });
 
     it('displays status tiles', () => {

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,17 @@ declare(strict_types=1);
 
 namespace Core\Service\Infrastructure\Repository;
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\Interfaces\NormalizerInterface;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
+use Core\Common\Domain\Exception\CollectionException;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
 use Core\Common\Infrastructure\Repository\SqlMultipleBindTrait;
 use Core\Service\Application\Repository\ReadRealTimeServiceRepositoryInterface;
@@ -86,7 +92,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): ServiceStatusesCount {
         if ($accessGroupIds === []) {
             $this->createServiceStatusesCountFromRecord([]);
@@ -135,27 +141,27 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findUniqueServiceNamesByRequestParameters(RequestParametersInterface $requestParameters): array
     {
-        $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
-        $request = $this->returnBaseQuery();
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
-        $request .= $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0';
+        $selectSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
+        $countSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
 
-        $request .= ' GROUP BY services.name ';
+        $selectRequest = $this->findServiceNamesQuery($selectSqlTranslator, false);
+        $countRequest = $this->findServiceNamesQuery($countSqlTranslator, true);
 
-        $sort = $sqlTranslator->translateSortParameterToSql();
+        $selectStatement = $this->db->prepare($this->translateDbName($selectRequest));
+        $selectSqlTranslator->bindSearchValues($selectStatement);
+        $selectStatement->execute();
 
-        $request .= $sort ?? ' ORDER BY services.name ASC';
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        $countSqlTranslator->bindSearchValues($countStatement);
+        $countStatement->execute();
 
-        $request .= $sqlTranslator->translatePaginationToSql();
+        $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $countResult = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $numberOfRows = $countResult ? current($countResult) : 0;
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
+        $countSqlTranslator->setNumberOfRows($numberOfRows);
 
-        $statement->execute();
-
-        $sqlTranslator->calculateNumberOfRows($this->db);
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 1);
+        return $serviceNames;
     }
 
     /**
@@ -163,7 +169,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      */
     public function findUniqueServiceNamesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): array {
         if ($accessGroupIds === []) {
             return [];
@@ -171,35 +177,178 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         [$bindValues, $bindQuery] = $this->createMultipleBindQuery($accessGroupIds, ':acl_group');
 
-        $sqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
+        $selectSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
+        $countSqlTranslator = $this->prepareSqlRequestParametersTranslator($requestParameters);
 
-        $request = $this->returnBaseQuery();
-        $request .= <<<'SQL'
+        $selectRequest = $this->findServiceNamesQuery($selectSqlTranslator, false, $accessGroupIds, $bindQuery);
+        $countRequest = $this->findServiceNamesQuery($countSqlTranslator, true, $accessGroupIds, $bindQuery);
+
+        $selectStatement = $this->db->prepare($this->translateDbName($selectRequest));
+        $selectSqlTranslator->bindSearchValues($selectStatement);
+        foreach ($bindValues as $token => $value) {
+            $selectStatement->bindValue($token, $value, \PDO::PARAM_INT);
+        }
+        $selectStatement->execute();
+
+        $countStatement = $this->db->prepare($this->translateDbName($countRequest));
+        $countSqlTranslator->bindSearchValues($countStatement);
+        foreach ($bindValues as $token => $value) {
+            $countStatement->bindValue($token, $value, \PDO::PARAM_INT);
+        }
+        $countStatement->execute();
+
+        $serviceNames = $selectStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $countResult = $countStatement->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $numberOfRows = $countResult ? current($countResult) : 0;
+
+        $countSqlTranslator->setNumberOfRows($numberOfRows);
+
+        return $serviceNames;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function exists(int $serviceId, int $hostId): bool
+    {
+        $query = <<<'SQL'
+                SELECT 1
+                FROM `:dbstg`.services
+                WHERE service_id = :serviceId
+                    AND host_id = :hostId
+            SQL;
+
+        try {
+            $raw = $this->db->fetchOne(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::int('serviceId', $serviceId),
+                    QueryParameter::int('hostId', $hostId),
+                ])
+            );
+
+            return (bool) $raw;
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                sprintf(
+                    'Error checking existence of service %d on host %d',
+                    $serviceId,
+                    $hostId
+                ),
+                [
+                    'serviceId' => $serviceId,
+                    'hostId' => $hostId,
+                ],
+                $e
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function existsByDescription(int $metaServiceId): array|false
+    {
+        $query = <<<'SQL'
+                SELECT service_id, host_id
+                FROM `:dbstg`.services s
+                WHERE s.description = :metaId
+            SQL;
+
+        try {
+            return $this->db->fetchAssociative(
+                $this->translateDbName($query),
+                QueryParameters::create([
+                    QueryParameter::string('metaId', "meta_{$metaServiceId}"),
+                ])
+            );
+        } catch (ValueObjectException|CollectionException|ConnectionException $e) {
+            throw new RepositoryException(
+                sprintf(
+                    'Error checking existence of meta service as service with description: meta_%d',
+                    $metaServiceId
+                ),
+                [
+                    'metaServiceId' => $metaServiceId,
+                ],
+                $e
+            );
+        }
+    }
+
+    /**
+     * @param SqlRequestParametersTranslator $sqlTranslator
+     * @param bool $calculateNumberOfRows
+     * @param int[] $accessGroupIds
+     * @param string $aclBindQuery
+     *
+     * @return string
+     */
+    private function findServiceNamesQuery(
+        SqlRequestParametersTranslator $sqlTranslator,
+        bool $calculateNumberOfRows,
+        array $accessGroupIds = [],
+        string $aclBindQuery = '',
+    ): string {
+        $search = $sqlTranslator->translateSearchParameterToSql();
+        $typeSearch = $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
+        $sort = $sqlTranslator->translateSortParameterToSql() ?? ' ORDER BY services.name ASC';
+        $aclJoin = '';
+        $aclSearch = '';
+
+        if ($calculateNumberOfRows) {
+            $select = ' COUNT(*) OVER(), services.name AS `name`';
+            $limit = '';
+        } else {
+            $select = ' services.name AS `name`';
+            $limit = $sqlTranslator->translatePaginationToSql();
+        }
+
+        if ($accessGroupIds !== []) {
+            $aclJoin = <<<'SQL'
                 INNER JOIN `:dbstg`.centreon_acl acls
                     ON acls.host_id = services.parent_id
                     AND acls.service_id = services.id
-            SQL;
-
-        $request .= $search = $sqlTranslator->translateSearchParameterToSql();
-        $request .= $search !== null ? ' AND services.type = 0 ' : ' WHERE services.type = 0 ';
-        $request .= " AND acls.group_id IN ({$bindQuery})";
-
-        $request .= ' GROUP BY services.id, services.name, services.status ';
-
-        $sort = $sqlTranslator->translateSortParameterToSql();
-
-        $request .= $sort ?? ' ORDER BY services.name ASC';
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator->bindSearchValues($statement);
-
-        foreach ($bindValues as $token => $value) {
-            $statement->bindValue($token, $value, \PDO::PARAM_INT);
+                SQL;
+            $aclSearch = <<<SQL
+                AND acls.group_id IN ({$aclBindQuery})
+                SQL;
         }
 
-        $statement->execute();
-
-        return $statement->fetchAll(\PDO::FETCH_COLUMN, 1);
+        return <<<SQL
+            SELECT {$select}
+            FROM `:dbstg`.resources AS services
+            INNER JOIN `:dbstg`.resources AS hosts
+                ON hosts.id = services.parent_id
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
+                ON hosts.resource_id = rtags_host_groups.resource_id
+            LEFT JOIN `:dbstg`.tags host_groups
+                ON rtags_host_groups.tag_id = host_groups.tag_id
+                AND host_groups.type = 1
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_host_categories
+                ON hosts.resource_id = rtags_host_categories.resource_id
+            LEFT JOIN `:dbstg`.tags host_categories
+                ON rtags_host_categories.tag_id = host_categories.tag_id
+                AND host_categories.type = 3
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_groups
+                ON services.resource_id = rtags_service_groups.resource_id
+            LEFT JOIN `:dbstg`.tags service_groups
+                ON rtags_service_groups.tag_id = service_groups.tag_id
+                AND service_groups.type = 0
+            LEFT JOIN `:dbstg`.resources_tags AS rtags_service_categories
+                ON services.resource_id = rtags_service_categories.resource_id
+            LEFT JOIN `:dbstg`.tags service_categories
+                ON rtags_service_categories.tag_id = service_categories.tag_id
+                AND service_categories.type = 2
+            {$aclJoin}
+            {$search}
+            {$typeSearch}
+            {$aclSearch}
+                AND services.enabled = 1
+            GROUP BY services.name
+            {$sort}
+            {$limit}
+            SQL;
     }
 
     /**
@@ -245,7 +394,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
      * @return SqlRequestParametersTranslator
      */
     private function prepareSqlRequestParametersTranslator(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): SqlRequestParametersTranslator {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
@@ -265,8 +414,7 @@ class DbReadRealTimeServiceRepository extends AbstractRepositoryRDB implements R
 
         $sqlTranslator->addNormalizer(
             'status',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
                  */

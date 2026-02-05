@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,71 +26,51 @@ namespace Core\Security\Token\Domain\Model;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
 use Core\Common\Domain\TrimmedString;
-use Security\Encryption;
 
-class NewToken
+abstract class NewToken
 {
-    private readonly string $token;
+    protected readonly \DateTimeInterface $creationDate;
 
-    private readonly \DateTimeImmutable $creationDate;
+    protected string $shortName;
 
     /**
-     * @param \DateTimeImmutable $expirationDate
-     * @param int $userId
-     * @param int $configurationProviderId
      * @param TrimmedString $name
      * @param int $creatorId
      * @param TrimmedString $creatorName
+     * @param \DateTimeInterface|null $expirationDate
+     * @param TokenTypeEnum $type
      *
      * @throws AssertionFailedException
      * @throws \Exception
      */
     public function __construct(
-        private readonly \DateTimeImmutable $expirationDate,
-        private readonly int $userId,
-        private readonly int $configurationProviderId,
         private readonly TrimmedString $name,
         private readonly int $creatorId,
-        private readonly TrimmedString $creatorName
-    )
-    {
-        $shortName = (new \ReflectionClass($this))->getShortName();
-        $this->token = Encryption::generateRandomString();
+        private readonly TrimmedString $creatorName,
+        private readonly ?\DateTimeInterface $expirationDate,
+        private readonly TokenTypeEnum $type,
+    ) {
         $this->creationDate = new \DateTimeImmutable();
-
-        Assertion::minDate($this->expirationDate, $this->creationDate, "{$shortName}::expirationDate");
-        Assertion::positiveInt($this->userId, "{$shortName}::userId");
-        Assertion::positiveInt($this->configurationProviderId, "{$shortName}::configurationProviderId");
-        Assertion::notEmptyString($this->name->value, "{$shortName}::name");
-        Assertion::maxLength($this->name->value, Token::MAX_TOKEN_NAME_LENGTH, "{$shortName}::name");
-        Assertion::positiveInt($this->creatorId, "{$shortName}::creatorId");
-        Assertion::notEmptyString($this->creatorName->value, "{$shortName}::creatorName");
-        Assertion::maxLength($this->creatorName->value, Token::MAX_USER_NAME_LENGTH, "{$shortName}::creatorName");
+        if ($this->expirationDate !== null) {
+            Assertion::minDate($this->expirationDate, $this->creationDate, "{$this->shortName}::expirationDate");
+        }
+        Assertion::notEmptyString($this->name->value, "{$this->shortName}::name");
+        Assertion::maxLength($this->name->value, Token::MAX_TOKEN_NAME_LENGTH, "{$this->shortName}::name");
+        Assertion::positiveInt($this->creatorId, "{$this->shortName}::creatorId");
+        Assertion::notEmptyString($this->creatorName->value, "{$this->shortName}::creatorName");
+        Assertion::maxLength($this->creatorName->value, Token::MAX_USER_NAME_LENGTH, "{$this->shortName}::creatorName");
     }
 
-    public function getToken(): string
-    {
-        return $this->token;
-    }
+    abstract public function getToken(): string;
 
-    public function getCreationDate(): \DateTimeImmutable
+    public function getCreationDate(): \DateTimeInterface
     {
         return $this->creationDate;
     }
 
-    public function getExpirationDate(): \DateTimeImmutable
+    public function getExpirationDate(): ?\DateTimeInterface
     {
         return $this->expirationDate;
-    }
-
-    public function getUserId(): int
-    {
-        return $this->userId;
-    }
-
-    public function getConfigurationProviderId(): int
-    {
-        return $this->configurationProviderId;
     }
 
     public function getName(): string
@@ -107,4 +87,11 @@ class NewToken
     {
         return $this->creatorName->value;
     }
+
+    public function getType(): TokenTypeEnum
+    {
+        return $this->type;
+    }
+
+    abstract protected function generateToken(): void;
 }

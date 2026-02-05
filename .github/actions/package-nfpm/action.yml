@@ -4,6 +4,9 @@ inputs:
   nfpm_file_pattern:
     description: The pattern of the nfpm configuration file(s)
     required: true
+  module_name:
+    description: The name of the module to be packaged
+    required: true
   package_extension:
     description: The package extension (deb or rpm)
     required: true
@@ -40,11 +43,26 @@ inputs:
   stability:
     description: "branch stability (stable, testing, unstable, canary)"
     required: true
+  is_nightly:
+    description: "nightly status"
+    required: false
+  upload_artifacts:
+    description: "Upload packages as artifacts"
+    required: false
+    default: "false"
 
 runs:
   using: composite
 
   steps:
+    - name: Remove lockfiles and development files
+      run: |
+        find ${{ inputs.module_name }} -type f -name "compose*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "package*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "pnpm*.*" -not -path "*vendor*" -delete
+        find ${{ inputs.module_name }} -type f -name "symfony.lock" -delete
+      shell: bash
+
     - name: Parse distrib name
       id: parse-distrib
       uses: ./.github/actions/parse-distrib
@@ -80,7 +98,6 @@ runs:
 
         MAJOR_LEFT=$( echo $MAJOR_VERSION | cut -d "." -f1 )
         MAJOR_RIGHT=$( echo $MAJOR_VERSION | cut -d "-" -f1 | cut -d "." -f2 )
-        BUMP_MAJOR_RIGHT=$(( MAJOR_RIGHT_PART + 1 ))
         if [ "$MAJOR_RIGHT" = "04" ]; then
           BUMP_MAJOR_LEFT="$MAJOR_LEFT"
           BUMP_MAJOR_RIGHT="10"
@@ -109,16 +126,16 @@ runs:
       shell: bash
 
     - name: Cache packages
-      uses: actions/cache/save@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ./*.${{ inputs.package_extension }}
         key: ${{ inputs.cache_key }}
 
-    # Update if condition to true to get packages as artifacts
-    - if: ${{ false }}
+    # Add 'upload-artifacts' label to pull request to get packages as artifacts
+    - if: inputs.upload_artifacts == 'true'
       name: Upload package artifacts
-      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
       with:
-        name: packages-${{ inputs.distrib }}
-        path: ./*.${{ inputs.package_extension}}
+        name: ${{ inputs.module_name }}-${{ inputs.arch != '' && format('packages-{0}-{1}', inputs.distrib, inputs.arch) || format('packages-{0}', inputs.distrib) }}
+        path: ./*.${{ inputs.package_extension }}
         retention-days: 1

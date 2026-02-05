@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,22 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindDashboard;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPanelRepositoryInterface;
-use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\Repository\ReadDashboardRepositoryInterface;
+use Core\Dashboard\Application\Repository\ReadDashboardShareRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboard;
 use Core\Dashboard\Application\UseCase\FindDashboard\FindDashboardResponse;
 use Core\Dashboard\Domain\Model\Dashboard;
-use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\DashboardPanel;
 use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Dashboard\Domain\Model\Refresh;
 use Core\Dashboard\Domain\Model\Refresh\RefreshType;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
+use Core\UserProfile\Domain\Model\UserProfile;
 
 beforeEach(function (): void {
     $this->presenter = new FindDashboardPresenterStub();
@@ -51,11 +52,14 @@ beforeEach(function (): void {
         $this->rights = $this->createMock(DashboardRights::class),
         $this->contact = $this->createMock(ContactInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
+        $this->userProfileReader = $this->createMock(ReadUserProfileRepositoryInterface::class),
         $this->isCloudPlatform = false
     );
 
+    $this->userProfile = (new UserProfile(id: 1, userId: 1))->setFavoriteDashboards([1]);
+
     $this->testedDashboard = new Dashboard(
-        $this->testedDashboardId = random_int(1, 1_000_000),
+        $this->testedDashboardId = 1,
         $this->testedDashboardName = uniqid('name', true),
         $this->testedDashboardCreatedBy = random_int(1, 1_000_000),
         $this->testedDashboardUpdatedBy = random_int(1, 1_000_000),
@@ -65,7 +69,7 @@ beforeEach(function (): void {
     );
 
     $this->testedDashboardPanel = new DashboardPanel(
-        $this->testedPanelId = random_int(1, 1_000_000),
+        $this->testedPanelId = 1,
         $this->testedPanelName = uniqid('name', true),
         $this->testedPanelWidgetType = uniqid('widgetType', true),
         $this->testedPanelWidgetSettings = [uniqid('key', true) => 42],
@@ -111,27 +115,14 @@ it(
 );
 
 it(
-    'should present a ForbiddenResponse when the user does not have the correct role',
-    function (): void {
-        $this->rights->expects($this->once())
-            ->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(false);
-
-        ($this->useCase)(1, $this->presenter);
-
-        expect($this->presenter->data)
-            ->toBeInstanceOf(ForbiddenResponse::class)
-            ->and($this->presenter->data->getMessage())
-            ->toBe(DashboardException::accessNotAllowed()->getMessage());
-    }
-);
-
-it(
     'should present a FindDashboardResponse as ADMIN',
     function (): void {
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(true);
+
+        $this->userProfileReader->expects($this->once())
+            ->method('findByContact')->willReturn($this->userProfile);
+
         $this->readDashboardRepository->expects($this->once())
             ->method('findOne')->willReturn($this->testedDashboard);
         $this->readContactRepository->expects($this->once())
@@ -151,6 +142,7 @@ it(
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
             ->and($dashboard->panels)->toHaveCount(1)
+            ->and($dashboard->isFavorite)->toBe(true)
             ->and($dashboard->panels[0]->id)->toBe($this->testedPanelId)
             ->and($dashboard->panels[0]->name)->toBe($this->testedPanelName)
             ->and($dashboard->panels[0]->widgetType)->toBe($this->testedPanelWidgetType)
@@ -176,6 +168,10 @@ it(
     function (): void {
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(true);
+
+        $this->userProfileReader->expects($this->once())
+            ->method('findByContact')->willReturn($this->userProfile);
+
         $this->readDashboardRepository->expects($this->once())
             ->method('findOne')->willReturn($this->testedDashboard);
 
@@ -187,6 +183,7 @@ it(
         expect($dashboard)->toBeInstanceOf(FindDashboardResponse::class)
             ->and($dashboard->id)->toBe($this->testedDashboardId)
             ->and($dashboard->name)->toBe($this->testedDashboardName)
+            ->and($dashboard->isFavorite)->toBe(true)
             ->and($dashboard->description)->toBe(null)
             ->and($dashboard->createdAt->getTimestamp())->toBe($this->testedDashboardCreatedAt->getTimestamp())
             ->and($dashboard->updatedAt->getTimestamp())->toBeGreaterThanOrEqual($this->testedDashboardUpdatedAt->getTimestamp());
@@ -198,8 +195,10 @@ it(
     function (): void {
         $this->rights->expects($this->once())
             ->method('hasAdminRole')->willReturn(false);
-        $this->rights->expects($this->once())
-            ->method('canAccess')->willReturn(true);
+
+        $this->userProfileReader->expects($this->once())
+            ->method('findByContact')->willReturn($this->userProfile);
+
         $this->readDashboardRepository->expects($this->once())
             ->method('findOneByContact')->willReturn($this->testedDashboard);
 

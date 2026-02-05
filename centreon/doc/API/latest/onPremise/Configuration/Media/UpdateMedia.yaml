@@ -4,12 +4,23 @@ post:
   summary: "Update the media content on the file system"
   description: |
     Updates on the file system the contents of the file linked to the provided media ID
+  parameters:
+    - $ref: 'QueryParameter/mediaId.yaml'
   requestBody:
     required: true
     content:
       multipart/form-data:
         schema:
           $ref: 'Schema/UpdateMediaRequest.yaml'
+        example: |
+          Content-Type: multipart/form-data; boundary=abcde12345
+
+          --abcde12345
+          Content-Disposition: form-data; name="data"; filename="img.png"
+          Content-Type: image/png
+
+          [file content (in binary string) goes there]
+          --abcde12345--
   responses:
     '201':
       description: "Object created"

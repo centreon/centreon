@@ -1,0 +1,11 @@
+Core\Dashboard\Application\UseCase\FindDashboardContacts\Response\ContactsResponseDto:
+  attributes:
+    id:
+      groups: ['FindDashboardContacts:Read']
+    name:
+      groups: ['FindDashboardContacts:Read']
+    email:
+      groups: ['FindDashboardContacts:Read']
+    mostPermissiveRole:
+      groups: ['FindDashboardContacts:Read']
+

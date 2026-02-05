@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ final class DashboardResponseDto
      *     }>
      * } $shares
      * @param ThumbnailResponseDto $thumbnail
+     * @param bool $isFavorite
      */
     public function __construct(
         public int $id = 0,
@@ -62,7 +63,8 @@ final class DashboardResponseDto
         public DateTimeImmutable $updatedAt = new DateTimeImmutable(),
         public DashboardSharingRole $ownRole = DashboardSharingRole::Viewer,
         public array $shares = ['contacts' => [], 'contact_groups' => []],
-        public ?ThumbnailResponseDto $thumbnail = null
+        public ?ThumbnailResponseDto $thumbnail = null,
+        public bool $isFavorite = false,
     ) {
     }
 }

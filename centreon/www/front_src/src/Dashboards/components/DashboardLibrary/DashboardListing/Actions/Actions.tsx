@@ -1,11 +1,11 @@
 import { Box } from '@mui/material';
 
 import useIsViewerUser from '../useIsViewerUser';
-
 import AddDashboard from './AddDashboard';
 import Filter from './Filter';
-import ViewMode from './ViewMode';
+import FavoriteFilter from './favoriteFilter';
 import { useActionsStyles } from './useActionsStyles';
+import ViewMode from './ViewMode';
 
 const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
   const { classes } = useActionsStyles();
@@ -19,6 +19,7 @@ const Actions = ({ openConfig }: { openConfig: () => void }): JSX.Element => {
         <Filter />
       </Box>
       <ViewMode />
+      <FavoriteFilter />
     </Box>
   );
 };

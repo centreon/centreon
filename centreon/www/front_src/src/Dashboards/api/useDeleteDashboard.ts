@@ -1,11 +1,16 @@
+import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
+
 import {
   MutateOptions,
   UseMutationResult,
   useQueryClient
 } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
 
-import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
-
+import {
+  limitAtom,
+  totalAtom
+} from '../components/DashboardLibrary/DashboardListing/atom';
 import { getDashboardEndpoint } from './endpoints';
 import { Dashboard, DeleteDashboardDto, resource } from './models';
 
@@ -24,6 +29,9 @@ type UseDeleteDashboard<
 >;
 
 const useDeleteDashboard = (): UseDeleteDashboard => {
+  const limit = useAtomValue(limitAtom);
+  const total = useAtomValue(totalAtom);
+
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -31,7 +39,13 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     ...mutationData
   } = useMutationQuery<Dashboard, { id }>({
     getEndpoint: ({ id }) => getDashboardEndpoint(id),
-    method: Method.DELETE
+    method: Method.DELETE,
+    optimisticListing: {
+      enabled: true,
+      limit: limit || 10,
+      queryKey: resource.dashboards,
+      total
+    }
   });
 
   const queryClient = useQueryClient();
@@ -47,7 +61,9 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
     const { onSettled, ...restOptions } = options || {};
 
     const onSettledWithInvalidateQueries = (
-      data: undefined,
+      data:
+        | { _meta?: { id: string | number } | undefined; payload: Dashboard }
+        | undefined,
       error: ResponseError | null,
       vars: DeleteDashboardDto
     ): void => {
@@ -57,7 +73,7 @@ const useDeleteDashboard = (): UseDeleteDashboard => {
 
     const { id } = variables;
 
-    return mutateAsync(
+    return await mutateAsync(
       { _meta: { id } },
       {
         mutationKey: [resource.dashboards, 'delete', id],

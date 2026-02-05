@@ -1,16 +1,21 @@
+import { Box, CircularProgress, Typography } from '@mui/material';
+
 import { SelectEntry } from '@centreon/ui';
 import { Button, Modal } from '@centreon/ui/components';
-import { Box, CircularProgress, Typography } from '@mui/material';
+
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+
 import { itemToDeleteAtom } from '../atoms';
 import { useDeletePollerAgent } from '../hooks/useDeletePollerAgent';
 import {
   labelCancel,
   labelDelete,
   labelDeleteAgent,
-  labelDeletePoller
+  labelDeleteAgentConfirmation,
+  labelDeletePoller,
+  labelDeletePollerConfirmation
 } from '../translatedLabels';
 
 const DeleteModal = (): JSX.Element => {
@@ -48,27 +53,21 @@ const DeleteModal = (): JSX.Element => {
   const agent = itemToDeleteRef.current?.agent?.name;
 
   return (
-    <Modal open={isOpen} onClose={close} size="large">
+    <Modal onClose={close} open={isOpen} size="large">
       <Modal.Header>
         {t(hasPoller ? labelDeletePoller : labelDeleteAgent)}
       </Modal.Header>
       <Modal.Body>
         <Typography>
-          {hasPoller ? (
-            <Trans t={t}>
-              You are going to delete the configuration for the{' '}
-              <strong>{{ poller }}</strong> poller from the{' '}
-              <strong>{{ agent }}</strong> agent configuration. All
-              configuration parameters for this poller will be deleted. This
-              action cannot be undone.
-            </Trans>
-          ) : (
-            <Trans t={t}>
-              You are going to delete the <strong>{{ agent }}</strong> agent
-              configuration. All configuration parameters for this agent will be
-              deleted. This action cannot be undone.
-            </Trans>
-          )}
+          <Trans
+            components={{ bold: <strong /> }}
+            defaults={
+              hasPoller
+                ? labelDeletePollerConfirmation
+                : labelDeleteAgentConfirmation
+            }
+            values={hasPoller ? { agent, poller } : { agent }}
+          />
         </Typography>
       </Modal.Body>
       <Box
@@ -80,10 +79,10 @@ const DeleteModal = (): JSX.Element => {
         }}
       >
         {isMutating && <CircularProgress size={20} />}
-        <Button variant="ghost" onClick={close} disabled={isMutating}>
+        <Button disabled={isMutating} onClick={close} variant="ghost">
           {t(labelCancel)}
         </Button>
-        <Button isDanger onClick={confirm} disabled={isMutating}>
+        <Button disabled={isMutating} isDanger onClick={confirm}>
           {t(labelDelete)}
         </Button>
       </Box>

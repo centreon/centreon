@@ -1,0 +1,34 @@
+{
+  "resources": [
+    {
+      "resourceType": "service",
+      "resources": [
+        {
+          "id": "Ping",
+          "name": "Ping"
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "criticalHighThreshold": null,
+      "criticalLowThreshold": null,
+      "id": 4,
+      "name": "rtmin",
+      "unit": "ms",
+      "warningHighThreshold": null,
+      "warningLowThreshold": null,
+      "excludedMetrics": [],
+      "includeAllMetrics": true
+    }
+  ],
+  "services": [
+    {
+      "uuid": "h14-s26",
+      "id": 26,
+      "name": "Ping",
+      "parentName": "Centreon-Server"
+    }
+  ]
+}

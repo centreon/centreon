@@ -1,20 +1,20 @@
-import { forwardRef, useCallback } from 'react';
-
-import { equals, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Box,
   InputAdornment,
+  type InputProps,
   TextField as MuiTextField,
-  TextFieldProps,
-  Theme,
+  type TextFieldProps,
+  type TextFieldSlotsAndSlotProps,
+  type Theme,
   Tooltip,
   Typography
 } from '@mui/material';
 
-import { getNormalizedId } from '../../utils';
+import { equals, isNil } from 'ramda';
+import { forwardRef, useCallback } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
+import { getNormalizedId } from '../../utils';
 import useAutoSize from './useAutoSize';
 
 const useStyles = makeStyles()((theme: Theme) => ({
@@ -95,6 +95,8 @@ export type TextProps = {
   size?: SizeVariant;
   transparent?: boolean;
   value?: string;
+  textFieldSlotsAndSlotProps?: TextFieldSlotsAndSlotProps<InputProps>;
+  forceUncontrolled?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
 const TextField = forwardRef(
@@ -119,6 +121,8 @@ const TextField = forwardRef(
       required = false,
       containerClassName,
       type,
+      textFieldSlotsAndSlotProps,
+      forceUncontrolled,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -137,16 +141,15 @@ const TextField = forwardRef(
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
     const getValueProps = useCallback((): object => {
-      if (debounced) {
+      if (debounced || forceUncontrolled) {
         return {};
       }
-
       if (defaultValue) {
         return { defaultValue };
       }
 
       return { value: innerValue };
-    }, [innerValue, debounced, defaultValue]);
+    }, [innerValue, debounced, defaultValue, forceUncontrolled]);
 
     return (
       <Box
@@ -159,57 +162,60 @@ const TextField = forwardRef(
             error={!isNil(error)}
             helperText={displayErrorInTooltip ? undefined : error}
             id={getNormalizedId(dataTestId || '')}
-            inputProps={{
-              'aria-label': ariaLabel,
-              'data-testid': dataTestId,
-              ...rest.inputProps
-            }}
             label={label}
+            onChange={changeInputValue}
             ref={ref}
             size={size || 'small'}
-            onChange={changeInputValue}
             {...getValueProps()}
-            {...rest}
-            InputLabelProps={{
-              classes: {
-                root: cx(equals(size, 'compact') && classes.compactLabel),
-                shrink: cx(
-                  equals(size, 'compact') && classes.compactLabelShrink
-                )
-              }
-            }}
-            InputProps={{
-              className: cx(
-                classes.inputBase,
-                {
-                  [classes.transparent]: transparent,
-                  [classes.autoSizeCompact]: autoSize && equals(size, 'compact')
-                },
-                className
-              ),
-              endAdornment: (
-                <OptionalLabelInputAdornment label={label} position="end">
-                  {EndAdornment ? (
-                    <EndAdornment />
-                  ) : (
-                    rest.InputProps?.endAdornment
-                  )}
-                </OptionalLabelInputAdornment>
-              ),
-              startAdornment: StartAdornment && (
-                <OptionalLabelInputAdornment label={label} position="start">
-                  <StartAdornment />
-                </OptionalLabelInputAdornment>
-              ),
-              ...rest.InputProps
-            }}
             className={classes.textField}
             required={required}
+            slotProps={{
+              htmlInput: {
+                'aria-label': ariaLabel,
+                'data-testid': dataTestId,
+                ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+              },
+              input: {
+                className: cx(
+                  classes.inputBase,
+                  {
+                    [classes.transparent]: transparent,
+                    [classes.autoSizeCompact]:
+                      autoSize && equals(size, 'compact')
+                  },
+                  className
+                ),
+                endAdornment: (
+                  <OptionalLabelInputAdornment label={label} position="end">
+                    {EndAdornment ? (
+                      <EndAdornment />
+                    ) : (
+                      textFieldSlotsAndSlotProps?.slotProps?.input?.endAdornment
+                    )}
+                  </OptionalLabelInputAdornment>
+                ),
+                startAdornment: StartAdornment && (
+                  <OptionalLabelInputAdornment label={label} position="start">
+                    <StartAdornment />
+                  </OptionalLabelInputAdornment>
+                ),
+                ...textFieldSlotsAndSlotProps?.slotProps?.input
+              },
+              inputLabel: {
+                classes: {
+                  root: cx(equals(size, 'compact') && classes.compactLabel),
+                  shrink: cx(
+                    equals(size, 'compact') && classes.compactLabelShrink
+                  )
+                }
+              }
+            }}
             sx={{
               width: autoSize ? width : undefined,
               ...rest?.sx
             }}
             type={type}
+            {...rest}
           />
         </Tooltip>
         {autoSize && (

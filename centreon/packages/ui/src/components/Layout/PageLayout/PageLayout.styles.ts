@@ -4,8 +4,8 @@ export const useStyles = makeStyles()((theme) => ({
   pageLayout: {
     display: 'grid',
     gridTemplateRows: 'auto 1fr',
-    overflow: 'hidden',
-    height: '100%'
+    height: '100%',
+    overflow: 'hidden'
   },
   pageLayoutActions: {
     '& > span': {
@@ -17,19 +17,19 @@ export const useStyles = makeStyles()((theme) => ({
     },
     display: 'flex',
     justifyContent: 'space-between',
-    paddingBottom: theme.spacing(2.5)
+    paddingBottom: theme.spacing(1.5)
   },
   pageLayoutBody: {
-    '&[data-has-background="true"]': {
-      backgroundColor: theme.palette.layout.body.background
-    },
     '&[data-has-actions="true"]': {
       gridTemplateRows: 'min-content auto'
+    },
+    '&[data-has-background="true"]': {
+      backgroundColor: theme.palette.layout.body.background
     },
     display: 'grid',
     gridTemplateRows: 'auto',
     overflow: 'hidden',
-    padding: theme.spacing(1.5, 3, 5)
+    padding: theme.spacing(0, 3, 1.5)
   },
   pageLayoutHeader: {
     '[data-variant="fixed-header"] &': {
@@ -40,6 +40,6 @@ export const useStyles = makeStyles()((theme) => ({
       top: 0,
       zIndex: `calc(${theme.zIndex.mobileStepper} - 100)`
     },
-    padding: theme.spacing(3, 3, 0)
+    padding: theme.spacing(1, 3, 0)
   }
 }));

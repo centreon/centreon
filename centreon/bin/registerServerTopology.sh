@@ -541,4 +541,5 @@ else
   register_server
 fi
 
+/bin/bash /usr/share/centreon/bin/writeEngineSecrets.sh "${PARSED_URL[SCHEME]}://${PARSED_URL[HOST]}:${PARSED_URL[PORT]}/$CENTREON_BASE_URI" "$API_USERNAME" "$API_TARGET_PASSWORD" ${INSECURE:+--insecure}
 exit 0

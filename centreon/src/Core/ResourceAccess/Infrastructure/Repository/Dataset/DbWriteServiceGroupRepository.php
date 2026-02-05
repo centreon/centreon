@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,9 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
     /**
      * @param DatabaseConnection $db
      */
-    public function __construct(protected DatabaseConnection $db)
+    public function __construct(DatabaseConnection $db)
     {
+        $this->db = $db;
     }
 
     /**
@@ -45,7 +46,7 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
      */
     public function isValidFor(string $type): bool
     {
-        return ServiceGroupFilterType::TYPE_NAME === $type;
+        return $type === ServiceGroupFilterType::TYPE_NAME;
     }
 
     /**
@@ -58,7 +59,7 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
             ['rule_id' => $ruleId, 'dataset_id' => $datasetId, 'servicegroup_ids' => $resourceIds]
         );
 
-        if ([] === $resourceIds) {
+        if ($resourceIds === []) {
             return;
         }
 

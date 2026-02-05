@@ -1,28 +1,33 @@
-import { useEffect, useRef } from 'react';
-
-import { useAtom, useSetAtom } from 'jotai';
-import { path, equals, not, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-
 import type { Actions } from '@centreon/ui';
-import { getData, postData, useRequest, useSnackbar } from '@centreon/ui';
+import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
   downtimeAtom,
+  isResourceStatusFullSearchEnabledAtom,
   platformNameAtom,
   platformVersionsAtom,
-  refreshIntervalAtom
+  refreshIntervalAtom,
+  statisticsRefreshIntervalAtom,
+  userPermissionsAtom
 } from '@centreon/ui-context';
 
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, not, path, pathEq } from 'ramda';
+import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router';
+
+import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
-import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
-
-import { aclEndpoint, parametersEndpoint } from './endpoint';
+import {
+  aclEndpoint,
+  parametersEndpoint,
+  userPermissionsEndpoint
+} from './endpoint';
 import { CustomLoginPlatform, DefaultParameters } from './models';
 import { labelYouAreDisconnected } from './translatedLabels';
 import usePendo from './usePendo';
@@ -53,12 +58,18 @@ const useApp = (): UseAppState => {
     httpCodesBypassErrorSnackbar: [403],
     request: getData
   });
-  const { sendRequest: getAcl } = useRequest<Actions>({
+
+  const { sendRequest: getUserPermissions } = useRequest<DefaultParameters>({
+    httpCodesBypassErrorSnackbar: [403],
+    request: getData
+  });
+
+  const { sendRequest: getResourcesAcl } = useRequest<Actions>({
     request: getData
   });
 
   const { sendRequest: logoutRequest } = useRequest({
-    request: postData
+    request: getData
   });
 
   const { sendRequest: getCustomPlatformRequest } =
@@ -70,11 +81,17 @@ const useApp = (): UseAppState => {
   const [platformVersion] = useAtom(platformVersionsAtom);
   const setDowntime = useSetAtom(downtimeAtom);
   const setRefreshInterval = useSetAtom(refreshIntervalAtom);
-  const setAcl = useSetAtom(aclAtom);
+  const setStatisticsRefreshInterval = useSetAtom(
+    statisticsRefreshIntervalAtom
+  );
+  const setResourcesAcl = useSetAtom(aclAtom);
   const setAcknowledgement = useSetAtom(acknowledgementAtom);
   const setAreUserParametersLoaded = useSetAtom(areUserParametersLoadedAtom);
-
   const setPlaformName = useSetAtom(platformNameAtom);
+  const setUserPermissions = useSetAtom(userPermissionsAtom);
+  const setIsResourceStatusFullSearchEnabled = useSetAtom(
+    isResourceStatusFullSearchEnabledAtom
+  );
 
   const { getNavigation } = useNavigation();
 
@@ -111,6 +128,14 @@ const useApp = (): UseAppState => {
             10
           )
         );
+
+        setStatisticsRefreshInterval(
+          Number.parseInt(
+            retrievedParameters?.statistics_default_refresh_interval,
+            10
+          )
+        );
+
         setAcknowledgement({
           force_active_checks:
             retrievedParameters.monitoring_default_acknowledgement_force_active_checks,
@@ -121,6 +146,9 @@ const useApp = (): UseAppState => {
           with_services:
             retrievedParameters.monitoring_default_acknowledgement_with_services
         });
+        setIsResourceStatusFullSearchEnabled(
+          retrievedParameters.is_resource_status_full_search_enabled
+        );
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {
@@ -128,11 +156,21 @@ const useApp = (): UseAppState => {
         }
       });
 
-    getAcl({
+    getUserPermissions({
+      endpoint: userPermissionsEndpoint
+    })
+      .then(setUserPermissions)
+      .catch((error) => {
+        if (pathEq(401, ['response', 'status'])(error)) {
+          logout();
+        }
+      });
+
+    getResourcesAcl({
       endpoint: aclEndpoint
     })
       .then((retrievedAcl) => {
-        setAcl({ actions: retrievedAcl });
+        setResourcesAcl({ actions: retrievedAcl });
       })
       .catch((error) => {
         if (pathEq(401, ['response', 'status'])(error)) {

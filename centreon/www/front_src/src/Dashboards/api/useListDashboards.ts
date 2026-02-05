@@ -1,23 +1,26 @@
-import { useAtomValue } from 'jotai';
-
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+
+import { onlyFavoriteDashboardsAtom } from '../components/DashboardLibrary/DashboardListing/Actions/favoriteFilter/atoms';
 import {
   limitAtom,
   pageAtom,
   searchAtom,
   sortFieldAtom,
-  sortOrderAtom
+  sortOrderAtom,
+  totalAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
-
 import { dashboardListDecoder } from './decoders';
-import { dashboardsEndpoint } from './endpoints';
+import { dashboardsEndpoint, dashboardsFavoriteEndpoint } from './endpoints';
 import { List } from './meta.models';
 import { Dashboard, resource } from './models';
 
 type UseListDashboards = {
   data?: List<Omit<Dashboard, 'refresh'>>;
   isLoading: boolean;
+  refetch: () => void;
 };
 
 const useListDashboards = (): UseListDashboards => {
@@ -26,9 +29,10 @@ const useListDashboards = (): UseListDashboards => {
   const sortField = useAtomValue(sortFieldAtom);
   const sortOrder = useAtomValue(sortOrderAtom);
   const searchValue = useAtomValue(searchAtom);
+  const setTotal = useSetAtom(totalAtom);
+  const onlyFavoriteDashboards = useAtomValue(onlyFavoriteDashboardsAtom);
 
   const sort = { [sortField]: sortOrder };
-
   const search = {
     regex: {
       fields: ['name'],
@@ -36,37 +40,48 @@ const useListDashboards = (): UseListDashboards => {
     }
   };
 
-  const { data, isLoading, isFetching } = useFetchQuery<
+  const getEndpoint = () => {
+    return buildListingEndpoint({
+      baseEndpoint: onlyFavoriteDashboards
+        ? dashboardsFavoriteEndpoint
+        : dashboardsEndpoint,
+      parameters: {
+        limit: limit || 10,
+        page: page || 1,
+        search,
+        sort
+      }
+    });
+  };
+
+  const { data, isLoading, isFetching, refetch } = useFetchQuery<
     List<Omit<Dashboard, 'refresh'>>
   >({
     decoder: dashboardListDecoder,
     doNotCancelCallsOnUnmount: true,
-    getEndpoint: () =>
-      buildListingEndpoint({
-        baseEndpoint: dashboardsEndpoint,
-        parameters: {
-          limit: limit || 10,
-          page: page || 1,
-          search,
-          sort
-        }
-      }),
+    getEndpoint,
     getQueryKey: () => [
       resource.dashboards,
       sortField,
       sortOrder,
       page,
       limit,
-      search
+      search,
+      onlyFavoriteDashboards
     ],
     queryOptions: {
       suspense: false
     }
   });
 
+  useEffect(() => {
+    setTotal(data?.meta?.total || 0);
+  }, [data?.meta?.total]);
+
   return {
     data,
-    isLoading: isLoading || isFetching
+    isLoading: isLoading || isFetching,
+    refetch
   };
 };
 

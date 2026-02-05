@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,14 @@ namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
 use App\Kernel;
 use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
+use CentreonLog;
 use CentreonRemote\Domain\Resources\RemoteConfig\BamBrokerCfgInfo;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosBrokerModule;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosLogger;
 use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\FeatureFlags;
@@ -38,15 +41,15 @@ abstract class ServerConnectionConfigurationService
 {
     use VaultTrait;
 
-    protected string|null $serverIp;
+    protected string|null $serverIp = null;
 
-    protected string|null $centralIp;
+    protected string|null $centralIp = null;
 
-    protected string|null $dbUser;
+    protected string|null $dbUser = null;
 
-    protected string|null $dbPassword;
+    protected string|null $dbPassword = null;
 
-    protected string|null $name;
+    protected string|null $name = null;
 
     protected bool $onePeerRetention = false;
 
@@ -57,9 +60,8 @@ abstract class ServerConnectionConfigurationService
     protected int|null $brokerID = null;
 
     public function __construct(
-        protected CentreonDBAdapter $dbAdapter
-    )
-    {
+        protected CentreonDBAdapter $dbAdapter,
+    ) {
     }
 
     /**
@@ -119,6 +121,8 @@ abstract class ServerConnectionConfigurationService
      */
     public function insert(): int
     {
+        global $centreon;
+
         $this->getDbAdapter()->beginTransaction();
 
         $serverID = $this->insertNagiosServer();
@@ -138,6 +142,23 @@ abstract class ServerConnectionConfigurationService
         }
 
         $this->getDbAdapter()->commit();
+
+        $kernel = Kernel::createForWeb();
+        $deployAgentConfiguration = $kernel->getContainer()
+            ->get(DeployDefaultAgentConfigurationForPoller::class);
+        if (! $deployAgentConfiguration instanceof DeployDefaultAgentConfigurationForPoller) {
+            CentreonLog::create()->warning(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'DeployDefaultAgentConfigurationForPoller service not found, skipping default agent configuration deployment'
+            );
+        } else {
+            $request = new DeployDefaultAgentConfigurationForPollerRequest(
+                pollerId: $serverID,
+                creatorId: $centreon->user->user_id,
+                creatorName: $centreon->user->alias,
+            );
+            $deployAgentConfiguration($request);
+        }
 
         return $serverID;
     }
@@ -178,7 +199,6 @@ abstract class ServerConnectionConfigurationService
         $configBroker = CfgNagiosBrokerModule::getConfiguration($configID, $this->name);
 
         $this->insertWithAdapter('cfg_nagios_broker_module', $configBroker[0]);
-        $this->insertWithAdapter('cfg_nagios_broker_module', $configBroker[1]);
 
         return $configID;
     }

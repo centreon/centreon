@@ -1,148 +1,132 @@
 <?php
 
 /*
- * Copyright 2005-2019 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
 
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit();
 }
 
-include_once "./class/centreonUtils.class.php";
+include_once './class/centreonUtils.class.php';
 
-include "./include/common/autoNumLimit.php";
+include './include/common/autoNumLimit.php';
 
 const PASSWORD_REPLACEMENT_VALUE_LISTING = '**********';
 
 // Search engine
 
-$search = \HtmlAnalyzer::sanitizeAndRemoveTags(
+$search = HtmlAnalyzer::sanitizeAndRemoveTags(
     $_POST['searchR'] ?? $_GET['searchR'] ?? null
 );
 
 if (isset($_POST['searchR']) || isset($_GET['searchR'])) {
-    //saving filters values
+    // saving filters values
     $centreon->historySearch[$url] = [];
     $centreon->historySearch[$url]['search'] = $search;
 } else {
-    //restoring saved values
+    // restoring saved values
     $search = $centreon->historySearch[$url]['search'] ?? null;
 }
 
 $SearchTool = '';
 if ($search) {
-    $SearchTool .= " WHERE resource_name LIKE '%" . htmlentities($search, ENT_QUOTES, "UTF-8") . "%'";
+    $SearchTool .= " WHERE resource_name LIKE '%" . htmlentities($search, ENT_QUOTES, 'UTF-8') . "%'";
 }
 
-$aclCond = "";
-if (!$oreon->user->admin && count($allowedResourceConf)) {
-    $aclCond = isset($search) && $search ? " AND " : " WHERE ";
-    $aclCond .= "resource_id IN (" . implode(',', array_keys($allowedResourceConf)) . ") ";
+$aclCond = '';
+if (! $oreon->user->admin && count($allowedResourceConf)) {
+    $aclCond = isset($search) && $search ? ' AND ' : ' WHERE ';
+    $aclCond .= 'resource_id IN (' . implode(',', array_keys($allowedResourceConf)) . ') ';
 }
 
 // resources list
 $dbResult = $pearDB->query(
-    "SELECT SQL_CALC_FOUND_ROWS * FROM cfg_resource " . $SearchTool . $aclCond .
-    " ORDER BY resource_name LIMIT " . $num * $limit . ", " . $limit
+    'SELECT SQL_CALC_FOUND_ROWS * FROM cfg_resource ' . $SearchTool . $aclCond
+    . ' ORDER BY resource_name LIMIT ' . $num * $limit . ', ' . $limit
 );
 
-$rows = $pearDB->query("SELECT FOUND_ROWS()")->fetchColumn();
+$rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 
-include "./include/common/checkPagination.php";
+include './include/common/checkPagination.php';
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 // Access level
 $lvl_access = ($centreon->user->access->page($p) == 1) ? 'w' : 'r';
 $tpl->assign('mode_access', $lvl_access);
 
 // start header menu
-$tpl->assign("headerMenu_name", _("Name"));
-$tpl->assign("headerMenu_values", _("Values"));
-$tpl->assign("headerMenu_comment", _("Description"));
-$tpl->assign("headerMenu_associated_poller", _("Associated pollers"));
-$tpl->assign("headerMenu_status", _("Status"));
-$tpl->assign("headerMenu_options", _("Options"));
+$tpl->assign('headerMenu_name', _('Name'));
+$tpl->assign('headerMenu_values', _('Values'));
+$tpl->assign('headerMenu_comment', _('Description'));
+$tpl->assign('headerMenu_associated_poller', _('Associated pollers'));
+$tpl->assign('headerMenu_status', _('Status'));
+$tpl->assign('headerMenu_options', _('Options'));
 
-$form = new HTML_QuickFormCustom('select_form', 'POST', "?p=" . $p);
+$form = new HTML_QuickFormCustom('select_form', 'POST', '?p=' . $p);
 
 // Different style between each lines
-$style = "one";
+$style = 'one';
 
 // Fill a tab with a multidimensional Array we put in $tpl
 $elemArr = [];
 $centreonToken = createCSRFToken();
 
 for ($i = 0; $resource = $dbResult->fetch(); $i++) {
-    preg_match("\$USER([0-9]*)\$", $resource["resource_name"], $tabResources);
-    $selectedElements = $form->addElement('checkbox', "select[" . $resource['resource_id'] . "]");
-    $moptions = "";
-    if ($resource["resource_activate"]) {
-        $moptions .= "<a href='main.php?p=" . $p . "&resource_id=" . $resource['resource_id'] . "&o=u&limit=" .
-            $limit . "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/disabled.png' " .
-            "class='ico-14 margin_right' border='0' alt='" . _("Disabled") . "'></a>";
+    preg_match('$USER([0-9]*)$', $resource['resource_name'], $tabResources);
+    $selectedElements = $form->addElement('checkbox', 'select[' . $resource['resource_id'] . ']');
+    $moptions = '';
+    if ($resource['resource_activate']) {
+        $moptions .= "<a href='main.php?p=" . $p . '&resource_id=' . $resource['resource_id'] . '&o=u&limit='
+            . $limit . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/disabled.png' "
+            . "class='ico-14 margin_right' border='0' alt='" . _('Disabled') . "'></a>";
     } else {
-        $moptions .= "<a href='main.php?p=" . $p . "&resource_id=" . $resource['resource_id'] . "&o=s&limit=" .
-            $limit . "&num=" . $num . "&search=" . $search . "&centreon_token=" . $centreonToken .
-            "'><img src='img/icons/enabled.png' " .
-            "class='ico-14 margin_right' border='0' alt='" . _("Enabled") . "'></a>";
+        $moptions .= "<a href='main.php?p=" . $p . '&resource_id=' . $resource['resource_id'] . '&o=s&limit='
+            . $limit . '&num=' . $num . '&search=' . $search . '&centreon_token=' . $centreonToken
+            . "'><img src='img/icons/enabled.png' "
+            . "class='ico-14 margin_right' border='0' alt='" . _('Enabled') . "'></a>";
     }
-    $moptions .= "<input onKeypress=\"if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) " .
-        "event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;\" " .
-        "maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
-        $resource['resource_id'] . "]' />";
-    $elemArr[$i] = ["order" => $tabResources[1] ?? null, "MenuClass" => "list_" . $style, "RowMenu_select" => $selectedElements->toHtml(), "RowMenu_name" => CentreonUtils::escapeSecure(
-        $resource["resource_name"],
+    $moptions .= '<input onKeypress="if(event.keyCode > 31 && (event.keyCode < 45 || event.keyCode > 57)) '
+        . 'event.returnValue = false; if(event.which > 31 && (event.which < 45 || event.which > 57)) return false;" '
+        . "maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr["
+        . $resource['resource_id'] . "]' />";
+    $elemArr[$i] = ['order' => $tabResources[1] ?? null, 'MenuClass' => 'list_' . $style, 'RowMenu_select' => $selectedElements->toHtml(), 'RowMenu_name' => CentreonUtils::escapeSecure(
+        $resource['resource_name'],
         CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-    ), "RowMenu_link" => "main.php?p=" . $p . "&o=c&resource_id=" . $resource['resource_id'], "RowMenu_values" => CentreonUtils::escapeSecure(
-        $resource['is_password'] ? PASSWORD_REPLACEMENT_VALUE_LISTING : substr($resource["resource_line"], 0, 40),
+    ), 'RowMenu_link' => 'main.php?p=' . $p . '&o=c&resource_id=' . $resource['resource_id'], 'RowMenu_values' => CentreonUtils::escapeSecure(
+        $resource['is_password'] ? PASSWORD_REPLACEMENT_VALUE_LISTING : substr($resource['resource_line'], 0, 40),
         CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-    ), "RowMenu_comment" => CentreonUtils::escapeSecure(
+    ), 'RowMenu_comment' => CentreonUtils::escapeSecure(
         substr(
             html_entity_decode(
-                $resource["resource_comment"],
+                $resource['resource_comment'],
                 ENT_QUOTES,
-                "UTF-8"
+                'UTF-8'
             ),
             0,
             40
         ),
         CentreonUtils::ESCAPE_ALL_EXCEPT_LINK
-    ), "RowMenu_associated_poller" => getLinkedPollerList($resource['resource_id']), "RowMenu_status" => $resource["resource_activate"] ? _("Enabled") : _("Disabled"), "RowMenu_badge" => $resource["resource_activate"] ? "service_ok" : "service_critical", "RowMenu_options" => $moptions];
-    $style = $style != "two" ? "two" : "one";
+    ), 'RowMenu_associated_poller' => getLinkedPollerList($resource['resource_id']), 'RowMenu_status' => $resource['resource_activate'] ? _('Enabled') : _('Disabled'), 'RowMenu_badge' => $resource['resource_activate'] ? 'service_ok' : 'service_critical', 'RowMenu_options' => $moptions];
+    $style = $style != 'two' ? 'two' : 'one';
 }
 
 $flag = 1;
@@ -150,13 +134,13 @@ while ($flag) {
     $flag = 0;
     foreach ($elemArr as $key => $value) {
         $key1 = $key + 1;
-        if (isset($elemArr[$key + 1]) && $value["order"] > $elemArr[$key + 1]["order"]) {
+        if (isset($elemArr[$key + 1]) && $value['order'] > $elemArr[$key + 1]['order']) {
             $swmapTab = $elemArr[$key + 1];
             $elemArr[$key + 1] = $elemArr[$key];
             $elemArr[$key] = $swmapTab;
             $flag = 1;
-        } elseif (!isset($elemArr[$key + 1]) && isset($elemArr[$key - 1]["order"])) {
-            if ($value["order"] < $elemArr[$key - 1]["order"]) {
+        } elseif (! isset($elemArr[$key + 1]) && isset($elemArr[$key - 1]['order'])) {
+            if ($value['order'] < $elemArr[$key - 1]['order']) {
                 $swmapTab = $elemArr[$key - 1];
                 $elemArr[$key - 1] = $elemArr[$key];
                 $elemArr[$key] = $swmapTab;
@@ -166,11 +150,11 @@ while ($flag) {
     }
 }
 
-$tpl->assign("elemArr", $elemArr);
+$tpl->assign('elemArr', $elemArr);
 // Different messages we put in the template
 $tpl->assign(
     'msg',
-    ["addL" => "main.php?p=" . $p . "&o=a", "addT" => _("Add"), "delConfirm" => _("Do you confirm the deletion ?")]
+    ['addL' => 'main.php?p=' . $p . '&o=a', 'addT' => _('Add'), 'delConfirm' => _('Do you confirm the deletion ?')]
 );
 
 // Toolbar select
@@ -182,21 +166,21 @@ $tpl->assign(
 </script>
 <?php
 foreach (['o1', 'o2'] as $option) {
-    $attrs1 = ['onchange' => "javascript: " .
-        "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('" .
-        _("Do you confirm the duplication ?") . "')) {" .
-        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-        "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('" .
-        _("Do you confirm the deletion ?") . "')) {" .
-        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-        "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {" .
-        " 	setO(this.form.elements['" . $option . "'].value); submit();} " .
-        ""];
+    $attrs1 = ['onchange' => 'javascript: '
+        . "if (this.form.elements['" . $option . "'].selectedIndex == 1 && confirm('"
+        . _('Do you confirm the duplication ?') . "')) {"
+        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
+        . "else if (this.form.elements['" . $option . "'].selectedIndex == 2 && confirm('"
+        . _('Do you confirm the deletion ?') . "')) {"
+        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
+        . "else if (this.form.elements['" . $option . "'].selectedIndex == 3) {"
+        . " 	setO(this.form.elements['" . $option . "'].value); submit();} "
+        . ''];
     $form->addElement(
         'select',
         $option,
         null,
-        [null => _("More actions"), "m" => _("Duplicate"), "d" => _("Delete")],
+        [null => _('More actions'), 'm' => _('Duplicate'), 'd' => _('Delete')],
         $attrs1
     );
     $form->setDefaults([$option => null]);
@@ -212,4 +196,4 @@ $tpl->assign('searchR', $search);
 $renderer = new HTML_QuickForm_Renderer_ArraySmarty($tpl);
 $form->accept($renderer);
 $tpl->assign('form', $renderer->toArray());
-$tpl->display("listResources.ihtml");
+$tpl->display('listResources.ihtml');

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,21 +23,22 @@ declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\AddToken;
 
+use Adaptation\Log\LoggerToken;
 use Assert\AssertionFailedException;
-use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
-use Core\Common\Domain\TrimmedString;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\Token\Application\Exception\TokenException;
 use Core\Security\Token\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Token\Application\Repository\WriteTokenRepositoryInterface;
-use Core\Security\Token\Domain\Model\NewToken;
+use Core\Security\Token\Domain\Model\TokenFactory;
 
 final class AddToken
 {
@@ -54,44 +55,76 @@ final class AddToken
 
     /**
      * @param AddTokenRequest $request
-     * @param AddTokenPresenterInterface $presenter
      */
-    public function __invoke(AddTokenRequest $request, AddTokenPresenterInterface $presenter): void
+    public function __invoke(AddTokenRequest $request): ResponseStatusInterface|StandardResponseInterface
     {
         try {
-            if (! $this->user->hasTopologyRole(Contact::ROLE_ADMINISTRATION_API_TOKENS_RW)) {
-                $this->error(
-                    "User doesn't have sufficient rights to add a token",
-                    ['user_id' => $this->user->getId()]
-                );
-                $presenter->presentResponse(
-                    new ForbiddenResponse(TokenException::addNotAllowed()->getMessage())
-                );
-
-                return;
-            }
-
             $tokenString = $this->createToken($request);
 
-            $presenter->presentResponse(
-                $this->createResponse($tokenString)
+            $response = $this->createResponse($tokenString);
+
+            LoggerToken::create()->success(
+                event: 'creation',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
             );
+
+            return $response;
         } catch (AssertionFailedException|\ValueError $ex) {
-            $presenter->presentResponse(new InvalidArgumentResponse($ex));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+            ExceptionLogger::create()->log($ex, [
+                'user_id' => $this->user->getId(),
+                'token_name' => $request->name,
+                'token_type' => $request->type->name,
+            ]);
+
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'validation error',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
+                exception: $ex
+            );
+
+            return new InvalidArgumentResponse($ex);
         } catch (TokenException $ex) {
-            $presenter->presentResponse(
-                match ($ex->getCode()) {
-                    TokenException::CODE_CONFLICT => new ConflictResponse($ex),
-                    default => new ErrorResponse($ex),
-                }
+            ExceptionLogger::create()->log($ex, [
+                'user_id' => $this->user->getId(),
+                'token_name' => $request->name,
+                'token_type' => $request->type->name,
+            ]);
+
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'conflict error',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
+                exception: $ex
             );
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+
+            return match ($ex->getCode()) {
+                TokenException::CODE_CONFLICT => new ConflictResponse($ex),
+                default => new ErrorResponse($ex),
+            };
         } catch (\Throwable $ex) {
-            $presenter->presentResponse(
-                new ErrorResponse(TokenException::addToken())
+            ExceptionLogger::create()->log($ex, [
+                'user_id' => $this->user->getId(),
+                'token_name' => $request->name,
+                'token_type' => $request->type->name,
+            ]);
+
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'unexpected error',
+                userId: $this->user->getId(),
+                tokenName: $request->name,
+                tokenType: $request->type->name,
+                exception: $ex
             );
-            $this->error((string) $ex);
+
+            return new ErrorResponse(TokenException::addToken());
         }
     }
 
@@ -109,13 +142,16 @@ final class AddToken
         $this->validation->assertIsValidUser($request->userId);
         $this->validation->assertIsValidName($request->name, $request->userId);
 
-        $newToken = new NewToken(
-            expirationDate: \DateTimeImmutable::createFromInterface($request->expirationDate),
-            userId: $request->userId,
-            configurationProviderId: $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),
-            name: new TrimmedString($request->name),
-            creatorId: $this->user->getId(),
-            creatorName: new TrimmedString($this->user->getName()),
+        $newToken = TokenFactory::createNew(
+            $request->type,
+            [
+                'name' => $request->name,
+                'user_id' => $request->userId,
+                'creator_id' => $this->user->getId(),
+                'creator_name' => $this->user->getName(),
+                'expiration_date' => $request->expirationDate,
+                'configuration_provider_id' => $this->providerFactory->create(Provider::LOCAL)->getConfiguration()->getId(),
+            ],
         );
 
         $this->writeTokenRepository->add($newToken);
@@ -134,20 +170,16 @@ final class AddToken
      */
     private function createResponse(string $tokenString): AddTokenResponse
     {
-        if (! ($apiToken = $this->readTokenRepository->find($tokenString))) {
+        if (! ($token = $this->readTokenRepository->find($tokenString))) {
+            LoggerToken::create()->warning(
+                event: 'creation',
+                reason: 'token not retrieved successfully after creation',
+                userId: $this->user->getId(),
+            );
+
             throw TokenException::errorWhileRetrievingObject();
         }
-        $responseDto = new AddTokenResponse();
-        $responseDto->name = $apiToken->getName();
-        $responseDto->userId = $apiToken->getUserId();
-        $responseDto->userName = $apiToken->getUserName();
-        $responseDto->creatorId = $apiToken->getCreatorId();
-        $responseDto->creatorName = $apiToken->getCreatorName();
-        $responseDto->creationDate = $apiToken->getCreationDate();
-        $responseDto->expirationDate = $apiToken->getExpirationDate();
-        $responseDto->token = $tokenString;
-        $responseDto->isRevoked = $apiToken->isRevoked();
 
-        return $responseDto;
+        return new AddTokenResponse($token, $tokenString);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Domain\HostType;
+use Core\Common\Domain\SimpleEntity;
 use Core\Common\Domain\TrimmedString;
 use Core\Common\Domain\YesNoDefault;
 use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
@@ -160,12 +161,13 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function exists(int $hostId): bool
     {
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT 1
-            FROM `:db`.host
-            WHERE host_id = :host_id
-              AND host_register = '1'
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT 1
+                FROM `:db`.host
+                WHERE host_id = :host_id
+                  AND host_register = '1'
+                SQL
         );
 
         $statement = $this->db->prepare($request);
@@ -182,7 +184,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     {
         $this->info('Check existence of hosts', ['host_ids' => $hostIds]);
 
-        if ([] === $hostIds) {
+        if ($hostIds === []) {
             return [];
         }
 
@@ -365,7 +367,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
 
             /** @var array{id: int, name: string, alias: string|null, monitoring_server_id: int} $result */
             foreach ($statement as $result) {
-                $hosts[] = TinyHostFactory::createFromDb($result);
+                $hosts[$result['id']] = TinyHostFactory::createFromDb($result);
             }
         }
 
@@ -445,7 +447,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
@@ -746,6 +748,81 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHostGroup(int $hostGroupId): array
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                SELECT host_id, host_name FROM host
+                INNER JOIN hostgroup_relation
+                ON host_host_id = host_id
+                WHERE hostgroup_hg_id = :hostGroupId
+                AND host.host_register = '1'
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $hostsByHostGroup = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_id: int, host_name: string} $result */
+            $hostsByHostGroup[] = $this->createSimpleEntity($result['host_id'], $result['host_name']);
+        }
+
+        return $hostsByHostGroup;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): array
+    {
+        if ($accessGroups === []) {
+            return [];
+        }
+
+        [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
+            array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
+            ':acl_'
+        );
+        $aclQuery = <<<SQL
+            INNER JOIN `:dbstg`.centreon_acl acl
+                ON acl.host_id = h.host_id
+                AND acl.service_id IS NULL
+                AND acl.group_id IN ({$accessGroupIdsQuery})
+            SQL;
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                SELECT h.host_id, h.host_name
+                FROM host h
+                INNER JOIN hostgroup_relation hgr
+                    ON hgr.host_host_id = h.host_id
+                {$aclQuery}
+                WHERE hostgroup_hg_id = :hostGroupId
+                AND h.host_register = '1'
+                GROUP BY h.host_id
+                SQL
+        ));
+
+        $statement->bindValue(':hostGroupId', $hostGroupId, \PDO::PARAM_INT);
+        foreach ($accessGroupsBindValues as $bindKey => $accessGroupId) {
+            $statement->bindValue($bindKey, $accessGroupId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        $hostsByHostGroup = [];
+        while ($result = $statement->fetch(\PDO::FETCH_ASSOC)) {
+            /** @var array{host_id: int, host_name: string} $result */
+            $hostsByHostGroup[] = $this->createSimpleEntity($result['host_id'], $result['host_name']);
+        }
+
+        return $hostsByHostGroup;
+    }
+
+    /**
      * @param string $accessGroupIdsQuery
      * @param array<string, mixed> $accessGroupsBindValues
      *
@@ -853,7 +930,7 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             iconId: $result['ehi_icon_image'],
             iconAlternative: (string) $result['ehi_icon_image_alt'],
             comment: (string) $result['host_comment'],
-            timezoneId: 0 === $result['host_location'] ? null : $result['host_location'],
+            timezoneId: $result['host_location'] === 0 ? null : $result['host_location'],
             severityId: $result['severity_id'],
             checkCommandId: $result['command_command_id'],
             checkTimeperiodId: $result['timeperiod_tp_id'],
@@ -885,5 +962,17 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
             addInheritedContact: (bool) $result['contact_additive_inheritance'],
             isActivated: (bool) $result['host_activate'],
         );
+    }
+
+    /**
+     * @param int $id
+     * @param string $name
+     *
+     * @throws AssertionFailedException
+     * @return SimpleEntity
+     */
+    private function createSimpleEntity(int $id, string $name): SimpleEntity
+    {
+        return new SimpleEntity($id, new TrimmedString($name), 'Host');
     }
 }

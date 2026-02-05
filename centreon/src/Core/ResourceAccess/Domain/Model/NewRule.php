@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,17 +60,15 @@ class NewRule
         Assertion::notEmptyString($this->name, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
 
-        if ([] !== $linkedContactIds) {
+        if ($linkedContactIds !== []) {
             Assertion::arrayOfTypeOrNull('int', $this->linkedContactIds, "{$shortName}::linkedContactIds");
         }
 
-        if ([] !== $linkedContactGroupIds) {
+        if ($linkedContactGroupIds !== []) {
             Assertion::arrayOfTypeOrNull('int', $this->linkedContactGroupIds, "{$shortName}::linkedContactGroupIds");
         }
 
         Assertion::notEmpty($this->datasetFilters, "{$shortName}::datasetFilters");
-
-        $this->assertContactAndOrContactGroup();
     }
 
     /**
@@ -146,20 +144,4 @@ class NewRule
     {
         return $this->applyToAllContactGroups;
     }
-
-    /**
-     * @throws \InvalidArgumentException
-     */
-    private function assertContactAndOrContactGroup(): void
-    {
-        if (
-            $this->linkedContactIds === []
-            && $this->linkedContactGroupIds === []
-            && $this->applyToAllContacts === false
-            && $this->applyToAllContactGroups === false
-        ) {
-            throw new \InvalidArgumentException('At least one contact or contactgroup should be linked to the rule');
-        }
-    }
 }
-

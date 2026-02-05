@@ -1,13 +1,13 @@
-import { ChangeEvent, useEffect, useMemo } from 'react';
+import { SelectEntry } from '@centreon/ui';
 
 import dayjs from 'dayjs';
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
+import { ChangeEvent, useEffect, useMemo } from 'react';
 
 import {
   labelCustomize,
+  labelLast2Months,
   labelLast3Hours,
   labelLast3Months,
   labelLast6Hours,
@@ -15,6 +15,7 @@ import {
   labelLast7Days,
   labelLast12Hours,
   labelLast12Months,
+  labelLast14Days,
   labelLast24Hours,
   labelLast30Days,
   labelLastHour
@@ -51,8 +52,16 @@ export const options: Array<SelectEntry> = [
     name: labelLast7Days
   },
   {
+    id: 14 * day,
+    name: labelLast14Days
+  },
+  {
     id: month * day,
     name: labelLast30Days
+  },
+  {
+    id: 2 * month * day,
+    name: labelLast2Months
   },
   {
     id: 3 * month * day,
@@ -99,8 +108,8 @@ const useTimePeriod = (propertyName: string): UseTimePeriodState => {
 
     if (equals(newType, -1)) {
       setFieldValue(`options.${propertyName}`, {
-        end: dayjs(),
-        start: dayjs().subtract(1, 'hour'),
+        end: dayjs().toISOString(),
+        start: dayjs().subtract(1, 'hour').toISOString(),
         timePeriodType: newType
       });
 

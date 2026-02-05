@@ -9,7 +9,6 @@ import {
   labelUp,
   labelUpStatusHosts
 } from '../Resources/Host/translatedLabels';
-
 import {
   initialize,
   openSubMenu,

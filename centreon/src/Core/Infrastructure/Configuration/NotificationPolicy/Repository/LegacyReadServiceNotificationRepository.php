@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,15 +119,26 @@ class LegacyReadServiceNotificationRepository extends AbstractDbReadNotification
         ] = $serviceInstance->getCgAndContacts($serviceId);
 
         /**
-         * @var array{service_use_only_contacts_from_host: string}|null $service
+         * @var array{
+         *      service_use_only_contacts_from_host:string
+         * }|null $service
          */
         $service = $serviceInstance->getServiceFromCache($serviceId);
-        if ($service !== null && $service['service_use_only_contacts_from_host'] === '1') {
+
+        if (
+            $service !== null
+            && (
+                $service['service_use_only_contacts_from_host'] === '1'
+                || (
+                    empty($notifiedContactIds) && empty($notifiedContactGroupIds)
+                )
+            )
+        ) {
             $hostInstance = \Host::getInstance($this->dependencyInjector);
-            $host = ['host_id' => $hostId];
-            $hostInstance->processingFromHost($host, false);
-            $notifiedContactIds = $host['contacts_cache'] ?? [];
-            $notifiedContactGroupIds = $host['contact_groups_cache'] ?? [];
+            [
+                'contact' => $notifiedContactIds,
+                'cg' => $notifiedContactGroupIds,
+            ] = $hostInstance->getCgAndContacts($hostId);
         }
 
         if ($accessGroups === []) {

@@ -1,15 +1,14 @@
-import { useCallback, useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { isEmpty, not, prop } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import { Button, CircularProgress } from '@mui/material';
 
 import { TextField } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { isEmpty, not, prop } from 'ramda';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import PasswordEndAdornment from './PasswordEndAdornment';
 import { labelAlias, labelConnect, labelPassword } from './translatedLabels';
@@ -54,7 +53,7 @@ const LoginForm = (): JSX.Element => {
     fieldName: aliasFieldName,
     touched
   });
-  const passwordValue = prop(passwordFieldName, values);
+
   const passwordError = getTouchedError({
     errors,
     fieldName: passwordFieldName,
@@ -75,39 +74,45 @@ const LoginForm = (): JSX.Element => {
   return (
     <form className={classes.form} onSubmit={handleSubmit}>
       <TextField
-        fullWidth
-        required
-        StartAdornment={PersonIcon}
         ariaLabel={labelAlias}
+        dataTestId={labelAlias}
         error={aliasError}
+        fullWidth
         label={t(labelAlias)}
-        value={aliasValue || ''}
         onBlur={handleBlur(aliasFieldName)}
         onChange={handleChange(aliasFieldName)}
+        required
+        StartAdornment={PersonIcon}
+        value={aliasValue || ''}
       />
       <TextField
-        fullWidth
-        required
-        EndAdornment={passwordEndAdornment}
-        StartAdornment={LockIcon}
         ariaLabel={labelPassword}
+        dataTestId={labelPassword}
+        EndAdornment={passwordEndAdornment}
         error={passwordError}
-        inputProps={{
-          'aria-label': t(labelPassword) as string,
-          autocomplete: 'new-password'
-        }}
+        forceUncontrolled
+        fullWidth
         label={t(labelPassword)}
-        type={isVisible ? 'text' : 'password'}
-        value={passwordValue || ''}
         onBlur={handleBlur(passwordFieldName)}
         onChange={handleChange(passwordFieldName)}
+        required
+        StartAdornment={LockIcon}
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelPassword) as string,
+              autoComplete: 'current-password'
+            }
+          }
+        }}
+        type={isVisible ? 'text' : 'password'}
       />
       <Button
-        fullWidth
         aria-label={labelConnect}
         color="primary"
         disabled={isDisabled}
         endIcon={isSubmitting && <CircularProgress color="inherit" size={20} />}
+        fullWidth
         type="submit"
         variant="contained"
       >

@@ -1,14 +1,13 @@
-import { ReactElement, useMemo } from 'react';
-
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   DashboardForm,
   DashboardFormLabels,
   DashboardResource,
   Modal
 } from '@centreon/ui/components';
+
+import { equals } from 'ramda';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelGlobalRefreshInterval,
@@ -27,7 +26,6 @@ import {
   labelUpdate,
   labelUpdateDashboard
 } from '../../../translatedLabels';
-
 import { useDashboardConfig } from './useDashboardConfig';
 
 interface Props {
@@ -87,18 +85,22 @@ const DashboardConfigModal = ({
   );
 
   return (
-    <Modal open={isDialogOpen} onClose={closeDialog}>
+    <Modal
+      closeAfterTransition={false}
+      onClose={closeDialog}
+      open={isDialogOpen}
+    >
       <Modal.Header>{labels.modalTitle[variant]}</Modal.Header>
       <Modal.Body>
         <DashboardForm
           labels={labels.form}
+          onCancel={closeDialog}
+          onSubmit={submit}
           resource={(dashboard as DashboardResource) ?? undefined}
           showRefreshIntervalFields={
             showRefreshIntervalFields && equals(variant, 'update')
           }
           variant={variant}
-          onCancel={closeDialog}
-          onSubmit={submit}
         />
       </Modal.Body>
     </Modal>

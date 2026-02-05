@@ -1,10 +1,10 @@
-import { T, always, cond, equals } from 'ramda';
-
 import MailIcon from '@mui/icons-material/LocalPostOfficeOutlined';
 import SmsIcon from '@mui/icons-material/TextsmsOutlined';
 import { Box, Grid } from '@mui/material';
 
 import type { ComponentColumnProps } from '@centreon/ui';
+
+import { always, cond, equals, T } from 'ramda';
 
 import { ChannelsEnum, ResourcesType, ResourcesTypeEnum } from '../models';
 

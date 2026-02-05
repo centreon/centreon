@@ -1,14 +1,13 @@
-import { Provider, createStore } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
 
 import { Data } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
+import { getMetricsEndpoint } from './api/endpoints';
 import Graph from './Graph';
-import { graphEndpoint } from './api/endpoints';
 import { FormThreshold, ValueFormat } from './models';
 
 const panelData: Data = {
@@ -16,6 +15,8 @@ const panelData: Data = {
     {
       id: 1,
       name: 'Ping_1',
+      serviceId: 1,
+      serviceName: 'Service_1',
       unit: 'ms'
     },
     {
@@ -31,13 +32,22 @@ const panelData: Data = {
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
+    },
+    {
+      resources: [
+        {
+          id: 1,
+          name: 'Service_1'
+        }
+      ],
+      resourceType: 'service'
     }
   ]
 };
@@ -46,25 +56,30 @@ const diskUsedMetricData: Data = {
   metrics: [
     {
       id: 1,
-      metrics: [
-        {
-          id: 1,
-          name: 'disk_used',
-          unit: 'B'
-        }
-      ],
-      name: 'Disk'
+      name: 'Disk',
+      serviceId: 1,
+      serviceName: 'Service_1',
+      unit: 'B'
     }
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
+    },
+    {
+      resources: [
+        {
+          id: 1,
+          name: 'Service_1'
+        }
+      ],
+      resourceType: 'service'
     }
   ]
 };
@@ -103,7 +118,37 @@ const warningThreshold: FormThreshold = {
 
 const emptyServiceMetrics: Data = {
   metrics: [],
-  resources: []
+  resources: [
+    {
+      resources: [],
+      resourceType: 'host'
+    },
+    {
+      resources: [],
+      resourceType: 'service'
+    }
+  ]
+};
+
+const metaServiceData: Data = {
+  metrics: [
+    {
+      id: 1,
+      name: 'free',
+      unit: ''
+    }
+  ],
+  resources: [
+    {
+      resources: [
+        {
+          id: 1,
+          name: 'M1'
+        }
+      ],
+      resourceType: 'meta-service'
+    }
+  ]
 };
 
 interface Props {
@@ -127,7 +172,7 @@ const initializeComponent = ({
     threshold: defaultThreshold,
     valueFormat: 'human'
   },
-  fixture = 'Widgets/Graph/lineChart.json',
+  fixture = 'Widgets/Graph/metrics.json',
   isPublic = false
 }: Props): void => {
   const store = createStore();
@@ -139,7 +184,7 @@ const initializeComponent = ({
     cy.interceptAPIRequest({
       alias: 'getLineChart',
       method: Method.GET,
-      path: `${graphEndpoint}**`,
+      path: `${getMetricsEndpoint({ hostId: 1, metricName: data.metrics?.[0]?.name, serviceId: 1 })}**`,
       response: lineChart
     });
 
@@ -151,6 +196,13 @@ const initializeComponent = ({
         playlistHash: 'hash',
         widgetId: '1'
       })}`,
+      response: lineChart
+    });
+
+    cy.interceptAPIRequest({
+      alias: 'getMetaServiceChart',
+      method: Method.GET,
+      path: '**monitoring/metaservice/1/metrics/free',
       response: lineChart
     });
   });
@@ -305,7 +357,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'text',
           threshold: defaultThreshold,
@@ -313,13 +365,13 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'text',
           threshold: defaultThreshold,
@@ -426,7 +478,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'bar',
           threshold: defaultThreshold,
@@ -434,13 +486,13 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'bar',
           threshold: defaultThreshold,
@@ -536,7 +588,7 @@ describe('Single metric Widget', () => {
     it('display the metric value as human readable', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'gauge',
           threshold: defaultThreshold,
@@ -544,13 +596,13 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
       initializeComponent({
         data: diskUsedMetricData,
-        fixture: 'Widgets/Graph/chartWithBytes.json',
+        fixture: 'Widgets/Graph/metricWithBytUnit.json',
         options: {
           displayType: 'gauge',
           threshold: defaultThreshold,
@@ -560,5 +612,13 @@ describe('Single metric Widget', () => {
 
       cy.contains('340032.4232 B').should('be.visible');
     });
+  });
+
+  it('sends a request with meta-service when the corresponding data is provided', () => {
+    initializeComponent({
+      data: metaServiceData
+    });
+
+    cy.waitForRequest('@getMetaServiceChart');
   });
 });

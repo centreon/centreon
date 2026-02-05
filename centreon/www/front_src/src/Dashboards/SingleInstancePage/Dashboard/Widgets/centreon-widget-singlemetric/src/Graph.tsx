@@ -1,6 +1,3 @@
-import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
-
 import {
   ContentWithCircularLoading,
   useGraphQuery,
@@ -8,14 +5,20 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import NoResources from '../../NoResources';
-import { GlobalRefreshInterval, Metric, Resource } from '../../models';
-import useThresholds from '../../useThresholds';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import { useAtomValue } from 'jotai';
+import { equals, isNil, last } from 'ramda';
 
-import SingleMetricRenderer from './SingleMetricRenderer';
-import { graphEndpoint } from './api/endpoints';
+import { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import NoResources from '../../NoResources';
+import useThresholds from '../../useThresholds';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
+import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
   dashboardId: number | string;
@@ -57,12 +60,39 @@ const Graph = ({
     refreshIntervalCustom
   });
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(resources);
+
   const metricId = metrics[0]?.id;
   const metricName = metrics[0]?.name;
 
+  const getServiceId = () => {
+    const service = last(
+      resources.find(({ resourceType }) => equals(resourceType, 'service'))
+        ?.resources || []
+    );
+
+    if (isMetaServiceSelected) {
+      return resources[0]?.resources[0]?.id;
+    }
+
+    return metrics.find(({ serviceName }) => equals(serviceName, service?.name))
+      ?.serviceId;
+  };
+
+  const hostId = last(
+    resources.find(({ resourceType }) => !equals(resourceType, 'service'))
+      ?.resources || []
+  )?.id;
+
   const baseEndpoint = getWidgetEndpoint({
     dashboardId,
-    defaultEndpoint: graphEndpoint,
+    defaultEndpoint: selectEndpoint({
+      hostId,
+      idForService: getServiceId(),
+      isMetaServiceSelected,
+      metricName
+    }),
+    displayType,
     isOnPublicPage,
     playlistHash,
     widgetId: id
@@ -71,7 +101,8 @@ const Graph = ({
   const { graphData, isGraphLoading, isMetricsEmpty } = useGraphQuery({
     baseEndpoint,
     bypassMetricsExclusion: true,
-    bypassQueryParams: isOnPublicPage,
+    bypassQueryParams: true,
+    isEnabled: Boolean(hostId && (getServiceId() || isMetaServiceSelected)),
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,
@@ -81,9 +112,20 @@ const Graph = ({
 
   const displayAsRaw = equals('raw')(valueFormat);
 
+  const formattedGraphData = graphData
+    ? {
+        ...graphData,
+        metrics: graphData?.metrics?.map((metric) => ({
+          ...metric,
+          data: [metric?.current_value]
+        }))
+      }
+    : undefined;
+
   const formattedThresholds = useThresholds({
-    data: graphData,
+    data: formattedGraphData,
     displayAsRaw,
+    isMetaServiceSelected,
     metricName,
     thresholds: threshold
   });
@@ -92,20 +134,22 @@ const Graph = ({
 
   if (
     !areResourcesOk ||
-    isMetricsEmpty ||
+    (!isMetaServiceSelected && isMetricsEmpty) ||
     (isFromPreview && isGraphLoading && isNil(graphData))
   ) {
     return <NoResources />;
   }
 
-  const filteredGraphData = graphData
+  const filteredGraphData = formattedGraphData
     ? {
-        ...graphData,
-        metrics: graphData.metrics.filter((metric) =>
-          equals(metricId, metric.metric_id)
-        )
+        ...formattedGraphData,
+        metrics: isMetaServiceSelected
+          ? formattedGraphData.metrics
+          : formattedGraphData.metrics.filter((metric) =>
+              equals(metricId, metric.metric_id)
+            )
       }
-    : graphData;
+    : formattedGraphData;
 
   const props = {
     baseColor: threshold.baseColor,
@@ -117,7 +161,7 @@ const Graph = ({
   return (
     <ContentWithCircularLoading
       alignCenter
-      loading={isFromPreview && isGraphLoading}
+      loading={(isFromPreview && isGraphLoading) || false}
     >
       <SingleMetricRenderer
         graphProps={props}

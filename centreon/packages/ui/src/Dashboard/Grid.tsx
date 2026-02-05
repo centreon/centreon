@@ -1,12 +1,10 @@
-import { ReactElement, useMemo } from 'react';
+import { useTheme } from '@mui/material';
 
 import { scaleLinear } from '@visx/scale';
 import { Grid as VisxGrid } from '@visx/visx';
-
-import { useTheme } from '@mui/material';
+import { type ReactElement, useMemo } from 'react';
 
 import { useMemoComponent } from '../utils';
-
 import { maxColumns, rowHeight } from './utils';
 
 interface Props {
@@ -27,7 +25,7 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
     [width]
   );
 
-  const numberOfRows = Math.floor(height / (rowHeight + 16));
+  const numberOfRows = Math.floor(height / (rowHeight + 8));
 
   const yScale = useMemo(
     () =>
@@ -35,7 +33,7 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
         domain: [0, numberOfRows],
         range: [0, height]
       }),
-    [height]
+    [height, numberOfRows]
   );
 
   const tick = maxColumns / columns;
@@ -53,13 +51,13 @@ const Grid = ({ width, height, columns }: Props): ReactElement => {
       <svg style={{ height, position: 'absolute', width }}>
         <VisxGrid.Grid
           columnTickValues={xTickValues}
-          rowTickValues={yTickValues}
           height={height}
-          yScale={yScale}
-          xScale={xScale}
+          left={-8}
+          rowTickValues={yTickValues}
           stroke={theme.palette.divider}
-          top={-10}
           width={width}
+          xScale={xScale}
+          yScale={yScale}
         />
       </svg>
     ),

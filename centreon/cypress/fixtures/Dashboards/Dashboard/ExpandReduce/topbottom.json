@@ -1,0 +1,58 @@
+{
+  "name": "load15",
+  "unit": "",
+  "resources": [
+      {
+          "id": 312,
+          "name": "Load",
+          "parent_name": "test-host2",
+          "uuid": "h45-s312",
+          "current_value": 0.29,
+          "warning_high_threshold": 2,
+          "critical_high_threshold": 4,
+          "warning_low_threshold": 0,
+          "critical_low_threshold": 0,
+          "min": 0,
+          "max": null
+      },
+      {
+          "id": 336,
+          "name": "Load",
+          "parent_name": "sfarouq",
+          "uuid": "h48-s336",
+          "current_value": 0.3,
+          "warning_high_threshold": 2,
+          "critical_high_threshold": 4,
+          "warning_low_threshold": 0,
+          "critical_low_threshold": 0,
+          "min": 0,
+          "max": null
+      },
+      {
+          "id": 298,
+          "name": "Load",
+          "parent_name": "central",
+          "uuid": "h42-s298",
+          "current_value": 0.32,
+          "warning_high_threshold": 2,
+          "critical_high_threshold": 4,
+          "warning_low_threshold": 0,
+          "critical_low_threshold": 0,
+          "min": 0,
+          "max": null
+      },
+      {
+          "id": 363,
+          "name": "Load",
+          "parent_name": "central_Change_status",
+          "uuid": "h50-s363",
+          "current_value": 0.34,
+          "warning_high_threshold": 2,
+          "critical_high_threshold": 4,
+          "warning_low_threshold": 0,
+          "critical_low_threshold": 0,
+          "min": 0,
+          "max": null
+      }
+  ]
+}

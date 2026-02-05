@@ -1,8 +1,13 @@
-import { type ChangeEvent, useState } from 'react';
+import type { SelectEntry } from '@centreon/ui';
+import {
+  federatedWidgetsAtom,
+  platformFeaturesAtom
+} from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
+  compose,
   equals,
   filter,
   find,
@@ -10,14 +15,15 @@ import {
   isEmpty,
   isNil,
   map,
+  prop,
   propEq,
   reduce,
   reject,
+  sortBy,
+  toLower,
   toPairs
 } from 'ramda';
-
-import type { SelectEntry } from '@centreon/ui';
-import { federatedWidgetsAtom } from '@centreon/ui-context';
+import { type ChangeEvent, useMemo, useState } from 'react';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../../federatedModules/atoms';
 import type {
@@ -25,16 +31,14 @@ import type {
   FederatedWidgetOption,
   FederatedWidgetProperties
 } from '../../../../../federatedModules/models';
+import usePlatformVersions from '../../../../../Main/usePlatformVersions';
 import { isGenericText } from '../../utils';
 import {
   customBaseColorAtom,
-  singleMetricSelectionAtom,
   singleResourceSelectionAtom,
   widgetPropertiesAtom
 } from '../atoms';
-import type { Widget } from '../models';
-
-import { platformFeaturesAtom } from '@centreon/ui-context';
+import { type Widget, WidgetType } from '../models';
 
 interface UseWidgetSelectionState {
   options: Array<SelectEntry>;
@@ -86,28 +90,39 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
   const federatedWidgetsProperties = useAtomValue(
     federatedWidgetsPropertiesAtom
   );
-  const setSingleMetricSection = useSetAtom(singleMetricSelectionAtom);
   const setSingleResourceSelection = useSetAtom(singleResourceSelectionAtom);
   const setCustomBaseColor = useSetAtom(customBaseColorAtom);
   const setWidgetProperties = useSetAtom(widgetPropertiesAtom);
 
   const { setValues, values, setTouched } = useFormikContext<Widget>();
 
+  const { getWidgets } = usePlatformVersions();
+
+  const widgets = useMemo(() => getWidgets(), []);
+
   const isCloudPlatform = platformFeatures?.isCloudPlatform;
 
+  const installedWidgets = useMemo(
+    () =>
+      federatedWidgetsProperties?.filter(({ moduleName }) =>
+        widgets?.includes(moduleName)
+      ),
+    [federatedWidgetsProperties, widgets]
+  );
   const availableWidgetsProperties = reject((widget) => {
     return isCloudPlatform && widget?.availableOnPremOnly;
-  }, federatedWidgetsProperties || []);
+  }, installedWidgets || []);
 
   const filteredWidgets = filter(
-    ({ title }) => title?.includes(search),
+    ({ title }) => toLower(title)?.includes(toLower(search)),
     availableWidgetsProperties || []
   );
 
   const formattedWidgets = map(
-    ({ title, moduleName }) => ({
+    ({ title, moduleName, widgetType }) => ({
       id: moduleName,
-      name: title
+      name: title,
+      widgetType
     }),
     filteredWidgets
   );
@@ -171,17 +186,34 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     }, {});
 
     const data = Object.entries(selectedWidgetProperties.data || {}).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: value.defaultValue
-      }),
+      (acc, [key, value]) => {
+        if (value?.selectType) {
+          const selectedTypes = value.selectType.defaultResourceType;
+          return {
+            ...acc,
+            [key]: selectedTypes.map(({ resourceType }, index) => {
+              return {
+                [key]: Array.isArray(value.defaultValue)
+                  ? value.defaultValue[index] || []
+                  : value.defaultValue,
+                resourceType
+              };
+            })
+          };
+        }
+
+        return {
+          ...acc,
+          [key]: value.defaultValue
+        };
+      },
       {}
     );
+
     const shouldResetDescription =
       equals(values.moduleName, 'centreon-widget-generictext') &&
       !isGenericText(selectedWidget.federatedComponentsConfiguration[0].path);
 
-    setSingleMetricSection(selectedWidgetProperties.singleMetricSelection);
     setSingleResourceSelection(
       selectedWidgetProperties.singleResourceSelection
     );
@@ -195,7 +227,9 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
         ...options,
         ...properties,
         description:
-          shouldResetDescription || isNil(currentValues.options.description)
+          shouldResetDescription ||
+          isNil(currentValues.options.description) ||
+          isEmpty(currentValues.options.description)
             ? {
                 content: null,
                 enabled: true
@@ -211,11 +245,24 @@ const useWidgetSelection = (): UseWidgetSelectionState => {
     equals(values.moduleName, id)
   );
 
+  const filterByType = (type) => {
+    return formattedWidgets.filter(({ widgetType }) =>
+      equals(widgetType, type)
+    );
+  };
+  const sortByNameCaseInsensitive = sortBy(compose(toLower, prop('name')));
+
+  const formattedWidgetsByGroupTitle = [
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.Generic)),
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.RealTime)),
+    ...sortByNameCaseInsensitive(filterByType(WidgetType.MBI))
+  ];
+
   return {
-    options: formattedWidgets,
+    options: formattedWidgetsByGroupTitle,
     searchWidgets,
-    selectWidget,
     selectedWidget,
+    selectWidget,
     widgets: filteredWidgets
   };
 };

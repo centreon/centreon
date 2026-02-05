@@ -1,15 +1,14 @@
-import { MouseEvent, useEffect, useRef, useState } from 'react';
-
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { equals, flatten, isEmpty, isNil, length } from 'ramda';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { makeStyles } from 'tss-react/mui';
-
 import { ListItem, useTheme } from '@mui/material';
 import List from '@mui/material/List';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { equals, flatten, isEmpty, isNil, length } from 'ramda';
+import { MouseEvent, useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 import { Page } from '../../models';
 import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
@@ -19,10 +18,9 @@ import {
   selectedNavigationItemsAtom,
   setHoveredNavigationItemsDerivedAtom
 } from '../sideBarAtoms';
-
 import CollapsibleItems from './CollapsibleItems';
-import MenuItems from './MenuItems';
 import icons from './icons';
+import MenuItems from './MenuItems';
 
 interface Props {
   isDrawerOpen: boolean;
@@ -305,9 +303,9 @@ const NavigationMenu = ({
     Component: (
       <List
         className={classes.list}
-        ref={menuRef}
         onMouseEnter={discardTimeout}
         onMouseLeave={handleLeave}
+        ref={menuRef}
       >
         {navigationData?.map((item, index) => {
           const MenuIcon = !isNil(item?.icon) && icons[item.icon];
@@ -321,13 +319,13 @@ const NavigationMenu = ({
           return (
             <ListItem disablePadding key={item.label}>
               <MenuItems
-                isRoot
                 data={item}
                 hover={hover}
                 icon={<MenuIcon className={classes.icon} />}
                 isDoubleClickedFromRoot={isDoubleClickedFromRoot}
                 isDrawerOpen={isDrawerOpen}
                 isOpen={index === hoveredIndex}
+                isRoot
                 onClick={(): void => handleClickItem(item)}
                 onLeaveMenuItem={leaveMenuItem}
                 onMouseEnter={(e: MouseEvent<HTMLElement>): void =>

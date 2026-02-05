@@ -1,11 +1,11 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given } from '@badeball/cypress-cucumber-preprocessor';
 
-import { Contact, durationMap } from '../common';
+import { Contact } from '../common';
 
-const tokenName = '';
+// const tokenName = '';
 
 // starting from the User_1
-const userId = 20;
+// const userId = 20;
 
 before(() => {
   cy.startContainers();
@@ -34,8 +34,8 @@ after(() => {
 
 Given('I am logged in as an administrator', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
-  cy.get('.MuiAlert-message').then(($snackbar) => {
-    if ($snackbar.text().includes('Login succeeded')) {
+  cy.get('.MuiAlert-message').then((snackbar) => {
+    if (snackbar.text().includes('Login succeeded')) {
       cy.get('.MuiAlert-message').should('not.be.visible');
     }
   });

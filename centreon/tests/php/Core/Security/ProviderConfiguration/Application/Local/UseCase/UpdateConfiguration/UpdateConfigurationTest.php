@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,29 +39,19 @@ use PHPUnit\Framework\TestCase;
 
 class UpdateConfigurationTest extends TestCase
 {
-    /**
-     * @var WriteConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteConfigurationRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $writeConfigurationRepository;
 
-    /**
-     * @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ReadUserRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $readUserRepository;
 
-    /**
-     * @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var UpdateConfigurationPresenterInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $presenter;
 
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationFactoryInterface $providerAuthenticationFactory;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject */
     private $provider;
 
     public function setUp(): void

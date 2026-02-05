@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,14 @@ interface ReadVaultRepositoryInterface
      * @return array<string,string>
      */
     public function findFromPath(string $path): array;
+
+    /**
+     * Get Vault content from given paths.
+     *
+     * @param array<int, string> $paths list of paths to get indexed by resource ID
+     * @return array<int, array<string,string>> vault content indexed by resource ID
+     */
+    public function findFromPaths(array $paths): array;
 
     /**
      * Test a vault configuration validity.

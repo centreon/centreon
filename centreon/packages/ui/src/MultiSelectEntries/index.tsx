@@ -1,12 +1,10 @@
-/* eslint-disable react/prop-types */
-
-import { Ref } from 'react';
-
-import { CxArg } from 'tss-react';
-import { makeStyles } from 'tss-react/mui';
-
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
 import IconCreate from '@mui/icons-material/Create';
 import { Box, Chip, FormHelperText, Grid, Typography } from '@mui/material';
+
+import type { Ref } from 'react';
+import type { CxArg } from 'tss-react';
+import { makeStyles } from 'tss-react/mui';
 
 import useHover from './useHover';
 
@@ -63,7 +61,7 @@ const EntryChip = ({
   const { classes } = useStyles();
 
   return (
-    <Grid item xs={gridWidth}>
+    <Grid item size={gridWidth}>
       <Chip
         className={classes.chip}
         label={<div className={classes.labelChip}>{label}</div>}
@@ -133,9 +131,9 @@ const MultiSelectEntries = ({
         [classes.hovered]: (isHovered as boolean) || highlight,
         [classes.container]: true
       } as CxArg)}
-      ref={hoverRef as Ref<HTMLDivElement>}
       onClick={onClick}
       onKeyDown={onClick}
+      ref={hoverRef as Ref<HTMLDivElement>}
     >
       <Box display="flex">
         <Box flexGrow={1}>

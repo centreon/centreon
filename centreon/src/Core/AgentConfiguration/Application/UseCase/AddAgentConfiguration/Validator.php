@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,7 @@ class Validator
      */
     public function validatePollersOrFail(AddAgentConfigurationRequest $request): void
     {
-        if ([] === $request->pollerIds) {
+        if ($request->pollerIds === []) {
             throw AgentConfigurationException::arrayCanNotBeEmpty('pollerIds');
         }
 
@@ -113,7 +113,7 @@ class Validator
                 $isPollerIdValid = $this->readMonitoringServerRepository->existsByAccessGroups($pollerId, $agentConfigurationcessGroups);
             }
 
-            if (false === $isPollerIdValid) {
+            if ($isPollerIdValid === false) {
                 $invalidPollers[] = $pollerId;
             }
         }
@@ -130,7 +130,7 @@ class Validator
                 $this->readAcRepository->findPollersByType($type)
             );
         }
-        $pollerIds = array_map(fn(Poller $poller) => $poller->id, $unavailablePollers);
+        $pollerIds = array_map(fn (Poller $poller) => $poller->id, $unavailablePollers);
 
         if ([] !== $invalidPollers = array_intersect($pollerIds, $request->pollerIds)) {
             throw AgentConfigurationException::alreadyAssociatedPollers($invalidPollers);
@@ -146,7 +146,7 @@ class Validator
      */
     public function validateTypeOrFail(AddAgentConfigurationRequest $request): void
     {
-        $type = Type::from($request->type);
+        Type::from($request->type);
     }
 
     /**

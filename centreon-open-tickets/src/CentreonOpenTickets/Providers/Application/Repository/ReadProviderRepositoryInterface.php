@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,15 +25,16 @@ namespace CentreonOpenTickets\Providers\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use CentreonOpenTickets\Providers\Domain\Model\Provider;
+use Core\Common\Domain\Exception\RepositoryException;
 
 interface ReadProviderRepositoryInterface
 {
     /**
-     * @param RequestParametersInterface|null $requestParameters
+     * @param RequestParametersInterface $requestParameters
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      *
      * @return Provider[]
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array;
+    public function findAll(RequestParametersInterface $requestParameters): array;
 }

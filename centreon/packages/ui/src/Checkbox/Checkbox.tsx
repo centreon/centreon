@@ -1,9 +1,9 @@
-import { T, always, cond, equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
-import { SvgIconComponent } from '@mui/icons-material';
+import type { SvgIconComponent } from '@mui/icons-material';
 import { Box, FormControlLabel, Checkbox as MuiCheckbox } from '@mui/material';
-import Typography, { TypographyProps } from '@mui/material/Typography';
+import Typography, { type TypographyProps } from '@mui/material/Typography';
+
+import { always, cond, equals, T } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
 
@@ -55,12 +55,14 @@ interface Props {
   dataTestId?: string;
   disabled?: boolean;
   label: string;
+  id: string;
   labelPlacement?: LabelPlacement;
   labelProps?: TypographyProps;
   onChange?: (e) => void;
 }
 
 const Checkbox = ({
+  id,
   Icon,
   checked,
   label,
@@ -86,10 +88,10 @@ const Checkbox = ({
             className={classes.checkbox}
             color="primary"
             disabled={disabled}
-            id={label}
+            id={id}
+            onChange={onChange}
             size="small"
             sx={{ padding: 0 }}
-            onChange={onChange}
           />
         }
         data-testid={dataTestId || ''}

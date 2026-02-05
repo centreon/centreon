@@ -1,21 +1,17 @@
-import { inc } from 'ramda';
-import { Link } from 'react-router-dom';
-
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import { LineChartData, SingleBar } from '@centreon/ui';
-import { Tooltip } from '@centreon/ui/components';
+
+import { Link } from 'react-router';
 
 import { FormThreshold } from '../../models';
 import useThresholds from '../../useThresholds';
 import { getResourcesUrlForMetricsWidgets } from '../../utils';
-
-import { useTopBottomStyles } from './TopBottom.styles';
 import { Resource } from './models';
+import { useTopBottomStyles } from './TopBottom.styles';
 
 interface MetricTopProps {
   displayAsRaw: boolean;
-  index: number;
   isFromPreview?: boolean;
   metricTop: Resource;
   showLabels: boolean;
@@ -25,7 +21,6 @@ interface MetricTopProps {
 
 const MetricTop = ({
   metricTop,
-  index,
   unit,
   thresholds,
   displayAsRaw,
@@ -63,43 +58,23 @@ const MetricTop = ({
   });
 
   return (
-    <>
-      <Typography className={classes.resourceLabel}>
-        <Tooltip
-          followCursor={false}
-          label={`${metricTop.parentName}_${metricTop.name}`}
-          placement="top"
-        >
-          <Link
-            className={classes.linkToResourcesStatus}
-            data-testid={`link to ${metricTop?.name}`}
-            target="_blank"
-            to={getResourcesUrlForMetricsWidgets(metricTop)}
-          >
-            <strong>
-              #{inc(index)} {`${metricTop.parentName}_${metricTop.name}`}
-            </strong>
-          </Link>
-        </Tooltip>
-      </Typography>
-      <Box className={classes.singleBarContainer} style={{ height: 50 }}>
-        <Link
-          className={classes.linkToResourcesStatus}
-          data-testid={`link to ${metricTop?.name}`}
-          target="_blank"
-          to={getResourcesUrlForMetricsWidgets(metricTop)}
-          onClick={(e) => isFromPreview && e.preventDefault()}
-        >
-          <SingleBar
-            data={formattedData}
-            displayAsRaw={displayAsRaw}
-            showLabels={showLabels}
-            size="small"
-            thresholds={formattedThresholds}
-          />
-        </Link>
-      </Box>
-    </>
+    <Box className={classes.singleBarContainer}>
+      <Link
+        className={classes.linkToResourcesStatus}
+        data-testid={`link to ${metricTop?.name}`}
+        onClick={(e) => isFromPreview && e.preventDefault()}
+        target="_blank"
+        to={getResourcesUrlForMetricsWidgets(metricTop)}
+      >
+        <SingleBar
+          data={formattedData}
+          displayAsRaw={displayAsRaw}
+          showLabels={showLabels}
+          size="small"
+          thresholds={formattedThresholds}
+        />
+      </Link>
+    </Box>
   );
 };
 

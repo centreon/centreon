@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { alpha } from '@mui/system';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   header: {
@@ -9,8 +9,8 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row',
     h1: {
-      font: 'normal normal 600 24px/24px Roboto',
-      letterSpacing: '0.18px',
+      ...theme.typography.h5,
+      fontWeight: theme.typography.fontWeightMedium,
       margin: theme.spacing(0, 0, 1.5, 0)
     },
     justifyContent: 'space-between',
@@ -25,10 +25,10 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeader: {
     alignItems: 'center',
-    borderBottom: `1px solid ${theme.palette.header.page.border}`,
+    borderBottom: `2px solid ${theme.palette.header.page.border}`,
     display: 'flex',
     gap: theme.spacing(4),
-    paddingBottom: theme.spacing(1.5)
+    paddingBottom: theme.spacing(0.5)
   },
   pageHeaderActions: {
     '& > button': {
@@ -51,6 +51,7 @@ const useStyles = makeStyles()((theme) => ({
   },
   pageHeaderMenu: {
     alignItems: 'flex-start',
+    alignSelf: 'center',
     display: 'flex',
     position: 'relative',
     transform: `translateY(-${theme.spacing(0.25)})`
@@ -85,21 +86,18 @@ const useStyles = makeStyles()((theme) => ({
       display: 'grid'
     },
     '& > span': {
+      alignItems: 'center',
       display: 'flex',
       flexDirection: 'row',
-
       gap: theme.spacing(2)
     },
+    alignSelf: 'flex-start',
     display: 'flex',
-
     flexDirection: 'column',
-
-    gap: theme.spacing(1),
-
     h1: {
-      color: theme.palette.header.page.title,
-      font: 'normal normal 700 24px/100% Roboto',
-      letterSpacing: '0.15px',
+      ...theme.typography.h5,
+      fontWeight: theme.typography.fontWeightBold,
+      lineHeight: '1',
       margin: theme.spacing(0)
     }
   },
@@ -110,12 +108,12 @@ const useStyles = makeStyles()((theme) => ({
     },
     alignItems: 'bottom',
     display: 'flex',
-    gap: theme.spacing(1)
+    gap: theme.spacing(1),
+    paddingTop: theme.spacing(0.5)
   },
   pageHeaderTitleDescription: {
     color: theme.palette.header.page.description,
-    font: 'normal normal 400 12px/16px Roboto',
-    letterSpacing: '0.15px',
+    lineHeight: '1.8',
     maxWidth: '560px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',

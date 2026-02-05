@@ -1,9 +1,9 @@
-import type { RefObject } from 'react';
+import type { Interval } from '@centreon/ui';
 
-import { path, equals, isNil, last, not, pipe } from 'ramda';
+import { equals, isNil, last, not, path, pipe } from 'ramda';
+import type { RefObject } from 'react';
 import { makeStyles } from 'tss-react/mui';
 
-import type { Interval } from '@centreon/ui';
 import type { MousePosition } from '../../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import type { Resource } from '../../../models';
 import ChartGraph from '../Graph/ChartGraph';
@@ -23,12 +23,10 @@ export interface ResourceGraphMousePosition {
 
 const useStyles = makeStyles()((theme) => ({
   graph: {
-    columnGap: '8px',
+    columnGap: theme.spacing(1.5),
     display: 'grid',
-    gridTemplateColumns: `repeat(auto-fill, minmax(${theme.spacing(
-      40
-    )}, auto))`,
-    rowGap: '8px'
+    gridTemplateColumns: `repeat(auto-fit, minmax(${theme.spacing(40)}, 1fr))`,
+    rowGap: theme.spacing(1.5)
   }
 }));
 
@@ -53,8 +51,8 @@ const ServiceGraphs = ({
         return (
           <div key={id}>
             <ChartGraph
-              resource={service}
               graphTimeParameters={graphTimeParameters}
+              resource={service}
               updatedGraphInterval={updateGraphInterval}
             />
             {isLastService && <div ref={infiniteScrollTriggerRef} />}

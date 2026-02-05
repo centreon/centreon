@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,13 +53,13 @@ use Security\Interfaces\EncryptionInterface;
  */
 class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccRepositoryInterface
 {
-    use RepositoryTrait, MonitoringServerRepositoryTrait;
+    use RepositoryTrait;
+    use MonitoringServerRepositoryTrait;
 
     public function __construct(
         private readonly EncryptionInterface $encryption,
-        DatabaseConnection $db
-    )
-    {
+        DatabaseConnection $db,
+    ) {
         $this->db = $db;
     }
 
@@ -154,171 +154,6 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
         $statement->execute();
 
         // Retrieve data
-        $pollers = [];
-        foreach ($statement as $result) {
-            /** @var array{id:int,name:string} $result */
-            $pollers[] = new Poller($result['id'], $result['name']);
-        }
-
-        return $pollers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAvailablePollersByType(
-        Type $type,
-        ?RequestParametersInterface $requestParameters = null
-    ): array {
-
-        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-
-        $request = <<<'SQL_WRAP'
-            SELECT SQL_CALC_FOUND_ROWS
-                ng.`id`,
-                ng.`name`
-            FROM `:db`.`nagios_server` ng
-            LEFT JOIN `:db`.`acc_poller_relation` rel
-                ON rel.poller_id = ng.id
-            LEFT JOIN `:db`.`additional_connector_configuration` acc
-                ON rel.acc_id = acc.id
-            SQL_WRAP;
-
-        // Search
-        $request .= $search = $sqlTranslator?->translateSearchParameterToSql();
-        $request .= $search !== null
-            ? ' AND (acc.`type` != :type OR acc.`type` IS NULL)'
-            : ' WHERE (acc.`type` != :type OR acc.`type` IS NULL)';
-
-        // Sort
-        $sortRequest = $sqlTranslator?->translateSortParameterToSql();
-        $request .= ! is_null($sortRequest)
-            ? $sortRequest
-            : ' ORDER BY ng.id ASC';
-
-        // Pagination
-        $request .= $sqlTranslator?->translatePaginationToSql();
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        $statement->bindValue(':type', $type->value, \PDO::PARAM_STR);
-        if ($sqlTranslator !== null) {
-            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-                $type = key($data);
-                if ($type !== null) {
-                    $value = $data[$type];
-                    $statement->bindValue($key, $value, $type);
-                }
-            }
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        if ($sqlTranslator !== null) {
-            // Set total
-            $result = $this->db->query('SELECT FOUND_ROWS()');
-            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-                $sqlTranslator->getRequestParameters()->setTotal((int) $total);
-            }
-        }
-
-        $pollers = [];
-        foreach ($statement as $result) {
-            /** @var array{id:int,name:string} $result */
-            $pollers[] = new Poller($result['id'], $result['name']);
-        }
-
-        return $pollers;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function findAvailablePollersByTypeAndAccessGroup(
-        Type $type,
-        array $accessGroups,
-        ?RequestParametersInterface $requestParameters = null
-    ): array
-    {
-        if ($accessGroups === []) {
-            return [];
-        }
-
-        $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
-            $accessGroups
-        );
-
-        if (! $this->hasRestrictedAccessToMonitoringServers($accessGroupIds)) {
-            return $this->findAvailablePollersByType($type, $requestParameters);
-        }
-
-        [$accessGroupsBindValues, $accessGroupIdsQuery] = $this->createMultipleBindQuery(
-            array_map(fn (AccessGroup $accessGroup) => $accessGroup->getId(), $accessGroups),
-            ':acl_'
-        );
-
-        $sqlTranslator = $requestParameters ? new SqlRequestParametersTranslator($requestParameters) : null;
-
-        $request = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS
-                ng.`id`,
-                ng.`name`
-            FROM `:db`.`nagios_server` ng
-            LEFT JOIN `:db`.`acc_poller_relation` rel
-                ON rel.poller_id = ng.id
-            LEFT JOIN `:db`.`additional_connector_configuration` acc
-                ON rel.acc_id = acc.id
-            INNER JOIN `:db`.acl_resources_poller_relations arpr
-                    ON ng.id = arpr.poller_id
-            INNER JOIN `:db`.acl_res_group_relations argr
-                ON argr.acl_res_id = arpr.acl_res_id
-                AND argr.acl_group_id IN ({$accessGroupIdsQuery})
-            SQL;
-
-        // Search
-        $request .= $search = $sqlTranslator?->translateSearchParameterToSql();
-        $request .= $search !== null
-            ? ' AND (acc.`type` != :type OR acc.`type` IS NULL)'
-            : ' WHERE (acc.`type` != :type OR acc.`type` IS NULL)';
-
-        // Sort
-        $sortRequest = $sqlTranslator?->translateSortParameterToSql();
-        $request .= ! is_null($sortRequest)
-            ? $sortRequest
-            : ' ORDER BY ng.id ASC';
-
-        // Pagination
-        $request .= $sqlTranslator?->translatePaginationToSql();
-
-        $statement = $this->db->prepare($this->translateDbName($request));
-
-        $statement->bindValue(':type', $type->value, \PDO::PARAM_STR);
-        foreach ($accessGroupsBindValues as $bindKey => $hostGroupId) {
-            $statement->bindValue($bindKey, $hostGroupId, \PDO::PARAM_INT);
-        }
-        if ($sqlTranslator !== null) {
-            foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-                $type = key($data);
-                if ($type !== null) {
-                    $value = $data[$type];
-                    $statement->bindValue($key, $value, $type);
-                }
-            }
-        }
-
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
-        $statement->execute();
-
-        if ($sqlTranslator !== null) {
-            // Set total
-            $result = $this->db->query('SELECT FOUND_ROWS()');
-            if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-                $sqlTranslator->getRequestParameters()->setTotal((int) $total);
-            }
-        }
-
         $pollers = [];
         foreach ($statement as $result) {
             /** @var array{id:int,name:string} $result */
@@ -427,14 +262,14 @@ class DbReadAccRepository extends AbstractRepositoryRDB implements ReadAccReposi
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         if ($accessGroups === []) {
             return [];
         }
 
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $accessGroups
         );
 

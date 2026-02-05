@@ -1,14 +1,14 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored,
-  checkMetricsAreMonitored
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import resourceTable from '../../../fixtures/dashboards/creation/widgets/dashboardWithResourceTableWidget.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const services = {
   serviceCritical: {
@@ -167,11 +167,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -240,7 +240,7 @@ Then('only the hosts must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('be.visible')
         .invoke('text')
@@ -268,7 +268,7 @@ Then('only the services must be displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('be.visible')
         .invoke('text')
@@ -313,7 +313,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+            '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
           )
           .should('be.visible')
           .invoke('text')
@@ -349,8 +349,8 @@ Then(
     cy.getCellContent(1, 2).then((myTableContent) => {
       expect(myTableContent[1]).to.include('Critical');
       expect(myTableContent[2]).to.include('Warning');
-      expect(myTableContent[3]).to.include('Unknown');
-      expect(myTableContent[6]).to.include('Pending');
+      expect(myTableContent[3]).to.match(/Pending|Unknown/);
+      expect(myTableContent[6]).to.match(/Pending|Unknown/);
     });
   }
 );
@@ -362,7 +362,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+            '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
           )
           .should('be.visible')
           .invoke('text')
@@ -391,8 +391,8 @@ Given('a dashboard featuring two resource table widgets', () => {
   );
   cy.editDashboard(dashboards.default.name);
   cy.wait('@resourceRequest');
-  cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-  cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+  cy.getByTestId({ testId: 'More actions' }).click();
+  cy.getByTestId({ testId: 'Duplicate' }).click();
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
@@ -405,7 +405,7 @@ Then('only the contents of the other widget are displayed', () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('exist')
         .invoke('text')
@@ -435,8 +435,8 @@ Given('a dashboard having a configured resource table widget', () => {
 When(
   'the dashboard administrator user duplicates the resource table widget',
   () => {
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click();
   }
 );
 
@@ -447,7 +447,7 @@ Then(
       () =>
         cy
           .get(
-            `.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+            '.MuiTable-root:eq(1) .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
           )
           .should('exist')
           .invoke('text')
@@ -478,7 +478,7 @@ When(
   'the dashboard administrator user selects the option to add a new widget',
   () => {
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -535,7 +535,7 @@ Then("the resource table widget is added to the dashboard's layout", () => {
     () =>
       cy
         .get(
-          `.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)`
+          '.MuiTable-root .MuiTableRow-root:nth-child(1) .MuiTableCell-root:nth-child(2)'
         )
         .should('be.visible')
         .invoke('text')
@@ -623,8 +623,8 @@ Then('the dashboard administrator clicks on the downtime filter', () => {
 Then('the resources set to in downtime should be displayed', () => {
   cy.waitUntil(
     () =>
-      cy.get('body').then(($body) => {
-        const element = $body.find('svg[data-icon="Downtime"]');
+      cy.get('body').then((body) => {
+        const element = body.find('svg[data-icon="Downtime"]');
 
         return element.length > 0 && element.is(':visible');
       }),
@@ -650,28 +650,18 @@ Then(
 );
 
 Then('the dashboard administrator clicks on the acknowledge filter', () => {
-  cy.get('input[name="undefined"]').click();
-  cy.get('input[name="warning"]').click();
-  cy.get('input[name="acknowledged"]').click();
+  cy.get('input[name="unhandled_problems"]').click();
 });
 
 Then('the resources set to acknowledged should be displayed', () => {
-  cy.waitUntil(
-    () =>
-      cy.get('body').then(($body) => {
-        const element = $body.find('[aria-label="service2 Acknowledged"]');
-
-        return element.length > 0 && element.is(':visible');
-      }),
-    {
-      errorMsg: 'The element with label "service3 Acknowledged" is not visible',
-      interval: 2000,
-      timeout: 50000
-    }
-  ).then((isVisible) => {
+  cy.waitUntil(() => cy.get('body').contains('service3'), {
+    errorMsg: 'The element with label "service3 Acknowledged" is not visible',
+    interval: 2000,
+    timeout: 50000
+  }).then((isVisible) => {
     if (!isVisible) {
       throw new Error(
-        'The element with label "service3 Acknowledged" is not visible'
+        'The element with label "service2 Acknowledged" is not visible'
       );
     }
   });

@@ -1,0 +1,252 @@
+import { buildListingEndpoint, useFetchQuery, useSnackbar } from '@centreon/ui';
+import {
+  isResourceStatusFullSearchEnabledAtom,
+  refreshIntervalAtom
+} from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { countResourcesEndpoint } from '../../api/endpoint';
+import { getColumns as getAllColumns } from '../../Listing/columns';
+import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
+import useGetCriteriaName from '../../Listing/useLoadResources/useGetCriteriaName';
+import { getSearch } from '../../Listing/useLoadResources/utils';
+import { labelExportProcessingInProgress } from '../../translatedLabels';
+import { selectedVisualizationAtom } from '../actionsAtoms';
+import { csvExportEndpoint } from '../api/endpoint';
+import { Count, ListSearch } from './models';
+
+export const maxResources = 10000;
+const unauthorizedColumn = 'graph';
+
+interface UseExportCsvProps {
+  isAllPagesChecked: boolean;
+  isAllColumnsChecked: boolean;
+  isOpen: boolean;
+}
+
+interface UseExportCsv {
+  exportCsv: () => void;
+  isLoading: boolean;
+  hasReachedMaximumLinesToExport: boolean;
+  numberExportedLines: number;
+}
+
+const useExportCsv = ({
+  isAllColumnsChecked,
+  isAllPagesChecked,
+  isOpen
+}: UseExportCsvProps): UseExportCsv => {
+  const { t } = useTranslation();
+  const { showSuccessMessage } = useSnackbar();
+  const { getCriteriaNames, getCriteriaValue, getCriteriaIds } =
+    useGetCriteriaName();
+  const visualization = useAtomValue(selectedVisualizationAtom);
+  const selectedColumnIds = useAtomValue(selectedColumnIdsAtom);
+  const refreshInterval = useAtomValue(refreshIntervalAtom);
+  const isResourceStatusFullSearchEnabled = useAtomValue(
+    isResourceStatusFullSearchEnabledAtom
+  );
+  const listing = useAtomValue(listingAtom);
+
+  const getListSearch = ({ array, field }: ListSearch) => {
+    return array.map((name) => ({
+      field,
+      values: {
+        $rg: name
+      }
+    }));
+  };
+
+  const columns = useMemo(() => {
+    const allColumns = getAllColumns({
+      actions: {},
+      t,
+      visualization
+    });
+    const orderedColumns = new Set([
+      ...selectedColumnIds.filter((item) => !equals(item, unauthorizedColumn)),
+      ...allColumns
+        .map(({ id }) => id)
+        .filter((item) => !equals(item, unauthorizedColumn))
+    ]);
+
+    return [...orderedColumns];
+  }, [selectedColumnIds]);
+
+  const getCurrentFilterParameters = () => {
+    const names = getCriteriaNames('names');
+    const parentNames = getCriteriaNames('parent_names');
+
+    const queryParameters = [
+      {
+        name: 'host_category_names',
+        value: getCriteriaNames('host_categories')
+      },
+      {
+        name: 'service_category_names',
+        value: getCriteriaNames('service_categories')
+      },
+      { name: 'hostgroup_names', value: getCriteriaNames('host_groups') },
+      {
+        name: 'servicegroup_names',
+        value: getCriteriaNames('service_groups')
+      },
+      {
+        name: 'monitoring_server_names',
+        value: getCriteriaNames('monitoring_servers')
+      },
+      {
+        name: 'service_severity_names',
+        value: getCriteriaNames('service_severities')
+      },
+      {
+        name: 'host_severity_names',
+        value: getCriteriaNames('host_severities')
+      },
+      {
+        name: 'states',
+        value: getCriteriaIds('states')
+      }
+    ];
+
+
+    const filtersParameters = {
+      search: {
+        ...(getSearch({
+          isResourceStatusFullSearchEnabled,
+          searchCriteria: getCriteriaValue('search')
+        }) ?? {}),
+        conditions: [
+          ...getListSearch({ array: names, field: 'name' }),
+          ...getListSearch({ array: parentNames, field: 'parent_name' })
+        ]
+      }
+    };
+
+    return { filtersParameters, queryParameters };
+  };
+
+  const getColumns = () => {
+    if (isAllColumnsChecked) {
+      return columns.map((column) => `columns[]=${column}`).join('&');
+    }
+
+    const filteredColumns = selectedColumnIds?.filter(
+      (item) => !equals(item, unauthorizedColumn)
+    );
+
+    return filteredColumns.map((column) => `columns[]=${column}`).join('&');
+  };
+
+  const getParameters = (includePagination = false) => {
+    const { filtersParameters, queryParameters } = getCurrentFilterParameters();
+    const sort = getCriteriaValue('sort');
+
+    const paginationParameters = includePagination
+      ? {
+        limit: listing?.meta?.limit || 10,
+        page: listing?.meta?.page || 1,
+        sort: {
+          [sort?.[0] as string]: sort?.[1] || '',
+          last_status_change: 'desc'
+        }
+      }
+      : {};
+
+    const types = getCriteriaIds('resource_types');
+    const statuses = getCriteriaIds('statuses');
+
+    const parameters = {
+      ...filtersParameters,
+      ...paginationParameters
+    };
+
+    return {
+      customQueryParameters: [
+        ...queryParameters,
+        { name: 'types', value: types },
+        {
+          name: 'statuses',
+          value: statuses?.map((status) => status.toUpperCase())
+        }
+      ],
+      parameters
+    };
+  };
+
+  const getEndpoint = ({ baseEndpoint, includePagination = false }): string => {
+    const { parameters, customQueryParameters } =
+      getParameters(includePagination);
+
+    return buildListingEndpoint({
+      baseEndpoint,
+      customQueryParameters: [
+        ...customQueryParameters,
+        { name: 'all_pages', value: isAllPagesChecked }
+      ],
+      parameters
+    });
+  };
+
+  const { data, isLoading } = useFetchQuery<Count>({
+    getEndpoint: () =>
+      getEndpoint({
+        baseEndpoint: countResourcesEndpoint,
+        includePagination: !isAllPagesChecked
+      }),
+    getQueryKey: () => [
+      'exportedLines',
+      getEndpoint({
+        baseEndpoint: countResourcesEndpoint,
+        includePagination: !isAllPagesChecked
+      }),
+      isAllPagesChecked
+    ],
+    queryOptions: {
+      enabled: isOpen,
+      gcTime: 0,
+      refetchInterval: refreshInterval * 1000,
+      staleTime: 0,
+      suspense: false
+    }
+  });
+
+  const numberExportedLines = data?.count || 0;
+
+  const hasReachedMaximumLinesToExport = numberExportedLines > maxResources;
+
+  const exportCsv = () => {
+    showSuccessMessage(t(labelExportProcessingInProgress));
+
+    const { parameters, customQueryParameters } = getParameters(true);
+
+    const endpoint = buildListingEndpoint({
+      baseEndpoint: csvExportEndpoint,
+      customQueryParameters: [
+        ...customQueryParameters,
+        { name: 'all_pages', value: isAllPagesChecked },
+        { name: 'max_lines', value: maxResources }
+      ],
+      parameters
+    });
+
+    window.open(
+      `${endpoint}&${getColumns()}&format=csv`,
+      'noopener',
+      'noreferrer'
+    );
+  };
+
+  return {
+    exportCsv,
+    hasReachedMaximumLinesToExport,
+    isLoading,
+    numberExportedLines
+  };
+};
+
+export default useExportCsv;

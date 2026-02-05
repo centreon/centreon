@@ -79,3 +79,12 @@ Feature: Configuring a top-bottom widget
     And searches for Centreon Server hosts
     When the dashboard administrator enters a search term for a specific metrics
     Then only the metrics that match the search input are displayed in the search results
+
+  @TEST_MON-155357
+  Scenario: Editing the hosts Display value of a Top/Bottom widget
+    Given a dashboard in the dashboard administrator user's dashboard library
+    When the dashboard administrator user selects the option to add a new widget
+    And selects the widget type "Top Bottom"
+    Then configuration properties for the Top Bottom widget are displayed
+    When the dashboard administrator user tries to type 0 in the Display hosts value
+    Then the 0 is automatically replaced by a 1

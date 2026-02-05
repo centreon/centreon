@@ -1,14 +1,13 @@
+import { ConfirmDialog } from '@centreon/ui';
+
 import { FormikValues, useFormikContext } from 'formik';
 import { useTranslation } from 'react-i18next';
-
-import { ConfirmDialog } from '@centreon/ui';
 
 import {
   labelDiscard,
   labelDuplicate,
   labelPleaseEnterNameForDuplicatedNotification
 } from '../../translatedLabels';
-
 import NotificationName from './NotificationName';
 import useDuplicate from './useDuplicate';
 
@@ -27,10 +26,10 @@ const DuplicateConfirmationDialog = (): JSX.Element => {
       labelCancel={t(labelDiscard)}
       labelConfirm={t(labelDuplicate)}
       labelTitle={t(labelPleaseEnterNameForDuplicatedNotification)}
-      open={isDialogOpen}
-      submitting={isSubmitting}
       onCancel={closeDialog}
       onConfirm={submitForm}
+      open={isDialogOpen}
+      submitting={isSubmitting}
     >
       <NotificationName />
     </ConfirmDialog>

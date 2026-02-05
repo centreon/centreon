@@ -1,7 +1,10 @@
-import { alpha } from '@mui/system';
 import { makeStyles } from 'tss-react/mui';
 
 export const useResourceStyles = makeStyles()((theme) => ({
+  regexIcon: {
+    marginRight: theme.spacing(4),
+    padding: 0
+  },
   resourceComposition: {
     overflow: 'auto',
     paddingTop: theme.spacing(1),
@@ -10,13 +13,6 @@ export const useResourceStyles = makeStyles()((theme) => ({
   resourceCompositionItem: {
     display: 'grid',
     gridTemplateColumns: `${theme.spacing(20)} 1fr`
-  },
-  resourceTitle: {
-    lineHeight: 1,
-    paddingBottom: theme.spacing(0.5)
-  },
-  resourceType: {
-    borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`
   },
   resources: {
     '& .MuiInputBase-root': {
@@ -36,6 +32,21 @@ export const useResourceStyles = makeStyles()((theme) => ({
   resourcesHeaderDivider: {
     alignSelf: 'center',
     flexGrow: 1
+  },
+  resourceTitle: {
+    lineHeight: 1,
+    paddingBottom: theme.spacing(0.5)
+  },
+  resourceType: {
+    borderRadius: `${theme.shape.borderRadius}px 0px 0px ${theme.shape.borderRadius}px`
+  },
+  selectedRegexIcon: {
+    padding: 0
+  },
+  selectedRegexIconColor: {
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: '50%',
+    color: theme.palette.background.paper
   },
   subtitle: {
     marginBottom: theme.spacing(0.5)
@@ -93,14 +104,12 @@ export const useTextFieldStyles = makeStyles<{ hasMarginBottom: boolean }>()(
       flexDirection: 'column',
       gap: theme.spacing(0.5),
       marginBottom: hasMarginBottom ? theme.spacing(0.5) : 0
+    },
+    inputContainer: {
+      alignItems: 'center',
+      display: 'flex',
+      flexDirection: 'row',
+      gap: theme.spacing(1)
     }
   })
 );
-
-export const useWarningStyles = makeStyles()((theme) => ({
-  warningBox: {
-    backgroundColor: alpha(theme.palette.warning.main, 0.3),
-    borderRadius: theme.shape.borderRadius,
-    padding: theme.spacing(1.5)
-  }
-}));

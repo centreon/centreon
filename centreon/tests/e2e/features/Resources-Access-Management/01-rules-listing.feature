@@ -5,11 +5,13 @@ Feature: Pagination and Search Functionality in Resource Access Management
     Given I am logged in as a user with administrator role
     And I have access to the Administration > ACL > Resource Access Management feature
 
+  @TEST_MON-69144
   Scenario: Viewing resource access rules
     When I navigate to the Resource Access Management page
     Then I should see a table with columns: "Name", "Description", "Actions", "Status"
     And a button to add a new rule is available
 
+  @TEST_MON-69142
   Scenario: Pagination functionality
     When I navigate to the Resource Access Management page
     Then I should see at least 10 rules registered
@@ -19,6 +21,7 @@ Feature: Pagination and Search Functionality in Resource Access Management
     When I click on the previous page button
     Then I should see the previous first 10 rules displayed
 
+  @TEST_MON-69143
   Scenario: Search functionality
     When I navigate to the Resource Access Management page
     And I enter a search query in the search field for a rule or description

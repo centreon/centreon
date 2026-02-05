@@ -1,12 +1,11 @@
-import { equals, includes } from 'ramda';
-
 import { useRefreshInterval } from '@centreon/ui';
 
-import { getResourcesUrl } from '../../utils';
+import { equals, includes } from 'ramda';
 
+import { getResourcesUrl } from '../../utils';
 import Chart from './Chart/Chart';
-import { useStyles } from './StatusChart.styles';
 import { DisplayType, StatusChartProps } from './models';
+import { useStyles } from './StatusChart.styles';
 import { labelHosts, labelServices } from './translatedLabels';
 
 const StatusChart = ({
@@ -57,6 +56,11 @@ const StatusChart = ({
       className={cx(classes.container, {
         [classes.flexDirectionColumns]: isHorizontalBar
       })}
+      style={
+        isHorizontalBar
+          ? { gridTemplateRows: `repeat(${resourceTypes.length}, 1fr)` }
+          : { gridTemplateColumns: `repeat(${resourceTypes.length}, 1fr)` }
+      }
     >
       {resourceTypes.map((resourceType) => {
         const isOfTypeHost = includes('host', resourceType);
@@ -75,9 +79,9 @@ const StatusChart = ({
             playlistHash={playlistHash}
             refreshCount={refreshCount}
             refreshIntervalToUse={refreshIntervalToUse}
+            resources={resources}
             resourceType={resourceType}
             resourceTypes={resourceTypes}
-            resources={resources}
             title={isOfTypeHost ? labelHosts : labelServices}
             unit={unit}
             widgetPrefixQuery={widgetPrefixQuery}

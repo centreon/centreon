@@ -1,0 +1,16 @@
+{
+    "connector": {
+        "name": "connector-1",
+        "description": "description-1",
+        "command_line": "string",
+        "used_by_command": "check_centreon_cpu",
+        "is_enabled": 1
+    },
+    "connectorUpdated": {
+        "name": "connector-updated",
+        "description": "description-updated",
+        "command_line": "string",
+        "used_by_command": "check_centreon_ping",
+        "is_enabled": 1
+    }
+}

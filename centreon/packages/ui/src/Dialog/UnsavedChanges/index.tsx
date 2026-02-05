@@ -2,16 +2,15 @@ import { not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Modal } from '../../components/Modal';
-
 import {
   labelDiscard,
-  labelDoYouWantToQuitWithoutResolving,
-  labelDoYouWantToResolveErrors,
+  labelDoYouWantToQuit,
   labelDoYouWantToSaveChanges,
   labelIfYouClickOnDiscard,
-  labelResolve,
+  labelLeave,
   labelSave,
-  labelThereAreErrorsInTheForm
+  labelStay,
+  labelYourFormHasUnsavedChanges
 } from './translatedLabels';
 
 interface Props {
@@ -32,15 +31,17 @@ const UnsavedChangesDialog = ({
   dialogOpened
 }: Props): JSX.Element | null => {
   const { t } = useTranslation();
+
   const labelTitle = isValidForm
     ? labelDoYouWantToSaveChanges
-    : labelDoYouWantToResolveErrors;
+    : labelDoYouWantToQuit;
 
-  const labelConfirm = isValidForm ? labelSave : labelResolve;
+  const lebelConfirm = isValidForm ? labelSave : labelLeave;
+  const labelCancel = isValidForm ? labelDiscard : labelStay;
 
-  const labelMessage = `${
-    isValidForm ? labelIfYouClickOnDiscard : labelThereAreErrorsInTheForm
-  } ${isValidForm ? '' : labelDoYouWantToQuitWithoutResolving}`;
+  const labelMessage = isValidForm
+    ? labelIfYouClickOnDiscard
+    : labelYourFormHasUnsavedChanges;
 
   if (not(dialogOpened)) {
     return null;
@@ -49,20 +50,20 @@ const UnsavedChangesDialog = ({
   return (
     <Modal
       hasCloseButton
+      onClose={closeDialog}
       open={dialogOpened}
       size="medium"
-      onClose={closeDialog}
     >
       <Modal.Header>{t(labelTitle)}</Modal.Header>
       <Modal.Body>{t(labelMessage)}</Modal.Body>
       <Modal.Actions
         disabled={isSubmitting}
         labels={{
-          cancel: t(labelDiscard),
-          confirm: t(labelConfirm)
+          cancel: t(labelCancel),
+          confirm: t(lebelConfirm)
         }}
-        onCancel={discardChanges}
-        onConfirm={isValidForm ? saveChanges : closeDialog}
+        onCancel={isValidForm ? discardChanges : closeDialog}
+        onConfirm={isValidForm ? saveChanges : discardChanges}
       />
     </Modal>
   );

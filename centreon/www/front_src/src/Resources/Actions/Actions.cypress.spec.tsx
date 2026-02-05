@@ -1,6 +1,3 @@
-import { Provider, createStore } from 'jotai';
-import { pick } from 'ramda';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
   acknowledgementAtom,
@@ -10,44 +7,60 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { pick } from 'ramda';
+
+import { labelCancel } from '../../Dashboards/SingleInstancePage/Dashboard/translatedLabels';
 import { resourcesEndpoint } from '../api/endpoint';
+import { selectedColumnIdsAtom } from '../Listing/listingAtoms';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
   labelAcknowledgeServices,
   labelActionNotPermitted,
+  labelAllColumns,
+  labelAllPages,
   labelCheck,
   labelCheckDescription,
   labelComment,
+  labelCurrentPageOnly,
   labelDisacknowledge,
-  labelDisacknowledgeServices,
   labelDisacknowledgementCommandSent,
+  labelDisacknowledgeServices,
   labelDown,
   labelDowntimeCommandSent,
   labelDuration,
   labelEndDateGreaterThanStartDate,
+  labelExport,
+  labelExportProcessingInProgress,
+  labelExportToCSV,
+  labelFilteredResources,
+  labelFilterRessources,
   labelFixed,
   labelForcedCheck,
   labelForcedCheckCommandSent,
   labelMoreActions,
   labelNotify,
+  labelSelecetPages,
+  labelSelectColumns,
   labelSetDowntime,
   labelSetDowntimeOnServices,
   labelStickyForAnyNonOkStatus,
   labelSubmitStatus,
   labelUnreachable,
-  labelUp
+  labelUp,
+  labelVisibleColumnsOnly,
+  labelWarningExportToCsv
 } from '../translatedLabels';
-
-import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
+import Actions from '.';
 import { selectedResourcesAtom } from './actionsAtoms';
 import {
   acknowledgeEndpoint,
   checkEndpoint,
+  csvExportEndpoint,
   downtimeEndpoint
 } from './api/endpoint';
-
-import Actions from '.';
+import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 
 const mockUser = {
   alias: 'admin',
@@ -119,7 +132,18 @@ const anomalyDetection = {
   type: 'anomaly-detection'
 };
 
-const initialize = (): ReturnType<typeof createStore> => {
+const visibleColumns = [
+  'resource',
+  'parent_resource',
+  'duration',
+  'last_check',
+  'information',
+  'tries'
+];
+
+const initialize = (
+  countResourcesPath = 'resources/listing/count/count.json'
+): ReturnType<typeof createStore> => {
   cy.clock(new Date(2020, 1, 1));
   cy.viewport('macbook-13');
 
@@ -151,6 +175,25 @@ const initialize = (): ReturnType<typeof createStore> => {
     alias: 'sendDowntime',
     method: Method.POST,
     path: downtimeEndpoint
+  });
+
+  cy.fixture('resources/resourceListing').then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'resources',
+      method: Method.GET,
+      path: '**/resources?*',
+      response: data
+    });
+  });
+
+  cy.fixture(countResourcesPath).then((data) => {
+    cy.interceptAPIRequest({
+      alias: 'countResources',
+      method: Method.GET,
+      path: '**/count**',
+      response: data,
+      statusCode: 200
+    });
   });
 
   const store = createStore();
@@ -381,9 +424,10 @@ describe('Actions', () => {
       cy.findByLabelText(labelForcedCheck).click();
 
       cy.waitForRequest('@sendCheck').then(({ request }) => {
-        expect(request.body).to.equal(
-          '{"check":{"is_forced":true},"resources":[{"id":0,"parent":null,"type":"host"}]}'
-        );
+        expect(request.body).to.deep.equal({
+          check: { is_forced: true },
+          resources: [{ id: 0, parent: null, type: 'host' }]
+        });
       });
       cy.contains(labelForcedCheckCommandSent).should('be.visible');
 
@@ -400,9 +444,10 @@ describe('Actions', () => {
       cy.findByLabelText(labelCheck).click();
 
       cy.waitForRequest('@sendCheck').then(({ request }) => {
-        expect(request.body).to.equal(
-          '{"check":{"is_forced":false},"resources":[{"id":0,"parent":null,"type":"host"}]}'
-        );
+        expect(request.body).to.deep.equal({
+          check: { is_forced: false },
+          resources: [{ id: 0, parent: null, type: 'host' }]
+        });
       });
 
       cy.makeSnapshot();
@@ -466,5 +511,125 @@ describe('Actions', () => {
 
       cy.makeSnapshot();
     });
+  });
+});
+
+describe('CSV export', () => {
+  beforeEach(() => {
+    cy.window().then((win) => {
+      cy.stub(win, 'open').as('windowOpen');
+    });
+  });
+
+  it('export resources with default checks when clicking the CSV export button', () => {
+    initialize();
+
+    cy.findByRole('button', { name: 'exportCsvButton' }).click();
+    cy.waitForRequest('@countResources');
+
+    cy.findByRole('dialog').as('modal').should('be.visible');
+    cy.get('@modal').contains(labelExportToCSV);
+    cy.get('@modal').contains(labelFilteredResources);
+    cy.get('@modal').contains(labelSelectColumns);
+    cy.get('@modal')
+      .findByTestId(labelVisibleColumnsOnly)
+      .should('not.be.checked');
+    cy.get('@modal').findByTestId(labelAllColumns).should('be.checked');
+    cy.get('@modal').contains(labelSelecetPages);
+    cy.get('@modal')
+      .findByTestId(labelCurrentPageOnly)
+      .should('not.be.checked');
+    cy.get('@modal').findByTestId(labelAllPages).should('be.checked');
+
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.waitForRequest('@countResources');
+    cy.get('@modal').findByTestId(labelAllPages).click();
+    cy.waitForRequest('@countResources');
+
+    cy.get('@modal').contains(labelWarningExportToCsv);
+    cy.get('@modal')
+      .findByRole('button', { name: labelCancel })
+      .should('be.enabled');
+    cy.get('@modal')
+      .findByRole('button', { name: labelExport })
+      .should('be.enabled');
+
+    cy.get('@modal').findByRole('button', { name: labelExport }).click();
+    cy.get('@modal').should('not.be.visible');
+    cy.contains(labelExportProcessingInProgress);
+
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=%7B%22status_severity_code%22%3A%22desc%22%2C%22last_status_change%22%3A%22desc%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D&all_pages=true&max_lines=10000&columns[]=status&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&columns[]=severity&columns[]=notes_url&columns[]=action_url&columns[]=state&columns[]=alias&columns[]=parent_alias&columns[]=fqdn&columns[]=monitoring_server_name&columns[]=notification&columns[]=checks&format=csv`;
+    cy.get('@windowOpen').should(
+      'be.calledWith',
+      expectedUrl,
+      'noopener',
+      'noreferrer'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('export resources with custom checks when clicking the CSV export button', () => {
+    const store = initialize();
+    store.set(selectedColumnIdsAtom, visibleColumns);
+
+    cy.findByRole('button', { name: 'exportCsvButton' }).click();
+
+    cy.waitForRequest('@countResources');
+    cy.findByRole('dialog').as('modal').should('be.visible');
+    cy.get('@modal').contains(labelExportToCSV);
+    cy.get('@modal').contains(labelSelectColumns);
+
+    cy.get('@modal').findByTestId(labelVisibleColumnsOnly).click();
+    cy.get('@modal').findByTestId(labelAllColumns).should('not.be.checked');
+
+    cy.get('@modal').contains(labelSelecetPages);
+
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.get('@modal').findByTestId(labelAllPages).should('not.be.checked');
+
+    cy.get('@modal').contains(labelWarningExportToCsv);
+    cy.get('@modal')
+      .findByRole('button', { name: labelExport })
+      .should('be.enabled');
+
+    cy.get('@modal').findByRole('button', { name: labelExport }).click();
+    cy.contains(labelExportProcessingInProgress);
+    cy.get('@modal').should('not.be.visible');
+
+    const expectedUrl = `${csvExportEndpoint}?page=1&limit=10&sort_by=%7B%22status_severity_code%22%3A%22desc%22%2C%22last_status_change%22%3A%22desc%22%7D&search=%7B%22%24and%22%3A%5B%5D%7D&all_pages=false&max_lines=10000&columns[]=resource&columns[]=parent_resource&columns[]=duration&columns[]=last_check&columns[]=information&columns[]=tries&format=csv`;
+    cy.get('@windowOpen').should(
+      'be.calledWith',
+      expectedUrl,
+      'noopener',
+      'noreferrer'
+    );
+
+    cy.makeSnapshot();
+  });
+
+  it('display the warning message when the number of resources exceeds 10,000', () => {
+    initialize('resources/listing/count/massiveCount.json');
+
+    cy.findByRole('button', { name: 'exportCsvButton' }).click();
+    cy.waitForRequest('@countResources');
+    cy.findByRole('dialog').as('modal').should('be.visible');
+
+    cy.get('@modal').findByTestId(labelCurrentPageOnly).click();
+    cy.waitForRequest('@countResources');
+    cy.get('@modal').findByTestId(labelAllPages).click();
+    cy.waitForRequest('@countResources');
+
+    cy.get('@modal').contains(labelExportToCSV);
+    cy.get('@modal').contains(labelWarningExportToCsv);
+    cy.get('@modal').contains(labelFilterRessources);
+    cy.get('@modal')
+      .findByRole('button', { name: labelCancel })
+      .should('be.enabled');
+    cy.get('@modal')
+      .findByRole('button', { name: labelExport })
+      .should('be.enabled');
+
+    cy.makeSnapshot();
   });
 });

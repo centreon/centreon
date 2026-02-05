@@ -143,5 +143,6 @@
       }
     }
   },
+  "widgetType": "realtime",
   "moduleName": "centreon-widget-data"
 }

@@ -1,39 +1,15 @@
-import { makeStyles } from 'tss-react/mui';
-
-import { InputPropsWithoutGroup } from './models';
-
 import { Box, Typography } from '@mui/material';
-import { FormikValues, useFormikContext } from 'formik';
+
+import { type FormikValues, useFormikContext } from 'formik';
+import { isNotEmpty, isNotNil } from 'ramda';
+
 import { getInput } from '.';
-
-interface StylesProps {
-  alignItems?: string;
-  columns?: number;
-  gridTemplateColumns?: string;
-}
-
-const useStyles = makeStyles<StylesProps>()(
-  (theme, { columns, gridTemplateColumns, alignItems }) => ({
-    gridFields: {
-      alignItems: alignItems || 'flex-start',
-      columnGap: theme.spacing(4),
-      display: 'grid',
-      gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
-      rowGap: theme.spacing(2)
-    }
-  })
-);
+import type { InputPropsWithoutGroup } from './models';
 
 const Grid = ({
   grid,
   hideInput
 }: InputPropsWithoutGroup): JSX.Element | null => {
-  const { classes, cx } = useStyles({
-    alignItems: grid?.alignItems,
-    columns: grid?.columns.length,
-    gridTemplateColumns: grid?.gridTemplateColumns
-  });
-
   const { values } = useFormikContext<FormikValues>();
 
   if (hideInput?.(values) ?? false) {
@@ -43,20 +19,34 @@ const Grid = ({
   const className = grid?.className || '';
 
   return (
-    <div className={cx(classes.gridFields, className)}>
+    <div
+      className={`${className} grid gap-3`}
+      style={{
+        alignItems: grid?.alignItems || 'flex-start',
+        gridTemplateColumns: className
+          ? grid?.gridTemplateColumns || undefined
+          : grid?.gridTemplateColumns ||
+            `repeat(${grid?.columns.length || 1}, 1fr)`
+      }}
+    >
       {grid?.columns.map((field) => {
         const Input = getInput(field.type);
+
+        const key =
+          isNotNil(field.label) || isNotEmpty(field.label)
+            ? field.label
+            : field.additionalLabel;
 
         if (field.hideInput?.(values) ?? false) {
           return null;
         }
 
         return (
-          <Box sx={{ width: '100%' }} key={field.fieldName}>
+          <Box key={key} sx={{ width: '100%' }}>
             {field.additionalLabel && (
               <Typography
-                sx={{ marginBottom: 0.5, color: 'primary.main' }}
-                className={cx(field?.additionalLabelClassName)}
+                className={field?.additionalLabelClassName}
+                sx={{ color: 'primary.main', marginBottom: 0.5 }}
                 variant="h6"
               >
                 {field.additionalLabel}

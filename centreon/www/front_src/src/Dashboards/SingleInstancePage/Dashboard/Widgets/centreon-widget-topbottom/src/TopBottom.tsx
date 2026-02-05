@@ -1,8 +1,8 @@
-import { equals } from 'ramda';
-
 import { LoadingSkeleton } from '@centreon/ui';
 
-import NoResources from '../../NoResources';
+import { equals } from 'ramda';
+import { useRef } from 'react';
+
 import {
   CommonWidgetProps,
   FormThreshold,
@@ -10,11 +10,14 @@ import {
   Metric,
   Resource
 } from '../../models';
+import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
+import Label from './Label';
+import MetricContainer from './MetricContainer';
 import MetricTop from './MetricTop';
-import { useTopBottomStyles } from './TopBottom.styles';
 import { TopBottomSettings } from './models';
+import { useTopBottomStyles } from './TopBottom.styles';
+import useSingleBarCurrentWidth from './useSingleBarCurrentWidth';
 import useTopBottom from './useTopBottom';
 
 interface TopBottomProps
@@ -50,10 +53,15 @@ const TopBottom = ({
   playlistHash,
   widgetPrefixQuery
 }: TopBottomProps): JSX.Element => {
-  const { classes } = useTopBottomStyles();
+  const { classes } = useTopBottomStyles({});
+  const containerRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLParagraphElement>(null);
 
   const areResourcesOk = areResourcesFullfilled(resources);
-
+  const singleBarCurrentWidth = useSingleBarCurrentWidth({
+    containerRef,
+    labelRef
+  });
   const { isLoading, metricsTop, isMetricEmpty } = useTopBottom({
     dashboardId,
     globalRefreshInterval,
@@ -83,19 +91,31 @@ const TopBottom = ({
   }
 
   return (
-    <div className={classes.container}>
-      {(metricsTop?.resources || []).map((metricTop, index) => (
-        <MetricTop
-          displayAsRaw={equals('raw', valueFormat)}
-          index={index}
-          isFromPreview={isFromPreview}
-          key={`${metricTop.name}_${metricTop.id}`}
-          metricTop={metricTop}
-          showLabels={topBottomSettings.showLabels}
-          thresholds={threshold}
-          unit={metricsTop?.unit || ''}
-        />
-      ))}
+    <div className={classes.topBottomContainer} ref={containerRef}>
+      <div className={classes.labelContainer}>
+        {(metricsTop?.resources || []).map((metricTop, index) => (
+          <Label
+            index={index}
+            key={`label_${metricTop.name}_${metricTop.id}`}
+            metricTop={metricTop}
+            ref={labelRef}
+          />
+        ))}
+      </div>
+
+      <MetricContainer singleBarCurrentWidth={singleBarCurrentWidth}>
+        {(metricsTop?.resources || []).map((metricTop) => (
+          <MetricTop
+            displayAsRaw={equals('raw', valueFormat)}
+            isFromPreview={isFromPreview}
+            key={`${metricTop.name}_${metricTop.id}`}
+            metricTop={metricTop}
+            showLabels={topBottomSettings.showLabels}
+            thresholds={threshold}
+            unit={metricsTop?.unit || ''}
+          />
+        ))}
+      </MetricContainer>
     </div>
   );
 };

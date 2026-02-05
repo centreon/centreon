@@ -1,12 +1,14 @@
+import { Box, CircularProgress } from '@mui/material';
+
 import { UnsavedChangesDialog } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import SaveIcon from '@mui/icons-material/Save';
-import { Box, CircularProgress } from '@mui/material';
+
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
-import { isEmpty, isNil } from 'ramda';
+import { isNotEmpty } from 'ramda';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
   agentTypeFormAtom,
   askBeforeCloseFormModalAtom,
@@ -15,7 +17,7 @@ import {
 import { AgentConfigurationForm } from '../models';
 import { labelCancel, labelSave } from '../translatedLabels';
 
-const Buttons = (): JSX.Element => {
+const Buttons = (): React.ReactElement => {
   const { t } = useTranslation();
 
   const [askBeforeCloseForm, setAskBeforeCloseFormModal] = useAtom(
@@ -24,21 +26,12 @@ const Buttons = (): JSX.Element => {
   const setOpenFormModal = useSetAtom(openFormModalAtom);
   const setAgentTypeForm = useSetAtom(agentTypeFormAtom);
 
-  const { isValid, dirty, isSubmitting, submitForm, errors, values } =
+  const { isValid, dirty, isSubmitting, submitForm, errors } =
     useFormikContext<AgentConfigurationForm>();
 
   const isSubmitDisabled = useMemo(
-    () =>
-      !dirty ||
-      (!isEmpty(errors) &&
-      (isNil(values.configuration?.hosts) ||
-        isEmpty(values.configuration?.hosts))
-        ? true
-        : errors.configuration?.hosts?.some?.(
-            (host) => !isNil(host) && !isEmpty(host)
-          )) ||
-      isSubmitting,
-    [dirty, isSubmitting, errors, values]
+    () => !dirty || isSubmitting || isNotEmpty(errors),
+    [dirty, isSubmitting, errors]
   );
 
   const discard = useCallback(() => {
@@ -78,25 +71,26 @@ const Buttons = (): JSX.Element => {
     <>
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
         {isSubmitting && <CircularProgress size={24} />}
-        <Button variant="ghost" onClick={close}>
+        <Button onClick={close} size="medium" variant="secondary">
           {t(labelCancel)}
         </Button>
         <Button
+          data-testid="submit"
           disabled={isSubmitDisabled}
-          iconVariant="start"
-          icon={<SaveIcon />}
           onClick={submitForm}
+          size="medium"
+          type="submit"
         >
           {t(labelSave)}
         </Button>
       </Box>
       <UnsavedChangesDialog
+        closeDialog={closeAskBeforeCloseModal}
+        dialogOpened={askBeforeCloseForm && dirty}
+        discardChanges={discard}
         isSubmitting={isSubmitting}
         isValidForm={isValid}
         saveChanges={submitAndClose}
-        closeDialog={closeAskBeforeCloseModal}
-        discardChanges={discard}
-        dialogOpened={askBeforeCloseForm && dirty}
       />
     </>
   );

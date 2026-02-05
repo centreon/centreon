@@ -432,7 +432,6 @@ CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_port;3306
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_user;centreon
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_password;centreon
 CENTBROKERCFG;SETOUTPUT;central-broker-master;2;db_name;centreon_storage
-CENTBROKERCFG;SETOUTPUT;central-broker-master;2;check_replication;no
 CENTBROKERCFG;SETPARAM;central-module-master;filename;central-module.json
 CENTBROKERCFG;SETPARAM;central-module-master;cache_directory;/var/lib/centreon-engine
 CENTBROKERCFG;SETPARAM;central-module-master;stats_activate;1
@@ -537,7 +536,8 @@ ENGINECFG;setparam;Centreon Engine Central;debug_verbosity;2
 ENGINECFG;setparam;Centreon Engine Central;cfg_file;centengine.cfg
 ENGINECFG;setparam;Centreon Engine Central;log_pid;1
 ENGINECFG;setparam;Centreon Engine Central;enable_macros_filter;0
-ENGINECFG;setparam;Centreon Engine Central;broker_module;/usr/lib64/centreon-engine/externalcmd.so|/usr/lib64/nagios/cbmod.so /etc/centreon-broker/central-module.json
+ENGINECFG;setparam;Centreon Engine Central;broker_module;/usr/lib64/centreon-engine/externalcmd.so
+ENGINECFG;setparam;Centreon Engine Central;broker_module_cfg_file;/etc/centreon-broker/central-module.json
 ENGINECFG;setparam;Centreon Engine Central;logger_version;log_v2_enabled
 ENGINECFG;setparam;Centreon Engine Central;log_v2_logger;file
 ENGINECFG;setparam;Centreon Engine Central;log_level_functions;err

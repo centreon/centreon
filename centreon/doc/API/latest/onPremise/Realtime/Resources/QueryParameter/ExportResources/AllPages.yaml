@@ -1,0 +1,6 @@
+name: all_pages
+in: query
+description: Export all pages or only the current page
+required: true
+schema:
+  type: boolean

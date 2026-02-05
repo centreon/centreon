@@ -29,7 +29,7 @@ export const labelEndTime = 'End time';
 export const labelEntryTime = 'Entry time';
 export const labelFilter = 'Filter';
 export const labelNoDataForThisPeriod = 'No data available for this period';
-export const labelResourceFlapping = 'This Resource is flapping';
+export const labelResourceFlapping = 'This resource is flapping';
 export const labelFlapping = 'Flapping';
 export const labelShowCriteriasFilters = 'Show criterias filters';
 export const labelFrom = 'From';
@@ -152,7 +152,7 @@ export const labelName = 'Name';
 export const labelFilterCreated = 'Filter created';
 export const labelFilterSaved = 'Filter saved';
 export const labelMyFilters = 'My filters';
-export const labelEditFilters = 'Edit filters';
+export const labelManageFilters = 'Manage filters';
 export const labelRename = 'Rename';
 export const labelDelete = 'Delete';
 export const labelAskDelete = 'Delete filter?';
@@ -218,8 +218,6 @@ export const labelCalculationType = 'Calculation type';
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
 export const labelMaxDuration1Year = 'The duration must be less than a year';
-export const labelMediumSize = 'Medium size';
-export const labelSmallSize = 'Small size';
 export const labelSearchOptions = 'Filter options';
 export const labelDisplayCompleteGraph = 'Display the complete graph';
 export const labelActionNotPermitted = 'Action not permitted';
@@ -263,9 +261,10 @@ export const labelHostSeverityLevel = 'Host severity level';
 export const labelServiceSeverityLevel = 'Service severity level';
 export const labelCSV = 'CSV';
 export const labelExport = 'Export';
-export const labelAsDisplayed = 'As displayed';
-export const labelAsMediumSize = 'Medium size';
-export const labelAsSmallSize = 'Small size';
+export const labelExportAs = 'Export as';
+export const labelPNGAsDisplayed = 'PNG (as displayed)';
+export const labelPNGMediumSize = 'PNG (medium size)';
+export const labelPNGSmallSize = 'PNG (small size)';
 export const labelEditAnomalyDetectionData = 'Edit anomaly detection data';
 export const labelAnomalyDetection = 'Anomaly detection';
 export const labelPerformanceGraphAD = 'Edit anomaly detection data';
@@ -292,7 +291,7 @@ export const labelForcedCheckCommandSent =
   'Forced check command sent ! Please refresh the listing to update the data.';
 export const labelUnit = 'Unit';
 export const labelNeedHelpWithSearchBarUsage =
-  'Need help with search bar usage?';
+  'Need help using the search bar?';
 export const labelFindExplanationsAndExamples =
   'Find explanations and examples';
 export const labelHere = 'here';
@@ -311,3 +310,27 @@ export const labelResourceDetailsForcedCheckDescription =
   'Check this resource even outside configured check period';
 
 export const labelYourCommentSent = 'Your comment has been saved.';
+
+export const labelVisibleColumnsOnly = 'Visible columns only';
+export const labelAllColumns = 'All columns';
+export const labelAllPages = 'All pages';
+export const labelCurrentPageOnly = 'Current page only';
+export const labelSelectColumns = 'Select columns';
+export const labelSelecetPages = 'Select pages';
+export const labelNumerOfLines = 'Number of rows';
+export const labelWarningExportToCsv =
+  'Export processing might take some time. The real time data displayed at the output may have changed since the start of processing.';
+export const labelExportProcessingInProgress = 'Export processing in progress';
+export const labelFilteredResources =
+  'You are about to export the status of the resources you have filtered. You can export up to 10,000 rows.';
+export const labelFilterRessources =
+  'Export will be processed but will not include all rows. You can still filter your resources to reduce the number of rows.';
+
+export const labelCompact = 'Compact';
+export const labelExtended = 'Extended';
+
+export const labelFreeTextSearchBehavior =
+  'Free text search behavior can be configured in the Administration > Parameters > Centreon UI page.';
+
+export const labelTooManyGraphsToDisplay =
+  'Too many elements to be displayed (>{{graphsCapNumber}})';

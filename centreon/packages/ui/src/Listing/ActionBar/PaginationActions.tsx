@@ -1,12 +1,11 @@
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import IconButton from '@mui/material/IconButton';
-import { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
+import type { TablePaginationActionsProps } from '@mui/material/TablePagination/TablePaginationActions';
+
+import { useTranslation } from 'react-i18next';
 
 import {
   labelFirstPage,
@@ -15,20 +14,12 @@ import {
   labelPreviousPage
 } from '../translatedLabels';
 
-const useStyles = makeStyles()((theme) => ({
-  root: {
-    color: theme.palette.text.secondary,
-    flexShrink: 0
-  }
-}));
-
 const PaginationActions = ({
   onPageChange,
   page,
   rowsPerPage,
   count
 }: TablePaginationActionsProps): JSX.Element => {
-  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const changeToFirstPage = (event): void => {
@@ -53,36 +44,36 @@ const PaginationActions = ({
   };
 
   return (
-    <div className={classes.root}>
+    <div className="shrink-0 text-text-secondary">
       <IconButton
         aria-label={t(labelFirstPage) || ''}
         disabled={isFirstPage}
-        size="large"
         onClick={changeToFirstPage}
+        size="large"
       >
         <FirstPageIcon />
       </IconButton>
       <IconButton
         aria-label={t(labelPreviousPage) || ''}
         disabled={isFirstPage}
-        size="large"
         onClick={changeToPreviousPage}
+        size="large"
       >
         <KeyboardArrowLeft />
       </IconButton>
       <IconButton
         aria-label={t(labelNextPage) || ''}
         disabled={isLastPage}
-        size="large"
         onClick={changeToNextPage}
+        size="large"
       >
         <KeyboardArrowRight />
       </IconButton>
       <IconButton
         aria-label={t(labelLastPage) || ''}
         disabled={isLastPage}
-        size="large"
         onClick={changeToLastPage}
+        size="large"
       >
         <LastPageIcon />
       </IconButton>

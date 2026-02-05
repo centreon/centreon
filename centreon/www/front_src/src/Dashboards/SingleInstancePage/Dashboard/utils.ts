@@ -1,5 +1,6 @@
+import { centreonBaseURL } from '@centreon/ui';
+
 import {
-  T,
   always,
   cond,
   equals,
@@ -7,12 +8,12 @@ import {
   groupBy,
   identity,
   includes,
+  T,
   uniq
 } from 'ramda';
 
-import { centreonBaseURL } from '@centreon/ui';
-
 import { WidgetResourceType } from './AddEditWidget/models';
+import { getIsMetaServiceSelected, isResourceString } from './Widgets/utils';
 
 export const isGenericText = equals<string | undefined>('/widgets/generictext');
 export const isRichTextEditorEmpty = (editorState: string): boolean => {
@@ -56,6 +57,20 @@ export const getResourcesUrlForMetricsWidgets = ({
   widgetName
 }): string => {
   const filters = data?.resources.map(({ resourceType, resources }) => {
+    if (isResourceString(resources)) {
+      const name = cond<Array<string>, string>([
+        [equals('host'), always('parent_name')],
+        [equals('service'), always('name')],
+        [equals('meta-service'), always('name')],
+        [T, identity]
+      ])(resourceType);
+
+      return {
+        name: name.replace('-', '_'),
+        value: [{ id: resources, name: resources }]
+      };
+    }
+
     if (
       [
         WidgetResourceType.host,
@@ -74,8 +89,12 @@ export const getResourcesUrlForMetricsWidgets = ({
       };
     }
 
+    const field = equals(resourceType, 'hostgroup')
+      ? resourcesCriteriasMapping[WidgetResourceType.hostGroup]
+      : resourcesCriteriasMapping[resourceType];
+
     return {
-      name: resourcesCriteriasMapping[resourceType],
+      name: field,
       value: uniq(
         resources.map(({ name, id }) => ({
           id,
@@ -85,9 +104,15 @@ export const getResourcesUrlForMetricsWidgets = ({
     };
   });
 
+  const isMetaService = getIsMetaServiceSelected(data?.resources || []);
+
   const serviceCriteria = {
     name: 'resource_types',
-    value: [{ id: 'service', name: 'Service' }]
+    value: [
+      isMetaService
+        ? { id: 'metaservice', name: 'Meta-Service' }
+        : { id: 'service', name: 'Service' }
+    ]
   };
 
   const filterQueryParameter = {
@@ -174,7 +199,11 @@ export const getUrlForResourcesOnlyWidgets = ({
         name: name.replace('-', '_'),
         value: flatten(
           (res || []).map(({ resources: subResources }) => {
-            return subResources?.map(({ name: resourceName }) => ({
+            if (isResourceString(subResources)) {
+              return [{ id: subResources, name: subResources }];
+            }
+
+            return subResources.map(({ name: resourceName }) => ({
               id: includes(name, ['name', 'parent_name'])
                 ? `\\b${resourceName}\\b`
                 : resourceName,

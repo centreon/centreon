@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\HostTemplate\Application\Repository;
 
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
@@ -173,4 +174,15 @@ interface ReadHostTemplateRepositoryInterface
      * @return HostTemplate[]
      */
     public function findAll(): array;
+
+    /**
+     * Find direct parent templates of a host id.
+     *
+     * @param int $hostId
+     *
+     * @throws RepositoryException
+     *
+     * @return array<int, int>
+     */
+    public function findByHostId(int $hostId): array;
 }

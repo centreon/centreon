@@ -1,18 +1,17 @@
+import { Divider } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-
-import { Divider } from '@mui/material';
 
 import { labelStatusType } from '../../../translatedLabels';
 import { Criteria, CriteriaDisplayProps } from '../../Criterias/models';
 import { SearchableFields } from '../../Criterias/searchQueryLanguage/models';
-import MemoizedCheckBox from '../MemoizedCheckBox';
 import { displayInformationFilterAtom } from '../basicFilter/atoms';
 import MemoizedInputGroup from '../basicFilter/sections/MemoizedInputGroup';
 import { useStyles } from '../criterias.style';
+import MemoizedCheckBox from '../MemoizedCheckBox';
 import { ChangedCriteriaParams, ExtendedCriteria } from '../model';
 import { informationLabel } from '../translatedLabels';
-
 import FilterSearch from './FilterSearch';
 import useExtendedFilter from './useExtendedFilter';
 
@@ -33,18 +32,17 @@ const ExtendedFilter = ({ data, changeCriteria }: Props): JSX.Element => {
   return (
     <div className={classes.containerFilter}>
       {inputGroupsData?.map((item) => (
-        <>
+        <div key={item.name}>
           <MemoizedInputGroup
             changeCriteria={changeCriteria}
             data={data}
             filterName={item.name as ExtendedCriteria}
-            key={item.name}
           />
           <Divider
             className={classes.dividerInputs}
             key={`${item.name}-divider`}
           />
-        </>
+        </div>
       ))}
 
       {displayInformationFilter && (

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostTemplate\Infrastructure\Repository;
 
 use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -84,7 +85,8 @@ use Utility\SqlConcatenator;
  */
 class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements ReadHostTemplateRepositoryInterface
 {
-    use LoggerTrait, HostCategoryRepositoryTrait;
+    use LoggerTrait;
+    use HostCategoryRepositoryTrait;
 
     /**
      * @param DatabaseConnection $db
@@ -198,7 +200,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array {
         $this->info('Getting all host templates');
         if ($accessGroups === []) {
@@ -206,7 +208,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         }
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -409,7 +411,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $this->info('Get a host template with ID #' . $hostTemplateId);
 
         $accessGroupIds = array_map(
-            static fn($accessGroup) => $accessGroup->getId(),
+            static fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -508,7 +510,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
             $bindValues[':tpl_' . $index] = $templateId;
         }
 
-        $hostTemplateIdsQuery = implode(', ',array_keys($bindValues));
+        $hostTemplateIdsQuery = implode(', ', array_keys($bindValues));
         $request = $this->translateDbName(
             <<<SQL
                 SELECT
@@ -593,14 +595,15 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $request = $this->translateDbName(
             <<<'SQL'
                 WITH RECURSIVE parents AS (
-                    SELECT * FROM `:db`.`host_template_relation`
+                    SELECT 1 as counter, host_template_relation.* FROM `:db`.`host_template_relation`
                     WHERE `host_host_id` = :hostTemplateId
                     UNION
-                    SELECT rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
+                    SELECT p.counter + 1, rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
                     WHERE rel.`host_host_id` = p.`host_tpl_id`
                 )
-                SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
+                SELECT counter, `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
                 FROM parents
+                order by counter, `order`;
                 SQL
         );
         $statement = $this->db->prepare($request);
@@ -622,12 +625,13 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
         $hostTemplateIdsFound = [];
         $concatenator = new SqlConcatenator();
 
-        $request = $this->translateDbName(<<<'SQL'
-            SELECT host_id
-            FROM `:db`.host
-            WHERE host_register = '0'
-                AND host_id IN (:host_ids)
-            SQL
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT host_id
+                FROM `:db`.host
+                WHERE host_register = '0'
+                    AND host_id IN (:host_ids)
+                SQL
         );
         $concatenator->defineSelect($request);
         $concatenator->storeBindValueMultiple(':host_ids', $hostTemplateIds, \PDO::PARAM_INT);
@@ -846,6 +850,41 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findByHostId(int $hostId): array
+    {
+        try {
+            $request = $this->translateDbName(
+                <<<'SQL'
+                    SELECT host_tpl_id
+                    FROM host_template_relation
+                    WHERE host_host_id = :hostId
+                    ORDER BY `order` ASC
+                    SQL
+            );
+            $statement = $this->db->prepare($request);
+            $statement->bindValue(':hostId', $hostId, \PDO::PARAM_INT);
+            $statement->execute();
+
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        } catch (\PDOException $exception) {
+            $errorMessage = 'Error while fetching host templates by host ID';
+            $this->error($errorMessage, [
+                'host_id' => $hostId,
+                'exception' => [
+                    'message' => $exception->getMessage(),
+                    'pdo_code' => $exception->getCode(),
+                    'pdo_info' => $exception->errorInfo,
+                    'trace' => $exception->getTraceAsString(),
+                ],
+            ]);
+
+            throw new RepositoryException(message: $errorMessage, previous: $exception);
+        }
+    }
+
+    /**
      * @param _HostTemplate $result
      *
      * @return HostTemplate
@@ -879,7 +918,7 @@ class DbReadHostTemplateRepository extends AbstractRepositoryRDB implements Read
                 default => SnmpVersion::from($result['host_snmp_version']),
             },
             (string) $result['host_snmp_community'],
-            0 === $result['host_location'] ? null : $result['host_location'],
+            $result['host_location'] === 0 ? null : $result['host_location'],
             $result['severity_id'],
             $result['command_command_id'],
             $extractCommandArguments($result['command_command_id_arg1']),

@@ -11,7 +11,7 @@ import {
   uniq
 } from 'ramda';
 
-import {
+import type {
   ConditionsSearchParameter,
   GetConditionsSearchQueryParameterValueState,
   GetListsSearchQueryParameterValueProps,
@@ -93,8 +93,14 @@ const getConditionsSearchQueryParameterValue = (
       equals(listField, field)
     );
 
+    const globalOperator = filteredItems.every(({ operator }) =>
+      equals(operator, filteredItems[0].operator)
+    )
+      ? filteredItems[0].operator || '$or'
+      : '$or';
+
     return {
-      $or: flatten(
+      [globalOperator]: flatten(
         filteredItems.map(({ value, values }) => {
           if (!isNil(value)) {
             return [

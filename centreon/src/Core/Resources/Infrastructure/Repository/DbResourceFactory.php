@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,6 +136,8 @@ class DbResourceFactory
             ->setStatus($status)
             ->setInDowntime((int) $record['in_downtime'] === 1)
             ->setAcknowledged((int) $record['acknowledged'] === 1)
+            ->setFlapping((int) $record['flapping'] === 1)
+            ->setPercentStateChange(self::getFloatOrNull($record['percent_state_change']))
             ->setStateType((int) $record['status_confirmed'])
             ->setName($name)
             ->setAlias($alias)
@@ -189,7 +191,7 @@ class DbResourceFactory
                 1 => ResourceStatus::STATUS_NAME_DOWN,
                 2 => ResourceStatus::STATUS_NAME_UNREACHABLE,
                 4 => ResourceStatus::STATUS_NAME_PENDING,
-                default => ResourceStatus::STATUS_NAME_PENDING
+                default => ResourceStatus::STATUS_NAME_PENDING,
             };
         }
 
@@ -199,7 +201,7 @@ class DbResourceFactory
             2 => ResourceStatus::STATUS_NAME_CRITICAL,
             3 => ResourceStatus::STATUS_NAME_UNKNOWN,
             4 => ResourceStatus::STATUS_NAME_PENDING,
-            default => ResourceStatus::STATUS_NAME_PENDING
+            default => ResourceStatus::STATUS_NAME_PENDING,
         };
     }
 
@@ -218,7 +220,7 @@ class DbResourceFactory
             2 => ResourceStatus::SEVERITY_LOW,
             3 => ResourceStatus::SEVERITY_MEDIUM,
             4 => ResourceStatus::SEVERITY_HIGH,
-            default => ResourceStatus::SEVERITY_PENDING
+            default => ResourceStatus::SEVERITY_PENDING,
         };
     }
 

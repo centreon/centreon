@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2020 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,36 +18,28 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\Repository;
 
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Adaptation\Database\Connection\ConnectionInterface;
 use Centreon\Infrastructure\DatabaseConnection;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
+/**
+ * Class
+ *
+ * @class AbstractRepositoryDRB
+ * @package Centreon\Domain\Repository
+ *
+ * @deprecated use {@see DatabaseRepository} instead
+ */
 class AbstractRepositoryDRB
 {
-    /**
-     * @var DatabaseConnection
-     */
-    protected $db;
-
-    /**
-     * Replace all instances of :dbstg and :db by the real db names.
-     * The table names of the database are defined in the services.yaml
-     * configuration file.
-     *
-     * @param string $request Request to translate
-     * @return string Request translated
-     */
-    protected function translateDbName(string $request): string
-    {
-        return str_replace(
-            [':dbstg', ':db'],
-            [$this->db->getStorageDbName(), $this->db->getCentreonDbName()],
-            $request
-        );
-    }
+    /** @var DatabaseConnection */
+    protected ConnectionInterface $db;
 
     /**
      * Formats the access group ids in string. (values are separated by coma)
@@ -61,6 +53,24 @@ class AbstractRepositoryDRB
         foreach ($accessGroups as $accessGroup) {
             $ids[] = $accessGroup->getId();
         }
+
         return implode(',', $ids);
+    }
+
+    /**
+     * Replace all instances of :dbstg and :db by the real db names.
+     * The table names of the database are defined in the services.yaml
+     * configuration file.
+     *
+     * @param string $request Request to translate
+     * @return string Request translated
+     */
+    protected function translateDbName(string $request): string
+    {
+        return str_replace(
+            [':dbstg', ':db'],
+            [$this->db->getConnectionConfig()->getDatabaseNameRealTime(), $this->db->getConnectionConfig()->getDatabaseNameConfiguration()],
+            $request
+        );
     }
 }

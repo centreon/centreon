@@ -1961,6 +1961,11 @@ font-size: 12px;
 .Toolbar_pagelimit select {
     float: right;
 }
+.Toolbar_totalDisplayed {
+    white-space: nowrap;
+    width: 1%;
+    padding: 0 15px;
+}
 .list_one,.list_two,.list_three,.list_four,.line_ack,.line_downtime,.list_unreachable,.row_disabled     {
     font-weight:400;
     vertical-align:middle;

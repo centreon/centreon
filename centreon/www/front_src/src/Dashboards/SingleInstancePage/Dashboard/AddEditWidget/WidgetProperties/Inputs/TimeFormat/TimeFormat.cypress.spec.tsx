@@ -1,10 +1,9 @@
-import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
-
 import { userAtom } from '@centreon/ui-context';
 
-import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
+import { Formik } from 'formik';
+import { createStore, Provider } from 'jotai';
 
+import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import TimeFormat from './TimeFormat';
 
 const initialize = ({ canEdit = true, hasValue = false }): void => {
@@ -12,7 +11,7 @@ const initialize = ({ canEdit = true, hasValue = false }): void => {
 
   store.set(hasEditPermissionAtom, canEdit);
   store.set(isEditingAtom, canEdit);
-  store.set(userAtom, { locale: 'fr_FR' });
+  store.set(userAtom, { locale: hasValue ? 'en_US' : 'fr_FR' });
 
   cy.mount({
     Component: (

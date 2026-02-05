@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { PageSkeleton, useFullscreen } from '@centreon/ui';
 
 import { equals, includes, isNil, replace } from 'ramda';
-import { useLocation, useNavigate } from 'react-router-dom';
-
-import { PageSkeleton, useFullscreen } from '@centreon/ui';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 
 const LegacyRoute = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
@@ -21,46 +20,55 @@ const LegacyRoute = (): JSX.Element => {
   const load = (): void => {
     setLoading(false);
 
-    window.frames[0].document.querySelectorAll('a').forEach((element) => {
-      element.addEventListener(
-        'click',
-        (e) => {
-          const href = (e.target as HTMLLinkElement).getAttribute('href');
-          const target = (e.target as HTMLLinkElement).getAttribute('target');
+    document
+      .getElementById('main-content')
+      ?.contentWindow?.document.querySelectorAll('a')
+      .forEach((element) => {
+        element.addEventListener(
+          'click',
+          (e) => {
+            const href = (e.target as HTMLLinkElement).getAttribute('href');
+            const target = (e.target as HTMLLinkElement).getAttribute('target');
 
-          if (equals(target, '_blank')) {
-            return;
-          }
+            if (equals(target, '_blank')) {
+              return;
+            }
 
-          e.preventDefault();
+            e.preventDefault();
 
-          if (isNil(href)) {
-            return;
-          }
+            if (isNil(href)) {
+              return;
+            }
 
-          const formattedHref = replace('./', '', href);
+            const formattedHref = replace('./', '', href);
 
-          if (equals(formattedHref, '#') || !formattedHref.match(/^main.php/)) {
-            return;
-          }
+            if (
+              equals(formattedHref, '#') ||
+              !formattedHref.match(/^main.php/)
+            ) {
+              return;
+            }
 
-          navigate(`/${formattedHref}`, { replace: true });
-        },
-        { once: true }
-      );
-    });
+            navigate(`/${formattedHref}`, { replace: true });
+          },
+          { once: true }
+        );
+      });
   };
 
   const toggle = (event: KeyboardEvent): void => {
     if (
-      includes(window.frames[0].document.activeElement?.tagName, [
-        'INPUT',
-        'TEXTAREA'
-      ]) ||
+      includes(
+        document.getElementById('main-content')?.contentWindow?.document
+          .activeElement?.tagName,
+        ['INPUT', 'TEXTAREA']
+      ) ||
       equals(
-        window.frames[0].document.activeElement?.getAttribute(
-          'contenteditable'
-        ),
+        document
+          .getElementById('main-content')
+          ?.contentWindow?.document.activeElement?.getAttribute(
+            'contenteditable'
+          ),
         'true'
       ) ||
       !equals(event.code, 'KeyF')
@@ -73,11 +81,15 @@ const LegacyRoute = (): JSX.Element => {
 
   useEffect(() => {
     window.addEventListener('react.href.update', handleHref, false);
-    window.frames[0].addEventListener('keypress', toggle, false);
+    document
+      .getElementById('main-content')
+      ?.contentWindow?.addEventListener('keypress', toggle, false);
 
     return () => {
       window.removeEventListener('react.href.update', handleHref);
-      window.frames[0]?.removeEventListener('keypress', toggle);
+      document
+        .getElementById('main-content')
+        ?.contentWindow?.removeEventListener('keypress', toggle);
     };
   }, []);
 
@@ -92,11 +104,11 @@ const LegacyRoute = (): JSX.Element => {
         frameBorder="0"
         id="main-content"
         name="main-content"
+        onLoad={load}
         scrolling="yes"
         src={`./main.get.php${params}`}
         style={{ height: '100%', width: '100%' }}
         title="Main Content"
-        onLoad={load}
       />
     </>
   );

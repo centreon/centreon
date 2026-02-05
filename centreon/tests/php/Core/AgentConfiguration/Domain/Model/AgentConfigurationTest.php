@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ namespace Tests\Core\AgentConfiguration\Domain\Model;
 use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\AgentConfiguration;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\AgentConfiguration\Domain\Model\Type;
 
 beforeEach(function (): void {
@@ -33,14 +34,13 @@ beforeEach(function (): void {
     $this->testedUpdatedAt = new \DateTimeImmutable('2023-05-09T16:00:00+00:00');
     $this->testedParameters = $this->createMock(ConfigurationParametersInterface::class);
     $this->testedType = Type::TELEGRAF;
-    $this->createAc = function (array $fields = []): AgentConfiguration {
-        return new AgentConfiguration(
-            id: $fields['id'] ?? 1,
-            name: $fields['name'] ?? 'ac-name',
-            type: $this->testedType,
-            configuration: $this->testedParameters,
-        );
-    };
+    $this->createAc = fn (array $fields = []): AgentConfiguration => new AgentConfiguration(
+        id: $fields['id'] ?? 1,
+        name: $fields['name'] ?? 'ac-name',
+        type: $this->testedType,
+        connectionMode: $fields['connection_mode'] ?? ConnectionModeEnum::SECURE,
+        configuration: $this->testedParameters,
+    );
 });
 
 it('should return properly set instance', function (): void {
@@ -55,7 +55,7 @@ it('should return properly set instance', function (): void {
 // mandatory fields
 it(
     'should throw an exception when name is an empty string',
-    fn() => ($this->createAc)(['name' => ''])
+    fn () => ($this->createAc)(['name' => ''])
 )->throws(
     AssertionException::class,
     AssertionException::notEmptyString('AgentConfiguration::name')->getMessage()
@@ -67,6 +67,7 @@ it('should return trimmed field name after construct', function (): void {
         id: 1,
         type: Type::TELEGRAF,
         name: ' abcd ',
+        connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->testedParameters
     );
 
@@ -82,7 +83,7 @@ foreach (
     $tooLong = str_repeat('a', $length + 1);
     it(
         "should throw an exception when {$field} is too long",
-        fn() => ($this->createAc)([$field => $tooLong])
+        fn () => ($this->createAc)([$field => $tooLong])
     )->throws(
         AssertionException::class,
         AssertionException::maxLength($tooLong, $length + 1, $length, "AgentConfiguration::{$field}")->getMessage()

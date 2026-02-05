@@ -1,9 +1,12 @@
+import { Tooltip, Typography } from '@mui/material';
+
 import { dateTimeFormat, useLocaleDateTimeFormat } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import { Tooltip, Typography } from '@mui/material';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import useAclQuery from '../../../Actions/Resource/aclQuery';
 import AddCommentForm from '../../../Graph/Performance/Graph/AddCommentForm';
 import {
@@ -48,7 +51,7 @@ const Comment = ({ resource, commentDate, hideAddCommentTooltip }: Props) => {
   return (
     <>
       <div className={classes.commentContainer}>
-        <Typography variant="body1" align="center">
+        <Typography align="center" variant="body1">
           {format({
             date: new Date(commentDate as Date),
             formatString: dateTimeFormat
@@ -57,8 +60,8 @@ const Comment = ({ resource, commentDate, hideAddCommentTooltip }: Props) => {
         <Tooltip title={commentTitle}>
           <Button
             disabled={!isCommentPermitted}
-            size="small"
             onClick={prepareAddComment}
+            size="small"
             variant="ghost"
           >
             <Typography variant="body2">{t(labelAddComment)}</Typography>
@@ -69,9 +72,9 @@ const Comment = ({ resource, commentDate, hideAddCommentTooltip }: Props) => {
       {addingComment && resource && (
         <AddCommentForm
           date={commentDate}
-          resource={resource}
           onClose={close}
           onSuccess={success}
+          resource={resource}
         />
       )}
     </>

@@ -1,6 +1,5 @@
-import { ReactElement, ReactNode } from 'react';
-
-import { useStyles } from './AreaIndicator.styles';
+/** biome-ignore-all lint/a11y/noLabelWithoutControl: need it */
+import type { ReactElement, ReactNode } from 'react';
 
 type AreaIndicatorProps = {
   children?: ReactNode | Array<ReactNode>;
@@ -17,16 +16,15 @@ const AreaIndicator = ({
   height = '100%',
   depth = 0
 }: AreaIndicatorProps): ReactElement => {
-  const { classes } = useStyles();
-
   return (
     <div
-      className={classes.areaIndicator}
+      className={'bg-secondary-main/25 min-h-8 grid grid-cols-[3fr_1fr]'}
       data-depth={depth}
       style={{ height, width }}
     >
-      {/* biome-ignore lint/a11y: */}
-      <label>{name}</label>
+      <label className="left-2 rounded-sm border border-[#9747FF7F] border-dashed text-[#9747FF] text-[0.75rem] font-medium left-2 top-1.5 px-2 py-0.5">
+        {name}
+      </label>
       {children}
     </div>
   );

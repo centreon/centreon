@@ -26,6 +26,8 @@ function selectFilter(selected) {
 function submitForm() {
     var data = jQuery("#exportForm").serializeArray();
     jQuery(".loadingWrapper").css('display', 'block');
+    var messageWrapper = jQuery(".msg-wrapper");
+    messageWrapper.hide();
     jQuery.ajax({
         type: "POST",
         url: "./modules/centreon-awie/core/generateExport.php",
@@ -38,9 +40,13 @@ function submitForm() {
             errorMsg += oData.error;
             errorMsg = errorMsg.replace(",", "\n");
             if (errorMsg.length !== 0 && errorMsg !== 'undefined') {
-                alert(errorMsg);
+                messageWrapper
+                    .show()
+                    .html('<span class="error-msg">' + errorMsg + '</span>');
+            } else {
+                messageWrapper.hide();
+                jQuery("#downloadForm").submit();
             }
-            jQuery("#downloadForm").submit();
             jQuery(".loadingWrapper").css('display', 'none');
         },
     });

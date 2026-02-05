@@ -1,19 +1,18 @@
-import { Provider, createStore } from 'jotai';
-import { equals, last } from 'ramda';
-import { BrowserRouter } from 'react-router-dom';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { equals, last } from 'ramda';
+import { BrowserRouter } from 'react-router';
+
 import { getPublicWidgetEndpoint } from '../../../utils';
-import StatusChart from '../StatusChart';
 import {
   hostStatusesEndpoint,
   resourcesEndpoint,
   serviceStatusesEndpoint
 } from '../api/endpoint';
 import { Data, DisplayType, PanelOptions } from '../models';
-
+import StatusChart from '../StatusChart';
 import {
   hostStatus,
   resources,
@@ -120,6 +119,111 @@ const displayTypes = [
   }
 ];
 
+describe('Status chart', () => {
+  it('displays nothing when the API data is empty', () => {
+    cy.interceptAPIRequest({
+      alias: 'getResourcesByHost',
+      method: Method.GET,
+      path: `./api/latest${hostStatusesEndpoint}**`,
+      response: undefined
+    });
+
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Donut,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('hosts').should('not.exist');
+  });
+
+  it('displays a message when values are null', () => {
+    cy.fixture('Widgets/StatusChart/hostStatusesNullValues.json').then(
+      (data) => {
+        cy.interceptAPIRequest({
+          alias: 'getResourcesByHost',
+          method: Method.GET,
+          path: `./api/latest${hostStatusesEndpoint}**`,
+          response: data
+        });
+      }
+    );
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Donut,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('No host found').should('be.visible');
+  });
+
+  it('redirects to resources status when an arc is clicked', () => {
+    cy.fixture('Widgets/StatusChart/hostStatuses.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getResourcesByHost',
+        method: Method.GET,
+        path: `./api/latest${hostStatusesEndpoint}**`,
+        response: data
+      });
+    });
+    cy.window().then((window) => {
+      cy.stub(window, 'open').as('windowOpen');
+    });
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Donut,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('hosts').should('be.visible');
+    cy.get('path[fill="#FF6666"]').click(10, 10);
+
+    cy.get('@windowOpen').should(
+      'have.been.calledWith',
+      '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22host%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%7B%22id%22%3A%22DOWN%22%2C%22name%22%3A%22Down%22%7D%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbHost%5C%5Cb%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22host_group%22%2C%22value%22%3A%5B%7B%22id%22%3A%22HG1%22%2C%22name%22%3A%22HG1%22%7D%2C%7B%22id%22%3A%22HG2%22%2C%22name%22%3A%22HG2%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+    );
+  });
+
+  it('redirects to resources status when a slice is clicked', () => {
+    cy.fixture('Widgets/StatusChart/hostStatuses.json').then((data) => {
+      cy.interceptAPIRequest({
+        alias: 'getResourcesByHost',
+        method: Method.GET,
+        path: `./api/latest${hostStatusesEndpoint}**`,
+        response: data
+      });
+    });
+    cy.window().then((window) => {
+      cy.stub(window, 'open').as('windowOpen');
+    });
+    initialize({
+      data: { resources },
+      options: {
+        ...resourcesOptions,
+        displayType: DisplayType.Pie,
+        resourceTypes: ['host']
+      }
+    });
+    cy.waitForRequest('@getResourcesByHost');
+    cy.contains('hosts').should('be.visible');
+    cy.get('path[fill="#FF6666"]').click(10, 10);
+
+    cy.get('@windowOpen').should(
+      'have.been.calledWith',
+      '/monitoring/resources?filter=%7B%22criterias%22%3A%5B%7B%22name%22%3A%22resource_types%22%2C%22value%22%3A%5B%7B%22id%22%3A%22host%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22statuses%22%2C%22value%22%3A%5B%7B%22id%22%3A%22DOWN%22%2C%22name%22%3A%22Down%22%7D%5D%7D%2C%7B%22name%22%3A%22states%22%2C%22value%22%3A%5B%5D%7D%2C%7B%22name%22%3A%22parent_name%22%2C%22value%22%3A%5B%7B%22id%22%3A%22%5C%5CbHost%5C%5Cb%22%2C%22name%22%3A%22Host%22%7D%5D%7D%2C%7B%22name%22%3A%22host_group%22%2C%22value%22%3A%5B%7B%22id%22%3A%22HG1%22%2C%22name%22%3A%22HG1%22%7D%2C%7B%22id%22%3A%22HG2%22%2C%22name%22%3A%22HG2%22%7D%5D%7D%2C%7B%22name%22%3A%22search%22%2C%22value%22%3A%22%22%7D%5D%7D&fromTopCounter=true'
+    );
+  });
+});
+
 describe('Public widget', () => {
   it('sends a request to the public API when the widget is displayed in a public page', () => {
     interceptRequests();
@@ -156,8 +260,6 @@ displayTypes.forEach(({ displayType, label }) => {
       });
 
       cy.get(`[data-variant="${displayType}"]`).should('exist');
-
-      cy.makeSnapshot();
     });
 
     it('displays charts with the default values', () => {
@@ -179,8 +281,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '19.8%');
-
-      cy.makeSnapshot(`${label} : displays charts with the default values`);
     });
 
     it(`displays a ${label} for services when the resource type is set to service and displayType to ${displayType}`, () => {
@@ -196,8 +296,6 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.findByText('212 hosts').should('not.exist');
       cy.contains('678');
       cy.contains('services');
-
-      cy.makeSnapshot();
     });
 
     it(`displays a ${label} for hosts when the resource type is set to host and displayType to ${displayType}`, () => {
@@ -213,8 +311,6 @@ displayTypes.forEach(({ displayType, label }) => {
       cy.contains('212');
       cy.contains('hosts');
       cy.findByText('678 services').should('not.exist');
-
-      cy.makeSnapshot();
     });
 
     it('conditionally displays the legend based on displayLegend prop', () => {
@@ -241,10 +337,6 @@ displayTypes.forEach(({ displayType, label }) => {
       });
 
       cy.findByTestId('Legend').should('be.visible');
-
-      cy.makeSnapshot(
-        `${label} : conditionally displays the legend based on displayLegend prop`
-      );
     });
 
     it('conditionally displays values based on displayValues prop', () => {
@@ -275,10 +367,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '5.8%');
-
-      cy.makeSnapshot(
-        `${label} : conditionally displays values based on displayValues prop`
-      );
     });
 
     it('displays values with the unit "number" when the displayValues is set to true and unit to number', () => {
@@ -297,8 +385,6 @@ displayTypes.forEach(({ displayType, label }) => {
         .children()
         .eq(0)
         .should('have.text', '39');
-
-      cy.makeSnapshot(`${label} : displays values with the unit "number"`);
     });
 
     describe('Tooltip', () => {
@@ -346,10 +432,6 @@ displayTypes.forEach(({ displayType, label }) => {
           );
 
           cy.contains('February 1, 2024').should('be.visible');
-
-          cy.makeSnapshot(
-            `${label} : 'displays tooltip with correct information on hover for type ${resourceType}`
-          );
         });
       });
     });

@@ -1,0 +1,37 @@
+api_platform:
+    title: Centreon
+    version: 26.03.0
+    show_webby: false
+
+    name_converter: 'serializer.name_converter.camel_case_to_snake_case'
+
+    exception_to_status:
+        ApiPlatform\Validator\Exception\ValidationException: 400 # To be compatible with the legacy
+        App\Shared\Domain\Exception\AggregateAlreadyExistsException: 409
+        App\Security\Domain\Exception\CredentialDisabledException: 401
+
+    defaults:
+        stateless: false # Cannot set it to "true" yet, because of the session login mecanism
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin', 'X-Auth-Token']
+        denormalization_context:
+            collect_denormalization_errors: true
+        pagination_client_items_per_page: true
+
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src/App/MonitoringConfiguration/Infrastructure/ApiPlatform/Resource/'
+
+    swagger:
+         api_keys:
+             apiKey:
+                name: X-Auth-Token
+                type: header
+
+    collection:
+        pagination:
+            items_per_page_parameter_name: itemsPerPage
+
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json'] # To support legacy calls

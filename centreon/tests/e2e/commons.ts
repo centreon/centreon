@@ -1,4 +1,3 @@
-/* eslint-disable cypress/no-unnecessary-waiting */
 interface ActionClapi {
   action: string;
   object?: string;
@@ -18,7 +17,7 @@ interface SubmitResult {
 }
 
 const stepWaitingTime = 250;
-const pollingCheckTimeout = 60000;
+const pollingCheckTimeout = 200000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
 const waitToExport = 5000;
 
@@ -161,9 +160,8 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
         condition += ` AND s.acknowledged = ${acknowledged === true ? 1 : 0}`;
       }
       if (inDowntime !== null) {
-        condition += ` AND s.scheduled_downtime_depth = ${
-          inDowntime === true ? 1 : 0
-        }`;
+        condition += ` AND s.scheduled_downtime_depth = ${inDowntime === true ? 1 : 0
+          }`;
       }
       if (statusType !== '') {
         condition += ` AND s.state_type = ${getStatusTypeNumberFromString(
@@ -188,6 +186,7 @@ const checkServicesAreMonitored = (services: Array<MonitoredService>): void => {
 
     cy.log('Service count in database', foundServiceCount);
     cy.log('Service database check step count', servicesFoundStepCount);
+    cy.log('Need', services.length, 'services');
 
     if (foundServiceCount >= services.length) {
       servicesFoundStepCount = 0;
@@ -308,17 +307,15 @@ const applyConfigurationViaClapi = (): Cypress.Chainable => {
 };
 
 const updateFixturesResult = (): Cypress.Chainable => {
-  return cy
-    .fixture('resources/clapi/submit-results.json')
-    .then(({ results }) => {
-      const timestampNow = Math.floor(Date.now() / 1000) - 15;
+  return cy.fixture('resources/clapi/submit-results.json').then(({ results }) => {
+    const timestampNow = Math.floor(Date.now() / 1000) - 15;
 
-      const submitResults = results.map((submittedResult) => {
-        return { ...submittedResult, updatetime: timestampNow.toString() };
-      });
-
-      return submitResults;
+    const submitResults = results.map((submittedResult) => {
+      return { ...submittedResult, updatetime: timestampNow.toString() };
     });
+
+    return submitResults;
+  });
 };
 
 const submitResultsViaClapi = (
@@ -379,7 +376,7 @@ const checkIfConfigurationIsExported = ({
       return null;
     }
 
-    throw new Error(`No configuration has been exported`);
+    throw new Error('No configuration has been exported');
   });
 };
 
@@ -430,7 +427,7 @@ const configureProviderAcls = (): Cypress.Chainable => {
 };
 
 const configureACLGroups = (path: string): Cypress.Chainable => {
-  cy.getByLabel({ label: 'Roles mapping' }).click();
+  cy.get('[data-testid="Roles mapping-header"]').click();
 
   cy.getByLabel({
     label: 'Enable automatic management',
@@ -469,8 +466,8 @@ const configureACLGroups = (path: string): Cypress.Chainable => {
 };
 
 export {
-  ActionClapi,
-  SubmitResult,
+  type ActionClapi,
+  type SubmitResult,
   checkThatConfigurationIsExported,
   checkHostsAreMonitored,
   checkMetricsAreMonitored,

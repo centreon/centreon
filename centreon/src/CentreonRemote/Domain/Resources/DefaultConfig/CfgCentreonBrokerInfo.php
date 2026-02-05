@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -306,13 +306,6 @@ class CfgCentreonBrokerInfo
                 'config_id' => 1,
                 'config_key' => 'length',
                 'config_value' => '15552000',
-                'config_group' => 'output',
-                'config_group_id' => 1,
-            ],
-            [
-                'config_id' => 1,
-                'config_key' => 'check_replication',
-                'config_value' => 'no',
                 'config_group' => 'output',
                 'config_group_id' => 1,
             ],

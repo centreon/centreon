@@ -6,6 +6,6 @@ module.exports = defineCypressConfig({
       exclude: ['cypress/**/*.*', 'node_modules', '**/*.js']
     }
   },
-  rspackConfig: require('../../rspack.config.cypress'),
+  rspackConfig: require('../../rspack.config.cypress-ui'),
   specPattern: './src/**/*.cypress.spec.tsx'
 });

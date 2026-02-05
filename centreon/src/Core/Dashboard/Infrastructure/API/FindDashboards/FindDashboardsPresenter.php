@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ final class FindDashboardsPresenter extends DefaultPresenter implements FindDash
                     'own_role' => DashboardSharingRoleConverter::toString($dashboard->ownRole),
                     'shares' => $this->formatShares($dashboard->shares),
                     'thumbnail' => $this->formatThumbnail($dashboard->thumbnail),
+                    'is_favorite' => $dashboard->isFavorite,
                 ];
             }
 

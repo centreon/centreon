@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,21 +25,21 @@ namespace Tests\Core\Dashboard\Application\UseCase\FindPerformanceMetricsData;
 
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Monitoring\Host;
+use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
 use Centreon\Domain\Monitoring\Service;
-use Core\Dashboard\Domain\Model\DashboardRights;
+use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Dashboard\Application\Exception\DashboardException;
-use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
-use Core\Metric\Domain\Model\MetricInformation\GeneralInformation;
-use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
-use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
-use Centreon\Domain\Monitoring\Metric\Interfaces\MetricRepositoryInterface;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsData;
-use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequest;
+use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataRequestDto;
 use Core\Dashboard\Application\UseCase\FindPerformanceMetricsData\FindPerformanceMetricsDataResponse;
+use Core\Dashboard\Domain\Model\DashboardRights;
+use Core\Metric\Application\Repository\ReadMetricRepositoryInterface;
+use Core\Metric\Domain\Model\MetricInformation\GeneralInformation;
+use Core\Metric\Domain\Model\MetricInformation\MetricInformation;
+use Core\Metric\Domain\Model\MetricInformation\ThresholdInformation;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->adminUser = (new Contact())->setAdmin(true)->setId(1);
@@ -54,8 +54,7 @@ beforeEach(function (): void {
 
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -76,13 +75,11 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
     $this->expect($presenter->data)
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($presenter->data->getMessage())->toBe(DashboardException::accessNotAllowed()->getMessage());
-
 });
 
 it('should present an ErrorResponse when an error occurs', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta', 'pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -112,8 +109,7 @@ it('should present an ErrorResponse when an error occurs', function (): void {
 
 it('should get the metrics with access group management when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta', 'pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -138,8 +134,7 @@ it('should get the metrics with access group management when the user is not adm
 
 it('should get the metrics without access group management when the user is admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta', 'pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,
@@ -164,8 +159,7 @@ it('should get the metrics without access group management when the user is admi
 
 it('should take account of access groups to retrieve metrics when the user is not admin', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["rta","pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['rta', 'pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,
@@ -190,8 +184,7 @@ it('should take account of access groups to retrieve metrics when the user is no
 
 it('should present a FindPerformanceMetricsDataResponse when metrics are correctly retrieve', function (): void {
     $presenter = new FindPerformanceMetricsDataPresenterStub();
-    $request =  new FindPerformanceMetricsDataRequest(new \DateTime(), new \DateTime());
-    $request->metricNames = ["pl"];
+    $request =  new FindPerformanceMetricsDataRequestDto(new \DateTime(), new \DateTime(), ['pl']);
     $useCase = new FindPerformanceMetricsData(
         $this->adminUser,
         $this->requestParameters,
@@ -205,6 +198,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
         ->setId(1)
         ->setHost(
             (new Host())->setId(2)->setName('myHost')
+                ->setName('Ping')
         );
 
     $this->rights
@@ -231,7 +225,8 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
                 'global' => [
                     'base' => 1000,
                     'title' => 'Ping graph on myHost',
-                    'host_name' => 'myHost'
+                    'host_name' => 'myHost',
+                    'service_description' => 'Ping',
                 ],
                 'metrics' => [
                     [
@@ -254,7 +249,7 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
                             'ds_total' => null,
                             'ds_tickness' => 1,
                             'ds_color_line_mode' => '0',
-                            'ds_color_line' => '#f0f'
+                            'ds_color_line' => '#f0f',
                         ],
                         'warn' => null,
                         'warn_low' => null,
@@ -262,20 +257,20 @@ it('should present a FindPerformanceMetricsDataResponse when metrics are correct
                         'crit_low' => null,
                         'ds_color_area_warn' => '#f0f',
                         'ds_color_area_crit' => '#f0f',
-                        'data' => [0,0,0,null],
-                        'prints' => [['Min:0.0'],['Average:0.0']],
+                        'data' => [0, 0, 0, null],
+                        'prints' => [['Min:0.0'], ['Average:0.0']],
                         'min' => null,
                         'max' => null,
                         'last_value' => null,
                         'minimum_value' => null,
                         'maximum_value' => null,
-                        'average_value' => null
-                    ]
+                        'average_value' => null,
+                    ],
                 ],
                 'times' => [
-                    "1690732800",
-                    "1690790400"
-                ]
+                    '1690732800',
+                    '1690790400',
+                ],
             ]
         );
 

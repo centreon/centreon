@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,13 @@ class DbNotifiedContactFactory
      */
     public static function createFromRecord(array $contact): NotifiedContact
     {
-        $hostNotification = DbContactHostNotificationFactory::createFromRecord($contact);
+        $hostNotification = $contact['host_timeperiod_id'] !== null
+            ? DbContactHostNotificationFactory::createFromRecord($contact)
+            : null;
 
-        $serviceNotification = DbContactServiceNotificationFactory::createFromRecord($contact);
+        $serviceNotification = $contact['service_timeperiod_id'] !== null
+            ? DbContactServiceNotificationFactory::createFromRecord($contact)
+            : null;
 
         return new NotifiedContact(
             (int) $contact['contact_id'],

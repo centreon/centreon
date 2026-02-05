@@ -1,21 +1,22 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
 
 import { Data, FormThreshold } from '../../models';
 import { labelPreviewRemainsEmpty } from '../../translatedLabels';
 import { getPublicWidgetEndpoint } from '../../utils';
-
+import Widget from '.';
 import { metricsTopEndpoint } from './api/endpoint';
 import { TopBottomSettings } from './models';
 
-import Widget from '.';
-
 interface Props {
+  data?: Data;
   isPublic?: boolean;
   topBottomSettings?: TopBottomSettings;
+  viewport?: [number, number];
+  topMetricsPath?: string;
 }
 
 const defaultSettings = {
@@ -24,7 +25,7 @@ const defaultSettings = {
   showLabels: true
 } as const;
 
-const data: Data = {
+const widgetData: Data = {
   metrics: [
     {
       id: 2,
@@ -34,25 +35,88 @@ const data: Data = {
   ],
   resources: [
     {
-      resourceType: 'host-group',
       resources: [
         {
           id: 1,
           name: 'HG1'
         }
-      ]
+      ],
+      resourceType: 'host-group'
     },
     {
-      resourceType: 'host',
       resources: [
         {
           id: 1,
           name: 'H1'
         }
-      ]
+      ],
+      resourceType: 'host'
     }
   ]
 };
+
+const metaServiceData: Data = {
+  metrics: [
+    {
+      id: 1,
+      name: 'free',
+      unit: ''
+    }
+  ],
+  resources: [
+    {
+      resources: [
+        {
+          id: 1,
+          name: 'M1'
+        }
+      ],
+      resourceType: 'meta-service'
+    }
+  ]
+};
+
+const widgetDataRegex: Data = {
+  metrics: [
+    {
+      id: 2,
+      name: 'C:#storage',
+      unit: 'B'
+    }
+  ],
+  resources: [
+    {
+      resources: '^Loa',
+      resourceType: 'service'
+    },
+    {
+      resources: [
+        {
+          id: 1,
+          name: 'H1'
+        }
+      ],
+      resourceType: 'host'
+    }
+  ]
+};
+
+const getTopMetrics = (fixturePath) => {
+  cy.fixture(fixturePath).then((topBottom) => {
+    cy.interceptAPIRequest({
+      alias: 'getTop',
+      method: Method.GET,
+      path: `${metricsTopEndpoint}**`,
+      response: topBottom
+    });
+  });
+};
+
+const resolutionData = [
+  { height: 590, width: 1024 },
+  { height: 590, width: 600 },
+  { height: 590, width: 350 }
+];
 
 const defaultThreshold: FormThreshold = {
   criticalType: 'default',
@@ -67,31 +131,27 @@ const linkToResourcePing1 =
 
 const initializeComponent = ({
   topBottomSettings = defaultSettings,
-  isPublic = false
+  isPublic = false,
+  data = widgetData,
+  topMetricsPath = 'Widgets/Graph/topBottom.json',
+  viewport = [1280, 800]
 }: Props): void => {
   const store = createStore();
   store.set(isOnPublicPageAtom, isPublic);
 
-  cy.viewport('macbook-13');
+  cy.viewport(...viewport);
 
-  cy.fixture('Widgets/Graph/topBottom.json').then((topBottom) => {
-    cy.interceptAPIRequest({
-      alias: 'getTop',
-      method: Method.GET,
-      path: `${metricsTopEndpoint}**`,
-      response: topBottom
-    });
+  getTopMetrics(topMetricsPath);
 
-    cy.interceptAPIRequest({
-      alias: 'getPublicWidget',
-      method: Method.GET,
-      path: `./api/latest${getPublicWidgetEndpoint({
-        dashboardId: 1,
-        playlistHash: 'hash',
-        widgetId: '1'
-      })}`,
-      response: data
-    });
+  cy.interceptAPIRequest({
+    alias: 'getPublicWidget',
+    method: Method.GET,
+    path: `./api/latest${getPublicWidgetEndpoint({
+      dashboardId: 1,
+      playlistHash: 'hash',
+      widgetId: '1'
+    })}`,
+    response: data
   });
 
   cy.mount({
@@ -168,6 +228,19 @@ describe('Public widget', () => {
 });
 
 describe('TopBottom', () => {
+  it('handles regex resources when the appropriate data is provided', () => {
+    initializeComponent({
+      data: widgetDataRegex
+    });
+
+    cy.waitForRequest('@getTop').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        // biome-ignore lint/security/noSecrets: false positive
+        '{"$and":[{"$and":[{"host.id":{"$in":[1]}}]},{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]}]}]}'
+      );
+    });
+  });
+
   it('displays a message when the dataset is empty', () => {
     initializeEmptyComponent();
     cy.contains(labelPreviewRemainsEmpty).should('be.visible');
@@ -219,7 +292,8 @@ describe('TopBottom', () => {
         numberOfValues: 5,
         order: 'bottom',
         showLabels: false
-      }
+      },
+      topMetricsPath: 'Widgets/Graph/topBottom.json'
     });
 
     cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
@@ -251,5 +325,63 @@ describe('TopBottom', () => {
     cy.findAllByTestId('link to Ping_1')
       .eq(1)
       .should('have.attr', 'href', linkToResourcePing1);
+  });
+
+  it('sends a request with meta-service when the corresponding data is provided', () => {
+    initializeComponent({
+      data: metaServiceData
+    });
+
+    cy.waitForRequest('@getTop').then(({ request }) => {
+      const searchParameters = request.url.searchParams;
+
+      expect(searchParameters.get('search')).to.equal(
+        '{"$and":[{"metaservice.id":{"$in":[1]}}]}'
+      );
+      expect(searchParameters.get('metrics_names')).to.equal(null);
+    });
+  });
+});
+
+resolutionData.forEach(({ height, width }) => {
+  describe('Responsiveness topBottom', () => {
+    beforeEach(() => {
+      cy.viewport(width, height);
+    });
+
+    it(`adapt the resource name area without exceeding the longest name when screen resolution is ${width}px`, () => {
+      initializeComponent({
+        topMetricsPath: 'Widgets/Graph/topMetricsWithLongRSname.json',
+        viewport: [width, height]
+      });
+      cy.waitForRequest('@getTop');
+      cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
+      cy.contains('#2 Centreon_server_Ping_2').should('be.visible');
+      cy.contains('#3 Centreon_server_exmaple_200_chars_').should('be.visible');
+
+      cy.contains('10 B').should('be.visible');
+      cy.contains('20 B').should('be.visible');
+      cy.contains('40 B').should('be.visible');
+
+      cy.makeSnapshotWithCustomResolution({
+        resolution: { height, width },
+        title: `adapt the resource name area without exceeding the longest name when screen resolution is ${width}px`
+      });
+    });
+
+    it(`maintain a fixed 24px space between resource name and bar chart when screen resolution is ${width}px`, () => {
+      initializeComponent({
+        topMetricsPath: 'Widgets/Graph/topMetricsWithUniqueRS.json',
+        viewport: [width, height]
+      });
+      cy.waitForRequest('@getTop');
+      cy.contains('#1 Centreon_server_Ping_1').should('be.visible');
+      cy.contains('10 B').should('be.visible');
+
+      cy.makeSnapshotWithCustomResolution({
+        resolution: { height, width },
+        title: `maintain a fixed 24px space between resource name and bar chart when screen resolution is${width}px`
+      });
+    });
   });
 });

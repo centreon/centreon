@@ -1,7 +1,11 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
+import {
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
+} from '../../../commons';
 import { searchInput, setUserFilter } from '../common';
-import { checkServicesAreMonitored } from '../../../commons';
 
 const serviceOk = 'service_test_ok';
 const serviceInDtName = 'service_downtime_1';
@@ -124,6 +128,18 @@ beforeEach(() => {
       status: 'ok'
     }
   ]);
+
+  ['Disk-/', 'Load', 'Memory', 'Ping'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
+
+  checkMetricsAreMonitored([
+    {
+      host: 'Centreon-Server',
+      name: 'rta',
+      service: 'Ping'
+    }
+  ]);
 });
 
 Then('the unhandled problems filter is selected', (): void => {
@@ -162,7 +178,7 @@ Given('a saved custom filter', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);

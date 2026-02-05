@@ -1,0 +1,1048 @@
+import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
+import {
+  labelAction,
+  labelAdd,
+  labelAddAgentConfiguration,
+  labelAddAHost,
+  labelAgentConfigurationCreated,
+  labelAgentConfigurationUpdated,
+  labelAgentsConfigurations,
+  labelAgentType,
+  labelByPoller,
+  labelCACommonName,
+  labelCaCertificate,
+  labelCancel,
+  labelClear,
+  labelConfigurationServer,
+  labelConnectionInitiated,
+  labelDelete,
+  labelDeleteAgent,
+  labelDeletePoller,
+  labelDNSIP,
+  labelEncryptionLevel,
+  labelInsecure,
+  labelInvalidExtension,
+  labelInvalidPath,
+  labelMonitoredHosts,
+  labelName,
+  labelNoTLS,
+  labelOTLPReceiver,
+  labelPoller,
+  labelPollers,
+  labelPort,
+  labelPrivateKey,
+  labelPublicCertificate,
+  labelRelativePathAreNotAllowed,
+  labelRequired,
+  labelSave,
+  labelSearch,
+  labelSelectExistingCMAToken,
+  labelSelectExistingCMATokens,
+  labelSelectHost,
+  labelTLS,
+  labelWarningEncryptionLevelCMA,
+  labelWarningEncryptionLevelTelegraf,
+  labelWelcomeToTheAgentsConfigurationPage
+} from '../translatedLabels';
+import initialize from './initialize';
+
+describe('Agent configurations', () => {
+  it('displays a welcome label when the listing is empty', () => {
+    initialize({ isListingEmpty: true });
+
+    cy.waitForRequest('@getEmptyAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+    cy.contains(labelWelcomeToTheAgentsConfigurationPage).should('be.visible');
+    cy.get('button').contains(labelAddAgentConfiguration).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the listing', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+    cy.get('button').contains(labelAdd).should('be.visible');
+    cy.contains(labelName).should('be.visible');
+    cy.contains(labelAgentType).should('be.visible');
+    cy.contains(labelPoller).should('be.visible');
+    cy.contains(labelAction).should('be.visible');
+    cy.contains('AC 0').should('be.visible');
+    cy.contains('Telegraf').should('be.visible');
+    cy.contains('2 pollers').should('be.visible');
+    cy.contains('0 poller').should('be.visible');
+    cy.get(`button[data-testid="${labelDelete}"]`).should('have.length', 10);
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a request when a column sort is clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.contains(labelName).click();
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"desc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('sends a listing request with the search bar content when after a delay', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.findAllByPlaceholderText(labelSearch).clear().type('My agent');
+
+    cy.wait(500);
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: [{ $or: [{ name: { $rg: 'My agent' } }] }]
+      });
+    });
+  });
+
+  it('sends a listing request when the filters are updated and search button clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains('AC 0');
+    cy.findByLabelText('Filters').click();
+
+    cy.findByLabelText(labelPoller).click({ force: true });
+    cy.waitForRequest('@getFilterPollers');
+    cy.contains('poller6').click();
+
+    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findAllByTestId(labelName).eq(1).clear().type('My agent');
+
+    cy.contains(labelSearch).click();
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: [
+          { $or: [{ name: { $rg: 'My agent' } }] },
+          { $or: [{ type: { $in: ['telegraf'] } }] },
+          {
+            $or: [{ 'poller.id': { $in: [6] } }]
+          }
+        ]
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('deletes a selected poller when the icon is clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.findByLabelText('Filters').click();
+    cy.findByLabelText(labelPoller).click({ force: true });
+
+    cy.waitForRequest('@getFilterPollers');
+
+    cy.contains('poller6').click();
+
+    cy.findByTestId('CancelIcon').click();
+    cy.findByLabelText('Filters').click();
+
+    cy.contains('poller6').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('deletes a selected agent type when the icon is clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.findByLabelText('Filters').click();
+    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByTestId('CancelIcon').click();
+    cy.findByLabelText('Filters').click();
+
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('clears filters when filters are populated and the corresponding button is clicked', () => {
+    initialize({});
+
+    // cy.waitForRequest('@getAgentConfigurations');
+    cy.findByLabelText('Filters').click();
+    cy.findByLabelText(labelAgentType).click({ force: true });
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelPoller).click({ force: true });
+
+    cy.waitForRequest('@getFilterPollers');
+    cy.contains('poller6').click();
+
+    cy.findAllByTestId(labelName).eq(1).clear().type('My agent');
+
+    cy.contains(labelClear).click();
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(JSON.parse(request.url.searchParams.get('search'))).to.deep.equal({
+        $and: []
+      });
+    });
+
+    cy.findAllByTestId(labelName).eq(1).should('have.value', '');
+    cy.contains('poller6').should('not.exist');
+    cy.contains('Centreon Monitoring Agent').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('cancels a poller deletion when the corresponding icon is clicked and the corresponding is clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
+
+    cy.contains(labelDeleteAgent).should('be.visible');
+    cy.contains('You are going to delete the').should('be.visible');
+    cy.contains('AC 0').should('be.visible');
+    cy.contains(
+      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
+    ).should('be.visible');
+
+    cy.contains(labelCancel).click();
+
+    cy.contains(labelDeleteAgent).should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('deletes an agent when the corresponding action icon is clicked and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.get(`button[data-testid="${labelDelete}"]`).first().click();
+
+    cy.contains(labelDeleteAgent).should('be.visible');
+    cy.contains('You are going to delete the').should('be.visible');
+    cy.contains('AC 0').should('be.visible');
+    cy.contains(
+      'agent configuration. All parameters for this agent configuration will be deleted. This action cannot be undone.'
+    ).should('be.visible');
+
+    cy.contains(/^Delete$/).click();
+
+    cy.waitForRequest('@deleteAgent');
+
+    cy.contains(labelDeleteAgent).should('not.exist');
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.makeSnapshot();
+  });
+
+  it('deletes a poller when the corresponding icon is clicked and the corresponding is clicked', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations').then(({ request }) => {
+      expect(decodeURIComponent(request.url.search)).equals(
+        '?page=1&limit=10&sort_by={"name":"asc"}&search={"$and":[]}'
+      );
+    });
+
+    cy.findByTestId('Expand 0').click();
+
+    cy.contains('poller 1').should('be.visible');
+    cy.contains('poller 2').should('be.visible');
+
+    cy.get(`button[data-testid="${labelDelete}"]`).eq(1).click();
+
+    cy.contains(labelDeletePoller).should('be.visible');
+    cy.contains('You are going to delete the').should('be.visible');
+    cy.contains('AC 0').should('be.visible');
+    cy.contains(
+      'agent configuration. All configuration parameters for this poller will be deleted. This action cannot be undone.'
+    ).should('be.visible');
+
+    cy.contains(/^Delete$/).click();
+
+    cy.waitForRequest('@deletePoller');
+
+    cy.contains(labelDeleteAgent).should('not.exist');
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.makeSnapshot();
+  });
+});
+
+describe('Agent configurations modal', () => {
+  it('does not validate the form when fields contain errors', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.contains(labelAdd).should('be.visible');
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+    cy.findByLabelText(labelName).focus();
+    cy.findByLabelText(labelName).blur();
+    cy.findByLabelText(labelPollers).focus();
+    cy.findByLabelText(labelPollers).blur();
+    cy.findAllByLabelText(labelPort).eq(0).type('123456');
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).type('./test.cer');
+    cy.findByLabelText(labelCaCertificate).type('//test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.abc');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.xyz');
+    cy.findByLabelText(labelCaCertificate).type('test.cer');
+    cy.findByLabelText(labelCaCertificate).blur();
+
+    cy.findByLabelText(labelAgentType).should('have.value', 'Telegraf');
+    cy.findAllByText(labelRequired).should('have.length', 2);
+    cy.findAllByText(labelPortExpectedAtMost).should('have.length', 1);
+    cy.findAllByText(labelRelativePathAreNotAllowed).should('have.length', 1);
+    cy.findAllByText(labelInvalidPath).should('have.length', 1);
+    cy.findAllByText(labelInvalidExtension).should('have.length', 2);
+    cy.contains(labelSave).should('be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('leaves the form when the "Leave" button of the popup is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelName).type('agent');
+
+    cy.contains(labelCancel).click();
+    cy.contains('Leave').click();
+
+    cy.findByLabelText(labelName).should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('backs to the form when the "Stay" button of the popup is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelName).type('agent');
+
+    cy.contains(labelCancel).click();
+    cy.contains('Stay').click();
+
+    cy.contains(labelAdd).should('exist');
+    cy.contains('Stay').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the form when fields are valid and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+    cy.findByLabelText(labelName).type('agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.contains('Pollers').click();
+    cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('/sub/test.key');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('/sub/test.key');
+    cy.findAllByLabelText(labelPublicCertificate).eq(1).type('test.cer');
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        configuration: {
+          conf_certificate: 'test.cer',
+          conf_private_key: '/sub/test.key',
+          conf_server_port: 1234,
+          otel_ca_certificate: null,
+          otel_private_key: '/sub/test.key',
+          otel_public_certificate: 'test.crt'
+        },
+        connection_mode: 'secure',
+        name: 'agent',
+        poller_ids: [1],
+        type: 'telegraf'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the form when a listing row is clicked, fields are valid and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelName).type(' updated');
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        configuration: {
+          conf_certificate: '/sub/test.crt',
+          conf_private_key: 'test.key',
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
+        },
+        connection_mode: 'secure',
+        name: 'agent updated',
+        poller_ids: [1, 2],
+        type: 'telegraf'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the form when a listing row is clicked, fields are valid, the cancel button is clicked and the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+
+    cy.findByLabelText(labelName).type(' updated');
+    cy.contains(labelCancel).click();
+    cy.findByTestId('confirm').click();
+
+    cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        configuration: {
+          conf_certificate: '/sub/test.crt',
+          conf_private_key: 'test.key',
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
+        },
+        connection_mode: 'secure',
+        name: 'agent updated',
+        poller_ids: [1, 2],
+        type: 'telegraf'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the CMA form when the CMA agent type is selected', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByTestId('By agent selected').should('be.visible');
+    cy.findByTestId('By poller selected').should('not.exist');
+    cy.contains(labelConnectionInitiated);
+    cy.contains(labelOTLPReceiver).should('be.visible');
+    cy.findByLabelText(labelPublicCertificate).should('have.value', '');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).should('have.value', '');
+    cy.findByLabelText(labelPrivateKey).should('have.value', '');
+
+    cy.makeSnapshot();
+  });
+
+  it('resets the form when a different agent type is selected', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPublicCertificate).type('something').clear();
+    cy.findByLabelText(labelPublicCertificate).blur();
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('filename.abc').blur();
+
+    cy.contains(labelInvalidExtension).should('be.visible');
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+
+    cy.contains(labelMonitoredHosts).should('not.exist');
+    cy.contains(labelRequired).should('not.exist');
+    cy.contains(labelInvalidExtension).should('not.exist');
+    cy.findByLabelText(labelName).should('have.value', 'My agent');
+    cy.contains(labelConfigurationServer).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('does not validate the form when there mode "By poller" is enabled and there no host configuration', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+
+    cy.contains('Add agent configuration').click();
+    cy.contains(labelSave).scrollIntoView().should('be.disabled');
+
+    cy.findByLabelText(labelPublicCertificate).type('test.crt');
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelPrivateKey).type('test.key');
+
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.contains('By poller').click();
+
+    cy.contains('Enable').click();
+    cy.findByTestId('submit').should('be.disabled');
+
+    cy.contains('Enable').click();
+    cy.findByTestId('submit').should('not.be.disabled');
+
+    cy.makeSnapshot();
+  });
+
+  it('validates the form when fields are filled and the only "By agent" mode is unchecked', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.contains('Add agent configuration').click();
+
+    cy.findByLabelText(labelPublicCertificate).type('/certificate/test.crt');
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelPrivateKey).type('privateKey.key');
+
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).deep.equal({
+        configuration: {
+          agent_initiated: true,
+          hosts: [],
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'privateKey.key',
+          otel_public_certificate: '/certificate/test.crt',
+          poller_initiated: false,
+          port: 4317,
+          tokens: [
+            {
+              creator_id: 1,
+              name: 'token 1'
+            }
+          ]
+        },
+        connection_mode: 'secure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
+      });
+    });
+
+    cy.makeSnapshot();
+  });
+
+  it('configures the host address and port when a host is selected', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.contains(labelByPoller).click();
+
+    cy.contains('Enable').click();
+    cy.findByLabelText(labelSelectHost).click();
+
+    cy.waitForRequest('@getHosts');
+
+    cy.contains('central').click();
+
+    cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.2');
+    cy.findByTestId('portInput').should('have.value', '4317');
+
+    cy.makeSnapshot();
+  });
+
+  it('splits the address and the port when a full address is pasted in the address field', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.contains(labelByPoller).click();
+
+    cy.contains('Enable').click();
+
+    cy.findByLabelText(labelDNSIP).type('127.0.0.1:8');
+    cy.findByLabelText(labelDNSIP).should('have.value', '127.0.0.1');
+    cy.findByTestId('portInput').should('have.value', '8');
+
+    cy.makeSnapshot();
+  });
+
+  it('adds a new host configuration when the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+
+    cy.contains(labelAddAHost).click();
+
+    cy.findByTestId('delete-host-configuration-0').should('be.visible');
+    cy.findByTestId('delete-host-configuration-1').should('exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('removes a host configuration when the corresponding button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+
+    cy.contains(labelSave).scrollIntoView();
+
+    cy.contains(labelAddAHost).click();
+
+    cy.findByTestId('delete-host-configuration-1').should('exist');
+
+    cy.findByTestId('delete-host-configuration-1').click();
+
+    cy.findByTestId('delete-host-configuration-0').should('be.disabled');
+    cy.findByTestId('delete-host-configuration-1').should('not.exist');
+
+    cy.makeSnapshot();
+  });
+
+  it('sends the CMA agent type when the form is valid and the save button is clicked', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.contains(labelConnectionInitiated).click({ force: true });
+    cy.findByLabelText(labelPublicCertificate).type('/test.cer');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+    cy.findByLabelText(labelSelectHost).click();
+    cy.contains('central').click();
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelCACommonName).should('not.exist');
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).deep.equal({
+        configuration: {
+          agent_initiated: true,
+          hosts: [
+            {
+              address: '127.0.0.2',
+              id: 1,
+              poller_ca_certificate: 'test.crt',
+              poller_ca_name: '',
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
+            }
+          ],
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'private.key',
+          otel_public_certificate: '/test.cer',
+          poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'secure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('displays the encryption level field with TLS preselected as the default value', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelEncryptionLevel).should('have.value', labelTLS);
+
+    cy.makeSnapshot();
+  });
+
+  it('displays a warning message when switching the encryption level to No TLS for Telegraf and CMA agents', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelNoTLS).click();
+
+    cy.contains(labelWarningEncryptionLevelTelegraf);
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+    cy.contains(labelWarningEncryptionLevelCMA);
+
+    cy.makeSnapshot();
+  });
+
+  it('handle the form without certificate fields when setting encryption level to No TLS for Telegraf agent', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelNoTLS).click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+
+    cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
+
+    cy.findAllByLabelText(labelPublicCertificate).should('not.exist');
+    cy.findByLabelText(labelCaCertificate).should('not.exist');
+    cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findByLabelText(labelCaCertificate).should('not.exist');
+    cy.findByLabelText(labelCaCertificate).should('not.exist');
+
+    cy.makeSnapshot();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        configuration: {
+          conf_certificate: null,
+          conf_private_key: null,
+          conf_server_port: 1234,
+          otel_ca_certificate: null,
+          otel_private_key: null,
+          otel_public_certificate: null
+        },
+        connection_mode: 'no-tls',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'telegraf'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+  });
+
+  it('handle the form without certificate fields when setting encryption level to No TLS for CMA agent', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelNoTLS).click();
+
+    cy.findByLabelText(labelPublicCertificate).should('not.exist');
+    cy.findAllByLabelText(labelCaCertificate).should('not.exist');
+    cy.findAllByLabelText(labelPrivateKey).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+
+    cy.findByLabelText(labelSelectHost).click();
+    cy.contains('central').click();
+    cy.findByLabelText(labelCACommonName).should('not.exist');
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.makeSnapshot();
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).deep.equal({
+        configuration: {
+          agent_initiated: true,
+          hosts: [
+            {
+              address: '127.0.0.2',
+              id: 1,
+              poller_ca_certificate: null,
+              poller_ca_name: null,
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
+            }
+          ],
+          otel_ca_certificate: null,
+          otel_private_key: null,
+          otel_public_certificate: null,
+          poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'no-tls',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+  });
+
+  it('saves the form with certificate fields when connection mode is insecure', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="0"]').click();
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelInsecure).click();
+
+    cy.findByLabelText(labelName).type('Insecure Agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.contains('Add agent configuration').click();
+    cy.findAllByLabelText(labelPort).eq(0).clear().type('1234');
+
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).should('exist');
+    cy.findByLabelText(labelCaCertificate).should('exist');
+    cy.findAllByLabelText(labelPrivateKey).should('have.length', 2);
+
+    cy.findAllByLabelText(labelPublicCertificate).eq(0).type('test.crt');
+    cy.findByLabelText(labelCaCertificate).type('ca.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('test.key');
+    cy.findAllByLabelText(labelPrivateKey).eq(1).type('test.key');
+    cy.findAllByLabelText(labelPublicCertificate).eq(1).type('test.cer');
+
+    cy.makeSnapshot();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        configuration: {
+          conf_certificate: 'test.cer',
+          conf_private_key: 'test.key',
+          conf_server_port: 1234,
+          otel_ca_certificate: 'ca.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.crt'
+        },
+        connection_mode: 'insecure',
+        name: 'Insecure Agent',
+        poller_ids: [1],
+        type: 'telegraf'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+  });
+
+  it('sends an update request with certificate fields when connection mode is insecure', () => {
+    initialize({});
+
+    cy.contains('AC 1').click();
+    cy.waitForRequest('@getAgentConfiguration');
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelInsecure).click();
+
+    cy.findByLabelText(labelName).clear().type('Insecure Agent');
+
+    cy.makeSnapshot();
+
+    cy.contains(labelSave).click();
+
+    cy.waitForRequest('@patchAgentConfiguration').then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        configuration: {
+          conf_certificate: '/sub/test.crt',
+          conf_private_key: 'test.key',
+          conf_server_port: 9090,
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'test.key',
+          otel_public_certificate: 'test.cer'
+        },
+        connection_mode: 'insecure',
+        name: 'Insecure Agent',
+        poller_ids: [1, 2],
+        type: 'telegraf'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationUpdated).should('be.visible');
+  });
+
+  it('displays the CA common name field when connection mode is set to insecure', () => {
+    initialize({});
+
+    cy.contains(labelAdd).click();
+    cy.findByLabelText(labelAgentType).click();
+    cy.get('[data-option-index="1"]').click();
+
+    cy.findByLabelText(labelEncryptionLevel).click();
+    cy.contains(labelInsecure).click();
+
+    cy.findByLabelText(labelName).type('My agent');
+    cy.findByLabelText(labelPollers).click();
+    cy.contains('poller1').click();
+    cy.contains(labelConnectionInitiated).click({ force: true });
+    cy.findByLabelText(labelPublicCertificate).type('/test.cer');
+    cy.findAllByLabelText(labelCaCertificate).eq(0).type('test.crt');
+    cy.findAllByLabelText(labelPrivateKey).eq(0).type('private.key');
+    cy.findByLabelText(labelSelectExistingCMATokens).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.contains(labelByPoller).click();
+    cy.contains('Enable').click();
+    cy.findByLabelText(labelSelectHost).click();
+    cy.contains('central').click();
+    cy.findByLabelText(labelCaCertificate).type('test.crt');
+    cy.findByLabelText(labelCACommonName).type('test.crt');
+
+    cy.findByLabelText(labelSelectExistingCMAToken).click();
+    cy.waitForRequest('@getTokens');
+    cy.contains('token 1').click();
+
+    cy.findByTestId('submit').click();
+
+    cy.waitForRequest('@postAgentConfiguration').then(({ request }) => {
+      expect(request.body).deep.equal({
+        configuration: {
+          agent_initiated: true,
+          hosts: [
+            {
+              address: '127.0.0.2',
+              id: 1,
+              poller_ca_certificate: 'test.crt',
+              poller_ca_name: 'test.crt',
+              port: 4317,
+              token: { creator_id: 1, name: 'token 1' }
+            }
+          ],
+          otel_ca_certificate: 'test.crt',
+          otel_private_key: 'private.key',
+          otel_public_certificate: '/test.cer',
+          poller_initiated: true,
+          port: 4317,
+          tokens: [{ creator_id: 1, name: 'token 1' }]
+        },
+        connection_mode: 'insecure',
+        name: 'My agent',
+        poller_ids: [1],
+        type: 'centreon-agent'
+      });
+    });
+
+    cy.contains(labelAgentConfigurationCreated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+});

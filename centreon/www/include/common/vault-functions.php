@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2023 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -58,7 +43,7 @@ const DEFAULT_SCHEME = 'https';
 function authenticateToVault(
     VaultConfiguration $vaultConfiguration,
     Logger $logger,
-    CentreonRestHttp $httpClient
+    CentreonRestHttp $httpClient,
 ): string {
     try {
         $url = $vaultConfiguration->getAddress() . ':' . $vaultConfiguration->getPort() . '/v1/auth/approle/login';
@@ -152,7 +137,7 @@ function duplicateHostSecretsInVault(
     ?string $snmpCommunity,
     array $macroPasswords,
     int $duplicatedHostId,
-    int $newHostId
+    int $newHostId,
 ): void {
     global $pearDB;
 
@@ -163,7 +148,7 @@ function duplicateHostSecretsInVault(
             $vaultPath = $snmpCommunity;
         }
 
-    // Get UUID from macro password if they match the vault path regex
+        // Get UUID from macro password if they match the vault path regex
     } elseif ($macroPasswords !== []) {
         foreach ($macroPasswords as $macroInfo) {
             if (str_starts_with($macroInfo['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)) {
@@ -187,13 +172,13 @@ function duplicateHostSecretsInVault(
         $vaultPaths = $writeVaultRepository->upsert(null, $hostSecretsFromVault);
 
         // Store vault path for SNMP Community
-        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)){
+        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)) {
             updateHostTableWithVaultPath($pearDB, $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY], $newHostId);
         }
 
         // Store vault path for macros
         if ($macroPasswords !== []) {
-            foreach ($macroPasswords as  $macroId => $macroInfo) {
+            foreach ($macroPasswords as $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
             updateOnDemandMacroHostTableWithVaultPath($pearDB, $macroPasswords);
@@ -218,9 +203,9 @@ function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $ma
 {
     $statementUpdateMacro = $pearDB->prepare(
         <<<'SQL'
-                UPDATE `on_demand_macro_host` 
-                    SET host_macro_value = :path 
-                WHERE host_macro_id = :macroId 
+                UPDATE `on_demand_macro_host`
+                    SET host_macro_value = :path
+                WHERE host_macro_id = :macroId
                     AND host_macro_name = :name
             SQL
     );
@@ -244,7 +229,7 @@ function updateOnDemandMacroHostTableWithVaultPath(CentreonDB $pearDB, array $ma
 function deleteResourceSecretsInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
     array $hostIds,
-    array $serviceIds
+    array $serviceIds,
 ): void {
     if ($hostIds !== []) {
         $uuids = retrieveMultipleHostUuidsFromDatabase($hostIds);
@@ -321,9 +306,9 @@ function retrieveMultipleHostUuidsFromDatabase(array $hostIds): array
                     $matches
                 )
                 || preg_match(
-                '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
-                $result['host_macro_value'],
-                $matches
+                    '/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/',
+                    $result['host_macro_value'],
+                    $matches
                 )
             )
             && isset($matches[2])
@@ -458,7 +443,6 @@ function retrieveServiceVaultPathFromDatabase(CentreonDB $pearDB, int $serviceId
         foreach ($result as $columnValue) {
             if (str_starts_with($columnValue, VaultConfiguration::VAULT_PATH_PATTERN)) {
                 return $columnValue;
-
             }
         }
     }
@@ -486,7 +470,7 @@ function updateHostSecretsInVaultFromMC(
     ?string $vaultPath,
     int $hostId,
     array $macros,
-    ?string $snmpCommunity
+    ?string $snmpCommunity,
 ): void {
     global $pearDB;
 
@@ -514,7 +498,7 @@ function updateHostSecretsInVaultFromMC(
 
     if ($updateHostPayload !== []) {
         $vaultPaths = $writeVaultRepository->upsert($uuid, $updateHostPayload);
-        foreach ($macros as  $macroId => $macroInfo) {
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
 
@@ -578,7 +562,7 @@ function updateHostSecretsInVault(
     ?string $vaultPath,
     int $hostId,
     array $macros,
-    ?string $snmpCommunity
+    ?string $snmpCommunity,
 ): void {
     global $pearDB;
     $hostSecretsFromVault = [];
@@ -612,12 +596,12 @@ function updateHostSecretsInVault(
             $updateHostPayload['to_insert'],
             $updateHostPayload['to_delete']
         );
-        foreach ($macros as  $macroId => $macroInfo) {
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
 
         // Store vault path for SNMP Community
-        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)){
+        if (array_key_exists(VaultConfiguration::HOST_SNMP_COMMUNITY_KEY, $vaultPaths)) {
             updateHostTableWithVaultPath($pearDB, $vaultPaths[VaultConfiguration::HOST_SNMP_COMMUNITY_KEY], $hostId);
         }
 
@@ -744,7 +728,7 @@ function duplicateServiceSecretsInVault(
 
         // Store vault path for macros
         if ($macroPasswords !== []) {
-            foreach ($macroPasswords as  $macroId => $macroInfo) {
+            foreach ($macroPasswords as $macroId => $macroInfo) {
                 $macroPasswords[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
             }
             updateOnDemandMacroServiceTableWithVaultPath($pearDB, $macroPasswords);
@@ -798,9 +782,9 @@ function updateOnDemandMacroServiceTableWithVaultPath(CentreonDB $pearDB, array 
 {
     $statementUpdateMacro = $pearDB->prepare(
         <<<'SQL'
-                UPDATE `on_demand_macro_service` 
-                    SET svc_macro_value = :path 
-                WHERE svc_macro_id = :macroId 
+                UPDATE `on_demand_macro_service`
+                    SET svc_macro_value = :path
+                WHERE svc_macro_id = :macroId
                     AND svc_macro_name = :name
             SQL
     );
@@ -877,7 +861,7 @@ function updateServiceSecretsInVaultFromMC(
     Logger $logger,
     ?string $vaultPath,
     int $serviceId,
-    array $macros
+    array $macros,
 ): void {
     global $pearDB;
 
@@ -903,7 +887,7 @@ function updateServiceSecretsInVaultFromMC(
     );
     if (! empty($updateServicePayload)) {
         $vaultPaths = $writeVaultRepository->upsert($uuid, $updateServicePayload);
-        foreach ($macros as  $macroId => $macroInfo) {
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
 
@@ -993,8 +977,9 @@ function updateServiceSecretsInVault(
         $vaultPaths = $writeVaultRepository->upsert(
             $uuid,
             $updateServicePayload['to_insert'],
-            $updateServicePayload['to_delete']);
-        foreach ($macros as  $macroId => $macroInfo) {
+            $updateServicePayload['to_delete']
+        );
+        foreach ($macros as $macroId => $macroInfo) {
             $macros[$macroId]['macroValue'] = $vaultPaths[$macroInfo['macroName']];
         }
         // Store vault path for macros
@@ -1040,7 +1025,12 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
 
     // Add macros to payload if they are password type and their values have changed
     foreach ($macros as $macroInfos) {
-        $serviceSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        if (
+            $macroInfos['macroPassword'] === '1'
+            && ! str_starts_with($macroInfos['macroValue'], VaultConfiguration::VAULT_PATH_PATTERN)
+        ) {
+            $serviceSecretsFromVault[$macroInfos['macroName']] = $macroInfos['macroValue'];
+        }
     }
 
     $payload['to_insert'] = $serviceSecretsFromVault;
@@ -1063,7 +1053,7 @@ function prepareServiceUpdatePayload(array $macros, array $serviceSecretsFromVau
  */
 function insertServiceSecretsInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
-    array $macroPasswords
+    array $macroPasswords,
 ): void {
     global $pearDB;
     $payload = [];
@@ -1089,7 +1079,8 @@ function insertServiceSecretsInVault(
  *
  * @return string|null
  */
-function retrievePollerMacroVaultPathFromDatabase(CentreonDB $pearDB): ?string {
+function retrievePollerMacroVaultPathFromDatabase(CentreonDB $pearDB): ?string
+{
     $statement = $pearDB->prepare(
         <<<'SQL'
                 SELECT resource_line FROM cfg_resource
@@ -1127,7 +1118,7 @@ function upsertPollerMacroSecretInVault(
     WriteVaultRepositoryInterface $writeVaultRepository,
     string $key,
     string $value,
-    ?string $vaultPath = null
+    ?string $vaultPath = null,
 ): string|null {
     if (! empty($value)) {
 
@@ -1157,7 +1148,6 @@ function upsertPollerMacroSecretInVault(
  * @param string $key
  *
  * @throws Throwable
- *
  */
 function deletePollerMacroSecretInVault(
     ReadVaultRepositoryInterface $readVaultRepository,
@@ -1220,7 +1210,6 @@ function upsertKnowledgeBasePasswordInVault(
     $vaultPaths = $writeVaultRepository->upsert($uuid, [VaultConfiguration::KNOWLEDGE_BASE_KEY => $password]);
 
     return $vaultPaths[VaultConfiguration::KNOWLEDGE_BASE_KEY];
-
 }
 
 /**
@@ -1237,9 +1226,9 @@ function findKnowledgeBasePasswordFromVault(
     ReadVaultRepositoryInterface $readVaultRepository,
     string $kbPasswordPath,
 ): string {
-     $data = $readVaultRepository->findFromPath($kbPasswordPath);
+    $data = $readVaultRepository->findFromPath($kbPasswordPath);
 
-     return $data[VaultConfiguration::KNOWLEDGE_BASE_KEY];
+    return $data[VaultConfiguration::KNOWLEDGE_BASE_KEY];
 }
 
 /**
@@ -1247,12 +1236,11 @@ function findKnowledgeBasePasswordFromVault(
  *
  * @param WriteVaultRepositoryInterface $writeVaultRepository
  *
- * @return array<string, string>
- *
  * @throws Throwable
+ * @return array<string, string>
  */
 function migrateDatabaseCredentialsToVault(
-    WriteVaultRepositoryInterface $writeVaultRepository
+    WriteVaultRepositoryInterface $writeVaultRepository,
 ): array {
     $credentials = retrieveDatabaseCredentialsFromConfigFile();
     if (str_starts_with($credentials['username'], VaultConfiguration::VAULT_PATH_PATTERN)) {
@@ -1303,6 +1291,7 @@ function retrieveDatabaseCredentialsFromConfigFile(): array
  * Update the different config files with the vault path.
  *
  * @param array<string,string> $vaultPath
+ * @param mixed $vaultPaths
  *
  * @throws Exception
  */
@@ -1317,7 +1306,6 @@ function updateConfigFilesWithVaultPath($vaultPaths): void
         updateDatabaseYamlFile($vaultPaths);
     }
 }
-
 
 /**
  * Migrate Gorgone API credentials to Vault and return the vault path.
@@ -1342,9 +1330,8 @@ function migrateGorgoneCredentialsToVault(WriteVaultRepositoryInterface $writeVa
 /**
  * Retrieve Gorgone API credentials from the configuration file.
  *
- * @return string
- *
  * @throws Exception
+ * @return string
  */
 function retrieveGorgoneApiCredentialsFromConfigFile(): string
 {
@@ -1362,7 +1349,6 @@ function retrieveGorgoneApiCredentialsFromConfigFile(): string
     return $content['gorgone']['tpapi'][0]['password']
         ?? throw new Exception('Unable to retrieve Gorgone API password');
 }
-
 
 /**
  * Update the Gorgone API configuration file with the Vault path.
@@ -1434,7 +1420,7 @@ function updateCentreonConfPmFile(array $vaultPaths): void
 
     $newContentPm = preg_replace(
         '/"db_user"\s*=>\s*(.*)/',
-        '"db_user" => "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] .'",',
+        '"db_user" => "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '",',
         $content
     );
     $newContentPm = preg_replace(
@@ -1444,7 +1430,7 @@ function updateCentreonConfPmFile(array $vaultPaths): void
     );
     $newContentPm = preg_replace(
         '/\$mysql_user\s*=\s*(.*)/',
-        '$mysql_user = "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] .'";',
+        '$mysql_user = "' . $vaultPaths[VaultConfiguration::DATABASE_USERNAME_KEY] . '";',
         $newContentPm
     );
     $newContentPm = preg_replace(
@@ -1537,8 +1523,8 @@ function retrieveMultipleBrokerConfigUuidsFromDatabase(array $brokerIds): array
     $statement->execute();
     $uuids = [];
     while ($result = $statement->fetchColumn()) {
-        $uuids[] =
-            preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $result, $matches)
+        $uuids[]
+            = preg_match('/' . VaultConfiguration::UUID_EXTRACTION_REGEX . '/', $result, $matches)
                 ? $matches[2]
                 : null;
     }
@@ -1563,13 +1549,13 @@ function findBrokerConfigValueFromVault(
     Logger $logger,
     string $key,
     string $vaultPath,
-): string
-{
+): string {
     try {
         $content = $readVaultRepository->findFromPath($vaultPath);
         if (! array_key_exists($key, $content)) {
             return $vaultPath;
         }
+
         return $content[$key];
     } catch (Exception $ex) {
         $logger->error('Unable to get secrets for Broker Configuration');

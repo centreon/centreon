@@ -1,4 +1,6 @@
-/* eslint-disable react/no-array-index-key */
+import { Box, LinearProgress, Table, TableBody } from '@mui/material';
+
+import { ListingVariant } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -26,33 +28,25 @@ import {
   subtract,
   uniqBy
 } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
-import { Box, LinearProgress, Table, TableBody } from '@mui/material';
-
-import { ListingVariant } from '@centreon/ui-context';
-
-import { ParentSize } from '..';
-import { useKeyObserver, useMemoComponent } from '../utils';
-
 import {
-  RefObject,
+  type RefObject,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState
 } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { ParentSize } from '..';
+import { useKeyObserver, useMemoComponent } from '../utils';
 import ListingActionBar from './ActionBar';
 import Cell from './Cell';
 import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { ListingHeader } from './Header';
-import { useListingStyles } from './Listing.styles';
-import ListingRow from './Row/Row';
-import { SkeletonLoader } from './Row/SkeletonLoaderRows';
-import {
+import type {
   Column,
   ColumnConfiguration,
   PredefinedRowSelection,
@@ -60,9 +54,11 @@ import {
   RowId,
   SortOrder
 } from './models';
+import ListingRow from './Row/Row';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import { subItemsPivotsAtom } from './tableAtoms';
 import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
-import useStyleTable from './useStyleTable';
+import useStyleTable, { useColumnStyle } from './useStyleTable';
 
 const subItemPrefixKey = 'listing';
 
@@ -207,10 +203,12 @@ const Listing = <
     columnConfiguration,
     columns
   });
-  const { dataStyle, getGridTemplateColumn } = useStyleTable({
-    checkable,
-    currentVisibleColumns,
+  const { dataStyle } = useStyleTable({
     listingVariant
+  });
+  const gridTemplateColumn = useColumnStyle({
+    checkable,
+    currentVisibleColumns
   });
 
   const { t } = useTranslation();
@@ -239,7 +237,7 @@ const Listing = <
         [],
         rows
       ),
-    [rows, subItems]
+    [rows, subItems, getId]
   );
 
   const rowsToDisplay = useMemo(
@@ -279,23 +277,15 @@ const Listing = <
     (row: TRow) => {
       return allSubItemIds.includes(getSubItemRowId(row));
     },
-    [allSubItemIds]
+    [allSubItemIds, getSubItemRowId]
   );
 
   const getRowId = useCallback(
     (row: TRow) => {
       return getIsSubItem(row) ? getSubItemRowId(row) : getId(row);
     },
-    [allSubItemIds]
+    [getId, getIsSubItem, getSubItemRowId]
   );
-
-  const { classes } = useListingStyles({
-    dataStyle,
-    getGridTemplateColumn,
-    isResponsive,
-    rows: rowsToDisplay
-  });
-
   const { isShiftKeyDown } = useKeyObserver();
 
   const haveSameId = (row: TRow, rowToCompare: TRow): boolean =>
@@ -517,20 +507,20 @@ const Listing = <
   const areColumnsEditable = not(isNil(onSelectColumns));
 
   return (
-    <div className={classes.listingContainer}>
+    <div className="h-full w-full overflow-hidden">
       {loading && rows.length > 0 && (
-        <LinearProgress className={classes.loadingIndicator} />
+        <LinearProgress className="w-full h-[3px]" />
       )}
       {(!loading || (loading && rows.length < 1)) && (
-        <div className={classes.loadingIndicator} />
+        <div className="w-full h-[3px]" />
       )}
       <div
-        className={classes.container}
+        className="bg-[none] flex flex-col h-full w-full"
         ref={containerRef as RefObject<HTMLDivElement>}
       >
         {isActionBarVisible && (
           <div
-            className={classes.actionBar}
+            className="flex items-center"
             ref={actionBarRef as RefObject<HTMLDivElement>}
           >
             <ListingActionBar
@@ -543,14 +533,14 @@ const Listing = <
               limit={limit}
               listingVariant={listingVariant}
               moveTablePagination={moveTablePagination}
-              paginated={paginated}
-              totalRows={totalRows}
-              viewerModeConfiguration={viewerModeConfiguration}
-              widthToMoveTablePagination={widthToMoveTablePagination}
               onLimitChange={changeLimit}
               onPaginate={onPaginate}
               onResetColumns={onResetColumns}
               onSelectColumns={onSelectColumns}
+              paginated={paginated}
+              totalRows={totalRows}
+              viewerModeConfiguration={viewerModeConfiguration}
+              widthToMoveTablePagination={widthToMoveTablePagination}
             />
           </div>
         )}
@@ -564,7 +554,7 @@ const Listing = <
         >
           {({ height }) => (
             <Box
-              className={classes.tableWrapper}
+              className="border-b-[none] overflow-auto"
               component="div"
               style={{
                 height: innerScrollDisabled ? '100%' : `calc(${height}px - 4px)`
@@ -574,10 +564,16 @@ const Listing = <
                 customListingComponent
               ) : (
                 <Table
-                  stickyHeader
-                  className={classes.table}
+                  className="grid items-center relative"
                   component="div"
                   size="small"
+                  stickyHeader
+                  style={{
+                    gridTemplateColumns: gridTemplateColumn,
+                    gridTemplateRows: `${dataStyle.header.height}px repeat(${
+                      rowsToDisplay.length || 1
+                    }, ${isResponsive ? 'auto' : `${dataStyle.body.height}px`})`
+                  }}
                 >
                   <ListingHeader
                     areColumnsEditable={areColumnsEditable}
@@ -586,19 +582,19 @@ const Listing = <
                     columns={columns}
                     listingVariant={listingVariant}
                     memoProps={headerMemoProps}
+                    onSelectAllClick={selectAllRows}
+                    onSelectColumns={onSelectColumns}
+                    onSelectRowsWithCondition={onSelectRowsWithCondition}
+                    onSort={onSort}
                     predefinedRowsSelection={predefinedRowsSelection}
                     rowCount={rowsToDisplay.length}
                     selectedRowCount={selectedRows.length}
                     sortField={sortField}
                     sortOrder={sortOrder}
-                    onSelectAllClick={selectAllRows}
-                    onSelectColumns={onSelectColumns}
-                    onSelectRowsWithCondition={onSelectRowsWithCondition}
-                    onSort={onSort}
                   />
 
                   <TableBody
-                    className={classes.tableBody}
+                    className="contents relative"
                     component="div"
                     onMouseLeave={clearHoveredRow}
                   >
@@ -629,12 +625,6 @@ const Listing = <
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
                           listingVariant={listingVariant}
-                          row={row}
-                          rowColorConditions={rowColorConditions}
-                          shiftKeyDownRowPivot={shiftKeyDownRowPivot}
-                          subItemsPivots={subItemsPivots}
-                          tabIndex={-1}
-                          visibleColumns={visibleColumns}
                           onClick={
                             isSubItem
                               ? undefined
@@ -644,26 +634,35 @@ const Listing = <
                           }
                           onFocus={(): void => hoverRow(row)}
                           onMouseOver={(): void => hoverRow(row)}
+                          row={row}
+                          rowColorConditions={rowColorConditions}
+                          shiftKeyDownRowPivot={shiftKeyDownRowPivot}
+                          subItemsPivots={subItemsPivots}
+                          tabIndex={-1}
+                          visibleColumns={visibleColumns}
                         >
                           {checkable &&
                             (!isSubItem || subItems.canCheckSubItems ? (
                               <Cell
                                 align="left"
-                                className={classes.checkbox}
+                                className="justify-start"
                                 disableRowCondition={disableRowCondition}
                                 isRowHovered={isRowHovered}
+                                onClick={(event): void => selectRow(event, row)}
                                 row={row}
                                 rowColorConditions={rowColorConditions}
-                                onClick={(event): void => selectRow(event, row)}
                               >
                                 <Checkbox
                                   checked={isRowSelected}
+                                  className="pl-1"
                                   disabled={
                                     disableRowCheckCondition(row) ||
                                     disableRowCondition(row)
                                   }
-                                  inputProps={{
-                                    'aria-label': `Select row ${getId(row)}`
+                                  slotProps={{
+                                    input: {
+                                      'aria-label': `Select row ${getId(row)}`
+                                    }
                                   }}
                                 />
                               </Cell>
@@ -707,7 +706,9 @@ const Listing = <
                       ) : (
                         <EmptyResult
                           label={
-                            labelNoResultFound || t(defaultLabelNoResultFound)
+                            labelNoResultFound
+                              ? t(labelNoResultFound)
+                              : t(defaultLabelNoResultFound)
                           }
                         />
                       ))}
@@ -756,6 +757,7 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         columns={columns}
         currentPage={currentPage}
         innerScrollDisabled={innerScrollDisabled}
+        labelNoResultFound={labelNoResultFound}
         limit={limit}
         listingVariant={listingVariant}
         loading={loading}
@@ -768,7 +770,6 @@ export const MemoizedListing = <TRow extends { id: string | number }>({
         sortOrder={sortOrder}
         totalRows={totalRows}
         widthToMoveTablePagination={widthToMoveTablePagination}
-        labelNoResultFound={labelNoResultFound}
         {...props}
       />
     ),

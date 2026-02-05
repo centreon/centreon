@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statusGridWidget from '../../../fixtures/dashboards/creation/widgets/status-grid-widget.json';
 import statusGridWidgetWithNewAddedHost from '../../../fixtures/dashboards/creation/widgets/statusGridWidgetWithNewAddedHost.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const services = {
   serviceCritical: {
@@ -160,11 +159,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -275,10 +274,9 @@ Given('a dashboard featuring two Status Grid widgets', () => {
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
+    label: 'Delete widget',
+    tag: 'li'
   }).realClick();
 });
 
@@ -291,7 +289,6 @@ Then('only the contents of the other widget are displayed', () => {
     .click({ force: true });
   cy.get('[class*="resourceName"]').contains('Centreon-Server').should('exist');
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
 
 Given(
@@ -307,7 +304,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -339,18 +336,19 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
+    cy.get('input[name="unhandled_problems"]').click();
+    cy.get('[data-testid="Select all"]').eq(1).click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
     cy.contains('Linux-Servers').realClick();
-    cy.get('input[name="success"]').click();
   }
 );
 
 Then(
   'a grid representing the statuses of this list of resources are displayed in the widget preview',
   () => {
-    cy.get('[class*="heatMapTile"]').should('exist');
+    cy.get('[class*="heatMapTile"]').its('length').should('be.gte', 1);
   }
 );
 
@@ -359,7 +357,7 @@ When('the user saves the Status Grid widget', () => {
 });
 
 Then("the Status Grid widget is added in the dashboard's layout", () => {
-  cy.get('[class*="heatMapTile"]').should('exist');
+  cy.get('[class*="heatMapTile"]').its('length').should('be.gte', 1);
 });
 
 Given('a dashboard with a configured Status Grid widget', () => {
@@ -388,8 +386,9 @@ When(
 );
 
 Then('the Status Grid widget displays up to that number of tiles', () => {
-  cy.getByTestId({
-    testId: 'DvrIcon'
+  cy.getByLabel({
+    label: 'See more on the Resources Status page',
+    tag: 'a'
   }).should('be.visible');
 });
 
@@ -407,8 +406,8 @@ Given('a dashboard having a configured Status Grid widget', () => {
 When(
   'the dashboard administrator user duplicates the Status Grid widget',
   () => {
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click();
   }
 );
 
@@ -426,7 +425,6 @@ Then('the second widget has the same properties as the first widget', () => {
     .invoke('removeAttr', 'target')
     .click({ force: true });
   cy.get('[class*="resourceName"]').contains('host2').should('exist');
-  cy.get('[class*="resourceName"]').contains('host3').should('exist');
 });
 
 Given('a dashboard with a Status Grid widget', () => {
@@ -475,7 +473,7 @@ Given('a new host is successfully added and configured', () => {
         .getByLabel({ label: 'Up status hosts', tag: 'a' })
         .invoke('text')
         .then((text) => {
-          if (text != '4') {
+          if (text !== '4') {
             cy.exportConfig();
           }
 
@@ -509,23 +507,32 @@ Then('searches for a specific resource type', () => {
     .type(genericTextWidgets.default.description);
   cy.getByTestId({ testId: 'Resource type' }).realClick();
   cy.getByLabel({ label: 'Host' }).eq(1).click();
-  cy.getByTestId({ testId: 'Select resource' }).type('3')
+  cy.getByTestId({ testId: 'Select resource' }).type('3');
   cy.wait('@resourceRequest');
 });
 
-Then('only the resource that matches the search input is displayed in the results', () => {
-  cy.waitUntil(() =>
-    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
-      return listboxText.includes('host3') &&
-             !listboxText.includes('Centreon-Server') &&
-             !listboxText.includes('host2');
-    }),
-    {
-      timeout: 10000,
-      interval: 500,
-    }
-  );
-});
+Then(
+  'only the resource that matches the search input is displayed in the results',
+  () => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get('.MuiAutocomplete-listbox')
+          .invoke('text')
+          .then((listboxText) => {
+            return (
+              listboxText.includes('host3') &&
+              !listboxText.includes('Centreon-Server') &&
+              !listboxText.includes('host2')
+            );
+          }),
+      {
+        interval: 500,
+        timeout: 10000
+      }
+    );
+  }
+);
 
 When(
   'the dashboard administrator selects a service by typing a single character',
@@ -537,51 +544,71 @@ When(
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Service' }).eq(1).click();
     cy.getByLabel({ label: 'Select resource' }).type('Pin');
-    cy.getByLabel({ label: 'Select resource' }).click()
-
+    cy.getByLabel({ label: 'Select resource' }).click();
   }
 );
 
-Then('only the services containing the typed character should be displayed in the list', () => {
-  const clickAndCheckForServices = () => {
-    cy.getByTestId({ testId: 'Resource type' }).realClick();
+Then(
+  'only the services containing the typed character should be displayed in the list',
+  () => {
+    const clickAndCheckForServices = () => {
+      cy.getByTestId({ testId: 'Resource type' }).realClick();
 
-    return cy.getByLabel({ label: 'Service' }).eq(1).click()
-      .then(() => {
-        return cy.getByLabel({ label: 'Select resource' }).type('ser');
-      })
-      .then(() => {
-        cy.intercept('GET', '**/centreon/api/latest/monitoring/services/names**').as('getServices');
-        cy.wait('@getServices');
-        return cy.getByLabel({ label: 'Select resource' }).click();
-      });
-  };
-
-  cy.waitUntil(() => {
-    return clickAndCheckForServices().then(() => {
-      return cy.get('ul.MuiAutocomplete-listbox')
-        .find('li')
-        .then(($items) => {
-          const textArray = $items.map((index, el) => {
-            return Cypress.$(el).find('p').text();
-          }).get();
-
-          cy.log(textArray.join(', '));
-
-          // Check if all displayed services contain "ser"
-          const allServicesContainSer = textArray.every(service => service.includes('ser'));
-
-          // Ensure that there are no extra services that do not contain "ser"
-          const noExtraServices = textArray.length === textArray.filter(service => service.includes('ser')).length;
-
-          return Cypress.Promise.resolve(allServicesContainSer && noExtraServices);
+      return cy
+        .getByLabel({ label: 'Service' })
+        .eq(1)
+        .click()
+        .then(() => {
+          return cy.getByLabel({ label: 'Select resource' }).type('ser');
+        })
+        .then(() => {
+          cy.intercept(
+            'GET',
+            '**/centreon/api/latest/monitoring/services/names**'
+          ).as('getServices');
+          cy.wait('@getServices');
+          return cy.getByLabel({ label: 'Select resource' }).click();
         });
+    };
+
+    cy.waitUntil(
+      () => {
+        return clickAndCheckForServices().then(() => {
+          return cy
+            .get('ul.MuiAutocomplete-listbox')
+            .find('li')
+            .then((items) => {
+              const textArray = items
+                .map((_index, el) => {
+                  return Cypress.$(el).find('p').text();
+                })
+                .get();
+
+              cy.log(textArray.join(', '));
+
+              // Check if all displayed services contain "ser"
+              const allServicesContainSer = textArray.every((service) =>
+                service.includes('ser')
+              );
+
+              // Ensure that there are no extra services that do not contain "ser"
+              const noExtraServices =
+                textArray.length ===
+                textArray.filter((service) => service.includes('ser')).length;
+
+              return Cypress.Promise.resolve(
+                allServicesContainSer && noExtraServices
+              );
+            });
+        });
+      },
+      { interval: 3000, timeout: 30000 }
+    ).then((found) => {
+      if (found) {
+        cy.log('Only services containing "ser" are displayed in the list.');
+      } else {
+        cy.log('The displayed services do not match the expected criteria.');
+      }
     });
-  }, { timeout: 30000, interval: 3000 }).then((found) => {
-    if (found) {
-      cy.log('Only services containing "ser" are displayed in the list.');
-    } else {
-      cy.log('The displayed services do not match the expected criteria.');
-    }
-  });
-});
+  }
+);

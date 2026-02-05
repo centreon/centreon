@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Schema, array, boolean, number, object, string } from 'yup';
+import { array, boolean, number, object, Schema, string } from 'yup';
 
 import { NamedEntity } from '../shared/models';
-
 import { SAMLConfiguration } from './models';
 import { labelInvalidURL, labelRequired } from './translatedLabels';
 
@@ -80,6 +79,7 @@ const useValidationSchema = (): Schema<SAMLConfiguration> => {
     remoteLoginUrl: string()
       .matches(urlRegexp, t(labelInvalidURL))
       .required(t(labelRequired)),
+    requestedAuthnContext: boolean().required(t(labelRequired)),
     rolesMapping: object({
       applyOnlyFirstRole: switchSchema,
       attributePath: string(),

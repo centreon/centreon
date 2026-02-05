@@ -1,16 +1,21 @@
 import {
-  MutateOptions,
-  UseMutationResult,
-  useQueryClient
-} from '@tanstack/react-query';
-
-import {
   Method,
   ResponseError,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
 
+import {
+  MutateOptions,
+  UseMutationResult,
+  useQueryClient
+} from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+
+import {
+  limitAtom,
+  totalAtom
+} from '../components/DashboardLibrary/DashboardListing/atom';
 import { dashboardsEndpoint } from './endpoints';
 import { CreateDashboardDto, Dashboard, resource } from './models';
 
@@ -40,12 +45,18 @@ interface Props {
 const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
   const { showSuccessMessage, showErrorMessage } = useSnackbar();
 
+  const limit = useAtomValue(limitAtom);
+  const total = useAtomValue(totalAtom);
+
   const {
     mutateAsync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     mutate: omittedMutate,
     ...mutationData
-  } = useMutationQuery<Omit<Dashboard, 'globalRefreshInterval'>, unknown>({
+  } = useMutationQuery<
+    Omit<Dashboard, 'globalRefreshInterval'>,
+    CreateDashboardDto
+  >({
     getEndpoint: () => dashboardsEndpoint,
     httpCodesBypassErrorSnackbar: [400, 500],
     method: Method.POST,
@@ -55,7 +66,13 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
       : {}),
     ...(labels?.labelSuccess
       ? { onSuccess: () => showSuccessMessage(labels?.labelSuccess) }
-      : {})
+      : {}),
+    optimisticListing: {
+      enabled: true,
+      limit: limit || 10,
+      queryKey: resource.dashboards,
+      total
+    }
   });
 
   const queryClient = useQueryClient();
@@ -79,7 +96,7 @@ const useCreateDashboard = ({ labels }: Props): UseCreateDashboard => {
       onSettled?.(data, error, vars, undefined);
     };
 
-    return mutateAsync(
+    return await mutateAsync(
       {
         payload: variables
       },

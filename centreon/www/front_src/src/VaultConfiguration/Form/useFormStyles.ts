@@ -1,6 +1,12 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useFormStyles = makeStyles()((theme) => ({
+  buttons: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: theme.spacing(1.5),
+    justifyContent: 'space-between'
+  },
   group: {
     width: '300px'
   },
@@ -11,11 +17,5 @@ export const useFormStyles = makeStyles()((theme) => ({
   },
   skeleton: {
     height: '37px'
-  },
-  buttons: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: theme.spacing(1.5),
-    justifyContent: 'space-between'
   }
 }));

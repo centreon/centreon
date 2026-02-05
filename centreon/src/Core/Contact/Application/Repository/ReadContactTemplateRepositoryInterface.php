@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Core\Contact\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Domain\Model\ContactTemplate;
 
 interface ReadContactTemplateRepositoryInterface
@@ -30,6 +31,7 @@ interface ReadContactTemplateRepositoryInterface
     /**
      * Get all contact templates.
      *
+     * @throws RepositoryException
      * @return array<ContactTemplate>
      */
     public function findAll(): array;
@@ -39,6 +41,7 @@ interface ReadContactTemplateRepositoryInterface
      *
      * @param int $id
      *
+     * @throws RepositoryException
      * @return ContactTemplate|null
      */
     public function find(int $id): ?ContactTemplate;

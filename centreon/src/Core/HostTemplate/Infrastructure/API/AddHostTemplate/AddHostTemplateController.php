@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplate;
 use Core\HostTemplate\Application\UseCase\AddHostTemplate\AddHostTemplateRequest;
@@ -75,9 +76,8 @@ final class AddHostTemplateController extends AbstractController
     private function executeUseCaseOnPrem(
         AddHostTemplate $useCase,
         AddHostTemplateOnPremPresenter $presenter,
-        Request $request
-    ): Response
-    {
+        Request $request,
+    ): Response {
         try {
             /**
              * @var array{
@@ -120,7 +120,7 @@ final class AddHostTemplateController extends AbstractController
              *     comment?: string,
              *     categories?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>
+             *     macros?: array<array{id?: int|null,name:string,value:null|string,is_password:bool,description:null|string}>
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateOnPremSchema.json');
@@ -154,7 +154,7 @@ final class AddHostTemplateController extends AbstractController
             $dto->flapDetectionEnabled = $data['flap_detection_enabled'] ?? 2;
             $dto->lowFlapThreshold = $data['low_flap_threshold'] ?? null;
             $dto->highFlapThreshold = $data['high_flap_threshold'] ?? null;
-            $dto->eventHandlerEnabled = $data['event_handler_enabled'] ?? 2;
+            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled'] ?? 2);
             $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
             $dto->eventHandlerCommandArgs = $data['event_handler_command_args'] ?? [];
             $dto->noteUrl = $data['note_url'] ?? '';
@@ -189,9 +189,8 @@ final class AddHostTemplateController extends AbstractController
     private function executeUseCaseSaas(
         AddHostTemplate $useCase,
         AddHostTemplateSaasPresenter $presenter,
-        Request $request
-    ): Response
-    {
+        Request $request,
+    ): Response {
         try {
             /**
              * @var array{
@@ -201,6 +200,8 @@ final class AddHostTemplateController extends AbstractController
              *     snmp_community?: string,
              *     timezone_id?: null|int,
              *     severity_id?: null|int,
+             *     check_command_id?: null|int,
+             *     check_command_args?: string[],
              *     check_timeperiod_id?: null|int,
              *     max_check_attempts?: null|int,
              *     normal_check_interval?: null|int,
@@ -211,7 +212,9 @@ final class AddHostTemplateController extends AbstractController
              *     icon_id?: null|int,
              *     categories?: int[],
              *     templates?: int[],
-             *     macros?: array<array{name:string,value:null|string,is_password:bool,description:null|string}>
+             *     macros?: array<array{id?: int|null,name:string,value:null|string,is_password:bool,description:null|string}>,
+             *     event_handler_enabled?: int,
+             *     event_handler_command_id?: null|int
              * } $data
              */
             $data = $this->validateAndRetrieveDataSent($request, __DIR__ . '/AddHostTemplateSaasSchema.json');
@@ -226,6 +229,8 @@ final class AddHostTemplateController extends AbstractController
             $dto->retryCheckInterval = $data['retry_check_interval'] ?? null;
             $dto->timezoneId = $data['timezone_id'] ?? null;
             $dto->severityId = $data['severity_id'] ?? null;
+            $dto->checkCommandId = $data['check_command_id'] ?? null;
+            $dto->checkCommandArgs = $data['check_command_args'] ?? [];
             $dto->checkTimeperiodId = $data['check_timeperiod_id'] ?? null;
             $dto->noteUrl = $data['note_url'] ?? '';
             $dto->note = $data['note'] ?? '';
@@ -234,6 +239,8 @@ final class AddHostTemplateController extends AbstractController
             $dto->templates = $data['templates'] ?? [];
             $dto->macros = $data['macros'] ?? [];
             $dto->iconId = $data['icon_id'] ?? null;
+            $dto->eventHandlerEnabled = YesNoDefaultConverter::fromScalar($data['event_handler_enabled'] ?? 2);
+            $dto->eventHandlerCommandId = $data['event_handler_command_id'] ?? null;
 
             $useCase($dto, $presenter);
         } catch (\InvalidArgumentException $ex) {

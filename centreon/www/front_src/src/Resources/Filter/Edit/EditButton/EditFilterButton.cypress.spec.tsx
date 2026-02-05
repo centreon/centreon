@@ -1,17 +1,14 @@
-import { renderHook } from '@testing-library/react-hooks/dom';
-import { Provider, useAtomValue } from 'jotai';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
 
-import EditFiltersPanel from '..';
+import { Provider } from 'jotai';
+
 import useListing from '../../../Listing/useListing';
 import Context, { ResourceContext } from '../../../testUtils/Context';
 import useFilter from '../../../testUtils/useFilter';
-import { labelDelete, labelEditFilters } from '../../../translatedLabels';
+import { labelDelete, labelManageFilters } from '../../../translatedLabels';
 import { defaultSortField, defaultSortOrder } from '../../Criterias/default';
 import { Filter } from '../../models';
-
+import EditFiltersPanel from '..';
 import EditFilter from '.';
 
 let context: object;
@@ -162,13 +159,6 @@ const retrievedCustomFilters = {
   result: [getFilter({})]
 };
 
-before(() => {
-  const userData = renderHook(() => useAtomValue(userAtom));
-
-  userData.result.current.timezone = 'Europe/Paris';
-  userData.result.current.locale = 'en_US';
-});
-
 describe('Edit filter button', () => {
   beforeEach(() => {
     cy.viewport('macbook-13');
@@ -209,17 +199,17 @@ describe('Edit filter button', () => {
   it('displays the filters in the edition panel', () => {
     cy.waitForRequest('@getResourceRequest');
 
-    cy.findByLabelText(labelEditFilters).click();
+    cy.findByLabelText(labelManageFilters).click();
   });
 
   it('sends a put request when the filter is updated', () => {
     cy.waitForRequest('@getResourceRequest');
 
-    cy.findByLabelText(labelEditFilters).click();
+    cy.findByLabelText(labelManageFilters).click();
 
     cy.get('input').type('updated');
 
-    cy.contains(labelEditFilters).click();
+    cy.contains(labelManageFilters).click();
 
     cy.waitForRequest('@putFilterRequest');
   });
@@ -227,7 +217,7 @@ describe('Edit filter button', () => {
   it('sends a delete request when the filter is delete', () => {
     cy.waitForRequest('@getResourceRequest');
 
-    cy.findByLabelText(labelEditFilters).click();
+    cy.findByLabelText(labelManageFilters).click();
 
     cy.get('input').type('updated');
 

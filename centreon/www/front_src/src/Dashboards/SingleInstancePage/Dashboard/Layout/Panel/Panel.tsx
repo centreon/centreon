@@ -1,14 +1,14 @@
-import { Suspense, useMemo } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
-
 import {
+  client,
   LoadingSkeleton,
   RichTextEditor,
-  client,
   useMemoComponent
 } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, find, isEmpty, isNil } from 'ramda';
+import { Suspense, useMemo } from 'react';
+import { useSearchParams } from 'react-router';
 
 import FederatedComponent from '../../../../../components/FederatedComponents';
 import {
@@ -24,8 +24,6 @@ import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
 import useLinkToResourceStatus from '../../hooks/useLinkToResourceStatus';
 import useSaveDashboard from '../../hooks/useSaveDashboard';
 import { isGenericText, isRichTextEditorEmpty } from '../../utils';
-
-import { equals, find, isEmpty, isNil } from 'ramda';
 import { internalWidgetComponents } from '../../Widgets/widgets';
 import { usePanelHeaderStyles } from './usePanelStyles';
 
@@ -109,8 +107,8 @@ const Panel = ({
         {displayDescription && (
           <DescriptionWrapper>
             <RichTextEditor
-              disabled
               contentClassName={cx(isGenericTextPanel && classes.description)}
+              disabled
               editable={false}
               editorState={
                 panelOptionsAndData.options?.description?.content || undefined
@@ -128,7 +126,6 @@ const Panel = ({
         >
           {!isEmpty(remoteEntry) || isNil(Component) ? (
             <FederatedComponent
-              isFederatedWidget
               canEdit={canEditField}
               changeViewMode={changeViewMode}
               dashboardId={dashboardId}
@@ -136,6 +133,7 @@ const Panel = ({
               hasDescription={displayDescription}
               id={id}
               isEditingDashboard={isEditing}
+              isFederatedWidget
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
@@ -150,9 +148,9 @@ const Panel = ({
             <Suspense
               fallback={
                 <LoadingSkeleton
+                  height="100%"
                   variant="rectangular"
                   width="100%"
-                  height="100%"
                 />
               }
             >
@@ -162,11 +160,11 @@ const Panel = ({
                 dashboardId={dashboardId}
                 globalRefreshInterval={refreshInterval}
                 hasDescription={displayDescription}
+                id={id}
                 isEditingDashboard={isEditing}
                 panelData={panelOptionsAndData?.data}
                 panelOptions={panelOptionsAndData?.options}
                 path={panelConfigurations.path}
-                id={id}
                 playlistHash={playlistHash}
                 queryClient={client}
                 refreshCount={refreshCount}

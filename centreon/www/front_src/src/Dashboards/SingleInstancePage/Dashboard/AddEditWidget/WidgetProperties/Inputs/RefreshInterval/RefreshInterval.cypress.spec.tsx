@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import {
   dashboardRefreshIntervalAtom,
@@ -8,17 +8,12 @@ import {
 } from '../../../../atoms';
 import {
   labelDashboardGlobalInterval,
-  labelInterval,
   labelRefreshInterval
 } from '../../../../translatedLabels';
-
 import RefreshInterval from './RefreshInterval';
 
 const initializeComponent = (
-  refreshInterval: {
-    interval: number | null;
-    type: 'global' | 'manual';
-  } = {
+  refreshInterval: { interval: number | null; type: 'global' | 'manual' } = {
     interval: null,
     type: 'global' as const
   }
@@ -67,7 +62,7 @@ describe('Refresh interval', () => {
 
   it('changes the "second" label to "seconds" when the value is greater than 1', () => {
     cy.findByTestId('custom').click();
-    cy.findByTestId(labelInterval).type('2');
+    cy.findByTestId('intervalInput').type('2');
     cy.findAllByText('second').should('not.exist');
     cy.findAllByText('seconds').should('exist');
 

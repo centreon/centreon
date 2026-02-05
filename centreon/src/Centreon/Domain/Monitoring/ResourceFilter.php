@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ class ResourceFilter
      * Acknowledged resources.
      */
     public const STATE_ACKNOWLEDGED = 'acknowledged';
+    public const STATE_IN_FLAPPING = 'in_flapping';
 
     /**
      * All status & resources.
@@ -197,7 +198,7 @@ class ResourceFilter
     /**
      * @param string[] $types
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setTypes(array $types): self
     {
@@ -227,7 +228,7 @@ class ResourceFilter
     /**
      * @param string[] $states
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setStates(array $states): self
     {
@@ -257,7 +258,7 @@ class ResourceFilter
     /**
      * @param string[] $statuses
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setStatuses(array $statuses): self
     {
@@ -277,7 +278,7 @@ class ResourceFilter
     /**
      * @param string[] $hostgroupNames
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setHostgroupNames(array $hostgroupNames): self
     {
@@ -297,7 +298,7 @@ class ResourceFilter
     /**
      * @param string[] $monitoringServerNames
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setMonitoringServerNames(array $monitoringServerNames): self
     {
@@ -317,7 +318,7 @@ class ResourceFilter
     /**
      * @param string[] $servicegroupNames
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setServicegroupNames(array $servicegroupNames): self
     {
@@ -337,7 +338,7 @@ class ResourceFilter
     /**
      * @param int[] $hostIds
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setHostIds(array $hostIds): self
     {
@@ -363,7 +364,7 @@ class ResourceFilter
     /**
      * @param int[] $serviceIds
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setServiceIds(array $serviceIds): self
     {
@@ -389,7 +390,7 @@ class ResourceFilter
     /**
      * @param int[] $metaServiceIds
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setMetaServiceIds(array $metaServiceIds): self
     {
@@ -407,7 +408,7 @@ class ResourceFilter
     /**
      * @param bool $onlyWithPerformanceData
      *
-     * @return \Centreon\Domain\Monitoring\ResourceFilter
+     * @return ResourceFilter
      */
     public function setOnlyWithPerformanceData(bool $onlyWithPerformanceData): self
     {

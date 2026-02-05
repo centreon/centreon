@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\Host\Application\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
+use Core\Common\Domain\SimpleEntity;
 use Core\Host\Domain\Model\Host;
 use Core\Host\Domain\Model\HostNamesById;
 use Core\Host\Domain\Model\SmallHost;
@@ -101,7 +102,7 @@ interface ReadHostRepositoryInterface
      */
     public function findByRequestParametersAndAccessGroups(
         RequestParametersInterface $requestParameters,
-        array $accessGroups
+        array $accessGroups,
     ): array;
 
     /**
@@ -168,4 +169,23 @@ interface ReadHostRepositoryInterface
      * @return Host[]
      */
     public function findAll(): array;
+
+    /**
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return SimpleEntity[]
+     */
+    public function findByHostGroup(int $hostGroupId): array;
+
+    /**
+     * @param int $hostGroupId
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return SimpleEntity[]
+     */
+    public function findByHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): array;
 }

@@ -1,10 +1,4 @@
-import { useCallback, useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandMore from '@mui/icons-material/ExpandMore';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import {
   Box,
   Collapse,
@@ -14,7 +8,11 @@ import {
   Typography
 } from '@mui/material';
 
-import { Group } from './Inputs/models';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import type { Group } from './Inputs/models';
 
 interface Props {
   children: React.ReactNode;
@@ -35,16 +33,10 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
-  groupTitleIcon: {
-    alignItems: 'center',
-    columnGap: theme.spacing(1),
-    display: 'flex',
-    flexDirection: 'row'
-  },
+  title: {},
   tooltip: {
     maxWidth: theme.spacing(60)
-  },
-  title: {}
+  }
 }));
 
 const CollapsibleGroup = ({
@@ -66,18 +58,18 @@ const CollapsibleGroup = ({
 
   const containerClassName = className || '';
 
-  const CollapseIcon = isOpen ? ExpandMore : ChevronRightIcon;
+  const CollapseIcon = isOpen ? ExpandLess : ExpandMore;
   const ContainerComponent = useCallback(
     ({
       children: containerComponentChildren
     }: Pick<Props, 'children'>): JSX.Element =>
       isCollapsible ? (
         <ListItemButton
+          aria-label={group?.name}
+          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
           dense
           disableGutters
           disableRipple
-          aria-label={group?.name}
-          className={cx(classes.groupTitleContainer, containerClassName)}
           onClick={toggle}
         >
           {containerComponentChildren}
@@ -87,19 +79,31 @@ const CollapsibleGroup = ({
           {containerComponentChildren}
         </Box>
       ),
-    [isCollapsible]
+    [
+      isCollapsible,
+      classes.groupTitleContainer,
+      containerClassName,
+      cx,
+      group?.name,
+      toggle
+    ]
   );
 
   return (
     <>
       {hasGroupTitle && (
         <ContainerComponent>
-          {isCollapsible && <CollapseIcon />}
-          <div className={classes.groupTitleIcon}>
+          <div
+            className={
+              'snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white items-center'
+            }
+            data-testid={`${group?.name}-header`}
+          >
             <Typography
-              className="groupText"
+              className="groupText scroll-m-12 snap-start"
               variant="h6"
               {...group?.titleAttributes}
+              data-section-group-form-id={group?.name}
             >
               {t(group?.name as string)}
             </Typography>
@@ -116,6 +120,7 @@ const CollapsibleGroup = ({
                 </MuiIconButton>
               </Tooltip>
             )}
+            {isCollapsible && <CollapseIcon />}
           </div>
         </ContainerComponent>
       )}

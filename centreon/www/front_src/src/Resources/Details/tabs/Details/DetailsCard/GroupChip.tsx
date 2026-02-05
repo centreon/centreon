@@ -1,13 +1,15 @@
-import { useCallback, useState } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Chip, Grid, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+
+import { useSetAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
+import routeMap from 'www/front_src/src/reactRoutes/routeMap';
 
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../../../Filter/filterAtoms';
@@ -16,9 +18,9 @@ import { Category, Group } from '../../../models';
 const useStyles = makeStyles()((theme) => ({
   chip: {
     alignSelf: 'center',
+    borderRadius: theme.spacing(2),
     display: 'flex',
-    height: theme.spacing(4),
-    borderRadius: theme.spacing(2)
+    height: theme.spacing(4)
   },
   chipHovered: {
     backgroundColor: theme.palette.primary.main,
@@ -50,10 +52,15 @@ interface Props {
   type: CriteriaNames;
 }
 
+export const router = {
+  useNavigate
+};
+
 const GroupChip = ({ group, type }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   const { t } = useTranslation();
+  const navigate = router.useNavigate();
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const setCriteriaAndNewFilter = useSetAtom(
@@ -70,23 +77,32 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
 
   const filterByGroup = useCallback((): void => {
     setCriteriaAndNewFilter({
+      apply: true,
       name: type,
-      value: [group],
-      apply: true
+      value: [group]
     });
   }, [group, type]);
 
   const configureGroup = useCallback((): void => {
-    window.location.href = group.configuration_uri as string;
+    if (equals(type, CriteriaNames.hostGroups)) {
+      navigate(`${routeMap.hostGroups}?mode=edit&id=${group.id}`);
+      return;
+    }
+
+    window.location.href = group.configuration_uri;
   }, [group]);
 
   const { name, id } = group;
 
+  const canDisplayConfiguration = equals(type, CriteriaNames.hostGroups)
+    ? group.configuration_endpoint
+    : true;
+
   return (
     <Grid item key={id}>
       <Chip
-        className={classes.chip}
         aria-label={`${name} Chip`}
+        className={classes.chip}
         color="primary"
         label={
           <div className={classes.chipLabelContainer}>
@@ -106,21 +122,23 @@ const GroupChip = ({ group, type }: Props): JSX.Element => {
                 <IconButton
                   aria-label={`${name} Filter`}
                   className={classes.chipIcon}
+                  onClick={filterByGroup}
                   size="small"
                   title={t(name)}
-                  onClick={filterByGroup}
                 >
                   <FilterListIcon fontSize="small" />
                 </IconButton>
-                <IconButton
-                  aria-label={`${name} Configure`}
-                  className={classes.chipIcon}
-                  size="small"
-                  title={t(name)}
-                  onClick={configureGroup}
-                >
-                  <SettingsIcon fontSize="small" />
-                </IconButton>
+                {canDisplayConfiguration && (
+                  <IconButton
+                    aria-label={`${name} Configure`}
+                    className={classes.chipIcon}
+                    onClick={configureGroup}
+                    size="small"
+                    title={t(name)}
+                  >
+                    <SettingsIcon fontSize="small" />
+                  </IconButton>
+                )}
               </Grid>
             )}
           </div>

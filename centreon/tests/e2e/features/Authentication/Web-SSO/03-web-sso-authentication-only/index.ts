@@ -1,11 +1,12 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
-import { initializeWebSSOUserAndGetLoginPage } from '../common';
+import { initializeWebSsoUserAndGetLoginPage } from '../common';
 
 before(() => {
   cy.startContainers();
 
-  initializeWebSSOUserAndGetLoginPage();
+  initializeWebSsoUserAndGetLoginPage();
 });
 
 beforeEach(() => {
@@ -35,10 +36,7 @@ Given('an administrator logged in the platform', () => {
 });
 
 When('the administrator sets authentication mode to Web SSO only', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(3)')
     .click();
   cy.wait('@getWebSSOProvider');

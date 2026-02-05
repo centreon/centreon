@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,9 @@ use Core\ResourceAccess\Domain\Model\Rule;
 
 final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implements WriteResourceAccessRepositoryInterface
 {
-    use LoggerTrait, RepositoryTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use RepositoryTrait;
+    use SqlMultipleBindTrait;
 
     /** @var WriteDatasetRepositoryInterface[] */
     private array $repositoryProviders;
@@ -240,12 +242,13 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         bool $accessAllHosts = false,
         bool $accessAllHostGroups = false,
         bool $accessAllServiceGroups = false,
+        bool $accessAllImageFolders = false,
     ): int {
         $request = $this->translateDbName(
             <<<'SQL'
                 INSERT INTO `:db`.acl_resources
-                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, acl_res_activate, changed, cloud_specific)
-                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, '1', 1, 1)
+                    (acl_res_name, all_hosts, all_hostgroups, all_servicegroups, all_image_folders, acl_res_activate, changed, cloud_specific)
+                VALUES (:name, :allHosts, :allHostGroups, :allServiceGroups, :allImageFolders, '1', 1, 1)
                 SQL
         );
 
@@ -254,6 +257,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         $statement->bindValue(':allHosts', $accessAllHosts ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':allHostGroups', $accessAllHostGroups ? '1' : '0', \PDO::PARAM_STR);
         $statement->bindValue(':allServiceGroups', $accessAllServiceGroups ? '1' : '0', \PDO::PARAM_STR);
+        $statement->bindValue(':allImageFolders', $accessAllImageFolders ? '1' : '0', \PDO::PARAM_STR);
 
         $statement->execute();
 
@@ -265,7 +269,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactsToRule(int $ruleId, array $contactIds): void
     {
-        if ([] === $contactIds) {
+        if ($contactIds === []) {
             return;
         }
 
@@ -331,7 +335,7 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
      */
     public function linkContactGroupsToRule(int $ruleId, array $contactGroupIds): void
     {
-        if ([] === $contactGroupIds) {
+        if ($contactGroupIds === []) {
             return;
         }
 
@@ -359,6 +363,44 @@ final class DbWriteResourceAccessRepository extends AbstractRepositoryRDB implem
         foreach ($bindValues as $bindKey => $bindValue) {
             $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
         }
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateDatasetResources(int $datasetId, array $resourceIds): void
+    {
+        if ($resourceIds === []) {
+            return;
+        }
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                UPDATE `:db`.dataset_filters
+                SET resource_ids = :resource_ids
+                WHERE id = :id
+                SQL
+        ));
+        $statement->bindValue(':resource_ids', implode(',', $resourceIds), \PDO::PARAM_STR);
+        $statement->bindValue(':id', (int) $datasetId, \PDO::PARAM_INT);
+
+        $statement->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteDatasetFilter(int $datasetFilterid): void
+    {
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<'SQL'
+                DELETE FROM `:db`.dataset_filters
+                WHERE id = :id
+                SQL
+        ));
+        $statement->bindValue(':id', $datasetFilterid, \PDO::PARAM_INT);
 
         $statement->execute();
     }

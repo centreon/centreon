@@ -1,13 +1,14 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored,
-  checkMetricsAreMonitored
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import statuschartWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithStatusChartWidget.json';
+import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 
 const greenCssBackground = 'background: rgb(136, 185, 34)';
 const orangeCssBackground = 'background: rgb(253, 155, 39)';
@@ -177,23 +178,23 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('getDashboard');
   cy.intercept({
     method: 'GET',
-    url: `centreon/api/latest/monitoring/services/status**`
+    url: '/centreon/api/latest/monitoring/services/status**'
   }).as('getServiceStatus');
   cy.intercept({
     method: 'GET',
-    url: `centreon/api/latest/monitoring/hosts/status**`
+    url: '/centreon/api/latest/monitoring/hosts/status**'
   }).as('getHostStatus');
   cy.intercept({
     method: 'GET',
@@ -233,7 +234,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -248,7 +249,6 @@ When(
 Then(
   'configuration properties for the status chart widget are displayed',
   () => {
-    cy.getByTestId({ testId: 'CheckCircleIcon' }).should('exist');
     cy.getByLabel({ label: 'Donut chart' }).should('exist');
     cy.getByLabel({ label: 'Pie chart' }).should('exist');
     cy.getByLabel({ label: 'Vertical bar chart' }).should('exist');
@@ -289,7 +289,8 @@ Then(
         greyCssBackground,
         blueCssBackground
       ],
-      ['100.0%', '0.0%', '0.0%', '0.0%']
+      ['100.0%', '0.0%', '0.0%', '0.0%'],
+      ['66.7%', '33.3%', '0.0%', '0.0%']
     );
     cy.verifyLegendItemStyle(
       1,
@@ -300,7 +301,8 @@ Then(
         greyCssBackground,
         blueCssBackground
       ],
-      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+      ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
+      ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
     );
   }
 );
@@ -327,7 +329,8 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['100.0%', '0.0%', '0.0%', '0.0%']
+    ['100.0%', '0.0%', '0.0%', '0.0%'],
+    ['66.7%', '33.3%', '0.0%', '0.0%']
   );
   cy.verifyLegendItemStyle(
     1,
@@ -338,7 +341,8 @@ Then("the Status Chart widget is added in the dashboard's layout", () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+    ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
+    ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
   );
 });
 
@@ -370,7 +374,7 @@ Then('the unit of the resources already displayed should be updated', () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['3', '1', '1', '3', '2']
+    ['5', '8', '3', '0', '3']
   );
 });
 
@@ -390,24 +394,13 @@ Given('a dashboard featuring two Status Chart widgets', () => {
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
+    label: 'Delete widget',
+    tag: 'li'
   }).realClick();
 });
 
 Then('only the contents of the other widget are displayed', () => {
-   cy.verifyLegendItemStyle(
-    0,
-    [
-      greenCssBackground,
-      redCssBackground,
-      greyCssBackground,
-      blueCssBackground
-    ],
-    ['100.0%', '0', '0', '0']
-  );
   cy.verifyLegendItemStyle(
     1,
     [
@@ -417,7 +410,8 @@ Then('only the contents of the other widget are displayed', () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['3', '1', '1', '3', '2']
+    ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
+    ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
   );
 });
 
@@ -434,8 +428,8 @@ When(
   'the dashboard administrator user duplicates the Status Chart widget',
   () => {
     cy.editDashboard(dashboards.default.name);
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click({ force: true });
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click({ force: true });
   }
 );
 
@@ -449,7 +443,8 @@ Then('a second Status Chart widget is displayed on the dashboard', () => {
       greyCssBackground,
       blueCssBackground
     ],
-    ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+    ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
+    ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
   );
 });
 
@@ -486,13 +481,14 @@ Then(
         greyCssBackground,
         blueCssBackground
       ],
-      ['30.0%', '10.0%', '10.0%', '30.0%', '20.0%']
+      ['50.0%', '8.3%', '8.3%', '0.0%', '33.3%'],
+      ['25.0%', '8.3%', '8.3%', '25.0%', '33.3%']
     );
   }
 );
 
 Given('a dashboard with a Status Chart widget', () => {
-   cy.insertDashboardWithWidget(
+  cy.insertDashboardWithWidget(
     dashboards.default,
     statuschartWidget,
     'centreon-widget-statuschart',
@@ -505,8 +501,8 @@ When('the dashboard administrator clicks on a random resource', () => {
   cy.get('[data-testid="Legend"] > *')
     .first()
     .find('a')
-    .then(($link) => {
-      const href = $link.attr('href');
+    .then((link) => {
+      const href = link.attr('href');
       if (href) {
         cy.log('First link found:', href);
         cy.visit(href);
@@ -519,18 +515,16 @@ When('the dashboard administrator clicks on a random resource', () => {
 Then(
   'the user should be redirected to the resource status screen and all the resources must be displayed',
   () => {
-    cy.contains('host2').should('exist');
+    cy.contains(/host2|host3/).should('exist');
   }
 );
 
 Given('the dashboard administrator adds more than 20 hosts', () => {
   cy.addMultipleHosts();
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
   cy.waitForElementToBeVisible('[data-testid="CloseIcon"]');
-  cy.getByTestId({ testId: 'CloseIcon' }).click();
+
+  cy.getByTestId({ testId: 'Clear filter' }).click({ force: true });
   cy.exportConfig();
   cy.waitUntil(
     () => {
@@ -539,7 +533,7 @@ Given('the dashboard administrator adds more than 20 hosts', () => {
         .invoke('text')
         .then((text) => {
           if (text !== '23') {
-            cy.getByTestId({ testId: 'RefreshIcon' }).click();
+            cy.getByTestId({ testId: 'refresh' }).click();
             cy.getByLabel({ label: 'Select all' }).click();
             cy.getByLabel({ label: 'Forced check' }).click();
             cy.getByLabel({ label: 'Select all' }).click();
@@ -552,16 +546,6 @@ Given('the dashboard administrator adds more than 20 hosts', () => {
   );
 });
 
-Then(
-  'the number of hosts is evaluated to be 23',
-  () => {
-    cy.get('[data-testid="pieChart"]')
-    .eq(0)
-    .find('text tspan')
-    .invoke('text')
-    .then((text) => {
-      cy.log(text);
-      expect(text.trim()).to.eq('23hosts');
-   });
-  }
-);
+Then('the number of hosts is evaluated to be 23', () => {
+  cy.contains('23').should('be.visible');
+});

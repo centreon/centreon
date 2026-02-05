@@ -46,6 +46,11 @@ properties:
     description: Indicates if user wants to use deprecated monitoring pages
     example: false
 
+  use_deprecated_custom_views:
+    type: boolean
+    description: Indicates if user wants to use deprecated custom views
+    example: false
+
   theme:
     type: string
     description: Selected theme of the current user

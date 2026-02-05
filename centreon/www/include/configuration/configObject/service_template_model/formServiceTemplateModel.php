@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ $datasetRoutes = [
     'default_traps' => BASE_ROUTE . '?object=centreon_configuration_trap&action=defaultValues&target=service&field=service_traps&id=' . $service_id,
     'default_graph_templates' => BASE_ROUTE . '?object=centreon_configuration_graphtemplate&action=defaultValues&target=service&field=graph_id&id=' . $service_id,
     'default_service_categories' => BASE_ROUTE . '?object=centreon_configuration_servicecategory&action=defaultValues&target=service&field=service_categories&id=' . $service_id,
-    'default_host_templates' => BASE_ROUTE . '?object=centreon_configuration_hosttemplate&action=defaultValues&target=servicetemplates&field=service_hPars&id=' . $service_id
+    'default_host_templates' => BASE_ROUTE . '?object=centreon_configuration_hosttemplate&action=defaultValues&target=servicetemplates&field=service_hPars&id=' . $service_id,
 ];
 
 $attributes = [
@@ -197,13 +197,13 @@ if (($o === SERVICE_TEMPLATE_MODIFY || $o === SERVICE_TEMPLATE_WATCH) && isset($
             ON esi.service_service_id = srv.service_id
         WHERE srv.service_id = :service_id  LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     // Set base value
-    $service_list = $statement->fetch();
+    $service_list = $statement->fetch() ?: [];
     $service = array_map('myDecodeSvTP', $service_list);
     $serviceTplId = $service['service_template_model_stm_id'];
-    $cmdId = $isCloudPlatform ? '' : $service['command_command_id'];
+    $cmdId = $service['command_command_id'];
 
     // Set Service Notification Options
     $tmp = explode(',', $service['service_notification_options']);
@@ -226,7 +226,7 @@ if (($o === SERVICE_TEMPLATE_MODIFY || $o === SERVICE_TEMPLATE_WATCH) && isset($
         WHERE scr.service_service_id = :service_id AND sc.level IS NOT NULL
         ORDER BY sc.level ASC LIMIT 1'
     );
-    $statement->bindValue(':service_id', $service_id, \PDO::PARAM_INT);
+    $statement->bindValue(':service_id', $service_id, PDO::PARAM_INT);
     $statement->execute();
     if ($statement->rowCount()) {
         $cr = $statement->fetch();
@@ -370,6 +370,23 @@ if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $checkCommandSelect->addJsCallback('change', 'changeCommand(this.value);');
 }
 
+$serviceEHE = [
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
+    $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
+];
+$form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
+    $form->setDefaults(['service_event_handler_enabled' => '2']);
+}
+
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsTextLong);
+
 if (! $isCloudPlatform) {
     $serviceIV = [
         $form->createElement('radio', 'service_is_volatile', null, _('Yes'), '1'),
@@ -380,22 +397,6 @@ if (! $isCloudPlatform) {
     if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
         $form->setDefaults(['service_is_volatile' => '2']);
     }
-    $serviceEHE = [
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Yes'), '1'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('No'), '0'),
-        $form->createElement('radio', 'service_event_handler_enabled', null, _('Default'), '2'),
-    ];
-    $form->addGroup($serviceEHE, 'service_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
-        $form->setDefaults(['service_event_handler_enabled' => '2']);
-    }
-
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsTextLong);
 
     $serviceACE = [
         $form->createElement('radio', 'service_active_checks_enabled', null, _('Yes'), '1'),
@@ -715,7 +716,7 @@ if (! $isCloudPlatform) {
 
     $form->addElement('select2', 'graph_id', _('Graph Template'), [], $attributes['graph_templates']);
 } else {
-    $form->addElement('header', 'classification', _("Classification"));
+    $form->addElement('header', 'classification', _('Classification'));
 }
 
 $form->addElement('text', 'command_command_id_arg', _('Args'), $attrsTextLong);
@@ -725,6 +726,12 @@ $form->addElement('text', 'service_retry_check_interval', _('Retry Check Interva
 $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attributes['check_periods']);
 
 $cloneSetMacro = [
+    $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#']
+    ),
     $form->addElement(
         'text',
         'macroInput[#index#]',
@@ -758,7 +765,7 @@ $cloneSetMacro = [
         'macroFrom[#index#]',
         'direct',
         ['id' => 'macroFrom_#index#']
-    )
+    ),
 ];
 
 /**
@@ -785,7 +792,6 @@ if ($o === SERVICE_TEMPLATE_ADD) {
 
 $form->addElement('header', 'links', _('Relations'));
 
-
 if ($o === SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $mc_mod_Pars = [
         $form->createElement('radio', 'mc_mod_Pars', null, _('Incremental'), '0'),
@@ -807,7 +813,6 @@ if ($o === SERVICE_TEMPLATE_ADD) {
 }
 
 $form->addElement('header', 'treatment', _('Data Processing'));
-
 
 // Sort 4 - Extended Infos
 if ($o === SERVICE_TEMPLATE_ADD) {
@@ -890,6 +895,10 @@ if (is_array($select)) {
 
 $form->applyFilter('__ALL__', 'myTrim');
 $from_list_menu = false;
+if ($o === SERVICE_TEMPLATE_MODIFY) {
+    $form->registerRule('checkCircularInheritance', 'callback', 'checkCircularInheritance');
+    $form->addRule('service_template_model_stm_id', _('Circular inheritance not allowed'), 'checkCircularInheritance');
+}
 if ($o !== SERVICE_TEMPLATE_MASSIVE_CHANGE) {
     $form->addRule('service_description', _('Compulsory Name'), 'required');
     $form->addRule('service_alias', _('Compulsory Name'), 'required');
@@ -919,9 +928,8 @@ $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required 
 // # End of form definition
 //
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path2, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path2);
 
 unset($service['service_template_model_stm_id']);
 // Just watch a host information
@@ -981,7 +989,7 @@ $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $serviceObj = $form->getElement('service_id');
     if ($form->getSubmitValue('submitA')) {
-        $serviceObj->setValue(insertServiceInDB());
+        $serviceObj->setValue(insertServiceTemplate($form->getSubmitValues()));
     } elseif ($form->getSubmitValue('submitC')) {
         /*
          * Before saving, we check if a password macro has changed its name to be able to give it the right password

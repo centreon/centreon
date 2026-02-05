@@ -1,8 +1,9 @@
-import { equals } from 'ramda';
-
-import { PaletteOptions, alpha } from '@mui/material';
+import { alpha, type PaletteOptions } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals } from 'ramda';
+
 import {
   colorBlue50,
   colorBlue400,
@@ -27,6 +28,8 @@ declare module '@mui/material/styles/createPalette' {
     acknowledgedBackground: string;
     inDowntime: string;
     inDowntimeBackground: string;
+    inFlapping: string;
+    inFlappingBackground: string;
   }
 }
 
@@ -163,12 +166,14 @@ export const lightPalette: PaletteOptions = {
     active: '#666666',
     disabled: '#999999',
     disabledBackground: 'rgba(0, 0, 0, 0.12)',
-    focus: 'rgba(0, 0, 0, 0.12)',
+    focus: '#dadada',
     focusOpacity: 0.12,
     hover: 'rgba(0, 0, 0, 0.06)',
     hoverOpacity: 0.06,
     inDowntime: '#512980',
     inDowntimeBackground: '#E5D8F3',
+    inFlapping: '#064A3F',
+    inFlappingBackground: '#D8F3EF',
     selected: 'rgba(102, 102, 102, 0.3)',
     selectedOpacity: 0.3
   },
@@ -207,7 +212,7 @@ export const lightPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#4A4A4A',
+      border: '#EDEDED',
       description: '#4A4A4A',
       title: '#000000'
     }
@@ -291,6 +296,8 @@ export const lightPalette: PaletteOptions = {
   },
   warning: {
     contrastText: '#000',
+    dark: '#FC7E00',
+    light: '#FCC481',
     main: '#FD9B27'
   }
 };
@@ -303,12 +310,14 @@ export const darkPalette: PaletteOptions = {
     active: '#B5B5B5',
     disabled: '#999999',
     disabledBackground: '#555555',
-    focus: 'rgba(255, 255, 255, 0.30)',
+    focus: '#6d6d6d',
     focusOpacity: 0.3,
     hover: 'rgba(255, 255, 255, 0.16)',
     hoverOpacity: 0.16,
     inDowntime: '#E5D8F3',
     inDowntimeBackground: '#512980',
+    inFlapping: '#D8F3EF',
+    inFlappingBackground: '#064A3F',
     selected: 'rgba(255, 255, 255, 0.5)',
     selectedOpacity: 0.5
   },
@@ -347,7 +356,7 @@ export const darkPalette: PaletteOptions = {
           default: '#696969'
         }
       },
-      border: '#bdbdbd',
+      border: '#666666',
       description: '#bdbdbd',
       title: '#fff'
     }

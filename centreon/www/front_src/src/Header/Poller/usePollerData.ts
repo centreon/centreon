@@ -1,18 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useFetchQuery } from '@centreon/ui';
+import {
+  refreshIntervalAtom,
+  userAtom,
+  userPermissionsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
+import { isNil } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-
-import { useFetchQuery } from '@centreon/ui';
-import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+import { useNavigate } from 'react-router';
 
 import { pollerIssuesDecoder } from '../api/decoders';
 import { pollerListIssuesEndPoint } from '../api/endpoints';
-
-import { getPollerPropsAdapter } from './getPollerPropsAdapter';
 import type { GetPollerPropsAdapterResult } from './getPollerPropsAdapter';
+import { getPollerPropsAdapter } from './getPollerPropsAdapter';
 
 interface UsePollerDataResult {
   data: GetPollerPropsAdapterResult | null;
@@ -22,23 +24,26 @@ interface UsePollerDataResult {
 
 export const usePollerData = (): UsePollerDataResult => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const [isAllowed, setIsAllowed] = useState<boolean>(true);
+  const { t, i18n } = useTranslation();
+
+  const userPermissions = useAtomValue(userPermissionsAtom);
   const { isExportButtonEnabled } = useAtomValue(userAtom);
   const refetchInterval = useAtomValue(refreshIntervalAtom);
 
+  const isAllowed = useMemo(
+    () => userPermissions?.poller_statistics || false,
+    [userPermissions?.poller_statistics]
+  );
+
   const { isLoading, data } = useFetchQuery({
-    catchError: ({ statusCode }): void => {
-      if (equals(statusCode, 401)) {
-        setIsAllowed(false);
-      }
-    },
     decoder: pollerIssuesDecoder,
     getEndpoint: () => pollerListIssuesEndPoint,
     getQueryKey: () => [pollerListIssuesEndPoint, 'get-poller-status'],
     httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
-      refetchInterval: refetchInterval * 1000
+      enabled: isAllowed,
+      refetchInterval: refetchInterval * 1000,
+      suspense: false
     }
   });
 
@@ -55,7 +60,7 @@ export const usePollerData = (): UsePollerDataResult => {
       isAllowed,
       isLoading
     }),
-    [isLoading, data]
+    [isLoading, data, i18n.language]
   );
 };
 

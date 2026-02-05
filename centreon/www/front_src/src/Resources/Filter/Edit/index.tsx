@@ -1,27 +1,25 @@
-import { useCallback } from 'react';
-
-import { rectIntersection } from '@dnd-kit/core';
-import { rectSortingStrategy } from '@dnd-kit/sortable';
-import { useAtom, useSetAtom } from 'jotai';
-import { path, equals, find, map } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { LinearProgress, Stack, Typography } from '@mui/material';
 
+import type { RootComponentProps } from '@centreon/ui';
 import {
   MemoizedSectionPanel as SectionPanel,
   SortableItems,
   useRequest
 } from '@centreon/ui';
-import type { RootComponentProps } from '@centreon/ui';
 
-import { labelEditFilters } from '../../translatedLabels';
-import { Criteria } from '../Criterias/models';
+import { rectIntersection } from '@dnd-kit/core';
+import { rectSortingStrategy } from '@dnd-kit/sortable';
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, find, map, path } from 'ramda';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import { labelManageFilters } from '../../translatedLabels';
 import { patchFilter } from '../api';
+import { Criteria } from '../Criterias/models';
 import { customFiltersAtom, editPanelOpenAtom } from '../filterAtoms';
 import { Filter } from '../models';
-
 import SortableContent from './SortableContent';
 
 const useStyles = makeStyles()((theme) => ({
@@ -80,9 +78,9 @@ const EditFiltersPanel = (): JSX.Element => {
 
     const activeId = path(['active', 'id'], event);
     const destinationIndex = path(
-      ['active', 'data', 'current', 'sortable', 'index'],
+      ['over', 'data', 'current', 'sortable', 'index'],
       event
-    ) as number;
+    );
 
     sendRequest({ id: activeId, order: destinationIndex + 1 });
   };
@@ -113,14 +111,14 @@ const EditFiltersPanel = (): JSX.Element => {
             id: string;
             name: string;
           }>
-            updateSortableItemsOnItemsChange
             Content={SortableContent}
-            RootComponent={RootComponent}
             collisionDetection={rectIntersection}
             itemProps={['criterias', 'id', 'name']}
             items={displayedFilters}
-            sortingStrategy={rectSortingStrategy}
             onDragEnd={dragEnd}
+            RootComponent={RootComponent}
+            sortingStrategy={rectSortingStrategy}
+            updateSortableItemsOnItemsChange
           />
         </div>
       )
@@ -130,7 +128,7 @@ const EditFiltersPanel = (): JSX.Element => {
   const header = (
     <div className={classes.header}>
       <Typography align="center" variant="h6">
-        {t(labelEditFilters)}
+        {t(labelManageFilters)}
       </Typography>
     </div>
   );
@@ -139,8 +137,8 @@ const EditFiltersPanel = (): JSX.Element => {
     <SectionPanel
       header={header}
       memoProps={[customFilters]}
-      sections={sections}
       onClose={closeEditPanel}
+      sections={sections}
     />
   );
 };

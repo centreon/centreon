@@ -1,0 +1,600 @@
+<?php
+
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
+declare(strict_types=1);
+
+namespace Adaptation\Database\Connection\Exception;
+
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
+use Adaptation\Database\Exception\DatabaseException;
+
+/**
+ * Class.
+ *
+ * @class   ConnectionException
+ */
+class ConnectionException extends DatabaseException
+{
+    public static function notImplemented(string $method): self
+    {
+        return new self(
+            message: "{$method} method not implemented",
+            code: self::ERROR_CODE_BAD_USAGE
+        );
+    }
+
+    /**
+     * @param array<string,mixed> $context
+     */
+    public static function connectionBadUsage(string $message, array $context = []): self
+    {
+        return new self(
+            message: "Bad usage of connection : {$message}",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: $context
+        );
+    }
+
+    public static function connectionFailed(?\Throwable $previous = null): self
+    {
+        $message = 'Error while connecting to the database';
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
+            $message .= " : {$previous->getMessage()}";
+        }
+
+        return new self($message, self::ERROR_CODE_DATABASE, [], $previous);
+    }
+
+    public static function getNativeConnectionFailed(?\Throwable $previous = null): self
+    {
+        $message = 'Error while retrieving the native connection';
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
+            $message .= " : {$previous->getMessage()}";
+        }
+
+        return new self(
+            message: $message,
+            code: self::ERROR_CODE_DATABASE,
+            previous: $previous
+        );
+    }
+
+    public static function getDatabaseNameFailed(?\Throwable $previous = null): self
+    {
+        $message = 'Error while retrieving the database name';
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
+            $message .= " : {$previous->getMessage()}";
+        }
+
+        return new self($message, self::ERROR_CODE_DATABASE);
+    }
+
+    public static function getLastInsertFailed(\Throwable $previous): self
+    {
+        return new self(
+            'Error while retrieving the last auto-incremented id inserted.',
+            code: self::ERROR_CODE_DATABASE,
+            previous: $previous
+        );
+    }
+
+    // --------------------------------------- CRUD METHODS -----------------------------------------
+
+    public static function notEmptyQuery(): self
+    {
+        return new self(
+            message: 'The query is empty',
+            code: self::ERROR_CODE_BAD_USAGE
+        );
+    }
+
+    public static function executeStatementBadFormat(string $message, string $query): self
+    {
+        return new self(
+            message: "Query format is not correct to use executeStatement : {$message}",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
+        );
+    }
+
+    public static function executeStatementFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing the statement : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function insertQueryBadFormat(string $query): self
+    {
+        return new self(
+            message: "The query need to start by 'INSERT INTO '",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
+        );
+    }
+
+    public static function insertQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing the insert query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function batchInsertQueryBadUsage(string $message): self
+    {
+        return new self(
+            message: "Bad usage of batch insert query : {$message}",
+            code: self::ERROR_CODE_BAD_USAGE
+        );
+    }
+
+    /**
+     * @param array<string> $columns
+     */
+    public static function batchInsertQueryFailed(
+        \Throwable $previous,
+        string $tableName,
+        array $columns,
+        BatchInsertParameters $batchInsertParameters,
+        string $query = '',
+    ): self {
+        return new self(
+            message: "Error while executing the batch insert query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'table_name' => $tableName,
+                'columns' => $columns,
+                'query' => $query,
+                'batch_insert_parameters' => $batchInsertParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function updateQueryBadFormat(string $query): self
+    {
+        return new self(
+            message: "The query need to start by 'UPDATE '",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
+        );
+    }
+
+    public static function updateQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing the update query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function deleteQueryBadFormat(string $query): self
+    {
+        return new self(
+            message: "The query need to start by 'DELETE '",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
+        );
+    }
+
+    public static function deleteQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing the delete query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function selectQueryBadFormat(string $query): self
+    {
+        return new self(
+            message: "The query need to start by 'SELECT '",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
+        );
+    }
+
+    /**
+     * @param array<string,mixed> $context
+     */
+    public static function selectQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+        array $context = [],
+    ): self {
+        $context['query'] = $query;
+        $context['query_parameters'] = $queryParameters;
+
+        return new self(
+            message: "Error while executing the select query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: $context,
+            previous: $previous
+        );
+    }
+
+    public static function fetchNumericQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch numeric query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function fetchAssociativeQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch associative query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function fetchOneQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch one query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function fetchFirstColumnQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch first column query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function fetchAllNumericQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch all numeric query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function fetchAllAssociativeQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch all associative query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function fetchAllKeyValueQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch all key value query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function fetchAllAssociativeIndexedQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing fetch all associative indexed query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function iterateNumericQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing iterate numeric query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function iterateAssociativeQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing iterate associative query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function iterateColumnQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing iterate first column query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function iterateKeyValueQueryBadFormat(string $message, string $query): self
+    {
+        return new self(
+            message: "Bad format of iterate key value query : {$message}",
+            code: self::ERROR_CODE_BAD_USAGE,
+            context: ['query' => $query]
+        );
+    }
+
+    public static function iterateKeyValueQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing iterate key value query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    public static function iterateAssociativeIndexedQueryFailed(
+        \Throwable $previous,
+        string $query,
+        ?QueryParameters $queryParameters = null,
+    ): self {
+        return new self(
+            message: "Error while executing iterate associative indexed query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'query' => $query,
+                'query_parameters' => $queryParameters,
+            ],
+            previous: $previous
+        );
+    }
+
+    // ----------------------------------------- TRANSACTIONS -----------------------------------------
+
+    public static function setAutoCommitFailed(?\Throwable $exception = null): self
+    {
+        $message = 'Error while setting auto commit';
+        if ($exception instanceof \Throwable && ! empty($exception->getMessage())) {
+            $message .= " : {$exception->getMessage()}";
+        }
+
+        return new self(
+            message: $message,
+            code: self::ERROR_CODE_DATABASE_TRANSACTION,
+            previous: $exception
+        );
+    }
+
+    public static function startTransactionFailed(\Throwable $previous): self
+    {
+        return new self(
+            message: "Error while starting a transaction : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE_TRANSACTION,
+            previous: $previous
+        );
+    }
+
+    public static function commitTransactionFailed(?\Throwable $previous = null): self
+    {
+        $message = 'Error during the transaction commit';
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
+            $message .= " : {$previous->getMessage()}";
+        }
+
+        return new self(
+            message: $message,
+            code: self::ERROR_CODE_DATABASE_TRANSACTION,
+            previous: $previous
+        );
+    }
+
+    public static function rollbackTransactionFailed(?\Throwable $previous = null): self
+    {
+        $message = 'Error during the transaction rollback';
+        if ($previous instanceof \Throwable && ! empty($previous->getMessage())) {
+            $message .= " : {$previous->getMessage()}";
+        }
+
+        return new self(
+            message: $message,
+            code: self::ERROR_CODE_DATABASE_TRANSACTION,
+            previous: $previous
+        );
+    }
+
+    // ------------------------------------- UNBUFFERED QUERIES -----------------------------------------
+
+    public static function allowUnbufferedQueryFailed(
+        string $nativeConnectionClass,
+        string $currentDriverName,
+    ): self {
+        return new self(
+            message: "Unbuffered queries not allowed for native connection class '{$nativeConnectionClass}' with this driver : {$currentDriverName}.",
+            code: self::ERROR_CODE_UNBUFFERED_QUERY,
+            context: ['native_connection_class' => $nativeConnectionClass, 'current_driver_name' => $currentDriverName]
+        );
+    }
+
+    public static function startUnbufferedQueryFailed(): self
+    {
+        return new self(
+            message: 'Starting unbuffered queries failed.',
+            code: self::ERROR_CODE_UNBUFFERED_QUERY
+        );
+    }
+
+    public static function stopUnbufferedQueryFailed(
+        string $message,
+    ): self {
+        return new self(
+            message: "Stopping unbuffered queries failed : {$message}",
+            code: self::ERROR_CODE_UNBUFFERED_QUERY
+        );
+    }
+
+    // ------------------------------------- BASE METHODS -----------------------------------------
+
+    public static function closeQueryFailed(\Throwable $previous, string $query): self
+    {
+        return new self(
+            message: "Error while closing the query : {$previous->getMessage()}",
+            code: self::ERROR_CODE_DATABASE,
+            context: ['query' => $query],
+            previous: $previous
+        );
+    }
+
+    // --------------------------------------- DDL TOOLS -----------------------------------------------
+
+    public static function columnExistsFailed(
+        string $message,
+        string $tableName,
+        string $columnName,
+        ?\Exception $previous = null,
+    ): self {
+        return new self(
+            message: "Error while checking if column '{$columnName}' exists in table '{$tableName}' : {$message}",
+            code: self::ERROR_CODE_DATABASE,
+            context: [
+                'table_name' => $tableName,
+                'column_name' => $columnName,
+            ],
+            previous: $previous
+        );
+    }
+}

@@ -1,12 +1,12 @@
-import { useAtomValue } from 'jotai';
-import { equals, head } from 'ramda';
-/* eslint-disable react/no-array-index-key */
-import { useTranslation } from 'react-i18next';
-
 import { CircularProgress, Typography } from '@mui/material';
 
 import { MultiAutocompleteField, SingleAutocompleteField } from '@centreon/ui';
 import { Avatar } from '@centreon/ui/components';
+
+import { useAtomValue } from 'jotai';
+import { equals, head } from 'ramda';
+/* eslint-disable react/no-array-index-key */
+import { useTranslation } from 'react-i18next';
 
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import {
@@ -25,7 +25,6 @@ import {
   areResourcesFullfilled,
   isAtLeastOneResourceFullfilled
 } from '../utils';
-
 import { useMetricsStyles } from './Metrics.styles';
 import useMetrics from './useMetrics';
 
@@ -51,8 +50,7 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
     hasMultipleUnitsSelected,
     metricWithSeveralResources,
     renderOptionsForSingleMetric,
-    renderOptionsForMultipleMetricsAndResources,
-    hasMetaService
+    renderOptionsForMultipleMetricsAndResources
   } = useMetrics(propertyName);
 
   const { canEditField } = useCanEditProperties();
@@ -74,22 +72,17 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
         {t(labelIsTheSelectedResource)}
       </>
     )
-  ];
-
-  if (hasMetaService) {
-    return null;
-  }
+  ].filter((item) => item);
 
   const header = (
     <div className={classes.resourcesHeader}>
-      <Avatar compact className={avatarClasses.widgetAvatar}>
+      <Avatar className={avatarClasses.widgetAvatar} compact>
         3
       </Avatar>
       <Typography className={classes.resourceTitle}>{title}</Typography>
       {isLoadingMetrics && <CircularProgress size={16} />}
     </div>
   );
-
   return (
     <div className={classes.resourcesContainer}>
       {header}
@@ -101,21 +94,25 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
+            forceInputRenderValue
             getOptionItemLabel={getOptionLabel}
             getOptionLabel={getOptionLabel}
             isOptionEqualToValue={(option, selectedValue) =>
               equals(option?.id, selectedValue?.id)
             }
             label={t(labelSelectMetric)}
-            options={metrics}
-            value={head(selectedMetrics || []) || undefined}
             onChange={changeMetric}
+            options={metrics}
+            value={head(selectedMetrics || []) || null}
           />
         ) : (
           <MultiAutocompleteField
-            disableSortedOptions
-            ListboxProps={{
-              className: metricsClasses.listBox
+            autocompleteSlotsAndSlotProps={{
+              slotProps: {
+                listbox: {
+                  className: metricsClasses.listBox
+                }
+              }
             }}
             chipProps={{
               color: 'primary',
@@ -125,10 +122,15 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
             disabled={
               !canEditField || isLoadingMetrics || !canDisplayMetricsSelection
             }
+            disableSortedOptions
             getOptionLabel={getOptionLabel}
             getOptionTooltipLabel={getOptionLabel}
             getTagLabel={getTagLabel}
             label={t(labelSelectMetric)}
+            onChange={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
             options={metrics}
             renderOption={
               widgetProperties?.singleMetricSelection
@@ -136,10 +138,6 @@ const Metric = ({ propertyName }: WidgetPropertyProps): JSX.Element | null => {
                 : renderOptionsForMultipleMetricsAndResources
             }
             value={selectedMetrics || []}
-            onChange={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
           />
         )}
       </div>

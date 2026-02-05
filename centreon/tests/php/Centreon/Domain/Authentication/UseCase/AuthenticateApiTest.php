@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Tests\Centreon\Domain\Authentication\UseCase;
@@ -42,34 +43,22 @@ use Security\Domain\Authentication\Exceptions\ProviderException;
  */
 class AuthenticateApiTest extends TestCase
 {
-    /**
-     * @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationFactoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationFactoryInterface $providerFactory;
 
-    /**
-     * @var WriteTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var WriteTokenRepositoryInterface&\PHPUnit\Framework\MockObject\MockObject */
     private WriteTokenRepositoryInterface $writeTokenRepository;
 
-    /**
-     * @var NewProviderToken
-     */
+    /** @var NewProviderToken */
     private NewProviderToken $providerToken;
 
-    /**
-     * @var Contact
-     */
+    /** @var Contact */
     private Contact $contact;
 
-    /**
-     * @var Configuration&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var Configuration&\PHPUnit\Framework\MockObject\MockObject */
     private Configuration $configuration;
 
-    /**
-     * @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject
-     */
+    /** @var ProviderAuthenticationInterface&\PHPUnit\Framework\MockObject\MockObject */
     private ProviderAuthenticationInterface $providerAuthentication;
 
     protected function setUp(): void

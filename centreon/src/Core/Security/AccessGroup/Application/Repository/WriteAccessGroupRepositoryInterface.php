@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,16 @@ interface WriteAccessGroupRepositoryInterface
      */
     public function addLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void;
 
+    public function addLinksBetweenHostGroupAndResourceAccessGroup(int $hostGroupId, int $resourceAccessGroup): void;
+
+    /**
+     * Remove links between a "Host Group" and multiple "Acl Groups".
+     *
+     * @param int $hostGroupId
+     * @param AccessGroup[] $accessGroups
+     */
+    public function removeLinksBetweenHostGroupAndAccessGroups(int $hostGroupId, array $accessGroups): void;
+
     /**
      * Add links between a "Service Group" and multiple "Acl Groups".
      *
@@ -58,4 +68,24 @@ interface WriteAccessGroupRepositoryInterface
      * @param AccessGroup[] $accessGroups
      */
     public function addLinksBetweenServiceGroupAndAccessGroups(int $serviceGroupId, array $accessGroups): void;
+
+    /**
+     * Add links between a "Host Group" and multiple "Resource Ids".
+     *
+     * @param int $hostGroupId
+     * @param int[] $resourceIds
+     */
+    public function addLinksBetweenHostGroupAndResourceIds(int $hostGroupId, array $resourceIds): void;
+
+    /**
+     * Sets the changed flag
+     *
+     * @param AccessGroup[] $accessGroupIds
+     */
+    public function updateAclGroupsFlag(array $accessGroupIds): void;
+
+    /**
+     * Update the changed flag for ACL resources.
+     */
+    public function updateAclResourcesFlag(): void;
 }

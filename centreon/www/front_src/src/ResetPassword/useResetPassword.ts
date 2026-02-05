@@ -1,16 +1,15 @@
+import { putData, useRequest, useSnackbar } from '@centreon/ui';
+
 import { FormikHelpers, FormikValues } from 'formik';
 import { useAtomValue } from 'jotai';
 import { equals, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-
-import { putData, useRequest, useSnackbar } from '@centreon/ui';
+import { useNavigate } from 'react-router';
+import { object, string } from 'yup';
 
 import { labelLoginSucceeded } from '../Login/translatedLabels';
 import usePostLogin from '../Login/usePostLogin';
 import useUser from '../Main/useUser';
-
-import { object, string } from 'yup';
 import { getResetPasswordEndpoint } from './api/endpoint';
 import { ResetPasswordValues } from './models';
 import { passwordResetInformationsAtom } from './passwordResetInformationsAtom';

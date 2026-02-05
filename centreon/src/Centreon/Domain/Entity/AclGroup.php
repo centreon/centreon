@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,8 +22,8 @@
 namespace Centreon\Domain\Entity;
 
 use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
-use Symfony\Component\Serializer\Annotation as Serializer;
 use PDO;
+use Symfony\Component\Serializer\Annotation as Serializer;
 
 /**
  * ACL group entity
@@ -36,38 +36,28 @@ class AclGroup implements Mapping\MetadataInterface
     public const ENTITY_IDENTIFICATOR_COLUMN = 'acl_group_id';
     public const TABLE = 'acl_groups';
 
-    /**
-     * @var int an identification of entity
-     */
+    /** @var int an identification of entity */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $alias;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $changed;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     #[Serializer\Groups([AclGroup::SERIALIZER_GROUP_LIST])]
     private $activate;
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public static function loadMetadata(Mapping\ClassMetadata $metadata): void
     {

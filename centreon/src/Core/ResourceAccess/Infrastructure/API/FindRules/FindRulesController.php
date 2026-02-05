@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,21 @@ namespace Core\ResourceAccess\Infrastructure\API\FindRules;
 use Centreon\Application\Controller\AbstractController;
 use Core\ResourceAccess\Application\UseCase\FindRules\FindRules;
 use Core\ResourceAccess\Application\UseCase\FindRules\FindRulesPresenterInterface;
+use Core\ResourceAccess\Infrastructure\Voters\RulesVoter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    RulesVoter::LIST_RULES,
+    null,
+    'You are not allowed to list resource access rules',
+    Response::HTTP_FORBIDDEN
+)]
 final class FindRulesController extends AbstractController
 {
-    /**
-     * @param FindRules $useCase
-     * @param FindRulesPresenterInterface $presenter
-     *
-     * @return Response
-     */
     public function __invoke(
         FindRules $useCase,
-        FindRulesPresenterInterface $presenter
+        FindRulesPresenterInterface $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

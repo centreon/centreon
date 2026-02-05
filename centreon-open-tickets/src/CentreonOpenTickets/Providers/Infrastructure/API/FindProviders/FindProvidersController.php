@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,26 +25,41 @@ namespace CentreonOpenTickets\Providers\Infrastructure\API\FindProviders;
 
 use Centreon\Application\Controller\AbstractController;
 use CentreonOpenTickets\Providers\Application\UseCase\FindProviders;
-use CentreonOpenTickets\Providers\Application\UseCase\FindProvidersPresenterInterface;
+use Core\Application\Common\UseCase\ResponseStatusInterface;
+use Core\Infrastructure\Common\Api\StandardPresenter;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'dashboard_access_editor',
+    null,
+    "User doesn't have sufficient rights to get ticket providers information"
+)]
 final class FindProvidersController extends AbstractController
 {
     /**
      * @param FindProviders $useCase
-     * @param FindProvidersPresenterInterface $presenter
+     * @param StandardPresenter $presenter
      *
      * @return Response
      */
+    #[Route(
+        path: '/open-tickets/providers',
+        name: 'FindProviders',
+        methods: 'GET'
+    )]
     public function __invoke(
         FindProviders $useCase,
-        FindProvidersPresenterInterface $presenter
-    ): Response
-    {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
+        StandardPresenter $presenter,
+    ): Response {
+        $response = $useCase();
 
-        $useCase($presenter);
+        if ($response instanceof ResponseStatusInterface) {
+            return $this->createResponse($response);
+        }
 
-        return $presenter->show();
+        return JsonResponse::fromJsonString($presenter->present($response));
     }
 }

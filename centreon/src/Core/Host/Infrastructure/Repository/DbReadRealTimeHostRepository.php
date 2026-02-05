@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
      */
     public function findStatusesByRequestParametersAndAccessGroupIds(
         RequestParametersInterface $requestParameters,
-        array $accessGroupIds
+        array $accessGroupIds,
     ): HostStatusesCount {
         if ($accessGroupIds === []) {
             $this->createHostStatusesCountFromRecord([]);
@@ -137,7 +137,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
      * @return SqlRequestParametersTranslator
      */
     private function prepareSqlRequestParametersTranslatorForStatuses(
-        RequestParametersInterface $requestParameters
+        RequestParametersInterface $requestParameters,
     ): SqlRequestParametersTranslator {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->setConcordanceArray([
@@ -157,8 +157,7 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
         $sqlTranslator->addNormalizer(
             'status',
-            new class implements NormalizerInterface
-            {
+            new class () implements NormalizerInterface {
                 /**
                  * @inheritDoc
                  */
@@ -200,9 +199,9 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                     hosts.id AS `id`,
                     hosts.name AS `name`,
                     hosts.status AS `status`
-                FROM `:dbstg`.resources AS services
-                INNER JOIN `:dbstg`.resources AS hosts
-                    ON hosts.id = services.parent_id
+                FROM `:dbstg`.resources AS hosts
+                LEFT JOIN `:dbstg`.resources AS services
+                    ON services.parent_id = hosts.id
                 LEFT JOIN `:dbstg`.resources_tags AS rtags_host_groups
                     ON hosts.resource_id = rtags_host_groups.resource_id
                 LEFT JOIN `:dbstg`.tags host_groups

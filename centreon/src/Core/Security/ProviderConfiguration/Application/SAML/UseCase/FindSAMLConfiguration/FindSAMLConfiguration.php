@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,17 +23,14 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 use Core\Security\ProviderConfiguration\Domain\Model\Provider;
 use Core\Security\ProviderConfiguration\Domain\SAML\Model\CustomConfiguration;
 
-final class FindSAMLConfiguration
+final readonly class FindSAMLConfiguration
 {
-    use LoggerTrait;
-
     /**
      * @param ProviderAuthenticationFactoryInterface $providerFactory
      */
@@ -49,14 +46,17 @@ final class FindSAMLConfiguration
         try {
             $provider = $this->providerFactory->create(Provider::SAML);
             $configuration = $provider->getConfiguration();
-        } catch (\Throwable $ex) {
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
+        } catch (\Throwable $e) {
+            $presenter->presentResponse(new ErrorResponse(
+                message: $e->getMessage(),
+                context: ['provider' => Provider::SAML],
+                exception: $e
+            ));
 
             return;
         }
 
-        $presenter->present($this->createResponse($configuration));
+        $presenter->presentResponse($this->createResponse($configuration));
     }
 
     /**
@@ -75,6 +75,8 @@ final class FindSAMLConfiguration
         $response->remoteLoginUrl = $customConfiguration->getRemoteLoginUrl();
         $response->publicCertificate = $customConfiguration->getPublicCertificate();
         $response->userIdAttribute = $customConfiguration->getUserIdAttribute();
+        $response->requestAuthnContext = $customConfiguration->hasRequestedAuthnContext();
+        $response->requestedAuthnContextComparison = $customConfiguration->getRequestedAuthnContextComparison();
         $response->logoutFrom = $customConfiguration->getLogoutFrom();
         $response->logoutFromUrl = $customConfiguration->getLogoutFromUrl();
         $response->isAutoImportEnabled = $customConfiguration->isAutoImportEnabled();

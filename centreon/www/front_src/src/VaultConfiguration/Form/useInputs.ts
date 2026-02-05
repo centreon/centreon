@@ -1,6 +1,8 @@
 import { InputProps, InputType } from '@centreon/ui';
+
 import { isNil } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import {
   labelPort,
   labelRoleID,
@@ -15,11 +17,6 @@ export const useInputs = (): Array<InputProps> => {
 
   return [
     {
-      type: InputType.Text,
-      label: t(labelVaultAddress),
-      required: true,
-      fieldName: 'address',
-      group: '',
       change: ({ setFieldValue, value, setFieldTouched }) => {
         const port = value.match(portRegex);
         const url = value.match(/https?:\/\//);
@@ -39,40 +36,45 @@ export const useInputs = (): Array<InputProps> => {
         setFieldTouched('port', true);
         setFieldValue('address', addressWithoutProtocol);
         setFieldValue('port', port[0].substring(1));
-      }
+      },
+      fieldName: 'address',
+      group: '',
+      label: t(labelVaultAddress),
+      required: true,
+      type: InputType.Text
     },
     {
-      type: InputType.Text,
+      fieldName: 'port',
+
+      group: '',
       label: t(labelPort),
       required: true,
-      fieldName: 'port',
       text: {
-        type: 'number',
-        min: 1
+        min: 1,
+        type: 'number'
       },
-
-      group: ''
+      type: InputType.Text
     },
     {
-      type: InputType.Text,
+      fieldName: 'rootPath',
+      group: '',
       label: t(labelRootPath),
       required: true,
-      fieldName: 'rootPath',
-      group: ''
+      type: InputType.Text
     },
     {
-      type: InputType.Password,
+      fieldName: 'roleId',
+      group: '',
       label: t(labelRoleID),
       required: true,
-      fieldName: 'roleId',
-      group: ''
+      type: InputType.Password
     },
     {
-      type: InputType.Password,
+      fieldName: 'secretId',
+      group: '',
       label: t(labelSecretID),
       required: true,
-      fieldName: 'secretId',
-      group: ''
+      type: InputType.Password
     }
   ];
 };

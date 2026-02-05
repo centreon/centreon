@@ -12,10 +12,11 @@ const {
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
-  enableCoverage
+  enableCoverage,
+  postCssBase
 }) => ({
   cache,
-  module: getModuleConfiguration(enableCoverage),
+  module: getModuleConfiguration(enableCoverage, postCssBase),
   optimization,
   output: {
     ...output,
@@ -23,57 +24,55 @@ const getBaseConfiguration = ({
     library: moduleName,
     uniqueName: moduleName
   },
+  experiments: {
+    css: true
+  },
   plugins: [
     moduleName &&
-      new rspack.container.ModuleFederationPlugin({
-        filename: 'remoteEntry.[chunkhash:8].js',
-        library: { name: moduleName, type: 'umd' },
-        name: moduleName,
-        shared: [
-          {
-            '@centreon/ui-context': {
-              requiredVersion: '1.x',
-              singleton: true
-            }
-          },
-          {
-            jotai: {
-              requiredVersion: '2.x',
-              singleton: true
-            }
-          },
-          {
-            'jotai-suspense': {
-              singleton: true
-            }
-          },
-          {
-            react: {
-              requiredVersion: '18.x',
-              singleton: true
-            }
-          },
-          {
-            'react-dom': {
-              requiredVersion: '18.x',
-              singleton: true
-            }
-          },
-          {
-            'react-i18next': {
-              requiredVersion: '14.x',
-              singleton: true
-            }
-          },
-          {
-            'react-router-dom': {
-              requiredVersion: '6.x',
-              singleton: true
-            }
+    new rspack.container.ModuleFederationPlugin({
+      filename: 'remoteEntry.[chunkhash:8].js',
+      library: { name: moduleName, type: 'umd' },
+      name: moduleName,
+      shared: [
+        {
+          '@centreon/ui-context': {
+            requiredVersion: '1.x',
+            singleton: true
           }
-        ],
-        ...moduleFederationConfig
-      })
+        },
+        {
+          jotai: {
+            requiredVersion: '2.x',
+            singleton: true
+          }
+        },
+        {
+          'jotai-suspense': {
+            singleton: true
+          }
+        },
+        {
+          react: {
+            requiredVersion: '19.x',
+            singleton: true
+          }
+        },
+        {
+          'react-i18next': {
+            requiredVersion: '15.x',
+            singleton: true
+          }
+        },
+        {
+          'react-router': {
+            requiredVersion: '7.x',
+            singleton: true
+          }
+        },
+        { tailwindcss: { singleton: true, requiredVersion: '4.x' } }
+      ],
+      ...moduleFederationConfig
+    })
   ].filter(Boolean),
   resolve: {
     alias: {

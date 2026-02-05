@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,85 +24,100 @@ declare(strict_types=1);
 namespace CentreonOpenTickets\Providers\Infrastructure\Repository;
 
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
-use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
 use CentreonOpenTickets\Providers\Application\Repository\ReadProviderRepositoryInterface;
 use CentreonOpenTickets\Providers\Domain\Model\Provider;
-use CentreonOpenTickets\Providers\Domain\Model\ProviderType;
-use Core\Common\Infrastructure\Repository\AbstractRepositoryRDB;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\Repository\DatabaseRepository;
 use Core\Common\Infrastructure\RequestParameters\Normalizer\BoolToEnumNormalizer;
+use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParametersTransformer;
 
 /**
  * @phpstan-type _Provider array{
  *   rule_id:int,
  *   alias:string,
  *   provider_id:int,
+ *   provider_name:string,
  *   activate:int
  * }
  */
-class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProviderRepositoryInterface
+class DbReadProviderRepository extends DatabaseRepository implements ReadProviderRepositoryInterface
 {
-    /**
-     * @param DatabaseConnection $db
-     */
-    public function __construct(DatabaseConnection $db)
-    {
-        $this->db = $db;
-    }
-
     /**
      * @inheritDoc
      */
-    public function findAll(?RequestParametersInterface $requestParameters): array
+    public function findAll(RequestParametersInterface $requestParameters): array
     {
-        $sqlTranslator = $requestParameters !== null ? new SqlRequestParametersTranslator($requestParameters) : null;
-        $sqlTranslator?->setConcordanceArray([
-            'name' => 'alias',
-            'is_activated' => 'activate',
-        ]);
+        try {
+            $sqlRequestTranslator = new SqlRequestParametersTranslator($requestParameters);
+            $sqlRequestTranslator->setConcordanceArray(
+                [
+                    'name' => 'rules.alias',
+                    'is_activated' => 'rules.activate',
+                ]
+            );
 
-        $sqlTranslator?->addNormalizer('is_activated', new BoolToEnumNormalizer());
+            $sqlRequestTranslator->addNormalizer(
+                'is_activated',
+                new BoolToEnumNormalizer(),
+            );
 
-        $request = <<<'SQL_WRAP'
-                SELECT SQL_CALC_FOUND_ROWS
-                    rule_id,
-                    alias,
-                    provider_id,
-                    activate
-                FROM `:db`.mod_open_tickets_rule
-            SQL_WRAP;
+            $queryBuilder = $this->connection->createQueryBuilder();
 
-        // handle search
-        $request .= $sqlTranslator?->translateSearchParameterToSql();
+            $queryBuilder->select(
+                <<<'SQL'
+                        rule_id,
+                        alias,
+                        provider_id,
+                        provider_name,
+                        activate
+                    SQL
+            )->from('`:db`.mod_open_tickets_rule', 'rules');
 
-        // handle sort
-        $sort = $sqlTranslator?->translateSortParameterToSql();
-        $request .= $sort ?? ' ORDER BY alias ASC';
+            if ($requestParameters->getSearch() !== []) {
+                $sqlRequestTranslator->appendQueryBuilderWithSearchParameter($queryBuilder);
+            }
 
-        // handle pagination
-        $request .= $sqlTranslator?->translatePaginationToSql();
+            if ($requestParameters->getSort() !== []) {
+                $sqlRequestTranslator->appendQueryBuilderWithSortParameter($queryBuilder);
+            } else {
+                $queryBuilder->orderBy('rules.alias', 'ASC');
+            }
 
-        $statement = $this->db->prepare($this->translateDbName($request));
-        $sqlTranslator?->bindSearchValues($statement);
+            $sqlRequestTranslator->appendQueryBuilderWithPagination($queryBuilder);
 
-        $statement->setFetchMode(\PDO::FETCH_ASSOC);
+            $requestParameters = SearchRequestParametersTransformer::reverseToQueryParameters($sqlRequestTranslator->getSearchValues());
 
-        $statement->execute();
+            $providers = [];
+            foreach ($this->connection->iterateAssociative($this->translateDbName($queryBuilder->getQuery()), $requestParameters) as $record) {
+                /** @var _Provider $record */
+                $providers[] = $this->createProviderFromRecord($record);
+            }
 
-        // Set total
-        $result = $this->db->query('SELECT FOUND_ROWS()');
-        if ($result !== false && ($total = $result->fetchColumn()) !== false) {
-            $sqlTranslator?->getRequestParameters()->setTotal((int) $total);
+            // get total without pagination
+            $queryTotal = $queryBuilder
+                ->select('COUNT(*)')
+                ->resetLimit()
+                ->offset(0)
+                ->getQuery();
+
+            /**
+             * @var int|false $total
+             */
+            $total = $this->connection->fetchOne(
+                $this->translateDbName($queryTotal),
+                $requestParameters
+            );
+
+            $sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+
+            return $providers;
+        } catch (\Throwable $exception) {
+            throw new RepositoryException(
+                message: 'Error while fetching provider rules',
+                previous: $exception
+            );
         }
-
-        $providers = [];
-
-        foreach ($statement as $record) {
-            /** @var _Provider $record */
-            $providers[] = $this->createProviderFromRecord($record);
-        }
-
-        return $providers;
     }
 
     /**
@@ -112,43 +127,12 @@ class DbReadProviderRepository extends AbstractRepositoryRDB implements ReadProv
      */
     private function createProviderFromRecord(array $record): Provider
     {
-        $type = $this->providerTypeToEmum((int) $record['provider_id']);
-
-        if ($type === null) {
-            throw new \InvalidArgumentException('Provider type id not handled');
-        }
-
         return new Provider(
             id: (int) $record['rule_id'],
             name: $record['alias'],
-            type: $type,
+            providerTypeId: (int) $record['provider_id'],
+            providerTypeName: $record['provider_name'],
             isActivated: (bool) $record['activate'],
         );
-    }
-
-    /**
-     * @param int $type
-     *
-     * @return ProviderType|null
-     */
-    private function providerTypeToEmum(int $type): ?ProviderType
-    {
-        return match ($type) {
-            1 => ProviderType::Mail,
-            2 => ProviderType::Glpi,
-            3 => ProviderType::Otrs,
-            4 => ProviderType::Simple,
-            5 => ProviderType::BmcItsm,
-            6 => ProviderType::Serena,
-            7 => ProviderType::BmcFootprints11,
-            8 => ProviderType::EasyvistaSoap,
-            9 => ProviderType::ServiceNow,
-            10 => ProviderType::Jira,
-            11 => ProviderType::GlpiRestApi,
-            12 => ProviderType::RequestTracker2,
-            13 => ProviderType::Itop,
-            14 => ProviderType::EasyVistaRest,
-            default => null
-        };
     }
 }

@@ -1,8 +1,8 @@
-import { useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import { MemoizedListing, sanitizedHTML } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
+
+import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import { List } from '../../../api/meta.models';
 import { Dashboard } from '../../../api/models';
@@ -12,10 +12,9 @@ import {
   labelDeleteUser,
   labelYouAreGoingToDeleteUser
 } from '../../../translatedLabels';
-
 import { Actions } from './Actions';
-import useColumns from './Columns/useColumns';
 import { askBeforeRevokeAtom } from './atom';
+import useColumns from './Columns/useColumns';
 import useListing from './useListing';
 
 interface ListingProp {
@@ -24,6 +23,7 @@ interface ListingProp {
   displayCustomListing: boolean;
   loading: boolean;
   openConfig: () => void;
+  refetch?: () => void;
 }
 
 const Listing = ({
@@ -72,6 +72,12 @@ const Listing = ({
         limit={listingData?.meta.limit}
         loading={loading}
         memoProps={[columns, page, sorto, sortf]}
+        onLimitChange={setLimit}
+        onPaginate={changePage}
+        onResetColumns={resetColumns}
+        onRowClick={navigateToDashboard}
+        onSelectColumns={setSelectedColumnIds}
+        onSort={changeSort}
         rows={formattedRows}
         sortField={sortf}
         sortOrder={sorto}
@@ -83,14 +89,8 @@ const Listing = ({
           labelExpand: 'Expand'
         }}
         totalRows={listingData?.meta.total}
-        onLimitChange={setLimit}
-        onPaginate={changePage}
-        onResetColumns={resetColumns}
-        onRowClick={navigateToDashboard}
-        onSelectColumns={setSelectedColumnIds}
-        onSort={changeSort}
       />
-      <Modal open={!!askingBeforRevoke} onClose={closeAskRevokeAccessRight}>
+      <Modal onClose={closeAskRevokeAccessRight} open={!!askingBeforRevoke}>
         <Modal.Header>{t(labelDeleteUser)}</Modal.Header>
         <Modal.Body>
           {sanitizedHTML({

@@ -1,19 +1,18 @@
 import { useTheme } from '@mui/material';
-import { useQueryClient } from '@tanstack/react-query';
-import { toBlob } from 'html-to-image';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 
-import { getDashboardEndpoint } from '../../../api/endpoints';
+import { useQueryClient } from '@tanstack/react-query';
+import { toBlob } from 'html-to-image';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isEmpty, isNil } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { getDashboardEndpoint } from '../../../api/endpoints';
 import { resource } from '../../../api/models';
 import { dashboardAtom, switchPanelsEditionModeDerivedAtom } from '../atoms';
 import { Panel, PanelDetailsToAPI } from '../models';
 import { labelYourDashboardHasBeenSaved } from '../translatedLabels';
-
-import { isEmpty, isNil } from 'ramda';
 import { routerParams } from './useDashboardDetails';
 
 const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
@@ -30,23 +29,25 @@ const formatPanelsToAPI = (layout: Array<Panel>): Array<PanelDetailsToAPI> =>
       options,
       data,
       name
-    }) => ({
-      id: Number(i),
-      layout: {
-        height: h,
-        min_height: minH || 0,
-        min_width: minW || 0,
-        width: w,
-        x,
-        y
-      },
-      name: name || '',
-      widget_settings: {
-        data,
-        options
-      },
-      widget_type: panelConfiguration.path
-    })
+    }) => {
+      return {
+        id: Number(i),
+        layout: {
+          height: h,
+          min_height: minH || 0,
+          min_width: minW || 0,
+          width: w,
+          x,
+          y
+        },
+        name: name || '',
+        widget_settings: {
+          data,
+          options
+        },
+        widget_type: panelConfiguration.path
+      };
+    }
   );
 
 interface DataToFormDataProps {
@@ -62,6 +63,9 @@ const dataToFormData = ({ panels, formData }: DataToFormDataProps): void => {
   }
 
   panels.forEach((panel, index) => {
+    if (panel.id) {
+      formData.append(`panels[${index}][id]`, panel.id);
+    }
     formData.append(`panels[${index}][name]`, panel.name);
     formData.append(`panels[${index}][widget_type]`, panel.widget_type);
 
@@ -112,13 +116,14 @@ const useSaveDashboard = (): UseSaveDashboardState => {
   const saveDashboard = (): void => {
     const formData = new FormData();
 
-    dataToFormData({ panels: formatPanelsToAPI(dashboard.layout), formData });
+    dataToFormData({ formData, panels: formatPanelsToAPI(dashboard.layout) });
 
     const node = document.querySelector('.react-grid-layout') as HTMLElement;
 
     toBlob(node, {
       backgroundColor: theme.palette.background.default,
-      height: 360
+      height: 360,
+      skipFonts: true
     })
       .then((blob) => {
         formData.append('thumbnail_data', blob, `dashboard-${dashboardId}.png`);

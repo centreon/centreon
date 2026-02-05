@@ -1,23 +1,23 @@
 import { Method, TestQueryProvider } from '@centreon/ui';
 
 import {
-  labelDoYouWantToResetTheForm,
-  labelReset,
-  labelResetTheForm,
-  labelSave
-} from '../Local/translatedLabels';
-import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
   contactGroupsEndpoint,
   contactTemplatesEndpoint
 } from '../api/endpoints';
+import {
+  labelDoYouWantToResetTheForm,
+  labelReset,
+  labelResetTheForm,
+  labelSave
+} from '../Local/translatedLabels';
 import { Provider } from '../models';
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
-  labelConditionValue,
   labelConditionsAttributePath,
+  labelConditionValue,
   labelContactGroup,
   labelContactTemplate,
   labelDeleteRelation,
@@ -36,7 +36,7 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from '../translatedLabels';
-
+import OpenidConfigurationForm from '.';
 import {
   labelAuthorizationEndpoint,
   labelBaseUrl,
@@ -65,8 +65,6 @@ import {
   labelUseBasicAuthenticatonForTokenEndpointAuthentication,
   labelUserInformationEndpoint
 } from './translatedLabels';
-
-import OpenidConfigurationForm from '.';
 
 const retrievedOpenidConfiguration = {
   authentication_conditions: {
@@ -185,11 +183,13 @@ const initialize = (): void => {
 };
 
 const unfoldPanels = (): void => {
-  cy.findByLabelText(labelGroupsMapping).click();
-  cy.findByLabelText(labelRolesMapping).click();
-  cy.findByLabelText(labelAutoImportUsers).click();
-  cy.findByLabelText(labelAuthenticationConditions).click();
-  cy.findByLabelText(labelIdentityProvider).click();
+  cy.get(`[data-section-group-form-id="${labelGroupsMapping}"]`).click();
+  cy.get(`[data-section-group-form-id="${labelRolesMapping}"]`).click();
+  cy.get(`[data-section-group-form-id="${labelAutoImportUsers}"]`).click();
+  cy.get(
+    `[data-section-group-form-id="${labelAuthenticationConditions}"]`
+  ).click();
+  cy.get(`[data-section-group-form-id="${labelIdentityProvider}"]`).click();
 };
 
 describe('Open ID', () => {
@@ -325,17 +325,15 @@ describe('Open ID', () => {
     cy.contains(labelSave).click();
 
     cy.waitForRequest('@updateOpenidConfiguration').then(({ request }) => {
-      expect(request.body).to.deep.equal(
-        JSON.stringify({
-          ...retrievedOpenidConfiguration,
-          base_url: 'http://localhost:8081/login',
-          groups_mapping: {
-            ...retrievedOpenidConfiguration.groups_mapping,
-            relations: [{ contact_group_id: 2, group_value: 'groupValue' }]
-          },
-          redirect_url: null
-        })
-      );
+      expect(request.body).to.deep.equal({
+        ...retrievedOpenidConfiguration,
+        base_url: 'http://localhost:8081/login',
+        groups_mapping: {
+          ...retrievedOpenidConfiguration.groups_mapping,
+          relations: [{ contact_group_id: 2, group_value: 'groupValue' }]
+        },
+        redirect_url: null
+      });
     });
 
     cy.makeSnapshot();

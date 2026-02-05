@@ -1,15 +1,14 @@
-import { ReactElement, useCallback, useEffect } from 'react';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+
+import { Button } from '@centreon/ui/components';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
+import { ReactElement, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-
-import { federatedWidgetsAtom } from '@centreon/ui-context';
-import { Button } from '@centreon/ui/components';
+import { useSearchParams } from 'react-router';
 
 import { Dashboard, DashboardPanel } from '../../../../api/models';
 import {
@@ -29,7 +28,6 @@ import {
   labelEditDashboard,
   labelSave
 } from '../../translatedLabels';
-
 import { useDashboardEditActionsStyles } from './DashboardEditActions.styles';
 
 interface DashboardEditActionsProps {
@@ -120,9 +118,9 @@ const DashboardEditActions = ({
         disabled={!!isFetchingDashboard}
         icon={<EditOutlinedIcon />}
         iconVariant="start"
+        onClick={startEditing}
         size="small"
         variant="ghost"
-        onClick={startEditing}
       >
         {t(labelEditDashboard)}
       </Button>
@@ -134,9 +132,9 @@ const DashboardEditActions = ({
       <Button
         aria-label={t(labelCancel) as string}
         data-testid="cancel_dashboard"
+        onClick={cancel}
         size="small"
         variant="ghost"
-        onClick={cancel}
       >
         {t(labelCancel)}
       </Button>
@@ -144,9 +142,9 @@ const DashboardEditActions = ({
         aria-label={t(labelSave) as string}
         data-testid="save_dashboard"
         disabled={!dirty}
+        onClick={saveAndProceed}
         size="small"
         variant="primary"
-        onClick={saveAndProceed}
       >
         {t(labelSave)}
       </Button>

@@ -17,23 +17,19 @@ allOf:
       service_template:
         description: "Service template linked to this service."
         nullable: true
-        allOf:
-          - $ref: 'simpleEntity.yaml'
+        $ref: 'simpleEntity.yaml'
       check_timeperiod:
         description: "Time period of the check command."
         nullable: true
-        allOf:
-          - $ref: 'simpleEntity.yaml'
+        $ref: 'simpleEntity.yaml'
       notification_timeperiod:
         description: "Time period of the notification command."
         nullable: true
-        allOf:
-          - $ref: 'simpleEntity.yaml'
+        $ref: 'simpleEntity.yaml'
       severity:
         description: "Severity linked to this service."
         nullable: true
-        allOf:
-          - $ref: 'simpleEntity.yaml'
+        $ref: 'simpleEntity.yaml'
       categories:
         type: array
         description: "Service categories associated with this service."

@@ -6,7 +6,8 @@
     "required": [
         "name",
         "address",
-        "monitoring_server_id"
+        "monitoring_server_id",
+        "groups"
     ],
     "properties": {
         "name": {
@@ -72,6 +73,18 @@
                 "integer"
             ]
         },
+        "check_command_id": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "check_command_args": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
         "check_timeperiod_id": {
             "type": [
                 "null",
@@ -112,13 +125,30 @@
             "type": "array",
             "items": {
                 "type": "integer"
-            }
+            },
+            "minItems": 1
         },
         "templates": {
             "type": "array",
             "items": {
                 "type": "integer"
             }
+        },
+        "event_handler_enabled": {
+          "type": [
+            "integer"
+          ],
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "event_handler_command_id": {
+          "type": [
+            "null",
+            "integer"
+          ]
         },
         "macros": {
             "type": "array",
@@ -131,6 +161,12 @@
                     "description"
                 ],
                 "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "integer"
+                        ]
+                    },
                     "name": {
                         "type": "string"
                     },
@@ -166,5 +202,3 @@
         }
     }
 }
-
-

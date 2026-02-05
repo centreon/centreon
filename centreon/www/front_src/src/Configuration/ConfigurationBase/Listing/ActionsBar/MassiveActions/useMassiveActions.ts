@@ -1,0 +1,114 @@
+import { capitalize } from '@mui/material';
+
+import { ResponseError, useBulkResponse } from '@centreon/ui';
+
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import pluralize from 'pluralize';
+import { map, pick } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { useDisable, useEnable } from '../../../api';
+import { configurationAtom } from '../../../atoms';
+import {
+  labelFailedToDisableResources,
+  labelFailedToDisableSomeResources,
+  labelFailedToEnableResources,
+  labelFailedToEnableSomeResources,
+  labelResourceDisabled,
+  labelResourceEnabled
+} from '../../../translatedLabels';
+import {
+  resourcesToDeleteAtom,
+  resourcesToDuplicateAtom,
+  selectedRowsAtom
+} from '../../atoms';
+
+interface UseMassiveActions {
+  isMutating: boolean;
+  enable: () => void;
+  disable: () => void;
+  openDeleteModal: () => void;
+  openDuplicateModal: () => void;
+}
+
+const useMassiveActions = (): UseMassiveActions => {
+  const { t } = useTranslation();
+  const handleBulkResponse = useBulkResponse();
+
+  const [selectedRows, setSelectedRows] = useAtom(selectedRowsAtom);
+  const configuration = useAtomValue(configurationAtom);
+
+  const setResourcesToDelete = useSetAtom(resourcesToDeleteAtom);
+  const setResourcesToDuplicate = useSetAtom(resourcesToDuplicateAtom);
+
+  const resourceType = configuration?.resourceType;
+  const selectedRowsIds = selectedRows?.map((row) => row.id);
+  const selectedRowsEntities = map(pick(['id', 'name']), selectedRows);
+
+  const count = selectedRowsIds.length;
+
+  const labelResourceType = pluralize(
+    capitalize(resourceType as string),
+    count
+  );
+
+  const resetSelectedRows = (): void => setSelectedRows([]);
+
+  const { enableMutation, isMutating: isEnableMutating } = useEnable();
+  const { disableMutation, isMutating: isDisableMutating } = useDisable();
+
+  const enable = (): void => {
+    enableMutation({ ids: selectedRowsIds }).then((response) => {
+      const { isError, results } = response as ResponseError;
+
+      if (isError) {
+        return;
+      }
+
+      handleBulkResponse({
+        data: results,
+        items: selectedRows,
+        labelFailed: t(labelFailedToEnableResources(labelResourceType)),
+        labelSuccess: t(labelResourceEnabled(labelResourceType)),
+        labelWarning: t(labelFailedToEnableSomeResources)
+      });
+
+      resetSelectedRows();
+    });
+  };
+
+  const disable = (): void => {
+    disableMutation({ ids: selectedRowsIds }).then((response) => {
+      const { isError, results } = response as ResponseError;
+
+      if (isError) {
+        return;
+      }
+
+      handleBulkResponse({
+        data: results,
+        items: selectedRows,
+        labelFailed: t(labelFailedToDisableResources(labelResourceType)),
+        labelSuccess: t(labelResourceDisabled(labelResourceType)),
+        labelWarning: t(labelFailedToDisableSomeResources)
+      });
+
+      resetSelectedRows();
+    });
+  };
+
+  const openDeleteModal = (): void =>
+    setResourcesToDelete(selectedRowsEntities);
+  const openDuplicateModal = (): void =>
+    setResourcesToDuplicate(selectedRowsEntities);
+
+  return {
+    disable,
+    enable,
+    isMutating: isEnableMutating || isDisableMutating,
+    openDeleteModal,
+    openDuplicateModal
+  };
+};
+
+export default useMassiveActions;

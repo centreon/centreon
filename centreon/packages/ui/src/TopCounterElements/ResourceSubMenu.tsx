@@ -1,11 +1,11 @@
-import { equals } from 'ramda';
-import { Link } from 'react-router-dom';
-import { makeStyles } from 'tss-react/mui';
-
 import { List, ListItem } from '@mui/material';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { getStatusColors, type SeverityCode } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals } from 'ramda';
+import { Link } from 'react-router';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   count: {
@@ -75,16 +75,16 @@ const SubMenu = ({ items, onClose }: SubMenuProps): JSX.Element => {
           to
         }) => (
           <ListItem
-            disableGutters
             className={classes.submenuItem}
+            disableGutters
             key={to}
             onClick={onClose}
           >
             <Link
               className={classes.link}
+              onClick={onClick}
               role="menuitem"
               to={to}
-              onClick={onClick}
             >
               <span className={classes.status}>
                 <span

@@ -1,26 +1,25 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
-import { TabContext, TabList, TabPanel } from '@mui/lab';
-import { Box, Container, Paper, Tab } from '@mui/material';
+import { TabContext, TabPanel } from '@mui/lab';
+import { Box, Container, Paper, Tab, Tabs } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
+import { useAtom, useAtomValue } from 'jotai';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import LocalAuthentication from './Local';
 import { labelPasswordSecurityPolicy } from './Local/translatedLabels';
+import passwordPadlockLogo from './logos/passwordPadlock.svg';
+import providerPadlockLogo from './logos/providerPadlock.svg';
+import { Provider } from './models';
 import OpenidConfiguration from './Openid';
 import { labelOpenIDConnectConfiguration } from './Openid/translatedLabels';
 import SAMLConfigurationForm from './SAML';
 import { labelSAMLConfiguration } from './SAML/translatedLabels';
+import { appliedTabAtom, tabAtom } from './tabAtoms';
 import WebSSOConfigurationForm from './WebSSO';
 import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
-import passwordPadlockLogo from './logos/passwordPadlock.svg';
-import providerPadlockLogo from './logos/providerPadlock.svg';
-import { Provider } from './models';
-import { appliedTabAtom, tabAtom } from './tabAtoms';
 
 const panels = [
   {
@@ -94,7 +93,7 @@ const Authentication = (): JSX.Element => {
 
   const appliedTab = useAtomValue(appliedTabAtom);
   const { themeMode } = useAtomValue(userAtom);
-  const setTab = useSetAtom(tabAtom);
+  const [tab, setTab] = useAtom(tabAtom);
 
   const changeTab = (_, newTab: Provider): void => {
     setTab(newTab);
@@ -147,14 +146,15 @@ const Authentication = (): JSX.Element => {
     <Box className={classes.box}>
       <TabContext value={appliedTab}>
         <Container className={classes.container}>
-          <Paper square className={classes.paper}>
-            <TabList
+          <Paper className={classes.paper} square>
+            <Tabs
               className={classes.tabList}
-              variant="fullWidth"
               onChange={changeTab}
+              value={tab}
+              variant="fullWidth"
             >
               {tabs}
-            </TabList>
+            </Tabs>
             {tabPanels}
           </Paper>
         </Container>

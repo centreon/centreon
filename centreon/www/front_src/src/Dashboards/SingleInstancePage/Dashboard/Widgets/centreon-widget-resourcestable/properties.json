@@ -45,6 +45,10 @@
         {
           "id": "in_downtime",
           "name": "In downtime"
+        },
+        {
+          "id": "in_flapping",
+          "name": "Flapping"
         }
       ],
       "defaultValue": ["unhandled_problems"]
@@ -88,7 +92,9 @@
     "resources": {
       "type": "resources",
       "defaultValue": [],
-      "required": false
+      "required": false,
+      "allowRegexOnResourceTypes": ["host", "service"],
+      "allowEmptyResources": true
     }
   },
   "categories": {
@@ -106,6 +112,10 @@
         {
           "id": "displayResources",
           "name": "Display resources"
+        },
+        {
+          "id": "displayTicketCreationButtons",
+          "name": "Display ticket creation buttons"
         }
       ],
       "elements": {
@@ -173,9 +183,34 @@
             "method": "equals",
             "matches": false
           }
+        },
+        "enableHostTicketCreation": {
+          "type": "switch",
+          "label": "Enable ticket creation for hosts",
+          "secondaryLabel": "Display ticket creation buttons",
+          "defaultValue": true,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.displayResources",
+            "method": "equals",
+            "matches": "withTicket"
+          }
+        },
+        "enableServiceTicketCreation": {
+          "type": "switch",
+          "label": "Enable ticket creation for services",
+          "defaultValue": true,
+          "hiddenCondition": {
+            "target": "options",
+            "when": "options.displayResources",
+            "method": "equals",
+            "matches": "withTicket"
+          }
         }
       }
     }
   },
-  "moduleName": "centreon-widget-resourcestable"
+  "moduleName": "centreon-widget-resourcestable",
+  "canExpand": true,
+  "widgetType": "realtime"
 }

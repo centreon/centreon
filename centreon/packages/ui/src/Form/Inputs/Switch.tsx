@@ -1,15 +1,13 @@
-import { ChangeEvent } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, split } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { FormControlLabel, Switch as MUISwitch } from '@mui/material';
+
+import { type FormikValues, useFormikContext } from 'formik';
+import { path, split } from 'ramda';
+import type { ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useMemoComponent } from '../..';
 import { getNormalizedId } from '../../utils/getNormalizedId';
-
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from './models';
 
 const Switch = ({
   dataTestId,
@@ -28,12 +26,12 @@ const Switch = ({
   const changeSwitchValue = (event: ChangeEvent<HTMLInputElement>): void => {
     if (change) {
       change({
-        setFieldValue,
-        value: event.target.checked,
-        values,
         setFieldTouched,
+        setFieldValue,
+        setTouched,
         setValues,
-        setTouched
+        value: event.target.checked,
+        values
       });
 
       return;
@@ -58,10 +56,12 @@ const Switch = ({
             data-testid={dataTestId}
             disabled={disabled}
             id={getNormalizedId(dataTestId || '')}
-            inputProps={{
-              'aria-label': t(label) || ''
-            }}
             onChange={changeSwitchValue}
+            slotProps={{
+              input: {
+                'aria-label': t(label) || ''
+              }
+            }}
           />
         }
         label={t(label) as string}

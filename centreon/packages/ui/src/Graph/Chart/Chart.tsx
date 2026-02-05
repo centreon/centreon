@@ -1,23 +1,25 @@
+import { ClickAwayListener, Skeleton } from '@mui/material';
+
+import { useAtom } from 'jotai';
+import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
 import {
   type MutableRefObject,
+  type ReactElement,
   useEffect,
   useMemo,
   useRef,
   useState
 } from 'react';
 
-import { useAtom } from 'jotai';
-import { equals, flatten, isEmpty, isNil, pluck, reject } from 'ramda';
-
-import { ClickAwayListener, Skeleton } from '@mui/material';
-
 import { useDeepCompare } from '../../utils';
 import BarGroup from '../BarChart/BarGroup';
+import AdditionalLine from '../common/BaseChart/AdditionalLine';
 import BaseChart from '../common/BaseChart/BaseChart';
 import ChartSvgWrapper from '../common/BaseChart/ChartSvgWrapper';
 import { useComputeBaseChartDimensions } from '../common/BaseChart/useComputeBaseChartDimensions';
-import Thresholds from '../common/Thresholds/Thresholds';
+import { useComputeYAxisMaxCharacters } from '../common/BaseChart/useComputeYAxisMaxCharacters';
 import type { Thresholds as ThresholdsModel } from '../common/models';
+import Thresholds from '../common/Thresholds/Thresholds';
 import {
   getUnits,
   getXScale,
@@ -25,7 +27,7 @@ import {
   getYScalePerUnit
 } from '../common/timeSeries';
 import type { Line } from '../common/timeSeries/models';
-
+import { useMarginTop } from '../common/useMarginTop';
 import Lines from './BasicComponents/Lines';
 import {
   canDisplayThreshold,
@@ -34,12 +36,12 @@ import {
   upperLineName
 } from './BasicComponents/Lines/Threshold/models';
 import { useChartStyles } from './Chart.styles';
+import { margin } from './common';
+import { thresholdTooltipAtom } from './graphAtoms';
 import InteractionWithGraph from './InteractiveComponents';
 import GraphValueTooltip from './InteractiveComponents/GraphValueTooltip/GraphValueTooltip';
 import GraphTooltip from './InteractiveComponents/Tooltip';
 import useGraphTooltip from './InteractiveComponents/Tooltip/useGraphTooltip';
-import { margin } from './common';
-import { thresholdTooltipAtom } from './graphAtoms';
 import type {
   Data,
   GlobalAreaLines,
@@ -110,8 +112,12 @@ const Chart = ({
   thresholdUnit,
   limitLegend,
   skipIntersectionObserver,
-  transformMatrix
-}: Props): JSX.Element => {
+  transformMatrix,
+  additionalLines,
+  min,
+  max,
+  boundariesUnit
+}: Props): ReactElement => {
   const { classes } = useChartStyles();
 
   const { title, timeSeries, baseAxis, lines } = graphData;
@@ -140,14 +146,30 @@ const Chart = ({
     [displayedLines]
   );
 
-  const { legendRef, graphWidth, graphHeight } = useComputeBaseChartDimensions({
-    hasSecondUnit: Boolean(secondUnit),
-    height,
-    legendDisplay: legend?.display,
-    legendHeight: legend?.height,
-    legendPlacement: legend?.placement,
-    width
-  });
+  const { maxLeftAxisCharacters, maxRightAxisCharacters } =
+    useComputeYAxisMaxCharacters({
+      axis,
+      firstUnit,
+      graphData,
+      secondUnit,
+      thresholds,
+      thresholdUnit
+    });
+
+  const allUnits = getUnits(linesGraph);
+
+  const { legendRef, graphWidth, graphHeight, titleRef } =
+    useComputeBaseChartDimensions({
+      hasSecondUnit: Boolean(secondUnit),
+      height,
+      legendDisplay: legend?.display,
+      legendHeight: legend?.height,
+      legendPlacement: legend?.placement,
+      maxAxisCharacters: maxRightAxisCharacters || maxLeftAxisCharacters,
+      title,
+      units: allUnits,
+      width
+    });
 
   const xScale = useMemo(
     () =>
@@ -164,19 +186,23 @@ const Chart = ({
         dataTime: timeSeries,
         valueWidth: graphWidth
       }),
-    [timeSeries, graphWidth, graphHeight]
+    [timeSeries, graphWidth]
   );
 
   const yScalesPerUnit = useMemo(
     () =>
       getYScalePerUnit({
+        boundariesUnit,
         dataLines: linesGraph,
         dataTimeSeries: timeSeries,
         isCenteredZero: axis?.isCenteredZero,
+        isFilled: lineStyle?.showArea,
+        max,
+        min,
         scale: axis?.scale,
         scaleLogarithmicBase: axis?.scaleLogarithmicBase,
-        thresholdUnit,
         thresholds: (thresholds?.enabled && thresholdValues) || [],
+        thresholdUnit,
         valueGraphHeight: graphHeight - margin.bottom
       }),
     [
@@ -187,7 +213,12 @@ const Chart = ({
       thresholds?.enabled,
       axis?.isCenteredZero,
       axis?.scale,
-      axis?.scaleLogarithmicBase
+      axis?.scaleLogarithmicBase,
+      boundariesUnit,
+      lineStyle?.showArea,
+      max,
+      min,
+      thresholdUnit
     ]
   );
 
@@ -207,16 +238,15 @@ const Chart = ({
     [displayedLines]
   );
 
-  const allUnits = getUnits(linesGraph);
-
-  useEffect(
-    () => {
-      setLinesGraph(
-        filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
-      );
-    },
-    useDeepCompare([lines, shapeLines?.areaThresholdLines])
-  );
+  useEffect(() => {
+    setLinesGraph(
+      filterLines(lines, canDisplayThreshold(shapeLines?.areaThresholdLines))
+    );
+  }, [
+    ...useDeepCompare([lines, shapeLines?.areaThresholdLines]),
+    lines,
+    shapeLines?.areaThresholdLines
+  ]);
 
   const graphTooltipData = useGraphTooltip({
     graphWidth,
@@ -232,7 +262,11 @@ const Chart = ({
     [axis?.showGridLines]
   );
 
-  if (!isInViewport && !skipIntersectionObserver) {
+  const hasSecondUnit = useMemo(() => Boolean(secondUnit), [secondUnit]);
+
+  const marginTop = useMarginTop({ title, units: allUnits });
+
+  if ((!isInViewport && !skipIntersectionObserver) || !height) {
     return (
       <Skeleton
         height={graphSvgRef?.current?.clientHeight ?? graphHeight}
@@ -247,21 +281,26 @@ const Chart = ({
       <div className={classes.baseWrapper}>
         <BaseChart
           base={baseAxis}
+          graphHeight={graphHeight}
           graphWidth={graphWidth}
           header={header}
           height={height}
           legend={{
+            ...legend,
             displayLegend,
             legendHeight: legend?.height,
             mode: legend?.mode,
             placement: legend?.placement,
-            renderExtraComponent: legend?.renderExtraComponent
+            renderExtraComponent: legend?.renderExtraComponent,
+            secondaryClick: legend?.secondaryClick,
+            showCalculations: legend?.showCalculations
           }}
           legendRef={legendRef}
           limitLegend={limitLegend}
           lines={linesGraph}
           setLines={setLinesGraph}
           title={title}
+          titleRef={titleRef}
         >
           <GraphValueTooltip
             baseAxis={baseAxis}
@@ -277,79 +316,88 @@ const Chart = ({
                 graphHeight={graphHeight}
                 graphWidth={graphWidth}
                 gridLinesType={axis?.gridLinesType}
+                hasSecondUnit={hasSecondUnit}
                 leftScale={leftScale}
+                maxAxisCharacters={maxLeftAxisCharacters}
                 rightScale={rightScale}
                 showGridLines={showGridLines}
                 svgRef={graphSvgRef}
                 timeSeries={timeSeries}
                 xScale={xScale}
               >
-                <>
+                {!isEmpty(linesDisplayedAsBar) && (
                   <BarGroup
                     barStyle={barStyle}
                     isTooltipHidden={false}
                     lines={linesDisplayedAsBar}
                     orientation="horizontal"
-                    size={graphHeight - margin.top - 5}
+                    size={graphHeight - marginTop - 5}
                     timeSeries={timeSeries}
                     xScale={xScaleBand}
                     yScalesPerUnit={yScalesPerUnit}
                   />
+                )}
+                {!isEmpty(linesDisplayedAsLine) && (
                   <Lines
-                    areaTransparency={lineStyle?.areaTransparency}
-                    curve={lineStyle?.curve || 'linear'}
-                    dashLength={lineStyle?.dashLength}
-                    dashOffset={lineStyle?.dashOffset}
                     displayAnchor={displayAnchor}
                     displayedLines={linesDisplayedAsLine}
-                    dotOffset={lineStyle?.dotOffset}
                     graphSvgRef={graphSvgRef}
-                    height={graphHeight - margin.top}
-                    lineWidth={lineStyle?.lineWidth}
+                    hasSecondUnit={hasSecondUnit}
+                    height={graphHeight - marginTop}
+                    lineStyle={lineStyle}
+                    maxLeftAxisCharacters={maxLeftAxisCharacters}
                     scale={axis?.scale}
                     scaleLogarithmicBase={axis?.scaleLogarithmicBase}
-                    showArea={lineStyle?.showArea}
-                    showPoints={lineStyle?.showPoints}
                     timeSeries={timeSeries}
                     width={graphWidth}
                     xScale={xScale}
                     yScalesPerUnit={yScalesPerUnit}
                     {...shapeLines}
                   />
-                  <InteractionWithGraph
-                    annotationData={{ ...annotationEvent }}
-                    commonData={{
-                      graphHeight,
-                      graphSvgRef,
-                      graphWidth,
-                      lines: displayedLines,
-                      timeSeries,
-                      xScale,
-                      yScalesPerUnit
-                    }}
-                    timeShiftZonesData={{
-                      ...timeShiftZones,
-                      graphInterval
-                    }}
-                    zoomData={{ ...zoomPreview }}
-                    transformMatrix={transformMatrix}
+                )}
+                {additionalLines?.map((additionalLine) => (
+                  <AdditionalLine
+                    key={additionalLine.yValue}
+                    {...additionalLine}
+                    graphWidth={graphWidth}
+                    yScale={yScalesPerUnit[additionalLine.unit]}
                   />
-                  {thresholds?.enabled && (
-                    <Thresholds
-                      displayedLines={displayedLines}
-                      hideTooltip={() => setThresholdTooltip(null)}
-                      showTooltip={({ tooltipData: thresholdLabel }) =>
-                        setThresholdTooltip({
-                          thresholdLabel
-                        })
-                      }
-                      thresholdUnit={thresholdUnit}
-                      thresholds={thresholds as ThresholdsModel}
-                      width={graphWidth}
-                      yScalesPerUnit={yScalesPerUnit}
-                    />
-                  )}
-                </>
+                ))}
+                <InteractionWithGraph
+                  annotationData={{ ...annotationEvent }}
+                  commonData={{
+                    graphHeight,
+                    graphSvgRef,
+                    graphWidth,
+                    lines: displayedLines,
+                    timeSeries,
+                    xScale,
+                    yScalesPerUnit
+                  }}
+                  hasSecondUnit={hasSecondUnit}
+                  maxLeftAxisCharacters={maxLeftAxisCharacters}
+                  timeShiftZonesData={{
+                    ...timeShiftZones,
+                    graphInterval
+                  }}
+                  transformMatrix={transformMatrix}
+                  zoomData={{ ...zoomPreview }}
+                />
+                {thresholds?.enabled && (
+                  <Thresholds
+                    displayedLines={displayedLines}
+                    hideTooltip={() => setThresholdTooltip(null)}
+                    showTooltip={({ tooltipData: thresholdLabel }) =>
+                      setThresholdTooltip({
+                        thresholdLabel
+                      })
+                    }
+                    thresholds={thresholds as ThresholdsModel}
+                    thresholdUnit={thresholdUnit}
+                    width={graphWidth}
+                    yScalesPerUnit={yScalesPerUnit}
+                  />
+                )}
               </ChartSvgWrapper>
             </div>
           </GraphValueTooltip>

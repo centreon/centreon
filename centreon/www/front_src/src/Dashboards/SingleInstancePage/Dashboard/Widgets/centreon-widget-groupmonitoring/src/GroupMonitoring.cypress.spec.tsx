@@ -1,14 +1,13 @@
-import { Provider, createStore } from 'jotai';
-import { BrowserRouter } from 'react-router-dom';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+import { BrowserRouter } from 'react-router';
+
 import { Data } from '../../models';
 import { getPublicWidgetEndpoint } from '../../utils';
-
-import GroupMonitoring from './GroupMonitoring';
 import { getEndpoint } from './api/endpoints';
+import GroupMonitoring from './GroupMonitoring';
 import { PanelOptions } from './models';
 import {
   labelCritical,
@@ -29,11 +28,20 @@ const getPanelDataGroups = ({
 }): Pick<Data, 'resources'> => ({
   resources: [
     {
-      resourceType: `${type}-group`,
-      resources: withResource ? [{ id: 1, name: 'Group 1' }] : []
+      resources: withResource ? [{ id: 1, name: 'Group 1' }] : [],
+      resourceType: `${type}-group`
     }
   ]
 });
+
+const widgetDataRegex: Pick<Data, 'resources'> = {
+  resources: [
+    {
+      resources: '^Loa',
+      resourceType: 'host-group'
+    }
+  ]
+};
 
 const allStatuses = ['1', '2', '4', '5', '6'];
 const defaultStatuses = ['1', '2'];
@@ -137,6 +145,22 @@ describe('Public widget', () => {
 });
 
 describe('Group Monitoring', () => {
+  it('handles regex resources when the appropriate data is provided', () => {
+    initialize({
+      panelData: widgetDataRegex,
+      panelOptions: {
+        resourceTypes: allResourceTypes,
+        statuses: defaultStatuses
+      }
+    });
+
+    cy.waitForRequest('@hostGroups').then(({ request }) => {
+      expect(request.url.searchParams.get('search')).to.equal(
+        '{"$and":[{"$or":[{"name":{"$rg":"^Loa"}}]}]}'
+      );
+    });
+  });
+
   it('displays the group monitoring widget with default options and the host group resource type is selected', () => {
     initialize({
       panelOptions: {

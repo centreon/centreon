@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ use Core\Common\Domain\TrimmedString;
 use Core\HostCategory\Application\Exception\HostCategoryException;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
 use Core\HostCategory\Application\Repository\WriteHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class UpdateHostCategory
@@ -47,7 +48,7 @@ final class UpdateHostCategory
         private readonly WriteHostCategoryRepositoryInterface $writeHostCategoryRepository,
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
-        private readonly ContactInterface $user
+        private readonly ContactInterface $user,
     ) {
     }
 
@@ -114,12 +115,14 @@ final class UpdateHostCategory
                 return;
             }
 
-            $hostCategory->setName($request->name);
-            $hostCategory->setAlias($request->alias);
-            $hostCategory->setActivated($request->isActivated);
-            $hostCategory->setComment($request->comment);
+            if ($this->hasDifferences($request, $hostCategory)) {
+                $hostCategory->setName($request->name);
+                $hostCategory->setAlias($request->alias);
+                $hostCategory->setActivated($request->isActivated);
+                $hostCategory->setComment($request->comment);
 
-            $this->writeHostCategoryRepository->update($hostCategory);
+                $this->writeHostCategoryRepository->update($hostCategory);
+            }
 
             $presenter->setResponseStatus(new NoContentResponse());
 
@@ -132,5 +135,21 @@ final class UpdateHostCategory
             );
             $this->error($ex->getMessage());
         }
+    }
+
+    /**
+     * Verify if the Request Payload has changed compare to retrieved hostCategory.
+     *
+     * @param UpdateHostCategoryRequest $request
+     * @param HostCategory $hostCategory
+     *
+     * @return bool
+     */
+    private function hasDifferences(UpdateHostCategoryRequest $request, HostCategory $hostCategory): bool
+    {
+        return $request->name !== $hostCategory->getName()
+            || $request->alias !== $hostCategory->getAlias()
+            || $request->isActivated !== $hostCategory->isActivated()
+            || $request->comment !== $hostCategory->getComment();
     }
 }

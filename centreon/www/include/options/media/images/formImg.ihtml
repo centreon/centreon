@@ -23,7 +23,7 @@
 		{/if}		
 		<tr class="list_two">
 			<td class="FormRowField"><img class="helpTooltip" name="img_dir"> {$form.directories.label}</td>
-			<td class="FormRowValue">{$form.directories.html}&nbsp;
+			<td class="FormRowValue">{$form.directories.html}
 			{ if $o == "ci" || $o == "a" }{$form.list_dir.html}{ /if }
 			</td>
 		</tr>

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,10 @@ use Security\Interfaces\EncryptionInterface;
  *      port:int,
  *      vcenters:array<array{name:string,url:string,username:string,password:string}>
  *  }
+ * @phpstan-type _VmWareV6ParametersRequest array{
+ *      port:int,
+ *      vcenters:array<array{name:string,url:string,scheme:string|null,username:string,password:string}>
+ *  }
  *  @phpstan-type _VmWareV6ParametersWithoutCredentials array{
  *      port:int,
  *      vcenters:array<array{name:string,url:string,username:null,password:null}>
@@ -57,9 +61,9 @@ class VmWareV6Parameters implements AccParametersInterface
     public function __construct(
         private readonly EncryptionInterface $encryption,
         array $parameters,
-        private readonly bool $isEncrypted = false
-    ){
-        /** @var _VmWareV6Parameters $parameters */
+        private readonly bool $isEncrypted = false,
+    ) {
+        /** @var _VmWareV6ParametersRequest $parameters */
         Assertion::range($parameters['port'], 0, 65535, 'parameters.port');
         foreach ($parameters['vcenters'] as $index => $vcenter) {
             // Validate min length
@@ -74,8 +78,14 @@ class VmWareV6Parameters implements AccParametersInterface
             Assertion::maxLength($vcenter['password'], self::MAX_LENGTH, "parameters.vcenters[{$index}].password");
             Assertion::maxLength($vcenter['url'], self::MAX_LENGTH, "parameters.vcenters[{$index}].url");
 
+            // This is a temporary fix to handle the case where the scheme should be not be a part of the URL.
+            // The scheme is removed after being reunified with the url to ensure this is not stored.
+            $parameters['vcenters'][$index]['url'] = isset($vcenter['scheme'])
+                ? $vcenter['scheme'] . '://' . $vcenter['url']
+                : $vcenter['url'];
+            unset($parameters['vcenters'][$index]['scheme']);
             // Validate specific format
-            Assertion::urlOrIpOrDomain($vcenter['url'], "parameters.vcenters[{$index}].url");
+            Assertion::urlOrIpOrDomain($parameters['vcenters'][$index]['url'], "parameters.vcenters[{$index}].url");
         }
         $this->parameters = $parameters;
 
@@ -90,38 +100,36 @@ class VmWareV6Parameters implements AccParametersInterface
     public static function update(
         EncryptionInterface $encryption,
         AccParametersInterface $currentObj,
-        array $newDatas
-    ): self
-    {
+        array $newDatas,
+    ): self {
         /** @var _VmWareV6Parameters|_VmWareV6ParametersWithoutCredentials $newDatas */
         /** @var _VmWareV6Parameters $parameters */
         $parameters = $currentObj->getDecryptedData();
 
+        $requestedVcenters = [];
         foreach ($newDatas['vcenters'] as $index => $vcenter) {
-            $newDatas['vcenters'][$vcenter['name']] = $vcenter;
-            unset($newDatas['vcenters'][$index]);
+            $requestedVcenters[$vcenter['name']] = $vcenter;
         }
 
         $parameters['port'] = $newDatas['port'];
         foreach ($parameters['vcenters'] as $index => $vcenter) {
             // Remove vcenter
-            if (! array_key_exists($vcenter['name'], $newDatas['vcenters'])) {
+            if (! array_key_exists($vcenter['name'], $requestedVcenters)) {
                 unset($parameters['vcenters'][$index]);
 
                 continue;
             }
 
             // Update vcenter
-            $updatedVcenter = $newDatas['vcenters'][$vcenter['name']];
-            $updatedVcenter['username'] ??= $vcenter['username'];
+            $updatedVcenter = $requestedVcenters[$vcenter['name']];
             $updatedVcenter['password'] ??= $vcenter['password'];
 
             $parameters['vcenters'][$index] = $updatedVcenter;
-            unset($newDatas['vcenters'][$vcenter['name']]);
+            unset($requestedVcenters[$vcenter['name']]);
         }
         // Add new vcenter
-        if ([] !== $newDatas['vcenters']) {
-            foreach ($newDatas['vcenters'] as $newVcenter) {
+        if ($requestedVcenters !== []) {
+            foreach ($requestedVcenters as $newVcenter) {
                 $parameters['vcenters'][] = $newVcenter;
             }
         }
@@ -152,17 +160,13 @@ class VmWareV6Parameters implements AccParametersInterface
      */
     public function getEncryptedData(): array
     {
-        if (true === $this->isEncrypted) {
+        if ($this->isEncrypted === true) {
             return $this->parameters;
         }
 
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with(
-                $vcenter['username'],
-                VaultConfiguration::VAULT_PATH_PATTERN
-            ) ? $vcenter['username'] : $this->encryption->crypt($vcenter['username']);
             $parameters['vcenters'][$index]['password'] = str_starts_with(
                 $vcenter['password'],
                 VaultConfiguration::VAULT_PATH_PATTERN
@@ -179,17 +183,13 @@ class VmWareV6Parameters implements AccParametersInterface
      */
     public function getDecryptedData(): array
     {
-        if (false === $this->isEncrypted) {
+        if ($this->isEncrypted === false) {
             return $this->parameters;
         }
 
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = str_starts_with(
-                $vcenter['username'],
-                VaultConfiguration::VAULT_PATH_PATTERN
-            ) ? $vcenter['username'] : $this->encryption->decrypt($vcenter['username']) ?? '';
             $parameters['vcenters'][$index]['password'] = str_starts_with(
                 $vcenter['password'],
                 VaultConfiguration::VAULT_PATH_PATTERN
@@ -209,7 +209,6 @@ class VmWareV6Parameters implements AccParametersInterface
         $parameters = $this->parameters;
 
         foreach ($parameters['vcenters'] as $index => $vcenter) {
-            $parameters['vcenters'][$index]['username'] = null;
             $parameters['vcenters'][$index]['password'] = null;
         }
 

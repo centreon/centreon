@@ -1,5 +1,3 @@
-import React, { forwardRef, ReactElement, RefObject, useMemo } from 'react';
-
 import {
   Card as MuiCard,
   CardActionArea as MuiCardActionArea,
@@ -7,6 +5,13 @@ import {
   CardContent as MuiCardContent,
   Typography as MuiTypography
 } from '@mui/material';
+
+import React, {
+  forwardRef,
+  type ReactElement,
+  type RefObject,
+  useMemo
+} from 'react';
 
 import { useStyles } from './DataTableItem.styles';
 
@@ -52,7 +57,7 @@ const DataTableItem = forwardRef(
             <img
               alt={`thumbnail-${title}-${description}`}
               className={classes.thumbnail}
-              data-testId={`thumbnail-${title}-${description}`}
+              data-testid={`thumbnail-${title}-${description}`}
               loading="lazy"
               src={thumbnail}
             />

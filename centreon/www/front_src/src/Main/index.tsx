@@ -5,6 +5,9 @@ import 'dayjs/locale/pt';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/es';
 import 'dayjs/locale/de';
+
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
@@ -17,14 +20,11 @@ import utcPlugin from 'dayjs/plugin/utc';
 import weekday from 'dayjs/plugin/weekday';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { and, equals, isNil, not } from 'ramda';
-import { Outlet, useLocation } from 'react-router-dom';
-
-import { isOnPublicPageAtom } from '@centreon/ui-context';
+import { Outlet, useLocation } from 'react-router';
 
 import reactRoutes from '../reactRoutes/routeMap';
-
-import { MainLoaderWithoutTranslation } from './MainLoader';
 import { platformInstallationStatusAtom } from './atoms/platformInstallationStatusAtom';
+import { MainLoaderWithoutTranslation } from './MainLoader';
 import useMain, { router } from './useMain';
 import { areUserParametersLoadedAtom } from './useUser';
 

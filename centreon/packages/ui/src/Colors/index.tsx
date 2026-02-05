@@ -1,9 +1,9 @@
-import { includes, toPairs } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Box, Divider, Grid, Stack, Typography, useTheme } from '@mui/material';
 
-import { ThemeMode } from '@centreon/ui-context';
+import type { ThemeMode } from '@centreon/ui-context';
+
+import { includes, toPairs } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   divider: {
@@ -51,11 +51,11 @@ const ContainerDescription = ({
   return (
     <Box sx={{ width: '100%' }}>
       <Typography variant="h4">{containerTitle}</Typography>
-      <Grid container columnSpacing={{ md: 3, sm: 2, xs: 1 }} rowSpacing={5}>
+      <Grid columnSpacing={{ md: 3, sm: 2, xs: 1 }} container rowSpacing={5}>
         {toPairs(palette[keyTheme]).map(
           ([key, value]) =>
             !includes(key, keysToRemove) && (
-              <Grid item key={key} xs={6}>
+              <Grid item key={key} size={6}>
                 <div className={classes.headerContainer}>
                   <Typography variant="h6">{key}</Typography>
                   <Typography variant="button">{value}</Typography>
@@ -92,8 +92,8 @@ const GroupedColorStatus = (): JSX.Element => {
           />
           <Divider
             className={classes.divider}
-            variant="middle"
             key={`${status}-divider`}
+            variant="middle"
           />
         </>
       ))}

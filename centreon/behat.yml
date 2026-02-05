@@ -19,18 +19,6 @@ default:
       paths: [ "%paths.base%/features/AcknowledgementTimeout.feature" ]
       contexts: [ AcknowledgementTimeoutContext ]
 
-    partitioning:
-      paths: [ "%paths.base%/features/Partitioning.feature" ]
-      contexts: [ PartitioningContext ]
-
-    knowledge_base:
-      paths: [ "%paths.base%/features/KnowledgeBase.feature" ]
-      contexts: [ KnowledgeBaseContext ]
-
-    disable_fields_on_blocked_objects:
-      paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
-      contexts: [ DisableFieldsOnBlockedObjectsContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
@@ -38,10 +26,6 @@ default:
     meta_services_downtime:
       paths: [ "%paths.base%/features/DowntimeService.feature" ]
       contexts: [ DowntimeServiceContext ]
-
-    limit_metric_in_chart:
-      paths: [ "%paths.base%/features/LimitMetricInChart.feature" ]
-      contexts: [ LimitMetricInChartContext ]
 
     downtime_start_and_stop:
       paths: [ "%paths.base%/features/DowntimeStartAndStop.feature" ]
@@ -59,101 +43,13 @@ default:
       paths: [ "%paths.base%/features/DowntimeRecurrent.feature" ]
       contexts: [ DowntimeRecurrentContext ]
 
-    command_arguments:
-      paths: [ "%paths.base%/features/CommandArguments.feature" ]
-      contexts: [ CommandArgumentsContext ]
-
-    autologin:
-      paths: [ "%paths.base%/features/Autologin.feature" ]
-      contexts: [ AutologinContext ]
-
-    autologin_options:
-      paths: [ "%paths.base%/features/AutologinOptions.feature" ]
-      contexts: [ AutologinOptionsContext ]
-
-    ldap:
-      paths: [ "%paths.base%/features/Ldap.feature" ]
-      contexts: [ LdapContext ]
-
-    custom_views_locked:
-      paths: [ "%paths.base%/features/CustomViews/Locked.feature" ]
-      contexts: [ CustomViewsContext ]
-
-    custom_views_unlocked:
-      paths: [ "%paths.base%/features/CustomViews/Unlocked.feature" ]
-      contexts: [ CustomViewsContext ]
-
-    custom_views_public:
-      paths: [ "%paths.base%/features/CustomViews/Public.feature" ]
-      contexts: [ CustomViewsContext ]
-
-    host_template_configuration:
-      paths: [ "%paths.base%/features/HostTemplateConfiguration.feature" ]
-      contexts: [ HostTemplateConfigurationContext ]
-
     rest_api:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
 
-    ldap_manual_import:
-      paths: [ "%paths.base%/features/LdapManualImport.feature" ]
-      contexts: [ LdapManualImportContext ]
-
-    command_configuration:
-      paths: [ "%paths.base%/features/CommandConfiguration.feature" ]
-      contexts: [ CommandConfigurationContext ]
-
-    host_group_service_configuration:
-      paths: [ "%paths.base%/features/HostGroupServiceConfiguration.feature" ]
-      contexts: [ HostGroupServiceConfigurationContext ]
-
-    escalation_configuration:
-      paths: [ "%paths.base%/features/EscalationConfiguration.feature" ]
-      contexts: [ EscalationConfigurationContext ]
-
-    host_group_dependency_configuration:
-      paths: [ "%paths.base%/features/HostGroupDependencyConfiguration.feature" ]
-      contexts: [ HostGroupDependencyConfigurationContext ]
-
-    service_submit_result:
-      paths: [ "%paths.base%/features/ServiceSubmitResult.feature" ]
-      contexts: [ ServiceSubmitResultContext ]
-
-    host_dependency_configuration:
-      paths: [ "%paths.base%/features/HostDependencyConfiguration.feature" ]
-      contexts: [ HostDependencyConfigurationContext ]
-
-    service_dependency_configuration:
-      paths: [ "%paths.base%/features/ServiceDependencyConfiguration.feature" ]
-      contexts: [ ServiceDependencyConfigurationContext ]
-
-    service_group_dependency_configuration:
-      paths: [ "%paths.base%/features/ServiceGroupDependencyConfiguration.feature" ]
-      contexts: [ ServiceGroupDependencyConfigurationContext ]
-
-    connector_configuration:
-      paths: [ "%paths.base%/features/ConnectorConfiguration.feature" ]
-      contexts: [ ConnectorConfigurationContext ]
-
-    vendor_configuration:
-      paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
-      contexts: [ VendorConfigurationContext ]
-
-    meta_service_dependency_configuration:
-      paths: [ "%paths.base%/features/MetaServiceDependencyConfiguration.feature" ]
-      contexts: [ MetaServiceDependencyConfigurationContext ]
-
-    test_proxy_configuration:
-      paths: [ "%paths.base%/features/TestProxyConfiguration.feature" ]
-      contexts: [ TestProxyConfigurationContext ]
-
     test_clapi:
       paths: [ "%paths.base%/features/Clapi.feature" ]
       contexts: [ ClapiContext ]
-
-    uri:
-      paths: [ "%paths.base%/features/URI.feature" ]
-      contexts: [ URIContext ]
 
     centreon_module_api:
       paths: [ "%paths.base%/features/CentreonModuleAPI.feature" ]

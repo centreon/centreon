@@ -1,21 +1,17 @@
-import { useEffect } from 'react';
+import { useSnackbar } from '@centreon/ui';
 
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import {
-  createSearchParams,
-  generatePath,
-  useNavigate
-} from 'react-router-dom';
-
-import { useSnackbar } from '@centreon/ui';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { createSearchParams, generatePath, useNavigate } from 'react-router';
 
 import routeMap from '../../../../reactRoutes/routeMap';
-import { resetDashboardDerivedAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 import { Dashboard, isDashboard } from '../../../api/models';
 import { useCreateDashboard } from '../../../api/useCreateDashboard';
 import { useUpdateDashboard } from '../../../api/useUpdateDashboard';
 import { DashboardLayout } from '../../../models';
+import { resetDashboardDerivedAtom } from '../../../SingleInstancePage/Dashboard/atoms';
 import { labelDashboardUpdated } from '../../../translatedLabels';
 
 export const dialogStateAtom = atom<{
@@ -42,6 +38,7 @@ type UseDashboardConfig = {
 };
 
 const useDashboardConfig = (): UseDashboardConfig => {
+  const { t } = useTranslation();
   const [dialogState, setDialogState] = useAtom(dialogStateAtom);
 
   const resetDashboard = useSetAtom(resetDashboardDerivedAtom);
@@ -117,7 +114,7 @@ const useDashboardConfig = (): UseDashboardConfig => {
 
   const submitForm = (dashboard: Dashboard): void => {
     submit(dashboard).then(() => {
-      showSuccessMessage(labelDashboardUpdated);
+      showSuccessMessage(t(labelDashboardUpdated));
     });
   };
 

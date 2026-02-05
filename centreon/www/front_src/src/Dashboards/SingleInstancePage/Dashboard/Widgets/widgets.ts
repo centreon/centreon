@@ -1,64 +1,114 @@
 import { equals } from 'ramda';
 import { lazy } from 'react';
+
 import { FederatedModule } from '../../../../federatedModules/models';
+import { PanelConfiguration } from '../models';
 
 const testWidgets =
   equals(window.Cypress?.testingType, 'component') &&
   !equals(process.env.NODE_ENV, 'production')
     ? [
         { name: 'data' },
-        { name: 'input' },
+        { name: 'input', panelDefaultHeight: 6, panelDefaultWidth: 12 },
         { name: 'singledata' },
         { name: 'text' }
       ]
     : [];
 
-const internalWidgets = [
+const internalWidgets: Array<
+  Omit<PanelConfiguration, 'path'> & { name: string }
+> = [
   ...testWidgets,
   {
     name: 'batree',
-    panelMinHeight: 5,
-    panelMinWidth: 6
+    panelDefaultHeight: 6,
+    panelDefaultWidth: 12,
+    panelMinHeight: 6,
+    panelMinWidth: 12
   },
   {
-    name: 'clock'
-  },
-  { name: 'generictext' },
-  {
-    name: 'graph',
+    name: 'batimeline',
+    panelDefaultHeight: 3,
+    panelDefaultWidth: 12,
     panelMinHeight: 3,
+    panelMinWidth: 3
+  },
+  {
+    name: 'baavailability',
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12,
+    panelMinHeight: 2,
     panelMinWidth: 4
   },
   {
+    name: 'metriccapacityplanning',
+    panelDefaultHeight: 5,
+    panelDefaultWidth: 12,
+    panelMinHeight: 4,
+    panelMinWidth: 8
+  },
+  {
+    name: 'clock',
+    panelDefaultHeight: 3,
+    panelDefaultWidth: 6
+  },
+  { name: 'generictext', panelDefaultHeight: 3, panelDefaultWidth: 6 },
+  {
+    name: 'graph',
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12,
+    panelMinHeight: 3,
+    panelMinWidth: 8
+  },
+  {
+    name: 'baavailabilityhistory',
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12,
+    panelMinHeight: 3,
+    panelMinWidth: 8
+  },
+  {
     name: 'groupmonitoring',
-    panelMinWidth: 4,
-    panelMinHeight: 3
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12,
+    panelMinHeight: 3,
+    panelMinWidth: 8
   },
   {
     name: 'resourcestable',
-    panelMinWidth: 6,
-    panelMinHeight: 3
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12,
+    panelMinHeight: 4,
+    panelMinWidth: 6
   },
-  { name: 'singlemetric' },
-  { name: 'statuschart' },
-  { name: 'statusgrid' },
+  { name: 'singlemetric', panelDefaultWidth: 4, panelMinWidth: 2 },
+  { name: 'statuschart', panelMinHeight: 3, panelMinWidth: 4 },
+  { name: 'statusgrid', panelDefaultHeight: 3 },
   { name: 'topbottom' },
-  { name: 'webpage' }
+  { name: 'webpage' },
+  { name: 'mbinearsaturationstorage', panelMinHeight: 3, panelMinWidth: 14 },
+  {
+    name: 'hgavailabilityhistory',
+    panelDefaultHeight: 4,
+    panelDefaultWidth: 12,
+    panelMinHeight: 3,
+    panelMinWidth: 8
+  }
 ];
 
 export const internalWidgetComponents: Array<FederatedModule> =
   internalWidgets.map((widget) => ({
-    moduleName: `centreon-widget-${widget.name}`,
-    remoteEntry: '',
-    moduleFederationName: `centreon-widget-${widget.name}`,
-    federatedPages: [],
+    Component: lazy(() => import(`./centreon-widget-${widget.name}/src`)),
     federatedComponentsConfiguration: [
       {
-        path: `/widgets/${widget.name}`,
         federatedComponents: [],
+        path: `/widgets/${widget.name}`,
         ...widget
       }
     ],
-    Component: lazy(() => import(`./centreon-widget-${widget.name}/src`)),
-    properties: require(`./centreon-widget-${widget.name}/properties.json`)
+    federatedPages: [],
+    moduleFederationName: `centreon-widget-${widget.name}`,
+    moduleName: `centreon-widget-${widget.name}`,
+    properties: require(`./centreon-widget-${widget.name}/properties.json`),
+    remoteEntry: ''
   }));

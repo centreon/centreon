@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,12 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Repository\Interfaces;
 
+use Core\Common\Application\Repository\RepositoryManagerInterface;
+
 /**
  * This interface is designed to perform specific operations on the data storage engine.
+ *
+ * @deprecated instead use {@see RepositoryManagerInterface}
  */
 interface DataStorageEngineInterface
 {

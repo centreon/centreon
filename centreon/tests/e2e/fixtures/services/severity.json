@@ -1,0 +1,23 @@
+{
+    "enabled_severity": {
+        "name": "service-severity",
+        "alias": "service-severity",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": true
+    },
+    "disabled_severity": {
+        "name": "service-severity",
+        "alias": "service-severity",
+        "level": 2,
+        "icon_id": 1,
+        "is_activated": false
+    },
+    "changed_severity": {
+        "name": "service-severity-changed",
+        "alias": "service-severity-changed",
+        "level": 1,
+        "icon_id": 1,
+        "is_activated": true
+    }
+}

@@ -1,0 +1,64 @@
+{
+  "name": "centreon-open-tickets",
+  "version": "25.10.0",
+  "description": "Cypress end-to-end tests for centreon-open-tickets",
+  "scripts": {
+    "update:deps": "pnpx npm-check-updates -i --format group",
+    "cypress:run": "cross-env TESTCONTAINERS_RYUK_DISABLED=true cypress run --env tags='not @ignore' --config-file cypress.config.ts --browser=chrome --e2e",
+    "cypress:open": "cross-env TESTCONTAINERS_RYUK_DISABLED=true cypress open --config-file cypress.dev.config.ts --browser=chrome --e2e",
+    "cypress:ci": "cypress run --e2e --browser=chrome",
+    "cypress:install": "cypress install",
+    "lint": "biome check ./features",
+    "lint:fix": "pnpm lint --fix",
+    "lint:ci": "biome ci ./features --error-on-warnings",
+    "gherkinlint": "pnpm gherkin-lint -c ../../../.github/actions/gherkin-lint/.gherkin-lintrc ./features/"
+  },
+  "devDependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^23.2.1",
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.7",
+    "@biomejs/biome": "2.3.11",
+    "@centreon/js-config": "26.3.1",
+    "@cypress/webpack-batteries-included-preprocessor": "^4.0.2",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@swc/core": "^1.9.3",
+    "@types/cypress": "^1.1.6",
+    "@types/cypress-cucumber-preprocessor": "^4.0.5",
+    "@types/node": "^24.10.0",
+    "@types/ramda": "0.31.1",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "cross-env": "^10.1.0",
+    "cypress": "~15.5.0",
+    "cypress-cucumber-preprocessor": "^4.3.1",
+    "cypress-multi-reporters": "^2.0.5",
+    "cypress-on-fix": "^1.1.0",
+    "cypress-real-events": "^1.15.0",
+    "cypress-terminal-report": "^7.3.3",
+    "cypress-wait-until": "^3.0.2",
+    "dotenv": "^17.2.3",
+    "gherkin-lint": "^4.2.4",
+    "mochawesome": "^7.1.4",
+    "mysql2": "^3.15.3",
+    "path": "^0.12.7",
+    "ramda": "0.32.0",
+    "shell-exec": "^1.1.2",
+    "swc-loader": "^0.2.6",
+    "tar-fs": "^3.1.1",
+    "testcontainers": "^11.7.2",
+    "typescript": "^5.9.3",
+    "webpack": "^5.102.1"
+  },
+  "cypress-cucumber-preprocessor": {
+    "filterSpecs": false,
+    "nonGlobalStepDefinitions": true,
+    "omitFiltered": true,
+    "json": {
+      "enabled": true,
+      "output": "results/cucumber-logs/report.json"
+    },
+    "pretty": {
+      "enabled": true
+    }
+  }
+}

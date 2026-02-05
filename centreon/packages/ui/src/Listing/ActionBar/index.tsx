@@ -1,18 +1,17 @@
-import { useAtomValue } from 'jotai';
-import { equals, isEmpty, isNil, not, pick } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Divider from '@mui/material/Divider';
 
 import { ListingVariant, userAtom } from '@centreon/ui-context';
 
-import { IconButton, ListingProps } from '../..';
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, not, pick } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import { IconButton, type ListingProps } from '../..';
 import { useMemoComponent } from '../../utils';
 import { labelOf, labelRowsPerPage } from '../translatedLabels';
-
 import ColumnMultiSelect from './ColumnMultiSelect';
 import StyledPagination from './Pagination';
 import PaginationActions from './PaginationActions';
@@ -24,12 +23,9 @@ interface StyleProps {
 
 const useStyles = makeStyles<StyleProps>()(
   (theme, { width, marginWidthTableListing }) => ({
-    ModeViewer: {
-      paddingLeft: theme.spacing(1)
-    },
     actions: {
       flex: 1,
-      padding: theme.spacing(1, 0)
+      padding: theme.spacing(1, 1, 1, 0)
     },
     container: {
       alignItems: 'center',
@@ -44,6 +40,9 @@ const useStyles = makeStyles<StyleProps>()(
       },
       display: 'flex',
       flexDirection: 'column'
+    },
+    ModeViewer: {
+      paddingLeft: theme.spacing(1)
     },
     mode: {
       flexDirection: 'column-reverse'
@@ -149,9 +148,9 @@ const MemoListingActionBar = ({
                 }
                 data-testid={viewerModeConfiguration?.testId}
                 disabled={viewerModeConfiguration?.disabled}
+                onClick={viewerModeConfiguration?.onClick}
                 size="large"
                 title={viewerModeConfiguration?.title}
-                onClick={viewerModeConfiguration?.onClick}
               >
                 <div
                   className={cx(
@@ -185,12 +184,6 @@ const MemoListingActionBar = ({
           {paginated && (
             <StyledPagination
               ActionsComponent={PaginationActions}
-              SelectProps={{
-                MenuProps: {
-                  className: classes.selectMenu
-                },
-                id: labelRowsPerPage
-              }}
               className={cx(classes.pagination, customPaginationClassName, {
                 [classes.moving]: moveTablePagination
               })}
@@ -198,11 +191,17 @@ const MemoListingActionBar = ({
               count={totalRows}
               labelDisplayedRows={labelDisplayedRows}
               labelRowsPerPage={null}
+              onPageChange={changePage}
+              onRowsPerPageChange={changeRowPerPage}
               page={currentPage}
               rowsPerPage={limit}
               rowsPerPageOptions={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100]}
-              onPageChange={changePage}
-              onRowsPerPageChange={changeRowPerPage}
+              SelectProps={{
+                id: labelRowsPerPage,
+                MenuProps: {
+                  className: classes.selectMenu
+                }
+              }}
             />
           )}
         </div>
@@ -266,14 +265,14 @@ const ListingActionBar = ({
       limit={limit}
       listingVariant={listingVariant}
       moveTablePagination={moveTablePagination}
-      paginated={paginated}
-      totalRows={totalRows}
-      viewerModeConfiguration={viewerModeConfiguration}
-      widthToMoveTablePagination={widthToMoveTablePagination}
       onLimitChange={onLimitChange}
       onPaginate={onPaginate}
       onResetColumns={onResetColumns}
       onSelectColumns={onSelectColumns}
+      paginated={paginated}
+      totalRows={totalRows}
+      viewerModeConfiguration={viewerModeConfiguration}
+      widthToMoveTablePagination={widthToMoveTablePagination}
     />
   );
 };

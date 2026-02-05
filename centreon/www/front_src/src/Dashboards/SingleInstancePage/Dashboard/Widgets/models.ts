@@ -1,5 +1,7 @@
 import { SelectEntry } from '@centreon/ui';
 
+import { QueryClient } from '@tanstack/react-query';
+
 export interface FormThreshold {
   criticalType: 'default' | 'custom';
   customCritical: number;
@@ -21,7 +23,7 @@ export interface GlobalRefreshInterval {
 
 export interface Resource {
   resourceType: string;
-  resources: Array<SelectEntry>;
+  resources: Array<SelectEntry> | string;
 }
 
 export interface NamedEntity {
@@ -46,6 +48,9 @@ export interface Metric {
   unit: string;
   warningHighThreshold: number | null;
   warningLowThreshold: number | null;
+  serviceId?: number;
+  serviceName?: string;
+  current_value: number;
 }
 
 export enum SortOrder {
@@ -84,6 +89,7 @@ export interface CommonWidgetProps<T extends object> {
   refreshCount: number;
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   widgetPrefixQuery: string;
+  queryClient?: QueryClient;
 }
 
 export type StatusDetail = {

@@ -1,24 +1,25 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/acls/acl-data.json';
-import { ACLActionType, Action } from '../commands';
+import { AclActionType, Action } from '../commands';
 
-const ACLAction: ACLActionType = {
-  ACLGroups: [data.ACLGroups.ACLGroup1.name, data.ACLGroups.ACLGroup2.name],
+const aclAction: AclActionType = {
+  aclGroups: [data.ACLGroups.ACLGroup1.name, data.ACLGroups.ACLGroup2.name],
   actions: ['top_counter'],
   description: 'This is just a description',
   name: 'ACL_Action_1'
 };
 
-const modifiedACLAction = {
+const modifiedAclAction = {
   actions: ['top_counter', 'poller_stats'],
   description: 'This is just a description modified',
   name: 'ACL_Action_1_modified',
   status: 'Disabled'
 };
 
-const duplicatedACLAction = {
-  name: `${ACLAction.name}_1`
+const duplicatedAclAction = {
+  name: `${aclAction.name}_1`
 };
 
 const allActions: Array<Action> = [
@@ -131,27 +132,23 @@ Given(
 );
 
 When('I add a new action access linked with the access groups', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().find('input[name="acl_action_name"]').type(ACLAction.name);
+  cy.getIframeBody().find('input[name="acl_action_name"]').type(aclAction.name);
   cy.getIframeBody()
     .find('input[name="acl_action_description"]')
-    .type(ACLAction.description);
+    .type(aclAction.description);
 
-  ACLAction.ACLGroups.forEach((ACLGroup) => {
-    cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(ACLGroup);
+  aclAction.aclGroups.forEach((aclGroup) => {
+    cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(aclGroup);
     cy.getIframeBody().find('input[name="add"]').click();
   });
 
-  ACLAction.actions.forEach((action) => {
+  aclAction.actions.forEach((action) => {
     cy.getIframeBody().find(`input[name="${action}"]`).parent().click();
   });
 
@@ -161,24 +158,24 @@ When('I add a new action access linked with the access groups', () => {
 Then('the action access record is saved with its properties', () => {
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains('td.ListColLeft > a', ACLAction.name).click();
+  cy.getIframeBody().contains('td.ListColLeft > a', aclAction.name).click();
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
     .find('input[name="acl_action_name"]')
-    .should('have.value', ACLAction.name);
+    .should('have.value', aclAction.name);
 
   cy.getIframeBody()
     .find('input[name="acl_action_description"]')
-    .should('have.value', ACLAction.description);
+    .should('have.value', aclAction.description);
 
-  ACLAction.ACLGroups.forEach((ACLGroup) => {
+  aclAction.aclGroups.forEach((aclGroup) => {
     cy.getIframeBody()
       .find('select[name="acl_groups-t[]"]')
-      .should('contain', ACLGroup);
+      .should('contain', aclGroup);
   });
 
-  ACLAction.actions.forEach((action) => {
+  aclAction.actions.forEach((action) => {
     cy.getIframeBody().find(`input[name="${action}"]`).should('be.checked');
   });
 });
@@ -186,22 +183,18 @@ Then('the action access record is saved with its properties', () => {
 Then(
   'all linked access group display the new actions access in authorized information tab',
   () => {
-    ACLAction.ACLGroups.forEach((ACLGroup) => {
-      cy.navigateTo({
-        page: 'Access Groups',
-        rootItemNumber: 4,
-        subMenu: 'ACL'
-      });
+    aclAction.aclGroups.forEach((aclGroup) => {
+      cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
       cy.wait('@getTimeZone');
 
-      cy.getIframeBody().contains('td.ListColLeft > a', ACLGroup).click();
+      cy.getIframeBody().contains('td.ListColLeft > a', aclGroup).click();
 
       cy.wait('@getTimeZone');
       cy.getIframeBody().contains('a', 'Authorizations information').click();
 
       cy.getIframeBody()
         .find('select[name="actionAccess-t[]"]')
-        .should('contain', ACLAction.name);
+        .should('contain', aclAction.name);
     });
   }
 );
@@ -209,11 +202,7 @@ Then(
 When(
   'I select one by one all action to authorize them in an action access record I create',
   () => {
-    cy.navigateTo({
-      page: 'Actions Access',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclActionsAccessLegacy);
     cy.wait('@getTimeZone');
 
     cy.getIframeBody().contains('a', 'Add').click();
@@ -221,13 +210,13 @@ When(
 
     cy.getIframeBody()
       .find('input[name="acl_action_name"]')
-      .type(ACLAction.name);
+      .type(aclAction.name);
     cy.getIframeBody()
       .find('input[name="acl_action_description"]')
-      .type(ACLAction.description);
+      .type(aclAction.description);
 
-    ACLAction.ACLGroups.forEach((ACLGroup) => {
-      cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(ACLGroup);
+    aclAction.aclGroups.forEach((aclGroup) => {
+      cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(aclGroup);
       cy.getIframeBody().find('input[name="add"]').click();
     });
 
@@ -244,23 +233,19 @@ Then('all radio-buttons have to be checked', () => {
 });
 
 When('I check button-radio for a lot of actions', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().find('input[name="acl_action_name"]').type(ACLAction.name);
+  cy.getIframeBody().find('input[name="acl_action_name"]').type(aclAction.name);
   cy.getIframeBody()
     .find('input[name="acl_action_description"]')
-    .type(ACLAction.description);
+    .type(aclAction.description);
 
-  ACLAction.ACLGroups.forEach((ACLGroup) => {
-    cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(ACLGroup);
+  aclAction.aclGroups.forEach((aclGroup) => {
+    cy.getIframeBody().find('select[name="acl_groups-f[]"]').select(aclGroup);
     cy.getIframeBody().find('input[name="add"]').click();
   });
 
@@ -284,30 +269,26 @@ Then('all buttons-radio of the authorized actions lot are checked', () => {
 
 Given('one existing action access', () => {
   cy.addACLAction({
-    actions: ACLAction.actions,
-    description: ACLAction.description,
-    name: ACLAction.name
+    actions: aclAction.actions,
+    description: aclAction.description,
+    name: aclAction.name
   });
 
-  cy.addACLActionToACLGroup({
-    ACLActionName: ACLAction.name,
-    ACLGroupName: data.ACLGroups.ACLGroup1.name
+  cy.addAclActionToAclGroup({
+    aclActionName: aclAction.name,
+    aclGroupName: data.ACLGroups.ACLGroup1.name
   });
-  cy.addACLActionToACLGroup({
-    ACLActionName: ACLAction.name,
-    ACLGroupName: data.ACLGroups.ACLGroup2.name
+  cy.addAclActionToAclGroup({
+    aclActionName: aclAction.name,
+    aclGroupName: data.ACLGroups.ACLGroup2.name
   });
 });
 
 When('I remove the access group', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
-  cy.getIframeBody().contains('td.ListColLeft > a', ACLAction.name).click();
+  cy.getIframeBody().contains('td.ListColLeft > a', aclAction.name).click();
 
   cy.wait('@getTimeZone');
   cy.getIframeBody()
@@ -321,17 +302,13 @@ When('I remove the access group', () => {
 Then(
   'the link between the access group and the action access is voided',
   () => {
-    cy.navigateTo({
-      page: 'Access Groups',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
 
     cy.wait('@getTimeZone').then(() => {
       cy.executeActionOnIframe(
         data.ACLGroups.ACLGroup1.name,
-        ($body) => {
-          cy.wrap($body)
+        (body) => {
+          cy.wrap(body)
             .contains('td.ListColLeft > a', data.ACLGroups.ACLGroup1.name)
             .click();
         },
@@ -343,8 +320,8 @@ Then(
     cy.wait('@getTimeZone').then(() => {
       cy.executeActionOnIframe(
         'Authorizations information',
-        ($body) => {
-          cy.wrap($body).contains('a', 'Authorizations information').click();
+        (body) => {
+          cy.wrap(body).contains('a', 'Authorizations information').click();
         },
         3,
         3000
@@ -353,20 +330,16 @@ Then(
 
     cy.getIframeBody()
       .find('select[name="actionAccess-t[]"]')
-      .should('not.contain', ACLAction.name);
+      .should('not.contain', aclAction.name);
   }
 );
 
 When('I duplicate the action access', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLAction.name)
+    .contains('tr', aclAction.name)
     .within(() => {
       cy.get('input[type="checkbox"][name^="select"]').parent().click();
     });
@@ -391,30 +364,30 @@ Then(
   () => {
     cy.wait('@getTimeZone');
 
-    const originalACLActionValues: Array<string> = [];
+    const originalAclActionValues: Array<string> = [];
     cy.getIframeBody()
-      .contains('tr', ACLAction.name)
+      .contains('tr', aclAction.name)
       .within(() => {
         cy.get('td').each((td, index) => {
           if (index >= 1 && index <= 5)
-            originalACLActionValues.push(td.text().trim());
+            originalAclActionValues.push(td.text().trim());
         });
       });
 
-    const duplicatedACLActionValues: Array<string> = [];
+    const duplicatedAclActionValues: Array<string> = [];
     cy.getIframeBody()
-      .contains('tr', duplicatedACLAction.name)
+      .contains('tr', duplicatedAclAction.name)
       .within(() => {
         cy.get('td').each((td, index) => {
           if (index >= 1 && index <= 5)
-            duplicatedACLActionValues.push(td.text().trim());
+            duplicatedAclActionValues.push(td.text().trim());
         });
       });
 
-    cy.wrap(duplicatedACLActionValues).then((duplicatedValues) => {
-      expect(duplicatedValues[0]).to.not.equal(originalACLActionValues[0]);
-      for (let i = 1; i < originalACLActionValues.length; i += 1) {
-        expect(duplicatedValues[i]).to.equal(originalACLActionValues[i]);
+    cy.wrap(duplicatedAclActionValues).then((duplicatedValues) => {
+      expect(duplicatedValues[0]).to.not.equal(originalAclActionValues[0]);
+      for (let i = 1; i < originalAclActionValues.length; i += 1) {
+        expect(duplicatedValues[i]).to.equal(originalAclActionValues[i]);
       }
     });
   }
@@ -423,24 +396,18 @@ Then(
 When(
   'I modify some properties such as name, description, comments, status or authorized actions',
   () => {
-    cy.navigateTo({
-      page: 'Actions Access',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+    cy.visit(PAGES.configuration.aclActionsAccessLegacy);
     cy.wait('@getTimeZone');
-
-    cy.getIframeBody().contains('td.ListColLeft > a', ACLAction.name).click();
-
+    cy.getIframeBody().contains('td.ListColLeft > a', aclAction.name).click();
     cy.wait('@getTimeZone');
     cy.getIframeBody()
       .find('input[name="acl_action_name"]')
-      .type(`{selectAll}{backspace}${modifiedACLAction.name}`);
+      .type(`{selectAll}{backspace}${modifiedAclAction.name}`);
     cy.getIframeBody()
       .find('input[name="acl_action_description"]')
-      .type(`{selectAll}{backspace}${modifiedACLAction.description}`);
+      .type(`{selectAll}{backspace}${modifiedAclAction.description}`);
 
-    modifiedACLAction.actions.forEach((action) => {
+    modifiedAclAction.actions.forEach((action) => {
       cy.getIframeBody().find(`input[name="${action}"]`).parent().click();
     });
 
@@ -456,48 +423,44 @@ When(
 Then('the modifications are saved', () => {
   cy.wait('@getTimeZone');
 
-  const modifiedACLActionValues: Array<string> = [];
+  const modifiedAclActionValues: Array<string> = [];
   cy.getIframeBody()
-    .contains('tr', modifiedACLAction.name)
+    .contains('tr', modifiedAclAction.name)
     .within(() => {
       cy.get('td').each((td, index) => {
         if (index >= 1 && index <= 5)
-          modifiedACLActionValues.push(td.text().trim());
+          modifiedAclActionValues.push(td.text().trim());
       });
     })
     .then(() => {
       // name
-      expect(modifiedACLActionValues[0]).to.equal(modifiedACLAction.name);
+      expect(modifiedAclActionValues[0]).to.equal(modifiedAclAction.name);
       // description
-      expect(modifiedACLActionValues[1]).to.equal(
-        modifiedACLAction.description
+      expect(modifiedAclActionValues[1]).to.equal(
+        modifiedAclAction.description
       );
       // status
-      expect(modifiedACLActionValues[2]).to.equal(modifiedACLAction.status);
+      expect(modifiedAclActionValues[2]).to.equal(modifiedAclAction.status);
     });
 
-  cy.getIframeBody().contains('td.ListColLeft > a', ACLAction.name).click();
+  cy.getIframeBody().contains('td.ListColLeft > a', aclAction.name).click();
   cy.wait('@getTimeZone');
 
   // actions
   cy.getIframeBody()
-    .find(`input[name="${modifiedACLAction.actions[0]}"]`)
+    .find(`input[name="${modifiedAclAction.actions[0]}"]`)
     .should('not.be.checked');
   cy.getIframeBody()
-    .find(`input[name="${modifiedACLAction.actions[1]}"]`)
+    .find(`input[name="${modifiedAclAction.actions[1]}"]`)
     .should('be.checked');
 });
 
 When('I delete the action access', () => {
-  cy.navigateTo({
-    page: 'Actions Access',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclActionsAccessLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
-    .contains('tr', ACLAction.name)
+    .contains('tr', aclAction.name)
     .within(() => {
       cy.get('input[type="checkbox"][name^="select"]').parent().click();
     });
@@ -522,26 +485,22 @@ Then(
   () => {
     cy.wait('@getTimeZone');
 
-    cy.getIframeBody().should('not.contain', ACLAction.name);
+    cy.getIframeBody().should('not.contain', aclAction.name);
   }
 );
 
 Then('the links with the acl groups are broken', () => {
-  ACLAction.ACLGroups.forEach((ACLGroup) => {
-    cy.navigateTo({
-      page: 'Access Groups',
-      rootItemNumber: 4,
-      subMenu: 'ACL'
-    });
+  aclAction.aclGroups.forEach((aclGroup) => {
+    cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
     cy.wait('@getTimeZone');
 
-    cy.getIframeBody().contains('td.ListColLeft > a', ACLGroup).click();
+    cy.getIframeBody().contains('td.ListColLeft > a', aclGroup).click();
 
     cy.wait('@getTimeZone');
     cy.getIframeBody().contains('a', 'Authorizations information').click();
 
     cy.getIframeBody()
       .find('select[name="actionAccess-t[]"]')
-      .should('not.contain', ACLAction.name);
+      .should('not.contain', aclAction.name);
   });
 });

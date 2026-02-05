@@ -1,13 +1,13 @@
 <?php
 
 /*
- * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
  * For more information : contact@centreon.com
  *
  */
+
 declare(strict_types=1);
 
 namespace Centreon\Domain\ServiceConfiguration\Interfaces;
@@ -44,8 +45,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      *
      * @param int $serviceId Id of the service
      * @param bool $isUsingInheritance Indicates whether to use inheritance to find service macros (FALSE by default)
-     * @return array<ServiceMacro> List of service macros found
      * @throws \Throwable
+     * @return array<ServiceMacro> List of service macros found
      */
     public function findOnDemandServiceMacros(int $serviceId, bool $isUsingInheritance = false): array;
 
@@ -56,8 +57,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * case where the service does not have a command.
      *
      * @param int $serviceId Service id
-     * @return string|null Return the command if found
      * @throws \Throwable
+     * @return string|null Return the command if found
      */
     public function findCommandLine(int $serviceId): ?string;
 
@@ -65,8 +66,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * Find all service templates associated with the given host templates.
      *
      * @param int[] $hostTemplateIds Ids of the host templates for which we want to find the service templates
-     * @return HostTemplateService[]
      * @throws \Exception
+     * @return HostTemplateService[]
      */
     public function findHostTemplateServices(array $hostTemplateIds): array;
 
@@ -74,8 +75,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * Find a service.
      *
      * @param int $serviceId Service id
-     * @return Service|null
      * @throws \Exception
+     * @return Service|null
      */
     public function findService(int $serviceId): ?Service;
 
@@ -83,8 +84,8 @@ interface ServiceConfigurationRepositoryInterface extends AccessControlListRepos
      * Find all services associated to host.
      *
      * @param Host $host Host for which we want to find services
-     * @return Service[]
      * @throws \Exception
+     * @return Service[]
      */
     public function findServicesByHost(Host $host): array;
 

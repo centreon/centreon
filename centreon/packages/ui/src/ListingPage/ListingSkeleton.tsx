@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Skeleton } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   listingSkeleton: {

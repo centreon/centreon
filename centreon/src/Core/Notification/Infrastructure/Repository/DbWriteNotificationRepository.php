@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -239,7 +239,7 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
      */
     public function deleteContactGroupsByNotificationAndContactGroupIds(
         int $notificationId,
-        array $contactGroupsIds
+        array $contactGroupsIds,
     ): void {
         if ($contactGroupsIds === []) {
             return;
@@ -279,5 +279,34 @@ class DbWriteNotificationRepository extends AbstractRepositoryRDB implements Wri
         $statement->execute();
 
         return $statement->rowCount();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteDependencies(array $lastDependencyIds): void
+    {
+
+        if ($lastDependencyIds === []) {
+            return;
+        }
+
+        $bindValues = [];
+        foreach ($lastDependencyIds as $lastDependencyId) {
+            $bindValues[':lastDependencyId_' . $lastDependencyId] = $lastDependencyId;
+        }
+        $dependeciesAsString = implode(', ', array_keys($bindValues));
+
+        $statement = $this->db->prepare($this->translateDbName(
+            <<<SQL
+                    DELETE FROM `:db`.dependency
+                    WHERE dep_id IN ({$dependeciesAsString})
+                SQL
+        ));
+
+        foreach ($bindValues as $token => $lastDependencyId) {
+            $statement->bindValue($token, $lastDependencyId, \PDO::PARAM_INT);
+        }
+        $statement->execute();
     }
 }

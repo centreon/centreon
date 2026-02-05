@@ -1,9 +1,8 @@
-import { Meta, StoryObj } from '@storybook/react';
-
-import ResponsiveBarStack from './ResponsiveBarStack';
-import { BarType } from './models';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { BarStack } from '.';
+import ResponsiveBarStack from './BarStack';
+import type { BarType } from './models';
 
 const data = [
   { color: '#88B922', label: 'Ok', value: 148 },
@@ -47,11 +46,19 @@ const TooltipContent = ({ label, color, value }: BarType): JSX.Element => {
 };
 
 const Template = (args): JSX.Element => {
-  return <ResponsiveBarStack height={300} width={500} {...args} />;
+  return (
+    <div style={{ height: '400px', width: '400px' }}>
+      <ResponsiveBarStack {...args} />
+    </div>
+  );
 };
 
 const SmallTemplate = (args): JSX.Element => {
-  return <ResponsiveBarStack height={120} width={120} {...args} />;
+  return (
+    <div style={{ height: '90px', width: '150px' }}>
+      <ResponsiveBarStack {...args} />
+    </div>
+  );
 };
 
 export const Vertical: Story = {
@@ -81,15 +88,15 @@ export const WithPencentage: Story = {
 };
 
 export const WithTooltip: Story = {
-  args: { TooltipContent, data, title: 'hosts' },
+  args: { data, TooltipContent, title: 'hosts' },
   render: Template
 };
 
 export const WithBigNumbers: Story = {
   args: {
-    TooltipContent,
     data: dataWithBigNumbers,
     displayValues: true,
+    TooltipContent,
     title: 'hosts'
   },
   render: Template
@@ -97,9 +104,9 @@ export const WithBigNumbers: Story = {
 
 export const WithSmallNumbers: Story = {
   args: {
-    TooltipContent,
     data: dataWithSmallNumber,
     displayValues: true,
+    TooltipContent,
     title: 'hosts'
   },
   render: Template
@@ -107,9 +114,10 @@ export const WithSmallNumbers: Story = {
 
 export const Horizontal: Story = {
   args: {
-    TooltipContent,
     data,
     displayValues: true,
+    legendDirection: 'row',
+    TooltipContent,
     title: 'hosts',
     variant: 'horizontal'
   },
@@ -118,10 +126,10 @@ export const Horizontal: Story = {
 
 export const HorizontalWithoutLegend: Story = {
   args: {
-    TooltipContent,
     data,
     displayLegend: false,
     displayValues: true,
+    TooltipContent,
     title: 'hosts',
     variant: 'horizontal'
   },
@@ -130,9 +138,9 @@ export const HorizontalWithoutLegend: Story = {
 
 export const SmallDisplay: Story = {
   args: {
-    TooltipContent,
     data,
     displayValues: true,
+    TooltipContent,
     title: 'hosts',
     variant: 'horizontal'
   },

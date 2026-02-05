@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,19 @@ class HostGroupException extends \Exception
         return new self(_('Error while updating a host group'));
     }
 
+    public static function errorWhileEnablingDisabling(): self
+    {
+        return new self(_('Error while enabling/disabling host groups'));
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorWhileDuplicating(): self
+    {
+        return new self(_('Error while duplicating a host group'));
+    }
+
     /**
      * @return self
      */
@@ -117,5 +130,13 @@ class HostGroupException extends \Exception
     public static function nameAlreadyExists(string $hostGroupName): self
     {
         return new self(sprintf(_("The host group name '%s' already exists"), $hostGroupName), self::CODE_CONFLICT);
+    }
+
+    /**
+     * @return self
+     */
+    public static function errorResourceAccessRulesEmpty(): self
+    {
+        return new self('The host group must have at least one valid resource access rule', self::CODE_CONFLICT);
     }
 }

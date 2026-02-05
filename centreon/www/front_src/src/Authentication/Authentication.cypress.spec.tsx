@@ -1,10 +1,13 @@
+import { Method, TestQueryProvider } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { replace } from 'ramda';
 
-import { Method, TestQueryProvider } from '@centreon/ui';
-
+import Authentication from '.';
+import { authenticationProvidersEndpoint } from './api/endpoints';
 import { defaultPasswordSecurityPolicyAPI } from './Local/defaults';
+import { Provider } from './models';
 import { retrievedOpenidConfiguration } from './Openid/defaults';
 import {
   labelEnableOpenIDConnectAuthentication,
@@ -12,10 +15,6 @@ import {
 } from './Openid/translatedLabels';
 import { retrievedSAMLConfiguration } from './SAML/defaults';
 import { labelSAMLConfiguration } from './SAML/translatedLabels';
-import { retrievedWebSSOConfiguration } from './WebSSO/defaults';
-import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
-import { authenticationProvidersEndpoint } from './api/endpoints';
-import { Provider } from './models';
 import { labelRolesMapping } from './shared/translatedLabels';
 import {
   labelAuthenticationConditions,
@@ -23,8 +22,8 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from './translatedLabels';
-
-import Authentication from '.';
+import { retrievedWebSSOConfiguration } from './WebSSO/defaults';
+import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
 
 dayjs.extend(duration);
 
@@ -80,7 +79,7 @@ describe('Authentication configuration', () => {
     cy.waitForRequest('@getLocalAuthenticationConfiguration');
 
     cy.findAllByLabelText(labelOpenIDConnectConfiguration)
-      .eq(1)
+      .eq(0)
       .as('OpenidConnectTab');
 
     cy.get('@OpenidConnectTab').click();
@@ -88,11 +87,11 @@ describe('Authentication configuration', () => {
     cy.waitForRequest('@getOpendidConnectConfiguration');
 
     cy.findByLabelText(labelEnableOpenIDConnectAuthentication).should('exist');
-    cy.findByLabelText(labelGroupsMapping).click();
-    cy.findByLabelText(labelRolesMapping).click();
-    cy.findByLabelText(labelAutoImportUsers).click();
-    cy.findByLabelText(labelAuthenticationConditions).click();
-    cy.findByLabelText(labelIdentityProvider).click();
+    cy.findByTestId(`tab-${labelGroupsMapping}`).click();
+    cy.findByTestId(`tab-${labelRolesMapping}`).click();
+    cy.findByTestId(`tab-${labelAutoImportUsers}`).click();
+    cy.findByTestId(`tab-${labelAuthenticationConditions}`).click();
+    cy.findByTestId(`tab-${labelIdentityProvider}`).click();
 
     cy.get('@OpenidConnectTab').scrollIntoView();
 
@@ -112,13 +111,13 @@ describe('Authentication configuration', () => {
 
     cy.waitForRequest('@getSAMLConfiguration');
 
-    cy.findByLabelText(labelGroupsMapping).click();
-    cy.findByLabelText(labelRolesMapping).click();
-    cy.findByLabelText(labelAutoImportUsers).click();
-    cy.findByLabelText(labelAuthenticationConditions).click();
-    cy.findByLabelText(labelIdentityProvider).click();
+    cy.findByTestId(`tab-${labelGroupsMapping}`).click();
+    cy.findByTestId(`tab-${labelRolesMapping}`).click();
+    cy.findByTestId(`tab-${labelAutoImportUsers}`).click();
+    cy.findByTestId(`tab-${labelAuthenticationConditions}`).click();
+    cy.findByTestId(`tab-${labelIdentityProvider}`).click();
 
-    cy.findAllByLabelText(labelSAMLConfiguration).eq(1).scrollIntoView();
+    cy.findAllByLabelText(labelSAMLConfiguration).eq(0).scrollIntoView();
 
     cy.makeSnapshot();
   });

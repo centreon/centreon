@@ -1,10 +1,8 @@
-import { ReactElement } from 'react';
-
 import { useFormikContext } from 'formik';
+import type { ReactElement } from 'react';
 
 import { Button } from '../Button';
-
-import { FormVariant } from './Form.models';
+import type { FormVariant } from './Form.models';
 import { useStyles } from './Form.styles';
 
 export type FormActionsProps = {
@@ -12,6 +10,8 @@ export type FormActionsProps = {
   labels: FormActionsLabels;
   onCancel: () => void;
   variant: FormVariant;
+  isCancelButtonVisible?: boolean;
+  disableSubmit?: boolean;
 };
 
 export type FormActionsLabels = {
@@ -23,35 +23,42 @@ const FormActions = <TResource extends object>({
   labels,
   onCancel,
   variant,
-  enableSubmitWhenNotDirty
+  enableSubmitWhenNotDirty,
+  isCancelButtonVisible = true,
+  disableSubmit = false
 }: FormActionsProps): ReactElement => {
   const { classes } = useStyles();
   const { isSubmitting, dirty, isValid, submitForm } =
     useFormikContext<TResource>();
 
   const isSubmitDisabled =
-    isSubmitting || (!dirty && !enableSubmitWhenNotDirty) || !isValid;
+    disableSubmit ||
+    isSubmitting ||
+    (!dirty && !enableSubmitWhenNotDirty) ||
+    !isValid;
 
   return (
     <div className={classes.actions}>
-      <Button
-        aria-label={labels.cancel}
-        data-testid="cancel"
-        disabled={isSubmitting}
-        size="medium"
-        variant="secondary"
-        onClick={() => onCancel?.()}
-      >
-        {labels.cancel}
-      </Button>
+      {isCancelButtonVisible && (
+        <Button
+          aria-label={labels.cancel}
+          data-testid="cancel"
+          disabled={isSubmitting}
+          onClick={() => onCancel?.()}
+          size="medium"
+          variant="secondary"
+        >
+          {labels.cancel}
+        </Button>
+      )}
       <Button
         aria-label={labels.submit[variant]}
         data-testid="submit"
         disabled={isSubmitDisabled}
+        onClick={submitForm}
         size="medium"
         type="submit"
         variant="primary"
-        onClick={submitForm}
       >
         {labels.submit[variant]}
       </Button>

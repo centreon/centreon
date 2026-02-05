@@ -1,0 +1,24 @@
+Core\Dashboard\Application\UseCase\FindFavoriteDashboards\Response\DashboardResponseDto:
+  attributes:
+    id:
+      groups: ['FavoriteDashboards:Read']
+    name:
+      groups: ['FavoriteDashboards:Read']
+    description:
+      groups: ['FavoriteDashboards:Read']
+    createdBy:
+      groups: ['FavoriteDashboards:Read']
+    updatedBy:
+      groups: ['FavoriteDashboards:Read']
+    createdAt:
+      groups: ['FavoriteDashboards:Read']
+    updatedAt:
+      groups: ['FavoriteDashboards:Read']
+    ownRole:
+      groups: ['FavoriteDashboards:Read']
+    shares:
+      groups: ['FavoriteDashboards:Read']
+    thumbnail:
+      groups: ['FavoriteDashboards:Read']
+    isFavorite:
+      groups: ['FavoriteDashboards:Read']

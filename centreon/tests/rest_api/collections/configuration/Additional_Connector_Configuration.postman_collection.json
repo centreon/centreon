@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "8fbc2ea2-8176-4637-a530-983339c0828a",
+		"_postman_id": "06ffc492-24fc-4ecb-a5e4-81f9cbbe94f8",
 		"name": "Additional_Connector_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525",
-		"_collection_link": "https://centreon-api-testing.postman.co/workspace/Centreon-Web---API-v2~d8660f05-3c64-4c5b-af73-1a5543bff4e1/collection/16182525-8fbc2ea2-8176-4637-a530-983339c0828a?action=share&source=collection_link&creator=16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-06ffc492-24fc-4ecb-a5e4-81f9cbbe94f8?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -25,9 +25,39 @@
 									"    pm.environment.set(\"token\", responseJson.security.token);\r",
 									"    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
 									"    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"contact\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"alias\": { \"type\": \"string\" },\r",
+									"                    \"email\": { \"type\": \"string\" },\r",
+									"                    \"is_admin\": { \"type\": \"boolean\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\", \"alias\", \"email\", \"is_admin\"]\r",
+									"            },\r",
+									"            \"security\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"token\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"token\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"contact\", \"security\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -197,97 +227,8 @@
 					"response": []
 				},
 				{
-					"name": "List pollers",
+					"name": "Add a additional configuration with all informations",
 					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result.length).to.eql(4);\r",
-									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 1,\r",
-									"        \"name\": \"Central\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": 2,\r",
-									"        \"name\": \"Poller-1\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[2]).to.include({\r",
-									"        \"id\": 3,\r",
-									"        \"name\": \"Poller-2\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[3]).to.include({\r",
-									"        \"id\": 4,\r",
-									"        \"name\": \"Poller-3\"\r",
-									"    });\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a additional connector configuration with all informations",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"ACC1Name\", \"acc-001\");\r",
-									"pm.collectionVariables.set(\"ACC1Description\", \"I'm the first ACC\");\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
 						{
 							"listen": "test",
 							"script": {
@@ -310,7 +251,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -324,10 +265,79 @@
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
 									"    \r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\", \"enum\": [\"vmware_v6\"] },\r",
+									"            \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"            \"parameters\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"port\": { \"type\": \"integer\" },\r",
+									"                    \"vcenters\": {\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"name\": { \"type\": \"string\" },\r",
+									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
+									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
+									"                            },\r",
+									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                        }\r",
+									"                    }\r",
+									"                },\r",
+									"                \"required\": [\"port\", \"vcenters\"]\r",
+									"            },\r",
+									"            \"pollers\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"created_by\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"description\", \"parameters\", \"pollers\", \"created_by\", \"created_at\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"ACC1Name\", \"acc-001\");\r",
+									"pm.collectionVariables.set(\"ACC1Description\", \"I'm the first ACC\");\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -358,7 +368,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -395,7 +405,61 @@
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                        \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"created_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        },\r",
+									"                        \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"updated_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"description\", \"created_at\", \"created_by\", \"updated_at\", \"updated_by\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -432,7 +496,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with mandatory informations",
+					"name": "Add a additional configuration with mandatory informations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -441,7 +505,8 @@
 									"pm.collectionVariables.set(\"ACC2Name\", \"acc-002\");"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -466,7 +531,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-2\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -479,10 +544,66 @@
 									"        \"id\": 1,\r",
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\", \"enum\": [\"vmware_v6\"] },\r",
+									"            \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"            \"parameters\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"port\": { \"type\": \"integer\" },\r",
+									"                    \"vcenters\": {\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"name\": { \"type\": \"string\" },\r",
+									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
+									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
+									"                            },\r",
+									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                        }\r",
+									"                    }\r",
+									"                },\r",
+									"                \"required\": [\"port\", \"vcenters\"]\r",
+									"            },\r",
+									"            \"pollers\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"created_by\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"description\", \"parameters\", \"pollers\", \"created_by\", \"created_at\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -513,7 +634,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -565,7 +686,61 @@
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                        \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"created_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        },\r",
+									"                        \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"updated_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"description\", \"created_at\", \"created_by\", \"updated_at\", \"updated_by\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -602,76 +777,7 @@
 					"response": []
 				},
 				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
-									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 3,\r",
-									"        \"name\": \"Poller-2\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": 4,\r",
-									"        \"name\": \"Poller-3\"\r",
-									"    });\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a additional connector configuration without name",
+					"name": "Add a additional configuration without name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -692,7 +798,21 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -726,7 +846,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with empty name",
+					"name": "Add a additional configuration with empty name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -747,7 +867,21 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[NewAcc::name] The string is empty, but non empty string was expected\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -781,7 +915,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration without poller",
+					"name": "Add a additional configuration without poller",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -802,7 +936,21 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[pollers] The property pollers is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -836,7 +984,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration without type",
+					"name": "Add a additional configuration without type",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -857,7 +1005,21 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[type] The property type is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -891,7 +1053,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration without parameters",
+					"name": "Add a additional configuration without parameters",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -912,7 +1074,21 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[parameters] The property parameters is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -946,7 +1122,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with wrong parameters",
+					"name": "Add a additional configuration with wrong parameters",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -967,7 +1143,21 @@
 									"    pm.response.to.have.status(400);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"[parameters.vcenters] The property vcenters is required\\n\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1001,7 +1191,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with duplicated name",
+					"name": "Add a additional configuration with duplicated name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1021,8 +1211,22 @@
 									"pm.test(\"The ACC has not been created, because the name must be unique.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"The additional connector configuration name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"' already exists\");\r",
-									"});"
+									"    pm.expect(responseJson.message).to.eql(\"The additional configuration name '\" + pm.collectionVariables.get(\"ACC1Name\") + \"' already exists\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1056,7 +1260,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with duplicated vcenter name",
+					"name": "Add a additional configuration with duplicated vcenter name",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1077,7 +1281,21 @@
 									"    pm.response.to.have.status(500);\r",
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Duplicates not allowed for property 'parameters.vcenters[].name'\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1111,7 +1329,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with duplicated poller",
+					"name": "Add a additional configuration with duplicated poller",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1131,8 +1349,22 @@
 									"pm.test(\"The ACC has not been created, because the poller must be unique.\", function () {\r",
 									"    pm.response.to.have.status(500);\r",
 									"\r",
-									"    pm.expect(responseJson.message).to.eql(\"An additional connector configuration of type 'vmware_v6' is already associated with poller ID(s) '1'\");\r",
-									"});"
+									"    pm.expect(responseJson.message).to.eql(\"An additional configuration of type 'vmware_v6' is already associated with poller ID(s) '1'\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1166,7 +1398,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration with special characters",
+					"name": "Add a additional configuration with special characters",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1177,7 +1409,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1202,7 +1435,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-3\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -1215,10 +1448,66 @@
 									"        \"id\": 1,\r",
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\", \"enum\": [\"vmware_v6\"] },\r",
+									"            \"description\": { \"type\": [ \"string\", \"null\"] },\r",
+									"            \"parameters\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"port\": { \"type\": \"integer\" },\r",
+									"                    \"vcenters\": {\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"name\": { \"type\": \"string\" },\r",
+									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
+									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
+									"                            },\r",
+									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                        }\r",
+									"                    }\r",
+									"                },\r",
+									"                \"required\": [\"port\", \"vcenters\"]\r",
+									"            },\r",
+									"            \"pollers\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"created_by\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"description\", \"parameters\", \"pollers\", \"created_by\", \"created_at\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1249,7 +1538,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration",
+					"name": "List one additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1258,7 +1547,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -1280,7 +1570,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-3\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -1298,10 +1588,66 @@
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\", \"enum\": [\"vmware_v6\"] },\r",
+									"            \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"            \"parameters\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"port\": { \"type\": \"integer\" },\r",
+									"                    \"vcenters\": {\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"name\": { \"type\": \"string\" },\r",
+									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
+									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
+									"                            },\r",
+									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                        }\r",
+									"                    }\r",
+									"                },\r",
+									"                \"required\": [\"port\", \"vcenters\"]\r",
+									"            },\r",
+									"            \"pollers\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"created_by\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"description\", \"parameters\", \"pollers\", \"created_by\", \"created_at\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -1336,7 +1682,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1392,7 +1738,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1459,7 +1805,61 @@
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                        \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"created_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        },\r",
+									"                        \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"updated_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"description\", \"created_at\", \"created_by\", \"updated_at\", \"updated_by\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1496,72 +1896,7 @@
 					"response": []
 				},
 				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 1,\r",
-									"        \"name\": \"Central\"\r",
-									"    });\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1618,7 +1953,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -1670,7 +2005,61 @@
 									"        \"name\": \"admin admin\"\r",
 									"    });\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                        \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"created_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        },\r",
+									"                        \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"updated_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"description\", \"created_at\", \"created_by\", \"updated_at\", \"updated_by\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -1701,75 +2090,6 @@
 							"path": [
 								"configuration",
 								"additional-connector-configurations"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
-									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 1,\r",
-									"        \"name\": \"Central\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": 2,\r",
-									"        \"name\": \"Poller-1\"\r",
-									"    });\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
 							]
 						}
 					},
@@ -2330,7 +2650,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration",
+					"name": "Add a additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2350,8 +2670,22 @@
 									"pm.test(\"The ACC has not been created.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
-									"});"
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2385,7 +2719,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2405,8 +2739,22 @@
 									"pm.test(\"The ACC has not been listed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
-									"});"
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2443,7 +2791,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configurations",
+					"name": "List one additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2463,8 +2811,22 @@
 									"pm.test(\"The ACC has not been listed.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
-									"});"
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2502,7 +2864,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2524,8 +2886,22 @@
 									"pm.test(\"The ACC has not been updated.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
-									"});"
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2560,7 +2936,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -2582,8 +2958,22 @@
 									"pm.test(\"The ACC has not been deleted.\", function () {\r",
 									"    pm.response.to.have.status(403);\r",
 									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
-									"});"
+									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional configurations\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -2612,66 +3002,6 @@
 								"configuration",
 								"additional-connector-configurations",
 								"{{ACC1Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The Pollers has not been listed.\", function () {\r",
-									"    pm.response.to.have.status(403);\r",
-									"    \r",
-									"    pm.expect(responseJson.message).to.eql(\"You are not allowed to access additional connector configurations\");\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
 							]
 						}
 					},
@@ -2987,76 +3317,7 @@
 					"response": []
 				},
 				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result.length).to.eql(2);\r",
-									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 1,\r",
-									"        \"name\": \"Central\"\r",
-									"    });\r",
-									"    pm.expect(responseJson.result[1]).to.include({\r",
-									"        \"id\": 2,\r",
-									"        \"name\": \"Poller-1\"\r",
-									"    });\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Add a additional connector configuration",
+					"name": "Add a additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3067,7 +3328,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3092,7 +3354,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter\",\r",
 									"            \"url\": \"http://10.10.10.10/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -3110,10 +3372,66 @@
 									"        \"name\": \"user-non-admin\"\r",
 									"    });\r",
 									"    \r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\", \"enum\": [\"vmware_v6\"] },\r",
+									"            \"description\": { \"type\": \"string\" },\r",
+									"            \"parameters\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"port\": { \"type\": \"integer\" },\r",
+									"                    \"vcenters\": {\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"name\": { \"type\": \"string\" },\r",
+									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
+									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
+									"                            },\r",
+									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                        }\r",
+									"                    }\r",
+									"                },\r",
+									"                \"required\": [\"port\", \"vcenters\"]\r",
+									"            },\r",
+									"            \"pollers\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"created_by\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"created_at\": { \"type\": \"string\" }\r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"description\", \"parameters\", \"pollers\", \"created_by\", \"created_at\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3144,67 +3462,7 @@
 					"response": []
 				},
 				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3271,7 +3529,61 @@
 									"        \"name\": \"user-non-admin\"\r",
 									"    });\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                        \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"created_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        },\r",
+									"                        \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"updated_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"description\", \"created_at\", \"created_by\", \"updated_at\", \"updated_by\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -3308,7 +3620,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3364,7 +3676,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration",
+					"name": "List one additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3373,7 +3685,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -3395,7 +3708,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-up\",\r",
 									"            \"url\": \"http://10.10.10.11/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -3413,10 +3726,66 @@
 									"        \"name\": \"user-non-admin\"\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\", \"enum\": [\"vmware_v6\"] },\r",
+									"            \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"            \"parameters\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"port\": { \"type\": \"integer\" },\r",
+									"                    \"vcenters\": {\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"name\": { \"type\": \"string\" },\r",
+									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
+									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
+									"                            },\r",
+									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                        }\r",
+									"                    }\r",
+									"                },\r",
+									"                \"required\": [\"port\", \"vcenters\"]\r",
+									"            },\r",
+									"            \"pollers\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"created_by\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"description\", \"parameters\", \"pollers\", \"created_by\", \"created_at\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -3451,7 +3820,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3509,72 +3878,7 @@
 					"response": []
 				},
 				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 4,\r",
-									"        \"name\": \"Poller-3\"\r",
-									"    });\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -3626,7 +3930,61 @@
 									"        \"name\": \"user-non-admin\"\r",
 									"    });\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                        \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"created_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        },\r",
+									"                        \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"updated_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"description\", \"created_at\", \"created_by\", \"updated_at\", \"updated_by\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4027,7 +4385,7 @@
 					"response": []
 				},
 				{
-					"name": "Add a additional connector configuration",
+					"name": "Add a additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4050,7 +4408,21 @@
 									"    pm.response.to.have.status(500);\r",
 									"    \r",
 									"    pm.expect(responseJson.message).to.eql(\"The pollers does not exist with ID(s) '4'\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4084,7 +4456,7 @@
 					"response": []
 				},
 				{
-					"name": "List additional connector configurations",
+					"name": "List additional configurations",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4121,7 +4493,61 @@
 									"        \"name\": \"user-non-admin\"\r",
 									"    });\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"result\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" },\r",
+									"                        \"type\": { \"type\": \"string\" },\r",
+									"                        \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                        \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"created_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        },\r",
+									"                        \"updated_at\": { \"type\": \"string\", \"format\": \"date-time\" },\r",
+									"                        \"updated_by\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"id\": { \"type\": \"integer\" },\r",
+									"                                \"name\": { \"type\": \"string\" }\r",
+									"                            },\r",
+									"                            \"required\": [\"id\", \"name\"]\r",
+									"                        }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\", \"type\", \"description\", \"created_at\", \"created_by\", \"updated_at\", \"updated_by\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"meta\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"page\": { \"type\": \"integer\" },\r",
+									"                    \"limit\": { \"type\": \"integer\" },\r",
+									"                    \"search\": { \"type\": \"object\" },\r",
+									"                    \"sort_by\": { \"type\": \"object\" },\r",
+									"                    \"total\": { \"type\": \"integer\" }\r",
+									"                },\r",
+									"                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
+									"            }\r",
+									"        },\r",
+									"        \"required\": [\"result\", \"meta\"]\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4158,7 +4584,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration",
+					"name": "List one additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4167,7 +4593,8 @@
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -4189,7 +4616,7 @@
 									"        \"vcenters\": [{\r",
 									"            \"name\": \"my-vcenter-up\",\r",
 									"            \"url\": \"http://10.10.10.11/sdk\",\r",
-									"            \"username\": null,\r",
+									"            \"username\": \"admin\",\r",
 									"            \"password\": null\r",
 									"        }]\r",
 									"    });\r",
@@ -4207,10 +4634,66 @@
 									"        \"name\": \"user-non-admin\"\r",
 									"    });\r",
 									"\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": \"object\",\r",
+									"        \"properties\": {\r",
+									"            \"id\": { \"type\": \"integer\" },\r",
+									"            \"name\": { \"type\": \"string\" },\r",
+									"            \"type\": { \"type\": \"string\", \"enum\": [\"vmware_v6\"] },\r",
+									"            \"description\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"            \"parameters\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"port\": { \"type\": \"integer\" },\r",
+									"                    \"vcenters\": {\r",
+									"                        \"type\": \"array\",\r",
+									"                        \"items\": {\r",
+									"                            \"type\": \"object\",\r",
+									"                            \"properties\": {\r",
+									"                                \"name\": { \"type\": \"string\" },\r",
+									"                                \"url\": { \"type\": \"string\", \"format\": \"uri\" },\r",
+									"                                \"username\": { \"type\": [ \"string\", \"null\" ] },\r",
+									"                                \"password\": { \"type\": [ \"string\", \"null\" ] }\r",
+									"                            },\r",
+									"                            \"required\": [\"name\", \"url\", \"username\", \"password\"]\r",
+									"                        }\r",
+									"                    }\r",
+									"                },\r",
+									"                \"required\": [\"port\", \"vcenters\"]\r",
+									"            },\r",
+									"            \"pollers\": {\r",
+									"                \"type\": \"array\",\r",
+									"                \"items\": {\r",
+									"                    \"type\": \"object\",\r",
+									"                    \"properties\": {\r",
+									"                        \"id\": { \"type\": \"integer\" },\r",
+									"                        \"name\": { \"type\": \"string\" }\r",
+									"                    },\r",
+									"                    \"required\": [\"id\", \"name\"]\r",
+									"                }\r",
+									"            },\r",
+									"            \"created_by\": {\r",
+									"                \"type\": \"object\",\r",
+									"                \"properties\": {\r",
+									"                    \"id\": { \"type\": \"integer\" },\r",
+									"                    \"name\": { \"type\": \"string\" }\r",
+									"                },\r",
+									"                \"required\": [\"id\", \"name\"]\r",
+									"            },\r",
+									"            \"created_at\": { \"type\": \"string\", \"format\": \"date-time\" }\r",
+									"        },\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"description\", \"parameters\", \"pollers\", \"created_by\", \"created_at\"]\r",
+									"    };\r",
+									"    \r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -4245,7 +4728,7 @@
 					"response": []
 				},
 				{
-					"name": "List one additional connector configuration with no access",
+					"name": "List one additional configuration with no access",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4267,7 +4750,21 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Additional Connector not found\");\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4305,67 +4802,7 @@
 					"response": []
 				},
 				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result).to.be.an('Array').that.is.empty;\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update an additional connector configuration",
+					"name": "Update an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4421,7 +4858,7 @@
 					"response": []
 				},
 				{
-					"name": "Update an additional connector configuration with no access",
+					"name": "Update an additional configuration with no access",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4445,7 +4882,21 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"Additional Connector Configuration not found\");\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4480,7 +4931,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration with no access",
+					"name": "Delete an additional configuration with no access",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4502,7 +4953,21 @@
 									"\r",
 									"    pm.expect(responseJson.message).to.eql(\"You don't have sufficient permissions for this action\");\r",
 									"\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Schema validation test for the ACC response\", function () {\r",
+									"    const schema = {\r",
+									"        \"type\": 'object',\r",
+									"        \"properties\": {\r",
+									"            \"code\": { \"type\": 'integer' },\r",
+									"            \"message\": { \"type\": 'string' }\r",
+									"        },\r",
+									"        \"required\": ['code', 'message']\r",
+									"    };\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+									"});\r",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -4537,7 +5002,7 @@
 					"response": []
 				},
 				{
-					"name": "Delete an additional connector configuration",
+					"name": "Delete an additional configuration",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -4589,71 +5054,6 @@
 								"configuration",
 								"additional-connector-configurations",
 								"{{ACC3Id}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List pollers",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The pollers has been successfully retrieved'.\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"\r",
-									"    pm.expect(responseJson.result.length).to.eql(1);\r",
-									"\r",
-									"    pm.expect(responseJson.result[0]).to.include({\r",
-									"        \"id\": 3,\r",
-									"        \"name\": \"Poller-2\"\r",
-									"    });\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "centreon-auth-token",
-								"value": "{{token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{baseUrl}}/configuration/additional-connector-configurations/pollers/vmware_v6",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"configuration",
-								"additional-connector-configurations",
-								"pollers",
-								"vmware_v6"
 							]
 						}
 					},
@@ -4775,6 +5175,36 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "api_login_user",
+			"value": ""
+		},
+		{
+			"key": "api_password_user",
+			"value": ""
+		},
+		{
+			"key": "ACC4Name",
+			"value": ""
+		},
+		{
+			"key": "ACC4Description",
+			"value": ""
+		},
+		{
+			"key": "ACC4Id",
+			"value": ""
+		},
+		{
+			"key": "ACC1Name",
+			"value": ""
+		},
+		{
+			"key": "ACC1Description",
+			"value": ""
 		}
 	]
 }

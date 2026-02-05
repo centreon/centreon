@@ -1,3 +1,5 @@
+import type { SelectEntry } from '@centreon/ui';
+
 import pluralize from 'pluralize';
 import {
   __,
@@ -32,8 +34,6 @@ import {
   without
 } from 'ramda';
 
-import type { SelectEntry } from '@centreon/ui';
-
 import getDefaultCriterias from '../default';
 import {
   type Criteria,
@@ -41,7 +41,6 @@ import {
   criteriaValueNameById,
   selectableCriterias
 } from '../models';
-
 import {
   type AutocompleteSuggestionProps,
   type CriteriaId,
@@ -115,7 +114,7 @@ const parse = ({
       name: pluralizedKey,
       object_type: objectType,
       type: 'multi_select',
-      value: values?.split(',').map((value) => {
+      value: values?.split(',').map((value, index) => {
         const isStaticCriteria = isNil(objectType);
 
         if (isStaticCriteria) {
@@ -128,9 +127,9 @@ const parse = ({
         }
 
         return {
-          id: 0,
-          name: replaceEscapeWithSpace(value),
-          formattedName: value
+          formattedName: value,
+          id: index,
+          name: replaceEscapeWithSpace(value)
         };
       })
     };

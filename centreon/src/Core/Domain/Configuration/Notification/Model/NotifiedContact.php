@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,16 +30,16 @@ class NotifiedContact
      * @param string $name
      * @param string $alias
      * @param string $email
-     * @param HostNotification $hostNotification
-     * @param ServiceNotification $serviceNotification
+     * @param HostNotification|null $hostNotification
+     * @param ServiceNotification|null $serviceNotification
      */
     public function __construct(
         private int $id,
         private string $name,
         private string $alias,
         private string $email,
-        private HostNotification $hostNotification,
-        private ServiceNotification $serviceNotification,
+        private ?HostNotification $hostNotification,
+        private ?ServiceNotification $serviceNotification,
     ) {
     }
 
@@ -76,17 +76,17 @@ class NotifiedContact
     }
 
     /**
-     * @return HostNotification
+     * @return HostNotification|null
      */
-    public function getHostNotification(): HostNotification
+    public function getHostNotification(): ?HostNotification
     {
         return $this->hostNotification;
     }
 
     /**
-     * @return ServiceNotification
+     * @return ServiceNotification|null
      */
-    public function getServiceNotification(): ServiceNotification
+    public function getServiceNotification(): ?ServiceNotification
     {
         return $this->serviceNotification;
     }

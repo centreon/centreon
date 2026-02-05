@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\ResourceFilter;
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Resources\Application\Exception\ResourceException;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
@@ -42,16 +42,14 @@ final class FindResources
     /**
      * @param ReadResourceRepositoryInterface $repository
      * @param ContactInterface $contact
-     * @param RequestParametersInterface $requestParameters
      * @param ReadAccessGroupRepositoryInterface $accessGroupRepository
      * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      */
     public function __construct(
         private readonly ReadResourceRepositoryInterface $repository,
         private readonly ContactInterface $contact,
-        private readonly RequestParametersInterface $requestParameters,
         private readonly ReadAccessGroupRepositoryInterface $accessGroupRepository,
-        private readonly \Traversable $extraDataProviders
+        private readonly \Traversable $extraDataProviders,
     ) {
     }
 
@@ -61,17 +59,10 @@ final class FindResources
      */
     public function __invoke(
         FindResourcesPresenterInterface $presenter,
-        ResourceFilter $filter
+        ResourceFilter $filter,
     ): void {
         try {
-            $resources = [];
-            if ($this->contact->isAdmin()) {
-                $resources = $this->findResourcesAsAdmin($filter);
-                $this->info('Find resources', ['request' => $this->requestParameters->toArray()]);
-            } else {
-                $resources = $this->findResourcesAsUser($filter);
-                $this->info('Find resources', ['request' => $this->requestParameters->toArray()]);
-            }
+            $resources = $this->contact->isAdmin() ? $this->findResourcesAsAdmin($filter) : $this->findResourcesAsUser($filter);
 
             $extraData = [];
             foreach (iterator_to_array($this->extraDataProviders) as $provider) {
@@ -79,15 +70,26 @@ final class FindResources
             }
 
             $presenter->presentResponse(FindResourcesFactory::createResponse($resources, $extraData));
-        } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        } catch (RepositoryException $exception) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: ResourceException::errorWhileSearching(),
+                    context: [
+                        'use_case' => 'FindResources',
+                        'user_is_admin' => $this->contact->isAdmin(),
+                        'contact_id' => $this->contact->getId(),
+                        'resources_filter' => $filter,
+                    ],
+                    exception: $exception
+                )
+            );
         }
     }
 
     /**
      * @param ResourceFilter $filter
      *
+     * @throws RepositoryException
      * @return ResourceEntity[]
      */
     private function findResourcesAsAdmin(ResourceFilter $filter): array
@@ -98,14 +100,13 @@ final class FindResources
     /**
      * @param ResourceFilter $filter
      *
-     * @throws \Throwable
-     *
+     * @throws RepositoryException
      * @return ResourceEntity[]
      */
     private function findResourcesAsUser(ResourceFilter $filter): array
     {
         $accessGroupIds = array_map(
-            static fn(AccessGroup $accessGroup) => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup) => $accessGroup->getId(),
             $this->accessGroupRepository->findByContact($this->contact)
         );
 

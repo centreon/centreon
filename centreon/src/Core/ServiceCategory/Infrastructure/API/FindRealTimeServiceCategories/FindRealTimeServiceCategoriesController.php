@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ final class FindRealTimeServiceCategoriesController extends AbstractController
      */
     public function __invoke(
         FindRealTimeServiceCategories $useCase,
-        FindRealTimeServiceCategoriesPresenterInterface $presenter
+        FindRealTimeServiceCategoriesPresenterInterface $presenter,
     ): object {
         /**
          * Access denied if no rights given to the realtime for the current user.

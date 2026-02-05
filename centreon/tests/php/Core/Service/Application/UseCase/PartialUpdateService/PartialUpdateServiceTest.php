@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,8 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
+use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
 use Core\CommandMacro\Domain\Model\CommandMacroType;
@@ -86,6 +88,7 @@ beforeEach(closure: function (): void {
         $this->isCloudPlatform = false,
         $this->writeVaultRepository = $this->createMock(WriteVaultRepositoryInterface::class),
         $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
+        $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
     );
 
     $this->service = new Service(id: 1, name: 'service-name', hostId: 2);
@@ -115,9 +118,9 @@ beforeEach(closure: function (): void {
     $this->request->groups = [$this->groupB->getId()];
 
     // Settup macros
-    $this->macroA = new Macro($this->service->getId(), 'macroNameA', 'macroValueA');
+    $this->macroA = new Macro(null, $this->service->getId(), 'macroNameA', 'macroValueA');
     $this->macroA->setOrder(0);
-    $this->macroB = new Macro($this->service->getId(), 'macroNameB', 'macroValueB');
+    $this->macroB = new Macro(null, $this->service->getId(), 'macroNameB', 'macroValueB');
     $this->macroB->setOrder(1);
     $this->commandMacro = new CommandMacro(1, CommandMacroType::Service, 'commandMacroName');
     $this->commandMacros = [
@@ -176,7 +179,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->willThrowException(new Exception);
+        ->willThrowException(new Exception());
 
     ($this->useCase)(new PartialUpdateServiceRequest(), $this->presenter, $this->service->getId());
 
@@ -239,6 +242,7 @@ it('should present a ConflictResponse when the host ID does not exist', function
 });
 
 it('should present a ConflictResponse when a category does not exist', function (): void {
+    $this->request->commandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -275,6 +279,7 @@ it('should present a ConflictResponse when a category does not exist', function 
 });
 
 it('should present a ConflictResponse when a group does not exist', function (): void {
+    $this->request->commandId = null;
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -337,6 +342,14 @@ it('should present a NoContentResponse on success', function (): void {
         ->willReturn($this->service);
 
     // Service
+    $this->readCommandRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(new Command(
+            id: $this->request->commandId,
+            name: 'check_command_name',
+            commandLine: 'command_line',
+        ));
     $this->optionService
         ->expects($this->once())
         ->method('findSelectedOptions');
@@ -404,7 +417,6 @@ it('should present a NoContentResponse on success', function (): void {
         ->method('update');
 
     ($this->useCase)($this->request, $this->presenter, $this->service->getId());
-
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NoContentResponse::class);
 });

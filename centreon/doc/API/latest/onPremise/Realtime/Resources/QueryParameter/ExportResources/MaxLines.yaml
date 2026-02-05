@@ -1,0 +1,8 @@
+name: max_lines
+in: query
+description: Maximum number of lines to export (required if all_pages is true)
+required: false
+schema:
+  type: integer
+  minimum: 1
+  maximum: 10000

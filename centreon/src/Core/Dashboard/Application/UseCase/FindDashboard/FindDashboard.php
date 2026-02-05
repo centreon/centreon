@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ namespace Core\Dashboard\Application\UseCase\FindDashboard;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Contact\Application\Repository\ReadContactRepositoryInterface;
 use Core\Dashboard\Application\Exception\DashboardException;
@@ -38,6 +37,7 @@ use Core\Dashboard\Domain\Model\DashboardRights;
 use Core\Dashboard\Domain\Model\Role\DashboardSharingRole;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\UserProfile\Application\Repository\ReadUserProfileRepositoryInterface;
 
 final class FindDashboard
 {
@@ -52,7 +52,8 @@ final class FindDashboard
         private readonly DashboardRights $rights,
         private readonly ContactInterface $contact,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
-        private readonly bool $isCloudPlatform
+        private readonly ReadUserProfileRepositoryInterface $userProfileReader,
+        private readonly bool $isCloudPlatform,
     ) {
     }
 
@@ -63,25 +64,20 @@ final class FindDashboard
     public function __invoke(int $dashboardId, FindDashboardPresenterInterface $presenter): void
     {
         try {
-            if ($this->isUserAdmin()) {
-                $response = $this->findDashboardAsAdmin($dashboardId);
-            } elseif ($this->rights->canAccess()) {
-                $response = $this->findDashboardAsViewer($dashboardId);
-            } else {
-                $response = new ForbiddenResponse(DashboardException::accessNotAllowed());
-            }
+            $response = $this->isUserAdmin() ? $this->findDashboardAsAdmin($dashboardId) : $this->findDashboardAsViewer($dashboardId);
 
-            if ($response instanceof FindDashboardResponse) {
-                $this->info('Find dashboard', ['id' => $dashboardId]);
-            } elseif ($response instanceof NotFoundResponse) {
+            if ($response instanceof NotFoundResponse) {
                 $this->warning('Dashboard (%s) not found', ['id' => $dashboardId]);
-            } else {
-                $this->error(
-                    "User doesn't have sufficient rights to see the dashboard",
-                    ['user_id' => $this->contact->getId()]
-                );
+                $presenter->presentResponse($response);
+
+                return;
             }
 
+            $this->info('Find dashboard', ['id' => $dashboardId]);
+
+            $profile = $this->userProfileReader->findByContact($this->contact);
+
+            $response->isFavorite = in_array($dashboardId, $profile !== null ? $profile->getFavoriteDashboards() : [], true);
             $presenter->presentResponse($response);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(new ErrorResponse(DashboardException::errorWhileRetrieving()));
@@ -100,7 +96,7 @@ final class FindDashboard
     {
         $dashboard = $this->readDashboardRepository->findOne($dashboardId);
 
-        if (null === $dashboard) {
+        if ($dashboard === null) {
             return new NotFoundResponse('Dashboard');
         }
 
@@ -122,7 +118,7 @@ final class FindDashboard
     {
         $dashboard = $this->readDashboardRepository->findOneByContact($dashboardId, $this->contact);
 
-        if (null === $dashboard) {
+        if ($dashboard === null) {
             return new NotFoundResponse('Dashboard');
         }
 
@@ -170,7 +166,7 @@ final class FindDashboard
 
         $userAccessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
         $accessGroupsIds = array_map(
-            static fn(AccessGroup $accessGroup): int => $accessGroup->getId(),
+            static fn (AccessGroup $accessGroup): int => $accessGroup->getId(),
             $userAccessGroups
         );
 

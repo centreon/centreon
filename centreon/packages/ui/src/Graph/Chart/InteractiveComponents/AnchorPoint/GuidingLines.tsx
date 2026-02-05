@@ -1,8 +1,8 @@
-import { Shape } from '@visx/visx';
-
 import { grey } from '@mui/material/colors';
 
-import { GuidingLines as GuidingLinesModel } from './models';
+import { Shape } from '@visx/visx';
+
+import type { GuidingLines as GuidingLinesModel } from './models';
 import useTickGraph from './useTickGraph';
 
 const GuidingLines = ({
@@ -11,7 +11,7 @@ const GuidingLines = ({
   graphHeight,
   graphWidth
 }: GuidingLinesModel): JSX.Element | null => {
-  const { positionX, positionY } = useTickGraph({
+  const { positionX, positionY, guidingLinesRef } = useTickGraph({
     timeSeries,
     xScale
   });
@@ -20,7 +20,7 @@ const GuidingLines = ({
   }
 
   return (
-    <>
+    <g ref={guidingLinesRef}>
       <Shape.Line
         fill="dotted"
         from={{ x: positionX, y: 0 }}
@@ -38,7 +38,7 @@ const GuidingLines = ({
         strokeWidth={1}
         to={{ x: graphWidth, y: positionY }}
       />
-    </>
+    </g>
   );
 };
 

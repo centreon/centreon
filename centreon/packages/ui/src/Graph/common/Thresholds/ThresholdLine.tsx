@@ -1,6 +1,6 @@
-import { equals } from 'ramda';
-
 import { useTheme } from '@mui/material';
+
+import { equals } from 'ramda';
 
 import { margin } from '../../Chart/common';
 
@@ -45,11 +45,11 @@ export const ThresholdLine = ({
         x1: 0,
         x2: width,
         y1: scaledValue,
-        y2: scaledValue
+        y2: scaledValue + 1
       }
     : {
         x1: scaledValue,
-        x2: scaledValue,
+        x2: scaledValue + 1,
         y1: 0,
         y2: width
       };
@@ -63,14 +63,17 @@ export const ThresholdLine = ({
         strokeWidth={2}
         {...coordinates}
       />
-      <line
-        data-testid={`${thresholdType}-line-${value}-tooltip`}
-        stroke="transparent"
-        strokeWidth={5}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={hideTooltip}
-        {...coordinates}
-      />
+      {
+        // biome-ignore lint/a11y/noStaticElementInteractions: need it
+        <line
+          data-testid={`${thresholdType}-line-${value}-tooltip`}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={hideTooltip}
+          stroke="transparent"
+          strokeWidth={5}
+          {...coordinates}
+        />
+      }
     </>
   );
 };

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,6 @@ class BamBrokerCfgInfo
                 [
                     'config_key' => 'cache',
                     'config_value' => 'yes',
-                    'config_group' => 'output',
-                    'config_group_id' => '4',
-                    'grp_level' => '0',
-                ],
-                [
-                    'config_key' => 'check_replication',
-                    'config_value' => 'no',
                     'config_group' => 'output',
                     'config_group_id' => '4',
                     'grp_level' => '0',
@@ -170,13 +163,6 @@ class BamBrokerCfgInfo
                 [
                     'config_key' => 'category',
                     'config_value' => 'bam',
-                    'config_group' => 'output',
-                    'config_group_id' => '5',
-                    'grp_level' => '0',
-                ],
-                [
-                    'config_key' => 'check_replication',
-                    'config_value' => 'no',
                     'config_group' => 'output',
                     'config_group_id' => '5',
                     'grp_level' => '0',

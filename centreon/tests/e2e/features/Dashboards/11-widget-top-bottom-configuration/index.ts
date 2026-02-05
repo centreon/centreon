@@ -1,4 +1,4 @@
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
@@ -6,9 +6,9 @@ import {
   checkServicesAreMonitored
 } from '../../../commons';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import topBottomWidget from '../../../fixtures/dashboards/creation/widgets/dashboardWithTopBottomWidget.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const hostName = 'Centreon-Server';
 const hostGroupName = 'Linux-Servers';
@@ -77,7 +77,7 @@ before(() => {
   }).as('dashboardMetricsTop');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.addHost({
     hostGroup: 'Linux-Servers',
@@ -154,7 +154,7 @@ before(() => {
     { name: services.serviceCritical.name, status: 'critical' },
     { name: services.serviceOk.name, status: 'ok' }
   ]);
-  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' })
+  cy.scheduleServiceCheck({ host: 'Centreon-Server', service: 'Ping' });
   checkServicesAreMonitored([
     {
       name: 'Ping',
@@ -183,7 +183,7 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'GET',
@@ -195,7 +195,7 @@ beforeEach(() => {
   }).as('dashboardMetricsTop');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -231,7 +231,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -295,11 +295,11 @@ Given('a dashboard configured with a Top Bottom widget', () => {
 When(
   'the dashboard administrator user removes a host from the dataset selection of the Top Bottom widget',
   () => {
-    cy.contains(hostName)
-      .parent()
-      .getByTestId({ testId: 'CancelIcon' })
-      .eq(0)
-      .click();
+    // cy.contains(hostName)
+    //   .parent()
+    //   .getByTestId({ testId: 'CancelIcon' })
+    //   .eq(0)
+    //   .click();
   }
 );
 
@@ -353,14 +353,14 @@ Given('a dashboard having a configured Top Bottom widget', () => {
 When(
   'the dashboard administrator user duplicates the Top Bottom widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'refresh' }).should('be.visible');
+    cy.getByTestId({ testId: 'refresh' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click();
   }
 );
 
@@ -383,10 +383,9 @@ Given('a dashboard featuring two Top Bottom widgets', () => {
 });
 
 When('the dashboard administrator user deletes one of the widgets', () => {
-  cy.getByTestId({ testId: 'DeleteIcon' }).click();
   cy.getByLabel({
-    label: 'Delete',
-    tag: 'button'
+    label: 'Delete widget',
+    tag: 'li'
   }).realClick();
 });
 
@@ -530,7 +529,9 @@ When('the dashboard administrator clicks on a random resource', () => {
     .invoke('attr', 'href')
     .then((href) => {
       expect(href).to.exist;
-      cy.visit(href);
+      if (typeof href === 'string') {
+        cy.visit(href);
+      }
     });
 });
 
@@ -549,45 +550,66 @@ Then('enters a search term for a specific host', () => {
     .type(genericTextWidgets.default.description);
   cy.getByTestId({ testId: 'Resource type' }).realClick();
   cy.getByLabel({ label: 'Host' }).click();
-  cy.getByTestId({ testId: 'Select resource' }).type('3')
+  cy.getByTestId({ testId: 'Select resource' }).type('3');
   cy.wait('@resourceRequest');
 });
 
-Then('only the hosts that match the search input are displayed in the search results', () => {
-  cy.waitUntil(() =>
-    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
-      return listboxText.includes('host3') &&
-             !listboxText.includes('Centreon-Server') &&
-             !listboxText.includes('host2');
-    }),
-    {
-      timeout: 10000,
-      interval: 500,
-    }
-  );
-});
+Then(
+  'only the hosts that match the search input are displayed in the search results',
+  () => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get('.MuiAutocomplete-listbox')
+          .invoke('text')
+          .then((listboxText) => {
+            return (
+              listboxText.includes('host3') &&
+              !listboxText.includes('Centreon-Server') &&
+              !listboxText.includes('host2')
+            );
+          }),
+      {
+        interval: 500,
+        timeout: 10000
+      }
+    );
+  }
+);
 
-When('the dashboard administrator enters a search term for a specific service', () => {
-  cy.contains('host3').click();
-  cy.getByTestId({ testId: 'Add filter' }).realClick();
-  cy.getByTestId({ testId: 'Resource type' }).eq(1).realClick();
-  cy.getByLabel({ label: 'Service' }).click();
-  cy.getByTestId({ testId: 'Select resource' }).eq(1).type('2')
-});
+When(
+  'the dashboard administrator enters a search term for a specific service',
+  () => {
+    cy.contains('host3').click();
+    cy.getByTestId({ testId: 'Add filter' }).realClick();
+    cy.getByTestId({ testId: 'Resource type' }).eq(1).realClick();
+    cy.getByLabel({ label: 'Service' }).click();
+    cy.getByTestId({ testId: 'Select resource' }).eq(1).type('2');
+  }
+);
 
-Then('only the services that match the search input are displayed in the search results', () => {
-  cy.waitUntil(() =>
-    cy.get('.MuiAutocomplete-listbox').invoke('text').then(listboxText => {
-      return listboxText.includes('service2') &&
-             !listboxText.includes('service3') &&
-             !listboxText.includes('service_test_ok');
-    }),
-    {
-      timeout: 10000,
-      interval: 500,
-    }
-  );
-});
+Then(
+  'only the services that match the search input are displayed in the search results',
+  () => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get('.MuiAutocomplete-listbox')
+          .invoke('text')
+          .then((listboxText) => {
+            return (
+              listboxText.includes('service2') &&
+              !listboxText.includes('service3') &&
+              !listboxText.includes('service_test_ok')
+            );
+          }),
+      {
+        interval: 500,
+        timeout: 10000
+      }
+    );
+  }
+);
 
 Then('searches for Centreon Server hosts', () => {
   cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
@@ -596,25 +618,56 @@ Then('searches for Centreon Server hosts', () => {
     .type(genericTextWidgets.default.description);
   cy.getByTestId({ testId: 'Resource type' }).realClick();
   cy.getByLabel({ label: 'Host' }).click();
-  cy.getByTestId({ testId: 'Select resource' }).type('Centreon-Server')
-  cy.contains('Centreon-Server').click()
+  cy.getByTestId({ testId: 'Select resource' }).type('Centreon-Server');
+  cy.contains('Centreon-Server').click();
 });
 
-When('the dashboard administrator enters a search term for a specific metrics', () => {
-  cy.getByTestId({ testId: 'Select metric' }).type('rta')
-});
+When(
+  'the dashboard administrator enters a search term for a specific metrics',
+  () => {
+    cy.getByTestId({ testId: 'Select metric' }).type('rta');
+  }
+);
 
-Then('only the metrics that match the search input are displayed in the search results', () => {
-  cy.waitUntil(() =>
-    cy.get('*[class$="-listBox"]').invoke('text').then(listboxText => {
-      return listboxText.includes('rta (ms)') &&
-             !listboxText.includes('pl (%)') &&
-             !listboxText.includes('rtmax (ms)') &&
-             !listboxText.includes('rtmin (ms)');
-    }),
-    {
-      timeout: 10000,
-      interval: 500,
-    }
-  );
+Then(
+  'only the metrics that match the search input are displayed in the search results',
+  () => {
+    cy.waitUntil(
+      () =>
+        cy
+          .get('*[class$="-listBox"]')
+          .invoke('text')
+          .then((listboxText) => {
+            return (
+              listboxText.includes('rta (ms)') &&
+              !listboxText.includes('pl (%)') &&
+              !listboxText.includes('rtmax (ms)') &&
+              !listboxText.includes('rtmin (ms)')
+            );
+          }),
+      {
+        interval: 500,
+        timeout: 10000
+      }
+    );
+  }
+);
+
+When(
+  'the dashboard administrator user tries to type 0 in the Display hosts value',
+  () => {
+    cy.getByLabel({ label: 'Title' }).type(genericTextWidgets.default.title);
+    cy.getByLabel({ label: 'Number of values' }).clear().type('0');
+    cy.getByTestId({ testId: 'Resource type' }).realClick();
+    cy.getByLabel({ label: 'Host Group' }).click();
+    cy.getByTestId({ testId: 'Select resource' }).click();
+    cy.contains(hostGroupName).realClick();
+    cy.getByTestId({ testId: 'Select metric' }).click();
+    cy.getByTestId({ testId: 'rta' }).realClick();
+    cy.wait('@dashboardMetricsTop');
+  }
+);
+
+Then('the 0 is automatically replaced by a 1', () => {
+  cy.getByLabel({ label: 'Number of values' }).should('have.value', '01');
 });

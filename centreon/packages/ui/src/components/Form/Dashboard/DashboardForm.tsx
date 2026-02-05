@@ -1,15 +1,13 @@
-import { ReactElement, useCallback, useMemo } from 'react';
-
 import { equals } from 'ramda';
+import { type ReactElement, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { number, object, string } from 'yup';
 
-import { Form, FormProps } from '../../../Form';
+import { Form, type FormProps } from '../../../Form';
 import { InputType } from '../../../Form/Inputs/models';
-import { FormVariant } from '../Form.models';
-import { FormActions, FormActionsProps } from '../FormActions';
-
-import { DashboardResource } from './Dashboard.resource';
+import type { FormVariant } from '../Form.models';
+import { FormActions, type FormActionsProps } from '../FormActions';
+import type { DashboardResource } from './Dashboard.resource';
 import { useStyles } from './DashboardForm.styles';
 import GlobalRefreshFieldOption from './GlobalRefreshFieldOption';
 import {
@@ -113,15 +111,15 @@ const DashboardForm = ({
           .required(t(labelRequired) as string)
       })
     }),
-    [resource, labels, onSubmit]
+    [resource, labels, onSubmit, showRefreshIntervalFields, t]
   );
 
   const Actions = useCallback(
     () => (
       <FormActions<DashboardResource>
         labels={labels?.actions}
-        variant={variant}
         onCancel={onCancel}
+        variant={variant}
       />
     ),
     [labels, onCancel, variant]

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,8 @@ final class FindResourcesFactory
             $resourceDto->information = $resource->getInformation();
             $resourceDto->isAcknowledged = $resource->getAcknowledged();
             $resourceDto->isInDowntime = $resource->getInDowntime();
+            $resourceDto->isInFlapping = $resource->isInFlapping();
+            $resourceDto->percentStateChange = $resource->getPercentStateChange();
             $resourceDto->withActiveChecks = $resource->getActiveChecks();
             $resourceDto->withPassiveChecks = $resource->getPassiveChecks();
             $resourceDto->monitoringServerName = $resource->getMonitoringServerName();
@@ -98,7 +100,7 @@ final class FindResourcesFactory
     private static function createNullableDateTimeImmutable(null|\DateTimeImmutable|\DateTime $date): ?\DateTimeImmutable
     {
         return match (true) {
-            null === $date => null,
+            $date === null => null,
             $date instanceof \DateTime => \DateTimeImmutable::createFromMutable($date),
             $date instanceof \DateTimeImmutable => $date,
         };
@@ -111,7 +113,7 @@ final class FindResourcesFactory
      */
     private static function createNullableNotesResponseDto(?Notes $notes): ?NotesResponseDto
     {
-        if (null === $notes) {
+        if ($notes === null) {
             return null;
         }
 
@@ -129,7 +131,7 @@ final class FindResourcesFactory
      */
     private static function createNullableParentResourceResponseDto(?ResourceEntity $parentResource): ?ParentResourceResponseDto
     {
-        if (null === $parentResource) {
+        if ($parentResource === null) {
             return null;
         }
 
@@ -154,7 +156,7 @@ final class FindResourcesFactory
      */
     private static function createNullableStatusResponseDto(?ResourceStatus $status): ?ResourceStatusResponseDto
     {
-        if (null === $status) {
+        if ($status === null) {
             return null;
         }
 
@@ -173,7 +175,7 @@ final class FindResourcesFactory
      */
     private static function createNullableSeverityResponseDto(?Severity $severity): ?SeverityResponseDto
     {
-        if (null === $severity) {
+        if ($severity === null) {
             return null;
         }
 
@@ -194,7 +196,7 @@ final class FindResourcesFactory
      */
     private static function createNullableIconResponseDto(null|LegacyIcon|Icon $icon): ?IconResponseDto
     {
-        if (null === $icon) {
+        if ($icon === null) {
             return null;
         }
 

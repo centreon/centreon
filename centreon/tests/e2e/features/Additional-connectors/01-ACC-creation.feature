@@ -7,7 +7,7 @@ Feature: Create a new Additional Connector Configuration
   @TEST_MON-150318
   Scenario: Add an additional connector configuration with all informations
     Given a non-admin user is in the Additional Connector Configuration page
-    When the user clicks on Add
+    When the user clicks on Add additional configurations
     Then a pop-up menu with the form is displayed
     When the user fills in all the informations
     And the user clicks on Create
@@ -93,8 +93,8 @@ Feature: Create a new Additional Connector Configuration
     Then a pop-up is displayed
     And the title of this pop-up is '<popup_title>'
     And the message body of this pop-up is '<popup_message>'
-    And this pop-up contains two buttons "Resolve" and "Discard"
+    And this pop-up contains two buttons "Leave" and "Stay"
     Examples:
       | action           | popup_title                    | popup_message                                                             |
-      | clicks on cancel | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
-      | clicks outside | Do you want to resolve the errors? | There are errors in the form. Do you want to quit the form without resolving the errors? |
+      | clicks on cancel | Do you want to leave this page? | Your changes will not be saved if you leave this page. |
+      | clicks outside | Do you want to leave this page? | Your changes will not be saved if you leave this page. |

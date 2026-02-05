@@ -1,27 +1,28 @@
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
-import { CSSInterpolation } from 'tss-react';
-
 import {
-  ButtonProps,
-  InputBaseProps,
+  type ButtonProps,
+  createTheme,
+  type InputBaseProps,
   ThemeProvider as MuiThemeProvider,
+  type PaletteOptions,
   StyledEngineProvider,
-  Theme,
-  createTheme
+  type Theme
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeOptions } from '@mui/material/styles/createTheme';
+import type { ThemeOptions } from '@mui/material/styles/createTheme';
+import { GlobalStyles } from '@mui/system';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { equals, mergeDeepRight } from 'ramda';
+import { type ReactNode, useMemo } from 'react';
+import type { CSSInterpolation } from 'tss-react';
 
 import RobotoBoldWoff2 from '../fonts/roboto-bold-webfont.woff2';
 import RobotoLightWoff2 from '../fonts/roboto-light-webfont.woff2';
 import RobotoMediumWoff2 from '../fonts/roboto-medium-webfont.woff2';
 import RobotoRegularWoff2 from '../fonts/roboto-regular-webfont.woff2';
-
-import { ReactNode, useMemo } from 'react';
 import { getPalette } from './palettes';
 
 declare module '@mui/styles/defaultTheme' {
@@ -146,46 +147,6 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => `
-        ::-webkit-scrollbar {
-          height: ${theme.spacing(1)};
-          width: ${theme.spacing(1)};
-          background-color: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          };
-          border-radius: ${theme.spacing(0.5)};
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background-color: ${theme.palette.primary.main};
-        }
-        * {
-          scrollbar-color: ${
-            equals(mode, 'dark')
-              ? theme.palette.divider
-              : theme.palette.text.disabled
-          } ${theme.palette.background.default};
-          scrollbar-width: thin;
-        }
-        html {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          text-rendering: optimizeLegibility;
-        }
-        body {
-          background-color: ${theme.palette.background.paper};
-          height: 100%;
-          padding: 0;
-          width: 100%;
-        }
-        #root {
-          background-color: ${theme.palette.background.paper};
-        }
         @font-face {
           font-family: 'Roboto';
           font-style: normal;
@@ -209,6 +170,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
           font-style: normal;
           font-weight: 700;
           src: local('Roboto'), local('Roboto-Bold'), url(${RobotoBoldWoff2}) format('woff2');
+        }
+        body {
+          background-color: ${theme.palette.background.paper};
         }
       `
     },
@@ -293,18 +257,27 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
 
 interface Props {
   children: ReactNode;
+  overrideTheme?: {
+    light: Partial<PaletteOptions>;
+    dark: Partial<PaletteOptions>;
+  };
 }
 
-const ThemeProvider = ({ children }: Props): JSX.Element => {
+const ThemeProvider = ({ children, overrideTheme }: Props): JSX.Element => {
   const { themeMode } = useAtomValue(userAtom);
 
-  const theme = useMemo(
-    () => createTheme(getTheme(themeMode || ThemeMode.light)),
-    [themeMode]
-  );
+  const theme = useMemo(() => {
+    const overrideThemeByMode = overrideTheme?.[themeMode || 'light'];
+    return createTheme(
+      mergeDeepRight(getTheme(themeMode || ThemeMode.light), {
+        palette: overrideThemeByMode || {}
+      })
+    );
+  }, [themeMode, overrideTheme]);
 
   return (
-    <StyledEngineProvider injectFirst>
+    <StyledEngineProvider enableCssLayer injectFirst>
+      <GlobalStyles styles="@layer theme,base,mui,components,utilities;" />
       <MuiThemeProvider theme={theme}>
         <CssBaseline />
         {children}

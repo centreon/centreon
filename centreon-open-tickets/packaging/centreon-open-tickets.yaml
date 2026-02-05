@@ -63,6 +63,14 @@ overrides:
 
 rpm:
   summary: Centreon Open Tickets add-on for Centreon
+  compression: zstd
+  scripts:
+    posttrans: ./scripts/centreon-open-tickets-posttrans.sh
   signature:
     key_file: ${RPM_SIGNING_KEY_FILE}
     key_id: ${RPM_SIGNING_KEY_ID}
+
+deb:
+  compression: zstd
+  predepends:
+    - php8.2-cli

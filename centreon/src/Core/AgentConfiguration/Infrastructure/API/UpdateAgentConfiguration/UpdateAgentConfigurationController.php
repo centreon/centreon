@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\UpdateAgentConfiguration\UpdateAgentConfigurationRequest;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
@@ -73,6 +74,7 @@ final class UpdateAgentConfigurationController extends AbstractController
          * @var array{
          *     name:string,
          *     type:string,
+         *     connection_mode:string|null,
          *     poller_ids:int[],
          *     configuration:array<string,mixed>
          * } $data
@@ -82,7 +84,7 @@ final class UpdateAgentConfigurationController extends AbstractController
         $schemaFile = match ($data['type']) {
             'telegraf' => 'TelegrafConfigurationSchema.json',
             'centreon-agent' => 'CmaConfigurationSchema.json',
-            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type']))
+            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type'])),
         };
 
         $this->validateDataSent($request, __DIR__ . "/../Schema/{$schemaFile}");
@@ -91,6 +93,12 @@ final class UpdateAgentConfigurationController extends AbstractController
         $updateRequest->id = $id;
         $updateRequest->type = $data['type'];
         $updateRequest->name = $data['name'];
+        $updateRequest->connectionMode = match ($data['connection_mode']) {
+            'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
+            'secure' => ConnectionModeEnum::SECURE,
+            default => ConnectionModeEnum::SECURE,
+        };
         $updateRequest->pollerIds = $data['poller_ids'];
         $updateRequest->configuration = $data['configuration'];
 

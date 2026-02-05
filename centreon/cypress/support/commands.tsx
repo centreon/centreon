@@ -1,19 +1,18 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+/// <reference types="cypress" />
+/// <reference types="@testing-library/cypress" />
 import '@centreon/js-config/cypress/component/commands';
 import '@testing-library/cypress/add-commands';
 
-import React from 'react';
-
 import dayjs from 'dayjs';
-import timezonePlugin from 'dayjs/plugin/timezone';
-import utcPlugin from 'dayjs/plugin/utc';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
-import isToday from 'dayjs/plugin/isToday';
-import isYesterday from 'dayjs/plugin/isYesterday';
-import weekday from 'dayjs/plugin/weekday';
+import duration from 'dayjs/plugin/duration';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import duration from 'dayjs/plugin/duration';
+import isToday from 'dayjs/plugin/isToday';
+import isYesterday from 'dayjs/plugin/isYesterday';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import weekday from 'dayjs/plugin/weekday';
 import { equals } from 'ramda';
 
 import { SearchParameter } from '@centreon/ui';
@@ -38,6 +37,14 @@ dayjs.extend(weekday);
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(duration);
+
+Cypress.on('uncaught:exception', (err) => {
+  if (err.message.includes('CancelledError')) {
+    return false;
+  }
+
+  return true;
+});
 
 Cypress.Commands.add('displayFilterMenu', () => {
   cy.get('[aria-label="Filter options"]').click();
@@ -82,7 +89,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('waitForRequestAndVerifyBody', (requestAlias, body) => {
   cy.waitForRequest(`@${requestAlias}`).then(({ request }) => {
-    expect(JSON.parse(request.body)).to.deep.equal(body);
+    expect(request.body).to.deep.equal(body);
   });
 });
 
@@ -97,6 +104,7 @@ Cypress.Commands.add('openCalendar', (testId) => {
 });
 
 declare global {
+  // biome-ignore lint/style/noNamespace: Need it for Cypress types
   namespace Cypress {
     interface Chainable {
       clickOutside: () => Cypress.Chainable;

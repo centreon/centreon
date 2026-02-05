@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ namespace Core\HostGroup\Application\Repository;
 use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\HostGroupNamesById;
+use Core\HostGroup\Domain\Model\HostGroupRelationCount;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 interface ReadHostGroupRepositoryInterface
@@ -137,6 +138,18 @@ interface ReadHostGroupRepositoryInterface
     public function nameAlreadyExists(string $hostGroupName): bool;
 
     /**
+     * Tells whether the host group name already exists by access groups.
+     *
+     * @param string $hostGroupName
+     * @param AccessGroup[] $accessGroups
+     *
+     * @throws \Throwable
+     *
+     * @return bool
+     */
+    public function nameAlreadyExistsByAccessGroups(string $hostGroupName, array $accessGroups): bool;
+
+    /**
      * Find host groups linked to a host (no ACLs).
      *
      * @param int $hostId
@@ -185,4 +198,30 @@ interface ReadHostGroupRepositoryInterface
      * @return bool
      */
     public function hasAccessToAllHostGroups(array $accessGroupIds): bool;
+
+    /**
+     * @param int[] $hostGroupIds
+     *
+     * @return array<int,HostGroupRelationCount> HostGroupRelationCount indexed by Host Group ID
+     */
+    public function findHostsCountByIds(array $hostGroupIds): array;
+
+    /**
+     * @param int[] $hostGroupIds
+     * @param int[] $accessGroupIds
+     *
+     * @return array<int,HostGroupRelationCount> HostGroupRelationCount indexed by Host Group ID
+     */
+    public function findHostsCountByAccessGroupsIds(array $hostGroupIds, array $accessGroupIds): array;
+
+    /**
+     * Find hosts associated with a host group.
+     *
+     * @param int $hostGroupId
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findLinkedHosts(int $hostGroupId): array;
 }

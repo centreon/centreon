@@ -1,16 +1,17 @@
-import { Suspense, lazy } from 'react';
+import { useMediaQuery, useTheme } from '@mui/material';
+import Grid from '@mui/material/Grid';
 
 import { equals } from 'ramda';
+import { lazy, Suspense } from 'react';
 
-import { Grid, useMediaQuery, useTheme } from '@mui/material';
-
+import ExportCsv from './exportToCsv';
 import GlobalActionsSkeleton from './GlobalActionsSkeleton';
+import { Type } from './model';
 import { Props } from './Refresh';
 import useMediaQueryListing from './Resource/useMediaQueryListing';
 import ResourceActionsSkeleton from './ResourceActionsSkeleton';
 import VisualizationActions from './Visualization';
 import { useStyles } from './Visualization/Visualization.styles';
-import { Type } from './model';
 
 const WrapperResourceActions = lazy(() => import('./WrapperResourceActions'));
 const GlobalActions = lazy(() => import('./Refresh'));
@@ -28,12 +29,12 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
     equals(breakPointType, Type.small);
 
   return (
-    <Grid container className={classes.container}>
+    <Grid className={classes.container} container>
       <Grid
-        item
         className={cx(classes.gridItem, { [classes.extraMargin]: smallSize })}
+        size={7}
       >
-        <Grid item>
+        <Grid>
           <Suspense fallback={<ResourceActionsSkeleton />}>
             <WrapperResourceActions
               displayCondensed={displayCondensed}
@@ -48,7 +49,7 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
           </Suspense>
         </Grid>
         {!smallSize && (
-          <Grid item>
+          <Grid>
             <Suspense fallback={<GlobalActionsSkeleton />}>
               <GlobalActions onRefresh={onRefresh} />
             </Suspense>
@@ -56,12 +57,15 @@ const Actions = ({ onRefresh }: Props): JSX.Element => {
         )}
       </Grid>
       <Grid
-        item
         className={cx({
-          [classes.large]: !smallSize
+          [classes.large]: !smallSize,
+          [classes.small]: smallSize
         })}
+        size={5}
+        wrap="nowrap"
       >
         <VisualizationActions displayCondensed={displayCondensed} />
+        <ExportCsv />
       </Grid>
     </Grid>
   );

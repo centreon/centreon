@@ -1,8 +1,7 @@
 import { always, cond, equals } from 'ramda';
 
-import { LoadingSkeleton } from '../..';
-
-import { InputProps, InputType } from './models';
+import LoadingSkeleton from '../../LoadingSkeleton';
+import { type InputProps, InputType } from './models';
 
 const getSkeleton = cond<Array<InputType>, JSX.Element>([
   [

@@ -1,17 +1,16 @@
-/* eslint-disable cypress/unsafe-to-chain-command */
-import { Given, When, Then } from '@badeball/cypress-cucumber-preprocessor';
+import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import {
   checkHostsAreMonitored,
-  checkServicesAreMonitored,
-  checkMetricsAreMonitored
+  checkMetricsAreMonitored,
+  checkServicesAreMonitored
 } from '../../../commons';
-import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
+import metricsGraphWithMultipleMetrics from '../../../fixtures/dashboards/creation/widgets/dashboardWithMetricsGraphWidgetWithMultipleMetrics.json';
 import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import metricsGraphWidget from '../../../fixtures/dashboards/creation/widgets/metricsGraphWidget.json';
 import metricsGraphWithMultipleHosts from '../../../fixtures/dashboards/creation/widgets/metricsGraphWithMultipleHosts.json';
-import metricsGraphWithMultipleMetrics from '../../../fixtures/dashboards/creation/widgets/dashboardWithMetricsGraphWidgetWithMultipleMetrics.json';
+import dashboardAdministratorUser from '../../../fixtures/users/user-dashboard-administrator.json';
 
 const services = {
   serviceCritical: {
@@ -70,7 +69,7 @@ before(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: '/centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'GET',
@@ -164,6 +163,9 @@ before(() => {
       status: 'ok'
     }
   ]);
+  ['Disk-/', 'Load', 'Memory', 'Ping', 'TCP-connections'].forEach((service) => {
+    cy.scheduleServiceCheck({ host: 'Centreon-Server', service });
+  });
 
   cy.logoutViaAPI();
   cy.applyAcl();
@@ -180,11 +182,11 @@ beforeEach(() => {
   }).as('listAllDashboards');
   cy.intercept({
     method: 'POST',
-    url: `/centreon/api/latest/configuration/dashboards/*/access_rights/contacts`
+    url: 'centreon/api/latest/configuration/dashboards/*/access_rights/contacts'
   }).as('addContactToDashboardShareList');
   cy.intercept({
     method: 'PATCH',
-    url: `/centreon/api/latest/configuration/dashboards/*`
+    url: '/centreon/api/latest/configuration/dashboards/*'
   }).as('updateDashboard');
   cy.intercept({
     method: 'GET',
@@ -220,7 +222,7 @@ When(
   () => {
     cy.get('*[class^="react-grid-layout"]').children().should('have.length', 0);
     cy.getByTestId({ testId: 'edit_dashboard' }).click();
-    cy.getByTestId({ testId: 'AddIcon' }).should('have.length', 1).click();
+    cy.contains('div[class*="-addWidgetPanel"] h5', 'Add a widget').click();
   }
 );
 
@@ -382,15 +384,15 @@ Given('a dashboard that includes a configured Metrics Graph widget', () => {
 When(
   'the dashboard administrator user duplicates the Metrics Graph widget',
   () => {
-    cy.getByTestId({ testId: 'RefreshIcon' }).should('be.visible');
-    cy.getByTestId({ testId: 'RefreshIcon' }).click();
+    cy.getByTestId({ testId: 'refresh' }).should('be.visible');
+    cy.getByTestId({ testId: 'refresh' }).click();
     cy.getByLabel({
       label: 'Edit dashboard',
       tag: 'button'
     }).click();
     cy.wait('@performanceData');
-    cy.getByTestId({ testId: 'MoreHorizIcon' }).click();
-    cy.getByTestId({ testId: 'ContentCopyIcon' }).click();
+    cy.getByTestId({ testId: 'More actions' }).click();
+    cy.getByTestId({ testId: 'Duplicate' }).click();
   }
 );
 
@@ -421,10 +423,9 @@ Given('a dashboard featuring two Metrics Graph widgets', () => {
 When(
   'the dashboard administrator user deletes one of the Metrics Graph widgets',
   () => {
-    cy.getByTestId({ testId: 'DeleteIcon' }).click();
     cy.getByLabel({
-      label: 'Delete',
-      tag: 'button'
+      label: 'Delete widget',
+      tag: 'li'
     }).realClick();
   }
 );
@@ -472,7 +473,7 @@ Then(
 Then(
   'an additional Y-axis based on the unit of these additional bars is displayed',
   () => {
-    cy.contains('Centreon-Server: Packet Loss').should('exist');
+    cy.contains('pl').should('exist');
     cy.get('g.visx-axis-left').should('exist');
     cy.get('g.visx-axis-right').should('exist');
   }
@@ -645,7 +646,7 @@ When('the dashboard administrator clicks on the zero-centred button', () => {
 Then(
   'the Metrics Graph widget should be refreshed to center the values around 0',
   () => {
-    cy.get('text').contains('tspan', '0 ms').should('exist');
+    cy.get('text').contains('ms').should('be.visible');
   }
 );
 
@@ -657,9 +658,7 @@ When('the dashboard administrator selects the list display mode', () => {
 Then(
   'the Metrics Graph widget should refresh to display items in a list format',
   () => {
-    cy.get(
-      'div[class$="-items"][data-as-list="true"][data-mode="normal"]'
-    ).should('exist');
+    cy.get('ul[data-as-list="true"][data-mode="normal"]').should('exist');
   }
 );
 
@@ -675,7 +674,12 @@ When(
 );
 
 Then('the graph should be displayed as a bar chart', () => {
-  cy.get('path[data-testid*="stacked-bar-"]').should('exist');
+  cy.waitForElementToBeVisible('ul[data-as-list="false"] p.MuiTypography-root');
+  cy.get('ul[data-as-list="false"] p.MuiTypography-root').then((els) => {
+    const labels = [...els].map((el) => el.innerText.trim());
+    cy.log('Labels:', labels.join(', '));
+    expect(labels).to.include.members(['rta', 'pl', 'rtmax', 'rtmin']);
+  });
 });
 
 When(

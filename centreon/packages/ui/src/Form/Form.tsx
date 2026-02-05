@@ -1,16 +1,17 @@
 import {
   Formik,
-  FormikHelpers,
-  FormikSharedConfig,
-  FormikValues
+  type FormikHelpers,
+  type FormikSharedConfig,
+  type FormikValues
 } from 'formik';
+import type { ComponentType } from 'react';
+import type { Schema } from 'yup';
 
-import { ComponentType } from 'react';
-import { Schema } from 'yup';
 import { useStyles } from './Form.styles';
 import FormButtons from './FormButtons';
 import Inputs from './Inputs';
-import { Group, InputProps } from './Inputs/models';
+import type { Group, InputProps } from './Inputs/models';
+import { FormSection } from './Section/FormSection';
 
 export enum GroupDirection {
   Horizontal = 'horizontal',
@@ -56,12 +57,12 @@ const Form = <T extends object>({
   if (isLoading) {
     return (
       <Inputs
-        isLoading
         areGroupsOpen={areGroupsOpen}
         groups={groups}
         groupsClassName={groupsClassName}
         inputs={inputs}
         isCollapsible={isCollapsible}
+        isLoading
       />
     );
   }
@@ -70,12 +71,13 @@ const Form = <T extends object>({
     <Formik<T>
       enableReinitialize
       initialValues={initialValues}
+      onSubmit={submit}
       validate={validate}
       validationSchema={validationSchema}
-      onSubmit={submit}
       {...formikSharedConfig}
     >
       <div>
+        <FormSection groups={groups} />
         {children}
         <div className={cx(className, classes.form)}>
           <Inputs

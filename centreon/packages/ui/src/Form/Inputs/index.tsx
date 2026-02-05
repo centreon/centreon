@@ -1,15 +1,7 @@
-import { Fragment, useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { makeStyles } from 'tss-react/mui';
-
 import { Divider, Typography } from '@mui/material';
 
-import { GroupDirection } from '..';
-import CollapsibleGroup from '../CollapsibleGroup';
-
+import { type FormikValues, useFormikContext } from 'formik';
 import {
-  T,
   always,
   any,
   ascend,
@@ -20,6 +12,8 @@ import {
   groupBy,
   isEmpty,
   isNil,
+  isNotEmpty,
+  isNotNil,
   keys,
   last,
   not,
@@ -28,8 +22,14 @@ import {
   propEq,
   reduce,
   sort,
+  T,
   toPairs
 } from 'ramda';
+import { Fragment, useMemo } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import { GroupDirection } from '..';
+import CollapsibleGroup from '../CollapsibleGroup';
 import Autocomplete from './Autocomplete';
 import Checkbox from './Checkbox';
 import CheckboxGroup from './CheckboxGroup';
@@ -40,10 +40,16 @@ import File from './File';
 import Grid from './Grid';
 import List from './List/List';
 import LoadingSkeleton from './LoadingSkeleton';
+import {
+  type Group,
+  type InputProps,
+  type InputPropsWithoutGroup,
+  InputType
+} from './models';
 import RadioInput from './Radio';
+import { SubgroupDivider } from './SubGroupDivider';
 import SwitchInput from './Switch';
 import TextInput from './Text';
-import { Group, InputProps, InputPropsWithoutGroup, InputType } from './models';
 
 export const getInput = cond<
   Array<InputType>,
@@ -80,6 +86,11 @@ export const getInput = cond<
   ],
   [equals(InputType.List) as (b: InputType) => boolean, always(List)],
   [equals(InputType.File) as (b: InputType) => boolean, always(File)],
+  [equals(InputType.Text) as (b: InputType) => boolean, always(TextInput)],
+  [
+    equals(InputType.Divider) as (b: InputType) => boolean,
+    always(SubgroupDivider)
+  ],
   [T, always(TextInput)]
 ]);
 
@@ -108,15 +119,14 @@ const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
       ? 'row'
       : 'column'
   },
-  inputWrapper: {
-    width: '100%'
-  },
   inputs: {
     display: 'flex',
     flexDirection: 'column',
-    marginTop: theme.spacing(1),
-    rowGap: theme.spacing(2),
-    marginBottom: theme.spacing(1)
+    margin: theme.spacing(2, 0),
+    rowGap: theme.spacing(2)
+  },
+  inputWrapper: {
+    width: '100%'
   }
 }));
 
@@ -156,7 +166,7 @@ const Inputs = ({
         ({ group }) => find(equals(group), groupsName) as string,
         visibleInputs
       ),
-    [visibleInputs]
+    [visibleInputs, groupsName]
   ) as Record<string, Array<InputProps>>;
 
   const sortedGroupNames = useMemo(() => {
@@ -183,10 +193,10 @@ const Inputs = ({
         {},
         sortedGroupNames
       ),
-    [visibleInputs]
+    [inputsByGroup, sortedGroupNames]
   );
 
-  const lastGroup = useMemo(() => last(sortedGroupNames), []);
+  const lastGroup = useMemo(() => last(sortedGroupNames), [sortedGroupNames]);
 
   const normalizedInputsByGroup = (
     isEmpty(sortedInputsByGroup)
@@ -203,6 +213,7 @@ const Inputs = ({
           ? find(propEq(groupName, 'name'), groups)
           : ({} as Group);
 
+        const hasGroupDivider = !groups[index]?.isDividerHidden;
         const isFirstElement = areGroupsOpen || equals(index, 0);
 
         return (
@@ -217,22 +228,19 @@ const Inputs = ({
               >
                 <div className={classes.inputs}>
                   {groupedInputs.map((inputProps) => {
+                    const key =
+                      isNotNil(inputProps.label) || isNotEmpty(inputProps.label)
+                        ? inputProps.label
+                        : inputProps.additionalLabel;
+
                     if (isLoading) {
-                      return (
-                        <LoadingSkeleton
-                          input={inputProps}
-                          key={inputProps.label}
-                        />
-                      );
+                      return <LoadingSkeleton input={inputProps} key={key} />;
                     }
 
                     const Input = getInput(inputProps.type);
 
                     return (
-                      <div
-                        className={classes.inputWrapper}
-                        key={inputProps.label}
-                      >
+                      <div className={classes.inputWrapper} key={key}>
                         {inputProps.additionalLabel && (
                           <Typography
                             className={cx(
@@ -253,17 +261,19 @@ const Inputs = ({
                 </div>
               </CollapsibleGroup>
             </div>
-            {hasGroupTitle && not(equals(lastGroup, groupName as string)) && (
-              <Divider
-                flexItem
-                className={classes.divider}
-                orientation={
-                  equals(groupDirection, GroupDirection.Horizontal)
-                    ? 'vertical'
-                    : 'horizontal'
-                }
-              />
-            )}
+            {hasGroupDivider &&
+              hasGroupTitle &&
+              not(equals(lastGroup, groupName as string)) && (
+                <Divider
+                  className={classes.divider}
+                  flexItem
+                  orientation={
+                    equals(groupDirection, GroupDirection.Horizontal)
+                      ? 'vertical'
+                      : 'horizontal'
+                  }
+                />
+              )}
           </Fragment>
         );
       })}

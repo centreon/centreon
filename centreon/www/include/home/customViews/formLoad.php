@@ -1,102 +1,80 @@
 <?php
-/**
- * Copyright 2005-2015 Centreon
- * Centreon is developped by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
  */
-
-if (!isset($centreon)) {
+if (! isset($centreon)) {
     exit;
 }
 
-require_once _CENTREON_PATH_ . "www/class/centreonCustomView.class.php";
-require_once _CENTREON_PATH_ . "www/class/centreonWidget.class.php";
+require_once _CENTREON_PATH_ . 'www/class/centreonCustomView.class.php';
+require_once _CENTREON_PATH_ . 'www/class/centreonWidget.class.php';
 
 $db = new CentreonDB();
 $viewObj = new CentreonCustomView($centreon, $db);
 $widgetObj = new CentreonWidget($centreon, $db);
-$title = "";
+$title = '';
 $action = null;
 $defaultTab = [];
-if ($_REQUEST['action'] == "load") {
-    $title = _("Load a public view");
-    $action = "load";
+if ($_REQUEST['action'] == 'load') {
+    $title = _('Load a public view');
+    $action = 'load';
 }
 
-if (!isset($action)) {
-    echo _("No action");
+if (! isset($action)) {
+    echo _('No action');
+
     exit;
 }
 
-$query = "select * from custom_views where public = 1";
+$query = 'select * from custom_views where public = 1';
 $DBRES = $db->query($query);
 $arrayView = [];
-$arrayView[-1] = "";
+$arrayView[-1] = '';
 while ($row = $DBRES->fetchRow()) {
     $arrayView[$row['custom_view_id']] = $row['name'];
 }
 
-
-/**
- * Smarty
- */
-$path = "./include/home/customViews/";
-$template = new Smarty();
-$template = initSmartyTpl($path, $template, "./");
+// Smarty template initialization
+$path = './include/home/customViews/';
+$template = SmartyBC::createSmartyTemplate($path, './');
 
 /**
  * Field templates
  */
-$attrsText = ["size" => "30"];
-$attrsAdvSelect = ["style" => "width: 200px; height: 150px;"];
-$attrsTextarea = ["rows" => "5", "cols" => "40"];
-$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />' .
-    '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
+$attrsText = ['size' => '30'];
+$attrsAdvSelect = ['style' => 'width: 200px; height: 150px;'];
+$attrsTextarea = ['rows' => '5', 'cols' => '40'];
+$eTemplate = '<table><tr><td><div class="ams">{label_2}</div>{unselected}</td><td align="center">{add}<br /><br />'
+    . '<br />{remove}</td><td><div class="ams">{label_3}</div>{selected}</td></tr></table>';
 
-$form = new HTML_QuickFormCustom('Form', 'post', "?p=103");
+$form = new HTML_QuickFormCustom('Form', 'post', '?p=103');
 $form->addElement('header', 'title', $title);
-$form->addElement('header', 'information', _("General Information"));
+$form->addElement('header', 'information', _('General Information'));
 
-
-$form->addElement('select', 'viewLoad', _("Public views list"), $arrayView);
-
+$form->addElement('select', 'viewLoad', _('Public views list'), $arrayView);
 
 /**
  * Submit button
  */
-$form->addElement('button', 'submit', _("Submit"), ["onClick" => "submitData();"]);
-$form->addElement('reset', 'reset', _("Reset"));
+$form->addElement('button', 'submit', _('Submit'), ['onClick' => 'submitData();']);
+$form->addElement('reset', 'reset', _('Reset'));
 $form->addElement('hidden', 'action');
 $form->setDefaults(['action' => $action]);
-
 
 /**
  * Renderer
@@ -106,7 +84,7 @@ $renderer->setRequiredTemplate('{$label}&nbsp;<font color="red" size="1">*</font
 $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
 $form->accept($renderer);
 $template->assign('form', $renderer->toArray());
-$template->display("formLoad.ihtml");
+$template->display('formLoad.ihtml');
 ?>
 <script type="text/javascript">
     jQuery(function () {

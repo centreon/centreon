@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDRB
 {
-    use LoggerTrait, SqlMultipleBindTrait;
+    use LoggerTrait;
+    use SqlMultipleBindTrait;
 
     /**
      * Find contacts from ids.
@@ -68,9 +69,9 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
                 t2.tp_name as service_timeperiod_name,
                 t2.tp_alias as service_timeperiod_alias
             FROM `:db`.contact c
-            INNER JOIN `:db`.timeperiod t1
+            LEFT JOIN `:db`.timeperiod t1
                 ON t1.tp_id = c.timeperiod_tp_id
-            INNER JOIN `:db`.timeperiod t2
+            LEFT JOIN `:db`.timeperiod t2
                 ON t2.tp_id = c.timeperiod_tp_id2'
         );
 
@@ -120,7 +121,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -129,7 +130,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
 
         $request = $this->translateDbName(
             <<<SQL
-                SELECT
+                SELECT DISTINCT
                     c.contact_id,
                     c.contact_alias,
                     c.contact_name,
@@ -144,9 +145,9 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
                     t2.tp_name as service_timeperiod_name,
                     t2.tp_alias as service_timeperiod_alias
                 FROM `:db`.contact c
-                INNER JOIN `:db`.timeperiod t1
+                LEFT JOIN `:db`.timeperiod t1
                     ON t1.tp_id = c.timeperiod_tp_id
-                INNER JOIN `:db`.timeperiod t2
+                LEFT JOIN `:db`.timeperiod t2
                     ON t2.tp_id = c.timeperiod_tp_id2
                 INNER JOIN `:db`.acl_group_contacts_relations agcr
                     ON agcr.contact_contact_id = c.contact_id
@@ -248,7 +249,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
         }
 
         $accessGroupIds = array_map(
-            fn($accessGroup) => $accessGroup->getId(),
+            fn ($accessGroup) => $accessGroup->getId(),
             $accessGroups
         );
 
@@ -257,7 +258,7 @@ abstract class AbstractDbReadNotificationRepository extends AbstractRepositoryDR
 
         $request = $this->translateDbName(
             <<<SQL
-                SELECT
+                SELECT DISTINCT
                     cg_id AS `id`,
                     cg_name AS `name`,
                     cg_alias AS `alias`,

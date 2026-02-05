@@ -1,13 +1,10 @@
-import { any, isEmpty, isNil, not, or, pipe } from 'ramda';
+import { type Theme, Tooltip } from '@mui/material';
+
 import { makeStyles } from 'tss-react/mui';
 
-import { LoadingButton, LoadingButtonProps } from '@mui/lab';
-import { Theme, Tooltip } from '@mui/material';
-
+import { Button, type ButtonProps } from '../../components';
 import { getNormalizedId } from '../../utils';
-
-import Content from './Content';
-import StartIcon from './StartIcon';
+import { useSave } from './useSave';
 
 const useStyles = makeStyles()((theme: Theme) => ({
   loadingButton: {
@@ -15,7 +12,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
   }
 }));
 
-interface Props {
+export interface Props {
   className?: string;
   labelLoading?: string;
   labelSave?: string;
@@ -28,15 +25,6 @@ interface Props {
   tooltipLabel?: string;
 }
 
-interface StartIconConfigProps {
-  hasLabel: boolean;
-  loading: boolean;
-  succeeded: boolean;
-}
-
-const isNilOrEmpty = (value): boolean => or(isNil(value), isEmpty(value));
-const hasValue = any(pipe(isNilOrEmpty, not));
-
 const SaveButton = ({
   succeeded = false,
   loading = false,
@@ -48,20 +36,22 @@ const SaveButton = ({
   className,
   startIcon = true,
   ...rest
-}: Props & LoadingButtonProps): JSX.Element => {
+}: Props & Omit<ButtonProps, 'children'>): JSX.Element => {
   const { classes, cx } = useStyles();
-  const hasLabel = hasValue([labelLoading, labelSave, labelSucceeded]);
 
-  const startIconConfig = {
-    hasLabel,
+  const { content, startIconToDisplay, hasLabel } = useSave({
+    labelLoading,
+    labelSave,
+    labelSucceeded,
     loading,
+    startIcon,
     succeeded
-  } as StartIconConfigProps;
+  });
 
   return (
     <Tooltip placement="bottom" title={tooltipLabel}>
       <div>
-        <LoadingButton
+        <Button
           aria-label="save button"
           className={cx(
             {
@@ -69,26 +59,17 @@ const SaveButton = ({
             },
             className
           )}
-          color="primary"
           data-testid={labelSave}
           id={getNormalizedId(labelSave)}
           loading={loading}
-          loadingPosition={labelLoading ? 'start' : 'center'}
+          loadingPosition={labelLoading ? 'start' : undefined}
           size={size}
-          startIcon={
-            startIcon && <StartIcon startIconConfig={startIconConfig} />
-          }
-          variant="contained"
+          startIcon={startIconToDisplay}
+          variant="primary"
           {...rest}
         >
-          {Content({
-            labelLoading,
-            labelSave,
-            labelSucceeded,
-            loading,
-            succeeded
-          })}
-        </LoadingButton>
+          {content}
+        </Button>
       </div>
     </Tooltip>
   );

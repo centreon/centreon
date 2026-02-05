@@ -52,33 +52,56 @@ services:
             - '../../src/Core/AgentConfiguration/*'
             - '../../src/Core/Security/Vault/*'
             - '../../src/Core/Contact/*'
+            - '../../src/Core/HostCategory'
             - '../../src/Core/ServiceSeverity/*'
             - '../../src/Core/HostSeverity/*'
+            - '../../src/Core/UserProfile/*'
         bind:
             $isCloudPlatform: '%env(bool:IS_CLOUD_PLATFORM)%'
 
     Logger:
         class: Centreon\Domain\Log\Logger
 
+    Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger:
+        arguments:
+            $logger: '@Logger'
+
     Core\Common\Infrastructure\FeatureFlags:
         arguments: ['%env(bool:IS_CLOUD_PLATFORM)%', '%env(file:resolve:FILE_FEATURE_FLAGS)%']
         public: true
 
-    Centreon\Infrastructure\DatabaseConnection:
-        class: Centreon\Infrastructure\DatabaseConnection
-        bind:
-            $logger: '@Logger'
+    Adaptation\Database\Connection\Model\ConnectionConfig:
         arguments:
             $host: '%database_host%'
-            $port: '%database_port%'
-            $basename: '%database_db%'
-            $login: '%database_user%'
+            $user: '%database_user%'
             $password: '%database_password%'
-        calls:
-            - method: setCentreonDbName
-              arguments: ['%database_db%']
-            - method: setStorageDbName
-              arguments: ['%database_dbstg%']
+            $databaseNameConfiguration: '%database_db%'
+            $databaseNameRealTime: '%database_dbstg%'
+            $port: '%database_port%'
+
+    Adaptation\Database\Connection\ConnectionInterface:
+        alias: Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter
+
+    Adaptation\Database\Connection\Adapter\Dbal\DbalConnectionAdapter:
+        factory: [null, 'createFromConfig']
+        arguments:
+            $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+
+    Centreon\Infrastructure\DatabaseConnection:
+        factory: [null, 'createFromConfig']
+        arguments:
+            $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+
+    Adaptation\Database\QueryBuilder\QueryBuilderInterface:
+        alias: Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter
+
+    Adaptation\Database\QueryBuilder\Adapter\Dbal\DbalQueryBuilderAdapter:
+        factory: [null, 'createFromConnectionConfig']
+        arguments:
+            $connectionConfig: '@Adaptation\Database\Connection\Model\ConnectionConfig'
+
+    Core\Common\Domain\Repository\RepositoryManagerInterface:
+        class: Core\Common\Infrastructure\Repository\DatabaseRepositoryManager
 
     jms_serializer.object_constructor:
         class: Centreon\Infrastructure\Serializer\ObjectConstructor
@@ -96,10 +119,21 @@ services:
     Security\Interfaces\EncryptionInterface:
         class: Security\Encryption
         calls:
-            - method: setFirstKey
-              arguments: ['%env(APP_SECRET)%']
+            -   method: setFirstKey
+                arguments: ['%env(APP_SECRET)%']
         public: true
+        shared: false
 
+    Core\Installation\Infrastructure\InstallationHelper:
+        public: true
+        arguments:
+          $appSecret: '%env(APP_SECRET)%'
+
+    Core\Engine\Application\Repository\EngineRepositoryInterface:
+        class: Core\Engine\Infrastructure\Repository\FsEngineRepository
+        arguments:
+            $engineContextPath: '%engine_context_path%'
+        public: true
 
     Core\Common\Application\Repository\WriteVaultRepositoryInterface:
         class: Core\Common\Infrastructure\Repository\WriteVaultRepository
@@ -107,6 +141,14 @@ services:
 
     Core\Common\Application\Repository\ReadVaultRepositoryInterface:
         class: Core\Common\Infrastructure\Repository\ReadVaultRepository
+        public: true
+
+    Core\Command\Application\Repository\ReadCommandRepositoryInterface:
+        class: Core\Command\Infrastructure\Repository\DbReadCommandRepository
+        public: true
+
+    Symfony\Component\HttpClient\AmpHttpClient:
+        class: Symfony\Component\HttpClient\AmpHttpClient
         public: true
 
     # JSON Validator
@@ -129,6 +171,7 @@ services:
 
     Centreon\Domain\Contact\Interfaces\ContactRepositoryInterface:
         class: Centreon\Infrastructure\Contact\ContactRepositoryRDB
+        public: true
 
     contact.provider:
         class: Centreon\Domain\Contact\ContactProvider
@@ -145,6 +188,7 @@ services:
     # Authentication
     Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface:
         class: Core\Security\AccessGroup\Infrastructure\Repository\DbReadAccessGroupRepository
+        public: true
 
     Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface:
         class: Centreon\Domain\RequestParameters\RequestParameters
@@ -159,8 +203,8 @@ services:
     Centreon\Domain\Configuration\Icon\Interfaces\IconRepositoryInterface:
         class: Centreon\Infrastructure\Icon\IconRepositoryRDB
         calls:
-            - method: setSqlRequestTranslator
-              arguments: ['@sqlRequestTranslator']
+            -   method: setSqlRequestTranslator
+                arguments: ['@sqlRequestTranslator']
 
     # Poller configuration
     Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerServiceInterface:
@@ -169,15 +213,15 @@ services:
     Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerRepositoryInterface:
         class: Centreon\Infrastructure\MonitoringServer\MonitoringServerRepositoryRDB
         calls:
-            - method: setSqlRequestTranslator
-              arguments: ['@sqlRequestTranslator']
+            -   method: setSqlRequestTranslator
+                arguments: ['@sqlRequestTranslator']
 
     Centreon\Domain\MonitoringServer\Interfaces\MonitoringServerConfigurationRepositoryInterface:
         class: Centreon\Infrastructure\MonitoringServer\Repository\MonitoringServerConfigurationRepositoryApi
         public: true
         calls:
-            - method: setTimeout
-              arguments: ['%curl.timeout%']
+            -   method: setTimeout
+                arguments: ['%curl.timeout%']
 
     # Platform topology register server
     Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyServiceInterface:
@@ -204,8 +248,8 @@ services:
     Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface:
         class: Centreon\Infrastructure\Monitoring\MonitoringRepositoryRDB
         calls:
-            - method: setSqlRequestTranslator
-              arguments: ['@sqlRequestTranslator']
+            -   method: setSqlRequestTranslator
+                arguments: ['@sqlRequestTranslator']
 
     Centreon\Domain\Monitoring\HostGroup\Interfaces\HostGroupServiceInterface:
         class: Centreon\Domain\Monitoring\HostGroup\HostGroupService
@@ -361,8 +405,8 @@ services:
     Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator:
         class: Core\Infrastructure\RealTime\Hypermedia\HypermediaCreator
         calls:
-            - method: setHypermediaProviders
-              arguments: [!tagged_iterator 'realtime.hypermedia']
+            -   method: setHypermediaProviders
+                arguments: [!tagged_iterator 'realtime.hypermedia']
 
     # Filters
     Centreon\Domain\Filter\Interfaces\FilterServiceInterface:
@@ -371,8 +415,8 @@ services:
     Centreon\Domain\Filter\Interfaces\FilterRepositoryInterface:
         class: Centreon\Infrastructure\Filter\FilterRepositoryRDB
         calls:
-            - method: setSqlRequestTranslator
-              arguments: ['@sqlRequestTranslator']
+            -   method: setSqlRequestTranslator
+                arguments: ['@sqlRequestTranslator']
 
     # Monitoring Timeline
     Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineServiceInterface:
@@ -381,8 +425,8 @@ services:
     Centreon\Domain\Monitoring\Timeline\Interfaces\TimelineRepositoryInterface:
         class: Centreon\Infrastructure\Monitoring\Timeline\TimelineRepositoryRDB
         calls:
-            - method: setSqlRequestTranslator
-              arguments: ['@sqlRequestTranslator']
+            -   method: setSqlRequestTranslator
+                arguments: ['@sqlRequestTranslator']
 
     # Host configuration
     Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationRepositoryInterface:
@@ -408,8 +452,8 @@ services:
     Centreon\Domain\HostConfiguration\UseCase\V2110\HostSeverity\FindHostSeverities:
         class: Centreon\Domain\HostConfiguration\UseCase\V2110\HostSeverity\FindHostSeverities
         calls:
-            - method: setMediaPath
-              arguments: ["%media_path%"]
+            -   method: setMediaPath
+                arguments: ["%media_path%"]
 
     # Host group configuration
     Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupReadRepositoryInterface:
@@ -449,14 +493,6 @@ services:
     Centreon\Domain\Menu\Interfaces\MenuRepositoryInterface:
         class: Centreon\Infrastructure\Menu\MenuRepositoryRDB
 
-    Core\Security\Authentication\Application\UseCase\LoginSession\LoginSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
-    Core\Security\Authentication\Application\UseCase\LoginOpenIdSession\LoginOpenIdSession:
-        arguments: [ "%redirect_default_page%" ]
-        public: true
-
     Security\Domain\Authentication\Interfaces\OpenIdProviderInterface:
         class: Core\Security\Authentication\Domain\Provider\OpenIdProvider
         bind:
@@ -473,11 +509,11 @@ services:
     # Log configuration
     monolog.formater:
         class: Monolog\Formatter\LineFormatter
-        arguments: [ "[%%datetime%%] [%%level_name%%] %%message%% %%context%%\n", !php/const DateTimeInterface::ISO8601, false, true ]
+        arguments: ["[%%datetime%%] [%%level_name%%] %%message%% %%context%%\n", !php/const DateTimeInterface::ISO8601, false, true]
 
     monolog.handler:
         class: Centreon\Domain\Log\ErrorFileHandler
-        arguments: [ '@monolog.formater', '%log_file%', 432, '%debug_level%' ]
+        arguments: ['@monolog.formater', '%log_file%', 432, '%debug_level%']
 
     Centreon\Domain\Log\ContactForDebug:
         class: Centreon\Domain\Log\ContactForDebug
@@ -536,6 +572,33 @@ services:
         class: CentreonNotification\Domain\Repository\DependencyRepository
         public: true
 
+    Core\MonitoringServer\Application\Repository\ReadMonitoringServerRepositoryInterface:
+        class: Core\MonitoringServer\Infrastructure\Repository\DbReadMonitoringServerRepository
+        public: true
+
+    Core\MonitoringServer\Application\Repository\WriteMonitoringServerRepositoryInterface:
+        class: Core\MonitoringServer\Infrastructure\Repository\DbWriteMonitoringServerRepository
+        public: true
+
+    Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadHostMacroRepository
+        public: true
+
+    Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface:
+        class: Core\Macro\Infrastructure\Repository\DbReadServiceMacroRepository
+        public: true
+
+    Core\Service\Application\Repository\ReadServiceRepositoryInterface:
+        class: Core\Service\Infrastructure\Repository\DbReadServiceRepository
+        public: true
+
+    Core\Host\Application\Repository\ReadHostRepositoryInterface:
+        class: Core\Host\Infrastructure\Repository\DbReadHostRepository
+        public: true
+
+    Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller:
+        public: true
+
     # Configuration Notifications
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:
@@ -560,4 +623,4 @@ services:
         class: enshrined\svgSanitize\Sanitizer
 
 imports:
-    - { resource: ../../src/Core/**/Infrastructure/Configuration/symfony.yaml }
+    - {resource: ../../src/Core/**/Infrastructure/Configuration/symfony.yaml}

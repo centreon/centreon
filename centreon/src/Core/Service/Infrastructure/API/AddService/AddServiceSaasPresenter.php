@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Service\Application\UseCase\AddService\AddServicePresenterInterface;
 use Core\Service\Application\UseCase\AddService\AddServiceResponse;
 use Core\Service\Application\UseCase\AddService\MacroDto;
+use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
 
 class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePresenterInterface
 {
@@ -61,15 +62,19 @@ class AddServiceSaasPresenter extends AbstractPresenter implements AddServicePre
                         'geo_coords' => $response->geoCoords,
                         'icon_id' => $response->iconId,
                         'severity_id' => $response->severityId,
-                        'categories' => array_map(fn($category): array => [
+                        'check_command_id' => $response->commandId,
+                        'check_command_args' => $response->commandArguments,
+                        'event_handler_enabled' => YesNoDefaultConverter::toInt($response->eventHandlerEnabled),
+                        'event_handler_command_id' => $response->eventHandlerId,
+                        'categories' => array_map(fn ($category): array => [
                             'id' => $category['id'],
                             'name' => $category['name'],
                         ], $response->categories),
-                        'groups' => array_map(fn($group): array => [
+                        'groups' => array_map(fn ($group): array => [
                             'id' => $group['id'],
                             'name' => $group['name'],
                         ], $response->groups),
-                        'macros' => array_map(fn(MacroDto $macro): array => [
+                        'macros' => array_map(fn (MacroDto $macro): array => [
                             'name' => $macro->name,
                             'value' => $macro->isPassword ? null : $macro->value,
                             'is_password' => $macro->isPassword,

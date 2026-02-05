@@ -1,9 +1,10 @@
-import { QueryParameter } from '../../queryParameters/models';
+import type { QueryParameter } from '../../queryParameters/models';
 
 export interface BuildListingEndpointParameters {
   baseEndpoint?: string;
   customQueryParameters?: Array<QueryParameter>;
   parameters: Parameters;
+  isCustomEndpoint?: boolean;
 }
 
 export interface SearchMatch {
@@ -63,6 +64,7 @@ export interface ConditionsSearchParameter {
   field: string;
   value?: unknown;
   values?: ConditionValue;
+  operator?: '$and' | '$or';
 }
 
 type SearchPatterns = Array<{ [field: string]: { $rg: string } }>;

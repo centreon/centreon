@@ -1,11 +1,3 @@
-import { useMemo, useState } from 'react';
-
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, isEmpty } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-
 import DvrIcon from '@mui/icons-material/Dvr';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import UpdateIcon from '@mui/icons-material/Update';
@@ -19,6 +11,13 @@ import {
 import { IconButton, useDeepCompare } from '@centreon/ui';
 import { Tooltip } from '@centreon/ui/components';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isEmpty } from 'ramda';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
+
 import {
   dashboardAtom,
   duplicatePanelDerivedAtom,
@@ -30,8 +29,9 @@ import {
   labelResourcesStatus,
   labelSeeMore
 } from '../../translatedLabels';
-
+import ExpandableButton from './ExpandableButton';
 import MorePanelActions from './MorePanelActions';
+import { ExpandableData } from './models';
 import { usePanelHeaderStyles } from './usePanelStyles';
 import useRefreshWebPageWidget from './useRefreshWebPageWidget';
 
@@ -45,6 +45,7 @@ interface PanelHeaderProps {
   pageType: string | null;
   setRefreshCount?: (id) => void;
   name: string;
+  expandableData?: ExpandableData;
 }
 
 const PanelHeader = ({
@@ -56,7 +57,8 @@ const PanelHeader = ({
   pageType,
   displayShrinkRefresh,
   forceDisplayShrinkRefresh,
-  name
+  name,
+  expandableData
 }: PanelHeaderProps): JSX.Element | null => {
   const { t } = useTranslation();
   const [moreActionsOpen, setMoreActionsOpen] = useState(null);
@@ -112,7 +114,7 @@ const PanelHeader = ({
   return (
     <CardHeader
       action={
-        displayMoreActions && (
+        displayMoreActions ? (
           <div className={classes.panelActionsIcons}>
             {hasQueryData && (
               <div>
@@ -120,10 +122,10 @@ const PanelHeader = ({
                 (displayShrinkRefresh && isLastRefreshMoreThanADay) ? (
                   <IconButton
                     disabled={!!isFetching}
+                    onClick={refresh}
                     size="small"
                     title={labelRefresh}
                     tooltipPlacement="top"
-                    onClick={refresh}
                   >
                     {isFetching ? (
                       <CircularProgress size={22} />
@@ -135,6 +137,7 @@ const PanelHeader = ({
                   <Button
                     className={classes.panelHeaderRefreshButton}
                     disabled={!!isFetching}
+                    onClick={refresh}
                     size="small"
                     startIcon={
                       isFetching ? (
@@ -143,7 +146,6 @@ const PanelHeader = ({
                         <UpdateIcon sx={{ height: 22, width: 22 }} />
                       )
                     }
-                    onClick={refresh}
                   >
                     {labelRefresh}
                   </Button>
@@ -160,8 +162,8 @@ const PanelHeader = ({
               >
                 <IconButton
                   ariaLabel={t(labelSeeMore, { page })}
-                  title={t(labelSeeMore, { page })}
                   onClick={changeViewMode}
+                  title={t(labelSeeMore, { page })}
                 >
                   <DvrIcon fontSize="small" />
                 </IconButton>
@@ -170,37 +172,44 @@ const PanelHeader = ({
 
             {isWebPageWidget && (
               <IconButton
+                onClick={refresWebpageWidget}
                 size="small"
                 title={'Refresh the page'}
                 tooltipPlacement="top"
-                onClick={refresWebpageWidget}
               >
                 <UpdateIcon sx={{ height: 22, width: 22 }} />
               </IconButton>
             )}
 
-            <IconButton
-              ariaLabel={t(labelMoreActions) as string}
-              title={t(labelMoreActions) as string}
-              onClick={openMoreActions}
-            >
-              <MoreHorizIcon fontSize="small" />
-            </IconButton>
+            {!expandableData || !expandableData?.isExpanded ? (
+              <IconButton
+                ariaLabel={t(labelMoreActions) as string}
+                onClick={openMoreActions}
+                title={t(labelMoreActions) as string}
+              >
+                <MoreHorizIcon fontSize="small" />
+              </IconButton>
+            ) : (
+              <ExpandableButton expandableData={expandableData} />
+            )}
             <MorePanelActions
               anchor={moreActionsOpen}
               close={closeMoreActions}
               duplicate={duplicate}
+              expandableData={expandableData}
               id={id}
             />
           </div>
+        ) : (
+          <ExpandableButton expandableData={expandableData} />
         )
       }
-      className={classes.panelHeader}
       classes={{
         content: displayShrinkRefresh
           ? classes.panelHeaderContentWithShrink
           : classes.panelHeaderContent
       }}
+      className={classes.panelHeader}
       title={
         <Tooltip
           followCursor={false}

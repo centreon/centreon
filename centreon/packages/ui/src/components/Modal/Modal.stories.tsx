@@ -1,8 +1,10 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { Button } from '../Button';
-
 import { Modal } from '.';
+import '../../ThemeProvider/tailwindcss.css';
+
+import { basicFormWithCollapsibleGroups } from '../../Form/Form.stories';
 
 const meta: Meta<typeof Modal> = {
   argTypes: {
@@ -34,6 +36,25 @@ export const Default: Story = {
           irure mollit ex aute excepteur eu id cillum.
         </p>
       </Modal.Body>
+      <Modal.Actions
+        labels={{
+          cancel: 'Cancel',
+          confirm: 'Confirm'
+        }}
+      />
+    </Modal>
+  )
+};
+
+export const WithForm: Story = {
+  args: {
+    ...Default.args
+  },
+
+  render: (args) => (
+    <Modal {...args}>
+      <Modal.Header>Modal title</Modal.Header>
+      <Modal.Body>{basicFormWithCollapsibleGroups()}</Modal.Body>
       <Modal.Actions
         labels={{
           cancel: 'Cancel',

@@ -1,8 +1,12 @@
-import { IconButton } from '@centreon/ui';
 import { DeleteOutline } from '@mui/icons-material';
-import { useSetAtom } from 'jotai';
-import { isNotNil, pick } from 'ramda';
+
+import { IconButton } from '@centreon/ui';
+import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, isNotNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
 import { itemToDeleteAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelDelete } from '../../translatedLabels';
@@ -19,6 +23,14 @@ const Action = ({ row }: Props): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
+  const { isAdmin } = useAtomValue(userAtom);
+  const { isCloudPlatform } = useAtomValue(platformFeaturesAtom);
+  const hasCentral = (
+    isNotNil(row.internalListingParentId)
+      ? row.internalListingParentRow?.pollers
+      : row?.pollers
+  )?.some((poller) => equals(poller?.isCentral, true));
+
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
 
   const askBeforeDelete = (): void => {
@@ -32,12 +44,16 @@ const Action = ({ row }: Props): JSX.Element => {
     });
   };
 
+  if (!isAdmin && isCloudPlatform && hasCentral) {
+    return;
+  }
+
   return (
     <IconButton
       ariaLabel={t(labelDelete)}
-      title={t(labelDelete)}
-      onClick={askBeforeDelete}
       className={classes.removeButton}
+      onClick={askBeforeDelete}
+      title={t(labelDelete)}
     >
       <DeleteOutline className={classes.removeIcon} />
     </IconButton>

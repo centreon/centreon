@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,27 @@
  *
  */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Core\Security\Token\Application\UseCase\FindTokens;
 
-final class FindTokensResponse
+use Core\Application\Common\UseCase\ListingResponseInterface;
+use Core\Security\Token\Domain\Model\Token;
+
+final class FindTokensResponse implements ListingResponseInterface
 {
-    /** @var TokenDto[] */
-    public array $tokens = [];
+    /**
+     * @param list<Token> $tokens
+     */
+    public function __construct(public array $tokens)
+    {
+    }
+
+    /**
+     * @return list<Token>
+     */
+    public function getData(): array
+    {
+        return $this->tokens;
+    }
 }

@@ -1,10 +1,9 @@
-import { Link } from 'react-router-dom';
-
 import { EllipsisTypography } from '@centreon/ui';
+
+import { Link } from 'react-router';
 
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import { RowProps } from '../models';
-
 import { useStatusesColumnStyles } from './Columns.styles';
 
 export const Name = ({
@@ -16,13 +15,13 @@ export const Name = ({
   const url = getResourcesUrl({
     allResources: [
       {
-        resourceType: groupType,
         resources: [
           {
             id: row?.id,
             name: row?.name
           }
-        ]
+        ],
+        resourceType: groupType
       }
     ],
     isForOneResource: false,
@@ -39,10 +38,10 @@ export const Name = ({
         <Link
           className={classes.link}
           color="inherit"
+          onClick={goToUrl(url)}
           rel="noopener noreferrer"
           target="_blank"
           to={url}
-          onClick={goToUrl(url)}
         >
           {row.name}
         </Link>

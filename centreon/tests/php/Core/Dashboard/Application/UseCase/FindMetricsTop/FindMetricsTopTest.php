@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Dashboard\Application\Exception\DashboardException;
 use Core\Dashboard\Application\Repository\ReadDashboardPerformanceMetricRepositoryInterface;
 use Core\Dashboard\Application\UseCase\FindMetricsTop\FindMetricsTop;
@@ -51,8 +52,7 @@ beforeEach(function (): void {
 
 it('should present a ForbiddenResponse when the user does not has sufficient rights', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -72,13 +72,11 @@ it('should present a ForbiddenResponse when the user does not has sufficient rig
     $this->expect($presenter->data)
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($presenter->data->getMessage())->toBe(DashboardException::accessNotAllowed()->getMessage());
-
 });
 
 it('should present an ErrorResponse when an error occurs', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,
@@ -96,7 +94,11 @@ it('should present an ErrorResponse when an error occurs', function (): void {
     $this->metricRepository
         ->expects($this->once())
         ->method('findByRequestParametersAndMetricName')
-        ->willThrowException(new \Exception('An error occured'));
+        ->willThrowException(
+            new RepositoryException(
+                'An error occurred while trying to find performance metrics by request parameters and metric name.'
+            )
+        );
 
     $useCase($presenter, $request);
 
@@ -107,8 +109,7 @@ it('should present an ErrorResponse when an error occurs', function (): void {
 
 it('should present a NotFoundResponse when no metrics are found', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,
@@ -137,8 +138,7 @@ it('should present a NotFoundResponse when no metrics are found', function (): v
 
 it('should take account of access groups when the user is not admin', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->nonAdminUser,
         $this->requestParameters,
@@ -162,8 +162,7 @@ it('should take account of access groups when the user is not admin', function (
 
 it('should present a FindMetricsTopResponse when metrics are found', function (): void {
     $presenter = new FindMetricsTopPresenterStub();
-    $request =  new FindMetricsTopRequest();
-    $request->metricName = "rta";
+    $request =  new FindMetricsTopRequest('rta');
     $useCase = new FindMetricsTop(
         $this->adminUser,
         $this->requestParameters,
@@ -180,7 +179,7 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
             'Centreon-Server',
             3,
             [
-                new PerformanceMetric(2,'rta','ms', 20, 50, 0, 11.2, 12.2, 8.2, 14.2),
+                new PerformanceMetric(2, 'rta', 'ms', 20, 50, 0, 11.2, 12.2, 8.2, 14.2),
             ]
         ),
         new ResourceMetric(
@@ -189,7 +188,7 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
             'Centreon-Server',
             3,
             [
-                new PerformanceMetric(5,'rta','ms', 20, 50, null, 21.2, 22.2, 21.2, 24.2),
+                new PerformanceMetric(5, 'rta', 'ms', 20, 50, null, 21.2, 22.2, 21.2, 24.2),
             ]
         ),
     ];
@@ -210,8 +209,8 @@ it('should present a FindMetricsTopResponse when metrics are found', function ()
     $this->expect($presenter->data)
         ->toBeInstanceOf(FindMetricsTopResponse::class);
 
-    $this->expect($presenter->data->metricName)->toBe("rta");
-    $this->expect($presenter->data->metricUnit)->toBe("ms");
+    $this->expect($presenter->data->metricName)->toBe('rta');
+    $this->expect($presenter->data->metricUnit)->toBe('ms');
     $this->expect($presenter->data->resourceMetrics)->toBeArray();
     $metricOne = $presenter->data->resourceMetrics[0];
     $metricTwo = $presenter->data->resourceMetrics[1];

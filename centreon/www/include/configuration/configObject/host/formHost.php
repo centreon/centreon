@@ -1,34 +1,19 @@
 <?php
 
 /*
- * Copyright 2005-2020 Centreon
- * Centreon is developed by : Julien Mathis and Romain Le Merlus under
- * GPL Licence 2.0.
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation ; either version 2 of the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * https://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
- *
- * Linking this program statically or dynamically with other modules is making a
- * combined work based on this program. Thus, the terms and conditions of the GNU
- * General Public License cover the whole combination.
- *
- * As a special exception, the copyright holders of this program give Centreon
- * permission to link this program with independent modules to produce an executable,
- * regardless of the license terms of these independent modules, and to copy and
- * distribute the resulting executable under terms of Centreon choice, provided that
- * Centreon also meet, for each linked independent module, the terms  and conditions
- * of the license of that module. An independent module is a module which is not
- * derived from this program. If you modify this program, you may extend this
- * exception to your version of the program, but you are not obliged to do so. If you
- * do not wish to do so, delete this exception statement from your version.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * For more information : contact@centreon.com
  *
@@ -73,7 +58,7 @@ $datasetRoutes = [
     'event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=list',
     'default_event_handlers' => BASE_ROUTE . '?object=centreon_configuration_command&action=defaultValues&target=host&field=command_command_id2&id=' . $host_id,
     'default_acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=defaultValues&target=host&field=acl_groups&id=' . $host_id,
-    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list'
+    'acl_groups' => BASE_ROUTE . '?object=centreon_administration_aclgroup&action=list',
 ];
 
 $attributes = [
@@ -159,7 +144,8 @@ $attributes = [
         'availableDatasetRoute' => $datasetRoutes['acl_groups'],
         'defaultDatasetRoute' => $datasetRoutes['default_acl_groups'],
         'multiple' => true,
-    ]
+        'linkedObject' => 'centreonAclGroup',
+    ],
 ];
 
 $hostObj = new CentreonHost($pearDB);
@@ -213,15 +199,15 @@ if (
             ON ehi.host_host_id = host.host_id
         WHERE host_id = :host_id LIMIT 1'
     );
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
 
     // Set base value
     $host_list = $statement->fetch();
     $host_list = $host_list === false ? [] : $host_list;
-    $host = array_map("myDecode", $host_list);
+    $host = array_map('myDecode', $host_list);
 
-    $cmdId = $host['command_command_id'] ?? "";
+    $cmdId = $host['command_command_id'] ?? '';
     if (! empty($host['host_snmp_community'])) {
         $host['host_snmp_community'] = PASSWORD_REPLACEMENT_VALUE;
     }
@@ -242,7 +228,7 @@ if (
             ON hcr.hostcategories_hc_id = hc.hc_id
         WHERE hc.level IS NULL AND hcr.host_host_id = :host_id'
     );
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
     for ($i = 0; $hc = $statement->fetch(); $i++) {
         if (! $centreon->user->admin && ! str_contains($hcString, "'" . $hc['hostcategories_hc_id'] . "'")) {
@@ -255,7 +241,7 @@ if (
 
     // Set Host and Nagios Server Relation
     $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM `ns_host_relation` WHERE `host_host_id` = :host_id');
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
     for ($i = ($o !== HOST_MASSIVE_CHANGE) ? 0 : 1; $ns = $statement->fetch(); $i++) {
         $host['nagios_server_id'][$i] = $ns['nagios_server_id'];
@@ -271,7 +257,7 @@ if (
         WHERE hc.level IS NOT NULL AND hcr.host_host_id = :host_id
         ORDER BY hc.level ASC LIMIT 1'
     );
-    $statement->bindValue(':host_id', $host_id, \PDO::PARAM_INT);
+    $statement->bindValue(':host_id', $host_id, PDO::PARAM_INT);
     $statement->execute();
     if ($statement->rowCount()) {
         $cr = $statement->fetch();
@@ -434,12 +420,12 @@ if ($o !== HOST_MASSIVE_CHANGE) {
 switch ($o) {
     case HOST_ADD:
     case HOST_MASSIVE_CHANGE:
-        $form->addElement('text', 'host_snmp_community', _("SNMP Community"), $attrsText);
+        $form->addElement('text', 'host_snmp_community', _('SNMP Community'), $attrsText);
         break;
     default:
         $snmpAttribute = $attrsText;
         $snmpAttribute['onClick'] = 'javascript:change_snmp_community_input_type(this)';
-        $form->addElement('password', 'host_snmp_community', _("SNMP Community"), $snmpAttribute);
+        $form->addElement('password', 'host_snmp_community', _('SNMP Community'), $snmpAttribute);
         break;
 }
 $form->addElement('select', 'host_snmp_version', _('Version'), [null => null, 1 => '1', '2c' => '2c', 3 => '3']);
@@ -472,6 +458,12 @@ $form->addElement('static', 'tplText', _('Using a Template allows you to have mu
 
 $cloneSetMacro = [
     $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#', 'size' => 25]
+    ),
+    $form->addElement(
         'text',
         'macroInput[#index#]',
         _('Name'),
@@ -495,7 +487,7 @@ $cloneSetMacro = [
         'macroFrom[#index#]',
         'direct',
         ['id' => 'macroFrom_#index#']
-    )
+    ),
 ];
 
 $cloneSetTemplate = [];
@@ -546,37 +538,36 @@ $checkCommandSelect->addJsCallback(
 
 $form->addElement('text', 'command_command_id_arg1', _('Args'), $attrsText);
 
-if (! $isCloudPlatform) {
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
-    $hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
-    $form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_event_handler_enabled' => '2']);
-    }
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Yes'), '1');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('No'), '0');
+$hostEHE[] = $form->createElement('radio', 'host_event_handler_enabled', null, _('Default'), '2');
+$form->addGroup($hostEHE, 'host_event_handler_enabled', _('Event Handler Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_event_handler_enabled' => '2']);
+}
 
-    $eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
-    $eventHandlerSelect->addJsCallback(
-        'change',
-        'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
-    );
-    $form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
+$eventHandlerSelect = $form->addElement('select2', 'command_command_id2', _('Event Handler'), [], $attributes['event_handlers']);
+$eventHandlerSelect->addJsCallback(
+    'change',
+    'setArgument(jQuery(this).closest("form").get(0),"command_command_id2","example2");'
+);
 
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
-    $hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_active_checks_enabled' => '2']);
-    }
+$form->addElement('text', 'command_command_id_arg2', _('Args'), $attrsText);
 
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
-    $hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
-    $form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
-    if ($o !== HOST_MASSIVE_CHANGE) {
-        $form->setDefaults(['host_passive_checks_enabled' => '2']);
-    }
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Yes'), '1');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('No'), '0');
+$hostACE[] = $form->createElement('radio', 'host_active_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostACE, 'host_active_checks_enabled', _('Active Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_active_checks_enabled' => '2']);
+}
+
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Yes'), '1');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('No'), '0');
+$hostPCE[] = $form->createElement('radio', 'host_passive_checks_enabled', null, _('Default'), '2');
+$form->addGroup($hostPCE, 'host_passive_checks_enabled', _('Passive Checks Enabled'), '&nbsp;');
+if ($o !== HOST_MASSIVE_CHANGE) {
+    $form->setDefaults(['host_passive_checks_enabled' => '2']);
 }
 
 $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attributes['check_periods']);
@@ -678,7 +669,6 @@ if (! $isCloudPlatform) {
         $form->addElement('checkbox', 'contact_additive_inheritance', '', _('Contact additive inheritance'));
         $form->addElement('checkbox', 'cg_additive_inheritance', '', _('Contact group additive inheritance'));
     }
-
 
     $form->addElement('select2', 'host_cs', _('Linked Contacts'), [], $attributes['contacts']);
     $form->addElement('select2', 'host_cgs', _('Linked Contact Groups'), [], $attributes['contact_groups']);
@@ -952,6 +942,7 @@ foreach ($critList as $critId => $critData) {
 }
 $form->addElement('select', 'criticality_id', _('Host severity'), $criticalityIds);
 
+// MAYBE dead code - to verify
 // Sort 5 - Macros - Nagios 3
 if ($o === HOST_ADD) {
     $form->addElement('header', 'title5', _('Add macros'));
@@ -1028,6 +1019,7 @@ if ($o !== HOST_MASSIVE_CHANGE) {
     $form->addRule('host_name', _('Unauthorized value'), 'sanitize');
     $form->addRule('host_address', _('Compulsory Address'), 'required');
     $form->addRule('host_address', _('Unauthorized value'), 'sanitize');
+    $form->applyFilter('host_address', 'strip_tags');
     if (! $isCloudPlatform) {
         $form->registerRule('cg_group_exists', 'callback', 'testCg');
         $form->addRule(
@@ -1048,9 +1040,8 @@ $macChecker->setValue(1);
 $form->registerRule('macHandler', 'callback', 'hostMacHandler');
 $form->addRule('macChecker', _('You cannot override reserved macros'), 'macHandler');
 
-// Smarty template Init
-$tpl = new Smarty();
-$tpl = initSmartyTpl($path, $tpl);
+// Smarty template initialization
+$tpl = SmartyBC::createSmartyTemplate($path);
 
 $tpl->assign(
     'alert_check_interval',
@@ -1098,12 +1089,16 @@ if ($o === HOST_WATCH) {
     $res = $form->addElement('reset', 'reset', _('Reset'), ['class' => 'btc bt_default']);
 }
 
+if ($o === HOST_ADD || $o === HOST_MODIFY || $o === HOST_MASSIVE_CHANGE) {
+    $form->addFormRule('validateParentChildAreNotCircular');
+}
+
 if (! $isCloudPlatform) {
     $tpl->assign(
         'msg',
         [
             'nagios' => $centreon->user->get_version(),
-            'isHostTemplate' => 0
+            'isHostTemplate' => 0,
         ]
     );
 
@@ -1122,8 +1117,8 @@ $tpl->assign('javascript', '
         ');
 
 if ($isCloudPlatform) {
-    $form->addElement('header', 'monitoringSettings', _("Monitoring settings"));
-    $form->addElement('header', 'classification', _("Classification"));
+    $form->addElement('header', 'monitoringSettings', _('Monitoring settings'));
+    $form->addElement('header', 'classification', _('Classification'));
 }
 
 // prepare help texts
@@ -1144,42 +1139,21 @@ if ($o !== HOST_ADD && $o !== HOST_MODIFY) {
 $valid = false;
 if ($form->validate() && $from_list_menu === false) {
     $hostObj = $form->getElement('host_id');
+    $formData = $form->getSubmitValues();
     if ($form->getSubmitValue('submitA')) {
-        if (null !== $hostId = insertHostInAPI()) {
+        if ($hostId = insertHostInAPI($formData)) {
             $hostObj->setValue($hostId);
             $o = HOST_WATCH;
             $valid = true;
         }
     } elseif ($form->getSubmitValue('submitC')) {
-        /*
-         * Before saving, we check if a password macro has changed its name to be able to give it the right password
-         * instead of wildcards (PASSWORD_REPLACEMENT_VALUE).
-         */
-        if (isset($_REQUEST['macroInput'])) {
-            foreach ($_REQUEST['macroInput'] as $index => $macroName) {
-                if (array_key_exists('macroOriginalName_' . $index, $_REQUEST)) {
-                    $originalMacroName = $_REQUEST['macroOriginalName_' . $index];
-                    if ($_REQUEST['macroValue'][$index] === PASSWORD_REPLACEMENT_VALUE) {
-                        /*
-                         * The password has not been changed along with the name, so its value is equal to the wildcard.
-                         * We will therefore recover the password stored for its original name.
-                         */
-                        foreach ($aMacros as $indexMacro => $macroDetails) {
-                            if ($macroDetails['macroInput_#index#'] === $originalMacroName) {
-                                $_REQUEST['macroValue'][$index] = $macroPasswords[$indexMacro]['password'];
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+        if (updateHostInApi((int) $hostObj->getValue(), $formData) !== false) {
+            $o = HOST_WATCH;
+            $valid = true;
         }
-        updateHostInDB($hostObj->getValue());
-        $o = HOST_WATCH;
-        $valid = true;
     } elseif ($form->getSubmitValue('submitMC')) {
         foreach (array_keys($select) as $hostIdToUpdate) {
-            updateHostInDB($hostIdToUpdate, true);
+            updateHostInDB_MC($hostIdToUpdate);
         }
         $o = HOST_WATCH;
         $valid = true;
@@ -1208,12 +1182,12 @@ if ($valid) {
         $tpl->assign('Freshness_Control_options', _('Freshness Control options'));
         $tpl->assign('Flapping_Options', _('Flapping options'));
         $tpl->assign('History_Options', _('History Options'));
-        $tpl->assign('Event_Handler', _('Event Handler'));
         $tpl->assign('hostID', $host_id);
         $tpl->assign('add_mtp_label', _('Add a template'));
         $tpl->assign('tpl', 0);
         $tpl->assign('is_not_template', $host_register);
     }
+    $tpl->assign('Event_Handler', _('Event Handler'));
     $tpl->assign('inheritance', $inheritanceMode['value']);
     $tpl->assign('topdoc', _('Documentation'));
     $tpl->assign('custom_macro_label', _('Custom macros'));

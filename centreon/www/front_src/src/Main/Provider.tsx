@@ -1,11 +1,10 @@
-import { lazy, useEffect } from 'react';
+import { Module } from '@centreon/ui';
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createStore } from 'jotai';
 import { not, startsWith, tail } from 'ramda';
-import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-
-import { Module } from '@centreon/ui';
+import { lazy, useEffect } from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 
 import AuthenticationDenied from '../FallbackPages/AuthenticationDenied';
 import routeMap from '../reactRoutes/routeMap';
@@ -77,10 +76,8 @@ const Provider = (): JSX.Element | null => {
 
   return (
     <Module maxSnackbars={2} seedName="centreon" store={store}>
-      <>
-        <RouterProvider router={router} />
-        <ReactQueryDevtools />
-      </>
+      <RouterProvider router={router} />
+      <ReactQueryDevtools />
     </Module>
   );
 };

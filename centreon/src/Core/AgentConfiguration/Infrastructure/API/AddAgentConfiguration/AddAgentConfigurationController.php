@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
+use Core\AgentConfiguration\Domain\Model\ConnectionModeEnum;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,6 +71,7 @@ final class AddAgentConfigurationController extends AbstractController
          * @var array{
          *     name:string,
          *     type:string,
+         *     connection_mode:string|null,
          *     poller_ids:int[],
          *     configuration:array<string,mixed>
          * } $data
@@ -79,7 +81,7 @@ final class AddAgentConfigurationController extends AbstractController
         $schemaFile = match ($data['type']) {
             'telegraf' => 'TelegrafConfigurationSchema.json',
             'centreon-agent' => 'CmaConfigurationSchema.json',
-            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type']))
+            default => throw new \InvalidArgumentException(sprintf("Unknown parameter type with value '%s'", $data['type'])),
         };
 
         $this->validateDataSent($request, __DIR__ . "/../Schema/{$schemaFile}");
@@ -87,6 +89,12 @@ final class AddAgentConfigurationController extends AbstractController
         $addRequest = new AddAgentConfigurationRequest();
         $addRequest->type = $data['type'];
         $addRequest->name = $data['name'];
+        $addRequest->connectionMode = match ($data['connection_mode']) {
+            'no-tls' => ConnectionModeEnum::NO_TLS,
+            'insecure' => ConnectionModeEnum::INSECURE,
+            'secure' => ConnectionModeEnum::SECURE,
+            default => ConnectionModeEnum::SECURE,
+        };
         $addRequest->pollerIds = $data['poller_ids'];
         $addRequest->configuration = $data['configuration'];
 

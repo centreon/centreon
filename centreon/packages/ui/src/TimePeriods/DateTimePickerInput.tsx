@@ -1,19 +1,19 @@
-import { useCallback } from 'react';
-
-import dayjs, { Dayjs } from 'dayjs';
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
-
 import {
   DateTimePicker,
-  DateTimePickerProps,
+  type DateTimePickerProps,
   LocalizationProvider
 } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 import { userAtom } from '@centreon/ui-context';
 
-import { CustomTimePeriodProperty } from './models';
+import dayjs, { type Dayjs } from 'dayjs';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { useCallback } from 'react';
+
+import { useLocale } from '../utils';
+import type { CustomTimePeriodProperty } from './models';
 
 interface ChangeDateProps {
   date: Date;
@@ -50,6 +50,7 @@ const DateTimePickerInput = ({
     '@media (min-width: 1024px) or (pointer: fine)';
 
   const user = useAtomValue(userAtom);
+  const localeToUse = useLocale();
 
   const isUTC = equals(timezone ?? user.timezone, 'UTC');
 
@@ -72,7 +73,7 @@ const DateTimePickerInput = ({
 
   return (
     <LocalizationProvider
-      adapterLocale={(locale ?? user.locale).substring(0, 2)}
+      adapterLocale={(locale ?? localeToUse).substring(0, 2)}
       dateAdapter={AdapterDayjs}
       dateLibInstance={dayjs}
     >
@@ -85,8 +86,8 @@ const DateTimePickerInput = ({
         maxDate={maxDate && formatDate(maxDate)}
         minDate={minDate && formatDate(minDate)}
         minDateTime={minDateTime && formatDate(minDateTime)}
-        value={formatDate(date)}
         onChange={changeTime}
+        value={formatDate(date)}
         {...rest}
       />
     </LocalizationProvider>

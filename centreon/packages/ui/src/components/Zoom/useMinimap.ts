@@ -1,10 +1,9 @@
+import type { Point } from '@visx/point';
+import type { ProvidedZoom, Translate } from '@visx/zoom/lib/types';
+import { equals, gt, pick } from 'ramda';
 import { useCallback, useState } from 'react';
 
-import { Point } from '@visx/point';
-import { ProvidedZoom, Translate } from '@visx/zoom/lib/types';
-import { equals, gt, isNil, pick } from 'ramda';
-
-import { ZoomState } from './models';
+import type { ZoomState } from './models';
 
 export interface UseMinimapProps {
   height: number;
@@ -62,8 +61,8 @@ export const useMinimap = ({
   );
 
   const transformTo = useCallback(
-    (e): void => {
-      if (!isNil(e.nativeEvent.which) && !equals(e.nativeEvent.which, 1)) {
+    (e: MouseEvent): void => {
+      if (!equals(e.buttons, 1)) {
         return;
       }
       const { x, y } = getMatrixPoint(e);
@@ -73,14 +72,11 @@ export const useMinimap = ({
         translateY: y
       });
     },
-    [zoom.transformMatrix, scale]
+    [zoom.transformMatrix, getMatrixPoint, zoom.setTransformMatrix]
   );
 
-  const dragStart = (e): void => {
-    if (
-      (!isNil(e.nativeEvent.which) && !equals(e.nativeEvent.which, 1)) ||
-      isDraggingFromContainer
-    ) {
+  const dragStart = (e: MouseEvent): void => {
+    if (!equals(e.buttons, 1) || isDraggingFromContainer) {
       return;
     }
     setStartPoint(getMatrixPoint(e));
@@ -109,7 +105,13 @@ export const useMinimap = ({
       });
     },
 
-    [zoom.transformMatrix, isDraggingFromContainer, scale, startPoint]
+    [
+      zoom.transformMatrix,
+      startPoint,
+      getMatrixPoint,
+      startTranslate,
+      zoom.setTransformMatrix
+    ]
   );
 
   const zoomInOut = useCallback(
@@ -136,14 +138,7 @@ export const useMinimap = ({
         translateY: zoom.transformMatrix.translateY + diffY / 4
       });
     },
-    [
-      zoom.transformMatrix,
-      width,
-      height,
-      isDraggingFromContainer,
-      scale,
-      startPoint
-    ]
+    [zoom.transformMatrix, getMatrixPoint, zoom.setTransformMatrix]
   );
 
   return {

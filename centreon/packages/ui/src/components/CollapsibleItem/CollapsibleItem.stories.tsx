@@ -1,6 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import { Checkbox, Typography } from '@mui/material';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { CollapsibleItem } from './CollapsibleItem';
 

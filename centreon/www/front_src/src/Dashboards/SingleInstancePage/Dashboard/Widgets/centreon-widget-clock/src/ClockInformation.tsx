@@ -1,15 +1,14 @@
-import { memo } from 'react';
-
-import { Dayjs } from 'dayjs';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import HourglassTopIcon from '@mui/icons-material/HourglassTop';
 import PublicIcon from '@mui/icons-material/Public';
 import QueryBuilderIcon from '@mui/icons-material/QueryBuilder';
 import { Tooltip, Typography } from '@mui/material';
 
 import { EllipsisTypography } from '@centreon/ui';
+
+import { Dayjs } from 'dayjs';
+import { equals } from 'ramda';
+import { memo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useClockStyles } from './Clock.styles';
 import { labelEndsAt } from './translatedLabels';
@@ -60,7 +59,7 @@ const ClockInformation = ({
   return (
     <div
       className={classes.clockInformation}
-      data-isSmall={isSmall}
+      data-is-small={isSmall}
       data-timer={!isClock}
     >
       <Icon className={classes.icon} />

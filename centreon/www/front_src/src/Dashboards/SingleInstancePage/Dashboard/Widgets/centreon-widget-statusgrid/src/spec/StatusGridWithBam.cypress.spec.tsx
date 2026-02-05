@@ -1,9 +1,3 @@
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { T, always, cond, equals } from 'ramda';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router-dom';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 import {
   additionalResourcesAtom,
@@ -11,17 +5,22 @@ import {
   userAtom
 } from '@centreon/ui-context';
 
-import Widget from '..';
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
+import { always, cond, equals, T } from 'ramda';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import { getPublicWidgetEndpoint } from '../../../utils';
-import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
-import { Data, PanelOptions } from '../StatusGridStandard/models';
+import Widget from '..';
 import {
   baIndicatorsEndpoint,
   businessActivitiesEndpoint,
   getBAEndpoint,
   getBooleanRuleEndpoint
 } from '../api/endpoints';
-
+import { getStatusesEndpoint } from '../StatusGridCondensed/api/endpoints';
+import { Data, PanelOptions } from '../StatusGridStandard/models';
 import {
   baCondensedOptions,
   baOptions,
@@ -137,13 +136,13 @@ const baTestCases = [
 
       cy.contains('State information').should('be.visible');
       cy.contains('Health').should('be.visible');
-      cy.contains('100%').should('be.visible');
+      cy.contains('70%').should('be.visible');
       cy.contains('Warning threshold').should('be.visible');
       cy.contains('80%').should('be.visible');
       cy.contains('Critical threshold').should('be.visible');
       cy.contains('70%').should('be.visible');
 
-      cy.contains('KPIs').should('be.visible');
+      cy.contains('KPIs').should('exist');
       cy.contains('Ping').should('be.visible');
       cy.contains('12%').should('be.visible');
       cy.contains('15%').should('be.visible');

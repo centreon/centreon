@@ -45,16 +45,14 @@ post:
       application/json:
         schema:
           allOf:
-            - required: ["name", "alias"]
             - $ref: 'Schema/NewServiceTemplate.yaml'
   responses:
     '201':
-      allOf:
-        - $ref: '../../../Common/Response/Created.yaml'
-        - content:
-            application/json:
-              schema:
-                $ref: 'Schema/AddServiceTemplateResponse.yaml'
+      description: "Created"
+      content:
+        application/json:
+          schema:
+            $ref: 'Schema/AddServiceTemplateResponse.yaml'
     '400':
       $ref: '../../../Common/Response/BadRequest.yaml'
     '403':

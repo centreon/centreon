@@ -1,36 +1,42 @@
+import type { Column } from '@centreon/ui';
 import {
-  T,
+  ColumnType,
+  truncate,
+  useLocaleDateTimeFormat,
+  useStyleTable
+} from '@centreon/ui';
+import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import {
   always,
   cond,
   equals,
   head,
   isEmpty,
   isNotNil,
+  or,
   pipe,
   propOr,
-  split
+  split,
+  T
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-import { useAtomValue } from 'jotai';
-
-import {
-  ColumnType,
-  useLocaleDateTimeFormat,
-  useStyleTable
-} from '@centreon/ui';
-import type { Column } from '@centreon/ui';
-
+import { openTicketAtom } from '../../atom';
 import { DisplayType } from '../models';
 import {
   labelAction,
+  labelAlias,
   labelDuration,
+  labelFqdn,
   labelHost,
   labelInformation,
   labelLastCheck,
+  labelMonitoringServer,
   labelOpenedOn,
   labelParent,
+  labelParentAlias,
   labelResource,
   labelService,
   labelServices,
@@ -42,25 +48,19 @@ import {
   labelTicketSubject,
   labelTries
 } from '../translatedLabels';
-
-import useIsOpenTicketInstalled from '../useIsOpenTicketInstalled';
 import CloseTicket from './CloseTicket/CloseTicket';
-
-import useStyles, { useStatusStyles } from './Columns.styles';
+import { useStatusStyles } from './Columns.styles';
 import OpenTicket from './OpenTicket/OpenTicket';
+import { TicketLink } from './OpenTicket/TicketLink';
 import ParentResourceColumn from './Parent';
 import ResourceColumn from './Resource';
 import SubItem from './ServiceSubItemColumn/SubItem';
 import SeverityColumn from './Severity';
 import StateColumn from './State';
 import StatusColumn from './Status';
-import truncate from './truncate';
 
 interface ColumnProps {
-  displayResources: 'withTicket' | 'withoutTicket';
   displayType?: DisplayType;
-  isOpenTicketEnabled: boolean;
-  provider?: { id: number; name: string };
 }
 
 interface ColumnsState {
@@ -73,23 +73,25 @@ const getTicketInformations = (row) =>
   row?.parent?.extra?.open_tickets?.tickets;
 
 const useColumns = ({
-  displayType = DisplayType.All,
-  displayResources,
-  provider,
-  isOpenTicketEnabled
+  displayType = DisplayType.All
 }: ColumnProps): ColumnsState => {
-  const { classes } = useStyles();
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
 
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const {
+    displayResources,
+    enableHostTicketCreation,
+    enableServiceTicketCreation,
+    isOpenTicketEnabled,
+    isOpenTicketInstalled,
+    provider
+  } = useAtomValue(openTicketAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
-
-  const isOpenTicketInstalled = useIsOpenTicketInstalled();
 
   const resourceLabel = cond([
     [equals(DisplayType.Host), always(labelHost)],
@@ -105,7 +107,10 @@ const useColumns = ({
 
   const hasProvider = isNotNil(provider) && !isEmpty(provider);
   const isOpenTicketColumnsVisible =
-    isOpenTicketInstalled && isOpenTicketEnabled && hasProvider;
+    isOpenTicketInstalled &&
+    isOpenTicketEnabled &&
+    hasProvider &&
+    or(enableHostTicketCreation, enableServiceTicketCreation);
 
   const isOpenTicketActionColumnVisible =
     isOpenTicketColumnsVisible && equals(displayResources, 'withoutTicket');
@@ -128,6 +133,7 @@ const useColumns = ({
       Component: StatusColumn({
         classes: statusClasses,
         displayType,
+        isOnPublicPage,
         t
       }),
       clickable: true,
@@ -136,20 +142,21 @@ const useColumns = ({
       id: 'status',
       label: t(labelStatus),
       rowMemoProps: ['status', 'severity_code', 'type'],
-      sortField: 'status_severity_code',
       sortable: true,
+      sortField: 'status_severity_code',
       type: ColumnType.component,
       width: 'max-content'
     },
     {
-      Component: ResourceColumn({ classes, displayType }),
+      Component: ResourceColumn({ displayType }),
       getRenderComponentOnRowUpdateCondition: T,
       id: 'resource',
       label: t(resourceLabel),
       rowMemoProps: ['icon', 'short_type', 'name'],
-      sortField: 'name',
       sortable: true,
-      type: ColumnType.component
+      sortField: 'name',
+      type: ColumnType.component,
+      width: 'max-content'
     },
     {
       Component: equals(displayType, DisplayType.Host)
@@ -159,9 +166,10 @@ const useColumns = ({
       getRenderComponentOnRowUpdateCondition: T,
       id: 'parent_resource',
       label: t(parentLabel),
-      sortField: 'parent_name',
       sortable: true,
-      type: ColumnType.component
+      sortField: 'parent_name',
+      type: ColumnType.component,
+      width: 'max-content'
     },
     ...(isOpenTicketActionColumnVisible && !isOnPublicPage
       ? [
@@ -177,10 +185,11 @@ const useColumns = ({
     ...(areTicketColumnsVisible
       ? [
           {
-            getFormattedString: (row): string => getTicketInformations(row)?.id,
+            Component: TicketLink,
+            clickable: true,
             id: 'ticket_id',
             label: t(labelTicketID),
-            type: ColumnType.string
+            type: ColumnType.component
           },
           {
             getFormattedString: (row): string =>
@@ -207,8 +216,8 @@ const useColumns = ({
       getFormattedString: ({ duration }): string => duration,
       id: 'duration',
       label: t(labelDuration),
-      sortField: 'last_status_change',
       sortable: true,
+      sortField: 'last_status_change',
       type: ColumnType.string
     },
     {
@@ -230,7 +239,7 @@ const useColumns = ({
         propOr('', 'information'),
         split('\n'),
         head,
-        truncate
+        (information: string) => truncate({ content: information })
       ) as (row) => string,
       id: 'information',
       label: t(labelInformation),
@@ -245,8 +254,8 @@ const useColumns = ({
       id: 'severity',
       label: t(labelSeverity),
       rowMemoProps: ['severity_level'],
-      sortField: 'severity_level',
       sortable: true,
+      sortField: 'severity_level',
       type: ColumnType.component,
       width: 'minmax(50px, auto)'
     },
@@ -259,15 +268,50 @@ const useColumns = ({
       sortable: false,
       type: ColumnType.component
     },
+    {
+      getFormattedString: ({ alias }): string => alias,
+      id: 'alias',
+      label: t(labelAlias),
+      sortable: true,
+      type: ColumnType.string,
+      width: 'max-content'
+    },
+    {
+      getFormattedString: ({ parent }): string => parent?.alias,
+      id: 'parent_alias',
+      label: t(labelParentAlias),
+      rowMemoProps: ['parent'],
+      sortable: true,
+      sortField: 'parent_alias',
+      type: ColumnType.string,
+      width: 'max-content'
+    },
+    {
+      getFormattedString: ({ fqdn }): string => fqdn,
+      id: 'fqdn',
+      label: t(labelFqdn),
+      sortable: true,
+      type: ColumnType.string,
+      width: 'max-content'
+    },
+    {
+      getFormattedString: ({ monitoring_server_name }): string =>
+        monitoring_server_name,
+      id: 'monitoring_server_name',
+      label: t(labelMonitoringServer),
+      sortable: true,
+      type: ColumnType.string,
+      width: 'max-content'
+    },
     ...(areTicketColumnsVisible && !isOnPublicPage
       ? [
           {
             Component: CloseTicket,
+            clickable: true,
             getRenderComponentOnRowUpdateCondition: T,
             id: 'action',
             label: t(labelAction),
-            type: ColumnType.component,
-            clickable: true
+            type: ColumnType.component
           }
         ]
       : [])

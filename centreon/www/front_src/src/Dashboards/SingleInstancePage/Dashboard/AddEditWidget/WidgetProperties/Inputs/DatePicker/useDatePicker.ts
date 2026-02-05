@@ -1,11 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { SelectEntry } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import dayjs, { Dayjs } from 'dayjs';
 import { useFormikContext } from 'formik';
 import { useAtomValue } from 'jotai';
-
-import { SelectEntry } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { useCallback, useMemo } from 'react';
 
 import {
   localeInputKeyDerivedAtom,
@@ -53,7 +52,7 @@ export const useDatePicker = ({
     [formTimezone, user]
   );
 
-  const firstMountDate = useMemo(() => new Date().getTime(), []);
+  const firstMountDate = useMemo(() => Date.now(), []);
 
   const currentDate = useMemo(
     () =>

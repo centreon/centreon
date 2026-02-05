@@ -1,16 +1,16 @@
 import { Method, TestQueryProvider } from '@centreon/ui';
 
+import { authenticationProvidersEndpoint } from '../api/endpoints';
 import {
   labelDoYouWantToResetTheForm,
   labelReset,
   labelResetTheForm,
   labelSave
 } from '../Local/translatedLabels';
-import { authenticationProvidersEndpoint } from '../api/endpoints';
 import { Provider } from '../models';
 import { labelMixed } from '../shared/translatedLabels';
 import { labelActivation } from '../translatedLabels';
-
+import WebSSOConfigurationForm from '.';
 import { retrievedWebSSOConfiguration } from './defaults';
 import {
   labelBlacklistClientAddresses,
@@ -24,8 +24,6 @@ import {
   labelTrustedClientAddresses,
   labelWebSSOOnly
 } from './translatedLabels';
-
-import WebSSOConfigurationForm from '.';
 
 const initialize = (): void => {
   cy.viewport('macbook-15');
@@ -76,12 +74,10 @@ describe('Web SSO configuration form', () => {
     cy.findByLabelText('save button').click();
 
     cy.waitForRequest('@putWebSSOConfiguration').then(({ request }) => {
-      expect(request.body).to.equal(
-        JSON.stringify({
-          ...retrievedWebSSOConfiguration,
-          login_header_attribute: 'admin'
-        })
-      );
+      expect(request.body).to.deep.equal({
+        ...retrievedWebSSOConfiguration,
+        login_header_attribute: 'admin'
+      });
     });
 
     cy.makeSnapshot();

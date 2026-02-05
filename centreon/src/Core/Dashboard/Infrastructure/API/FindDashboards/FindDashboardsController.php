@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,13 @@ use Centreon\Application\Controller\AbstractController;
 use Core\Dashboard\Application\UseCase\FindDashboards\FindDashboards;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted(
+    'dashboard_access',
+    null,
+    'You are not allowed to set dashboard as favorites'
+)]
 final class FindDashboardsController extends AbstractController
 {
     /**
@@ -40,7 +46,7 @@ final class FindDashboardsController extends AbstractController
      */
     public function __invoke(
         FindDashboards $useCase,
-        FindDashboardsPresenter $presenter
+        FindDashboardsPresenter $presenter,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

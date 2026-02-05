@@ -1,9 +1,8 @@
-import { Provider, createStore } from 'jotai';
-import { equals } from 'ramda';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import Listing from '..';
+import { createStore, Provider } from 'jotai';
+import { equals } from 'ramda';
+
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
 import { notificationEndpoint } from '../../Panel/api/endpoints';
@@ -25,30 +24,28 @@ import {
   labelRequired,
   labelThisNameAlreadyExists
 } from '../../translatedLabels';
+import Listing from '..';
 import { buildNotificationsEndpoint } from '../api/endpoints';
-
 import {
   defaultQueryParams,
   getListingColumns,
   getListingResponse,
+  multipleNotificationsfailedResponse,
   multipleNotificationsSuccessResponse,
-  multipleNotificationsWarningResponse,
-  multipleNotificationsfailedResponse
+  multipleNotificationsWarningResponse
 } from './testUtils';
 
 const store = createStore();
 
 const ListingWithQueryProvider = (): JSX.Element => {
   return (
-    <div style={{ height: '100vh' }}>
+    <div style={{ height: '90vh' }}>
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <>
-              <Listing />
-              <DeleteConfirmationDialog />
-              <DuplicationForm />
-            </>
+            <Listing />
+            <DeleteConfirmationDialog />
+            <DuplicationForm />
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>
@@ -156,7 +153,7 @@ const mockedBulkDelete = (response): void => {
     method: Method.POST,
     path: `${notificationEndpoint({})}/_delete`,
     response,
-    statusCode: 207
+    statusCode: 200
   });
 };
 
@@ -427,6 +424,8 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findByText(labelDuplicate).should('be.disabled');
     cy.findByText(labelDiscard).click();
 
+    cy.findByText(labelDiscard).should('not.exist');
+
     cy.makeSnapshot();
   });
 
@@ -448,6 +447,8 @@ describe('Listing row actions: Duplicate button', () => {
 
     cy.findByText(labelDiscard).click();
 
+    cy.findByText(labelDiscard).should('not.exist');
+
     cy.makeSnapshot();
   });
 
@@ -462,6 +463,8 @@ describe('Listing row actions: Duplicate button', () => {
     cy.findByTestId('Confirm').should('be.disabled');
 
     cy.findByText(labelDiscard).click();
+
+    cy.findByText(labelDiscard).should('not.exist');
 
     cy.makeSnapshot();
   });
@@ -538,10 +541,6 @@ describe('column sorting', () => {
       });
 
       cy.contains('notification1').should('exist');
-
-      cy.makeSnapshot(
-        `column sorting --  executes a listing request when the ${label} column is clicked`
-      );
     });
   });
 });

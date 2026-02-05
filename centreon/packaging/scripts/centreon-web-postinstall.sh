@@ -19,9 +19,11 @@ updateConfigurationFiles() {
   export HOUR=$(awk 'BEGIN{srand(); print int(rand()*24)}')
   sed -i -E "s/0\s0(.*)centreon\-send\-stats\.php(.*)/$MIN $HOUR\1centreon-send-stats.php\2/" /etc/cron.d/centreon
 
-  # Create HASH secret for Symfony application
-  echo "Updating APP_SECRET in centreon environment file ..."
-  REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
+  if grep -REq "%APP_SECRET%" /usr/share/centreon/.env*; then
+    # Create HASH secret for Symfony application
+    echo "Updating APP_SECRET in centreon environment files ..."
+    REPLY=($(dd if=/dev/urandom bs=32 count=1 status=none | /usr/bin/php -r "echo bin2hex(fread(STDIN, 32));")); sed -i "s/%APP_SECRET%/$REPLY/g" /usr/share/centreon/.env*
+  fi
 
   echo "Updating centreon perl configuration files to central mode ..."
   sed -i -e "s/\$instance_mode = \"poller\";/\$instance_mode = \"central\";/g" /etc/centreon/conf.pm
@@ -125,13 +127,10 @@ manageApacheAndPhpFpm() {
 }
 
 rebuildSymfonyCache() {
-  echo "Rebuilding Centreon application cache ..."
-  rm -rf /var/cache/centreon/symfony
-
-  if [ "$1" = "rpm" ]; then
-    su - apache -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
-  else
-    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear"
+  if [ "$1" = "deb" ]; then
+    echo "Rebuilding Centreon application cache ..."
+    rm -rf /var/cache/centreon/symfony
+    su - www-data -s /bin/bash -c "/usr/share/centreon/bin/console cache:clear -q" || :
   fi
 }
 
@@ -151,11 +150,23 @@ fixSymfonyCacheRights() {
 fixCentreonCronPermissions() {
   # MON-146883
   # Override permissions for cron scripts
-  chmod 0755 \
-    /usr/share/centreon/cron/outdated-token-removal.php
+  chmod 0755 /usr/share/centreon/cron/outdated-token-removal.php
+  chown -R centreon:centreon /usr/share/centreon/cron/outdated-token-removal.php
 
-  chown -R centreon:centreon \
-    /usr/share/centreon/cron/outdated-token-removal.php
+  # Update log files permissions which have been potentially created by centreon user
+  LOG_FILES=(
+    "/var/log/centreon/centreon-web.log"
+    "/var/log/centreon/centreon-tokens.log"
+  )
+  for LOG_FILE in "${LOG_FILES[@]}"; do
+    if [ -f "$LOG_FILE" ]; then
+      if [ "$1" = "rpm" ]; then
+        chown apache:apache "$LOG_FILE"
+      else
+        chown www-data:www-data "$LOG_FILE"
+      fi
+    fi
+  done
 }
 
 package_type="rpm"
@@ -181,7 +192,7 @@ case "$action" in
     setPhpTimezone $package_type
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
-    fixCentreonCronPermissions
+    fixCentreonCronPermissions $package_type
     ;;
   "2" | "upgrade")
     manageUsersAndGroups $package_type
@@ -192,7 +203,7 @@ case "$action" in
     manageApacheAndPhpFpm $package_type
     fixSymfonyCacheRights $package_type
     rebuildSymfonyCache $package_type
-    fixCentreonCronPermissions
+    fixCentreonCronPermissions $package_type
     ;;
   *)
     # $1 == version being installed

@@ -1,23 +1,19 @@
-import { memo } from 'react';
-
-import { equals, props } from 'ramda';
-
 import { Tooltip } from '@mui/material';
 
-import { ListingVariant } from '@centreon/ui-context';
+import type { ListingVariant } from '@centreon/ui-context';
+
+import { equals, props } from 'ramda';
+import { memo } from 'react';
 
 import {
-  Column,
+  type Column,
   ColumnType,
-  ComponentColumnProps,
-  RowColorCondition
+  type ComponentColumnProps,
+  type RowColorCondition
 } from '../models';
 import useStyleTable from '../useStyleTable';
-
-import { useStyles } from './DataCell.styles';
-import EllipsisTypography from './EllipsisTypography';
-
 import Cell from '.';
+import EllipsisTypography from './EllipsisTypography';
 
 interface Props {
   column: Column;
@@ -46,7 +42,6 @@ const DataCell = ({
   labelCollapse,
   labelExpand
 }: Props): JSX.Element | null => {
-  const { classes, cx } = useStyles();
   const { dataStyle } = useStyleTable({ listingVariant });
 
   const commonCellProps = {
@@ -77,13 +72,14 @@ const DataCell = ({
           dataStyle={dataStyle}
           disableRowCondition={disableRowCondition(row)}
           formattedString={formattedString}
+          isRowHighlighted={isRowHighlighted}
           isRowHovered={isRowHovered}
         />
       );
 
       return (
         <Cell
-          className={classes.cell}
+          className="flex items-center h-full overflow-hidden whitespace-nowrap"
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
           style={{
@@ -110,7 +106,7 @@ const DataCell = ({
       if (isCellHidden) {
         return (
           <Cell
-            className={classes.cell}
+            className="flex items-center h-full overflow-hidden whitespace-nowrap"
             isRowHighlighted={isRowHighlighted}
             listingVariant={listingVariant}
             onClick={(e): void => {
@@ -127,18 +123,18 @@ const DataCell = ({
 
       return (
         <Cell
-          className={cx(classes.cell, clickable && classes.clickable)}
+          className={`flex align-items h-full overflow-hidden whitespace-nowrap ${clickable && 'cursor-default'}`}
           isRowHighlighted={isRowHighlighted}
           listingVariant={listingVariant}
-          style={{
-            alignItems: align
-          }}
           onClick={(e): void => {
             if (!clickable) {
               return;
             }
             e.preventDefault();
             e.stopPropagation();
+          }}
+          style={{
+            alignItems: align
           }}
           {...commonCellProps}
         >
@@ -155,6 +151,7 @@ const DataCell = ({
                   dataStyle={dataStyle}
                   disableRowCondition={disableRowCondition(row)}
                   formattedString={formattedString}
+                  isRowHighlighted={isRowHighlighted}
                   isRowHovered={isRowHovered}
                 />
               );
@@ -280,4 +277,4 @@ const MemoizedDataCell = memo<Props>(
 );
 
 export default MemoizedDataCell;
-export { useStyles, type Props };
+export type { Props };

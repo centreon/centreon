@@ -1,25 +1,33 @@
-import { equals, isEmpty, isNil, pick } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Autocomplete,
-  AutocompleteProps,
+  type AutocompleteProps,
   CircularProgress,
   InputAdornment,
+  type InputProps,
   useTheme
 } from '@mui/material';
-import { autocompleteClasses } from '@mui/material/Autocomplete';
-import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
+import type {
+  AutocompleteRenderOptionState,
+  AutocompleteSlotsAndSlotProps
+} from '@mui/material/Autocomplete';
+import type { TextFieldSlotsAndSlotProps } from '@mui/material/TextField';
+import type { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
-import { ThemeMode } from '@centreon/ui-context';
+import { equals, isEmpty, isNil, pick } from 'ramda';
+import {
+  type ForwardedRef,
+  forwardRef,
+  type HTMLAttributes,
+  type ReactElement
+} from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { ForwardedRef, HTMLAttributes, ReactElement, forwardRef } from 'react';
-import { SelectEntry } from '..';
 import { getNormalizedId } from '../../../utils';
 import TextField from '../../Text';
-import { searchLabel } from '../../translatedLabels';
+import { labelClear, labelOpen, searchLabel } from '../../translatedLabels';
+import type { SelectEntry } from '..';
 import Option from '../Option';
+import { useAutoCompleteStyles } from './autoComplete.styles';
 
 export type Props = {
   autoFocus?: boolean;
@@ -33,101 +41,32 @@ export type Props = {
   error?: string;
   getOptionItemLabel?: (option) => string;
   hideInput?: boolean;
+  renderOption?: (
+    renderProps: HTMLAttributes<HTMLLIElement>,
+    option: SelectEntry,
+    state: AutocompleteRenderOptionState
+  ) => ReactElement;
   label: string;
   loading?: boolean;
   onTextChange?;
   placeholder?: string | undefined;
   required?: boolean;
+  forceInputRenderValue?: boolean;
+  textFieldSlotsAndSlotProps?: TextFieldSlotsAndSlotProps<InputProps>;
+  autocompleteSlotsAndSlotProps?: AutocompleteSlotsAndSlotProps<
+    SelectEntry,
+    Multiple,
+    DisableClearable,
+    FreeSolo
+  >;
 } & Omit<
   AutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
   'renderInput'
 > &
   UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>;
 
-type StyledProps = Partial<Pick<Props, 'hideInput'>>;
-
-const textfieldHeight = (hideInput?: boolean): number | undefined =>
-  hideInput ? 0 : undefined;
-
-const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
-  hiddenText: {
-    transform: 'scale(0)'
-  },
-  input: {
-    '&:after': {
-      borderBottom: 0
-    },
-    '&:before': {
-      borderBottom: 0,
-      content: 'unset'
-    },
-    '&:hover:before': {
-      borderBottom: 0
-    },
-    height: textfieldHeight(hideInput)
-  },
-  inputLabel: {
-    '&&': {
-      fontSize: theme.typography.body1.fontSize,
-      maxWidth: '72%',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      transform: 'translate(12px, 14px) scale(1)',
-      whiteSpace: 'nowrap'
-    }
-  },
-  inputLabelShrink: {
-    '&&': {
-      maxWidth: '90%'
-    }
-  },
-  inputWithLabel: {
-    '&[class*="MuiFilledInput-root"]': {
-      paddingTop: theme.spacing(2)
-    },
-    paddingTop: theme.spacing(1)
-  },
-  inputWithoutLabel: {
-    '&[class*="MuiFilledInput-root"][class*="MuiFilledInput-marginDense"]': {
-      paddingBottom: hideInput ? 0 : theme.spacing(0.75),
-      paddingRight: hideInput ? 0 : theme.spacing(1),
-      paddingTop: hideInput ? 0 : theme.spacing(0.75)
-    }
-  },
-  loadingIndicator: {
-    textAlign: 'center'
-  },
-  options: {
-    alignItems: 'center',
-    display: 'grid',
-    gridAutoFlow: 'column',
-    gridGap: theme.spacing(1)
-  },
-  popper: {
-    [`& .${autocompleteClasses.listbox}`]: {
-      [`& .${autocompleteClasses.option}`]: {
-        [`&:hover, &[aria-selected="true"], &.${autocompleteClasses.focused},
-        &.${autocompleteClasses.focused}[aria-selected="true"]`]: {
-          background: equals(theme.palette.mode, ThemeMode.dark)
-            ? theme.palette.primary.dark
-            : theme.palette.primary.light,
-          color: equals(theme.palette.mode, ThemeMode.dark)
-            ? theme.palette.common.white
-            : theme.palette.primary.main
-        }
-      },
-      padding: 0
-    },
-    zIndex: theme.zIndex.tooltip + 1
-  },
-  textfield: {
-    height: textfieldHeight(hideInput),
-    visibility: hideInput ? 'hidden' : 'visible'
-  }
-}));
-
-const LoadingIndicator = (): JSX.Element => {
-  const { classes } = useStyles({});
+const LoadingIndicator = (): ReactElement => {
+  const { classes } = useAutoCompleteStyles({});
 
   return (
     <div className={classes.loadingIndicator}>
@@ -160,12 +99,16 @@ const AutocompleteField = forwardRef(
       autoSize = false,
       autoSizeDefaultWidth = 0,
       autoSizeCustomPadding,
-      getOptionItemLabel = (option) => option.name,
+      getOptionItemLabel = (option) => option?.name,
+      forceInputRenderValue = false,
+      textFieldSlotsAndSlotProps,
+      autocompleteSlotsAndSlotProps,
+      renderOption,
       ...autocompleteProps
     }: Props,
     ref?: ForwardedRef<HTMLDivElement>
-  ): JSX.Element => {
-    const { classes, cx } = useStyles({ hideInput });
+  ): ReactElement => {
+    const { classes, cx } = useAutoCompleteStyles({ hideInput });
     const { t } = useTranslation();
     const theme = useTheme();
 
@@ -178,83 +121,9 @@ const AutocompleteField = forwardRef(
       );
     };
 
-    const renderInput = (params): JSX.Element => (
-      <TextField
-        {...params}
-        InputLabelProps={{
-          classes: {
-            marginDense: classes.inputLabel,
-            shrink: classes.inputLabelShrink
-          }
-        }}
-        InputProps={{
-          ...params.InputProps,
-          endAdornment: (
-            <>
-              {endAdornment && (
-                <InputAdornment position="end">{endAdornment}</InputAdornment>
-              )}
-              {params.InputProps.endAdornment}
-            </>
-          ),
-          style: {
-            background: 'transparent',
-            minWidth: 0,
-            padding: theme.spacing(
-              0.75,
-              isEmpty(placeholder) ? 0 : 5,
-              0.75,
-              0.75
-            )
-          }
-        }}
-        autoFocus={autoFocus}
-        autoSize={autoSize}
-        autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
-        autoSizeDefaultWidth={autoSizeDefaultWidth}
-        classes={{
-          root: classes.textfield
-        }}
-        error={error}
-        externalValueForAutoSize={autocompleteProps?.value?.name}
-        inputProps={{
-          ...params.inputProps,
-          'aria-label': label,
-          'data-testid': dataTestId || label,
-          id: getNormalizedId(label || ''),
-          ...autocompleteProps?.inputProps
-        }}
-        label={label}
-        placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
-        required={required}
-        value={inputValue || undefined}
-        onChange={onTextChange}
-      />
-    );
-
-    return (
-      <Autocomplete
-        disableClearable
-        classes={{
-          groupLabel: classes.inputLabel,
-          inputRoot: cx([
-            classes.input,
-            label ? classes.inputWithLabel : classes.inputWithoutLabel
-          ]),
-          popper: classes.popper,
-          root: classes.textfield
-        }}
-        forcePopupIcon={displayPopupIcon}
-        getOptionLabel={(option): string =>
-          (option as SelectEntry)?.name?.toString() || ''
-        }
-        isOptionEqualToValue={areSelectEntriesEqual}
-        loading={loading}
-        loadingText={<LoadingIndicator />}
-        options={options}
-        ref={ref}
-        renderInput={renderInput}
-        renderOption={(props, option): JSX.Element => {
+    const renderOptions = renderOption
+      ? renderOption
+      : (props, option): ReactElement => {
           return (
             <li
               className={classes.options}
@@ -267,8 +136,114 @@ const AutocompleteField = forwardRef(
               </Option>
             </li>
           );
+        };
+
+    const renderInput = (params): ReactElement => {
+      return (
+        <TextField
+          {...params}
+          autoFocus={autoFocus}
+          autoSize={autoSize}
+          autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
+          autoSizeDefaultWidth={autoSizeDefaultWidth}
+          classes={{
+            root: classes.textfield
+          }}
+          error={error}
+          externalValueForAutoSize={autocompleteProps?.value?.name}
+          label={label}
+          onChange={onTextChange}
+          placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
+          required={required}
+          slotProps={{
+            htmlInput: {
+              ...params.inputProps,
+              'aria-label': label,
+              'data-testid': dataTestId || label,
+              id: getNormalizedId(label || ''),
+              ...(forceInputRenderValue
+                ? {
+                    value: getOptionItemLabel(
+                      autocompleteProps?.value || undefined
+                    )
+                  }
+                : {}),
+              ...textFieldSlotsAndSlotProps?.slotProps?.htmlInput
+            },
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {endAdornment && (
+                    <InputAdornment position="end">
+                      {endAdornment}
+                    </InputAdornment>
+                  )}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+              style: {
+                background: 'transparent',
+                minWidth: 0,
+                padding: theme.spacing(
+                  0.75,
+                  isEmpty(placeholder) ? 0 : 5,
+                  0.75,
+                  0.75
+                )
+              }
+            },
+            inputLabel: {
+              classes: {
+                marginDense: classes.inputLabel,
+                shrink: classes.inputLabelShrink
+              }
+            }
+          }}
+          value={
+            inputValue ||
+            (forceInputRenderValue
+              ? getOptionItemLabel(autocompleteProps?.value || undefined)
+              : undefined) ||
+            undefined
+          }
+        />
+      );
+    };
+
+    return (
+      <Autocomplete
+        classes={{
+          groupLabel: classes.inputLabel,
+          inputRoot: cx([
+            classes.input,
+            label ? classes.inputWithLabel : classes.inputWithoutLabel
+          ]),
+          popper: classes.popper,
+          root: classes.textfield
         }}
+        disableClearable
+        forcePopupIcon={displayPopupIcon}
+        getOptionLabel={(option): string =>
+          (option as SelectEntry)?.name?.toString() || ''
+        }
+        isOptionEqualToValue={areSelectEntriesEqual}
+        loading={loading}
+        loadingText={<LoadingIndicator />}
+        options={options}
+        ref={ref}
+        renderInput={renderInput}
+        renderOption={renderOptions}
         size="small"
+        slotProps={{
+          ...autocompleteSlotsAndSlotProps?.slotProps,
+          clearIndicator: {
+            title: t(labelClear)
+          },
+          popupIndicator: {
+            title: t(labelOpen)
+          }
+        }}
         {...autocompleteProps}
       />
     );

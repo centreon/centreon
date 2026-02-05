@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Contact\Application\Exception\ContactTemplateException;
 use Core\Contact\Application\Repository\ReadContactTemplateRepositoryInterface;
 
@@ -51,29 +52,25 @@ class FindContactTemplates
     public function __invoke(FindContactTemplatesPresenterInterface $presenter): void
     {
         try {
-            $this->info('Find contact templates', ['user_id' => $this->user->getId()]);
             if (
                 ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACT_TEMPLATES_READ)
                 && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_CONTACT_TEMPLATES_READ_WRITE)
             ) {
-
-                $this->error('User doesn\'t have sufficient rights to list contact templates', [
-                    'user_id' => $this->user->getId(),
-                ]);
-                $presenter->setResponseStatus(
+                $presenter->presentResponse(
                     new ForbiddenResponse(ContactTemplateException::listingNotAllowed())
                 );
 
                 return;
             }
 
-            $presenter->present(new FindContactTemplatesResponse($this->repository->findAll()));
-        } catch (\Throwable $ex) {
-            $this->error('Error while searching for contact templates', [
-                'trace' => $ex->getTraceAsString(),
-            ]);
-            $presenter->setResponseStatus(
-                new ErrorResponse(ContactTemplateException::errorWhileSearchingForContactTemplate())
+            $presenter->presentResponse(new FindContactTemplatesResponse($this->repository->findAll()));
+        } catch (RepositoryException $exception) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    ContactTemplateException::errorWhileSearchingForContactTemplate(),
+                    ['user_id' => $this->user->getId()],
+                    $exception
+                )
             );
 
             return;

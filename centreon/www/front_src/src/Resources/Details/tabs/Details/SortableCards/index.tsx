@@ -1,4 +1,12 @@
-import { useState } from 'react';
+import { Box } from '@mui/material';
+import Grid from '@mui/material/Grid';
+
+import type { RootComponentProps } from '@centreon/ui';
+import {
+  SortableItems,
+  useLocaleDateTimeFormat,
+  useMemoComponent
+} from '@centreon/ui';
 
 import { rectIntersection } from '@dnd-kit/core';
 import { rectSortingStrategy } from '@dnd-kit/sortable';
@@ -17,21 +25,12 @@ import {
   remove,
   uniq
 } from 'ramda';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { Box, Grid } from '@mui/material';
-
-import {
-  SortableItems,
-  useLocaleDateTimeFormat,
-  useMemoComponent
-} from '@centreon/ui';
-import type { RootComponentProps } from '@centreon/ui';
 
 import { ResourceDetails } from '../../../models';
 import getDetailCardLines, { DetailCardLine } from '../DetailsCard/cards';
 import { detailsCardsAtom } from '../detailsCardsAtom';
-
 import Content from './Content';
 import { CardsLayout, ChangeExpandedCardsProps, ExpandAction } from './models';
 
@@ -123,9 +122,7 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
     Component: (
       <Box>
         <SortableItems<CardsLayout>
-          updateSortableItemsOnItemsChange
           Content={Content}
-          RootComponent={RootComponent}
           collisionDetection={rectIntersection}
           itemProps={[
             'shouldBeDisplayed',
@@ -136,8 +133,10 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
             'title'
           ]}
           items={displayedCards}
-          sortingStrategy={rectSortingStrategy}
           onDragEnd={dragEnd}
+          RootComponent={RootComponent}
+          sortingStrategy={rectSortingStrategy}
+          updateSortableItemsOnItemsChange
         />
       </Box>
     ),

@@ -49,11 +49,11 @@ properties:
               example: "#666600"
               nullable: true
             ds_filled:
-              type: bool
+              type: boolean
               description: enables area filling
               example: true
             ds_invert:
-              type: bool
+              type: boolean
               description: indicates if the curve should be inverted
               example: true
             ds_legend:
@@ -62,21 +62,21 @@ properties:
               example: "#666600"
               nullable: true
             ds_stack:
-              type: bool
+              type: boolean
               description: enable graph stacking
               example: false
             ds_order:
-              type: int
+              type: integer
               description: display order
               example: 2
               nullable: true
             ds_transparency:
-              type: float
+              type: number
               description: Curve transparency. Used to export the chart
               example: 30
               nullable: true
             ds_color_line_mode:
-              type: int
+              type: integer
               description: curve line color mode. Random or manual
               example: 1
               nullable: true

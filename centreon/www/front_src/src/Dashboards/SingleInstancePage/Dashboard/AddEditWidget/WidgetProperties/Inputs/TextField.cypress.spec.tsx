@@ -1,10 +1,9 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { equals } from 'ramda';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../atoms';
 import { WidgetPropertyProps } from '../../models';
-
 import WidgetTextField from './TextField';
 
 interface Props extends Pick<WidgetPropertyProps, 'text'> {
@@ -115,10 +114,12 @@ describe('WidgetTextField', () => {
       });
 
       cy.findByLabelText('Text').clear().type('34');
+      cy.findByLabelText('Text').blur();
 
       cy.findByLabelText('Text').should('have.value', '20');
 
       cy.findByLabelText('Text').clear().type('-5');
+      cy.findByLabelText('Text').blur();
 
       cy.findByLabelText('Text').should('have.value', '-2');
 

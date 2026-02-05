@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2023 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,36 @@ declare(strict_types=1);
 
 namespace Core\MonitoringServer\Application\Repository;
 
-interface WriteMonitoringServerRepositoryInterface {
+use Core\MonitoringServer\Model\MonitoringServer;
+
+interface WriteMonitoringServerRepositoryInterface
+{
     /**
      * Define the monitoring server as changed since its last configuration export.
      *
      * @param int $monitoringServerId
-     *
-     * @throws \Throwable
      */
     public function notifyConfigurationChange(int $monitoringServerId): void;
+
+    /**
+     * Notify the monitoring servers as changed.
+     *
+     * @param int[] $monitoringServerIds
+     */
+    public function notifyConfigurationChanges(array $monitoringServerIds): void;
+
+    /**
+     * Update a monitoring server.
+     *
+     * @param MonitoringServer $monitoringServer
+     */
+    public function update(MonitoringServer $monitoringServer): void;
+
+    /**
+     * Update the encryption readiness of Monitoring Server configuration,
+     * based on the value of the Monitoring Server readiness in real time.
+     *
+     * This ensure that the configuration is always up to date with the realtime.
+     */
+    public function updateAllEncryptionReadyFromRealtime(): void;
 }

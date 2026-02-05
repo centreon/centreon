@@ -1,12 +1,11 @@
+import { Divider } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-
-import { Divider } from '@mui/material';
 
 import { selectedVisualizationAtom } from '../../../../Actions/actionsAtoms';
 import { Visualization } from '../../../../models';
 import { BasicCriteria, MemoizedChild, SectionType } from '../../model';
-
 import MemoizedInputGroup from './MemoizedInputGroup';
 import MemoizedSelectInput from './MemoizedSelectInput';
 import MemoizedStatus from './MemoizedStatus';
@@ -31,9 +30,8 @@ const SectionWrapper = ({
   return (
     <div>
       {sectionsType?.map((sectionType) => (
-        <>
+        <div key={sectionType}>
           <Section
-            key={sectionType}
             inputGroup={
               <MemoizedInputGroup
                 changeCriteria={changeCriteria}
@@ -70,7 +68,7 @@ const SectionWrapper = ({
             }
           />
           <Divider className={classes.divider} key={`${sectionType}-divider`} />
-        </>
+        </div>
       ))}
     </div>
   );

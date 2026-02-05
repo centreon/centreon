@@ -127,6 +127,7 @@ export const labelIsTheSelectedResource =
 export const labelSeeMore = 'See more on the {{ page }} page';
 export const labelResourcesStatus = 'Resources Status';
 export const labelBusinessActivity = 'Business Activity';
+export const labelBusinessView = 'Business View';
 export const labelDiscard = 'Discard';
 export const labelDoYouWantToSaveChanges = 'Do you want to save the changes?';
 export const labelIfYouClickOnDiscard =
@@ -136,3 +137,25 @@ export const labelSelectTimeFormat = 'Select time format';
 export const labelBackgroundColor = 'Background color';
 export const label12Hours = '12 hours';
 export const label24Hours = '24 hours';
+export const labelLast14Days = 'Last 14 days';
+export const labelLast2Months = 'Last 2 months';
+export const labelGenericWidgets = 'Generic widgets';
+export const labelRealTimeWidgets = 'Real time widgets';
+export const labelMBIReportingWidgets = 'MBI reporting widgets';
+export const labelMinValue = 'Min value';
+export const labelMaxValue = 'Max value';
+export const labelMinMustLowerThanMax =
+  'The min value must be lower than the max value.';
+export const labelActivateRegex = 'Enter regex mode';
+export const labelDeactivateRegex = 'Exit regex mode';
+export const labelEnterRegex = 'Enter Regex';
+export const labelDoYouWantToLeaveTheRegexMode =
+  'Do you want to switch to classic mode?';
+export const labelYourChangesWillNotBeSavedIfYouSwitchRegexMode =
+  'Your changes will not be saved if you leave regex mode.';
+export const labelDoYouWantToLeaveTheClassicMode =
+  'Do you want to switch to regex mode?';
+export const labelYourChangesWillNotBeSavedIfYouSwitchClassicMode =
+  'Your changes will not be saved if you leave classic mode.';
+export const labelStay = 'Stay';
+export const labelLeave = 'Leave';

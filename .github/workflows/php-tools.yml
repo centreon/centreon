@@ -1,0 +1,54 @@
+name: php-tools
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "php-tools/**"
+  push:
+    branches:
+      - develop
+      - dev-[2-9][0-9].[0-9][0-9].x
+      - master
+      - "[2-9][0-9].[0-9][0-9].x"
+    paths:
+      - "php-tools/**"
+
+jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
+  backend-lint:
+    needs: [dependency-scan]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        with:
+          php-version: 8.2
+          coverage: none
+        env:
+          runner: ubuntu-24.04
+
+      - name: Install dependencies
+        run: composer install --optimize-autoloader --prefer-dist --no-interaction --no-progress --quiet --no-scripts
+        working-directory: php-tools
+        shell: bash
+
+      - name: 🛠️ Rector checks
+        working-directory: php-tools
+        run: composer rector -- --no-progress-bar
+
+      - name: 🧹 PHP-CS-Fixer checks
+        working-directory: php-tools
+        run: composer cs -- --format=txt --show-progress=none
+
+      - name: 🔍 PHPStan checks
+        working-directory: php-tools
+        run: composer stan -- --no-progress

@@ -1,14 +1,12 @@
-import { useRef } from 'react';
+import { federatedWidgetsAtom } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals } from 'ramda';
-import { useBlocker } from 'react-router-dom';
-
-import { federatedWidgetsAtom } from '@centreon/ui-context';
+import { useEffect, useRef } from 'react';
+import { useBlocker } from 'react-router';
 
 import { DashboardPanel } from '../../../api/models';
 import { isEditingAtom, isRedirectionBlockedAtom } from '../atoms';
-
 import { formatPanel } from './useDashboardDetails';
 import useDashboardDirty from './useDashboardDirty';
 
@@ -48,7 +46,6 @@ const useDashboardSaveBlocker = (
   });
 
   const currentBlockedState = equals(blocker.state, 'blocked');
-
   if (
     (!equals(previousBlockedStateRef.current.blocked, currentBlockedState) ||
       !equals(previousBlockedStateRef.current.isEditing, isEditing)) &&
@@ -56,12 +53,15 @@ const useDashboardSaveBlocker = (
   ) {
     previousBlockedStateRef.current.blocked = currentBlockedState;
     previousBlockedStateRef.current.isEditing = isEditing;
-    setIsRedirectionBlockedAtom(equals(blocker.state, 'blocked'));
   }
 
+  useEffect(() => {
+    setIsRedirectionBlockedAtom(equals(blocker.state, 'blocked'));
+  }, [blocker.state]);
+
   return {
-    blockNavigation: blocker.reset,
     blocked: equals(blocker.state, 'blocked'),
+    blockNavigation: blocker.reset,
     proceedNavigation: blocker.proceed
   };
 };

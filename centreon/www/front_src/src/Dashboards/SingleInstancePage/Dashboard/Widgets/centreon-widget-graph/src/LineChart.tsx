@@ -1,33 +1,36 @@
-import { useAtomValue } from 'jotai';
-import {
-  F,
-  T,
-  always,
-  cond,
-  equals,
-  head,
-  identity,
-  lensPath,
-  pluck,
-  set
-} from 'ramda';
-
 import {
   BarChart,
   LineChart,
-  LineChartData,
+  type LineChartData,
   useGraphQuery,
   useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import NoResources from '../../NoResources';
-import { CommonWidgetProps, Data } from '../../models';
-import useThresholds from '../../useThresholds';
-import { areResourcesFullfilled, getWidgetEndpoint } from '../../utils';
+import { useAtomValue } from 'jotai';
+import {
+  always,
+  cond,
+  equals,
+  F,
+  head,
+  identity,
+  lensPath,
+  pluck,
+  set,
+  T
+} from 'ramda';
 
+import type { CommonWidgetProps, Data } from '../../models';
+import NoResources from '../../NoResources';
+import useThresholds from '../../useThresholds';
+import {
+  areResourcesFullfilled,
+  getIsMetaServiceSelected,
+  getWidgetEndpoint
+} from '../../utils';
 import { graphEndpoint } from './api/endpoints';
-import { PanelOptions } from './models';
+import type { PanelOptions } from './models';
 
 const forceStackedMetrics = (data?: LineChartData): LineChartData | undefined =>
   data && {
@@ -91,13 +94,16 @@ const WidgetLineChart = ({
       timePeriod: panelOptions.timeperiod
     });
 
+  const isMetaServiceSelected = getIsMetaServiceSelected(panelData.resources);
+
   const formattedThresholds = useThresholds({
     data: graphData,
+    isMetaServiceSelected,
     metricName: head(metricNames),
     thresholds: panelOptions.threshold
   });
 
-  if (!areResourcesOk || isMetricsEmpty) {
+  if (!areResourcesOk || (!isMetaServiceSelected && isMetricsEmpty)) {
     return <NoResources />;
   }
 
@@ -128,9 +134,10 @@ const WidgetLineChart = ({
       placement: panelOptions.legendPlacement
     },
     loading: isGraphLoading,
+    skipIntersectionObserver: isFromPreview,
     start,
-    thresholdUnit: panelData.metrics[0]?.unit,
     thresholds: formattedThresholds,
+    thresholdUnit: panelData.metrics[0]?.unit,
     timeShiftZones: {
       enable: false
     },
@@ -140,8 +147,7 @@ const WidgetLineChart = ({
     },
     zoomPreview: {
       enable: false
-    },
-    skipIntersectionObserver: isFromPreview
+    }
   };
 
   if (isLineChart) {

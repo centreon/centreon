@@ -20,6 +20,7 @@ const output = isDevelopmentMode
   : {};
 
 module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
+  cache: false,
   devServer: {
     ...devServer,
     port: 9092,
@@ -31,6 +32,7 @@ module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
     ]
   },
   devtool: false,
+  infrastructureLogging: { level: 'error' },
   output,
   plugins: devServerPlugins,
   resolve: {
@@ -40,8 +42,7 @@ module.exports = merge(getBaseConfiguration(true), getDevConfiguration(), {
       ),
       '@mui/material': path.resolve('./node_modules/@mui/material'),
       'centreon-widgets': path.resolve('www', 'widgets', 'src'),
-      dayjs: path.resolve('./node_modules/dayjs'),
-      'react-router-dom': path.resolve('./node_modules/react-router-dom')
+      dayjs: path.resolve('./node_modules/dayjs')
     }
   }
 });
