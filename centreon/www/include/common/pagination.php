@@ -224,6 +224,12 @@ if ($rows != 0) {
     }
 }
 
+// the total number of rows
+$startRange = $rows > 0 ? (($num ?? 0) * $limit + 1) : 0;
+$endRange = min((($num ?? 0) + 1) * $limit, $rows);
+$rowsDisplayed = $startRange . '-' . $endRange . ' ' . _('of') . ' ' . $rows;
+$tpl->assign('rowsDisplayed', $rowsDisplayed);
+
 ?>
     <script type="text/javascript">
         function setL(_this) {
