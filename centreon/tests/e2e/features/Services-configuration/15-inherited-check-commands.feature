@@ -1,11 +1,11 @@
 Feature: Manage inherited check commands
   As a Centreon user
   I want to manipulate services
-  with inherited check commands from services templates
+  with check commands inherited from service templates
 
   Background:
     Given an admin user is logged in Centreon
-    And a service template with check command is configured
+    And a service template with check commands is configured
 
   @TEST_MON-194172
   Scenario: Create a service by host using a template with inherited check command
