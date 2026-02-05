@@ -380,7 +380,7 @@ When(
       tag: 'input'
     })
       .clear()
-      .type('2');
+      .type('4');
     cy.wait('@resourceRequest');
   }
 );
