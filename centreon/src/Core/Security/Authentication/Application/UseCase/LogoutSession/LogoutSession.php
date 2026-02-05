@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\UseCase\LogoutSession;
 
-use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Security\Authentication\Application\Repository\WriteSessionRepositoryInterface;
@@ -37,7 +36,6 @@ class LogoutSession
      */
     public function __construct(
         private readonly WriteSessionRepositoryInterface $writeSessionRepository,
-        private readonly ContactInterface $contact,
     ) {
     }
 
@@ -51,7 +49,7 @@ class LogoutSession
     ): void {
         $this->info('Processing session logout...');
 
-        if ($token === null || is_string($token) === false || $this->contact->getToken() !== $token) {
+        if ($token === null || is_string($token) === false) {
             $this->debug('Try to logout without token');
             $presenter->setResponseStatus(new ErrorResponse(_('No session token provided')));
 

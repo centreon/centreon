@@ -45,12 +45,23 @@ final class LogoutSessionController extends AbstractController
         Request $request,
         LogoutSessionPresenterInterface $presenter,
     ): object {
-    foreach ($request->cookies->all() as $name => $value) {
-        if (str_starts_with($name, 'PHPSESSID')) {
-            $useCase($value, $presenter);
-            break;
+        $basePath = ltrim($request->getBasePath(), '/');
+
+        $sessionId = null;
+
+        if ($basePath !== '') {
+            $sessionId = $request->cookies->get('PHPSESSID_' . $basePath);
         }
-    }
+
+        //fallback legacy
+        if ($sessionId === null) {
+            $sessionId = $request->cookies->get('PHPSESSID');
+        }
+
+        if ($sessionId !== null) {
+            $useCase($sessionId, $presenter);
+        }
+
         return $this->redirect($this->getBaseUrl() . '/login');
     }
 }
