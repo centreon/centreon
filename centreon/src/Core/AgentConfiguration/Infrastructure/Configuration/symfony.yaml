@@ -24,3 +24,12 @@ services:
     Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface:
         class: Core\AgentConfiguration\Infrastructure\Repository\DbReadAgentConfigurationRepository
         public: true
+
+    Core\AgentConfiguration\Infrastructure\Command\CreateHostForAgentConfigurationCommand:
+        arguments:
+            $readHostTemplateRepository: '@Core\HostTemplate\Infrastructure\Repository\DbReadHostTemplateRepository'
+            $readServiceRepository: '@Core\Service\Infrastructure\Repository\DbReadServiceRepository'
+            $writeServiceRepository: '@Core\Service\Infrastructure\Repository\DbWriteServiceRepository'
+            $readHostRepository: '@Core\Host\Infrastructure\Repository\DbReadHostRepository'
+            $readServiceTemplateRepository: '@Core\ServiceTemplate\Infrastructure\Repository\DbReadServiceTemplateRepository'
+            $writeHostRepository: '@Core\Host\Infrastructure\Repository\DbWriteHostRepository'

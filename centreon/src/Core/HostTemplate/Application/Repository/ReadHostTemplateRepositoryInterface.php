@@ -185,4 +185,15 @@ interface ReadHostTemplateRepositoryInterface
      * @return array<int, int>
      */
     public function findByHostId(int $hostId): array;
+
+    /**
+     * Find host template by its name.
+     *
+     * @param string $hostTemplateName
+     *
+     * @throws \Throwable
+     *
+     * @return HostTemplate|null
+     */
+    public function findByName(string $hostTemplateName): ?HostTemplate;
 }
