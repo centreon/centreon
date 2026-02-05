@@ -124,8 +124,10 @@ class ConfigurationExporter extends ExporterServiceAbstract
             // restore foreign key checks
             $db->query('SET FOREIGN_KEY_CHECKS=1;');
 
-            // commit transaction
-            $db->commit();
+            if ($db->getCentreonDBInstance()->inTransaction()) {
+                // commit transaction
+                $db->commit();
+            }
         } catch (\ErrorException $e) {
             // rollback changes
             $db->rollBack();
