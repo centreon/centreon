@@ -27,6 +27,7 @@ use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 use Adaptation\Database\Connection\ValueObject\QueryParameter;
+use Adaptation\Database\QueryBuilder\Exception\QueryBuilderException;
 use Assert\AssertionFailedException;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
@@ -135,7 +136,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $resourceTypeHost = self::RESOURCE_TYPE_HOST;
 
         $query = <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            SELECT DISTINCT
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
@@ -217,6 +218,42 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         }
 
         /**
+         * Handle search values.
+         * >> To do before count and find resources to prepare the query parameters with the search values for both queries.
+         */
+        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        );
+        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
+
+        /**
+         * Translate the query with the database name.
+         * >> To do before count and find resources to prepare the query with the database name for both queries.
+         */
+        $query = $this->translateDbName($query);
+
+        /**
+         * Handle count resources.
+         * >> To do before find resources to not interfere with pagination and sort.
+         */
+        try {
+            $queryTotal = $this->connection->createQueryBuilder()
+                ->select('COUNT(*)')
+                ->from("({$query})", 'count_resources_by_parent_id')
+                ->getQuery();
+
+            if (($total = $this->connection->fetchOne($queryTotal, $queryParameters)) !== false) {
+                $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+            }
+        } catch (\Exception $totalException) {
+            throw new RepositoryException(
+                message: 'An error occurred while counting parent resources by id',
+                context: ['filter' => $filter],
+                previous: $totalException
+            );
+        }
+
+        /**
          * Handle sort parameters.
          */
         $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
@@ -227,30 +264,25 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
          */
         $query .= $this->sqlRequestTranslator->translatePaginationToSql();
 
+        /**
+         * Handle find resources.
+         */
         try {
-            $queryResources = $this->translateDbName($query);
-            $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
-                $this->sqlRequestTranslator->getSearchValues()
-            );
-            $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
-            foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
+            foreach ($this->connection->iterateAssociative($query, $queryParameters) as $resourceRecord) {
                 /** @var array<string,int|string|null> $resourceRecord */
                 $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
             }
-
-            // get total without pagination
-            $queryTotal = $this->translateDbName('SELECT FOUND_ROWS() AS REALTIME from `:dbstg`.`resources`');
-            if (($total = $this->connection->fetchOne($queryTotal)) !== false) {
-                $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
-            }
-        } catch (AssertionFailedException|TransformerException|CollectionException|ConnectionException $exception) {
+        } catch (AssertionFailedException|\Exception $findException) {
             throw new RepositoryException(
                 message: 'An error occurred while finding parent resources by id',
                 context: ['filter' => $filter],
-                previous: $exception
+                previous: $findException
             );
         }
 
+        /**
+         * Handle complete resources.
+         */
         $iconIds = $this->getIconIdsFromResources();
         $icons = $this->getIconsDataForResources($iconIds);
         $this->completeResourcesWithIcons($icons);
@@ -268,15 +300,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         try {
             $this->resources = [];
-            $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest(
-                filter: $filter,
-                queryParametersFromRequestParameter: $queryParametersFromRequestParameter
-            );
-            $this->find($query, $queryParametersFromRequestParameter);
+            $this->find($filter);
 
             return $this->resources;
-        } catch (\Throwable $exception) {
+        } catch (AssertionFailedException|\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while finding resources',
                 context: ['filter' => $filter],
@@ -296,16 +323,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     {
         try {
             $this->resources = [];
-            $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest(
-                filter: $filter,
-                queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
-                accessGroupIds: $accessGroupIds
-            );
-            $this->find($query, $queryParametersFromRequestParameter);
+            $this->find($filter, $accessGroupIds);
 
             return $this->resources;
-        } catch (\Throwable $exception) {
+        } catch (AssertionFailedException|\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while finding resources by access group ids',
                 context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds],
@@ -335,13 +356,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             }
 
             $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest(
+            $query = $this->generateFindResourcesQuery(
                 filter: $filter,
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter
             );
 
             return $this->iterate($query, $queryParametersFromRequestParameter);
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while iterating resources by max results',
                 context: ['filter' => $filter, 'maxResults' => $maxResults],
@@ -375,14 +396,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             }
 
             $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest(
+            $query = $this->generateFindResourcesQuery(
                 filter: $filter,
                 queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
                 accessGroupIds: $accessGroupIds
             );
 
             return $this->iterate($query, $queryParametersFromRequestParameter);
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while iterating resources by access group ids and max results',
                 context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds, 'maxResults' => $maxResults],
@@ -400,26 +421,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      */
     public function countResourcesByFilter(ResourceFilter $filter, bool $allPages): int
     {
-        if ($allPages) {
-            // For a count, there isn't pagination we limit the number of results
-            // page is always 1 and limit is the maxResults in case of an export
-            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
-        }
-
         try {
-            $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest(
-                filter: $filter,
-                queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
-                onlyCount: true
-            );
-
-            return $this->count($query, $queryParametersFromRequestParameter);
-        } catch (\Throwable $exception) {
+            return $this->count($filter, $allPages);
+        } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by max results',
-                context: ['filter' => $filter],
+                context: ['filter' => $filter, 'allPages' => $allPages],
                 previous: $exception
             );
         }
@@ -438,26 +445,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         bool $allPages,
         array $accessGroupIds,
     ): int {
-        // if $allPages is set to true, we don't use pagination and limit because count all resources
-        if ($allPages) {
-            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
-            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
-        }
-
         try {
-            $queryParametersFromRequestParameter = new QueryParameters();
-            $query = $this->generateFindResourcesRequest(
-                filter: $filter,
-                queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
-                accessGroupIds: $accessGroupIds,
-                onlyCount: true
-            );
-
-            return $this->count($query, $queryParametersFromRequestParameter);
-        } catch (\Throwable $exception) {
+            return $this->count($filter, $allPages, $accessGroupIds);
+        } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',
-                context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds],
+                context: ['filter' => $filter, 'accessGroupIds' => $accessGroupIds, 'allPages' => $allPages],
                 previous: $exception
             );
         }
@@ -476,7 +469,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 ->getQuery();
 
             return (int) $this->connection->fetchOne($this->translateDbName($query));
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting all resources',
                 previous: $exception
@@ -501,7 +494,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 ->getQuery();
 
             return (int) $this->connection->fetchOne($this->translateDbName($query));
-        } catch (\Throwable $exception) {
+        } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',
                 context: ['accessGroupIds' => $accessGroupIds],
@@ -516,18 +509,20 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param ResourceFilter $filter
      * @param QueryParameters $queryParametersFromRequestParameter
      * @param int[] $accessGroupIds
-     * @param bool $onlyCount
-     *
+     * @param bool $withoutSort
+     * @param bool $withoutPagination
      * @throws CollectionException
      * @throws RepositoryException
      * @throws ValueObjectException
+     * @throws \InvalidArgumentException
      * @return string
      */
-    private function generateFindResourcesRequest(
+    private function generateFindResourcesQuery(
         ResourceFilter $filter,
         QueryParameters $queryParametersFromRequestParameter,
         array $accessGroupIds = [],
-        bool $onlyCount = false,
+        bool $withoutSort = false,
+        bool $withoutPagination = false,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
@@ -540,7 +535,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
         $query .= <<<SQL
-            SELECT :sql_query_find DISTINCT
+            SELECT DISTINCT
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
@@ -669,10 +664,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
          */
         $query .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
 
-        if (! $onlyCount) {
-            /**
-             * Handle sort parameters.
-             */
+        /**
+         * Handle sort parameters.
+         */
+        if (! $withoutSort) {
             $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
                 ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
         }
@@ -680,15 +675,8 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         /**
          * Handle pagination.
          */
-        if ($this->sqlRequestTranslator->getRequestParameters()->getLimit() !== 0) {
+        if (! $withoutPagination) {
             $query .= $this->sqlRequestTranslator->translatePaginationToSql();
-        }
-
-        if ($onlyCount) {
-            $query = str_replace(':sql_query_find', '', $query);
-            $query = "SELECT COUNT(*) FROM ({$query}) AS temp";
-        } else {
-            $query = str_replace(':sql_query_find', 'SQL_CALC_FOUND_ROWS', $query);
         }
 
         return $query;
@@ -873,73 +861,104 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * @param string $query
-     * @param QueryParameters $queryParametersFromRequestParameters
+     * @param ResourceFilter $filter
+     * @param int[] $accessGroupIds
      *
      * @throws AssertionFailedException
      * @throws CollectionException
      * @throws ConnectionException
      * @throws RepositoryException
      * @throws TransformerException
+     * @throws ValueObjectException
+     * @throws QueryBuilderException
+     * @throws \InvalidArgumentException
      */
-    private function find(string $query, QueryParameters $queryParametersFromRequestParameters): void
+    private function find(ResourceFilter $filter, array $accessGroupIds = []): void
     {
-        $queryResources = $this->translateDbName($query);
+        // get resources
+        $queryParametersFromRequestParameter = new QueryParameters();
+        $queryFind = $this->generateFindResourcesQuery(
+            filter: $filter,
+            queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
+            accessGroupIds: $accessGroupIds
+        );
+
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
             $this->sqlRequestTranslator->getSearchValues()
         );
-        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
+        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
 
-        foreach ($this->connection->iterateAssociative($queryResources, $queryParameters) as $resourceRecord) {
+        foreach ($this->connection->iterateAssociative($this->translateDbName($queryFind), $queryParameters) as $resourceRecord) {
             /** @var array<string,int|string|null> $resourceRecord */
             $this->resources[] = DbResourceFactory::createFromRecord($resourceRecord, $this->resourceTypes);
-        }
-
-        // get total without pagination
-        $queryTotal = $this->translateDbName('SELECT FOUND_ROWS() AS REALTIME from `:dbstg`.`resources`');
-        if (($total = $this->connection->fetchOne($queryTotal)) !== false) {
-            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
 
         $iconIds = $this->getIconIdsFromResources();
         $icons = $this->getIconsDataForResources($iconIds);
         $this->completeResourcesWithIcons($icons);
+
+        // get total without pagination
+        $queryTotal = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from("({$queryFind})", 'count_resources')
+            ->getQuery();
+        if (($total = $this->connection->fetchOne($this->translateDbName($queryTotal), $queryParameters)) !== false) {
+            $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
+        }
     }
 
     /**
-     * @param string $query
-     * @param QueryParameters $queryParametersFromRequestParameters
-     * @param bool $withFilter
-     *
-     * @throws CollectionException
-     * @throws ConnectionException
-     * @throws TransformerException
+     * @param ResourceFilter $filter
+     * @param bool $allPages
+     * @param int[] $accessGroupIds
      * @return int
+     *@throws CollectionException
+     * @throws ConnectionException
+     * @throws RepositoryException
+     * @throws TransformerException
+     * @throws ValueObjectException
+     * @throws QueryBuilderException
+     * @throws \InvalidArgumentException
      */
     private function count(
-        string $query,
-        QueryParameters $queryParametersFromRequestParameters,
-        bool $withFilter = true,
+        ResourceFilter $filter,
+        bool $allPages = false,
+        array $accessGroupIds = [],
     ): int {
-        $queryResources = $this->translateDbName($query);
-
-        if ($withFilter) {
-            $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
-                $this->sqlRequestTranslator->getSearchValues()
-            );
-            $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
-        } else {
-            $queryParameters = $queryParametersFromRequestParameters;
+        if ($allPages) {
+            // For a count, there isn't pagination we limit the number of results
+            // page is always 1 and limit is the maxResults in case of an export
+            $this->sqlRequestTranslator->getRequestParameters()->setPage(1);
+            $this->sqlRequestTranslator->getRequestParameters()->setLimit(0);
         }
 
-        return (int) $this->connection->fetchOne($queryResources, $queryParameters);
+        $queryParametersFromRequestParameter = new QueryParameters();
+        $queryFind = $this->generateFindResourcesQuery(
+            filter: $filter,
+            queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
+            accessGroupIds: $accessGroupIds,
+            withoutSort: true,
+            withoutPagination: true,
+        );
+
+        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        );
+
+        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
+
+        $queryCount = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from("({$queryFind})", 'count_resources')
+            ->getQuery();
+
+        return (int) $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters);
     }
 
     /**
      * @param string $query
      * @param QueryParameters $queryParametersFromRequestParameters
      *
-     * @throws AssertionFailedException
      * @throws CollectionException
      * @throws ConnectionException
      * @throws RepositoryException
@@ -1382,10 +1401,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 $iconIds = array_values($iconIds);
 
                 $queryParameters = new QueryParameters();
-                for ($indexIconIds = 0, $iMax = count($iconIds); $indexIconIds < $iMax; $indexIconIds++) {
+                foreach ($iconIds as $indexIconIds => $indexIconIdsValue) {
                     $queryParameter = null;
                     $queryParameterName = "icon_id_{$indexIconIds}";
-                    $iconId = $iconIds[$indexIconIds];
+                    $iconId = $indexIconIdsValue;
                     if (is_null($iconId)) {
                         $queryParameter = QueryParameter::null($queryParameterName);
                     } else {
@@ -1427,7 +1446,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             }
 
             return $icons;
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while fetching icons data for resources',
                 context: ['iconIds' => $iconIds],
