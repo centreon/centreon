@@ -31,6 +31,7 @@ use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\DuplicateCommandResource;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
 
@@ -101,7 +102,12 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
         );
         $repository->add($originalCommand);
 
-        $this->login('user');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
 
         $this->request('POST', self::BASE_ENDPOINT, [
             'headers' => [
@@ -189,10 +195,5 @@ final class DuplicateCommandsProcessorTest extends ApiTestCase
         $responseData = $response->toArray();
         self::assertIsArray($responseData['member']);
         self::assertCount(2, $responseData['member']);
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
     }
 }

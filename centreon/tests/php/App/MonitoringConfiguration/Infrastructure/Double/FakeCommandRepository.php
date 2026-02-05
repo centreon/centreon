@@ -86,7 +86,7 @@ final class FakeCommandRepository implements CommandRepository
 
     public function findAll(?CommandCriteria $criteria): IteratorAggregate&Countable
     {
-        throw new \RuntimeException('Not yet implemented');
+        return new \ArrayObject(array_values($this->commands));
     }
 
     public function countLinkedResources(array $commandIds): array

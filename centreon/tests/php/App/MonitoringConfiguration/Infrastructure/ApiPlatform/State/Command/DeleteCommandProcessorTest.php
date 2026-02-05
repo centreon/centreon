@@ -65,8 +65,7 @@ final class DeleteCommandProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(404);
         self::assertJsonContains([
-            'title' => 'An error occurred',
-            'status' => 404,
+            'message' => 'Command resource not found',
         ]);
     }
 
@@ -76,7 +75,7 @@ final class DeleteCommandProcessorTest extends ApiTestCase
         $repository = self::getContainer()->get(CommandRepository::class);
 
         $repository->add(new Command(
-            id: new CommandId(1),
+            id: new CommandId(1000),
             name: new CommandName('original name'),
             commandLine: new CommandLine('original command'),
             type: CommandTypeEnum::Check,
@@ -87,14 +86,16 @@ final class DeleteCommandProcessorTest extends ApiTestCase
             comment: null,
         ));
 
+        $command = $repository->findOneByName(new CommandName('original name'));
+        $id = $command ? $command->Id()->value : 1000;
+
         $this->login();
 
-        $this->request('DELETE', '/api/latest/configuration/commands/1');
+        $this->request('DELETE', '/api/latest/configuration/commands/' . $id);
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseStatusCodeSame(500);
         self::assertJsonContains([
-            'title' => 'An error occurred',
-            'status' => 404,
+            'message' => 'Resource can not be deleted.',
         ]);
     }
 

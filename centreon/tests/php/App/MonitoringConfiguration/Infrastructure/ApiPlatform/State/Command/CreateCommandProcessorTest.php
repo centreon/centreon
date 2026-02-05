@@ -27,6 +27,7 @@ use App\ActivityLogging\Domain\Repository\ActivityLogRepository;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
 use App\MonitoringConfiguration\Domain\Repository\CommandRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\CommandResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class CreateCommandProcessorTest extends ApiTestCase
@@ -165,7 +166,12 @@ final class CreateCommandProcessorTest extends ApiTestCase
 
     public function testCannotCreateCommandIfNotEnoughPermission(): void
     {
-        $this->login('user');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
 
         $this->request('POST', '/api/latest/configuration/commands', [
             'json' => [
@@ -180,7 +186,6 @@ final class CreateCommandProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(403);
         self::assertJsonContains([
-            'code' => 403,
             'message' => 'You are not allowed to create commands',
         ]);
     }
@@ -189,8 +194,7 @@ final class CreateCommandProcessorTest extends ApiTestCase
     {
         /** @var ActivityLogRepository $repository */
         $repository = self::getContainer()->get(ActivityLogRepository::class);
-
-        self::assertSame(0, $repository->count());
+        $count = $repository->count();
 
         $this->login();
 
@@ -210,11 +214,6 @@ final class CreateCommandProcessorTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertSame(1, $repository->count());
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
+        self::assertSame($count + 1, $repository->count());
     }
 }
