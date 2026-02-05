@@ -2603,6 +2603,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements'
+      description: |
+        List all acknowledgements (host and service).
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2631,6 +2651,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Massively disacknowledge resources'
+      description: |
+        Remove/cancel acknowledgements on multiple resources (hosts and/or services) at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2651,7 +2675,12 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Display one acknowledgement'
-      description: 'Display one acknowledgement.'
+      description: |
+        Display one acknowledgement by its ID.
+
+        **Minimum API version:** 21.10
+
+        Returns either a host or service acknowledgement depending on the resource type.
       parameters:
         -
           $ref: '#/components/parameters/AcknowledgementId'
@@ -2673,6 +2702,24 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all hosts acknowledgements'
+      description: |
+        List all host acknowledgements.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2700,6 +2747,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on multiple hosts'
+      description: |
+        Add an acknowledgement on multiple hosts at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2720,6 +2771,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all services acknowledgements'
+      description: |
+        List all service acknowledgements.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2747,6 +2818,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on multiple services'
+      description: |
+        Add an acknowledgement on multiple services at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2767,6 +2842,24 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements of a host'
+      description: |
+        List all acknowledgements for a specific host.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2796,6 +2889,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on chosen host'
+      description: |
+        Add an acknowledgement on a specific host.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2818,6 +2915,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Cancel an acknowledgement on a host'
+      description: |
+        Remove/cancel the current acknowledgement on a host.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2835,6 +2936,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements of a service'
+      description: |
+        List all acknowledgements for a specific service.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2866,6 +2987,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on chosen service'
+      description: |
+        Add an acknowledgement on a specific service.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2890,6 +3015,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Cancel an acknowledgement on a service'
+      description: |
+        Remove/cancel the current acknowledgement on a service.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2910,6 +3039,26 @@ paths:
         - Acknowledgement
         - 'Meta service'
       summary: 'List all acknowledgements of a metaservice'
+      description: |
+        List all acknowledgements for a specific metaservice.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2938,7 +3087,12 @@ paths:
     post:
       tags:
         - Acknowledgement
+        - 'Meta service'
       summary: 'Add an acknowledgement on chosen metaservice'
+      description: |
+        Add an acknowledgement on a specific metaservice.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/MetaId'
@@ -2960,7 +3114,12 @@ paths:
     delete:
       tags:
         - Acknowledgement
+        - 'Meta service'
       summary: 'Cancel an acknowledgement on a metaservice'
+      description: |
+        Remove/cancel the current acknowledgement on a metaservice.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/MetaId'
@@ -3981,6 +4140,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Acknowledge multiple resources'
+      description: |
+        Add acknowledgements on multiple resources (hosts and/or services) at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
