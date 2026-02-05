@@ -3,7 +3,7 @@
 	<div  class="headerTabContainer">
         <ul id="mainnav">
             <li class="a" id='c1'><a href="#"  style='cursor:pointer' onclick="javascript:montre('1');">{t}General Information{/t}</a></li>
-            {if $cct.contact_auth_type == 'local'}
+            {if $cct.contact_auth_type === 'local' || $cct.contact_auth_type === 'ldap'}
                 <li class="b" id='c2'><a href="#" style='cursor:pointer' onclick="javascript:montre('2');">{t}UI Notifications{/t}</a></li>
             {/if}
         </ul>
