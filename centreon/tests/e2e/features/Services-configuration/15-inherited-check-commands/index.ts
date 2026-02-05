@@ -37,7 +37,7 @@ Given('an admin user is logged in Centreon', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin' });
 });
 
-Given('a service template with check command is configured', () => {
+Given('a service template with check commands is configured', () => {
   cy.visit(PAGES.configuration.servicesTemplatesLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody()
