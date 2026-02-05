@@ -911,14 +911,14 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param ResourceFilter $filter
      * @param bool $allPages
      * @param int[] $accessGroupIds
-     * @return int
-     *@throws CollectionException
+     * @throws CollectionException
      * @throws ConnectionException
      * @throws RepositoryException
      * @throws TransformerException
      * @throws ValueObjectException
      * @throws QueryBuilderException
      * @throws \InvalidArgumentException
+     * @return int
      */
     private function count(
         ResourceFilter $filter,
