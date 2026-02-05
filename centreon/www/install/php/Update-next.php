@@ -35,6 +35,21 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
+/** -------------------------------------- Global macros -------------------------------------- */
+$rewordingResourceToGlobalMacro = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to update Resource to Global macros';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [global_macro] Rewording Resource to Global macros",
+    );
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE topology
+            SET topology_name = 'Global macros'
+            WHERE topology_name = 'Resources'
+            SQL
+    );
+};
 /** -------------------------------------- Host Group Topology -------------------------------------- */
 $fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to fix duplicate Host Groups topology';
@@ -331,6 +346,7 @@ try {
         $pearDB->startTransaction();
     }
 
+    $rewordingResourceToGlobalMacro();
     $fixDuplicateHostGroupTopology();
     $migrateWidgetMetricsWithServiceInfo();
 
