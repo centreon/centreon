@@ -244,13 +244,6 @@ jobs:
           stability: ${{ needs.get-environment.outputs.stability }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
 
-      - name: test
-        run: |
-          for ARTIFACT_DL in $(find . -maxdepth 1 -type f -name '*.rpm' -printf '%f\n'); do
-            echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
-          done
-        shell: bash
-
   deliver-sources:
     runs-on: centreon-common
     needs: [get-environment, package]
