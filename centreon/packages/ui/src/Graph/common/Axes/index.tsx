@@ -73,7 +73,7 @@ const Axes = ({
         tickFormat={formatAxisTick}
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
-          dx: isHorizontal ? 16 : -4
+          dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -4)
         })}
         top={isHorizontal ? height - margin.bottom : 0}
       />
