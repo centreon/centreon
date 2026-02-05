@@ -725,14 +725,6 @@ msgstr "Adicionar indicador de Meta-Serviço"
 msgid "Add a Monitoring Engine Configuration File"
 msgstr "Adicionar um arquivo de configuração do motor de monitoramento"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Global macros"
-msgstr ""
-
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Add a global macro"
-msgstr "Adicionar uma macro global"
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Add a Service"
 msgstr "Adiciona um Serviço"
@@ -798,6 +790,10 @@ msgstr ""
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Add a downtime"
 msgstr "Adiciona manutenção"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Add a global macro"
+msgstr "Adicionar uma macro global"
 
 #: centreon/www/install/front_translate.php
 msgid "Add a host"
@@ -8204,6 +8200,10 @@ msgstr "Acesso a ações globais do motor de monitoramento (Comandos Externos)"
 msgid "Global Service Event Handler"
 msgstr "Manipulação de Evento Global de Serviço"
 
+#: centreon/www/install/menu_translation.php
+msgid "Global macros"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Global refresh interval"
 msgstr ""
@@ -11417,10 +11417,6 @@ msgstr "Modificar indicador de Meta-Serviço"
 msgid "Modify a Monitoring Engine Configuration File"
 msgstr "Modificar um arquivo de configuração do motor de monitoramento"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Modify a global macro"
-msgstr "Modificar uma macro global"
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify a Service"
 msgstr "Modifica um Serviço"
@@ -11460,6 +11456,10 @@ msgstr "Modificar uma métrica Virtual"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
 msgstr "Modifica manutenção"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Modify a global macro"
+msgstr "Modificar uma macro global"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -11839,8 +11839,8 @@ msgstr "N/D"
 #: centreon/www/include/configuration/configObject/timeperiod/listTimeperiod.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
-#: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configResources/formResources.php
+#: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -14315,7 +14315,6 @@ msgstr "Recurso usado por uma das instancias"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
 msgid "Resources"
 msgstr "Recursos"
@@ -18534,10 +18533,6 @@ msgstr "Visualizar Grupo"
 msgid "View Image"
 msgstr "Ver imagem"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "View global macro"
-msgstr "Visualizar uma macro global"
-
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "View Vendor"
 msgstr "Visualizar Fabricante"
@@ -18700,6 +18695,10 @@ msgstr "Visualizar notificações do contato"
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "View downtimes of hosts"
 msgstr "Visualizar manutenções de hosts"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "View global macro"
+msgstr "Visualizar uma macro global"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php

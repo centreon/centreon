@@ -729,14 +729,6 @@ msgstr "Meta-Service Indikator hinzufügen"
 msgid "Add a Monitoring Engine Configuration File"
 msgstr "Monitoring Engine Konfigurationsdatei hinzufügen"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Global macros"
-msgstr "Globale Makros"
-
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Add a global macro"
-msgstr "Globales Makro hinzufügen"
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Add a Service"
 msgstr "Service hinzufügen"
@@ -802,6 +794,10 @@ msgstr ""
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Add a downtime"
 msgstr "Ausfallszeit hinzufügen"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Add a global macro"
+msgstr "Globales Makro hinzufügen"
 
 #: centreon/www/install/front_translate.php
 msgid "Add a host"
@@ -7849,6 +7845,10 @@ msgstr "Globale Aktionen für die Monitoring Engine (Externe Prozessbefehle)"
 msgid "Global Service Event Handler"
 msgstr "Globale Service Event Handler"
 
+#: centreon/www/install/menu_translation.php
+msgid "Global macros"
+msgstr "Globale Makros"
+
 #: centreon/www/install/front_translate.php
 msgid "Global refresh interval"
 msgstr ""
@@ -10926,10 +10926,6 @@ msgstr "Meta-Service Indikator bearbeiten"
 msgid "Modify a Monitoring Engine Configuration File"
 msgstr "Monitoring Engine Konfigurationsdatei bearbeiten"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Modify a global macro"
-msgstr "Globales Makro bearbeiten"
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify a Service"
 msgstr "Service bearbeiten"
@@ -10969,6 +10965,10 @@ msgstr "Virtuelle Metrik bearbeiten"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
 msgstr "Ausfallszeit bearbeiten"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Modify a global macro"
+msgstr "Globales Makro bearbeiten"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -11348,8 +11348,8 @@ msgstr "N/A"
 #: centreon/www/include/configuration/configObject/timeperiod/listTimeperiod.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
-#: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configResources/formResources.php
+#: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -13829,7 +13829,6 @@ msgstr "Ressource wird von einer der Instanzen verwendet"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
 msgid "Resources"
 msgstr "Ressourcen"
@@ -18079,10 +18078,6 @@ msgstr "Gruppe anzeigen"
 msgid "View Image"
 msgstr "Bild anzeigen"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "View global macro"
-msgstr "Globales Makro anzeigen"
-
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "View Vendor"
 msgstr "Hersteller anzeigen"
@@ -18245,6 +18240,10 @@ msgstr "Kontaktbenachrichtigungen anzeigen"
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "View downtimes of hosts"
 msgstr "Ausfallszeiten der Hosts anzeigen"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "View global macro"
+msgstr "Globales Makro anzeigen"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
