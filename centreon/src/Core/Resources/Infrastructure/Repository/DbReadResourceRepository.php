@@ -136,7 +136,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $resourceTypeHost = self::RESOURCE_TYPE_HOST;
 
         $query = <<<SQL
-            SELECT DISTINCT
+            SELECT
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
@@ -185,8 +185,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 AND parent_resource.type = {$resourceTypeHost}
             LEFT JOIN `:dbstg`.`severities`
                 ON `severities`.severity_id = `resources`.severity_id
-            LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                ON `rtags`.resource_id = `resources`.resource_id
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
             WHERE resources.name NOT LIKE '\_Module\_%'
@@ -535,7 +533,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
         $query .= <<<SQL
-            SELECT DISTINCT
+            SELECT
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
@@ -588,8 +586,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 AND parent_resource.type = {$resourceType}
             LEFT JOIN `:dbstg`.`severities`
                 ON `severities`.severity_id = `resources`.severity_id
-            LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                ON `rtags`.resource_id = `resources`.resource_id
             SQL;
 
         /**
