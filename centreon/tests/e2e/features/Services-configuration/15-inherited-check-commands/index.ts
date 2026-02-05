@@ -83,7 +83,7 @@ When('the admin selects the configured service template as parent', () => {
     .find('select#service_template_model_stm_id')
     .next()
     .click();
-  cy.getIframeBody().contains('Ping-WAN').click();
+  cy.getIframeBody().contains(services.serviceByHost.template).click();
 });
 
 When('the admin saves the configuration', () => {
