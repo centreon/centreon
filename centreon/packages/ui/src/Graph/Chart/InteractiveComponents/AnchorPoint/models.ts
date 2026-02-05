@@ -1,6 +1,5 @@
 import type { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { Axis, AxisYRight } from '../../../common/Axes/models';
 import type { Line, TimeValue } from '../../../common/timeSeries/models';
 
 interface AnchorPoint {

@@ -1,14 +1,7 @@
 import type { ScaleLinear } from 'd3-scale';
 import { useAtomValue } from 'jotai';
-import {
-  type MutableRefObject,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { type MutableRefObject, useEffect, useState } from 'react';
 
-import { Axis, AxisYRight } from '../../../common/Axes/models';
 import useAxisY from '../../../common/Axes/useAxisY';
 import { getTimeValue } from '../../../common/timeSeries';
 import type { Line, TimeValue } from '../../../common/timeSeries/models';
