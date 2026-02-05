@@ -16,4 +16,9 @@
 <td class="Toolbar_pagelimit">
     {$form.l.html}
 </td>
+{if isset($rowsDisplayed)}
+	<td class="Toolbar_totalDisplayed">
+		{$rowsDisplayed}
+	</td>
+{/if}
 {$form.hidden}
