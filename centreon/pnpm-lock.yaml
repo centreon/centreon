@@ -83,6 +83,9 @@ importers:
       '@visx/visx':
         specifier: 3.12.0
         version: 3.12.0(@react-spring/web@9.7.5(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      axios:
+        specifier: 1.12.0
+        version: 1.12.0
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -285,9 +288,6 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
-      axios:
-        specifier: 1.12.0
-        version: 1.12.0
       chromatic:
         specifier: ^11.27.0
         version: 11.28.2
@@ -25978,7 +25978,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 25.0.3
+      '@types/node': 20.19.24
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
