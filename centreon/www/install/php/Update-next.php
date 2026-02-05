@@ -76,9 +76,21 @@ $updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): vo
     );
 
     if (
-        $pearDBO->columnExists('instances', 'cma_certificate_sha')
-        || $pearDBO->columnExists('instances', 'cma_certificate_cn')
-        || $pearDBO->columnExists('instances', 'cma_certificate_peremption')
+        $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_sha'
+        )
+        || $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_cn'
+        )
+        || $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_peremption'
+        )
     ) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,

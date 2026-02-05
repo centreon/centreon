@@ -102,13 +102,13 @@ try {
         $accessGroupsList = implode(',', $accessGroups->getIds());
         $configurationDatabaseName = $configurationDatabase->getConnectionConfig()->getDatabaseNameConfiguration();
         $baseQuery .= <<<SQL
-                INNER JOIN {$configurationDatabaseName}.acl_resources_hg_relations arhr
+                INNER JOIN `{$configurationDatabaseName}`.acl_resources_hg_relations arhr
                     ON hostgroups.hostgroup_id = arhr.hg_hg_id
-                INNER JOIN {$configurationDatabaseName}.acl_resources res
+                INNER JOIN `{$configurationDatabaseName}`.acl_resources res
                     ON arhr.acl_res_id = res.acl_res_id
-                INNER JOIN {$configurationDatabaseName}.acl_res_group_relations argr
+                INNER JOIN `{$configurationDatabaseName}`.acl_res_group_relations argr
                     ON res.acl_res_id = argr.acl_res_id
-                INNER JOIN {$configurationDatabaseName}.acl_groups ag
+                INNER JOIN `{$configurationDatabaseName}`.acl_groups ag
                     ON argr.acl_group_id = ag.acl_group_id
                     AND ag.acl_group_id IN ({$accessGroupsList})
             SQL;
