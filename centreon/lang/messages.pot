@@ -19548,7 +19548,7 @@ msgid "View Image"
 msgstr ""
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "View Resource"
+msgid "View global macro"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php

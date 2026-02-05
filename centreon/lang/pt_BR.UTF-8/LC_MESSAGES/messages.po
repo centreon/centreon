@@ -726,8 +726,12 @@ msgid "Add a Monitoring Engine Configuration File"
 msgstr "Adicionar um arquivo de configuração do motor de monitoramento"
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "Add a Resource"
-msgstr "Adicionar um recurso"
+msgid "Global macros"
+msgstr ""
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Add a global macro"
+msgstr "Adicionar uma macro global"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Add a Service"
@@ -10699,10 +10703,6 @@ msgstr "Limite para baixa variação de Serviço"
 msgid "Lower Limit"
 msgstr "Limite minimo"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "MACRO Expression"
-msgstr "Expressão MACRO"
-
 #: centreon/www/install/smarty_translate.php
 msgid "MB"
 msgstr "MB"
@@ -11418,8 +11418,8 @@ msgid "Modify a Monitoring Engine Configuration File"
 msgstr "Modificar um arquivo de configuração do motor de monitoramento"
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "Modify a Resource"
-msgstr "Modificar um Recurso"
+msgid "Modify a global macro"
+msgstr "Modificar uma macro global"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify a Service"
@@ -11840,6 +11840,7 @@ msgstr "N/D"
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configResources/listResources.php
+#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -14272,7 +14273,6 @@ msgid "Resource Access Rule"
 msgstr ""
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
-#: centreon/www/include/configuration/configResources/formResources.php
 msgid "Resource Name"
 msgstr "Nome do Recurso"
 
@@ -18393,6 +18393,7 @@ msgstr "E-mail válido"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service/xml/argumentsXml.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Value"
@@ -18534,8 +18535,8 @@ msgid "View Image"
 msgstr "Ver imagem"
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "View Resource"
-msgstr "Visualizar um Recurso"
+msgid "View global macro"
+msgstr "Visualizar uma macro global"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "View Vendor"

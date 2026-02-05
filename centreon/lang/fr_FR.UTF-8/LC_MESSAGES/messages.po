@@ -740,8 +740,12 @@ msgid "Add a Monitoring Engine Configuration File"
 msgstr "Ajouter le fichier de configuration du moteur de supervision"
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "Add a Resource"
-msgstr "Ajouter une ressource"
+msgid "Global macros"
+msgstr "Macros globales"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Add a global macro"
+msgstr "Ajouter une macro globale"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Add a Service"
@@ -10367,10 +10371,6 @@ msgstr "Seuil bas de détection de bagotage des statuts de service"
 msgid "Lower Limit"
 msgstr "Limite inférieure"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "MACRO Expression"
-msgstr "Valeur de la ressource"
-
 #: centreon/www/install/smarty_translate.php
 msgid "MB"
 msgstr "MB"
@@ -11090,8 +11090,8 @@ msgid "Modify a Monitoring Engine Configuration File"
 msgstr "Modifier le fichier de configuration du moteur de supervision"
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "Modify a Resource"
-msgstr "Modifier une ressource"
+msgid "Modify a global macro"
+msgstr "Modifier une macro globale"
 
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify a Service"
@@ -11512,6 +11512,7 @@ msgstr "N/A"
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
 #: centreon/www/include/configuration/configResources/listResources.php
+#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/home/customViews/index.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
@@ -13961,7 +13962,6 @@ msgid "Resource Access Rule"
 msgstr "Règle d'accès aux ressources"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
-#: centreon/www/include/configuration/configResources/formResources.php
 msgid "Resource Name"
 msgstr "Nom de la ressource"
 
@@ -18157,6 +18157,7 @@ msgstr "Email valide"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service/xml/argumentsXml.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Value"
@@ -18298,8 +18299,8 @@ msgid "View Image"
 msgstr "Voir l'image"
 
 #: centreon/www/include/configuration/configResources/formResources.php
-msgid "View Resource"
-msgstr "Visualiser une ressource"
+msgid "View global macro"
+msgstr "Visualiser une macro globale"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "View Vendor"
