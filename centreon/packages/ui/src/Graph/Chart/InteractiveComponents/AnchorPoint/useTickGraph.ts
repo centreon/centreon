@@ -8,6 +8,7 @@ import {
   useState
 } from 'react';
 
+import { Axis, AxisYRight } from '../../../common/Axes/models';
 import useAxisY from '../../../common/Axes/useAxisY';
 import { getTimeValue } from '../../../common/timeSeries';
 import type { Line, TimeValue } from '../../../common/timeSeries/models';
@@ -15,7 +16,6 @@ import {
   computeGElementMarginLeft,
   computPixelsToShiftMouse
 } from '../../../common/utils';
-import { margin } from '../../common';
 import { mousePositionAtom } from '../interactionWithGraphAtoms';
 
 interface AnchorPointResult {
@@ -36,6 +36,7 @@ interface Props {
   xScale: ScaleLinear<number, number>;
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
+  hasUnit?: boolean;
 }
 
 const useTickGraph = ({
@@ -46,9 +47,9 @@ const useTickGraph = ({
   lines = [],
   baseAxis = 1000,
   hasSecondUnit,
-  maxLeftAxisCharacters
+  maxLeftAxisCharacters,
+  hasUnit
 }: Props): AnchorPointResult => {
-  const guidingLinesRef = useRef<SVGGElement | null>(null);
   const [tickAxisBottom, setTickAxisBottom] = useState<Date | null>(null);
   const [tickAxisLeft, setTickAxisLeft] = useState<string | null>(null);
   const [tickAxisRight, setTickAxisRight] = useState<string | null>(null);
@@ -57,19 +58,16 @@ const useTickGraph = ({
 
   const mousePosition = useAtomValue(mousePositionAtom);
 
-  const paddingLeftString = useMemo(
-    () =>
-      (
-        guidingLinesRef.current?.parentElement?.parentElement?.attributes
-          ?.transform.value || ''
-      ).match(/translate\(([0-9.]+), ([0-9.]+)\)/)?.[1] || '0',
-    []
-  );
-
   const positionX = mousePosition
-    ? mousePosition[0] - Number(paddingLeftString) - 1
+    ? mousePosition[0] -
+      computeGElementMarginLeft({
+        hasSecondUnit,
+        maxCharacters: maxLeftAxisCharacters
+      })
     : undefined;
-  const positionY = mousePosition ? mousePosition[1] - margin.top : undefined;
+  const positionY = mousePosition
+    ? mousePosition[1] - (hasUnit ? 29 : 4)
+    : undefined;
 
   useEffect(() => {
     if (!mousePosition) {
@@ -113,7 +111,6 @@ const useTickGraph = ({
   }, [mousePosition]);
 
   return {
-    guidingLinesRef,
     positionX,
     positionY,
     tickAxisBottom,
