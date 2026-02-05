@@ -86,7 +86,7 @@ final class FindResourcesByParent
 
             $parents = new FindResourcesResponse([]);
 
-            $this->requestParameters->setSort(json_encode($servicesSort) ?: '');
+            $this->requestParameters->setSort(json_encode(value: $servicesSort, flags: JSON_THROW_ON_ERROR) ?: '');
 
             $resources = [];
             $parentResources = [];
@@ -138,9 +138,14 @@ final class FindResourcesByParent
             $presenter->presentResponse(
                 FindResourcesByParentFactory::createResponse($parents->resources, $children->resources, $extraData)
             );
-        } catch (\Throwable $ex) {
-            $presenter->presentResponse(new ErrorResponse(ResourceException::errorWhileSearching()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
+        } catch (\Throwable $e) {
+            $presenter->presentResponse(
+                new ErrorResponse(
+                    message: ResourceException::errorWhileSearching(),
+                    context: ['filter' => $filter],
+                    exception: $e,
+                )
+            );
         }
     }
 
