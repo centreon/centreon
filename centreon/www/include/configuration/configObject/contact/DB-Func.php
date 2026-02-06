@@ -1119,6 +1119,14 @@ function updateContact(int $contactId): void
     $ret['contact_name'] = CentreonUtils::escapeSecure($ret['contact_name'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
     $ret['contact_alias'] = CentreonUtils::escapeSecure($ret['contact_alias'], CentreonUtils::ESCAPE_ILLEGAL_CHARS);
 
+    // Set reach_api_rt according to reach front end value
+    if (
+        isset($ret['contact_oreon']['contact_oreon'])
+        && $ret['contact_oreon']['contact_oreon'] === '1'
+    ) {
+        $ret['reach_api_rt']['reach_api_rt'] = '1';
+    }
+
     try {
         $bindParams = sanitizeFormContactParameters($ret);
     } catch (InvalidArgumentException $e) {

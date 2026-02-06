@@ -364,7 +364,8 @@ class CentreonLDAP
             return false;
         }
         $this->setErrorHandler();
-        $filter = ldap_escape($group);
+        $escapedGroup = ldap_escape($group, '', LDAP_ESCAPE_FILTER);
+        $filter = preg_replace('/%s/', $escapedGroup, $this->groupSearchInfo['filter']);
         $result = ldap_search($this->ds, $this->groupSearchInfo['base_search'], $filter);
         $entries = ldap_get_entries($this->ds, $result);
         restore_error_handler();

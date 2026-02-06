@@ -739,6 +739,16 @@ $form->addElement(
 );
 
 if ($centreon->user->admin) {
+    if (! isset($cct['contact_oreon'])) {
+        $cct['contact_oreon'] = '1';
+    }
+    $useFrontend = (isset($cct['contact_oreon']) && $cct['contact_oreon'] === '1');
+    $reachApiRtYes = ['id' => 'reach_api_rt_yes', 'data-testid' => 'reach_api_rt_yes'];
+    $reachApiRtNo = ['id' => 'reach_api_rt_no', 'data-testid' => 'reach_api_rt_no'];
+    if ($useFrontend) {
+        $reachApiRtYes['disabled'] = 'disabled';
+        $reachApiRtNo['disabled'] = 'disabled';
+    }
     $tab = [];
     $tab[] = $form->createElement(
         'radio',
@@ -784,7 +794,7 @@ if ($centreon->user->admin) {
         null,
         _('Yes'),
         '1',
-        ['id' => 'reach_api_rt_yes', 'data-testid' => 'reach_api_rt_yes']
+        $reachApiRtYes
     );
     $tab[] = $form->createElement(
         'radio',
@@ -792,7 +802,7 @@ if ($centreon->user->admin) {
         null,
         _('No'),
         '0',
-        ['id' => 'reach_api_rt_no', 'data-testid' => 'reach_api_rt_no']
+        $reachApiRtNo
     );
     $form->addGroup($tab, 'reach_api_rt', _('Reach API Realtime'), '&nbsp;');
 }
@@ -862,7 +872,7 @@ if ($o != MASSIVE_CHANGE) {
         'contact_oreon' => ['contact_oreon' => '1'],
         'contact_admin' => ['contact_admin' => '0'],
         'reach_api' => ['reach_api' => '0'],
-        'reach_api_rt' => ['reach_api_rt' => '0'],
+        'reach_api_rt' => ['reach_api_rt' => '1'],
     ]);
 }
 $form->addElement(
