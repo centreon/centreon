@@ -93,9 +93,9 @@ final class DeleteCommandProcessorTest extends ApiTestCase
 
         $this->request('DELETE', '/api/latest/configuration/commands/' . $id);
 
-        self::assertResponseStatusCodeSame(500);
+        self::assertResponseStatusCodeSame(400);
         self::assertJsonContains([
-            'message' => 'Resource can not be deleted.',
+            'message' => 'A command from a monitoring connector cannot be deleted.',
         ]);
     }
 

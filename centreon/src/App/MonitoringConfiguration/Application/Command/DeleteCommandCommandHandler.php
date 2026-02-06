@@ -43,7 +43,7 @@ final readonly class DeleteCommandCommandHandler
         $existingCommand = $this->repository->getById($command->id);
 
         if ($existingCommand->isFromMonitoringConnector) {
-            throw new CommandCanNotBeDeletedException(['id' => $existingCommand->id()->value]);
+            throw new CommandCanNotBeDeletedException(['id' => $existingCommand->id()->value], "A command from a monitoring connector cannot be deleted.", 400);
         }
 
         $this->repository->delete($existingCommand);

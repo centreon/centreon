@@ -153,6 +153,7 @@ final class CommandResource
                 'example' => ['id' => 1, 'name' => 'SSH Connector'],
             ],
             readableLink: true,
+            writableLink: false,
         )]
         public ?ConnectorResource $connector,
 

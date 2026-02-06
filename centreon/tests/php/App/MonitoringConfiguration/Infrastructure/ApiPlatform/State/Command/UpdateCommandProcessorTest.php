@@ -49,7 +49,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
         self::assertJsonContains([
-            'name' => 'Updated Command Name',
+            'name' => 'Updated_Command_Name',
             'type' => 'Check',
             'command_line' => '/usr/lib/nagios/plugins/check_updated',
             'comment' => 'Updated comment',
@@ -79,7 +79,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
         self::assertJsonContains([
-            'name' => 'Command with Connector',
+            'name' => 'Command_with_Connector',
             'connector' => ['id' => 1, 'name' => 'Perl Connector'],
         ]);
     }
@@ -166,7 +166,7 @@ final class UpdateCommandProcessorTest extends ApiTestCase
         self::assertMatchesResourceItemJsonSchema(CommandResource::class);
         // ensure connector is still present
         self::assertJsonContains([
-            'name' => 'Command Keeping Connector',
+            'name' => 'Command_Keeping_Connector',
             'connector' => ['id' => 1, 'name' => 'Perl Connector'],
         ]);
     }

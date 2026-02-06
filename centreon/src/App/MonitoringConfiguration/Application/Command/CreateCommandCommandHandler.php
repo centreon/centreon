@@ -45,7 +45,7 @@ final readonly class CreateCommandCommandHandler
     public function __invoke(CreateCommandCommand $command): Command
     {
         if ($this->repository->findOneByName($command->name) instanceof Command) {
-            throw new CommandAlreadyExistsException(['name' => $command->name->value]);
+            throw new CommandAlreadyExistsException(['name' => $command->name->value], sprintf("A command with name '%s' already exists.", $command->name->value), 409);
         }
 
         if ($command->connectorId instanceof ConnectorId) {
