@@ -198,6 +198,7 @@ jobs:
         shell: bash
 
       - name: Restore keycloak image from cache
+        if: contains(matrix.feature, 'Authentication')
         id: cache-docker-keycloak
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         continue-on-error: true
