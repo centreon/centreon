@@ -770,8 +770,52 @@ paths:
   '/configuration/hosts/{host_id}/services/deploy':
     $ref: ./latest/onPremise/Configuration/Service/DeployServices.yaml
   /configuration/services/categories:
-    summary: "Service categories"
-    description: 'Endpoints to manage service categories'
+    get:
+      tags:
+        - 'Service category'
+      summary: 'List all service categories'
+      description: |
+        Return all service category configurations.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceCategory'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: _api_/configuration/services/categories_post
       tags:
@@ -840,7 +884,7 @@ paths:
     delete:
       operationId: DeleteServiceCategory
       tags:
-        - 'Host category'
+        - 'Service category'
       summary: 'Delete a service category'
       description: |
         Delete a service category configuration
@@ -874,6 +918,7 @@ paths:
       summary: 'List all real-time service categories'
       description: |
         List of all service categories in real-time context
+
         The available parameters to **search** / **sort_by** are:
 
         * id
@@ -886,6 +931,15 @@ paths:
         * host_category.name
         * service_group.id
         * service_group.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
