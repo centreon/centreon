@@ -2471,7 +2471,6 @@ paths:
         * host.state
         * poller.id
         * service.display_name
-        * host_group.id
         * host_category.id
         * host_category.name
       parameters:
