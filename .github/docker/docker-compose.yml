@@ -17,6 +17,9 @@ services:
       CENTREON_DATASET: ${CENTREON_DATASET:-1}
       CENTREON_LANG: ${CENTREON_LANG:-en_US}
       DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
+    tmpfs:
+      - /var/cache/centreon/symfony:size=16M,mode=1777
+      - /var/lib/php/session:size=32M,mode=1777
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s
@@ -29,11 +32,11 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-mariadb:10.11-ubi9}"
+    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
     tmpfs:
-      - /var/lib/mysql:size=256M,mode=777
-    command: ["--skip-name-resolve", "--skip-name-resolve", "--innodb-log-file-size=32M", "--secure-file-priv="]
+      - /bitnami/mariadb/data:size=256M,mode=777
+    # command: ["--skip-name-resolve", "--skip-name-resolve", "--innodb-log-file-size=32M", "--secure-file-priv="]
     deploy:
       resources:
         limits:

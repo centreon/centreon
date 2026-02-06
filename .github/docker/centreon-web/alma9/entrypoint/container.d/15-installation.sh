@@ -10,16 +10,25 @@ export MYSQL_PWD="${MYSQL_ROOT_PASSWORD}"
 
 sed -i "s/localhost/${MYSQL_HOST}/g" /usr/share/centreon/www/install/tmp/database.json
 
+
+
 if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/install ]; then
   cd /usr/share/centreon/www/install/steps/process
+
+  MYSQL_FK_CHECKS=$(mysql -N -s -h${MYSQL_HOST} -uroot -e "SELECT @@GLOBAL.foreign_key_checks")
+  MYSQL_UNIQUE_CHECKS=$(mysql -N -s -h${MYSQL_HOST} -uroot -e "SELECT @@GLOBAL.unique_checks")
+  MYSQL_INNODB_FLUSH=$(mysql -N -s -h${MYSQL_HOST} -uroot -e "SELECT @@GLOBAL.innodb_flush_log_at_trx_commit")
+  MYSQL_SYNC_BINLOG=$(mysql -N -s -h${MYSQL_HOST} -uroot -e "SELECT @@GLOBAL.sync_binlog")
+
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL foreign_key_checks=0"
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL unique_checks=0"
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL innodb_flush_log_at_trx_commit=2"
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL sync_binlog=0"
 
   echo "Creating Centreon configuration files..."
   su apache -s /bin/bash -c "php configFileSetup.php"
 
-  if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e \
-    "SELECT count(*) from information_schema.tables WHERE \
-        table_schema='centreon' and table_name='nagios_server'") -eq 1
-  ]; then
+  if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e "SELECT count(*) from information_schema.tables WHERE table_schema='centreon' and table_name='nagios_server'") -eq 1 ]; then
     echo "Centreon is already installed."
 
     echo "Creating Centreon database user..."
@@ -55,15 +64,22 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
     fi
   fi
 
-  echo "Creating engine context configuration..."
-  su apache -s /bin/bash -c "php createEngineContextConfiguration.php"
-
   echo "Generating Centreon cache..."
   su apache -s /bin/bash -c "php generationCache.php"
+
+  echo "Creating engine context configuration..."
+  # ls /var/cache/centreon/symfony/
+  su apache -s /bin/bash -c "php createEngineContextConfiguration.php"
+  # ls /var/cache/centreon/symfony/
 
   echo "Disabling statistics collection..."
   mysql -h${MYSQL_HOST} -uroot centreon -e "DELETE FROM options WHERE \`key\` = 'send_statistics'"
   mysql -h${MYSQL_HOST} -uroot centreon -e "INSERT INTO options (\`key\`, \`value\`) VALUES ('send_statistics', '0')"
+
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL foreign_key_checks=${MYSQL_FK_CHECKS}"
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL unique_checks=${MYSQL_UNIQUE_CHECKS}"
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL innodb_flush_log_at_trx_commit=${MYSQL_INNODB_FLUSH}"
+  mysql -h${MYSQL_HOST} -uroot -e "SET GLOBAL sync_binlog=${MYSQL_SYNC_BINLOG}"
 
   cd -
 fi
