@@ -2373,10 +2373,27 @@ paths:
         - 'Host group'
       summary: 'List all host groups by host id'
       description: |
-        List all the host groups in real-time monitoring by host id
+        List all the host groups in real-time monitoring for a specific host.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.display_name
+        * host.state
+        * poller.id
+        * service.display_name
+        * host_category.id
+        * host_category.name
       parameters:
         -
           $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/Search'
         -
           $ref: '#/components/parameters/Limit'
         -
@@ -3234,24 +3251,17 @@ paths:
 
         The available parameters to **search** / **sort_by** are:
 
-          * id
-          * entry_time
-          * is_cancelled
-          * comment
-          * deletion_time
-          * duration
-          * end_time
-          * is_fixed
-          * start_time
-          * host.id
-          * host.name
-          * host.alias
-          * host.address
-          * host.display_name
-          * host.state
-          * poller.id
-          * contact.id
-          * contact.name
+        * id
+        * entry_time
+        * is_cancelled
+        * comment
+        * deletion_time
+        * duration
+        * end_time
+        * is_fixed
+        * start_time
+        * contact.id
+        * contact.name
       parameters:
         -
           $ref: '#/components/parameters/Search'
