@@ -2516,8 +2516,8 @@ paths:
         * service.display_name
         * host_group.id
         * host_group.name
-        * host_categories.id
-        * host_categories.name
+        * host_category.id
+        * host_category.name
       parameters:
         -
           $ref: '#/components/parameters/ShowService'
@@ -3309,6 +3309,29 @@ paths:
       tags:
         - Downtime
       summary: 'List all services downtimes'
+      description: |
+        List all downtimes of services
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * entry_time
+        * is_cancelled
+        * comment
+        * deletion_time
+        * duration
+        * end_time
+        * is_fixed
+        * start_time
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.display_name
+        * host.state
+        * poller.id
+        * contact.id
+        * contact.name
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -3318,29 +3341,6 @@ paths:
           $ref: '#/components/parameters/Page'
         -
           $ref: '#/components/parameters/SortBy'
-      description: |
-        List all downtimes of services
-
-        The available parameters to **search** / **sort_by** are:
-
-          * id
-          * entry_time
-          * is_cancelled
-          * comment
-          * deletion_time
-          * duration
-          * end_time
-          * is_fixed
-          * start_time
-          * host.id
-          * host.name
-          * host.alias
-          * host.address
-          * host.display_name
-          * host.state
-          * poller.id
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
