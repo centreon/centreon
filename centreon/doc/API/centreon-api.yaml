@@ -772,7 +772,7 @@ paths:
   /configuration/services/categories:
     get:
       tags:
-        - 'Service category'
+        - ServiceCategory
       summary: 'List all service categories'
       description: |
         Return all service category configurations.
