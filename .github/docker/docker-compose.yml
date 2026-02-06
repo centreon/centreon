@@ -3,7 +3,7 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${WEB_IMAGE}"
+    image: "${WEB_IMAGE:-docker.centreon.com/centreon/centreon-web-alma9:develop}"
     ports: ["4000:80"]
     depends_on:
       - db
@@ -22,6 +22,8 @@ services:
       interval: 1s
       retries: 120
       timeout: 5s
+    # volumes:
+    #   - /home/toto/workspace/centreon/.github/docker/centreon-web/alma9/entrypoint/container.d:/usr/share/centreon/container.d
 
   db:
     platform: linux/amd64
@@ -29,6 +31,8 @@ services:
       - .env
     image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
     ports: ["3306"]
+    tmpfs:
+      - /bitnami/mariadb/data:size=256M
     deploy:
       resources:
         limits:
