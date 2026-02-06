@@ -197,6 +197,25 @@ jobs:
           docker tag ${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.SLIM_IMAGE_NAME }}:${{ env.IMAGE_TAG }}
         shell: bash
 
+      - name: Restore keycloak image from cache
+        id: cache-docker-keycloak
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        continue-on-error: true
+        timeout-minutes: 6
+        with:
+          path: ./docker-image-keycloak
+          key: docker-image-keycloak-${{ inputs.major_version}}
+        env:
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 5
+
+      - name: Load keycloak image
+        if: ${{ steps.cache-docker-keycloak.outputs.cache-hit == 'true' }}
+        run: |
+          docker load --input ../../../docker-image-keycloak/keycloak.tar
+          docker images
+          # docker tag keycloak:${{ inputs.major_version }} ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/keycloak:${{ inputs.major_version }}
+        shell: bash
+
       - name: Get test execution Key
         id: get-test-execution-key
         run: |
