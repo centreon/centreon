@@ -29,10 +29,11 @@ services:
     platform: linux/amd64
     env_file:
       - .env
-    image: "${MYSQL_IMAGE:-bitnamilegacy/mariadb:10.11}"
+    image: "${MYSQL_IMAGE:-mariadb:10.11-ubi9}"
     ports: ["3306"]
     tmpfs:
-      - /bitnami/mariadb/data:size=256M
+      - /var/lib/mysql:size=256M,mode=777
+    command: ["--skip-name-resolve", "--skip-name-resolve", "--innodb-log-file-size=32M", "--secure-file-priv="]
     deploy:
       resources:
         limits:
