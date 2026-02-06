@@ -5,28 +5,32 @@ interface StyleProps {
 }
 export const useHostsStyles = makeStyles<StyleProps>()(
   (theme, { isHovered }) => ({
-    tooltipContainer: {
-      backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      padding: 0,
-      position: 'relative',
-      width: theme.spacing(30),
-      minHeight: theme.spacing(15),
-      boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)'
-    },
     content: {
-      marginLeft: theme.spacing(3),
-      cursor: 'pointer'
+      cursor: 'pointer',
+      marginLeft: theme.spacing(3)
     },
     hostCount: {
       color: isHovered
         ? theme.palette.text.primary
         : theme.palette.text.secondary
+    },
+    tooltipContainer: {
+      backgroundColor: theme.palette.background.paper,
+      boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)',
+      color: theme.palette.text.primary,
+      minHeight: theme.spacing(15),
+      padding: 0,
+      position: 'relative',
+      width: theme.spacing(30)
     }
   })
 );
 
 export const useTooltipStyles = makeStyles()((theme) => ({
+  body: {
+    overflowY: 'auto',
+    textAlign: 'start'
+  },
   header: {
     alignItems: 'center',
     backgroundColor: theme.palette.common.black,
@@ -35,9 +39,5 @@ export const useTooltipStyles = makeStyles()((theme) => ({
     flexDirection: 'column',
     padding: theme.spacing(1),
     width: '100%'
-  },
-  body: {
-    overflowY: 'auto',
-    textAlign: 'start'
   }
 }));

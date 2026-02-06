@@ -1,14 +1,13 @@
+import { DashboardLayout } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, lte } from 'ramda';
 import type { Layout } from 'react-grid-layout';
 
-import { DashboardLayout } from '@centreon/ui';
-
+import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import { AddWidgetPanel } from '../AddEditWidget';
 import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 import type { Panel } from '../models';
-
-import { useAtomValue } from 'jotai';
-import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
 
@@ -53,7 +52,7 @@ const PanelsLayout = ({
       {panels.map(
         ({ i, panelConfiguration, refreshCount, data, name, options, w }) => (
           <DashboardLayout.Item
-            additionalMemoProps={[dashboardId, panelConfiguration.path]}
+            additionalMemoProps={[dashboardId, panelConfiguration?.path]}
             canMove={
               canEdit && isEditing && !panelConfiguration?.isAddWidgetPanel
             }
@@ -79,6 +78,7 @@ const PanelsLayout = ({
                         !isNil(options?.name) &&
                         !isEmpty(options?.name)
                       }
+                      expandableData={expandableData}
                       forceDisplayShrinkRefresh={
                         lte(w, 4) &&
                         !isNil(options?.name) &&
@@ -90,10 +90,9 @@ const PanelsLayout = ({
                           ? getLinkToResourceStatusPage(data, name, options)
                           : undefined
                       }
+                      name={name}
                       pageType={getPageType(data)}
                       setRefreshCount={setRefreshCount}
-                      name={name}
-                      expandableData={expandableData}
                     />
                   )}
                 </>
@@ -108,9 +107,9 @@ const PanelsLayout = ({
               <DashboardPanel
                 dashboardId={dashboardId}
                 id={i}
+                name={name}
                 playlistHash={playlistHash}
                 refreshCount={refreshCount}
-                name={name}
               />
             )}
           </DashboardLayout.Item>

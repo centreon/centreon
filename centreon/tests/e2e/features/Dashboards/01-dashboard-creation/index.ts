@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 import { last } from 'ramda';
 
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
@@ -121,7 +122,7 @@ Then('the newly created dashboard has the required only dashboard data', () => {
 Given(
   'a user with dashboard edition rights on the dashboard creation form',
   () => {
-    cy.visit('/centreon/home/dashboards');
+    cy.visit(PAGES.monitoring.dashboards);
     cy.getByLabel({ label: 'create', tag: 'button' }).click();
   }
 );

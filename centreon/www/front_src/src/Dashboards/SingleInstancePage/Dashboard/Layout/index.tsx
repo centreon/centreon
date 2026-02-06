@@ -1,16 +1,14 @@
-import { useMemo } from 'react';
+import { getColumnsFromScreenSize } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
 import { equals, isEmpty, map, propEq } from 'ramda';
+import { useMemo } from 'react';
 import type { Layout } from 'react-grid-layout';
-
-import { getColumnsFromScreenSize } from '@centreon/ui';
 
 import { AddEditWidgetModal } from '../AddEditWidget';
 import { dashboardAtom, isEditingAtom, refreshCountsAtom } from '../atoms';
 import { useCanEditProperties } from '../hooks/useCanEditDashboard';
 import type { Panel } from '../models';
-
 import PanelsLayout from './Layout';
 
 const addWidgetId = 'add_widget_panel';
@@ -43,7 +41,11 @@ const DashboardPageLayout = (): JSX.Element => {
     const isEmptyLayout =
       equals(layout.length, 1) && equals(layout[0].i, addWidgetId);
 
-    if (isOneColumnDisplay || isEmptyLayout) {
+    if (
+      isOneColumnDisplay ||
+      isEmptyLayout ||
+      equals(dashboard.layout, layout)
+    ) {
       return;
     }
 
@@ -89,9 +91,9 @@ const DashboardPageLayout = (): JSX.Element => {
   return (
     <>
       <PanelsLayout
-        displayMoreActions
         canEdit={canEdit}
         changeLayout={changeLayout}
+        displayMoreActions
         isEditing={isEditing}
         isStatic={!isEditing || showDefaultLayout}
         panels={panels}

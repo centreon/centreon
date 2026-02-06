@@ -1,8 +1,6 @@
-import { atom } from 'jotai';
-
-import { defaultDowntime } from './defaults';
-
-import { Downtime } from '.';
+import { atom } from "jotai";
+import type { Downtime } from ".";
+import { defaultDowntime } from "./defaults";
 
 const downtimeAtom = atom<Downtime>(defaultDowntime);
 

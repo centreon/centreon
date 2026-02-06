@@ -1,4 +1,7 @@
-import { Fragment, useState } from 'react';
+import LockIcon from '@mui/icons-material/Lock';
+import { Button, CircularProgress, Divider } from '@mui/material';
+
+import { TextField } from '@centreon/ui';
 
 import {
   FormikErrors,
@@ -7,16 +10,11 @@ import {
   useFormikContext
 } from 'formik';
 import { equals, isEmpty, not, prop } from 'ramda';
+import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import LockIcon from '@mui/icons-material/Lock';
-import { Button, CircularProgress, Divider } from '@mui/material';
-
-import { TextField } from '@centreon/ui';
-
 import PasswordEndAdornment from '../Login/PasswordEndAdornment';
-
 import {
   labelCurrentPassword,
   labelNewPassword,
@@ -118,18 +116,18 @@ const Form = (): JSX.Element => {
         return (
           <Fragment key={name}>
             <TextField
-              fullWidth
-              required
-              EndAdornment={passwordEndAdornment}
               ariaLabel={t(label)}
+              EndAdornment={passwordEndAdornment}
               error={getError({ errors, touched })}
+              fullWidth
               label={t(label)}
               name={name}
-              type={passwordVisibility[name] ? 'text' : 'password'}
-              value={getValue(values)}
               onBlur={handleBlur(name)}
               onChange={handleChange(name)}
+              required
               StartAdornment={LockIcon}
+              type={passwordVisibility[name] ? 'text' : 'password'}
+              value={getValue(values)}
             />
             {equals(name, oldPasswordFieldName) && <Divider />}
           </Fragment>
@@ -137,11 +135,11 @@ const Form = (): JSX.Element => {
       })}
 
       <Button
-        fullWidth
         aria-label={t(labelResetPassword)}
         color="primary"
         disabled={isDisabled}
         endIcon={isSubmitting && <CircularProgress color="inherit" size={20} />}
+        fullWidth
         type="submit"
         variant="contained"
       >

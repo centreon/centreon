@@ -1,20 +1,19 @@
-import { ReactNode } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Button,
-  ButtonProps,
+  type ButtonProps,
   CircularProgress,
   DialogActions,
   DialogContent,
-  DialogProps,
+  type DialogProps,
   DialogTitle,
-  DialogTitleProps,
+  type DialogTitleProps,
   Dialog as MuiDialog
 } from '@mui/material';
 
-import { DataTestAttributes } from '../@types/data-attributes';
+import type { ReactNode } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import type { DataTestAttributes } from '../@types/data-attributes';
 
 interface StylesProps {
   contentWidth?: number;
@@ -84,12 +83,12 @@ const Dialog = ({
 
   return (
     <MuiDialog
+      onClose={onClose}
+      open={open}
       PaperProps={{
         className: dialogPaperClassName
       }}
-      open={open}
       scroll="paper"
-      onClose={onClose}
       {...rest}
     >
       {labelTitle && (

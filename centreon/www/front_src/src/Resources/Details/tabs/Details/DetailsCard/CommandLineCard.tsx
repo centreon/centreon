@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import IconCopyFile from '@mui/icons-material/FileCopy';
 import { Card, Grid, IconButton, Tooltip, Typography } from '@mui/material';
 
 import { useCopyToClipboard } from '@centreon/ui';
+
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelCommand,
@@ -40,15 +40,15 @@ const CommandLineCard = ({ details }: Props): JSX.Element => {
   return (
     <Card className={classes.commandLineCard} elevation={0}>
       <Typography
-        gutterBottom
         color="textSecondary"
         component="div"
+        gutterBottom
         variant="body1"
       >
-        <Grid container alignItems="center" spacing={1}>
+        <Grid alignItems="center" container spacing={1}>
           <Grid item>{t(labelCommand)}</Grid>
           <Grid item>
-            <Tooltip title={labelCopy} onClick={copyCommandLine}>
+            <Tooltip onClick={copyCommandLine} title={labelCopy}>
               <IconButton data-testid={labelCopy} size="small">
                 <IconCopyFile color="primary" fontSize="small" />
               </IconButton>

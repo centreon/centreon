@@ -1,12 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { equals, isNotEmpty, isNotNil, pluck } from 'ramda';
-
-import { useGetAll } from '../api';
-import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
-
 import { useMemo } from 'react';
+
 import { FieldType } from '../../models';
+import { useGetAll } from '../api';
 import { configurationAtom } from '../atoms';
+import { limitAtom, pageAtom, sortFieldAtom, sortOrderAtom } from './atoms';
 
 interface LoadDataState {
   data?;
@@ -64,12 +63,12 @@ const useLoadData = ({ filtersAtom, filtersAtomKey }): LoadDataState => {
   }, [configuration?.filtersConfiguration, filters]);
 
   const { data, isLoading } = useGetAll({
-    sortField,
-    sortOrder,
-    page,
+    filtersAtomKey,
     limit,
+    page,
     searchConditions,
-    filtersAtomKey
+    sortField,
+    sortOrder
   });
 
   return { data, isLoading };

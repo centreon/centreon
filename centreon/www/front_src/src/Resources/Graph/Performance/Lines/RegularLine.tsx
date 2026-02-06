@@ -1,12 +1,10 @@
-import { ReactNode, memo } from 'react';
-
 import { Curve, Shape } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 import { equals, isNil, prop } from 'ramda';
+import { memo, ReactNode } from 'react';
 
 import { Line, TimeValue } from '../models';
 import { getTime } from '../timeSeries';
-
 import { getFillColor } from '.';
 
 interface Props {

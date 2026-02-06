@@ -1,13 +1,13 @@
-import { ReactElement, ReactNode, useCallback } from 'react';
-
 import {
   ArrowDropDown as ArrowDropDownIcon,
   Menu as MenuIcon
 } from '@mui/icons-material';
 
-import { AriaLabelingAttributes } from '../../../@types/aria-attributes';
-import { DataTestAttributes } from '../../../@types/data-attributes';
-import { Button, ButtonProps } from '../../Button';
+import { type ReactElement, type ReactNode, useCallback } from 'react';
+
+import type { AriaLabelingAttributes } from '../../../@types/aria-attributes';
+import type { DataTestAttributes } from '../../../@types/data-attributes';
+import { Button, type ButtonProps } from '../../Button';
 import { useMenu } from '../useMenu';
 
 type MenuButtonProps = {
@@ -41,7 +41,7 @@ const MenuButton = ({
       onClick?.({ isOpen: !isMenuOpen });
       if (!isMenuOpen) onOpen?.();
     },
-    [isMenuOpen, onClick, onOpen]
+    [isMenuOpen, onClick, onOpen, setAnchorEl, setIsMenuOpen]
   );
 
   return (
@@ -50,9 +50,9 @@ const MenuButton = ({
       aria-label={ariaLabel}
       className={`${isMenuOpen ? 'bg-primary-main/8 text-text-primary-main' : 'text-text-secondary'} ${className}`}
       data-is-active={isMenuOpen}
+      onClick={onToggle}
       size={size}
       variant={variant}
-      onClick={onToggle}
     >
       {children || <MenuIcon />}
       {hasArrow && (

@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Configuration\Icon\IconException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Core\Common\Domain\TrimmedString;
 use Core\Contact\Application\Repository\ReadContactGroupRepositoryInterface;
 use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Exception\HostException;
@@ -34,6 +34,8 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostGroup\Domain\Model\NewHostGroup;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\ResourceAccess\Application\Exception\RuleException;
 use Core\ResourceAccess\Application\Repository\ReadResourceAccessRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -66,14 +68,21 @@ class UpdateHostGroupValidator
      *
      * @throws HostGroupException|\Throwable
      */
-    public function assertNameDoesNotAlreadyExists(HostGroup $hostGroup, string $hostGroupName): void
+    public function assertNameIsValid(HostGroup $hostGroup, string $hostGroupName): void
     {
-        $hostGroupName = new TrimmedString($hostGroupName);
+        Assertion::unauthorizedCharacters(
+            $hostGroupName,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            'HostGroup::name'
+        );
+
+        $formattedName = NewHostGroup::formatName($hostGroupName);
+
         if (
-            $hostGroup->getName() !== (string) $hostGroupName
-            && $this->readHostGroupRepository->nameAlreadyExists((string) $hostGroupName)
+            $hostGroup->getName() !== $formattedName
+            && $this->readHostGroupRepository->nameAlreadyExists($formattedName)
         ) {
-            throw HostGroupException::nameAlreadyExists((string) $hostGroupName);
+            throw HostGroupException::nameAlreadyExists($formattedName);
         }
     }
 

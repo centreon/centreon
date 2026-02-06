@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { configureProviderAcls, getAccessGroupId } from '../../../../commons';
 import {
@@ -45,10 +46,7 @@ Given('an administrator is logged in the platform', () => {
     .wait('@postLocalAuthentification')
     .its('response.statusCode')
     .should('eq', 200)
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 

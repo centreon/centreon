@@ -1,9 +1,8 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import { labelValueFormat } from '../../../../translatedLabels';
-
 import WidgetValueFormat from './ValueFormat';
 
 const initialize = ({ isEditing, hasEditPermission }): void => {

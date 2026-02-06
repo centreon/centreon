@@ -1,8 +1,8 @@
+import { SelectEntry } from '@centreon/ui';
+
+import { SetStateAction } from 'jotai';
 import { map, pick, propEq, reject } from 'ramda';
 import { Dispatch, useMemo } from 'react';
-
-import { SelectEntry } from '@centreon/ui';
-import { SetStateAction } from 'jotai';
 
 interface Props<TFilters> {
   name: string;
@@ -40,9 +40,9 @@ const useMultiAutocomplete = <TFilters>({
   }, [filters?.[name]]);
 
   return {
-    value,
+    change,
     deleteItem,
-    change
+    value
   };
 };
 

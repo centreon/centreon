@@ -69,12 +69,12 @@ When('a user duplicates the time period', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
   cy.enterIframe('iframe#main-content')
     .find('tr[class*="list_"]')
-    .each(($row) => {
-      cy.wrap($row)
+    .each((row) => {
+      cy.wrap(row)
         .find('td.ListColLeft')
-        .then(($td) => {
-          if ($td.text().includes('timePeriodName')) {
-            cy.wrap($row)
+        .then((td) => {
+          if (td.text().includes('timePeriodName')) {
+            cy.wrap(row)
               .find('td.ListColPicker')
               .find('div.md-checkbox')
               .click();
@@ -149,12 +149,12 @@ When('a user deletes the time period', () => {
   cy.waitForElementInIframe('#main-content', 'input[name="searchTP"]');
   cy.getIframeBody()
     .find('tr[class*="list_"]')
-    .each(($row) => {
-      cy.wrap($row)
+    .each((row) => {
+      cy.wrap(row)
         .find('td.ListColLeft')
-        .then(($td) => {
-          if ($td.text().includes('timePeriodName')) {
-            cy.wrap($row)
+        .then((td) => {
+          if (td.text().includes('timePeriodName')) {
+            cy.wrap(row)
               .find('td.ListColPicker')
               .find('div.md-checkbox')
               .click();

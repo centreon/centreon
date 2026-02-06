@@ -1,6 +1,5 @@
-import { ComponentType, LazyExoticComponent, useMemo, useRef } from 'react';
-
 import { fromPairs, replace } from 'ramda';
+import { ComponentType, LazyExoticComponent, useMemo, useRef } from 'react';
 import { useLocation } from 'react-router';
 
 import { ComponentProps, Parameters } from './models';

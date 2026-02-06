@@ -1,7 +1,7 @@
+import { useLocaleDateTimeFormat } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { useLocaleDateTimeFormat } from '@centreon/ui';
 
 import DowntimeChip from '../../../../Chip/Downtime';
 import {

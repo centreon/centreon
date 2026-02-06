@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { isEmpty, isNil, values } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 
-import { SelectField, TextField, postData, useRequest } from '@centreon/ui';
+import { postData, SelectField, TextField, useRequest } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { isEmpty, isNil, values } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
 import { pollerWaitListEndpoint } from '../api/endpoints';
@@ -164,34 +163,34 @@ const PollerWizardStepOne = ({
         {inputTypeManual ? (
           <div className={classes.form}>
             <TextField
-              fullWidth
-              required
               error={getError('server_name')}
+              fullWidth
               label={t(labelServerName)}
               name="server_name"
-              value={stepOneFormData.server_name}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_name}
             />
             <TextField
-              fullWidth
-              required
               error={getError('server_ip')}
+              fullWidth
               label={t(labelServerIp)}
               name="server_ip"
-              value={stepOneFormData.server_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_ip}
             />
             <TextField
-              fullWidth
-              required
               error={getError('centreon_central_ip')}
+              fullWidth
               label={t(labelCentreonCentralIp)}
               name="centreon_central_ip"
-              value={stepOneFormData.centreon_central_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.centreon_central_ip}
             />
           </div>
         ) : (
@@ -200,39 +199,39 @@ const PollerWizardStepOne = ({
               fullWidth
               label={t(labelSelectPollerIp)}
               name="server_ip"
+              onChange={handleChange}
               options={waitListOption || []}
               selectedOptionId={stepOneFormData.server_ip}
-              onChange={handleChange}
             />
             <TextField
-              fullWidth
-              required
               error={getError('server_name')}
+              fullWidth
               label={t(labelServerName)}
               name="server_name"
-              value={stepOneFormData.server_name}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_name}
             />
             <TextField
-              fullWidth
-              required
               error={getError('server_ip')}
+              fullWidth
               label={t(labelServerIp)}
               name="server_ip"
-              value={stepOneFormData.server_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.server_ip}
             />
             <TextField
-              fullWidth
-              required
               error={getError('centreon_central_ip')}
+              fullWidth
               label={t(labelCentreonCentralIp)}
               name="centreon_central_ip"
-              value={stepOneFormData.centreon_central_ip}
               onBlur={handleBlur}
               onChange={handleChange}
+              required
+              value={stepOneFormData.centreon_central_ip}
             />
           </div>
         )}

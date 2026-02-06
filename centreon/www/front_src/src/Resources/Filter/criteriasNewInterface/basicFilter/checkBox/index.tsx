@@ -1,10 +1,10 @@
-import { useAtom } from 'jotai';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { CheckboxGroup, SelectEntry } from '@centreon/ui';
+
+import { useAtom } from 'jotai';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import { Criteria, CriteriaDisplayProps } from '../../../Criterias/models';
 import {
@@ -18,7 +18,6 @@ import {
 import useInputData from '../../useInputsData';
 import { selectedStatusByResourceTypeAtom } from '../atoms';
 import useSectionsData from '../sections/useSections';
-
 import { useStyles } from './checkBox.style';
 import useSynchronizeSearchBarWithCheckBoxInterface from './useSynchronizeSearchBarWithCheckBoxInterface';
 
@@ -162,9 +161,9 @@ const CheckBoxSection = ({
       direction="horizontal"
       formGroupProps={formGroupProps}
       labelProps={labelProps}
+      onChange={handleChangeStatus}
       options={transformData(translatedOptions) || []}
       values={transformData(translatedValues) || []}
-      onChange={handleChangeStatus}
     />
   );
 };
