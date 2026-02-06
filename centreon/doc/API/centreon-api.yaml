@@ -2428,6 +2428,15 @@ paths:
         * name
         * host_group.id
         * host_group.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
