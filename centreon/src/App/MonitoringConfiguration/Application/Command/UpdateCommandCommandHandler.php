@@ -52,7 +52,7 @@ final readonly class UpdateCommandCommandHandler
         $existingCommand = $this->commandRepository->getById($command->id);
 
         if ($existingCommand->isFromMonitoringConnector) {
-            throw new CommandCanNotBeUpdatedException(['id' => $existingCommand->id()->value], "A command from a monitoring connector cannot be updated.", 400);
+            throw new CommandCanNotBeUpdatedException(['id' => $existingCommand->id()->value], 'A command from a monitoring connector cannot be updated.', 400);
         }
 
         if ($command->name instanceof CommandName) {
