@@ -19,11 +19,13 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
           {
             id: JsonDecoder.number,
             isCentral: JsonDecoder.optional(JsonDecoder.boolean),
+            isAgentInitiatedEnabled: JsonDecoder.optional(JsonDecoder.boolean), // optional for now
             name: JsonDecoder.string
           },
           'poller',
           {
-            isCentral: 'is_central'
+            isCentral: 'is_central',
+            isAgentInitiatedEnabled: 'is_agent_initiated_enabled'
           }
         ),
         'pollers'

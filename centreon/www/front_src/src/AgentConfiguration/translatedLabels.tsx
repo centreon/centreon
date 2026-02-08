@@ -92,3 +92,25 @@ export const labelAtLeastOneConnexionMode =
 
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
+
+// commands
+export const labelGenerateInstallationCommand =
+  'Generate your CMA installation command';
+export const labelCommandWarning =
+  'The command is only valid for hosts with an agent-initiated connection to this poller.';
+export const labelSelectPollerThatWillMonitor =
+  'Select the poller that will monitor your hosts';
+export const labelSelectPoller = 'Select poller';
+export const labelSelectOperatingSystem = "Select your hosts' operating system";
+export const labelWindows = 'Windows';
+export const labelLinux = 'Linux';
+export const labelDownloadTheScript = 'Download the script';
+export const labelDownload = 'Download';
+export const labelThenCopyTheScript =
+  'then copy the script to each host you want to monitor.';
+export const labelExecuteTheScript = 'Execute the script';
+export const labelRunTheFollowingCommand =
+  'Run the following command on each host you want to monitor with the agent.';
+export const labelCopyCommand = 'Copy command';
+export const labelCommandCopied = 'Command copied!';
+export const labelFailedToCopyTheCommand = 'Failed to copy the command!';

@@ -9,6 +9,8 @@ import { useColumns } from './Columns/useColumns';
 import DeleteModal from './DeleteModal';
 import { useListing } from './useListing';
 
+import InstallationCommandModal from './InstallationCommandModal';
+
 interface Props {
   rows: Array<AgentConfigurationListing>;
   total: number;
@@ -65,6 +67,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
         totalRows={total}
       />
       <DeleteModal />
+      <InstallationCommandModal />
     </>
   );
 };

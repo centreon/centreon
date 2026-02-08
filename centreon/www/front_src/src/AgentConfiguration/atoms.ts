@@ -25,6 +25,11 @@ export const agentTypeFormAtom = atom<AgentType | null>(null);
 export const openFormModalAtom = atom<number | 'add' | null>(null);
 export const askBeforeCloseFormModalAtom = atom(false);
 
+export const pollerToGenerateCommanAtom = atom<{
+  id: number;
+  name: string;
+} | null>(null);
+
 export const changeSortAtom = atom(
   null,
   (_get, set, { sortOrder, sortField }) => {

@@ -15,7 +15,12 @@ export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
-  pollers: Array<{ id: number; name: string; isCentral?: boolean }>;
+  pollers: Array<{
+    id: number;
+    name: string;
+    isCentral?: boolean;
+    isAgentInitiatedEnabled: boolean;
+  }>;
 }
 
 export interface TelegrafConfiguration {

@@ -1,4 +1,4 @@
-import { DeleteOutline } from '@mui/icons-material';
+import { CodeOffTwoTone, DeleteOutline } from '@mui/icons-material';
 
 import { IconButton } from '@centreon/ui';
 import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
@@ -7,7 +7,8 @@ import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil, pick } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { itemToDeleteAtom } from '../../atoms';
+import { useCallback } from 'react';
+import { itemToDeleteAtom, pollerToGenerateCommanAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelDelete } from '../../translatedLabels';
 import { useStyles } from './Action.styles';
@@ -16,6 +17,7 @@ interface Props {
   row: AgentConfigurationListing & {
     internalListingParentId?: number;
     internalListingParentRow: AgentConfigurationListing;
+    isAgentInitiatedEnabled: boolean;
   };
 }
 
@@ -32,6 +34,7 @@ const Action = ({ row }: Props): JSX.Element => {
   )?.some((poller) => equals(poller?.isCentral, true));
 
   const setItemToDelete = useSetAtom(itemToDeleteAtom);
+  const setOpenFormModal = useSetAtom(pollerToGenerateCommanAtom);
 
   const askBeforeDelete = (): void => {
     setItemToDelete({
@@ -44,19 +47,41 @@ const Action = ({ row }: Props): JSX.Element => {
     });
   };
 
-  if (!isAdmin && isCloudPlatform && hasCentral) {
-    return;
-  }
+  const displayCommandModal = useCallback(
+    () => setOpenFormModal(pick(['id', 'name'], row)),
+    []
+  );
+
+  const isDeleteButtonDisplayed = isAdmin || !isCloudPlatform || !hasCentral;
+  const isCommandButtonDisplayed =
+    isNotNil(row.internalListingParentId) && row?.isAgentInitiatedEnabled;
 
   return (
-    <IconButton
-      ariaLabel={t(labelDelete)}
-      className={classes.removeButton}
-      onClick={askBeforeDelete}
-      title={t(labelDelete)}
-    >
-      <DeleteOutline className={classes.removeIcon} />
-    </IconButton>
+    <div className="grid grid-cols-2 grid-3">
+      <div>
+        {isCommandButtonDisplayed && (
+          <IconButton
+            ariaLabel={t(labelDelete)}
+            onClick={displayCommandModal}
+            title={t(labelDelete)}
+          >
+            <CodeOffTwoTone className={classes.commandIcon} />
+          </IconButton>
+        )}
+      </div>
+      <div>
+        {isDeleteButtonDisplayed && (
+          <IconButton
+            ariaLabel={t(labelDelete)}
+            className={classes.removeButton}
+            onClick={askBeforeDelete}
+            title={t(labelDelete)}
+          >
+            <DeleteOutline className={classes.removeIcon} />
+          </IconButton>
+        )}
+      </div>
+    </div>
   );
 };
 

@@ -10,5 +10,8 @@ export const useStyles = makeStyles()((theme) => ({
   removeIcon: {
     color: theme.palette.error.main,
     fontSize: theme.spacing(2.5)
+  },
+  commandIcon: {
+    fontSize: theme.spacing(2.5)
   }
 }));
