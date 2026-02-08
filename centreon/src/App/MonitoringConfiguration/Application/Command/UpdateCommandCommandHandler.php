@@ -52,13 +52,13 @@ final readonly class UpdateCommandCommandHandler
         $existingCommand = $this->commandRepository->getById($command->id);
 
         if ($existingCommand->isFromMonitoringConnector) {
-            throw new CommandCanNotBeUpdatedException(['id' => $existingCommand->id()->value]);
+            throw new CommandCanNotBeUpdatedException(['id' => $existingCommand->id()->value], 'A command from a monitoring connector cannot be updated.', 400);
         }
 
         if ($command->name instanceof CommandName) {
             $commandWithSameName = $this->commandRepository->findOneByName($command->name);
             if ($commandWithSameName instanceof Command && $commandWithSameName->id()->value !== $existingCommand->id()->value) {
-                throw new CommandAlreadyExistsException(['name' => $command->name->value], 'A command with the same name already exists.');
+                throw new CommandAlreadyExistsException(['name' => $command->name->value], sprintf("A command with name '%s' already exists.", $command->name->value), 409);
             }
             $existingCommand->updateName($command->name);
         }

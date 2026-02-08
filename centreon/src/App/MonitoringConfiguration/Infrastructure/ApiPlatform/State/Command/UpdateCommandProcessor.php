@@ -65,10 +65,14 @@ final readonly class UpdateCommandProcessor implements ProcessorInterface
         $credentialUser = $this->security->getUser();
         Assert::isInstanceOf($credentialUser, CredentialUser::class);
 
+        $name = trim($data->name);
+        $name = preg_replace('/\s+/', '_', $name);
+        Assert::stringNotEmpty($name);
+
         $command = new UpdateCommandCommand(
             id: $commandId,
             type: CommandTypeEnum::fromName($data->type),
-            name: new CommandName($data->name),
+            name: new CommandName($name),
             commandLine: new CommandLine($data->commandLine),
             comment: $data->comment ? new CommandComment($data->comment) : null,
             isShellEnabled: $data->isShellEnabled,

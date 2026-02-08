@@ -173,8 +173,7 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         /** @var ActivityLogRepository $repository */
         $repository = self::getContainer()->get(ActivityLogRepository::class);
 
-        self::assertSame(0, $repository->count());
-
+        $count = $repository->count();
         $this->login();
 
         $this->request('POST', '/api/latest/configuration/services/categories', [
@@ -190,6 +189,6 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         self::assertResponseIsSuccessful();
 
-        self::assertSame(1, $repository->count());
+        self::assertSame($count + 1, $repository->count());
     }
 }

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\Command;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\Command\ListCommandResource;
+use Doctrine\DBAL\Connection;
 use Tests\App\Shared\ApiTestCase;
 
 final class ListCommandsProviderTest extends ApiTestCase
@@ -96,7 +97,7 @@ final class ListCommandsProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type[]' => 'Check']]);
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => 'Check']]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
         $this->assertCount(30, (array) $response->toArray()['member']);
@@ -113,7 +114,7 @@ final class ListCommandsProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type[]' => ['Check', 'Notification']]]);
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => ['Check', 'Notification']]]);
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
         $this->assertCount(30, (array) $response->toArray()['member']);
@@ -181,7 +182,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $response = $this->request(
             'GET',
             self::BASE_ENDPOINT,
-            ['query' => ['page' => '1', 'itemsPerPage' => '2', 'name' => ['lk' => 'host'], 'type[]' => 'Notification']]
+            ['query' => ['page' => '1', 'itemsPerPage' => '2', 'name' => ['lk' => 'host'], 'type' => 'Notification']]
         );
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
@@ -243,7 +244,7 @@ final class ListCommandsProviderTest extends ApiTestCase
         $response = $this->request(
             'GET',
             self::BASE_ENDPOINT,
-            ['query' => ['name' => ['lk' => 'ping'], 'type[]' => 'Check', 'status' => 'true']]
+            ['query' => ['name' => ['lk' => 'ping'], 'type' => 'Check', 'status' => 'true']]
         );
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
@@ -265,14 +266,14 @@ final class ListCommandsProviderTest extends ApiTestCase
         $this->login();
 
         // Get baseline count without filter
-        $responseWithoutFilter = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type[]' => 'Notification']]);
+        $responseWithoutFilter = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => 'Notification']]);
         $baselineCount = count((array) $responseWithoutFilter->toArray()['member']); // by default we have 6 Notification commands
 
         // Get count with filter enabled
         $responseWithFilter = $this->request(
             'GET',
             self::BASE_ENDPOINT,
-            ['query' => ['is_from_monitoring_connector' => 'true', 'type[]' => 'Notification']]
+            ['query' => ['is_from_monitoring_connector' => 'true', 'type' => 'Notification']]
         );
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(ListCommandResource::class);
@@ -285,7 +286,12 @@ final class ListCommandsProviderTest extends ApiTestCase
 
     public function testItShouldDenyAccessWhenUserHasNoCommandPermissions(): void
     {
-        $this->login('user_without_command_permissions');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
+        $this->login($username);
 
         $this->request('GET', self::BASE_ENDPOINT);
         self::assertResponseStatusCodeSame(403);
@@ -293,7 +299,15 @@ final class ListCommandsProviderTest extends ApiTestCase
 
     public function testItShouldFilterCommandsBasedOnUserPermissions(): void
     {
-        $this->login('user_with_limited_command_permissions');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false, actions: [
+            self::CAN_READ_CHECK_COMMANDS,
+            self::CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS,
+        ]);
+        $this->login($username);
 
         $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['itemsPerPage' => '100']]);
         self::assertResponseIsSuccessful();
@@ -312,10 +326,18 @@ final class ListCommandsProviderTest extends ApiTestCase
 
     public function testItShouldFilterCommandsWhenRequestingSpecificTypesUserCannotAccess(): void
     {
-        $this->login('user_with_limited_command_permissions');
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false, actions: [
+            self::CAN_READ_CHECK_COMMANDS,
+            self::CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS,
+        ]);
+        $this->login($username);
 
         // User has permissions for Check and Notification, but request includes Miscellaneous
-        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type[]' => ['Check', 'Miscellaneous']]]);
+        $response = $this->request('GET', self::BASE_ENDPOINT, ['query' => ['type' => ['Check', 'Miscellaneous']]]);
         self::assertResponseIsSuccessful();
 
         // Should only return Check commands since user doesn't have Miscellaneous permission
@@ -324,21 +346,5 @@ final class ListCommandsProviderTest extends ApiTestCase
 
         $this->assertContains('Check', $commandTypes);
         $this->assertNotContains('Miscellaneous', $commandTypes);
-    }
-
-    protected static function apiUsers(): array
-    {
-        return [
-            [
-                'identifier' => 'user_with_limited_command_permissions',
-                'admin' => false,
-                'actions' => [self::CAN_READ_CHECK_COMMANDS, self::CAN_READ_AND_WRITE_NOTIFICATION_COMMANDS],
-            ],
-            [
-                'identifier' => 'user_without_command_permissions',
-                'admin' => false,
-                'actions' => [],
-            ],
-        ];
     }
 }
