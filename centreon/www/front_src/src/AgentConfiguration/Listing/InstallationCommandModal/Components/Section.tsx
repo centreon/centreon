@@ -1,10 +1,12 @@
 import { Typography } from '@mui/material';
 import { ReactElement } from 'react';
 
-const SubTitle = ({
-  title,
-  order
-}: { title: string; order: number }): ReactElement => {
+interface Props {
+  title: string;
+  order: number;
+}
+
+const SubTitle = ({ title, order }: Props): ReactElement => {
   return (
     <div className="flex items-center gap-1.5 mb-1">
       <div className="w-6 h-6 bg-text-primary text-primary-contrastText text-center rounded-xl">

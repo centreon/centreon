@@ -1,13 +1,14 @@
 import { Box, Typography } from '@mui/material';
 import { ReactElement } from 'react';
-import { useTranslation } from 'react-i18next';
 
-export const Warning = ({ label }: { label: string }): ReactElement => {
-  const { t } = useTranslation();
+interface Props {
+  label: string;
+}
 
+export const Warning = ({ label }: Props): ReactElement => {
   return (
     <Box className="bg-warning-light/50 rounded-sm p-2">
-      <Typography>{t(label)}</Typography>
+      <Typography>{label}</Typography>
     </Box>
   );
 };

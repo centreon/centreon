@@ -47,7 +47,7 @@ const InstallationCommandModal = (): ReactElement => {
       <Modal.Header>{t(labelGenerateInstallationCommand)}</Modal.Header>
       <Modal.Body>
         <div className="mb-6">
-          <Warning label={labelCommandWarning} />
+          <Warning label={t(labelCommandWarning)} />
         </div>
 
         <div className="flex flex-col gap-4">
