@@ -428,7 +428,7 @@ jobs:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ github.event.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
+          pat: ${{ github.events.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
           lint_path: ./www/front_src/
 
   frontend-unit-test:
