@@ -17,6 +17,7 @@ on:
     paths:
       - ".version"
       - ".github/docker/Dockerfile.packaging-*"
+      - ".github/workflows/docker-packaging.yml"
 
 jobs:
   dependency-scan:
@@ -33,47 +34,47 @@ jobs:
     needs: [get-environment]
 #    if: ${{ needs.get-environment.outputs.skip_workflow == 'false' }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - runner: ubuntu-24.04
-            dockerfile: packaging-alma8
-            image: packaging-alma8
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-alma8
-            image: packaging-nfpm-alma8
-          - runner: ubuntu-24.04
-            dockerfile: packaging-alma9
-            image: packaging-alma9
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-alma9
-            image: packaging-nfpm-alma9
-          - runner: ubuntu-24.04
-            dockerfile: packaging-bullseye
-            image: packaging-bullseye
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-bullseye
-            image: packaging-nfpm-bullseye
-          - runner: ubuntu-24.04
-            dockerfile: packaging-bookworm
-            image: packaging-bookworm
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-bookworm
-            image: packaging-nfpm-bookworm
-          - runner: ubuntu-24.04
-            dockerfile: packaging-nfpm-jammy
-            image: packaging-nfpm-jammy
-          - runner: centreon-collect-arm64
-            dockerfile: packaging-bullseye
-            image: packaging-bullseye-arm64
-          - runner: centreon-collect-arm64
-            dockerfile: packaging-nfpm-bullseye
-            image: packaging-nfpm-bullseye-arm64
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     include:
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-alma8
+    #         image: packaging-alma8
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-nfpm-alma8
+    #         image: packaging-nfpm-alma8
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-alma9
+    #         image: packaging-alma9
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-nfpm-alma9
+    #         image: packaging-nfpm-alma9
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-bullseye
+    #         image: packaging-bullseye
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-nfpm-bullseye
+    #         image: packaging-nfpm-bullseye
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-bookworm
+    #         image: packaging-bookworm
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-nfpm-bookworm
+    #         image: packaging-nfpm-bookworm
+    #       - runner: ubuntu-24.04
+    #         dockerfile: packaging-nfpm-jammy
+    #         image: packaging-nfpm-jammy
+    #       - runner: centreon-collect-arm64
+    #         dockerfile: packaging-bullseye
+    #         image: packaging-bullseye-arm64
+    #       - runner: centreon-collect-arm64
+    #         dockerfile: packaging-nfpm-bullseye
+    #         image: packaging-nfpm-bullseye-arm64
 
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-24.04
 
-    name: build container ${{ matrix.image }}
+    name: build container packaging
 
     steps:
       - name: Checkout sources
@@ -82,19 +83,25 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
-          username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
-          password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: ghcr.io/${{ github.repository }}/packaging
+
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
-          file: .github/docker/Dockerfile.${{ matrix.dockerfile }}
+          file: .github/docker/Dockerfile.packaging
           context: .
           pull: true
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
+          tags: ghcr.io/${{ github.repository }}/packaging:${{ needs.get-environment.outputs.major_version }}
 
   set-skip-label:
     needs: [get-environment, dockerize]
