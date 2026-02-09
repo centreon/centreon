@@ -1,5 +1,7 @@
 FROM alpine:3.23
 
+ARG NFPM_VERSION=2.41.2
+
 RUN sh -e <<EOF
 
 apk add --no-cache --update \
@@ -12,9 +14,8 @@ apk add --no-cache --update \
   tzdata \
   zstd
 
-NFPM_VERSION=2.41.2
-curl -fsSL -o /tmp/nfpm.tar.gz \
-  https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}/nfpm_${NFPM_VERSION}_Linux_x86_64.tar.gz
+
+curl -fsSL -o /tmp/nfpm.tar.gz https://github.com/goreleaser/nfpm/releases/download/v${NFPM_VERSION}/nfpm_${NFPM_VERSION}_Linux_x86_64.tar.gz
 tar -xzf /tmp/nfpm.tar.gz -C /usr/local/bin nfpm
 chmod +x /usr/local/bin/nfpm
 rm -f /tmp/nfpm.tar.gz
