@@ -50,7 +50,7 @@ Given('a host is configured', () => {
 Given('a host group is configured', () => {
   cy.visit(PAGES.configuration.hostGroupsLegacy);
   cy.wait('@getTimeZone');
-  cy.contains(services.serviceByHostGroup.host).should('be.visible');
+  cy.getIframeBody().contains(services.serviceByHostGroup.host).should('be.visible');
 });
 
 When('the admin adds a new service linked to the configured host', () => {
