@@ -17,6 +17,7 @@ on:
     paths:
       - ".version"
       - ".github/docker/Dockerfile.translation"
+      - ".github/workflows/docker-translation.yml"
 
 jobs:
   dependency-scan:
