@@ -3,11 +3,11 @@ import { useAtom } from 'jotai';
 import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SingleConnectedAutocompleteField } from '@centreon/ui';
+import { IconButton, SingleConnectedAutocompleteField } from '@centreon/ui';
 
 import { Modal } from '@centreon/ui/components';
 
-import LinuxIcon from '../../../assets/linux.png';
+import linuxIcon from '../../../assets/linux.png';
 import windowsIcon from '../../../assets/windows.png';
 
 import { pollerToGenerateCommanAtom } from '../../atoms';
@@ -16,6 +16,7 @@ import { pollerToGenerateCommanAtom } from '../../atoms';
 
 import { CommandLine, Section, Warning } from './Components';
 
+import { commandLine, scriptURL } from '../../Specs/utils';
 import {
   labelCommandWarning,
   labelDownload,
@@ -66,32 +67,30 @@ const InstallationCommandModal = (): ReactElement => {
 
           <Section order={2} title={t(labelSelectOperatingSystem)}>
             <div className="flex gap-12 my-2">
-              <div className="flex flex-col gap-2.5 items-center">
-                <img
-                  src={windowsIcon}
-                  alt={labelWindows}
-                  className="h-12 w-auto"
-                />
-                <Typography variant="subtitle2" className="font-medium">
-                  {labelWindows}
-                </Typography>
-              </div>
-              <div className="flex flex-col gap-2.5 items-center">
-                <img src={LinuxIcon} alt={labelLinux} className="h-12 w-auto" />
-                <Typography variant="subtitle2" className="font-medium">
-                  {labelLinux}
-                </Typography>
-              </div>
+              {[
+                { label: labelWindows, src: windowsIcon },
+                { label: labelLinux, src: linuxIcon }
+              ].map(({ label, src }) => (
+                <div key={label} className="flex flex-col gap-2.5 items-center">
+                  <IconButton
+                    className={`flex justify-center items-center w-16 h-16 rounded-sm ${label === labelWindows ? 'border-2 border-primary-main' : ''}`}
+                    ariaLabel={t(label)}
+                    onClick={() => undefined}
+                    title={t(label)}
+                  >
+                    <img src={src} alt={label} className="h-12 w-auto" />
+                  </IconButton>
+                  <Typography variant="subtitle2" className="font-medium">
+                    {t(label)}
+                  </Typography>
+                </div>
+              ))}
             </div>
           </Section>
 
           <Section order={3} title={t(labelDownloadTheScript)}>
             <Typography>
-              <Link
-                rel="noreferrer"
-                target="_blank"
-                href="https://github.com/centreon/centreon-collect/releases/download/centreon-monitoring-agent-25.10.1/centreon-monitoring-agent-25.10.1.exe"
-              >
+              <Link rel="noreferrer" target="_blank" href={scriptURL}>
                 {t(labelDownload)}
               </Link>
               &nbsp;
@@ -102,7 +101,7 @@ const InstallationCommandModal = (): ReactElement => {
           <Section order={4} title={t(labelExecuteTheScript)}>
             <div className="flex flex-col gap-1">
               <Typography>{t(labelRunTheFollowingCommand)}</Typography>
-              <CommandLine commandLine="installcma.ps /FINGERPRINT=XXXXXXX  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317" />
+              <CommandLine commandLine={commandLine} />
             </div>
           </Section>
         </div>
