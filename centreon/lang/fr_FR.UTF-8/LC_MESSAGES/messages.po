@@ -739,10 +739,6 @@ msgstr "Ajouter un indicateur de Méta-Service"
 msgid "Add a Monitoring Engine Configuration File"
 msgstr "Ajouter le fichier de configuration du moteur de supervision"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Add a Resource"
-msgstr "Ajouter une ressource"
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Add a Service"
 msgstr "Ajouter un service"
@@ -808,6 +804,10 @@ msgstr "Ajouter un contact group"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Add a downtime"
 msgstr "Ajouter une plage de maintenance"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Add a global macro"
+msgstr "Ajouter une macro globale"
 
 #: centreon/www/install/front_translate.php
 msgid "Add a host"
@@ -7981,6 +7981,10 @@ msgstr "Actions globales du moteur de supervision (Commandes externes)"
 msgid "Global Service Event Handler"
 msgstr "Gestionnaire global d’évènements de service"
 
+#: centreon/www/install/menu_translation.php
+msgid "Global macros"
+msgstr "Macros globales"
+
 #: centreon/www/install/front_translate.php
 msgid "Global refresh interval"
 msgstr "Délai de rafraîchissement global"
@@ -10367,10 +10371,6 @@ msgstr "Seuil bas de détection de bagotage des statuts de service"
 msgid "Lower Limit"
 msgstr "Limite inférieure"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "MACRO Expression"
-msgstr "Valeur de la ressource"
-
 #: centreon/www/install/smarty_translate.php
 msgid "MB"
 msgstr "MB"
@@ -11089,10 +11089,6 @@ msgstr "Modifier un indicateur de Méta-Service"
 msgid "Modify a Monitoring Engine Configuration File"
 msgstr "Modifier le fichier de configuration du moteur de supervision"
 
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "Modify a Resource"
-msgstr "Modifier une ressource"
-
 #: centreon/www/include/configuration/configObject/service/formService.php
 msgid "Modify a Service"
 msgstr "Modifier un service"
@@ -11132,6 +11128,10 @@ msgstr "Modifier une Métrique Virtuelle"
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
 msgstr "Modifier une plage de maintenance"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "Modify a global macro"
+msgstr "Modifier une macro globale"
 
 #: centreon/www/include/configuration/configServers/formServers.php
 msgid "Modify a poller Configuration"
@@ -11511,6 +11511,7 @@ msgstr "N/A"
 #: centreon/www/include/configuration/configObject/timeperiod/listTimeperiod.php
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
+#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/configuration/configResources/listResources.php
 #: centreon/www/include/configuration/configServers/listServers.php
 #: centreon/www/include/home/customViews/index.php
@@ -13961,7 +13962,6 @@ msgid "Resource Access Rule"
 msgstr "Règle d'accès aux ressources"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
-#: centreon/www/include/configuration/configResources/formResources.php
 msgid "Resource Name"
 msgstr "Nom de la ressource"
 
@@ -14004,7 +14004,6 @@ msgstr "Ressource utilisée par une des instances"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
 msgid "Resources"
 msgstr "Ressources"
@@ -18157,6 +18156,7 @@ msgstr "Email valide"
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service/xml/argumentsXml.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
+#: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Value"
@@ -18296,10 +18296,6 @@ msgstr "Visualiser un groupe"
 #: centreon/www/include/options/media/images/formImg.php
 msgid "View Image"
 msgstr "Voir l'image"
-
-#: centreon/www/include/configuration/configResources/formResources.php
-msgid "View Resource"
-msgstr "Visualiser une ressource"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "View Vendor"
@@ -18463,6 +18459,10 @@ msgstr "Afficher les notifications du contact"
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 msgid "View downtimes of hosts"
 msgstr "Visualiser les plages de maintenance des hôtes"
+
+#: centreon/www/include/configuration/configResources/formResources.php
+msgid "View global macro"
+msgstr "Visualiser une macro globale"
 
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
