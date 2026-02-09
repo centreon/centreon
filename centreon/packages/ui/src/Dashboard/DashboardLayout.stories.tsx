@@ -1,12 +1,13 @@
 import { Typography } from '@mui/material';
 
-import type { ComponentMeta } from '@storybook/react';
-import type { Layout } from 'react-grid-layout';
+import type { Meta, StoryObj } from '@storybook/react';
+import { ReactElement } from 'react';
+import type { LayoutItem } from 'react-grid-layout';
 
 import FluidTypography from '../Typography/FluidTypography';
 import { DashboardLayout } from '.';
 
-interface CustomLayout extends Layout {
+interface CustomLayout extends LayoutItem {
   content: string;
   shouldUseFluidTypography: boolean;
 }
@@ -59,21 +60,21 @@ const generateLayout = (maxElements: number): Array<CustomLayout> => {
 };
 
 interface DashboardTemplateProps {
-  header?: JSX.Element;
+  header?: ReactElement;
   layout?: Array<CustomLayout>;
 }
 
-const Header = (): JSX.Element => (
+const Header = (): ReactElement => (
   <Typography variant="body2">The title</Typography>
 );
 
 const DashboardTemplate = ({
   header,
   layout = dashboardLayout
-}: DashboardTemplateProps): JSX.Element => (
+}: DashboardTemplateProps): ReactElement => (
   <DashboardLayout.Layout<CustomLayout> layout={layout}>
     {layout.map(({ i, content, shouldUseFluidTypography }) => (
-      <DashboardLayout.Item header={header} key={i}>
+      <DashboardLayout.Item header={header} id={i} key={i}>
         {shouldUseFluidTypography ? (
           <FluidTypography text={content} />
         ) : (
@@ -84,20 +85,26 @@ const DashboardTemplate = ({
   </DashboardLayout.Layout>
 );
 
-export default {
-  argTypes: {},
+const meta: Meta<typeof DashboardTemplate> = {
   component: DashboardTemplate,
   title: 'Dashboard'
-} as ComponentMeta<typeof DashboardTemplate>;
-
-export const normal = DashboardTemplate.bind({});
-
-export const withManyPanels = DashboardTemplate.bind({});
-withManyPanels.args = {
-  layout: generateLayout(100)
 };
 
-export const withItemHeader = DashboardTemplate.bind({});
-withItemHeader.args = {
-  header: <Header />
+export default meta;
+type Story = StoryObj<typeof DashboardTemplate>;
+
+export const normal: Story = {
+  args: {}
+};
+
+export const withManyPanels: Story = {
+  args: {
+    layout: generateLayout(100)
+  }
+};
+
+export const withItemHeader: Story = {
+  args: {
+    header: <Header />
+  }
 };
