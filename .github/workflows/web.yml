@@ -428,7 +428,7 @@ jobs:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          pat: ${{ github.event.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
           lint_path: ./www/front_src/
 
   frontend-unit-test:
@@ -706,7 +706,7 @@ jobs:
           frontend_directory: ${{ env.e2e_directory }}
           module_name: ${{ env.base_directory }}
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          pat: ${{ github.event.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
           lint_path: './features'
 
   package:
@@ -1450,7 +1450,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, deliver-deb, deliver-rpm]
     env:
-      GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
     if: |
       needs.get-environment.outputs.is_nightly == 'true' &&
       ! cancelled() &&
