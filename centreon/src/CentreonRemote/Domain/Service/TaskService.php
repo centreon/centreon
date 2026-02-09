@@ -113,17 +113,16 @@ class TaskService
             case Task::TYPE_EXPORT:
             case Task::TYPE_IMPORT:
                 $newTask->setType($type);
-                $result = $this->getDbManager()->getAdapter('configuration_db')->insert('task', $newTask->toArray());
-
+                $taskId = $this->getDbManager()->getAdapter('configuration_db')->insert('task', $newTask->toArray());
                 $cmd = new Command();
-                $cmd->setCommandLine(Command::COMMAND_START_IMPEX_WORKER);
+                $cmd->setCommandLine(Command::COMMAND_START_IMPEX_WORKER . ':' . $taskId);
                 $cmdWritten = $this->getCmdService()->sendCommand($cmd);
                 break;
             default:
                 return false;
         }
 
-        return ($result && $cmdWritten) ? $result : false;
+        return ($taskId && $cmdWritten) ? $taskId : false;
     }
 
     /**
