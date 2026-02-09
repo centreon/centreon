@@ -55,7 +55,8 @@ final class DeployDefaultAgentConfigurationForPoller
     {
         if ($this->readAcRepository->findByPollerId($request->pollerId) !== null) {
             $this->info(
-                "Default AC deployment skipped for poller #%d because it already has an AC linked.",
+                'Default AC deployment skipped for poller because it already has an AC linked.',
+                ['pollerId' => $request->pollerId]
             );
 
             return;

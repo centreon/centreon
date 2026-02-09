@@ -120,21 +120,29 @@ if ($row = $centralServerQuery->fetch()) {
     $stmt->bindValue(':id', (int) $row['id'], PDO::PARAM_INT);
     $stmt->execute();
 
-    $kernel = Kernel::createForWeb();
-    $deployAgentConfiguration = $kernel->getContainer()
-        ->get(DeployDefaultAgentConfigurationForPoller::class);
-    if (! $deployAgentConfiguration instanceof DeployDefaultAgentConfigurationForPoller) {
-        CentreonLog::create()->warning(
-            CentreonLog::TYPE_BUSINESS_LOG,
-            'DeployDefaultAgentConfigurationForPoller service not found, skipping default agent configuration deployment'
+    try {
+        $kernel = Kernel::createForWeb();
+        $deployAgentConfiguration = $kernel->getContainer()
+            ->get(DeployDefaultAgentConfigurationForPoller::class);
+        if (! $deployAgentConfiguration instanceof DeployDefaultAgentConfigurationForPoller) {
+            CentreonLog::create()->warning(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'DeployDefaultAgentConfigurationForPoller service not found, skipping default agent configuration deployment'
+            );
+        } else {
+            $request = new DeployDefaultAgentConfigurationForPollerRequest(
+                pollerId: $row['id'],
+                creatorId: 1,
+                creatorName: 'admin',
+            );
+            $deployAgentConfiguration($request);
+        }
+    } catch(Throwable $ex) {
+        CentreonLog::create()->error(
+            logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+            message: 'An error occured while deploying default agent configuration, skipping.',
+            exception: $ex
         );
-    } else {
-        $request = new DeployDefaultAgentConfigurationForPollerRequest(
-            pollerId: $row['id'],
-            creatorId: 1,
-            creatorName: 'admin',
-        );
-        $deployAgentConfiguration($request);
     }
 }
 
