@@ -1,5 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-import { PAGES } from 'fixtures/shared/constants/pages';
+import { PAGES } from 'e2e/fixtures/shared/constants/pages';
 
 const services = {
   serviceByHost: {
@@ -52,7 +52,7 @@ Given('a host is configured', () => {
 });
 
 Given('a host group is configured', () => {
-  cy.visit(PAGES.configuration.hostGroups);
+  cy.visit(PAGES.configuration.hostGroupsLegacy);
   cy.wait('@getGroups');
   cy.contains(services.serviceByHostGroup.host).should('be.visible');
 });
