@@ -19,7 +19,10 @@ services:
       DATABASE_PARTITIONING: ${DATABASE_PARTITIONING:-1}
     tmpfs:
       - /var/cache/centreon/symfony:size=16M,mode=1777
-      # - /var/lib/php/session:size=32M,mode=1777
+      - /var/log/httpd:size=32M,mode=1777
+      - /var/log/php-fpm:size=32M,mode=1777
+      - /var/lib/php/session:size=32M,mode=1777
+      - /tmp:size=64M,mode=1777
     healthcheck:
       test: bash -c "[ -f /tmp/docker.ready ]" && curl --fail http://localhost/centreon/api/latest/platform/versions || exit 1
       interval: 1s

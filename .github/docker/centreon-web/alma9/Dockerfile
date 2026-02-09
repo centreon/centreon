@@ -14,6 +14,10 @@ COPY ./.github/docker/centreon-web/sql/* /usr/local/src/sql/data/
 
 RUN --mount=type=bind,src=packages-centreon,dst=/tmp/packages-centreon bash -e <<EOF
 
+if ! grep -q '^tsflags=nodocs' /etc/dnf/dnf.conf; then
+  echo 'tsflags=nodocs' >> /etc/dnf/dnf.conf
+fi
+
 if [[ "$STABILITY" == "testing" ]]; then
   dnf config-manager --set-disabled 'centreon*unstable*'
 elif [[ "$STABILITY" == "stable" ]]; then
@@ -32,6 +36,17 @@ fi
 
 sed -i -E 's#^date\.timezone.+#date.timezone = Europe/Paris#g' /etc/php.d/20-timezone.ini
 
+cat > /etc/php.d/10-opcache.ini <<'OPCACHE'
+opcache.enable=1
+opcache.enable_cli=0
+opcache.memory_consumption=128
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=20000
+opcache.revalidate_freq=0
+opcache.validate_timestamps=0
+opcache.fast_shutdown=1
+OPCACHE
+
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
@@ -43,6 +58,7 @@ systemctl stop php-fpm
 systemctl stop snmpd
 
 dnf clean all
+rm -rf /usr/share/doc /usr/share/man /usr/share/info
 
 EOF
 
