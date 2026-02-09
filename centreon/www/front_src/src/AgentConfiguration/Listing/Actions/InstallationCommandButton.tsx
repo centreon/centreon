@@ -4,13 +4,13 @@ import { Button } from '@centreon/ui/components';
 import Icon from '@mui/icons-material/CodeOffTwoTone';
 
 import { useSetAtom } from 'jotai';
-// import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import { pollerToGenerateCommanAtom } from '../../atoms';
-// import { labelAdd } from '../../translatedLabels';
+import { labelCommand } from '../../translatedLabels';
 
 const InstallationCommandButton = (): ReactElement => {
-  // const { t } = useTranslation();
+  const { t } = useTranslation();
 
   const setOpenFormModal = useSetAtom(pollerToGenerateCommanAtom);
 
@@ -27,7 +27,7 @@ const InstallationCommandButton = (): ReactElement => {
       onClick={displayModal}
       size="medium"
     >
-      Command
+      {t(labelCommand)}
     </Button>
   );
 };

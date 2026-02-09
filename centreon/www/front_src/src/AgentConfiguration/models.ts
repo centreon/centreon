@@ -104,3 +104,11 @@ export enum FormVariant {
   Add = 0,
   Update = 1
 }
+
+export interface InstallationCommand {
+  id: number;
+  windowsScriptURL: string;
+  linuxScriptURL: string;
+  windowsScriptCommand: string;
+  linuxScriptCommand: string;
+}

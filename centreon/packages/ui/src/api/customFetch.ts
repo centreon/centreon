@@ -52,7 +52,7 @@ export const customFetch = <T>({
     !isNil(baseEndpoint) &&
     !startsWith(baseEndpoint, endpoint) &&
     !startsWith('./api/internal.php', endpoint)
-      ? `${baseEndpoint}${endpoint}`
+      ? endpoint
       : endpoint;
 
   const isFormData = payload instanceof FormData;

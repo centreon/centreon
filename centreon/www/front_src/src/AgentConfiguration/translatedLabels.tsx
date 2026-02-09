@@ -114,3 +114,4 @@ export const labelRunTheFollowingCommand =
 export const labelCopyCommand = 'Copy command';
 export const labelCommandCopied = 'Command copied!';
 export const labelFailedToCopyTheCommand = 'Failed to copy the command!';
+export const labelCommand = 'Command';
