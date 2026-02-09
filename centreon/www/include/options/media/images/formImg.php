@@ -317,7 +317,7 @@ if ($valid) {
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
     $tpl->assign('form', $renderer->toArray());
-    $tpl->assign('max_uploader_file', sprintf(_('Max file size : %s'), $isCloudPlatform ? '2M' : '5M'));
+    $tpl->assign('max_uploader_file', sprintf(_('Max file size: %s'), $isCloudPlatform ? '2M' : '5M'));
     $tpl->assign('o', $o);
     $tpl->display('formImg.ihtml');
 }

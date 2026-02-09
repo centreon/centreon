@@ -10600,7 +10600,7 @@ msgid "Maximum files size (in bytes)"
 msgstr "Taille maximale des fichiers (en octets)"
 
 #: centreon/www/include/options/media/images/formImg.php
-msgid "Max file size : %s"
+msgid "Max file size: %s"
 msgstr "Taille de fichier max : %s"
 
 #: centreon/www/include/Administration/parameters/engine/form.php
