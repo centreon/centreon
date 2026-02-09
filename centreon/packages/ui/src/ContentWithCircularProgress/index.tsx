@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import { CircularProgress } from '@mui/material';
+
+import type { ReactElement } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()(() => ({
   alignCenter: {

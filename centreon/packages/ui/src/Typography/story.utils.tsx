@@ -1,6 +1,3 @@
-import { toPairs } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import {
   Box,
   Card,
@@ -10,6 +7,9 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
+
+import { toPairs } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   headerContainer: {
@@ -56,8 +56,8 @@ const TypographyStory = (): JSX.Element => {
             spacing={10}
           >
             <Typography
-              gutterBottom
               display="block"
+              gutterBottom
               variant={typographyVariant}
             >
               {typographyVariant}

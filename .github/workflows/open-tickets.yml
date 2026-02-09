@@ -6,6 +6,12 @@ concurrency:
 
 on:
   workflow_dispatch:
+    inputs:
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   pull_request:
     paths:
       - ".github/workflows/open-tickets.yml"
@@ -32,10 +38,15 @@ env:
   e2e_directory: centreon-open-tickets/tests/e2e
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   get-environment:
+    needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
+      labels: ${{ inputs.labels || '' }}
 
   check-version-consistency:
     runs-on: ubuntu-24.04
@@ -49,7 +60,7 @@ jobs:
       configuration_file: centreon-open-tickets/www/modules/centreon-open-tickets/conf.php
       widget_file: centreon-open-tickets/widgets/open-tickets/configs.xml
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Check ${{ env.version_file }}
         uses: ./.github/actions/check-version-consistency
@@ -113,10 +124,10 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
           php-version: 8.2
           coverage: none
@@ -135,7 +146,7 @@ jobs:
 
       - name: Get changed PHP files
         id: changed-php
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           files: |
             **/*.php
@@ -199,10 +210,10 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
           php-version: 8.2
           coverage: none
@@ -233,7 +244,7 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     runs-on: centreon-ubuntu-22.04
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - uses: ./.github/actions/gherkin-lint
         with:
@@ -247,7 +258,7 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
     runs-on: centreon-ubuntu-22.04
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -255,6 +266,7 @@ jobs:
           module_name: ${{ env.module }}
           dependencies_lock_file: ${{ env.e2e_directory }}/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: './features'
 
   package:
     needs:
@@ -278,7 +290,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distrib: [el8, el9, bookworm, jammy]
+        distrib: [el8, el9, bookworm]
         include:
           - package_extension: rpm
             image: packaging-nfpm-alma8
@@ -289,9 +301,9 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
+          # - package_extension: deb
+          #   image: packaging-nfpm-jammy
+          #   distrib: jammy
 
     runs-on: ubuntu-24.04
 
@@ -305,7 +317,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Remove some providers from cloud version
         if: ${{ needs.get-environment.outputs.is_cloud == 'true' }}
@@ -356,7 +368,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Generate information according to matrix os
         id: matrix_include
@@ -410,7 +422,7 @@ jobs:
         shell: bash
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
@@ -421,7 +433,7 @@ jobs:
           mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
         shell: bash
 
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -453,7 +465,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -538,6 +550,7 @@ jobs:
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-rpm:
     needs: [get-environment, changes, package]
@@ -556,7 +569,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -589,7 +602,7 @@ jobs:
         distrib: [bookworm]
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -619,7 +632,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable

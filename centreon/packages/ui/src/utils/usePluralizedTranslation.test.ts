@@ -1,7 +1,7 @@
+import { ListingVariant, userAtom } from '@centreon/ui-context';
+
 import { act, renderHook } from '@testing-library/react';
 import { useAtom } from 'jotai';
-
-import { ListingVariant, userAtom } from '@centreon/ui-context';
 
 import { usePluralizedTranslation } from './usePluralizedTranslation';
 

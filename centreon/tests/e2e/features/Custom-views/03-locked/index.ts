@@ -1,4 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 import {
   addCustomView,
   addSharedView,
@@ -175,11 +177,7 @@ Then('the view is removed for all users displaying the custom view', () => {
 
 Given('a custom view shared in read only with a group', () => {
   /*** this part is for setting the Guest contact group to the configured acl user ***/
-  cy.navigateTo({
-    page: 'Contacts / Users',
-    rootItemNumber: 3,
-    subMenu: 'Users'
-  });
+  cy.visit(PAGES.configuration.contactsUsersLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'custom-view-acl-user').click();
   cy.waitForElementInIframe('#main-content', 'input[name="contact_alias"]');

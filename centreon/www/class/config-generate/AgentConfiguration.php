@@ -90,7 +90,7 @@ class AgentConfiguration extends AbstractObjectJSON
     {
         return [
             'host' => ModelAgentConfiguration::DEFAULT_HOST,
-            'port' => ModelAgentConfiguration::DEFAULT_PORT,
+            'port' => $data['port'] ?? ModelAgentConfiguration::DEFAULT_PORT,
             'encryption' => match ($connectionMode) {
                 ConnectionModeEnum::SECURE => 'full',
                 ConnectionModeEnum::INSECURE => 'insecure',

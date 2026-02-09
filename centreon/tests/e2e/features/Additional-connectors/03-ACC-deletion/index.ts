@@ -1,4 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
+
+import data from '../../../fixtures/additional-configurations/acc.json';
 
 before(() => {
   cy.startContainers();
@@ -43,14 +46,16 @@ Given(
       jsonName: 'user-non-admin-for-ACC',
       loginViaApi: false
     });
-    cy.visit('/centreon/configuration/additional-connector-configurations');
+    cy.visit(PAGES.configuration.additionalConfigurations);
     cy.wait('@getConnectorPage');
   }
 );
 
 Given('an additional connector configuration is already created', () => {
   cy.getByLabel({ label: 'create', tag: 'button' }).click();
-  cy.createAccWithMandatoryFields();
+  cy.createAccWithMandatoryFields(data.default);
+  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
+  cy.wait('@addAdditionalConnector');
 });
 
 When('the user deletes the additional connector configuration', () => {

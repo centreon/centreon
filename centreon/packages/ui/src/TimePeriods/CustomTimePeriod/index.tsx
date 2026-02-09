@@ -1,14 +1,12 @@
-import { MouseEvent, useState } from 'react';
+import { useDebounce } from '@centreon/ui';
 
 import { useAtomValue, useSetAtom } from 'jotai';
-
-import { useDebounce } from '@centreon/ui';
+import { type MouseEvent, useState } from 'react';
 
 import {
   changeCustomTimePeriodDerivedAtom,
   customTimePeriodAtom
 } from '../timePeriodsAtoms';
-
 import CompactCustomTimePeriod from './CompactCustomTimePeriod';
 import PopoverCustomTimePeriod from './PopoverCustomTimePeriod';
 

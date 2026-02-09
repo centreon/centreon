@@ -277,6 +277,71 @@ class DbReadServiceRepository extends AbstractRepositoryRDB implements ReadServi
     /**
      * @inheritDoc
      */
+    public function findServiceIdsLinkedToHostThroughHostGroups(int $hostId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT service.service_id
+                FROM `:db`.service
+                INNER JOIN `:db`.host_service_relation hsr
+                    ON hsr.service_service_id = service.service_id
+                INNER JOIN `:db`.hostgroup_relation hgr
+                    ON hgr.hostgroup_hg_id = hsr.hostgroup_hg_id
+                WHERE hgr.host_host_id = :host_id
+                    AND service.service_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceIds = [];
+        while (($serviceId = $statement->fetchColumn()) !== false) {
+            $serviceIds[] = (int) $serviceId;
+        }
+
+        return $serviceIds;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findServiceIdsExclusivelyLinkedToHostId(int $hostId): array
+    {
+        $request = $this->translateDbName(
+            <<<'SQL'
+                SELECT hsr.service_service_id
+                FROM `:db`.host_service_relation hsr
+                INNER JOIN `:db`.host h
+                    ON h.host_id = hsr.host_host_id
+                INNER JOIN (
+                    SELECT service_service_id
+                    FROM `:db`.host_service_relation
+                    GROUP BY service_service_id
+                    HAVING COUNT(*) = 1
+                ) uniq
+                    ON uniq.service_service_id = hsr.service_service_id
+                WHERE hsr.host_host_id = :host_id
+                    AND h.host_register = '1'
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        $serviceIds = [];
+        while (($serviceId = $statement->fetchColumn()) !== false) {
+            $serviceIds[] = (int) $serviceId;
+        }
+
+        return $serviceIds;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findServiceNamesByHost(int $hostId): ?ServiceNamesByHost
     {
         $request = $this->translateDbName(

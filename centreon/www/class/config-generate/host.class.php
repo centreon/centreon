@@ -121,7 +121,6 @@ class Host extends AbstractHost
         $host['category_tags'] = $hostCategory->getIdsByHostId($host['host_id']);
 
         $this->getParents($host);
-        $this->getSeverity($host['host_id']);
 
         $this->manageNotificationInheritance($host, $generateConfigurationFile);
 
@@ -141,8 +140,9 @@ class Host extends AbstractHost
     {
         $this->processingFromHost($host, hostTemplateMacros: $hostTemplateMacros);
         $this->formatMacros($host, $hostMacros);
+        $this->getSeverity($host['host_id']);
         $this->getServices($host, $serviceMacros, $serviceTemplateMacros);
-        $this->getServicesByHg($host);
+        $this->getServicesByHg($host, $serviceMacros, $serviceTemplateMacros);
         $this->generateObjectInFile($host, $host['host_id']);
         $this->addGeneratedHost($host['host_id']);
     }
@@ -276,6 +276,8 @@ class Host extends AbstractHost
     }
 
     /**
+     * Warning: is to be run AFTER running formatMacros to not override severity export.
+     *
      * @param $host_id_arg
      *
      * @throws PDOException
@@ -368,7 +370,9 @@ class Host extends AbstractHost
         /** @var ReadServiceMacroRepositoryInterface $readServiceMacroRepository */
         $readServiceMacroRepository = $this->kernel->getContainer()->get(ReadServiceMacroRepositoryInterface::class);
 
+        $serviceByHg = $readServiceRepository->findServiceIdsLinkedToHostThroughHostGroups($hostId);
         $services = $readServiceRepository->findServiceIdsLinkedToHostId($hostId);
+        $services = array_unique(array_merge($services, $serviceByHg));
         $serviceMacros = [];
         $serviceTemplateMacros = [];
         foreach ($services as $serviceId) {
@@ -498,9 +502,9 @@ class Host extends AbstractHost
         $service = Service::getInstance($this->dependencyInjector);
         foreach ($host['services_cache'] as $service_id) {
             $service->generateFromServiceId(
-                $host['host_id'],
-                $host['host_name'],
-                $service_id,
+                hostId: $host['host_id'],
+                hostName: $host['host_name'],
+                serviceId: $service_id,
                 serviceMacros: $serviceMacros,
                 serviceTemplateMacros: $serviceTemplateMacros
             );
@@ -513,7 +517,7 @@ class Host extends AbstractHost
      * @throws PDOException
      * @return int|void
      */
-    private function getServicesByHg(&$host)
+    private function getServicesByHg(&$host, array $serviceMacros, array $serviceTemplateMacros)
     {
         if (count($host['hg']) == 0) {
             return 1;
@@ -530,7 +534,14 @@ class Host extends AbstractHost
 
         $service = Service::getInstance($this->dependencyInjector);
         foreach ($host['services_hg_cache'] as $service_id) {
-            $service->generateFromServiceId($host['host_id'], $host['host_name'], $service_id, 1);
+            $service->generateFromServiceId(
+                hostId: $host['host_id'],
+                hostName: $host['host_name'],
+                serviceId: $service_id,
+                byHg: 1,
+                serviceMacros: $serviceMacros,
+                serviceTemplateMacros: $serviceTemplateMacros
+            );
         }
     }
 

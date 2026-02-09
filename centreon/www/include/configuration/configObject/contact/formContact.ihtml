@@ -1,3 +1,12 @@
+<style>
+{literal}
+    /* Si l'input interne est disabled (géré par votre PHP), le parent md-radio se grise tout seul */
+    .md-radio:has(input[disabled]) {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+{/literal}
+</style>
 {$form.javascript}
 <form {$form.attributes}>
 <div class="headerTabContainer">
@@ -165,7 +174,7 @@
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="language"> {$form.contact_lang.label}</td><td class="FormRowValue">{$form.contact_lang.html}</td></tr>
         <tr class="list_two"><td class="FormRowField"><img class="helpTooltip" name="default_page"> {$form.default_page.label}</td><td class="FormRowValue">{$form.default_page.html}</td></tr>
         <tr class="list_one"><td class="FormRowField"><img class="helpTooltip" name="location"> {$form.contact_location.label}</td><td class="FormRowValue">{$form.contact_location.html}</td></tr>
-        {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w"}
+        {if $authTypeConnectedUser == 'local' && $authTypeContact != 'ldap' && $o != "mc" && $o != "w" && $autologinEnabled}
         <tr class="list_two">
             <td class="FormRowField"><img class="helpTooltip" name="autologin_key"> {$form.contact_autologin_key.label}</td>
             <td class="FormRowValue">{$form.contact_autologin_key.html} {$form.contact_gen_akey.html}</td>
@@ -277,3 +286,39 @@
     {$form.hidden}
 </form>
 {$helptext}
+<script type="text/javascript">
+{literal}
+    function handleReachRealTimeChange() {
+        var frontEndYes = document.getElementById('contact_oreon_yes');
+
+        var radioYes = document.getElementById('reach_api_rt_yes');
+        var radioNo = document.getElementById('reach_api_rt_no');
+
+        if (frontEndYes && radioYes && radioNo) {
+            if (frontEndYes.checked) {
+                radioYes.checked = true;
+                radioYes.disabled = true;
+                radioNo.disabled = true;
+
+                radioYes.parentElement.style.opacity = "0.5";
+                radioNo.parentElement.style.opacity = "0.5";
+            } else {
+                radioNo.checked = true;
+                radioYes.removeAttribute('disabled');
+                radioNo.removeAttribute('disabled');
+
+                radioYes.parentElement.style.opacity = "1";
+                radioNo.parentElement.style.opacity = "1";
+            }
+        }
+    }
+
+    window.addEventListener('load', (event) => {
+        var frontEndYes = document.getElementById('contact_oreon_yes');
+        var frontEndNo = document.getElementById('contact_oreon_no');
+
+        if (frontEndYes) frontEndYes.addEventListener('click', handleReachRealTimeChange);
+        if (frontEndNo) frontEndNo.addEventListener('click', handleReachRealTimeChange);
+    });
+{/literal}
+</script>

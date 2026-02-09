@@ -1,14 +1,13 @@
-import parse from 'html-react-parser';
-import { equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Card, CardActionArea, SvgIcon } from '@mui/material';
 
 import { Tooltip } from '@centreon/ui/components';
 
-import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
+import parse from 'html-react-parser';
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { useStyles } from './DisplayType.styles';
 
 interface Props {

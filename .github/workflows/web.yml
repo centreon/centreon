@@ -13,6 +13,11 @@ on:
         required: true
         default: false
         type: boolean
+      labels:
+        description: "Labels to add to the run (comma separated)"
+        required: false
+        default: ""
+        type: string
   schedule:
     - cron: "0 3 * * 1-5"
   pull_request:
@@ -42,12 +47,15 @@ env:
   e2e_directory: centreon/tests/e2e
 
 jobs:
+  dependency-scan:
+    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
+
   dispatch-to-maintained-branches:
     if: ${{ github.run_attempt == 1 && github.event_name == 'schedule' && github.ref_name == 'develop' && github.repository == 'centreon/centreon' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Run nightly on a different maintenance branch depending on the day
         run: |
@@ -65,10 +73,12 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   get-environment:
+    needs: [dependency-scan]
     uses: ./.github/workflows/get-environment.yml
     with:
       version_file: centreon/www/install/insertBaseConf.sql
       nightly_manual_trigger: ${{ inputs.nightly_manual_trigger || false }}
+      labels: ${{ inputs.labels || '' }}
 
   changes:
     if: |
@@ -165,7 +175,7 @@ jobs:
       installation_file: centreon/www/install/insertBaseConf.sql
       update_file: centreon/www/install/php/Update-${{ needs.get-environment.outputs.major_version }}.${{ needs.get-environment.outputs.minor_version }}.php
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Check ${{ env.version_file }}
         uses: ./.github/actions/check-version-consistency
@@ -190,7 +200,7 @@ jobs:
           github.event_name == 'pull_request' &&
           ! contains(needs.get-environment.outputs.labels, 'skip-update-files-check')
         id: get_changed_files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           files: |
             centreon/www/install/php/Update-**.php
@@ -243,11 +253,16 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - uses: ./.github/actions/frontend-build
         with:
@@ -266,14 +281,19 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
           php-version: 8.2
         env:
@@ -289,7 +309,7 @@ jobs:
         shell: bash
 
       - name: Cache vendor directory
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.base_directory }}/vendor
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
@@ -301,7 +321,12 @@ jobs:
         needs.changes.outputs.trigger_packaging == 'true' &&
         needs.get-environment.outputs.skip_workflow == 'false'
       ) ||
-      needs.get-environment.outputs.stability == 'stable'
+      (
+        needs.get-environment.outputs.stability == 'stable' &&
+        ! cancelled() &&
+        ! contains(needs.*.result, 'failure') &&
+        ! contains(needs.*.result, 'cancelled')
+      )
     # needed to deliver sources
     runs-on: ubuntu-24.04
     container:
@@ -311,7 +336,7 @@ jobs:
         password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 10
@@ -377,13 +402,13 @@ jobs:
 
       - name: Upload translations patch
         if: ${{ steps.build-translations.outputs.translations_patch_file != '' }}
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: translations-patch
           path: ${{ steps.build-translations.outputs.translations_patch_file }}
           retention-days: 1
 
-      - uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      - uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ env.base_directory }}/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
@@ -396,7 +421,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -415,14 +440,14 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
           version: 10
           run_install: false
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
           node-version: 20
           cache: pnpm
@@ -474,10 +499,10 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
           php-version: 8.2
           coverage: none
@@ -520,10 +545,10 @@ jobs:
       needs.get-environment.outputs.stability != 'stable'
 
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # v2.35.5
+        uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
         with:
           php-version: 8.2
           coverage: none
@@ -559,7 +584,7 @@ jobs:
 
       - name: Get changed PHP files
         id: changed-php
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           files: |
             **/*.php
@@ -660,7 +685,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - uses: ./.github/actions/gherkin-lint
         with:
@@ -674,7 +699,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       needs.get-environment.outputs.stability != 'stable'
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - uses: ./.github/actions/frontend-lint
         with:
@@ -682,6 +707,7 @@ jobs:
           module_name: ${{ env.base_directory }}
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
           pat: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          lint_path: './features'
 
   package:
     needs:
@@ -720,9 +746,10 @@ jobs:
           - package_extension: deb
             image: packaging-nfpm-bookworm
             distrib: bookworm
-          - package_extension: deb
-            image: packaging-nfpm-jammy
-            distrib: jammy
+          # - package_extension: deb
+          #   image: packaging-nfpm-jammy
+          #   distrib: jammy
+
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
@@ -733,31 +760,31 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Restore translation from cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: centreon/www/locale
           key: ${{ github.sha }}-${{ github.run_id }}-translation
           fail-on-cache-miss: true
 
       - name: Restore web index.html from cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: centreon/www/index.html
           key: ${{ github.sha }}-${{ github.run_id }}-index
           fail-on-cache-miss: true
 
       - name: Restore web frontend from cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: centreon/www/static
           key: ${{ github.sha }}-${{ github.run_id }}-static
           fail-on-cache-miss: true
 
       - name: Restore vendor directory from cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: centreon/vendor
           key: ${{ github.sha }}-${{ github.run_id }}-vendor
@@ -851,7 +878,7 @@ jobs:
     name: dockerize ${{ matrix.operating_system }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Generate information according to matrix os
         id: matrix_include
@@ -905,7 +932,7 @@ jobs:
         shell: bash
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./*.${{ steps.matrix_include.outputs.package_extension }}
           key: ${{ github.sha }}-${{ github.run_id }}-${{ steps.matrix_include.outputs.package_extension }}-${{ steps.matrix_include.outputs.distrib }}
@@ -922,7 +949,7 @@ jobs:
           mv *.${{ steps.matrix_include.outputs.package_extension }} packages-centreon/
         shell: bash
 
-      - uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -935,7 +962,7 @@ jobs:
           context: .
           build-args: |
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "VERSION=${{ needs.get-environment.outputs.major_version }}"
+            "MAJOR_VERSION=${{ needs.get-environment.outputs.major_version }}"
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
@@ -962,7 +989,7 @@ jobs:
         shell: bash
 
       - name: Store slim image in cache
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./docker-image
           key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
@@ -1063,6 +1090,7 @@ jobs:
       features_path: features
       test_tags: ${{ matrix.test_tags }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      labels: ${{ needs.get-environment.outputs.labels }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -1070,6 +1098,7 @@ jobs:
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   e2e-test:
     needs:
@@ -1113,6 +1142,7 @@ jobs:
       xray_keys_and_ids: ${{ toJson(needs.create-xray-test-plan-and-test-execution.outputs) }}
       is_cloud: ${{ needs.get-environment.outputs.is_cloud }}
       is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
+      labels: ${{ needs.get-environment.outputs.labels }}
     secrets:
       registry_username: ${{ secrets.HARBOR_CENTREON_PULL_USERNAME }}
       registry_password: ${{ secrets.HARBOR_CENTREON_PULL_TOKEN }}
@@ -1123,6 +1153,7 @@ jobs:
       jira_base_url: ${{ secrets.JIRA_BASE_URL }}
       jira_user_email: ${{ secrets.XRAY_JIRA_USER_EMAIL }}
       jira_api_token: ${{ secrets.XRAY_JIRA_TOKEN }}
+      github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   # performances-test:
   #   runs-on: ubuntu-24.04
@@ -1171,7 +1202,7 @@ jobs:
   #         secret_access_key: ${{ secrets.LIGHTHOUSE_SECRET }}
 
   #     - name: Publish report
-  #       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+  #       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
   #       with:
   #         name: lighthouse-report
   #         path: centreon/lighthouse/report/lighthouseci-index.html
@@ -1192,7 +1223,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Deliver sources
         uses: ./.github/actions/release-sources
@@ -1222,36 +1253,35 @@ jobs:
       github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
-      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
         with:
-          version: 9
-          run_install: false
+          node-version: 24
 
-      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+      - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
-          node-version: 20
-
-      - name: Install redocly cli
-        run: pnpm add -g @redocly/cli@1.25.9
-        shell: bash
+          version: 10
+          run_install: |
+            cwd: "centreon/doc/API"
+            args: [--ignore-scripts, --frozen-lockfile]
 
       - name: Build openapi documentation
         run: |
-          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon/doc/API/centreon-cloud-api.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-cloud-api.yaml"
-          elif [[ -f "centreon/doc/API/centreon-api.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-api.yaml"
-          elif [[ -f "centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
-            OPENAPI_FILE="centreon/doc/API/centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
+          if [[ "${{ needs.get-environment.outputs.is_cloud }}" == "true" && -f "centreon-cloud-api.yaml" ]]; then
+            OPENAPI_FILE="centreon-cloud-api.yaml"
+          elif [[ -f "centreon-api.yaml" ]]; then
+            OPENAPI_FILE="centreon-api.yaml"
+          elif [[ -f "centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml" ]]; then
+            OPENAPI_FILE="centreon-api-v${{ needs.get-environment.outputs.major_version }}.yaml"
           else
             echo "::error::openapi file not found"
             exit 1
           fi
 
           echo "Building API doc from $OPENAPI_FILE"
-          redocly build-docs --theme.openapi.hideDownloadButton=true $OPENAPI_FILE -o index.html
+          pnpm run build $OPENAPI_FILE
+        working-directory: centreon/doc/API
         shell: bash
 
       - name: Setup awscli
@@ -1263,7 +1293,7 @@ jobs:
           fi
         shell: bash
 
-      - uses: aws-actions/configure-aws-credentials@a03048d87541d1d9fcf2ecf528a4a65ba9bd7838 # v5.0.0
+      - uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
         with:
           aws-region: eu-west-1
           role-to-assume: ${{ secrets.CLOUDFRONT_ROLE_DOC_PRODUCTION }}
@@ -1279,7 +1309,7 @@ jobs:
             BUCKET_PATH="s3://centreon-documentation-api/api/centreon-web/${{ needs.get-environment.outputs.major_version }}"
           fi
 
-          aws s3 cp "index.html" "${BUCKET_PATH}/index.html"
+          aws s3 cp "centreon/doc/API/index.html" "${BUCKET_PATH}/index.html"
           aws s3 cp "centreon/doc/API/centreon-logo.png" "${BUCKET_PATH}/centreon-logo.png"
         shell: bash
 
@@ -1288,12 +1318,12 @@ jobs:
         shell: bash
 
       - name: Upload built openapi doc
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: openapi-doc
           path: |
-            index.html
-            centreon-logo.png
+            centreon/doc/API/index.html
+            centreon/doc/API/centreon-logo.png
           retention-days: 1
 
   deliver-rpm:
@@ -1321,7 +1351,7 @@ jobs:
     name: deliver-rpm ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
@@ -1362,7 +1392,7 @@ jobs:
     name: deliver-deb ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Delivery
         uses: ./.github/actions/deb-delivery
@@ -1392,7 +1422,7 @@ jobs:
     name: promote ${{ matrix.distrib }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Promote ${{ matrix.distrib }} to stable
         uses: ./.github/actions/promote-to-stable
@@ -1428,7 +1458,7 @@ jobs:
       ! contains(needs.*.result, 'cancelled')
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: List and delete cache
         run: |
@@ -1454,7 +1484,7 @@ jobs:
       github.repository == 'centreon/centreon'
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Create Jira ticket based on nightly build failure
         uses: ./.github/actions/create-jira-ticket

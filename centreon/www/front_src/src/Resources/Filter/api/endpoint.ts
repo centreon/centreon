@@ -1,8 +1,8 @@
-import { buildListingEndpoint } from '@centreon/ui';
 import type {
   BuildListingEndpointParameters,
   ListingParameters
 } from '@centreon/ui';
+import { buildListingEndpoint } from '@centreon/ui';
 
 import { baseEndpoint } from '../../../api/endpoint';
 import { monitoringEndpoint, resourcesEndpoint } from '../../api/endpoint';

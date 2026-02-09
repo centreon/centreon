@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
-
 import { Box, Typography } from '@mui/material';
+
+import type { ReactElement } from 'react';
 
 import { useStyles } from './PageHeader.styles';
 

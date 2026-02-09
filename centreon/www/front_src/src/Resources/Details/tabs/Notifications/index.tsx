@@ -2,7 +2,6 @@ import { useAtomValue } from 'jotai';
 import { isNil } from 'ramda';
 
 import { detailsAtom } from '../../detailsAtoms';
-
 import ContactsLoadingSkeleton from './ContactsLoadingSkeleton';
 import Notifications from './Notifications';
 

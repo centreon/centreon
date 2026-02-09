@@ -67,18 +67,18 @@ jobs:
   get-triggers:
     runs-on: ubuntu-24.04
     outputs:
-      trigger_backend_testing: ${{ steps.get_triggers.outputs.trigger_backend_testing || 'true' }}
-      trigger_frontend_testing: ${{ steps.get_triggers.outputs.trigger_frontend_testing || 'true' }}
-      trigger_packaging: ${{ steps.get_triggers.outputs.trigger_packaging || 'true' }}
-      trigger_api_testing: ${{ steps.get_triggers.outputs.trigger_api_testing || 'true' }}
-      trigger_e2e_testing: ${{ steps.get_triggers.outputs.trigger_e2e_testing || 'true' }}
-      trigger_upgrade_testing: ${{ steps.get_triggers.outputs.trigger_upgrade_testing || 'true' }}
-      trigger_delivery: ${{ steps.get_triggers.outputs.trigger_delivery || 'true' }}
+      trigger_backend_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_backend_testing || steps.get_triggers.outputs.trigger_backend_testing || 'true' }}
+      trigger_frontend_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_frontend_testing || steps.get_triggers.outputs.trigger_frontend_testing || 'true' }}
+      trigger_packaging: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_packaging || steps.get_triggers.outputs.trigger_packaging || 'true' }}
+      trigger_api_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_api_testing || steps.get_triggers.outputs.trigger_api_testing || 'true' }}
+      trigger_e2e_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_e2e_testing || steps.get_triggers.outputs.trigger_e2e_testing || 'true' }}
+      trigger_upgrade_testing: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_upgrade_testing || steps.get_triggers.outputs.trigger_upgrade_testing || 'true' }}
+      trigger_delivery: ${{ github.event_name == 'workflow_dispatch' && steps.get_dispatch_triggers.outputs.trigger_delivery || steps.get_triggers.outputs.trigger_delivery || 'true' }}
 
     steps:
       - name: Checkout sources
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Fetch tags
         if: inputs.base_sha != ''
@@ -88,7 +88,7 @@ jobs:
       - name: Convert inputs to yaml list
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: inline_inputs
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           FRONTEND_PRODUCTION_PATHS: ${{ inputs.frontend_production_paths }}
           BACKEND_PRODUCTION_PATHS: ${{ inputs.backend_production_paths }}
@@ -124,7 +124,7 @@ jobs:
       - name: Get changed files
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: get_changed_files
-        uses: tj-actions/changed-files@ed68ef82c095e0d48ec87eccea555d944a631a4c # v46.0.5
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           base_sha: ${{ github.event_name == 'pull_request' && ' ' || inputs.base_sha }}
           files_yaml: |
@@ -146,7 +146,7 @@ jobs:
       - name: Determine triggers for event ${{ github.event_name }}
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: get_triggers
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           IS_NIGHTLY: ${{ inputs.is_nightly }}
           HAS_FRONTEND_PRODUCTION_CHANGES: ${{ steps.get_changed_files.outputs.frontend_production_any_changed }}
@@ -230,3 +230,59 @@ jobs:
               console.log(`${key}=${value}`);
               core.setOutput(key, value ? 'true' : 'false');
             }
+
+      - name: Determine triggers for event ${{ github.event_name }}
+        if: github.event_name == 'workflow_dispatch'
+        id: get_dispatch_triggers
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          LABELS: ${{ inputs.labels }}
+        with:
+          script: |
+            let triggerBackendTesting = true;
+            let triggerFrontendTesting = true;
+            let triggerApiTesting = true;
+            let triggerE2eTesting = true;
+            let triggerUpgradeTesting = true;
+
+            try {
+              const labels = JSON.parse(process.env.LABELS);
+              if (labels.includes('skip-backend-tests')) {
+                core.info('Label skip-backend-tests found: forcing backend testing trigger to false');
+                triggerBackendTesting = false;
+              }
+              if (labels.includes('skip-frontend-tests')) {
+                core.info('Label skip-frontend-tests found: forcing frontend testing trigger to false');
+                triggerFrontendTesting = false;
+              }
+              if (labels.includes('skip-api-tests')) {
+                core.info('Label skip-api-tests found: forcing API testing trigger to false');
+                triggerApiTesting = false;
+              }
+              if (labels.includes('skip-e2e-tests')) {
+                core.info('Label skip-e2e-tests found: forcing E2E testing trigger to false');
+                triggerE2eTesting = false;
+              }
+              if (labels.includes('skip-upgrade-tests')) {
+                core.info('Label skip-upgrade-tests found: forcing upgrade testing trigger to false');
+                triggerUpgradeTesting = false;
+              }
+              if (labels.includes('skip-all-tests')) {
+                core.info('Label skip-all-tests found: forcing all testing triggers to false');
+                triggerBackendTesting = false;
+                triggerFrontendTesting = false;
+                triggerApiTesting = false;
+                triggerE2eTesting = false;
+                triggerUpgradeTesting = false;
+              }
+            } catch (e) {
+              core.warning(`Could not parse labels: ${e}`);
+            }
+
+            core.setOutput('trigger_backend_testing', triggerBackendTesting ? 'true' : 'false');
+            core.setOutput('trigger_frontend_testing', triggerFrontendTesting ? 'true' : 'false');
+            core.setOutput('trigger_packaging', 'true');
+            core.setOutput('trigger_api_testing', triggerApiTesting ? 'true' : 'false');
+            core.setOutput('trigger_e2e_testing', triggerE2eTesting ? 'true' : 'false');
+            core.setOutput('trigger_upgrade_testing', triggerUpgradeTesting ? 'true' : 'false');
+            core.setOutput('trigger_delivery', 'true');

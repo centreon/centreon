@@ -1,10 +1,9 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { makeStyles } from 'tss-react/mui';
-
 import { Alert, Container } from '@mui/material';
 
-import { getModuleLicenseCheckEndpoint } from '../api';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
 
+import { getModuleLicenseCheckEndpoint } from '../api';
 import LicenseCheck from '.';
 
 const useStyles = makeStyles()({

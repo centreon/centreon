@@ -1,6 +1,6 @@
-import { ReactElement } from 'react';
-
 import { Skeleton as MuiSkeleton } from '@mui/material';
+
+import type { ReactElement } from 'react';
 
 import { useStyles } from './ListItem.styles';
 

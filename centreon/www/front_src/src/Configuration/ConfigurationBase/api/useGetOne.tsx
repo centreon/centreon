@@ -1,6 +1,8 @@
 import { useFetchQuery } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { isNotNil } from 'ramda';
+
 import { configurationAtom } from '../atoms';
 
 const useGetDetails = ({ id }: { id: number | null }) => {

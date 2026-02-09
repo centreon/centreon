@@ -1,6 +1,6 @@
-import { useTranslation } from 'react-i18next';
-
 import { Box, Typography } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelWebPagePreview } from './translatedLabels';
 import { usePreviewStyles } from './useWebPage.styles';
@@ -12,7 +12,7 @@ const Preview = (): JSX.Element => {
 
   return (
     <Box className={classes.container}>
-      <Typography variant="h6" className={classes.label}>
+      <Typography className={classes.label} variant="h6">
         {t(labelWebPagePreview)}
       </Typography>
     </Box>

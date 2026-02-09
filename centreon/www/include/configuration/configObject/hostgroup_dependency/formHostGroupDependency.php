@@ -218,6 +218,10 @@ $form->registerRule('exist', 'callback', 'testHostGroupDependencyExistence');
 $form->addRule('dep_name', _('Name is already in use'), 'exist');
 $form->setRequiredNote("<font style='color: red;'>*</font>&nbsp;" . _('Required fields'));
 
+if ($o === ADD_DEPENDENCY || $o === MODIFY_DEPENDENCY) {
+    $form->addFormRule('validateParentChildAreNotCircular');
+}
+
 // Smarty template initialization
 $tpl = SmartyBC::createSmartyTemplate($path);
 

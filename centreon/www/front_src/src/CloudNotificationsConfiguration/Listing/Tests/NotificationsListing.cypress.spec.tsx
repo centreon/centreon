@@ -1,9 +1,8 @@
-import { Provider, createStore } from 'jotai';
-import { equals } from 'ramda';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 
-import Listing from '..';
+import { createStore, Provider } from 'jotai';
+import { equals } from 'ramda';
+
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
 import { notificationEndpoint } from '../../Panel/api/endpoints';
@@ -25,15 +24,15 @@ import {
   labelRequired,
   labelThisNameAlreadyExists
 } from '../../translatedLabels';
+import Listing from '..';
 import { buildNotificationsEndpoint } from '../api/endpoints';
-
 import {
   defaultQueryParams,
   getListingColumns,
   getListingResponse,
+  multipleNotificationsfailedResponse,
   multipleNotificationsSuccessResponse,
-  multipleNotificationsWarningResponse,
-  multipleNotificationsfailedResponse
+  multipleNotificationsWarningResponse
 } from './testUtils';
 
 const store = createStore();
@@ -44,11 +43,9 @@ const ListingWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <>
-              <Listing />
-              <DeleteConfirmationDialog />
-              <DuplicationForm />
-            </>
+            <Listing />
+            <DeleteConfirmationDialog />
+            <DuplicationForm />
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>

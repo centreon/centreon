@@ -1,11 +1,9 @@
-import { useCallback, useMemo, useState } from 'react';
-
 import { useFormikContext } from 'formik';
 import { equals } from 'ramda';
+import { useCallback, useMemo, useState } from 'react';
 
 import { Widget, WidgetPropertyProps } from '../../../models';
 import { getProperty } from '../utils';
-
 import colors from './colors.json';
 
 interface UseColorSelectorState {

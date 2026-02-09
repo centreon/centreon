@@ -1,8 +1,8 @@
+import { getData, useRequest } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { always, ifElse, isNil, pathEq, pathOr } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { getData, useRequest } from '@centreon/ui';
 
 import {
   clearSelectedResourceDerivedAtom,

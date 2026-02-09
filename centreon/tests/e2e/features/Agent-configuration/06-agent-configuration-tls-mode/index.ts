@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
@@ -39,6 +40,14 @@ beforeEach(() => {
     method: 'POST',
     url: '/centreon/api/latest/configuration/agent-configurations'
   }).as('addorUpdateAgents');
+  cy.intercept({
+    method: 'GET',
+    url: '/centreon/api/latest/administration/tokens?*'
+  }).as('getTokens');
+  cy.intercept({
+    method: 'POST',
+    url: '/centreon/api/latest/administration/tokens'
+  }).as('addToken');
 });
 
 after(() => {
@@ -50,8 +59,12 @@ Given('a non-admin user is on the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
+});
+
+Given('a CMA Token is configured', () => {
+  cy.addCmaToken();
 });
 
 When('the user clicks on the {string} button', (addBtnName: string) => {
@@ -89,6 +102,9 @@ Then('no certificate fields are shown', () => {
 });
 
 When('the user enables connection initiated by the poller', () => {
+  // Disable the "By agent" mode first
+  cy.getByTestId({ tag: 'span', testId: 'enable_agent' }).click();
+  // Then enable the "By poller" mode
   cy.contains('div', 'By poller').click();
   cy.get('input[type="checkbox"]').click();
 });
@@ -117,6 +133,10 @@ When('the user fills in the mandatory fields', () => {
     .clear()
     .type('10.0.0.0');
   cy.getByTestId({ testId: 'Port' }).eq(0).clear().type('4317');
+  // Always fill the Token field
+  cy.getByTestId({ testId: 'Select existing CMA token' }).click();
+  cy.wait('@getTokens');
+  cy.contains('CMA-Token-001').click();
 });
 
 When('the user clicks "Save"', () => {

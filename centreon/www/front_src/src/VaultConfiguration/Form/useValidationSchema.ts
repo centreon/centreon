@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { type Schema, number, object, string } from 'yup';
+import { number, object, type Schema, string } from 'yup';
+
 import { PostVaultConfiguration } from '../models';
 import {
   labelAddressIsNotAnUrl,
@@ -17,19 +18,18 @@ export const useValidationSchema = (): Schema<PostVaultConfiguration> => {
   const validationSchema = object({
     address: string()
       .test({
-        name: 'is-valid-address',
+        exclusive: true,
         message: t(labelAddressIsNotAnUrl),
-        test: (address) =>
-          address?.match(urlRegex) && !address.match(portRegex),
-        exclusive: true
+        name: 'is-valid-address',
+        test: (address) => address?.match(urlRegex) && !address.match(portRegex)
       })
       .required(t(labelRequired)),
     port: number()
       .min(1, t(labelPortMustStartFrom1))
       .max(65535, t(labelPortExpectedAtMost))
       .required(t(labelRequired)),
-    rootPath: string().required(t(labelRequired)),
     roleId: string().required(t(labelRequired)),
+    rootPath: string().required(t(labelRequired)),
     secretId: string().required(t(labelRequired))
   });
 

@@ -1,7 +1,8 @@
-import { omit, pluck } from 'ramda';
+import { equals, omit, pluck } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   additionalConnectorDecoder,
   additionalConnectorsEndpoint,
@@ -9,16 +10,13 @@ import {
   getAdditionalConnectorEndpoint,
   getPollersEndpoint
 } from './api';
-
-import { APIType, FieldType, FilterConfiguration } from '../models';
 import {
   AdditionalConnectorConfiguration,
   ParameterKeys,
   Payload
 } from './models';
-import { findConnectorTypeById, splitURL } from './utils';
-
 import { labelName, labelPoller, labelType } from './translatedLabels';
+import { findConnectorTypeById, maskedPassword } from './utils';
 
 interface UseAdditionnalConnectorsState {
   api: APIType;
@@ -34,10 +32,11 @@ export const adaptFormToApiPayload = (
       ...formData.parameters,
       vcenters: formData.parameters.vcenters.map((vcenter) => ({
         name: vcenter[ParameterKeys.name],
-        password: vcenter[ParameterKeys.password],
-        url: splitURL(vcenter[ParameterKeys.url]).mainURL,
-        username: vcenter[ParameterKeys.username],
-        scheme: splitURL(vcenter[ParameterKeys.url]).scheme
+        password: equals(vcenter[ParameterKeys.password], maskedPassword)
+          ? null
+          : vcenter[ParameterKeys.password],
+        url: vcenter[ParameterKeys.url],
+        username: vcenter[ParameterKeys.username]
       }))
     },
     pollers: pluck('id', formData.pollers),
@@ -50,18 +49,18 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
 
   const api: APIType = useMemo(
     () => ({
-      endpoints: {
-        getAll: additionalConnectorsEndpoint,
-        getOne: getAdditionalConnectorEndpoint,
-        deleteOne: getAdditionalConnectorEndpoint,
-        create: additionalConnectorsEndpoint,
-        update: getAdditionalConnectorEndpoint
-      },
+      adapter: adaptFormToApiPayload,
       decoders: {
         getAll: additionalConnectorsListDecoder,
         getOne: additionalConnectorDecoder
       },
-      adapter: adaptFormToApiPayload
+      endpoints: {
+        create: additionalConnectorsEndpoint,
+        deleteOne: getAdditionalConnectorEndpoint,
+        getAll: additionalConnectorsEndpoint,
+        getOne: getAdditionalConnectorEndpoint,
+        update: getAdditionalConnectorEndpoint
+      }
     }),
     []
   );
@@ -69,21 +68,21 @@ const useAdditionnalConnectors = (): UseAdditionnalConnectorsState => {
   const filtersConfiguration: Array<FilterConfiguration> = useMemo(
     () => [
       {
-        name: t(labelName),
         fieldName: 'name',
-        fieldType: FieldType.Text
+        fieldType: FieldType.Text,
+        name: t(labelName)
       },
       {
-        name: t(labelType),
+        fieldName: 'type',
         fieldType: FieldType.MultiAutocomplete,
-        options: [{ id: 'vmware_v6', name: 'VMWare 6/7' }],
-        fieldName: 'type'
+        name: t(labelType),
+        options: [{ id: 'vmware_v6', name: 'VMWare 6/7' }]
       },
       {
-        name: t(labelPoller),
+        fieldName: 'poller.id',
         fieldType: FieldType.MultiConnectedAutocomplete,
         getEndpoint: getPollersEndpoint,
-        fieldName: 'poller.id'
+        name: t(labelPoller)
       }
     ],
     []

@@ -1,6 +1,6 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-
 import MailIcon from '@mui/icons-material/MailOutline';
+
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
 
 import Checkbox from './Checkbox';
 
@@ -24,8 +24,8 @@ Playground.args = {
 export const WithIcon = Template.bind({});
 
 WithIcon.args = {
-  Icon: MailIcon,
   checked: true,
+  Icon: MailIcon,
   label: 'Mail',
   labelPlacement: 'end'
 };

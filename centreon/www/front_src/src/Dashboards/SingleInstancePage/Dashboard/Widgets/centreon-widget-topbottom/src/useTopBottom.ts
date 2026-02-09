@@ -1,6 +1,3 @@
-import { useAtomValue } from 'jotai';
-import { equals, isEmpty, isNil, pluck } from 'ramda';
-
 import {
   buildListingEndpoint,
   useFetchQuery,
@@ -8,8 +5,11 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
+import { useAtomValue } from 'jotai';
+import { equals, isEmpty, isNil, pluck } from 'ramda';
+
 import { WidgetResourceType } from '../../../AddEditWidget/models';
+import { resourceTypeQueryParameter } from '../../../AddEditWidget/WidgetProperties/Inputs/utils';
 import {
   CommonWidgetProps,
   GlobalRefreshInterval,
@@ -81,16 +81,6 @@ const useTopBottom = ({
           parameters: {
             limit: topBottomSettings.numberOfValues,
             search: {
-              lists: resources
-                .filter((resource) => !isResourceString(resource.resources))
-                .map((resource) => ({
-                  field: equals(resource.resourceType, 'hostgroup')
-                    ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
-                    : resourceTypeQueryParameter[resource.resourceType],
-                  values: equals(resource.resourceType, 'service')
-                    ? pluck('name', resource.resources)
-                    : pluck('id', resource.resources)
-                })),
               conditions: isEmpty(
                 resources.filter((resource) =>
                   isResourceString(resource.resources)
@@ -106,7 +96,17 @@ const useTopBottom = ({
                       values: {
                         $rg: resource.resources
                       }
-                    }))
+                    })),
+              lists: resources
+                .filter((resource) => !isResourceString(resource.resources))
+                .map((resource) => ({
+                  field: equals(resource.resourceType, 'hostgroup')
+                    ? resourceTypeQueryParameter[WidgetResourceType.hostGroup]
+                    : resourceTypeQueryParameter[resource.resourceType],
+                  values: equals(resource.resourceType, 'service')
+                    ? pluck('name', resource.resources)
+                    : pluck('id', resource.resources)
+                }))
             },
             sort: {
               current_value: equals(topBottomSettings.order, 'bottom')

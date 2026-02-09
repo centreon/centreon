@@ -7,6 +7,10 @@ on:
       nightly_manual_trigger:
         required: false
         type: boolean
+      labels:
+        required: false
+        type: string
+        default: ""
     outputs:
       latest_major_version:
         description: "latest major version"
@@ -107,6 +111,11 @@ jobs:
               } catch (e) {
                 core.warning(`failed to list labels: ${e}`);
               }
+            } else if ('${{ github.event_name }}' === 'workflow_dispatch' && '${{ inputs.labels }}'.length > 0) {
+              labels = '${{ inputs.labels }}'
+                .split(',')
+                .map(label => label.trim())
+                .filter(label => label.length > 0);
             }
 
             core.setOutput('labels', labels);
@@ -114,13 +123,13 @@ jobs:
             return hasSkipLabel;
 
       - name: Checkout sources (current branch)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: develop
           path: centreon-develop
@@ -181,7 +190,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get push changes
         id: get_push_changes
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           since_last_remote_commit: true
           json: true
@@ -622,7 +631,7 @@ jobs:
           IS_CLOUD: ${{ steps.detect_cloud_version.outputs.isCloud }}
           STABILITY: ${{ steps.get_stability.outputs.stability }}
           MAJOR_VERSION: ${{ steps.get_version.outputs.major_version }}
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             if (process.env.STABILITY !== 'testing' && process.env.STABILITY !== 'stable') {
