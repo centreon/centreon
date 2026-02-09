@@ -1,4 +1,5 @@
 import { Box, Typography } from '@mui/material';
+
 import { ReactElement } from 'react';
 
 interface Props {

@@ -14,8 +14,8 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
   entityDecoder: JsonDecoder.object(
     {
       id: JsonDecoder.number,
-      name: JsonDecoder.string,
       isAgentInitiated: JsonDecoder.optional(JsonDecoder.boolean), // optional for now
+      name: JsonDecoder.string,
       pollers: JsonDecoder.array(
         JsonDecoder.object(
           {
@@ -151,18 +151,18 @@ export const installationCommandDecoder =
   JsonDecoder.object<InstallationCommand>(
     {
       id: JsonDecoder.number,
-      windowsScriptURL: JsonDecoder.string,
+      linuxScriptCommand: JsonDecoder.string,
       linuxScriptURL: JsonDecoder.string,
       windowsScriptCommand: JsonDecoder.string,
-      linuxScriptCommand: JsonDecoder.string
+      windowsScriptURL: JsonDecoder.string
     },
     'Agent configuration',
     {
       id: 'poller_id',
-      windowsScriptURL: 'windows_script_url',
-      windowsScriptCommand: 'windows_script_command',
+      linuxScriptCommand: 'linux_script_command',
       linuxScriptURL: 'linux_script_url',
-      linuxScriptCommand: 'linux_script_command'
+      windowsScriptCommand: 'windows_script_command',
+      windowsScriptURL: 'windows_script_url'
     }
   );
 

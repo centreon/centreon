@@ -5,9 +5,9 @@ import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import { useAtomValue, useSetAtom } from 'jotai';
 import { equals, isNotNil, pick } from 'ramda';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useCallback } from 'react';
 import { itemToDeleteAtom, pollerToGenerateCommanAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelDelete } from '../../translatedLabels';

@@ -1,9 +1,9 @@
-import { ReactElement, useCallback } from 'react';
-
-import { Button } from '@centreon/ui/components';
 import Icon from '@mui/icons-material/CodeOffTwoTone';
 
+import { Button } from '@centreon/ui/components';
+
 import { useSetAtom } from 'jotai';
+import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { pollerToGenerateCommanAtom } from '../../atoms';

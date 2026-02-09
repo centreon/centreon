@@ -1,7 +1,6 @@
 import { useActionsStyles } from './Actions.styles';
 import AddButton from './AddButton';
 import InstallationCommandButton from './InstallationCommandButton';
-
 import Search from './Search';
 
 const Actions = (): JSX.Element => {

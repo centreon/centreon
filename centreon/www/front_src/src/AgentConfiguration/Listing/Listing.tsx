@@ -7,9 +7,8 @@ import { labelCollapse, labelExpand } from '../translatedLabels';
 import Actions from './Actions/Actions';
 import { useColumns } from './Columns/useColumns';
 import DeleteModal from './DeleteModal';
-import { useListing } from './useListing';
-
 import InstallationCommandModal from './InstallationCommandModal';
+import { useListing } from './useListing';
 
 interface Props {
   rows: Array<AgentConfigurationListing>;

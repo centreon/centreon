@@ -1,19 +1,15 @@
 import { Link, Typography } from '@mui/material';
 
+import { IconButton, SingleConnectedAutocompleteField } from '@centreon/ui';
+import { Modal } from '@centreon/ui/components';
+
 import { equals } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { IconButton, SingleConnectedAutocompleteField } from '@centreon/ui';
-import { Modal } from '@centreon/ui/components';
-
 import linuxIcon from '../../../assets/linux.png';
 import windowsIcon from '../../../assets/windows.png';
-
 import { getPollersEndpoint } from '../../api/endpoints';
-import { CommandLine, Section, Warning } from './Components';
-import { useInstallationCommand } from './useInstallationCommand';
-
 import {
   labelCommandWarning,
   labelDownload,
@@ -28,6 +24,8 @@ import {
   labelThenCopyTheScript,
   labelWindows
 } from '../../translatedLabels';
+import { CommandLine, Section, Warning } from './Components';
+import { useInstallationCommand } from './useInstallationCommand';
 
 enum Os {
   windows = 'windows',
@@ -52,12 +50,12 @@ const InstallationCommandModal = (): ReactElement => {
           <Section order={1} title={t(labelSelectPollerThatWillMonitor)}>
             <div className="my-2">
               <SingleConnectedAutocompleteField
-                getEndpoint={getPollersEndpoint}
-                label={t(labelSelectPoller)}
-                initialPage={1}
-                value={poller}
-                onChange={changePoller}
                 field="name"
+                getEndpoint={getPollersEndpoint}
+                initialPage={1}
+                label={t(labelSelectPoller)}
+                onChange={changePoller}
+                value={poller}
               />
             </div>
           </Section>
@@ -65,19 +63,19 @@ const InstallationCommandModal = (): ReactElement => {
           <Section order={2} title={t(labelSelectOperatingSystem)}>
             <div className="flex gap-12 my-2">
               {[
-                { name: Os.windows, label: labelWindows, src: windowsIcon },
-                { name: Os.linux, label: labelLinux, src: linuxIcon }
+                { label: labelWindows, name: Os.windows, src: windowsIcon },
+                { label: labelLinux, name: Os.linux, src: linuxIcon }
               ].map(({ name, label, src }) => (
-                <div key={label} className="flex flex-col gap-2.5 items-center">
+                <div className="flex flex-col gap-2.5 items-center" key={label}>
                   <IconButton
-                    className={`flex justify-center items-center w-16 h-16 rounded-sm ${equals(name, state.os) ? 'border-2 border-primary-main' : ''}`}
                     ariaLabel={t(label)}
+                    className={`flex justify-center items-center w-16 h-16 rounded-sm ${equals(name, state.os) ? 'border-2 border-primary-main' : ''}`}
                     onClick={() => setState({ ...state, os: name })}
                     title={t(label)}
                   >
-                    <img src={src} alt={label} className="h-12 w-auto" />
+                    <img alt={label} className="h-12 w-auto" src={src} />
                   </IconButton>
-                  <Typography variant="subtitle2" className="font-medium">
+                  <Typography className="font-medium" variant="subtitle2">
                     {t(label)}
                   </Typography>
                 </div>
@@ -87,7 +85,7 @@ const InstallationCommandModal = (): ReactElement => {
 
           <Section order={3} title={t(labelDownloadTheScript)}>
             <Typography>
-              <Link rel="noreferrer" target="_blank" href={state.scriptUrl}>
+              <Link href={state.scriptUrl} rel="noreferrer" target="_blank">
                 {t(labelDownload)}
               </Link>
               &nbsp;

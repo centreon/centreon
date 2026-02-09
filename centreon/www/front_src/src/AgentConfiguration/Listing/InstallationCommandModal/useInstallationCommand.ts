@@ -1,14 +1,12 @@
-import { useAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
-
 import { useFetchQuery } from '@centreon/ui';
 
-import { pollerToGenerateCommanAtom } from '../../atoms';
-
+import { useAtom } from 'jotai';
 import { equals, isNotNil, pick } from 'ramda';
+import { useCallback, useEffect, useState } from 'react';
 
 import { installationCommandDecoder } from '../../api/decoders';
 import { getInstallationCommandEndpoint } from '../../api/endpoints';
+import { pollerToGenerateCommanAtom } from '../../atoms';
 import { InstallationCommand } from '../../models';
 
 enum Os {
@@ -63,11 +61,11 @@ export const useInstallationCommand = () => {
   }, [data?.id, state.os]);
 
   return {
-    isOpen,
-    close,
-    state,
-    setState,
     changePoller,
-    poller
+    close,
+    isOpen,
+    poller,
+    setState,
+    state
   };
 };

@@ -1,6 +1,9 @@
 import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
+  commandIcon: {
+    fontSize: theme.spacing(2.5)
+  },
   removeButton: {
     '& :hover': {
       color: theme.palette.error.main
@@ -9,9 +12,6 @@ export const useStyles = makeStyles()((theme) => ({
   },
   removeIcon: {
     color: theme.palette.error.main,
-    fontSize: theme.spacing(2.5)
-  },
-  commandIcon: {
     fontSize: theme.spacing(2.5)
   }
 }));

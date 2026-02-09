@@ -1,10 +1,10 @@
 import CopyIcon from '@mui/icons-material/FileCopyOutlined';
 import { Box, Typography } from '@mui/material';
 
+import { IconButton, useCopyToClipboard } from '@centreon/ui';
+
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { IconButton, useCopyToClipboard } from '@centreon/ui';
 
 import {
   labelCommandCopied,
@@ -14,7 +14,9 @@ import {
 
 export const CommandLine = ({
   commandLine
-}: { commandLine: string }): ReactElement => {
+}: {
+  commandLine: string;
+}): ReactElement => {
   const { t } = useTranslation();
 
   const { copy } = useCopyToClipboard({
@@ -27,9 +29,9 @@ export const CommandLine = ({
       <Typography>{commandLine}</Typography>
       <IconButton
         ariaLabel={t(labelCopyCommand)}
+        className="text-primary-contrastText"
         onClick={() => copy(commandLine)}
         title={t(labelCopyCommand)}
-        className="text-primary-contrastText"
       >
         <CopyIcon />
       </IconButton>
