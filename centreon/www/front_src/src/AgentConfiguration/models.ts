@@ -15,11 +15,11 @@ export interface AgentConfigurationListing {
   id: number;
   name: string;
   type: AgentType | null;
+  isAgentInitiated: boolean;
   pollers: Array<{
     id: number;
     name: string;
     isCentral?: boolean;
-    isAgentInitiatedEnabled: boolean;
   }>;
 }
 

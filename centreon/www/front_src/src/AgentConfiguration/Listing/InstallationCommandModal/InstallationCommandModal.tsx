@@ -16,7 +16,9 @@ import { pollerToGenerateCommanAtom } from '../../atoms';
 
 import { CommandLine, Section, Warning } from './Components';
 
+import { pick } from 'ramda';
 import { commandLine, scriptURL } from '../../Specs/utils';
+import { getPollersEndpoint } from '../../api/endpoints';
 import {
   labelCommandWarning,
   labelDownload,
@@ -43,6 +45,12 @@ const InstallationCommandModal = (): ReactElement => {
     setPoller(null);
   }, []);
 
+  const changePoller = (_, value): void => {
+    const selectedPoller = value ? pick(['id', 'name'], value) : {};
+
+    setPoller(selectedPoller);
+  };
+
   return (
     <Modal onClose={close} open={isOpen} size="medium">
       <Modal.Header>{t(labelGenerateInstallationCommand)}</Modal.Header>
@@ -55,11 +63,11 @@ const InstallationCommandModal = (): ReactElement => {
           <Section order={1} title={t(labelSelectPollerThatWillMonitor)}>
             <div className="my-2">
               <SingleConnectedAutocompleteField
-                getEndpoint={() => '/hello'}
+                getEndpoint={getPollersEndpoint}
                 label={t(labelSelectPoller)}
                 initialPage={1}
-                value={{ id: 1, name: 'poller_1' }}
-                onChange={() => undefined}
+                value={poller}
+                onChange={changePoller}
                 field="name"
               />
             </div>
