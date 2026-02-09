@@ -27,10 +27,6 @@ beforeEach(() => {
     method: 'GET',
     url: '/centreon/api/internal.php?object=centreon_topology&action=navigationList'
   }).as('getNavigationList');
-  cy.intercept({
-    method: 'GET',
-    url: '/centreon/api/latest/configuration/hosts/groups?page=1&limit=*'
-  }).as('getGroups');
 });
 
 Given('an admin user is logged in Centreon', () => {
@@ -53,7 +49,7 @@ Given('a host is configured', () => {
 
 Given('a host group is configured', () => {
   cy.visit(PAGES.configuration.hostGroupsLegacy);
-  cy.wait('@getGroups');
+  cy.wait('@getTimeZone');
   cy.contains(services.serviceByHostGroup.host).should('be.visible');
 });
 
