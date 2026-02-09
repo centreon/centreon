@@ -55,7 +55,7 @@ class InternalApiClientTest extends TestCase
     {
         yield 'simple HTTPS URL' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
         ];
 
         yield 'simple HTTP URL' => [
@@ -65,22 +65,22 @@ class InternalApiClientTest extends TestCase
 
         yield 'URL with query string' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts?limit=10&page=1',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts?limit=10&page=1',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts?limit=10&page=1',
         ];
 
         yield 'URL with fragment' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts#section',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts#section',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts#section',
         ];
 
         yield 'URL with query string and fragment' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/hosts?id=5#details',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts?id=5#details',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts?id=5#details',
         ];
 
         yield 'URL with port number' => [
             'inputUrl' => 'https://centreon.example.com:8443/centreon/api/latest/hosts',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
         ];
 
         yield 'localhost URL should remain localhost' => [
@@ -95,32 +95,32 @@ class InternalApiClientTest extends TestCase
 
         yield 'URL with IP address' => [
             'inputUrl' => 'https://192.168.1.100/centreon/api/latest/hosts',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
         ];
 
         yield 'URL with subdomain' => [
             'inputUrl' => 'https://monitoring.centreon.example.com/centreon/api/latest/hosts',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/hosts',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/hosts',
         ];
 
         yield 'URL with complex path' => [
             'inputUrl' => 'https://centreon.example.com/centreon/api/latest/configuration/hosts/123/templates',
-            'expectedUrl' => 'http://127.0.0.1/centreon/api/latest/configuration/hosts/123/templates',
+            'expectedUrl' => 'https://127.0.0.1/centreon/api/latest/configuration/hosts/123/templates',
         ];
 
         yield 'URL without path' => [
             'inputUrl' => 'https://centreon.example.com',
-            'expectedUrl' => 'http://127.0.0.1',
+            'expectedUrl' => 'https://127.0.0.1',
         ];
 
         yield 'URL with only query string' => [
             'inputUrl' => 'https://centreon.example.com?search=test',
-            'expectedUrl' => 'http://127.0.0.1?search=test',
+            'expectedUrl' => 'https://127.0.0.1?search=test',
         ];
 
         yield 'URL with encoded characters in query' => [
             'inputUrl' => 'https://centreon.example.com/api/hosts?name=host%20name&filter=%7B%22id%22%3A1%7D',
-            'expectedUrl' => 'http://127.0.0.1/api/hosts?name=host%20name&filter=%7B%22id%22%3A1%7D',
+            'expectedUrl' => 'https://127.0.0.1/api/hosts?name=host%20name&filter=%7B%22id%22%3A1%7D',
         ];
     }
 
@@ -135,16 +135,6 @@ class InternalApiClientTest extends TestCase
         // so the original URL should be returned
         // Note: parse_url is quite permissive, so this tests the fallback behavior
         $this->assertIsString($result);
-    }
-
-    public function testConvertToLocalUrlAlwaysUsesHttp(): void
-    {
-        $httpsUrl = 'https://secure.example.com/api/test';
-
-        $result = InternalApiClient::convertToLocalUrl($httpsUrl);
-
-        $this->assertStringStartsWith('http://', $result);
-        $this->assertStringNotContainsString('https://', $result);
     }
 
     public function testConvertToLocalUrlAlwaysUsesLocalhost(): void

@@ -117,8 +117,10 @@ final class InternalApiClient
             return $url;
         }
 
-        // Rebuild URL with localhost
-        $localUrl = self::DEFAULT_LOCAL_SCHEME . '://' . self::DEFAULT_LOCAL_HOST;
+        $scheme = (isset($parsedUrl['scheme']) && in_array($parsedUrl['scheme'], ['http', 'https'], true))
+            ? $parsedUrl['scheme']
+            : self::DEFAULT_LOCAL_SCHEME;
+        $localUrl = $scheme . '://' . self::DEFAULT_LOCAL_HOST;
 
         // Add path
         if (isset($parsedUrl['path'])) {
