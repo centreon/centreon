@@ -4,7 +4,7 @@ import { Group, InputProps, InputType } from '@centreon/ui';
 
 import { useTranslation } from 'react-i18next';
 
-import { JSONLDEntitiesListDecoder, connectorsEndpoint } from '../api';
+import { connectorsEndpoint, JSONLDEntitiesListDecoder } from '../api';
 import {
   labelAdditionalInformation,
   labelCommandLine,
@@ -57,11 +57,11 @@ export const useInputs = (): {
           columns: [
             {
               fieldName: 'name',
+              getDisabled: ({ isFromMonitoringConnector }) =>
+                !canEdit || isFromMonitoringConnector,
               label: t(labelName),
               required: true,
-              type: InputType.Text,
-              getDisabled: ({ isFromMonitoringConnector }) =>
-                !canEdit || isFromMonitoringConnector
+              type: InputType.Text
             },
             {
               custom: { Component: Box },
@@ -115,10 +115,10 @@ export const useInputs = (): {
                 useNewAPIFormat: true
               },
               fieldName: 'connector',
-              label: t(labelSelectOptimizationConnector),
-              type: InputType.SingleConnectedAutocomplete,
               getDisabled: ({ isFromMonitoringConnector }) =>
-                !canEdit || isFromMonitoringConnector
+                !canEdit || isFromMonitoringConnector,
+              label: t(labelSelectOptimizationConnector),
+              type: InputType.SingleConnectedAutocomplete
             },
             {
               custom: { Component: Box },
@@ -134,13 +134,13 @@ export const useInputs = (): {
       },
       {
         fieldName: 'comment',
+        getDisabled: ({ isFromMonitoringConnector }) =>
+          !canEdit || isFromMonitoringConnector,
         group: t(labelAdditionalInformation),
         label: t(labelComments),
         text: {
           multilineRows: 3
         },
-        getDisabled: ({ isFromMonitoringConnector }) =>
-          !canEdit || isFromMonitoringConnector,
         type: InputType.Text
       }
     ]

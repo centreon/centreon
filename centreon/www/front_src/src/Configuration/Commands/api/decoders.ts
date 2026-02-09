@@ -20,11 +20,11 @@ const commandsDecoder = JsonDecoder.object<CommandsListItem>(
     hostTemplatesCount: JsonDecoder.number,
     id: JsonDecoder.number,
     isActivated: JsonDecoder.boolean,
+    isFromMonitoringConnectors: JsonDecoder.optional(JsonDecoder.boolean),
     name: JsonDecoder.string,
     servicesCount: JsonDecoder.number,
     serviceTemplatesCount: JsonDecoder.number,
-    type: JsonDecoder.string,
-    isFromMonitoringConnectors: JsonDecoder.optional(JsonDecoder.boolean)
+    type: JsonDecoder.string
   },
   'Command',
   {
@@ -32,9 +32,9 @@ const commandsDecoder = JsonDecoder.object<CommandsListItem>(
     hostsCount: 'used_hosts_count',
     hostTemplatesCount: 'used_host_templates_count',
     isActivated: 'is_activated',
+    isFromMonitoringConnectors: 'is_from_monitoring_connectors',
     servicesCount: 'used_services_count',
-    serviceTemplatesCount: 'used_service_templates_count',
-    isFromMonitoringConnectors: 'is_from_monitoring_connectors'
+    serviceTemplatesCount: 'used_service_templates_count'
   }
 );
 
@@ -52,16 +52,16 @@ export const commandDecoder = JsonDecoder.object<Command>(
     connector: JsonDecoder.optional(
       JsonDecoder.nullable(JSONLDEnityListDecoder)
     ),
+    isFromMonitoringConnector: JsonDecoder.boolean,
     isShellEnabled: JsonDecoder.boolean,
     name: JsonDecoder.string,
-    type: JsonDecoder.string,
-    isFromMonitoringConnector: JsonDecoder.boolean
+    type: JsonDecoder.string
   },
   'Command',
   {
     commandLine: 'command_line',
-    isShellEnabled: 'is_shell_enabled',
-    isFromMonitoringConnector: 'is_from_monitoring_connector'
+    isFromMonitoringConnector: 'is_from_monitoring_connector',
+    isShellEnabled: 'is_shell_enabled'
   }
 );
 

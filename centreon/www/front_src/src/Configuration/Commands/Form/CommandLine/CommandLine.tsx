@@ -7,16 +7,12 @@ import { IconButton, Tooltip } from '@centreon/ui/components';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import TooltipContent from './TooltipContent';
-import { useCommandLine } from './useCommandLine';
-
 import {
-  JSONLDEntitiesListDecoder,
   getGlobalMacrosEndpoint,
   getPluginsEndpoint,
-  getStandardMacrosEndpoint
+  getStandardMacrosEndpoint,
+  JSONLDEntitiesListDecoder
 } from '../../api';
-
 import {
   labelCommandLine,
   labelInsert,
@@ -24,6 +20,8 @@ import {
   labelPollerGlobalMacros,
   labelStandardMacros
 } from '../../translatedLabels';
+import TooltipContent from './TooltipContent';
+import { useCommandLine } from './useCommandLine';
 
 const CommandLine = (): ReactElement => {
   const { t } = useTranslation();
@@ -44,30 +42,30 @@ const CommandLine = (): ReactElement => {
       <div className="flex flex-col justify-between">
         <SingleConnectedAutocompleteField
           decoder={JSONLDEntitiesListDecoder}
+          disabled={disabled}
           field="name"
           getEndpoint={getGlobalMacrosEndpoint}
           label={t(labelPollerGlobalMacros)}
           onChange={changeMacro('globalMarco')}
           value={macros.globalMarco}
-          disabled={disabled}
         />
         <SingleConnectedAutocompleteField
           decoder={JSONLDEntitiesListDecoder}
+          disabled={disabled}
           field="name"
           getEndpoint={getPluginsEndpoint}
           label={t(labelInstalledPlugins)}
           onChange={changeMacro('installedPlugin')}
           value={macros.installedPlugin}
-          disabled={disabled}
         />
         <SingleConnectedAutocompleteField
           decoder={JSONLDEntitiesListDecoder}
+          disabled={disabled}
           field="name"
           getEndpoint={getStandardMacrosEndpoint}
           label={t(labelStandardMacros)}
           onChange={changeMacro('standardMacro')}
           value={macros.standardMacro}
-          disabled={disabled}
         />
       </div>
       <div className="flex flex-column justify-center items-center pl-2">
@@ -113,6 +111,7 @@ const CommandLine = (): ReactElement => {
       </div>
       <TextField
         dataTestId={labelCommandLine}
+        disabled={disabled}
         error={error}
         fullWidth
         inputRef={textFieldRef}
@@ -129,7 +128,6 @@ const CommandLine = (): ReactElement => {
           }
         }}
         value={values?.commandLine}
-        disabled={disabled}
       />
     </div>
   );

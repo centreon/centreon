@@ -8,12 +8,11 @@ import { ChangeEvent, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Command } from '../../models';
-import { useUserPermissions } from '../../useUserPermissions';
-
 import {
   labelEnableShellSyntax,
   labelEnableShellSyntaxTooltip
 } from '../../translatedLabels';
+import { useUserPermissions } from '../../useUserPermissions';
 
 const EnableShellSyntax = (): ReactElement => {
   const { t } = useTranslation();

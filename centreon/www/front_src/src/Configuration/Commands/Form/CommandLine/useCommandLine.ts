@@ -74,11 +74,11 @@ export const useCommandLine = (): UseCommandLineState => {
   return {
     changeCommand,
     changeMacro,
+    disabled,
     error: touched?.commandLine && errors?.commandLine,
     insertMacroIntoCommand,
     macros,
     textFieldRef,
-    values,
-    disabled
+    values
   };
 };

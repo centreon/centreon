@@ -1,3 +1,5 @@
+import { Box } from '@mui/material';
+
 import { Button } from '@centreon/ui/components';
 
 import { PrimitiveAtom, useAtom } from 'jotai';
@@ -110,7 +112,7 @@ const Filters = <TFilters,>({
             />
           );
 
-        return;
+        return <Box key={filter.name} />;
       })}
 
       <div className={classes.additionalFiltersButtons}>

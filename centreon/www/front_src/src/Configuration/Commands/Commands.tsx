@@ -1,16 +1,16 @@
+import { includes, keys, pickBy } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { includes, keys, pickBy } from 'ramda';
 import ConfigurationBase from '../ConfigurationBase';
 import { ResourceType } from '../models';
-import useColumns from './Columns/useColumns';
-import { initialValues, useInputs, useValidationSchema } from './Form';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
+import useColumns from './Columns/useColumns';
+import { initialValues, useInputs, useValidationSchema } from './Form';
 import { Filters } from './models';
 import {
   labelAddCommand,

@@ -5,8 +5,8 @@ import { Switch } from '@centreon/ui/components';
 
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { configurationAtom } from '../../../atoms';
 
+import { configurationAtom } from '../../../atoms';
 import {
   labelDisabled,
   labelEnableDisable,

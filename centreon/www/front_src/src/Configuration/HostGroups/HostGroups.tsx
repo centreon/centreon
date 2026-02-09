@@ -5,13 +5,13 @@ import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
 import { ResourceType } from '../models';
-import useColumns from './Columns/useColumns';
-import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
+import useColumns from './Columns/useColumns';
+import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { Filters } from './models';
 import {
   labelAddHostGroup,

@@ -3,6 +3,7 @@ import { userPermissionsAtom } from '@centreon/ui-context';
 import { useAtomValue } from 'jotai';
 import { or } from 'ramda';
 import { useMemo } from 'react';
+
 import { CommandType } from './models';
 
 interface UseUserPermissions {
@@ -52,7 +53,7 @@ export const useUserPermissions = (): UseUserPermissions => {
 
   return {
     ...viewerPermissions,
-    editorPermissions,
-    canEdit: Object.values(editorPermissions).some(Boolean)
+    canEdit: Object.values(editorPermissions).some(Boolean),
+    editorPermissions
   };
 };

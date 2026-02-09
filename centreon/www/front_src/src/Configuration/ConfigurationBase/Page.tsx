@@ -7,13 +7,13 @@ import { JSX, useLayoutEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
+import { modalStateAtom } from './atoms';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
 import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
 import { Modal } from './Modal';
 import Navbar from './NavBar';
-import { modalStateAtom } from './atoms';
 
 const WelcomePage = ({
   labels,
