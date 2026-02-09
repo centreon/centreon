@@ -35,6 +35,7 @@ use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
  *		otel_private_key: ?string,
  *		otel_ca_certificate: ?string,
  *      tokens: array<array{name:string,creator_id:int}>,
+ *      create_host_auto: bool,
  *      port: int,
  *      poller_initiated: bool,
  *		hosts: array<array{
