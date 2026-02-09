@@ -1,15 +1,19 @@
-import { Group, InputProps, InputType } from '@centreon/ui';
 import { Box, capitalize } from '@mui/material';
+
+import { Group, InputProps, InputType } from '@centreon/ui';
+
 import { useAtom } from 'jotai';
 import { equals, isNil, map } from 'ramda';
 import { useTranslation } from 'react-i18next';
+
+import { pollersEndpoint } from '../api/endpoints';
 import { agentTypeFormAtom } from '../atoms';
 import { AgentType, ConnectionMode } from '../models';
 import {
   labelAgent,
   labelAgentType,
-  labelCMA,
   labelCaCertificate,
+  labelCMA,
   labelConfigurationServer,
   labelConnectionInitiated,
   labelEncryptionLevel,
@@ -24,11 +28,9 @@ import {
   labelPublicCertificate,
   labelTLS
 } from '../translatedLabels';
+import ConnectionInitiated from './ConnectionInitiated/ConnectionInitiated';
 import { useInputsStyles } from './Modal.styles';
 import EncryptionLevelWarning from './Warning/Warning';
-
-import { pollersEndpoint } from '../api/endpoints';
-import ConnectionInitiated from './ConnectionInitiated/ConnectionInitiated';
 
 interface SelectEntry {
   id: string;
@@ -71,38 +73,30 @@ export const useInputs = (): {
   return {
     groups: [
       {
+        isDividerHidden: true,
         name: t(labelAgent),
         order: 1,
-        titleAttributes,
-        isDividerHidden: true
+        titleAttributes
       },
       {
+        isDividerHidden: true,
         name: t(labelParameters),
         order: 2,
-        titleAttributes,
-        isDividerHidden: true
+        titleAttributes
       }
     ],
     inputs: [
       {
-        type: InputType.Grid,
-        group: t(labelAgent),
         fieldName: 'name_type',
-        label: t(labelName),
         grid: {
-          gridTemplateColumns: '1fr 1fr 1fr',
           columns: [
             {
-              type: InputType.Text,
               fieldName: 'name',
+              label: t(labelName),
               required: true,
-              label: t(labelName)
+              type: InputType.Text
             },
             {
-              type: InputType.SingleAutocomplete,
-              fieldName: 'type',
-              required: true,
-              label: t(labelAgentType),
               autocomplete: {
                 options: agentTypes
               },
@@ -110,189 +104,197 @@ export const useInputs = (): {
                 setAgentTypeForm(value.id);
                 setValues({
                   ...values,
-                  type: value,
                   configuration: equals(value.id, AgentType.Telegraf)
                     ? {
-                        confServerPort: 1443,
-                        otelPrivateKey: '',
-                        otelCaCertificate: null,
-                        otelPublicCertificate: '',
+                        confCertificate: '',
                         confPrivateKey: '',
-                        confCertificate: ''
+                        confServerPort: 1443,
+                        otelCaCertificate: null,
+                        otelPrivateKey: '',
+                        otelPublicCertificate: ''
                       }
                     : {
                         agentInitiated: true,
-                        pollerInitiated: false,
-                        otelPublicCertificate: '',
+                        hosts: [],
                         otelCaCertificate: null,
                         otelPrivateKey: '',
-                        hosts: [],
+                        otelPublicCertificate: '',
+                        pollerInitiated: false,
                         port: 4317
-                      }
+                      },
+                  type: value
                 });
                 setTouched({}, false);
-              }
+              },
+              fieldName: 'type',
+              label: t(labelAgentType),
+              required: true,
+              type: InputType.SingleAutocomplete
             },
             {
-              type: InputType.SingleAutocomplete,
-              fieldName: 'connectionMode',
-              required: true,
-              label: t(labelEncryptionLevel),
               autocomplete: {
                 options: map(
                   ({ id, name }) => ({ id, name: t(name) }),
                   connectionModes
                 )
-              }
+              },
+              fieldName: 'connectionMode',
+              label: t(labelEncryptionLevel),
+              required: true,
+              type: InputType.SingleAutocomplete
             }
-          ]
-        }
+          ],
+          gridTemplateColumns: '1fr 1fr 1fr'
+        },
+        group: t(labelAgent),
+        label: t(labelName),
+        type: InputType.Grid
       },
       {
-        group: t(labelAgent),
-        type: InputType.Custom,
+        custom: {
+          Component: EncryptionLevelWarning
+        },
         fieldName: '',
-        label: '',
+        group: t(labelAgent),
         hideInput: (values) =>
           isNil(values.type) ||
           isNil(values?.connectionMode) ||
           !equals(values?.connectionMode?.id, ConnectionMode.noTLS),
-        custom: {
-          Component: EncryptionLevelWarning
-        }
+        label: '',
+        type: InputType.Custom
       },
       {
         fieldName: '',
-        label: '',
-        group: t(labelParameters),
-        type: InputType.Grid,
-        hideInput: (values) => isNil(values.type),
         grid: {
-          gridTemplateColumns: '2fr 1fr',
           columns: [
             {
               additionalLabel: t(labelPollers),
-              type: InputType.MultiConnectedAutocomplete,
-              fieldName: 'pollers',
-              required: true,
-              label: t(labelPollers),
               connectedAutocomplete: {
                 additionalConditionParameters: [],
+                chipColor: 'primary',
                 customQueryParameters: [
                   { name: 'exclude_central', value: true }
                 ],
                 endpoint: pollersEndpoint,
-                filterKey: 'name',
-                chipColor: 'primary'
-              }
+                filterKey: 'name'
+              },
+              fieldName: 'pollers',
+              label: t(labelPollers),
+              required: true,
+              type: InputType.MultiConnectedAutocomplete
             },
             {
-              fieldName: '',
-              label: '',
-              type: InputType.Custom,
               custom: {
                 Component: Box
-              }
+              },
+              fieldName: '',
+              label: '',
+              type: InputType.Custom
             }
-          ]
-        }
-      },
-      {
+          ],
+          gridTemplateColumns: '2fr 1fr'
+        },
         group: t(labelParameters),
         hideInput: (values) => isNil(values.type),
+        label: '',
+        type: InputType.Grid
+      },
+      {
         fieldName: '',
-        label: labelParameters,
-        type: InputType.Grid,
         grid: {
-          gridTemplateColumns: '1fr',
           columns: [
             {
-              type: InputType.Grid,
-              fieldName: '',
-              label: t(labelOTelServer),
               additionalLabel: t(labelOTelServer),
-              hideInput: (values) =>
-                equals(values?.connectionMode?.id, ConnectionMode.noTLS) ||
-                isCMA,
+              fieldName: '',
               grid: {
                 columns: [
                   {
-                    type: InputType.Text,
                     fieldName: publicCertificateProperty,
-                    label: t(labelPublicCertificate)
+                    label: t(labelPublicCertificate),
+                    type: InputType.Text
                   },
                   {
-                    type: InputType.Text,
                     fieldName: caCertificateProperty,
-                    label: t(labelCaCertificate)
+                    label: t(labelCaCertificate),
+                    type: InputType.Text
                   },
                   {
-                    type: InputType.Text,
                     fieldName: privateKeyProperty,
-                    label: t(labelPrivateKey)
+                    label: t(labelPrivateKey),
+                    type: InputType.Text
                   }
                 ],
                 gridTemplateColumns: 'repeat(2, 1fr)'
-              }
+              },
+              hideInput: (values) =>
+                equals(values?.connectionMode?.id, ConnectionMode.noTLS) ||
+                isCMA,
+              label: t(labelOTelServer),
+              type: InputType.Grid
             },
             {
-              type: InputType.Grid,
-              fieldName: '',
-              hideInput: (values) => equals(values?.type?.id, AgentType.CMA),
-              label: '',
               additionalLabel: t(labelConfigurationServer),
+              fieldName: '',
               grid: {
-                gridTemplateColumns: 'repeat(2, 1fr)',
                 columns: [
                   {
-                    type: InputType.Text,
                     fieldName: 'configuration.confServerPort',
-                    required: true,
                     label: t(labelPort),
+                    required: true,
                     text: {
                       type: 'number'
-                    }
+                    },
+                    type: InputType.Text
                   },
                   {
-                    hideInput: (values) =>
-                      equals(values?.connectionMode?.id, ConnectionMode.noTLS),
-                    type: InputType.Text,
                     fieldName: 'configuration.confCertificate',
-                    label: t(labelPublicCertificate)
-                  },
-                  {
                     hideInput: (values) =>
                       equals(values?.connectionMode?.id, ConnectionMode.noTLS),
-                    type: InputType.Text,
+                    label: t(labelPublicCertificate),
+                    type: InputType.Text
+                  },
+                  {
                     fieldName: 'configuration.confPrivateKey',
-                    label: t(labelPrivateKey)
+                    hideInput: (values) =>
+                      equals(values?.connectionMode?.id, ConnectionMode.noTLS),
+                    label: t(labelPrivateKey),
+                    type: InputType.Text
                   }
-                ]
-              }
+                ],
+                gridTemplateColumns: 'repeat(2, 1fr)'
+              },
+              hideInput: (values) => equals(values?.type?.id, AgentType.CMA),
+              label: '',
+              type: InputType.Grid
             }
-          ]
-        }
+          ],
+          gridTemplateColumns: '1fr'
+        },
+        group: t(labelParameters),
+        hideInput: (values) => isNil(values.type),
+        label: labelParameters,
+        type: InputType.Grid
       },
       {
         fieldName: '',
-        label: '',
-        group: t(labelParameters),
-        type: InputType.Grid,
-        hideInput: (values) => !equals(values?.type?.id, AgentType.CMA),
         grid: {
-          gridTemplateColumns: '1fr',
           columns: [
             {
               additionalLabel: t(labelConnectionInitiated),
-              fieldName: '',
-              label: '',
-              type: InputType.Custom,
               custom: {
                 Component: ConnectionInitiated
-              }
+              },
+              fieldName: '',
+              label: '',
+              type: InputType.Custom
             }
-          ]
-        }
+          ],
+          gridTemplateColumns: '1fr'
+        },
+        group: t(labelParameters),
+        hideInput: (values) => !equals(values?.type?.id, AgentType.CMA),
+        label: '',
+        type: InputType.Grid
       }
     ]
   };

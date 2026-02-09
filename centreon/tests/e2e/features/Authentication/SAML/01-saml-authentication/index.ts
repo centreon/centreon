@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import { configureProviderAcls } from '../../../../commons';
 import {
   configureSaml,
@@ -110,12 +110,12 @@ When('the administrator activates SAML authentication on the platform', () => {
       label: 'Enable SAMLv2 authentication',
       tag: 'input'
     })
-    .then(($input) => {
-      if ($input.is(':checked')) {
+    .then((input) => {
+      if (input.is(':checked')) {
         return;
       }
 
-      cy.wrap($input).check();
+      cy.wrap(input).check();
 
       cy.getByLabel({ label: 'save button', tag: 'button' }).click();
 

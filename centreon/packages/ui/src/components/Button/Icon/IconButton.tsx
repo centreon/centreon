@@ -1,13 +1,12 @@
-import { ReactElement, ReactNode, forwardRef } from 'react';
-
 import {
   IconButton as MuiIconButton,
-  IconButtonProps as MuiIconButtonProps
+  type IconButtonProps as MuiIconButtonProps
 } from '@mui/material';
 
-import { AriaLabelingAttributes } from '../../../@types/aria-attributes';
-import { DataTestAttributes } from '../../../@types/data-attributes';
+import { forwardRef, type ReactElement, type ReactNode } from 'react';
 
+import type { AriaLabelingAttributes } from '../../../@types/aria-attributes';
+import type { DataTestAttributes } from '../../../@types/data-attributes';
 import { useStyles } from './IconButton.styles';
 
 const muiColorMap: Record<
@@ -48,13 +47,13 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
 
     return (
       <MuiIconButton
-        ref={ref}
         className={classes.iconButton}
         data-size={size}
         data-variant={variant}
         disabled={disabled}
-        size={size}
         onClick={(e) => onClick?.(e)}
+        ref={ref}
+        size={size}
         {...attr}
         // Mui overrides
         color={muiColorMap[variant]}

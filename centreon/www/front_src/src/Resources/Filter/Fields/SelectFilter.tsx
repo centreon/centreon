@@ -1,5 +1,5 @@
-import { SelectField } from '@centreon/ui';
 import type { SelectEntry } from '@centreon/ui';
+import { SelectField } from '@centreon/ui';
 
 import memoizeComponent from '../../memoizedComponent';
 
@@ -19,9 +19,9 @@ const SelectFilter = ({
   <SelectField
     aria-label={ariaLabel}
     data-testid="selectedFilter"
+    onChange={onChange}
     options={options}
     selectedOptionId={selectedOptionId}
-    onChange={onChange}
   />
 );
 

@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
-
 import AddIcon from '@mui/icons-material/Add';
 
 import { Button } from '@centreon/ui/components';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelAdd } from '../translatedLabels';
 
@@ -19,9 +19,9 @@ const AddDashboard = ({
       data-testid="create-dashboard"
       icon={<AddIcon />}
       iconVariant="start"
+      onClick={openConfig}
       size="small"
       variant="primary"
-      onClick={openConfig}
     >
       {t(labelAdd)}
     </Button>

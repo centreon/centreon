@@ -3,15 +3,17 @@ import {
   isResourceStatusFullSearchEnabledAtom,
   refreshIntervalAtom
 } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { countResourcesEndpoint } from '../../api/endpoint';
 import { getColumns as getAllColumns } from '../../Listing/columns';
 import { listingAtom, selectedColumnIdsAtom } from '../../Listing/listingAtoms';
 import useGetCriteriaName from '../../Listing/useLoadResources/useGetCriteriaName';
 import { getSearch } from '../../Listing/useLoadResources/utils';
-import { countResourcesEndpoint } from '../../api/endpoint';
 import { labelExportProcessingInProgress } from '../../translatedLabels';
 import { selectedVisualizationAtom } from '../actionsAtoms';
 import { csvExportEndpoint } from '../api/endpoint';
@@ -78,6 +80,7 @@ const useExportCsv = ({
   const getCurrentFilterParameters = () => {
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
+
     const queryParameters = [
       {
         name: 'host_category_names',
@@ -103,14 +106,18 @@ const useExportCsv = ({
       {
         name: 'host_severity_names',
         value: getCriteriaNames('host_severities')
+      },
+      {
+        name: 'states',
+        value: getCriteriaIds('states')
       }
     ];
 
     const filtersParameters = {
       search: {
         ...(getSearch({
-          searchCriteria: getCriteriaValue('search'),
-          isResourceStatusFullSearchEnabled
+          isResourceStatusFullSearchEnabled,
+          searchCriteria: getCriteriaValue('search')
         }) ?? {}),
         conditions: [
           ...getListSearch({ array: names, field: 'name' }),
@@ -140,8 +147,8 @@ const useExportCsv = ({
 
     const paginationParameters = includePagination
       ? {
-          page: listing?.meta?.page || 1,
           limit: listing?.meta?.limit || 10,
+          page: listing?.meta?.page || 1,
           sort: {
             [sort?.[0] as string]: sort?.[1] || '',
             last_status_change: 'desc'
@@ -158,7 +165,6 @@ const useExportCsv = ({
     };
 
     return {
-      parameters,
       customQueryParameters: [
         ...queryParameters,
         { name: 'types', value: types },
@@ -166,7 +172,8 @@ const useExportCsv = ({
           name: 'statuses',
           value: statuses?.map((status) => status.toUpperCase())
         }
-      ]
+      ],
+      parameters
     };
   };
 
@@ -175,12 +182,12 @@ const useExportCsv = ({
       getParameters(includePagination);
 
     return buildListingEndpoint({
-      parameters,
       baseEndpoint,
       customQueryParameters: [
         ...customQueryParameters,
         { name: 'all_pages', value: isAllPagesChecked }
-      ]
+      ],
+      parameters
     });
   };
 
@@ -200,10 +207,10 @@ const useExportCsv = ({
     ],
     queryOptions: {
       enabled: isOpen,
-      suspense: false,
-      refetchInterval: refreshInterval * 1000,
       gcTime: 0,
-      staleTime: 0
+      refetchInterval: refreshInterval * 1000,
+      staleTime: 0,
+      suspense: false
     }
   });
 
@@ -217,13 +224,13 @@ const useExportCsv = ({
     const { parameters, customQueryParameters } = getParameters(true);
 
     const endpoint = buildListingEndpoint({
-      parameters,
       baseEndpoint: csvExportEndpoint,
       customQueryParameters: [
         ...customQueryParameters,
         { name: 'all_pages', value: isAllPagesChecked },
         { name: 'max_lines', value: maxResources }
-      ]
+      ],
+      parameters
     });
 
     window.open(
@@ -236,8 +243,8 @@ const useExportCsv = ({
   return {
     exportCsv,
     hasReachedMaximumLinesToExport,
-    numberExportedLines,
-    isLoading
+    isLoading,
+    numberExportedLines
   };
 };
 

@@ -1,8 +1,9 @@
-import { ReactElement } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Box, Typography } from '@mui/material';
 
 import { Header } from '@centreon/ui';
-import { Box, Typography } from '@mui/material';
+
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { graphsCapNumber } from './constants';
 import { labelTooManyGraphsToDisplay } from './translatedLabels';
@@ -28,11 +29,11 @@ const TooManyElementsCard = ({
       height={outerHeight}
     >
       <Header
-        title={title}
         header={{
           displayTitle: true,
           extraComponent: actions
         }}
+        title={title}
       />
       <Box
         className={

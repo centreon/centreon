@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-
 import type { ScaleLinear } from 'd3-scale';
+import type { ReactNode } from 'react';
 
 import type { BarStyle } from '../BarChart/models';
 import type {
@@ -10,12 +9,11 @@ import type {
 } from '../common/Axes/models';
 import type { AdditionalLineProps, LineChartData } from '../common/models';
 import type { Line, TimeValue } from '../common/timeSeries/models';
-
-import type { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 import type {
   AreaRegularLines,
   AreaStackedLines
 } from './BasicComponents/Lines/models';
+import type { FactorsVariation } from './BasicComponents/Lines/Threshold/models';
 import type { TimelineEvent } from './InteractiveComponents/Annotations/models';
 
 export interface LineChartEndpoint {

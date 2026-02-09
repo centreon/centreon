@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { centreonBaseURL, postData, useRequest } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
 import { equals, not } from 'ramda';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { centreonBaseURL, postData, useRequest } from '@centreon/ui';
 
 import WizardFormSetupStatus from '../../components/WizardFormSetupStatus';
 import routeMap from '../../reactRoutes/routeMap';

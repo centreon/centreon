@@ -1,7 +1,7 @@
-import { useAtomValue } from 'jotai';
-
 import { useFetchQuery } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
 
 import {
   type CommonWidgetProps,
@@ -10,9 +10,8 @@ import {
 } from '../../../models';
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
-import type { PanelOptions } from '../models';
-
 import { openTicketAtom } from '../atom';
+import type { PanelOptions } from '../models';
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
@@ -84,15 +83,15 @@ const useLoadResources = ({
           serviceSeverities,
           sort: sort || { status_severity_code: SortOrder.Desc },
           states,
-          statusTypes,
           statuses,
+          statusTypes,
           type: displayType,
           ...(isOpenTicketEnabled
             ? {
+                displayResources,
                 isDownHostHidden,
                 isUnreachableHostHidden,
-                provider,
-                displayResources
+                provider
               }
             : {})
         }),

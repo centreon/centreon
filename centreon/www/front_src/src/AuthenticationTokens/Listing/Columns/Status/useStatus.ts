@@ -1,6 +1,6 @@
+import { useAtom, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 
-import { useAtom, useSetAtom } from 'jotai';
 import {
   isRevokingDialogCanceledAtom,
   tokensToDisableAtom,

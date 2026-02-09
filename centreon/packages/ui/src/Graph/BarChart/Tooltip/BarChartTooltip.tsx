@@ -1,7 +1,7 @@
+import { Box, Typography } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import {
-  path,
-  T,
   always,
   cond,
   equals,
@@ -9,19 +9,18 @@ import {
   gt,
   has,
   isNil,
+  path,
   prop,
   reverse,
-  sortBy
+  sortBy,
+  T
 } from 'ramda';
 
-import { Box, Typography } from '@mui/material';
-
 import { useLocaleDateTimeFormat } from '../../../utils';
-import { Tooltip } from '../../Chart/models';
+import type { Tooltip } from '../../Chart/models';
 import { formatMetricValueWithUnit } from '../../common/timeSeries';
-import { TimeValue } from '../../common/timeSeries/models';
+import type { TimeValue } from '../../common/timeSeries/models';
 import { tooltipDataAtom } from '../atoms';
-
 import { useBarChartTooltipStyles } from './useBarChartTooltipStyles';
 
 interface Props extends Partial<Pick<Tooltip, 'mode' | 'sortOrder'>> {

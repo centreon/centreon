@@ -1,9 +1,9 @@
-import numeral from 'numeral';
-import { makeStyles } from 'tss-react/mui';
-
 import { Badge, Tooltip } from '@mui/material';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { getStatusColors, type SeverityCode } from '@centreon/ui';
+
+import numeral from 'numeral';
+import { makeStyles } from 'tss-react/mui';
 
 export interface StyleProps {
   severityCode?: SeverityCode | null;
@@ -46,8 +46,8 @@ const StatusCounter = ({
 
   return (
     <Tooltip
-      followCursor
       disableHoverListener={shouldDisableTooltip}
+      followCursor
       title={count}
     >
       <Badge

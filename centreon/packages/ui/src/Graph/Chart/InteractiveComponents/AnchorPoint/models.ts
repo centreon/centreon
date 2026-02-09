@@ -1,6 +1,6 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { Line, TimeValue } from '../../../common/timeSeries/models';
+import type { Line, TimeValue } from '../../../common/timeSeries/models';
 
 interface AnchorPoint {
   areaColor: string;

@@ -1,5 +1,6 @@
 import { Method } from 'packages/ui/src';
 import { equals } from 'ramda';
+
 import { dashboardsFavoriteDeleteEndpoint } from './api/endpoints';
 import { FavoriteAction } from './models';
 import {

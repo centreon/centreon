@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import hostTemplates from '../../../fixtures/host-templates/host-template.json';
 
 const checkFirstHostTemplateFromListing = () => {

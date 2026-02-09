@@ -1,13 +1,12 @@
-import { Dispatch, SetStateAction, useEffect } from 'react';
-
 import { isNil } from 'ramda';
+import { type Dispatch, type SetStateAction, useEffect } from 'react';
 import { useLocation } from 'react-router';
 
 interface Props {
   setToggled: Dispatch<SetStateAction<boolean>>;
 }
 const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const isLegacyRoute = pathname.includes('main.php');
 
   const closeSubMenu = (): void => {
@@ -36,7 +35,7 @@ const useCloseOnLegacyPage = ({ setToggled }: Props): void => {
         closeSubMenu
       );
     };
-  }, [pathname, search]);
+  }, [closeSubMenu, isLegacyRoute]);
 };
 
 export default useCloseOnLegacyPage;

@@ -8,11 +8,11 @@ interface Props {
 
 const CustomText = ({ loginPageCustomisation }: Props): JSX.Element => (
   <RichTextEditor
+    disabled
     editable={false}
     editorState={loginPageCustomisation.customText || undefined}
     minInputHeight={0}
     namespace={`Preview${loginPageCustomisation.textPosition}`}
-    disabled
   />
 );
 

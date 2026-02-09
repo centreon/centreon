@@ -1,5 +1,6 @@
+import { centreonBaseURL } from '@centreon/ui';
+
 import {
-  T,
   always,
   cond,
   equals,
@@ -7,10 +8,9 @@ import {
   groupBy,
   identity,
   includes,
+  T,
   uniq
 } from 'ramda';
-
-import { centreonBaseURL } from '@centreon/ui';
 
 import { WidgetResourceType } from './AddEditWidget/models';
 import { getIsMetaServiceSelected, isResourceString } from './Widgets/utils';

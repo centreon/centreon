@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import {
   checkHostsAreMonitored,
   checkServicesAreMonitored
@@ -96,8 +96,8 @@ Then(
 );
 
 Then('the pagination is disabled', () => {
-  cy.get('.MuiTablePagination-toolbar > > button').each(($button) => {
-    cy.wrap($button).should('be.disabled');
+  cy.get('.MuiTablePagination-toolbar > > button').each((button) => {
+    cy.wrap(button).should('be.disabled');
   });
 });
 
@@ -146,9 +146,9 @@ Then(
 Then(
   'the user clicks on the link to navigate to the previous page with status enabled',
   () => {
-    cy.getByLabel({ label: `${previousPageLabel}` }).then(($button) => {
-      if (!$button.prop('disabled')) {
-        cy.wrap($button).click();
+    cy.getByLabel({ label: `${previousPageLabel}` }).then((button) => {
+      if (!button.prop('disabled')) {
+        cy.wrap(button).click();
       } else {
         cy.log('The previous page is disabled and cannot be clicked.');
       }
@@ -166,9 +166,9 @@ Then(
 Then(
   'the user clicks on the link to navigate to the next page with status enabled',
   () => {
-    cy.getByLabel({ label: `${nextPageLabel}` }).then(($button) => {
-      if (!$button.prop('disabled')) {
-        cy.wrap($button).click();
+    cy.getByLabel({ label: `${nextPageLabel}` }).then((button) => {
+      if (!button.prop('disabled')) {
+        cy.wrap(button).click();
       } else {
         cy.log('The next page is disabled and cannot be clicked.');
       }
