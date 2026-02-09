@@ -10,8 +10,8 @@ apk add --no-cache --update \
   curl \
   findutils \
   git \
+  make \
   tar \
-  tzdata \
   zstd
 
 
