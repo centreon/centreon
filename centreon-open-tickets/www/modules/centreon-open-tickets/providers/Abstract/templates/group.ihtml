@@ -14,10 +14,10 @@
             <option value="-1"> -- select -- </option>
         {/if}
         {foreach from=$group key=k item=v}
-        {if $groups.$groupId.placeholder.$k != ""}
+        {if isset($groups.$groupId.placeholder) and $groups.$groupId.placeholder.$k != ""}
             <option value='{$k}___{$v}___{$groups.$groupId.placeholder.$k}' {if $v eq $groups.$groupId.default}selected{/if}>{$groups.$groupId.placeholder.$k}</option>
         {else}
-            <option value='{$k}___{$v}' {if $v eq $groups.$groupId.default}selected{/if}>{$v}</option>
+            <option value='{$k}___{$v}' {if isset($groups.$groupId.default) and $v eq $groups.$groupId.default}selected{/if}>{$v}</option>
         {/if}
         {/foreach}
         </select>
