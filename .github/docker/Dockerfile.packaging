@@ -8,8 +8,8 @@ baseurl=https://repo.goreleaser.com/yum/
 enabled=1
 gpgcheck=0' | tee /etc/yum.repos.d/goreleaser.repo
 
-dnf install -y make zstd nfpm-2.45.0 selinux-policy-devel
+microdnf install -y make zstd nfpm-2.45.0 selinux-policy-devel
 
-dnf clean all
+microdnf clean all
 
 EOF
