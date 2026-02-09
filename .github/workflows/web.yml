@@ -738,13 +738,13 @@ jobs:
       matrix:
         include:
           - package_extension: rpm
-            image: packaging-nfpm-alma8
+            image: packaging-alma8
             distrib: el8
           - package_extension: rpm
-            image: packaging-nfpm-alma9
+            image: packaging-alma9
             distrib: el9
           - package_extension: deb
-            image: packaging-nfpm-bookworm
+            image: packaging-debian
             distrib: bookworm
           # - package_extension: deb
           #   image: packaging-nfpm-jammy
@@ -753,7 +753,7 @@ jobs:
     name: package ${{ matrix.distrib }}
     runs-on: ubuntu-24.04
     container:
-      image: ghcr.io/${{ github.repository }}/packaging:${{ needs.get-environment.outputs.major_version }}
+      image: ghcr.io/${{ github.repository }}/${{ matrix.image }}:${{ needs.get-environment.outputs.major_version }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}

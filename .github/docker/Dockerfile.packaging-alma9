@@ -1,5 +1,7 @@
 FROM almalinux:9
 
+ARG NFPM_VERSION=2.45.0
+
 RUN bash -e <<EOF
 
 echo '[goreleaser]
@@ -8,10 +10,10 @@ baseurl=https://repo.goreleaser.com/yum/
 enabled=1
 gpgcheck=0' | tee /etc/yum.repos.d/goreleaser.repo
 
-dnf install -y make rpm-build rpm-sign zstd perl perl-devel nfpm-2.43.4 selinux-policy-devel
+dnf install -y zstd nfpm-${NFPM_VERSION} selinux-policy-devel
+
+rm -f /etc/yum.repos.d/goreleaser.repo
 
 dnf clean all
 
 EOF
-
-WORKDIR /src
