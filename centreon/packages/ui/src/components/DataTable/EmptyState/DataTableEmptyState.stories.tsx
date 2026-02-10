@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { DataTableEmptyState } from './DataTableEmptyState';
 import '../../../ThemeProvider/tailwindcss.css';

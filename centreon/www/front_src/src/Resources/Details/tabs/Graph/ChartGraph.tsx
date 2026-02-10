@@ -1,6 +1,3 @@
-import { path } from 'ramda';
-import { useState, ReactElement, RefObject } from 'react';
-
 import {
   type Interval,
   LineChart,
@@ -10,16 +7,18 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
+import { path } from 'ramda';
+import { type ReactElement, type RefObject, useState } from 'react';
+
 import FederatedComponent from '../../../../components/FederatedComponents';
+import { graphsCapNumber } from '../../../constants';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
 import type { Resource } from '../../../models';
+import TooManyElementsCard from '../../../TooManyElementsCard';
 import type { ResourceDetails } from '../../models';
-import { graphsCapNumber } from '../../../constants';
-
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
-import TooManyElementsCard from '../../../TooManyElementsCard';
 
 interface Props {
   graphTimeParameters?: Parameters;
@@ -34,7 +33,8 @@ const ChartGraph = ({
 }: Props) => {
   const { classes } = useChartGraphStyles();
 
-  const [graphRef, setGraphRef] = useState<RefObject<HTMLDivElement>>();
+  const [graphRef, setGraphRef] = useState<RefObject<HTMLDivElement | null>>();
+
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const graphEndpoint = path<string>(
@@ -63,15 +63,15 @@ const ChartGraph = ({
   });
 
   const timeLineData = useRetrieveTimeLine({
-    timelineEndpoint,
-    graphTimeParameters
+    graphTimeParameters,
+    timelineEndpoint
   });
 
   const getInterval = (interval: Interval): void => {
     updatedGraphInterval(interval);
   };
 
-  const getRef = (ref: RefObject<HTMLDivElement>) => {
+  const getRef = (ref: RefObject<HTMLDivElement | null>) => {
     setGraphRef(ref);
   };
 
@@ -105,22 +105,24 @@ const ChartGraph = ({
   return (
     <>
       <FederatedComponent
+        getShapeLines={getShapeLines}
         path="/anomaly-detection/enableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
         type={resource?.type}
-        getShapeLines={getShapeLines}
       />
       <LineChart
-        loading={isFetching || isLoading || !data}
         annotationEvent={{ data: timeLineData }}
         containerStyle={classes.container}
-        getRef={getRef}
         data={data}
         end={graphTimeParameters?.end}
+        getRef={getRef}
+        header={{ extraComponent: graphActions }}
         height={280}
         legend={{ mode: 'grid', placement: 'bottom' }}
         lineStyle={{ lineWidth: 1 }}
-        header={{ extraComponent: graphActions }}
+        loading={isFetching || isLoading || !data}
+        start={graphTimeParameters?.start}
+        timeShiftZones={{ enable: true, getInterval }}
         tooltip={{
           renderComponent: ({
             data,
@@ -133,8 +135,6 @@ const ChartGraph = ({
             />
           )
         }}
-        start={graphTimeParameters?.start}
-        timeShiftZones={{ enable: true, getInterval }}
         zoomPreview={{ enable: true, getInterval }}
         {...rest}
       />

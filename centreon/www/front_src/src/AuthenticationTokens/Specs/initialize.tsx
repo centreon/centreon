@@ -1,13 +1,14 @@
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
-import Page from '../Page';
 import { listTokensEndpoint } from '../api';
 import { listUsers } from '../api/endpoints';
+import Page from '../Page';
 
 const interceptRequests = () => {
   cy.fixture('authenticationTokens/listTokens').then((data) => {
@@ -23,14 +24,14 @@ const interceptRequests = () => {
     alias: 'deleteToken',
     method: Method.DELETE,
     path: '**tokens/d-token/users/23',
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.interceptAPIRequest({
     alias: 'enableDisableToken',
     method: Method.PATCH,
     path: '**tokens**',
-    response: { status: 'ok', code: 200 }
+    response: { code: 200, status: 'ok' }
   });
 
   cy.fixture('authenticationTokens/tokenDetails').then((data) => {

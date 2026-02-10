@@ -1,8 +1,8 @@
+import { centreonBaseURL } from '@centreon/ui';
+
 import { useAtom } from 'jotai';
 import { concat } from 'ramda';
 import { generatePath } from 'react-router';
-
-import { centreonBaseURL } from '@centreon/ui';
 
 import { UserRole } from '../../../api/models';
 import { isSharesOpenAtom } from '../../../atoms';

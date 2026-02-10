@@ -1,6 +1,6 @@
-import { useFormikContext } from 'formik';
-
 import { UnsavedChangesDialog } from '@centreon/ui';
+
+import { useFormikContext } from 'formik';
 
 interface UnsavedChangesProps {
   closeDialog: () => void;

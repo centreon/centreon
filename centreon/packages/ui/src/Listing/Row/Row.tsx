@@ -1,17 +1,14 @@
-/* eslint-disable react/no-unused-prop-types */
+import { TableRow, type TableRowProps, useTheme } from '@mui/material';
 
-import { memo, useEffect, useRef } from 'react';
+import type { ListingVariant } from '@centreon/ui-context';
 
 import { equals, gte, lt, not, pluck } from 'ramda';
-
-import { TableRow, TableRowProps, useTheme } from '@mui/material';
-
-import { ListingVariant } from '@centreon/ui-context';
+import { memo, useCallback, useEffect, useRef } from 'react';
 
 import LoadingSkeleton from '../../LoadingSkeleton';
 import { useViewportIntersection } from '../../utils/useViewportIntersection';
 import { performanceRowsLimit } from '../index';
-import { Column, ColumnConfiguration, RowColorCondition } from '../models';
+import type { Column, ColumnConfiguration, RowColorCondition } from '../models';
 
 type Props = {
   checkable: boolean;
@@ -73,10 +70,10 @@ const Row = memo<RowProps>(
       <TableRow
         className="cursor-pointer contents w-full"
         component="div"
-        tabIndex={tabIndex}
         onClick={onClick}
         onFocus={onFocus}
         onMouseOver={onMouseOver}
+        tabIndex={tabIndex}
       >
         {children}
       </TableRow>
@@ -180,12 +177,15 @@ const IntersectionRow = ({ isHovered, ...rest }: Props): JSX.Element => {
     rootMargin: `${theme.spacing(20)} 0px ${theme.spacing(20)} 0px`
   });
 
-  const getFirstCellElement = (): ChildNode | null | undefined =>
-    rowRef.current?.firstChild?.firstChild?.firstChild;
+  const getFirstCellElement = useCallback(
+    (): ChildNode | null | undefined =>
+      rowRef.current?.firstChild?.firstChild?.firstChild,
+    []
+  );
 
   useEffect(() => {
     setElement(getFirstCellElement() as HTMLDivElement);
-  }, [getFirstCellElement()]);
+  }, [getFirstCellElement, setElement]);
 
   return (
     <div className="contents w-full" data-is-hovered={isHovered} ref={rowRef}>

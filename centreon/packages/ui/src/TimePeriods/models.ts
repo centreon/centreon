@@ -1,6 +1,5 @@
-import type { ReactNode } from 'react';
-
 import dayjs from 'dayjs';
+import type { ReactNode } from 'react';
 
 import {
   label1Day,

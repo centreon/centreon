@@ -1,7 +1,7 @@
-import { useTranslation } from 'react-i18next';
-
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { IconButton as MuiIconButton, SvgIcon } from '@mui/material';
+
+import { useTranslation } from 'react-i18next';
 
 import { labelDragHandle } from '../../translatedLabels';
 

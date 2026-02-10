@@ -1200,7 +1200,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
-    if (isset($ret['command_command_id'])) {
+    if (! empty($ret['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $ret['command_command_id']);
         if ($command === null) {
@@ -2114,7 +2114,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         $submittedValues = $form->getSubmitValues();
     }
 
-    if (isset($submittedValues['command_command_id'])) {
+    if (isset($submittedValues['command_command_id']) && $submittedValues['command_command_id'] != null) {
         $kernel = Kernel::createForWeb();
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
@@ -2704,7 +2704,7 @@ function updateService_MC($service_id = null, $params = [])
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
-    if (isset($ret['command_command_id'])) {
+    if (! empty($ret['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $ret['command_command_id']);
         if ($command === null) {
@@ -4302,8 +4302,15 @@ function getServiceTemplatePayload(
 
         foreach ($submittedValues['macroInput'] as $key => $macroName) {
             $payload['macros'][] = [
+                'id' => (empty((int) $submittedValues['macroId'][$key]) ? null : (int) $submittedValues['macroId'][$key]),
                 'name' => $macroName,
-                'value' => $submittedValues['macroValue'][$key] ?? null,
+                'value' => $submittedValues['macroValue'][$key] === PASSWORD_REPLACEMENT_VALUE
+                    ? null
+                    : (
+                        str_starts_with($submittedValues['macroValue'][$key], VaultConfiguration::VAULT_PATH_PATTERN)
+                        ? null
+                        : $submittedValues['macroValue'][$key]
+                    ),
                 'is_password' => isset($submittedValues['macroPassword'][$key]) ? true : false,
                 'description' => $macroDescription[$key] ?? null,
             ];

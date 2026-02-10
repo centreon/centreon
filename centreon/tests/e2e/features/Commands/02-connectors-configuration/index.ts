@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/commands/connector.json';
 
@@ -29,19 +30,15 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user creates a connector', () => {
-  cy.navigateTo({
-    page: 'Connectors',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
   cy.waitForElementInIframe('#main-content', 'select[name="o1"]');
   // Click on the "Add" button
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addConnectors({
     ...data.connector,
     commandLine: data.connector.command_line,
-    usedByCommand: data.connector.used_by_command,
-    isEnabled: data.connector.is_enabled
+    isEnabled: data.connector.is_enabled,
+    usedByCommand: data.connector.used_by_command
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -61,11 +58,7 @@ Then('the connector is displayed in the list', () => {
 });
 
 When('the user changes the properties of a connector', () => {
-  cy.navigateTo({
-    page: 'Connectors',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
   // Wait for the created connector to be charged on the DOM
   cy.waitForElementInIframe(
     '#main-content',
@@ -76,8 +69,8 @@ When('the user changes the properties of a connector', () => {
   cy.updateConnectors({
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
-    usedByCommand: data.connectorUpdated.used_by_command,
-    isEnabled: data.connectorUpdated.is_enabled
+    isEnabled: data.connectorUpdated.is_enabled,
+    usedByCommand: data.connectorUpdated.used_by_command
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -99,17 +92,13 @@ Then('the properties are updated', () => {
   cy.checkValuesOfConnectors(data.connectorUpdated.name, {
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
-    usedByCommand: data.connectorUpdated.used_by_command,
-    isEnabled: data.connectorUpdated.is_enabled
+    isEnabled: data.connectorUpdated.is_enabled,
+    usedByCommand: data.connectorUpdated.used_by_command
   });
 });
 
 When('the user duplicates a connector', () => {
-  cy.navigateTo({
-    page: 'Connectors',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
   // Wait for the updated connector to be charged on the DOM
   cy.waitForElementInIframe(
     '#main-content',
@@ -145,19 +134,15 @@ Then('the new connector has the same properties', () => {
   cy.checkValuesOfConnectors(`${data.connectorUpdated.name}_1`, {
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
-    usedByCommand: data.connectorUpdated.used_by_command,
-    isEnabled: data.connectorUpdated.is_enabled
+    isEnabled: data.connectorUpdated.is_enabled,
+    usedByCommand: data.connectorUpdated.used_by_command
   });
 });
 
 When(
   'the user updates the status of a connector to {string}',
   (type: string) => {
-    cy.navigateTo({
-      page: 'Connectors',
-      rootItemNumber: 3,
-      subMenu: 'Commands'
-    });
+    cy.visit(PAGES.configuration.commandsConnectorsLegacy);
     // Wait for the updated connector to be charged on the DOM
     cy.waitForElementInIframe(
       '#main-content',
@@ -226,11 +211,7 @@ Then('the new connector is updated with {string} status', (type: string) => {
 });
 
 When('the user deletes a connector', () => {
-  cy.navigateTo({
-    page: 'Connectors',
-    rootItemNumber: 3,
-    subMenu: 'Commands'
-  });
+  cy.visit(PAGES.configuration.commandsConnectorsLegacy);
   // Wait for the updated connector to be charged on the DOM
   cy.waitForElementInIframe(
     '#main-content',

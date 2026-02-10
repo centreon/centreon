@@ -1,11 +1,10 @@
-import { omit } from 'ramda';
-
 import { alpha, useTheme } from '@mui/system';
 
-import Bar from '../Bar';
+import { omit } from 'ramda';
 
 import { margin } from '../../common';
-import { ZoomPreviewData } from './models';
+import Bar from '../Bar';
+import type { ZoomPreviewData } from './models';
 import useZoomPreview from './useZoomPreview';
 
 const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
@@ -23,10 +22,10 @@ const ZoomPreview = (data: ZoomPreviewData): JSX.Element => {
 
   const { zoomBarWidth, zoomBoundaries } = useZoomPreview({
     getInterval,
-    graphWidth,
-    xScale,
+    graphMarginLeft,
     graphSvgRef,
-    graphMarginLeft
+    graphWidth,
+    xScale
   });
 
   const restData = omit(['enable'], { ...rest });

@@ -727,6 +727,12 @@ $form->addElement('select2', 'timeperiod_tp_id', _('Check Period'), [], $attribu
 
 $cloneSetMacro = [
     $form->addElement(
+        'hidden',
+        'macroId[#index#]',
+        null,
+        ['id' => 'macroId_#index#']
+    ),
+    $form->addElement(
         'text',
         'macroInput[#index#]',
         _('Name'),

@@ -1,18 +1,18 @@
-import { isEmpty, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: need it */
 import IconClose from '@mui/icons-material/Clear';
 import { AppBar, Divider, Paper, Slide, Tabs } from '@mui/material';
 
-import { IconButton } from '..';
-
+import { isEmpty, isNil } from 'ramda';
 import {
-  ReactElement,
-  RefObject,
   forwardRef,
+  type ReactElement,
+  type RefObject,
   useCallback,
   useEffect
 } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import { IconButton } from '..';
 import { minTabHeight } from './Tab';
 
 interface StylesProps extends Pick<Props, 'headerBackgroundColor' | 'width'> {
@@ -141,7 +141,7 @@ const Panel = forwardRef(
       return (): void => {
         window.removeEventListener('resize', resizeWindow);
       };
-    }, []);
+    }, [resizeWindow]);
 
     const resize = (): void => {
       document.addEventListener('mouseup', releaseMouse, true);
@@ -153,31 +153,34 @@ const Panel = forwardRef(
       document.removeEventListener('mousemove', moveMouse, true);
     };
 
-    const moveMouse = useCallback((e) => {
-      e.preventDefault();
+    const moveMouse = useCallback(
+      (e) => {
+        e.preventDefault();
 
-      const maxWidth = getMaxWidth();
-      const newWidth = document.body.clientWidth - e.clientX;
+        const maxWidth = getMaxWidth();
+        const newWidth = document.body.clientWidth - e.clientX;
 
-      const getResizedWidth = (): number => {
-        if (newWidth <= minWidth) {
-          return minWidth;
-        }
+        const getResizedWidth = (): number => {
+          if (newWidth <= minWidth) {
+            return minWidth;
+          }
 
-        if (newWidth > maxWidth) {
-          return maxWidth;
-        }
+          if (newWidth > maxWidth) {
+            return maxWidth;
+          }
 
-        return newWidth;
-      };
+          return newWidth;
+        };
 
-      onResize?.(getResizedWidth());
-    }, []);
+        onResize?.(getResizedWidth());
+      },
+      [getMaxWidth, minWidth, onResize]
+    );
 
     return (
       <Slide
-        in
         direction="left"
+        in
         timeout={{
           enter: 150,
           exit: 50
@@ -194,9 +197,9 @@ const Panel = forwardRef(
                 {onClose && (
                   <IconButton
                     ariaLabel={labelClose}
+                    onClick={onClose}
                     size="large"
                     title={labelClose}
-                    onClick={onClose}
                   >
                     <IconClose color="action" />
                   </IconButton>
@@ -215,10 +218,10 @@ const Panel = forwardRef(
                 <Tabs
                   className={classes.tabs}
                   indicatorColor="primary"
+                  onChange={onTabSelect}
                   textColor="primary"
                   value={selectedTabId}
                   variant="fullWidth"
-                  onChange={onTabSelect}
                 >
                   {tabs.map((tab) => tab)}
                 </Tabs>

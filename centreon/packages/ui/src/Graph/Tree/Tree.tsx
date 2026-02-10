@@ -1,15 +1,13 @@
+import { Group } from '@visx/group';
+import { hierarchy, Tree as VisxTree } from '@visx/hierarchy';
+import { isNil } from 'ramda';
 import { useCallback, useMemo } from 'react';
 
-import { Group } from '@visx/group';
-import { Tree as VisxTree, hierarchy } from '@visx/hierarchy';
-import { isNil } from 'ramda';
-
 import { useDeepCompare } from '../../utils';
-
+import { nodeMargins } from './constants';
 import DescendantNodes from './DescendantNodes';
 import Links from './Links';
-import { nodeMargins } from './constants';
-import { BaseProp, Node, TreeProps } from './models';
+import type { BaseProp, Node, TreeProps } from './models';
 import { updateNodeFromTree } from './utils';
 
 export const Tree = <TData extends BaseProp>({
@@ -26,7 +24,7 @@ export const Tree = <TData extends BaseProp>({
       ...tree,
       isExpanded: true
     }),
-    useDeepCompare([tree])
+    [...useDeepCompare([tree]), tree]
   );
 
   const toggleTreeNodesExpanded = useCallback(
@@ -58,7 +56,7 @@ export const Tree = <TData extends BaseProp>({
         toggleTreeNodesExpanded({ currentTree: formattedTree, targetNode })
       );
     },
-    [formattedTree]
+    [formattedTree, changeTree, toggleTreeNodesExpanded]
   );
 
   const getExpanded = useCallback(

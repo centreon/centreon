@@ -1,9 +1,3 @@
-import { useState } from 'react';
-
-import { find, isNil, pipe, propEq, reject } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import IconReset from '@mui/icons-material/RotateLeft';
 import {
   Button,
@@ -11,14 +5,18 @@ import {
   MenuItem,
   Paper,
   Popper,
-  PopperPlacementType,
+  type PopperPlacementType,
   useTheme
 } from '@mui/material';
 
-import { SelectEntry } from '..';
-import { IconButton } from '../../..';
-import Option from '../Option';
+import { find, isNil, pipe, propEq, reject } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
+import { IconButton } from '../../..';
+import type { SelectEntry } from '..';
+import Option from '../Option';
 import { labelReset } from './translatedLabels';
 
 const useStyles = makeStyles()((theme) => ({
@@ -91,30 +89,30 @@ const IconPopoverMultiAutocomplete = ({
       <div>
         <IconButton
           ariaLabel={title}
+          onClick={toggle}
           size="large"
           title={title}
-          onClick={toggle}
         >
           {icon}
         </IconButton>
         <Popper
           anchorEl={anchorEl}
           nonce={undefined}
+          onResize={(): undefined => undefined}
+          onResizeCapture={(): undefined => undefined}
           open={isOpen}
           placement={popperPlacement}
           style={{ zIndex: theme.zIndex.tooltip }}
-          onResize={(): undefined => undefined}
-          onResizeCapture={(): undefined => undefined}
         >
           <Paper>
             {!isNil(onReset) && (
               <Button
-                fullWidth
                 className={classes.button}
                 color="primary"
+                fullWidth
+                onClick={onReset}
                 size="small"
                 startIcon={<IconReset />}
-                onClick={onReset}
               >
                 {t(labelReset)}
               </Button>
@@ -126,8 +124,8 @@ const IconPopoverMultiAutocomplete = ({
                 <MenuItem
                   disabled={option.disabled || false}
                   key={id}
-                  value={name}
                   onClick={(): void => unSelect(option)}
+                  value={name}
                 >
                   <Option checkboxSelected={isSelected(id)}>{name}</Option>
                 </MenuItem>

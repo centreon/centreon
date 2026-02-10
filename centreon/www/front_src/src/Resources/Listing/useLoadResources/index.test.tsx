@@ -1,18 +1,17 @@
-import { RenderResult, act, render, waitFor } from '@testing-library/react';
-import axios from 'axios';
-import { Provider, createStore } from 'jotai';
-
 import {
   ListingVariant,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 
+import { act, RenderResult, render, waitFor } from '@testing-library/react';
+import axios from 'axios';
+import { createStore, Provider } from 'jotai';
+
 import Context, { ResourceContext } from '../../testUtils/Context';
 import useFilter from '../../testUtils/useFilter';
 import useLoadDetails from '../../testUtils/useLoadDetails';
 import useListing from '../useListing';
-
 import useLoadResources from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -163,32 +162,31 @@ describe(useLoadResources, () => {
     ]
   ];
 
-  it.each(testCases)(
-    'resets the page to 1 when %p is changed and current filter is applied',
-    async (_, setter, numberOfCalls) => {
-      renderLoadResources();
+  it.each(
+    testCases
+  )('resets the page to 1 when %p is changed and current filter is applied', async (_, setter, numberOfCalls) => {
+    renderLoadResources();
 
-      await waitFor(() => {
-        expect(mockedAxios.get).toHaveBeenCalledTimes(numberOfCalls as number);
-      });
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalledTimes(numberOfCalls as number);
+    });
 
-      act(() => {
-        context.setPage?.(2);
-      });
+    act(() => {
+      context.setPage?.(2);
+    });
 
-      await waitFor(() => {
-        expect(mockedAxios.get).toHaveBeenCalled();
-      });
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalled();
+    });
 
-      act(() => {
-        (setter as () => void)();
-        context.applyCurrentFilter?.();
-      });
+    act(() => {
+      (setter as () => void)();
+      context.applyCurrentFilter?.();
+    });
 
-      await waitFor(() => {
-        expect(context.page).toEqual(1);
-        expect(mockedAxios.get).toHaveBeenCalled();
-      });
-    }
-  );
+    await waitFor(() => {
+      expect(context.page).toEqual(1);
+      expect(mockedAxios.get).toHaveBeenCalled();
+    });
+  });
 });

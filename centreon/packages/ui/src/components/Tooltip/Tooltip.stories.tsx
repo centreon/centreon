@@ -1,6 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
-
 import { Info as InfoIcon } from '@mui/icons-material';
+
+import type { Meta, StoryObj } from '@storybook/react';
 
 import { Tooltip } from './Tooltip';
 

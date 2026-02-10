@@ -1,13 +1,12 @@
-import { useSetAtom } from 'jotai';
-
 import { Chip } from '@mui/material';
 
-import { SelectEntry } from '../../../..';
+import { useSetAtom } from 'jotai';
+
+import type { SelectEntry } from '../../../..';
 import { List } from '../../../List';
 import { updateContactRoleDerivedAtom } from '../atoms';
 import RoleSelectField from '../common/RoleSelectField';
-import { AccessRight, Labels } from '../models';
-
+import type { AccessRight, Labels } from '../models';
 import { useListStyles } from './List.styles';
 import RemoveAccessRight from './RemoveAccessRight';
 import StateChip from './StateChip';
@@ -56,10 +55,10 @@ const Item = ({
           {state && <StateChip {...state} />}
           <RoleSelectField
             disabled={isRemoved}
+            onChange={changeRole}
             roles={roles}
             testId={`role-${name}`}
             value={role}
-            onChange={changeRole}
           />
           <RemoveAccessRight index={index} isRemoved={isRemoved} name={name} />
         </>

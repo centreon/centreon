@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { getData, useRequest } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { gte, isNil, not } from 'ramda';
-
-import { getData, useRequest } from '@centreon/ui';
+import { useEffect, useState } from 'react';
 
 import initPendo from './initPendo';
 import type { CeipData } from './models';

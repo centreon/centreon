@@ -1,12 +1,13 @@
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
 import {
   IconButton,
   Method,
   useMutationQuery,
   useSnackbar
 } from '@centreon/ui';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import { memo, useRef, useState } from 'react';
-import { useTransition } from 'react';
+
+import { memo, useRef, useState, useTransition } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -56,9 +57,9 @@ const FavoriteAction = ({
   const onError = () => {
     const previousColor = isFavorite ? 'success' : 'default';
     const previousTitle = getLabel({
+      asFavorite: isFavorite,
       setLabel: labelAddToFavorites,
-      unsetLabel: labelRemoveFromFavorites,
-      asFavorite: isFavorite
+      unsetLabel: labelRemoveFromFavorites
     });
 
     setColor(previousColor);
@@ -66,11 +67,11 @@ const FavoriteAction = ({
   };
 
   const { mutateAsync, isMutating } = useMutationQuery({
+    fetchHeaders: { 'Content-Type': 'application/json' },
     getEndpoint,
     method: isFavorite ? Method.DELETE : Method.POST,
-    onSuccess,
-    fetchHeaders: { 'Content-Type': 'application/json' },
-    onError
+    onError,
+    onSuccess
   });
 
   const getLabel = ({ setLabel, unsetLabel, asFavorite }: GetLabel) => {
@@ -84,18 +85,18 @@ const FavoriteAction = ({
     const expectedColor = isFavorite ? 'default' : 'success';
 
     const expectedTitle = getLabel({
+      asFavorite: isFavorite,
       setLabel: labelRemoveFromFavorites,
-      unsetLabel: labelAddToFavorites,
-      asFavorite: isFavorite
+      unsetLabel: labelAddToFavorites
     });
     setTitle(expectedTitle);
 
     setColor(expectedColor);
 
     labelSuccess.current = getLabel({
+      asFavorite: isFavorite,
       setLabel: labelDashboardAddedToFavorites,
-      unsetLabel: labelDashboardRemovedFromFavorites,
-      asFavorite: isFavorite
+      unsetLabel: labelDashboardRemovedFromFavorites
     });
 
     startTransition(() => {
@@ -110,21 +111,21 @@ const FavoriteAction = ({
   };
 
   const defaultTitle = getLabel({
+    asFavorite: isFavorite,
     setLabel: labelAddToFavorites,
-    unsetLabel: labelRemoveFromFavorites,
-    asFavorite: isFavorite
+    unsetLabel: labelRemoveFromFavorites
   });
 
   const defaultColor = isFavorite ? 'success' : 'default';
 
   return (
     <IconButton
-      title={title || defaultTitle}
-      onClick={handleFavorites}
+      ariaLabel="FavoriteIconButton"
       color={color || defaultColor}
       disabled={isFetching || isMutating}
+      onClick={handleFavorites}
       size="small"
-      ariaLabel="FavoriteIconButton"
+      title={title || defaultTitle}
     >
       <FavoriteIcon fontSize="small" />
     </IconButton>

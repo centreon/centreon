@@ -1,11 +1,11 @@
-import { equals, isEmpty, not } from 'ramda';
-
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { TableCell, TableCellBaseProps } from '@mui/material';
+import { TableCell, type TableCellBaseProps } from '@mui/material';
+
+import { equals, isEmpty, not } from 'ramda';
 
 import PopoverMenu from '../../../PopoverMenu';
 import Checkbox from '../../Checkbox';
-import { PredefinedRowSelection } from '../../models';
+import type { PredefinedRowSelection } from '../../models';
 import { labelPredefinedRowsSelectionMenu } from '../../translatedLabels';
 import PredefinedSelectionList from '../_internals/PredefinedSelectionList';
 
@@ -37,8 +37,8 @@ const SelectActionListingHeaderCell = ({
         indeterminate={
           hasRows && selectedRowCount > 0 && selectedRowCount < rowCount
         }
-        slotProps={{ input: { 'aria-label': 'Select all' } }}
         onChange={onSelectAllClick}
+        slotProps={{ input: { 'aria-label': 'Select all' } }}
       />
       {not(isEmpty(predefinedRowsSelection)) ? (
         <PopoverMenu
@@ -49,8 +49,8 @@ const SelectActionListingHeaderCell = ({
           {({ close }): JSX.Element => (
             <PredefinedSelectionList
               close={close}
-              predefinedRowsSelection={predefinedRowsSelection}
               onSelectRowsWithCondition={onSelectRowsWithCondition}
+              predefinedRowsSelection={predefinedRowsSelection}
             />
           )}
         </PopoverMenu>

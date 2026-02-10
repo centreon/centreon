@@ -1,6 +1,7 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 import { object } from 'yup';
+
 import { hasEditPermissionAtom, isEditingAtom } from '../../../atoms';
 import {
   labelMaxValue,
@@ -31,12 +32,12 @@ const initialize = ({ text = undefined, canEdit = true }: Props): void => {
               boundaries: undefined
             }
           }}
+          onSubmit={cy.stub()}
           validationSchema={object().shape({
             options: object().shape({
               boundaries: boundariesValidationSchema
             })
           })}
-          onSubmit={cy.stub()}
         >
           <Boundaries
             isInGroup

@@ -1,8 +1,8 @@
-import { Shape } from '@visx/visx';
-
 import { grey } from '@mui/material/colors';
 
-import { GuidingLines as GuidingLinesModel } from './models';
+import { Shape } from '@visx/visx';
+
+import type { GuidingLines as GuidingLinesModel } from './models';
 import useTickGraph from './useTickGraph';
 
 const GuidingLines = ({

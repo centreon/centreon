@@ -1,14 +1,13 @@
-import { useAtomValue } from 'jotai';
-import { isNil } from 'ramda';
-
 import { useTheme } from '@mui/material';
 
 import { useFetchQuery } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { isNil } from 'ramda';
+
 import { Resource } from '../../models';
 import { getWidgetEndpoint } from '../../utils';
-
 import { buildResourcesEndpoint } from './api/endpoint';
 import { StateSelection, StatusChartProps, StatusType } from './models';
 import { FormattedResponse, formatResponse } from './utils';

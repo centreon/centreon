@@ -1,7 +1,9 @@
-import { useAtomValue, useSetAtom } from 'jotai';
-
 import { buildListingEndpoint, useFetchQuery } from '@centreon/ui';
 
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+
+import { onlyFavoriteDashboardsAtom } from '../components/DashboardLibrary/DashboardListing/Actions/favoriteFilter/atoms';
 import {
   limitAtom,
   pageAtom,
@@ -10,9 +12,6 @@ import {
   sortOrderAtom,
   totalAtom
 } from '../components/DashboardLibrary/DashboardListing/atom';
-
-import { useEffect } from 'react';
-import { onlyFavoriteDashboardsAtom } from '../components/DashboardLibrary/DashboardListing/Actions/favoriteFilter/atoms';
 import { dashboardListDecoder } from './decoders';
 import { dashboardsEndpoint, dashboardsFavoriteEndpoint } from './endpoints';
 import { List } from './meta.models';

@@ -173,13 +173,10 @@ afterEach(() => {
   });
 });
 
-Given(
-  "a dashboard exists in the dashboard administrator's library",
-  () => {
-    cy.insertDashboard({ ...dashboards.default });
-    cy.visitDashboard(dashboards.default.name);
-  }
-);
+Given("a dashboard exists in the dashboard administrator's library", () => {
+  cy.insertDashboard({ ...dashboards.default });
+  cy.visitDashboard(dashboards.default.name);
+});
 
 When(
   'the dashboard administrator user selects the option to add a new widget',
@@ -235,11 +232,11 @@ When(
         cy
           .get('[class$="-status"]')
           .eq(0)
-          .then(($el) => Cypress.dom.isVisible($el)),
+          .then((el) => Cypress.dom.isVisible(el)),
       {
-        timeout: 20000,
+        errorMsg: '❌ Status element not visible within timeout',
         interval: 2000,
-        errorMsg: '❌ Status element not visible within timeout'
+        timeout: 20000
       }
     );
   }
@@ -352,17 +349,17 @@ Then(
           )
           .should('be.visible')
           .find('p')
-          .then(($paragraphs) => {
-            const found = [...$paragraphs].some(
+          .then((paragraphs) => {
+            const found = [...paragraphs].some(
               (el) => el.textContent?.trim() === 'Centreon-Server'
             );
             return found;
           }),
       {
-        interval: 2000,
-        timeout: 20000,
         errorMsg:
-          '❌ "Centreon-Server" not found as exact text in <p> tags of the 3rd cell of the first row'
+          '❌ "Centreon-Server" not found as exact text in <p> tags of the 3rd cell of the first row',
+        interval: 2000,
+        timeout: 20000
       }
     );
   }
@@ -396,17 +393,17 @@ Then(
           )
           .should('be.visible')
           .find('p')
-          .then(($paragraphs) => {
-            const found = [...$paragraphs].some(
+          .then((paragraphs) => {
+            const found = [...paragraphs].some(
               (el) => el.textContent?.trim() === 'service3'
             );
             return found;
           }),
       {
-        interval: 2000,
-        timeout: 20000,
         errorMsg:
-          '❌ "service3" not found as exact text in <p> tags of the 3rd cell of the first row'
+          '❌ "service3" not found as exact text in <p> tags of the 3rd cell of the first row',
+        interval: 2000,
+        timeout: 20000
       }
     );
   }

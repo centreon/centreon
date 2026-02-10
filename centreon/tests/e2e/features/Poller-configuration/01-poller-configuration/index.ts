@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { checkIfConfigurationIsExported } from '../../../commons';
 import {
@@ -77,11 +78,7 @@ Given('some post-generation commands are configured for each poller', () => {
 });
 
 When('I visit the export configuration page', () => {
-  cy.navigateTo({
-    page: 'Pollers',
-    rootItemNumber: 0,
-    subMenu: 'Pollers'
-  })
+  cy.visit(PAGES.configuration.pollersLegacy)
     .wait('@getTimeZone')
     .then(() => {
       cy.url().should('include', '/centreon/main.php?p=60901');
@@ -105,7 +102,7 @@ When('I select some pollers', () => {
   cy.getIframeBody()
     .find('form .list_one>td')
     .eq(1)
-    .then(($text) => cy.wrap($text.text()).as('pollerName'));
+    .then((text) => cy.wrap(text.text()).as('pollerName'));
 });
 
 When('I click on the Export configuration button', () => {
@@ -176,8 +173,8 @@ Then('the configuration is generated on selected pollers', () => {
         .get('iframe#main-content')
         .its('0.contentDocument.body')
         .find('div#console')
-        .then(($el) => {
-          return $el.find('label#progressPct:contains("100%")').length > 0;
+        .then((el) => {
+          return el.find('label#progressPct:contains("100%")').length > 0;
         });
     },
     { timeout: 10000 }

@@ -1,9 +1,8 @@
 import { faker } from '@faker-js/faker';
 
-import { SelectEntry } from '../../..';
-import { Listing } from '../../../api/models';
-
-import { AccessRightInitialValues, Labels } from './models';
+import type { SelectEntry } from '../../..';
+import type { Listing } from '../../../api/models';
+import type { AccessRightInitialValues, Labels } from './models';
 
 faker.seed(42);
 
