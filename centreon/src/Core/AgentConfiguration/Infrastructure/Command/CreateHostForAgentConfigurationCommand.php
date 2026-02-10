@@ -53,17 +53,16 @@ final readonly class CreateHostForAgentConfigurationCommand
 
     public function __invoke(
         SymfonyStyle $io,
-        #[Argument] int $pollerId,
-        #[Argument] string $hostName,
-        #[Argument] string $address,
-        #[Argument] string $templateName,
+        #[Argument(description: 'a json containing pollerId, hostName, ips, and hostTemplate')] string $jsonArg,
     ): int {
         try {
+            $data = json_decode($jsonArg, true, 512, JSON_THROW_ON_ERROR);
+
             $request = new CreateHostForAgentConfigurationRequest(
-                pollerId: $pollerId,
-                hostName: $hostName,
-                address: $address,
-                templateName: $templateName,
+                pollerId: $data['pollerId'] ?? throw new \InvalidArgumentException('pollerId is required'),
+                hostName: $data['hostName'] ?? throw new \InvalidArgumentException('hostName is required'),
+                address: $data['ips'][0] ?? throw new \InvalidArgumentException('ips is required and must contain at least one IP address'),
+                templateName: $data['hostTemplate'] ?? null,
             );
 
             $useCase = new CreateHostForAgentConfiguration(

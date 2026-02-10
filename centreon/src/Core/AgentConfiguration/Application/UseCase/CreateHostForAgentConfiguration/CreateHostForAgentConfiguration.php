@@ -193,7 +193,7 @@ final class CreateHostForAgentConfiguration
         int $agentConfigurationId,
         string $hostName,
         string $address,
-        string $templateName,
+        ?string $templateName,
         int $pollerId,
     ): int {
         $newHost = new NewHost(
@@ -204,7 +204,7 @@ final class CreateHostForAgentConfiguration
         );
         $hostId = $this->writeHostRepository->add($newHost);
 
-        $template = $this->readHostTemplateRepository->findByName($templateName);
+        $template = $templateName !== null ? $this->readHostTemplateRepository->findByName($templateName) : null;
         if ($template === null) {
             CentreonLog::create()->warning(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

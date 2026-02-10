@@ -29,7 +29,7 @@ final class CreateHostForAgentConfigurationRequest
         public readonly int $pollerId,
         public readonly string $hostName,
         public readonly string $address,
-        public readonly string $templateName,
+        public readonly ?string $templateName,
     ) {
     }
 }
