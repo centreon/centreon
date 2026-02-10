@@ -129,7 +129,7 @@ jobs:
 
           echo "📋 Installed WebDriver + Selenium JARs:"
           ls "$JMETER_DIR/lib/ext" | grep -iE "WebDriver|selenium" || echo "⚠️ None found"
-        shell: /usr/bin/bash --noprofile --norc -e -o pipefail
+        shell: bash -eo pipefail {0}
 
       - name: Display inputs
         run: |
