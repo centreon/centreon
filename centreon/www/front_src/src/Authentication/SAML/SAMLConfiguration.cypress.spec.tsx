@@ -126,8 +126,6 @@ describe('SAMLConfiguration', () => {
 
     cy.contains(labelIdentityProvider).click();
 
-    cy.findByTestId('Identity provider-header').click();
-
     cy.findByLabelText(labelRemoteLoginUrl).should(
       'have.value',
       retrievedSAMLConfiguration.remote_login_url
