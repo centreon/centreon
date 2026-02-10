@@ -66,21 +66,38 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install JMeter and Plugins
+      - name: Install JMeter
         run: |
-          # 1️⃣ Install JMeter
+          java -version
           echo "Finding latest JMeter version..."
           JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
-          echo "Latest JMeter version: $JMETER_VERSION"
-          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip
-          unzip -q jmeter.zip
-          rm jmeter.zip
 
-          # 2️⃣ Detect JMeter directory
+          echo "Latest JMeter version: $JMETER_VERSION"
+
+          echo "Downloading JMeter..."
+          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip || { echo "Download failed!"; exit 1; }
+
+          echo "Unzipping JMeter..."
+          unzip -q jmeter.zip || { echo "Unzip failed!"; exit 1; }
+
+          rm jmeter.zip
+          echo "JMeter installed successfully!"
+
+      - name: Install JMeter Plugins
+        run: |
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
+          cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
+
+          wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
+          unzip -o jpgc-dummy-0.4.zip
+          rm jpgc-dummy-0.4.zip  # Nettoyage après installation
+          echo "Plugins installed successfully!"
+
+      - name: Install JMeter WebDriver & Dummy plugins
+        run: |
           JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
           echo "Found JMeter at: $JMETER_DIR"
 
-          # 3️⃣ Install plugins
           mkdir -p jmeter-plugins
           cd jmeter-plugins
 
