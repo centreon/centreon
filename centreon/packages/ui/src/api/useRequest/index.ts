@@ -1,15 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import 'ulog';
 import axios from 'axios';
-import { pathOr, defaultTo, path, includes, or } from 'ramda';
-import anylogger from 'anylogger';
+import { defaultTo, includes, or, path, pathOr } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
 
-import useCancelTokenSource from '../useCancelTokenSource';
 import useSnackbar from '../../Snackbar/useSnackbar';
+import useCancelTokenSource from '../useCancelTokenSource';
 
-const log = anylogger('API Request');
+const log = console;
 
 export interface RequestParams<TResult> {
   decoder?: JsonDecoder.Decoder<TResult>;

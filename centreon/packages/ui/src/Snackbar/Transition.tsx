@@ -22,8 +22,7 @@ type TransitionKeys =
   | 'addEndListener'
   | TransitionHandlerKeys;
 interface TransitionProps
-  extends TransitionActions,
-    Partial<Pick<_TransitionProps, TransitionKeys>> {
+  extends TransitionActions, Partial<Pick<_TransitionProps, TransitionKeys>> {
   style?: React.CSSProperties;
 }
 

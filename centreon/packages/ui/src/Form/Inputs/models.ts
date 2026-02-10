@@ -1,9 +1,7 @@
-import { FormikValues } from 'formik';
-
-import { SvgIconProps, TypographyProps } from '@mui/material';
-
-import { SelectEntry } from '../../InputField/Select';
-import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
+import type { SvgIconProps, TypographyProps } from "@mui/material";
+import type { FormikValues } from "formik";
+import type { ConditionsSearchParameter } from "../../api/buildListingEndpoint/models";
+import type { SelectEntry } from "../../InputField/Select";
 
 export enum InputType {
   Switch = 0,
@@ -19,7 +17,7 @@ export enum InputType {
   Custom = 10,
   Checkbox = 11,
   CheckboxGroup = 12,
-  List = 13
+  List = 13,
 }
 
 interface FieldsTableGetRequiredProps {
@@ -27,7 +25,7 @@ interface FieldsTableGetRequiredProps {
   values: FormikValues;
 }
 
-export type LabelPlacement = 'bottom' | 'top' | 'end' | 'start' | undefined;
+export type LabelPlacement = "bottom" | "top" | "end" | "start" | undefined;
 
 export interface InputProps {
   additionalLabel?: string | JSX.Element;
@@ -40,15 +38,20 @@ export interface InputProps {
   };
   change?: ({ setFieldValue, value }) => void;
   checkbox?: {
-    direction?: 'horizontal' | 'vertical';
+    direction?: "horizontal" | "vertical";
     labelPlacement?: LabelPlacement;
     options?: Array<string>;
   };
   connectedAutocomplete?: {
     additionalConditionParameters: Array<ConditionsSearchParameter>;
+    decoder?;
+    disableSelectAll?: boolean;
     endpoint?: string;
     filterKey?: string;
+    getOptionLabel?: (option) => string;
     getRenderedOptionText?: (option) => string | JSX.Element;
+    limitTags?: number;
+    optionProperty?: string;
   };
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
@@ -58,7 +61,7 @@ export interface InputProps {
   fieldName: string;
   fieldsTable?: {
     additionalFieldsToMemoize?: Array<string>;
-    columns: Array<Omit<InputProps, 'group'>>;
+    columns: Array<Omit<InputProps, "group">>;
     defaultRowValue: object | string;
     deleteLabel: string;
     getRequired?: ({ values, index }: FieldsTableGetRequiredProps) => boolean;
@@ -71,7 +74,7 @@ export interface InputProps {
   grid?: {
     alignItems?: string;
     className?: string;
-    columns: Array<Omit<InputProps, 'group'>>;
+    columns: Array<Omit<InputProps, "group">>;
     gridTemplateColumns?: string;
     isColumnDirection?: boolean;
   };
@@ -106,9 +109,9 @@ export interface InputProps {
   type: InputType;
 }
 
-export type InputPropsWithoutGroup = Omit<InputProps, 'group'>;
+export type InputPropsWithoutGroup = Omit<InputProps, "group">;
 
-export type InputPropsWithoutGroupAndType = Omit<InputProps, 'group' | 'type'>;
+export type InputPropsWithoutGroupAndType = Omit<InputProps, "group" | "type">;
 
 export interface Group {
   EndIcon?: (props: SvgIconProps) => JSX.Element;

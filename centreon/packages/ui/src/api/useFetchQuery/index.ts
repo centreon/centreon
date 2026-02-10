@@ -1,20 +1,17 @@
-import { useEffect, useMemo, useRef } from 'react';
-
-import 'ulog';
 import {
   QueryKey,
   QueryObserverBaseResult,
+  UseQueryOptions,
   useQuery,
   useQueryClient,
-  UseQueryOptions
-} from '@tanstack/react-query';
-import { JsonDecoder } from 'ts.data.json';
-import anylogger from 'anylogger';
-import { has, includes, isNil, not, omit } from 'ramda';
+} from "@tanstack/react-query";
+import { has, includes, isNil, not, omit } from "ramda";
+import { useEffect, useMemo, useRef } from "react";
+import { JsonDecoder } from "ts.data.json";
 
-import { CatchErrorProps, customFetch, ResponseError } from '../customFetch';
-import useSnackbar from '../../Snackbar/useSnackbar';
-import { useDeepCompare } from '../../utils';
+import useSnackbar from "../../Snackbar/useSnackbar";
+import { useDeepCompare } from "../../utils";
+import { CatchErrorProps, customFetch, ResponseError } from "../customFetch";
 
 export interface UseFetchQueryProps<T> {
   baseEndpoint?: string;
@@ -31,24 +28,24 @@ export interface UseFetchQueryProps<T> {
     suspense?: boolean;
   } & Omit<
     UseQueryOptions<T | ResponseError, Error, T | ResponseError, QueryKey>,
-    'queryKey' | 'queryFn'
+    "queryKey" | "queryFn"
   >;
 }
 
 export type UseFetchQueryState<T> = {
   data?: T;
-  error: Omit<ResponseError, 'isError'> | null;
+  error: Omit<ResponseError, "isError"> | null;
   fetchQuery: () => Promise<T | ResponseError>;
   prefetchNextPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchPreviousPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchQuery: ({ endpointParams, queryKey }) => void;
-} & Omit<QueryObserverBaseResult, 'data' | 'error'>;
+} & Omit<QueryObserverBaseResult, "data" | "error">;
 
 export interface PrefetchEndpointParams {
   page: number;
 }
 
-const log = anylogger('API Request');
+const log = console;
 
 const useFetchQuery = <T extends object>({
   getEndpoint,
@@ -61,7 +58,7 @@ const useFetchQuery = <T extends object>({
   queryOptions,
   httpCodesBypassErrorSnackbar = [],
   baseEndpoint,
-  doNotCancelCallsOnUnmount = false
+  doNotCancelCallsOnUnmount = false,
 }: UseFetchQueryProps<T>): UseFetchQueryState<T> => {
   const dataRef = useRef<T | undefined>(undefined);
 
@@ -76,10 +73,10 @@ const useFetchQuery = <T extends object>({
         defaultFailureMessage,
         endpoint: getEndpoint(),
         headers: new Headers(fetchHeaders),
-        signal
+        signal,
       }),
     queryKey: getQueryKey(),
-    ...queryOptions
+    ...queryOptions,
   });
 
   const queryClient = useQueryClient();
@@ -90,7 +87,7 @@ const useFetchQuery = <T extends object>({
       log.error(data.message);
       const hasACorrespondingHttpCode = includes(
         data?.statusCode || 0,
-        httpCodesBypassErrorSnackbar
+        httpCodesBypassErrorSnackbar,
       );
 
       if (!hasACorrespondingHttpCode) {
@@ -109,9 +106,9 @@ const useFetchQuery = <T extends object>({
           defaultFailureMessage,
           endpoint: getEndpoint(endpointParams),
           headers: new Headers(fetchHeaders),
-          signal
+          signal,
         }),
-      queryKey
+      queryKey,
     });
   };
 
@@ -124,7 +121,7 @@ const useFetchQuery = <T extends object>({
 
     return prefetchQuery({
       endpointParams: { page: nextPage },
-      queryKey: getPrefetchQueryKey(nextPage)
+      queryKey: getPrefetchQueryKey(nextPage),
     });
   };
 
@@ -137,7 +134,7 @@ const useFetchQuery = <T extends object>({
 
     return prefetchQuery({
       endpointParams: { page: previousPage },
-      queryKey: getPrefetchQueryKey(previousPage)
+      queryKey: getPrefetchQueryKey(previousPage),
     });
   };
 
@@ -151,16 +148,16 @@ const useFetchQuery = <T extends object>({
           defaultFailureMessage,
           endpoint: getEndpoint(),
           headers: new Headers(fetchHeaders),
-          signal
+          signal,
         }),
-      queryKey: getQueryKey()
+      queryKey: getQueryKey(),
     });
   };
 
   const data = useMemo(
     () =>
-      not(has('isError', queryData.data)) ? (queryData.data as T) : undefined,
-    [queryData.data]
+      not(has("isError", queryData.data)) ? (queryData.data as T) : undefined,
+    [queryData.data],
   );
 
   if (!isNil(data)) {
@@ -183,17 +180,17 @@ const useFetchQuery = <T extends object>({
     () => {
       manageError();
     },
-    useDeepCompare([queryData.data])
+    useDeepCompare([queryData.data]),
   );
 
   return {
-    ...omit(['data', 'error'], queryData),
+    ...omit(["data", "error"], queryData),
     data: dataRef.current,
-    error: errorData?.isError ? omit(['isError'], errorData) : null,
+    error: errorData?.isError ? omit(["isError"], errorData) : null,
     fetchQuery,
     prefetchNextPage,
     prefetchPreviousPage,
-    prefetchQuery
+    prefetchQuery,
   };
 };
 

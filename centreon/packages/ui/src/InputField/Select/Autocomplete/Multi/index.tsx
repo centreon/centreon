@@ -23,7 +23,8 @@ type DisableClearable = boolean;
 type FreeSolo = boolean;
 
 export interface Props
-  extends Omit<AutocompleteProps, 'renderTags' | 'renderOption' | 'multiple'>,
+  extends
+    Omit<AutocompleteProps, 'renderTags' | 'renderOption' | 'multiple'>,
     Omit<
       UseAutocompleteProps<SelectEntry, Multiple, DisableClearable, FreeSolo>,
       'multiple'

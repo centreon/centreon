@@ -4,8 +4,10 @@ import { T, always, cond, isEmpty, isNil } from 'ramda';
 
 import TextField, { TextProps } from '../Text';
 
-export interface NumberProps
-  extends Omit<TextProps, 'defaultValue' | 'onChange'> {
+export interface NumberProps extends Omit<
+  TextProps,
+  'defaultValue' | 'onChange'
+> {
   /**
    * The initial value which will be used by the input for the first render
    */

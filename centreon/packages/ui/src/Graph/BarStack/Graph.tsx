@@ -15,16 +15,15 @@ import { useGraphStyles } from './BarStack.styles';
 import { BarStackProps } from './models';
 import { useGraphAndLegend } from './useGraphAndLegend';
 
-interface Props
-  extends Pick<
-    BarStackProps,
-    | 'data'
-    | 'displayValues'
-    | 'onSingleBarClick'
-    | 'unit'
-    | 'TooltipContent'
-    | 'tooltipProps'
-  > {
+interface Props extends Pick<
+  BarStackProps,
+  | 'data'
+  | 'displayValues'
+  | 'onSingleBarClick'
+  | 'unit'
+  | 'TooltipContent'
+  | 'tooltipProps'
+> {
   colorScale;
   height: number;
   isVerticalBar: boolean;

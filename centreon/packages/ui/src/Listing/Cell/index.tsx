@@ -124,7 +124,8 @@ const useStyles = makeStyles<StylesProps>()(
 );
 
 interface Props
-  extends Pick<
+  extends
+    Pick<
       DataCellProps,
       'isRowHovered' | 'row' | 'rowColorConditions' | 'disableRowCondition'
     >,
