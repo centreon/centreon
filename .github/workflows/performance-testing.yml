@@ -68,8 +68,18 @@ jobs:
 
       - name: Install JMeter WebDriver Plugin
         run: |
-          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
-          cd $JMETER_DIR || exit 1
+          echo "Searching for JMeter directory..."
+          find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" || true
+
+          JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
+
+          if [ -z "$JMETER_DIR" ]; then
+            echo "❌ JMeter directory not found"
+            exit 1
+          fi
+
+          echo "Found JMeter at: $JMETER_DIR"
+          cd "$JMETER_DIR" || exit 1
 
           # Plugin manager
           wget -q https://jmeter-plugins.org/get/
