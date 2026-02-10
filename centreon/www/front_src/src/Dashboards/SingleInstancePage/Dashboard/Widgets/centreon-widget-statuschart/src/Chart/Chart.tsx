@@ -53,7 +53,7 @@ const Chart = ({
     refreshCount,
     refreshIntervalToUse,
     resources,
-    stateList
+    stateList,
     resourceType,
     widgetPrefixQuery
   });
