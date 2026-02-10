@@ -95,34 +95,34 @@ jobs:
 
       - name: Install JMeter WebDriver & Dummy plugins
         run: |
-         JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
+          # Detect JMeter directory
+          JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
           echo "Found JMeter at: $JMETER_DIR"
 
-          mkdir -p jmeter-plugins
-          cd jmeter-plugins
+          # Ensure lib/ext exists
+          mkdir -p "$JMETER_DIR/lib/ext"
+
+          # Create temp folder for plugins
+          TMP=$(mktemp -d)
+          cd "$TMP" || exit 1
 
           # WebDriver plugin
           wget -q https://jmeter-plugins.org/files/packages/jpgc-webdriver-3.4.zip
-          unzip -q jpgc-webdriver-3.4.zip
-          shopt -s nullglob
-          for jar in lib/ext/*.jar; do
-              cp "$jar" "$JMETER_DIR/lib/ext/"
-          done
-          shopt -u nullglob
-          rm -rf *
+          unzip -q jpgc-webdriver-3.4.zip -d webdriver
+          if [ -d webdriver/lib/ext ]; then
+              cp webdriver/lib/ext/*.jar "$JMETER_DIR/lib/ext/" || true
+          fi
 
           # Dummy plugin
           wget -q https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
-          unzip -q jpgc-dummy-0.4.zip
-          shopt -s nullglob
-          for jar in lib/ext/*.jar; do
-              cp "$jar" "$JMETER_DIR/lib/ext/"
-          done
-          shopt -u nullglob
-          rm -rf *
+          unzip -q jpgc-dummy-0.4.zip -d dummy
+          if [ -d dummy/lib/ext ]; then
+              cp dummy/lib/ext/*.jar "$JMETER_DIR/lib/ext/" || true
+          fi
 
-          cd ..
-          rm -rf jmeter-plugins
+          # Cleanup
+          cd "$GITHUB_WORKSPACE"
+          rm -rf "$TMP"
 
           echo "Installed plugins:"
           ls "$JMETER_DIR/lib/ext" | grep -E "WebDriver|Dummy" || true
