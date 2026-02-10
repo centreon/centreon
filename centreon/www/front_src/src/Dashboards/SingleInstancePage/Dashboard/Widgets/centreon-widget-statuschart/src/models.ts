@@ -12,10 +12,10 @@ export interface Data {
 }
 
 export enum StateSelection {
-  UNHANDLED="unhandled_problems",
-  ACKNOWLEDGED="acknowledged",
-  DOWN="in_downtime",
-  FLAPPING="in_flapping"
+  UNHANDLED = 'unhandled_problems',
+  ACKNOWLEDGED = 'acknowledged',
+  DOWN = 'in_downtime',
+  FLAPPING = 'in_flapping'
 }
 
 export interface PanelOptions {

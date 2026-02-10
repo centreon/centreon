@@ -1,6 +1,6 @@
-import { equals, flatten, isEmpty } from 'ramda';
-
 import { buildListingEndpoint } from '@centreon/ui';
+
+import { equals, flatten, isEmpty } from 'ramda';
 
 import { Resource } from '../../../models';
 import { StateSelection } from '../models';
@@ -46,15 +46,18 @@ export const buildResourcesEndpoint = ({
     }
   );
 
-  const stateQueryParam =  stateList && !isEmpty(stateList) ? [{ name: 'states', value: stateList }] : [];
+  const stateQueryParam =
+    stateList && !isEmpty(stateList)
+      ? [{ name: 'states', value: stateList }]
+      : [];
 
   return buildListingEndpoint({
     baseEndpoint,
+    customQueryParameters: stateQueryParam,
     parameters: {
       search: {
         conditions: flatten(searchConditions)
-      },
-    },
-    customQueryParameters: stateQueryParam
+      }
+    }
   });
 };

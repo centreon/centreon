@@ -48,8 +48,8 @@ const useLoadResources = ({
     dashboardId,
     defaultEndpoint: buildResourcesEndpoint({
       resources,
-      type: resourceType,
-      stateList
+      stateList,
+      type: resourceType
     }),
     extraQueryParameters: { resource_type: resourceType as string },
     isOnPublicPage,

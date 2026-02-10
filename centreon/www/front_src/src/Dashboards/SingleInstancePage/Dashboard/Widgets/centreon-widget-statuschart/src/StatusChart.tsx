@@ -68,7 +68,6 @@ const StatusChart = ({
 
         return (
           <Chart
-            stateList={stateList}
             dashboardId={dashboardId}
             displayLegend={displayLegend}
             displayType={displayType}
@@ -84,6 +83,7 @@ const StatusChart = ({
             resources={resources}
             resourceType={resourceType}
             resourceTypes={resourceTypes}
+            stateList={stateList}
             title={isOfTypeHost ? labelHosts : labelServices}
             unit={unit}
             widgetPrefixQuery={widgetPrefixQuery}

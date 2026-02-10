@@ -4,9 +4,9 @@ import { Tooltip } from '@centreon/ui/components';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
+import { ReactElement } from 'react';
 import { Link } from 'react-router';
 
-import { ReactElement } from 'react';
 import { Resource } from '../../../models';
 import TooltipContent from '../Tooltip/Tooltip';
 import { FormattedResponse, getValueByUnit } from '../utils';
