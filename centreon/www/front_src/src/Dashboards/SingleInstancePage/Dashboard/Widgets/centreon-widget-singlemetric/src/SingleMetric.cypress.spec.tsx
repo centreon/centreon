@@ -366,7 +366,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
@@ -487,7 +487,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
@@ -597,7 +597,7 @@ describe('Single metric Widget', () => {
         }
       });
 
-      cy.contains('332.06 KB').should('be.visible');
+      cy.contains('332.06 KiB').should('be.visible');
     });
 
     it('display the metric value as raw', () => {
