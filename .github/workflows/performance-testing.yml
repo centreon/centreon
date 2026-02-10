@@ -138,6 +138,17 @@ jobs:
           ls "$JMETER_DIR/lib/ext" | grep -iE "WebDriver|selenium" || echo "⚠️ None found"
         shell: bash -eo pipefail {0}
 
+      - name: Install ChromeDriver locally
+        run: |
+            mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver
+            cd $GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver
+            # Télécharger la version Linux correspondante
+            wget -q https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+            unzip chromedriver_linux64.zip
+            rm chromedriver_linux64.zip
+            chmod +x chromedriver
+            echo "ChromeDriver installed at $(pwd)/chromedriver"
+
       - name: Display inputs
         run: |
           echo "Test jmeter_domain value is: ${{ github.event.inputs.jmeter_domain }}"
@@ -193,28 +204,35 @@ jobs:
 
       - name: Run JMX Scripts
         run: |
-          JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
-          cd $JMETER_BIN
+            JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
+            cd $JMETER_BIN
 
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report
+            # Création des dossiers
+            mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
+            mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs
+            mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report
 
-          JMX_FILE=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/${{ github.event.inputs.jmeter_test_file }}
+            JMX_FILE=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/${{ github.event.inputs.jmeter_test_file }}
 
-          if [ ! -f "$JMX_FILE" ]; then
-            echo "❌ Selected JMX file does not exist: $JMX_FILE"
-            exit 1
-          fi
+            if [ ! -f "$JMX_FILE" ]; then
+              echo "❌ Selected JMX file does not exist: $JMX_FILE"
+              exit 1
+            fi
 
-          ./jmeter -n -t "$JMX_FILE" \
-            -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
-            -Jchrome_driver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver.exe" \
-            -l "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
-            -j "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/jmeter_$(basename "$JMX_FILE" .jmx).log" \
-            -LDEBUG
+            RESULTS_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl"
+            LOG_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs/jmeter_$(basename "$JMX_FILE" .jmx).log"
+            HTML_REPORT_DIR="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
 
-          ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
-            -o "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
+            # Exécution du test JMeter
+            ./jmeter -n -t "$JMX_FILE" \
+              -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
+              -Jchrome_driver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
+              -l "$RESULTS_FILE" \
+              -j "$LOG_FILE" \
+              -LDEBUG
+
+            # Génération du rapport HTML
+            ./jmeter -g "$RESULTS_FILE" -o "$HTML_REPORT_DIR"
 
       - name: Upload JMeter results
         if: success()
@@ -229,6 +247,13 @@ jobs:
         with:
           name: jmeter-html-reports
           path: centreon/tests/performance/jmeterFolder/jmeter_html_report
+
+      - name: Upload JMeter logs
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: jmeter-logs
+          path: centreon/tests/performance/jmeterFolder/jmeter_logs/*
 
       - name: Display HTML Report in GitHub Summary
         if: success()
