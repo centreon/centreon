@@ -85,9 +85,7 @@ jobs:
 
       - name: Install JMeter WebDriver Plugin
         run: |
-          echo "Searching for JMeter directory..."
-          find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" || true
-
+          echo "Using detected JMeter directory..."
           JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
 
           if [ -z "$JMETER_DIR" ]; then
@@ -98,12 +96,17 @@ jobs:
           echo "Found JMeter at: $JMETER_DIR"
           cd "$JMETER_DIR" || exit 1
 
-          # Plugin manager
-          wget -q https://jmeter-plugins.org/get/
-          mv get/PluginsManager.jar lib/ext/
+          echo "Downloading JMeter Plugins Manager..."
+          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar -O PluginsManager.jar
 
-          # WebDriver
+          echo "Installing Plugins Manager..."
+          mv PluginsManager.jar lib/ext/
+
+          echo "Installing WebDriver plugin..."
           java -jar lib/ext/PluginsManager.jar install webdriver
+
+          echo "Installed plugins:"
+          ls lib/ext | grep -i webdriver || true
 
       - name: Install JMeter Plugins
         run: |
