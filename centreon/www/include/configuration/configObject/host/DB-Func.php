@@ -2968,6 +2968,8 @@ function callHostApi(string $url, string $httpMethod, array $payload): int|null
  */
 function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): array
 {
+    global $pearDB;
+
     $payload = [
         'name' => $formData['host_name'],
         'alias' => $formData['host_alias'] ?: null,
@@ -3019,6 +3021,22 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
             ? (int) $formData['command_command_id2']
             : null,
     ];
+
+    if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                SELECT
+                    `host_snmp_community`
+                FROM
+                    `host`
+                WHERE
+                    `host_id` = :host_id
+                SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['host_id' => $formData['host_id']]);
+        $previousCommunity = $statement->fetchColumn();
+        $payload['snmp_community'] = $previousCommunity;
+    }
 
     if ($isCloudPlatform === false) {
         $payloadOnPrem = [
@@ -3083,6 +3101,8 @@ function getPayloadForHostTemplate(bool $isCloudPlatform, array $formData): arra
  */
 function getPayloadForHost(bool $isCloudPlatform, array $formData): array
 {
+    global $pearDB;
+
     $payload = [
         'name' => $formData['host_name'],
         'address' => $formData['host_address'],
@@ -3139,6 +3159,22 @@ function getPayloadForHost(bool $isCloudPlatform, array $formData): array
             ? (int) $formData['command_command_id2']
             : null,
     ];
+
+    if ($payload['snmp_community'] === PASSWORD_REPLACEMENT_VALUE) {
+        $statement = $pearDB->prepareQuery(
+            <<<'SQL'
+                SELECT
+                    `host_snmp_community`
+                FROM
+                    `host`
+                WHERE
+                    `host_id` = :host_id
+                SQL
+        );
+        $pearDB->executePreparedQuery($statement, ['host_id' => $formData['host_id']]);
+        $previousCommunity = $statement->fetchColumn();
+        $payload['snmp_community'] = $previousCommunity;
+    }
 
     if ($isCloudPlatform === false) {
         $payloadOnPrem = [
