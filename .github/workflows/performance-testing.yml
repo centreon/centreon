@@ -95,7 +95,7 @@ jobs:
 
       - name: Install JMeter WebDriver & Dummy plugins
         run: |
-          JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
+         JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
           echo "Found JMeter at: $JMETER_DIR"
 
           mkdir -p jmeter-plugins
@@ -104,13 +104,21 @@ jobs:
           # WebDriver plugin
           wget -q https://jmeter-plugins.org/files/packages/jpgc-webdriver-3.4.zip
           unzip -q jpgc-webdriver-3.4.zip
-          cp lib/ext/*.jar "$JMETER_DIR/lib/ext/"
+          shopt -s nullglob
+          for jar in lib/ext/*.jar; do
+              cp "$jar" "$JMETER_DIR/lib/ext/"
+          done
+          shopt -u nullglob
           rm -rf *
 
           # Dummy plugin
           wget -q https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
           unzip -q jpgc-dummy-0.4.zip
-          cp lib/ext/*.jar "$JMETER_DIR/lib/ext/"
+          shopt -s nullglob
+          for jar in lib/ext/*.jar; do
+              cp "$jar" "$JMETER_DIR/lib/ext/"
+          done
+          shopt -u nullglob
           rm -rf *
 
           cd ..
