@@ -111,6 +111,9 @@ jobs:
           unzip -q "jpgc-webdriver-$WEB_DRIVER_VERSION.zip" -d webdriver
           cp webdriver/lib/ext/*.jar "$JMETER_DIR/lib/ext/"
 
+          # Guava (required by WebDriver plugin)
+          wget -q "https://repo1.maven.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre.jar" -O "$JMETER_DIR/lib/guava-31.1-jre.jar"
+
           # Download Selenium dependencies
           declare -A SELENIUM_JARS=(
             ["selenium-api-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.13.0/selenium-api-4.13.0.jar"
