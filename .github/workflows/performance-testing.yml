@@ -119,6 +119,8 @@ jobs:
             ["selenium-remote-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-driver/4.13.0/selenium-remote-driver-4.13.0.jar"
             ["selenium-support-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-support/4.13.0/selenium-support-4.13.0.jar"
             ["selenium-manager-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-manager/4.13.0/selenium-manager-4.13.0.jar"
+            ["selenium-edge-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-edge-driver/4.13.0/selenium-edge-driver-4.13.0.jar"
+            ["selenium-firefox-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-firefox-driver/4.13.0/selenium-firefox-driver-4.13.0.jar"
           )
 
           for jar in "${!SELENIUM_JARS[@]}"; do
