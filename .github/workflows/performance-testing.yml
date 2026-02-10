@@ -102,22 +102,17 @@ jobs:
           cd jmeter-plugins
 
           # WebDriver plugin
-          mkdir -p webdriver
-          cd webdriver
           wget -q https://jmeter-plugins.org/files/packages/jpgc-webdriver-3.4.zip
-          unzip -o jpgc-webdriver-3.4.zip
-          find . -name "*.jar" -exec cp {} "$JMETER_DIR/lib/ext/" \;
-          cd ..
+          unzip -q jpgc-webdriver-3.4.zip
+          cp lib/ext/*.jar "$JMETER_DIR/lib/ext/"
+          rm -rf *
 
           # Dummy plugin
-          mkdir -p dummy
-          cd dummy
           wget -q https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
-          unzip -o jpgc-dummy-0.4.zip
-          find . -name "*.jar" -exec cp {} "$JMETER_DIR/lib/ext/" \;
-          cd ..
+          unzip -q jpgc-dummy-0.4.zip
+          cp lib/ext/*.jar "$JMETER_DIR/lib/ext/"
+          rm -rf *
 
-          # Nettoyage final
           cd ..
           rm -rf jmeter-plugins
 
