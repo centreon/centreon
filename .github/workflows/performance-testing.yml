@@ -97,35 +97,49 @@ jobs:
         run: |
           # Detect JMeter directory
           JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
-          echo "Found JMeter at: $JMETER_DIR"
+          echo "🔍 Found JMeter at: $JMETER_DIR"
 
           # Ensure lib/ext exists
           mkdir -p "$JMETER_DIR/lib/ext"
+          echo "📂 Ensured $JMETER_DIR/lib/ext exists"
 
           # Create temp folder for plugins
           TMP=$(mktemp -d)
-          cd "$TMP" || exit 1
+          echo "📂 Created temp folder: $TMP"
+          cd "$TMP" || { echo "❌ Failed to cd into $TMP"; exit 1; }
 
           # WebDriver plugin
-          wget -q https://jmeter-plugins.org/files/packages/jpgc-webdriver-3.4.zip
-          unzip -q jpgc-webdriver-3.4.zip -d webdriver
-          if [ -d webdriver/lib/ext ]; then
-              cp webdriver/lib/ext/*.jar "$JMETER_DIR/lib/ext/" || true
-          fi
+          echo "⬇️ Downloading WebDriver plugin..."
+          wget -q https://jmeter-plugins.org/files/packages/jpgc-webdriver-3.4.zip || { echo "❌ Download failed"; exit 1; }
 
-          # Dummy plugin
-          wget -q https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
-          unzip -q jpgc-dummy-0.4.zip -d dummy
-          if [ -d dummy/lib/ext ]; then
-              cp dummy/lib/ext/*.jar "$JMETER_DIR/lib/ext/" || true
+          echo "📦 Unzipping WebDriver plugin..."
+          unzip -q jpgc-webdriver-3.4.zip -d webdriver || { echo "❌ Unzip failed"; exit 1; }
+
+          # Copy jars
+          echo "📤 Copying JARs to $JMETER_DIR/lib/ext..."
+          shopt -s nullglob
+          jar_count=0
+          for jar in webdriver/*.jar; do
+              echo "  Copying $jar"
+              cp "$jar" "$JMETER_DIR/lib/ext/" || { echo "❌ Failed to copy $jar"; exit 1; }
+              jar_count=$((jar_count+1))
+          done
+          shopt -u nullglob
+
+          if [ $jar_count -eq 0 ]; then
+              echo "⚠️ No JAR files found to copy!"
+          else
+              echo "✅ $jar_count JAR(s) copied successfully"
           fi
 
           # Cleanup
           cd "$GITHUB_WORKSPACE"
           rm -rf "$TMP"
+          echo "🧹 Cleaned up temp folder"
 
-          echo "Installed plugins:"
-          ls "$JMETER_DIR/lib/ext" | grep -E "WebDriver|Dummy" || true
+          # List installed plugins
+          echo "📋 Installed WebDriver plugins:"
+          ls "$JMETER_DIR/lib/ext" | grep -i webdriver || echo "⚠️ No WebDriver plugin found in lib/ext"
 
       - name: Install Required Tools
         run: |
