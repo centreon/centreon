@@ -277,7 +277,7 @@ export const inputs: Array<InputProps> = [
     fieldName: 'requestedAuthnContext',
     group: labelIdentityProvider,
     label: labelRequestedAuthnContext,
-    required: true,
+    required: false,
     type: InputType.Custom
   },
   {
