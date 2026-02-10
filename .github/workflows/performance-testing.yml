@@ -93,34 +93,25 @@ jobs:
           rm jpgc-dummy-0.4.zip  # Nettoyage après installation
           echo "Plugins installed successfully!"
 
-      - name: Install JMeter WebDriver + Selenium dependencies
+      - name: Setup JMeter WebDriver & Selenium
         run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip wget curl
+
           JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
           echo "🔍 Found JMeter at: $JMETER_DIR"
-
           mkdir -p "$JMETER_DIR/lib/ext"
-          echo "📂 Ensured $JMETER_DIR/lib/ext exists"
 
-          # Créer un dossier temporaire
           TMP=$(mktemp -d)
-          cd "$TMP" || { echo "❌ Failed to cd into $TMP"; exit 1; }
+          cd "$TMP" || exit 1
 
-          # --- Télécharger WebDriver plugin JMeter ---
+          # Download WebDriver plugin
           WEB_DRIVER_VERSION="4.13.0.2"
-          WEB_DRIVER_ZIP="jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
-          echo "⬇️ Downloading WebDriver plugin $WEB_DRIVER_VERSION..."
-          wget -q "https://jmeter-plugins.org/files/packages/$WEB_DRIVER_ZIP" || { echo "❌ Download failed"; exit 1; }
-          unzip -q "$WEB_DRIVER_ZIP" -d webdriver || { echo "❌ Unzip failed"; exit 1; }
+          wget -q "https://jmeter-plugins.org/files/packages/jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
+          unzip -q "jpgc-webdriver-$WEB_DRIVER_VERSION.zip" -d webdriver
+          cp webdriver/lib/ext/*.jar "$JMETER_DIR/lib/ext/"
 
-          # Copier les JAR du plugin
-          shopt -s nullglob
-          for jar in webdriver/lib/ext/*.jar; do
-              echo "📤 Copying $jar to $JMETER_DIR/lib/ext"
-              cp "$jar" "$JMETER_DIR/lib/ext/" || { echo "❌ Failed to copy $jar"; exit 1; }
-          done
-          shopt -u nullglob
-
-          # --- Télécharger les dépendances Selenium manuellement ---
+          # Download Selenium dependencies
           declare -A SELENIUM_JARS=(
             ["selenium-api-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.13.0/selenium-api-4.13.0.jar"
             ["selenium-chrome-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.13.0/selenium-chrome-driver-4.13.0.jar"
@@ -130,22 +121,15 @@ jobs:
           )
 
           for jar in "${!SELENIUM_JARS[@]}"; do
-              echo "⬇️ Downloading $jar..."
-              wget -q "${SELENIUM_JARS[$jar]}" -O "$JMETER_DIR/lib/ext/$jar" || { echo "❌ Failed to download $jar"; exit 1; }
+            wget -q "${SELENIUM_JARS[$jar]}" -O "$JMETER_DIR/lib/ext/$jar"
           done
 
-          # Nettoyage
-          cd "$GITHUB_WORKSPACE"
+          cd $GITHUB_WORKSPACE
           rm -rf "$TMP"
-          echo "🧹 Cleaned up temporary folder"
 
-          # Vérifier
-          echo "📋 Installed WebDriver + Selenium JARs in $JMETER_DIR/lib/ext:"
-          ls "$JMETER_DIR/lib/ext" | grep -iE "WebDriver|selenium" || echo "⚠️ No WebDriver / Selenium JARs found"
-            - name: Install Required Tools
-              run: |
-                sudo apt-get update
-                sudo apt-get install -y unzip wget curl
+          echo "📋 Installed WebDriver + Selenium JARs:"
+          ls "$JMETER_DIR/lib/ext" | grep -iE "WebDriver|selenium" || echo "⚠️ None found"
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail
 
       - name: Display inputs
         run: |
