@@ -8,7 +8,7 @@ on:
         required: true
         type: choice
         options:
-          - Centreon_API_Test Plan.jmx
+          - Centreon_API_Test_Plan.jmx
       jmeter_domain:
         description: 'Domain for JMeter tests (e.g., localhost)'
         required: true
