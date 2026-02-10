@@ -115,6 +115,7 @@ jobs:
           declare -A SELENIUM_JARS=(
             ["selenium-api-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.13.0/selenium-api-4.13.0.jar"
             ["selenium-chrome-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.13.0/selenium-chrome-driver-4.13.0.jar"
+            ["selenium-chromium-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chromium-driver/4.13.0/selenium-chromium-driver-4.13.0.jar"
             ["selenium-remote-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-driver/4.13.0/selenium-remote-driver-4.13.0.jar"
             ["selenium-support-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-support/4.13.0/selenium-support-4.13.0.jar"
             ["selenium-manager-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-manager/4.13.0/selenium-manager-4.13.0.jar"
