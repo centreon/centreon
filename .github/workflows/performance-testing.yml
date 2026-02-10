@@ -99,6 +99,11 @@ jobs:
           JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
           echo "🔍 Found JMeter at: $JMETER_DIR"
 
+          if [ -z "$JMETER_DIR" ]; then
+              echo "❌ JMeter directory not found!"
+              exit 1
+          fi
+
           # Ensure lib/ext exists
           mkdir -p "$JMETER_DIR/lib/ext"
           echo "📂 Ensured $JMETER_DIR/lib/ext exists"
@@ -108,18 +113,22 @@ jobs:
           echo "📂 Created temp folder: $TMP"
           cd "$TMP" || { echo "❌ Failed to cd into $TMP"; exit 1; }
 
-          # WebDriver plugin
-          echo "⬇️ Downloading WebDriver plugin..."
-          wget -q https://jmeter-plugins.org/files/packages/jpgc-webdriver-3.4.zip || { echo "❌ Download failed"; exit 1; }
+          # --- WebDriver Plugin ---
+          WEB_DRIVER_VERSION="4.13.0.2"
+          WEB_DRIVER_ZIP="jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
+          WEB_DRIVER_URL="https://jmeter-plugins.org/files/packages/$WEB_DRIVER_ZIP"
+
+          echo "⬇️ Downloading WebDriver plugin v$WEB_DRIVER_VERSION..."
+          wget -q "$WEB_DRIVER_URL" || { echo "❌ Download failed: $WEB_DRIVER_URL"; exit 1; }
 
           echo "📦 Unzipping WebDriver plugin..."
-          unzip -q jpgc-webdriver-3.4.zip -d webdriver || { echo "❌ Unzip failed"; exit 1; }
+          unzip -q "$WEB_DRIVER_ZIP" -d webdriver || { echo "❌ Unzip failed"; exit 1; }
 
           # Copy jars
-          echo "📤 Copying JARs to $JMETER_DIR/lib/ext..."
+          echo "📤 Copying WebDriver JARs to $JMETER_DIR/lib/ext..."
           shopt -s nullglob
           jar_count=0
-          for jar in webdriver/*.jar; do
+          for jar in webdriver/lib/ext/*.jar; do
               echo "  Copying $jar"
               cp "$jar" "$JMETER_DIR/lib/ext/" || { echo "❌ Failed to copy $jar"; exit 1; }
               jar_count=$((jar_count+1))
@@ -127,9 +136,36 @@ jobs:
           shopt -u nullglob
 
           if [ $jar_count -eq 0 ]; then
-              echo "⚠️ No JAR files found to copy!"
+              echo "⚠️ No WebDriver JAR files found to copy!"
           else
-              echo "✅ $jar_count JAR(s) copied successfully"
+              echo "✅ $jar_count WebDriver JAR(s) copied successfully"
+          fi
+
+          # --- Optional Dummy Plugin ---
+          DUMMY_VERSION="0.4"
+          DUMMY_ZIP="jpgc-dummy-$DUMMY_VERSION.zip"
+          DUMMY_URL="https://jmeter-plugins.org/files/packages/$DUMMY_ZIP"
+
+          echo "⬇️ Downloading Dummy plugin v$DUMMY_VERSION..."
+          wget -q "$DUMMY_URL" || { echo "❌ Download failed: $DUMMY_URL"; exit 1; }
+
+          echo "📦 Unzipping Dummy plugin..."
+          unzip -q "$DUMMY_ZIP" -d dummy || { echo "❌ Unzip failed"; exit 1; }
+
+          echo "📤 Copying Dummy JARs to $JMETER_DIR/lib/ext..."
+          shopt -s nullglob
+          dummy_count=0
+          for jar in dummy/lib/ext/*.jar; do
+              echo "  Copying $jar"
+              cp "$jar" "$JMETER_DIR/lib/ext/" || { echo "❌ Failed to copy $jar"; exit 1; }
+              dummy_count=$((dummy_count+1))
+          done
+          shopt -u nullglob
+
+          if [ $dummy_count -eq 0 ]; then
+              echo "⚠️ No Dummy JAR files found to copy!"
+          else
+              echo "✅ $dummy_count Dummy JAR(s) copied successfully"
           fi
 
           # Cleanup
@@ -138,8 +174,9 @@ jobs:
           echo "🧹 Cleaned up temp folder"
 
           # List installed plugins
-          echo "📋 Installed WebDriver plugins:"
-          ls "$JMETER_DIR/lib/ext" | grep -i webdriver || echo "⚠️ No WebDriver plugin found in lib/ext"
+          echo "📋 Installed plugins in $JMETER_DIR/lib/ext:"
+          ls "$JMETER_DIR/lib/ext" | grep -E "WebDriver|Dummy" || echo "⚠️ No WebDriver or Dummy plugin found in lib/ext"
+        shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
 
       - name: Install Required Tools
         run: |
