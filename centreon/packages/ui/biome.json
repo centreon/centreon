@@ -1,11 +1,12 @@
 {
-  "extends": ["../js-config/biome/biome.json"],
-  "files": {
-    "includes": [
-      "**",
-      "!**/*{.,-}min.js",
-      "!**/mockServiceWorker.js",
-      "!**/*.test.tsx"
-    ]
-  }
+	"extends": ["../js-config/biome/biome.json"],
+	"files": {
+		"includes": [
+			"**",
+			"!**/*{.,-}min.js",
+			"!**/mockServiceWorker.js",
+			"!**/*.test.tsx"
+		]
+	},
+	"plugins": ["../js-config/biome/plugins/noLocalhost.grit"]
 }
