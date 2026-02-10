@@ -140,7 +140,7 @@ if ($row = $centralServerQuery->fetch()) {
     } catch (Throwable $ex) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-            message: 'An error occured while deploying default agent configuration, skipping.',
+            message: 'An error occurred while deploying default agent configuration, skipping.',
             exception: $ex
         );
     }
