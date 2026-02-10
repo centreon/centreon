@@ -56,8 +56,6 @@ const WrapperChart = ({
   annotationEvent,
   legend = {
     display: true,
-    mode: 'grid',
-    placement: 'bottom'
     mode: "grid",
     placement: "bottom",
   },
