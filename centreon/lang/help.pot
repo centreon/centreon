@@ -2145,7 +2145,7 @@ msgstr ""
 
 #: centreon/www/include/options/media/images/help.php
 msgid ""
-"Select a local file to upload. You can upload jpg, png, gif and gd2 files. "
+"Select a local file to upload. You can upload jpg, png, gif, gd2 and svg files. "
 "Multiple images can be uploaded together inside archives like zip, tar, "
 "tar.gz or tar.bz2."
 msgstr ""
