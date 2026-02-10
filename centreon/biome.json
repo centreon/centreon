@@ -1,12 +1,13 @@
 {
-  "extends": ["./packages/js-config/biome/biome.json"],
-  "files": {
-    "includes": [
-      "**",
-      "!**/*{.,-}min.js",
-      "!**/mockServiceWorker.js",
-      "!**/initPendo.js",
-      "!**/properties.json"
-    ]
-  }
+	"extends": ["./packages/js-config/biome/biome.json"],
+	"files": {
+		"includes": [
+			"**",
+			"!**/*{.,-}min.js",
+			"!**/mockServiceWorker.js",
+			"!**/initPendo.js",
+			"!**/properties.json"
+		]
+	},
+	"plugins": ["./packages/js-config/biome/plugins/noLocalhost.grit"]
 }
