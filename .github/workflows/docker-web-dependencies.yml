@@ -103,7 +103,7 @@ jobs:
           #   "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
 
       - name: Extract metadata (tags, labels) for Docker
-        id: meta
+        id: meta-collect
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect-${{ matrix.distrib }}
@@ -128,6 +128,7 @@ jobs:
           pull: false
           push: true
           tags: ghcr.io/${{ github.repository }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ needs.get-environment.outputs.stability == 'unstable' && needs.get-environment.outputs.major_version || github.head_ref || github.ref_name }}
+          labels: ${{ steps.meta-collect.outputs.labels }}
           # secrets: |
           #   "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
           #   "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
