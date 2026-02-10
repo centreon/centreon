@@ -85,28 +85,26 @@ jobs:
 
       - name: Install JMeter WebDriver Plugin
         run: |
-          echo "Using detected JMeter directory..."
-          JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
+            echo "Using detected JMeter directory..."
+            JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
 
-          if [ -z "$JMETER_DIR" ]; then
-            echo "❌ JMeter directory not found"
-            exit 1
-          fi
+            if [ -z "$JMETER_DIR" ]; then
+              echo "❌ JMeter directory not found"
+              exit 1
+            fi
 
-          echo "Found JMeter at: $JMETER_DIR"
-          cd "$JMETER_DIR" || exit 1
+            echo "Found JMeter at: $JMETER_DIR"
 
-          echo "Downloading JMeter Plugins Manager..."
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar -O PluginsManager.jar
+            JMETER_BIN="$JMETER_DIR/bin/jmeter"
 
-          echo "Installing Plugins Manager..."
-          mv PluginsManager.jar lib/ext/
+            echo "Downloading JMeter Plugins Manager..."
+            wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar -O "$JMETER_DIR/lib/ext/PluginsManager.jar"
 
-          echo "Installing WebDriver plugin..."
-          java -jar lib/ext/PluginsManager.jar install webdriver
+            echo "Installing WebDriver plugin via JMeter..."
+            $JMETER_BIN --tool org.jmeterplugins.repository.PluginManagerCMDInstaller install-webdriver
 
-          echo "Installed plugins:"
-          ls lib/ext | grep -i webdriver || true
+            echo "Installed plugins:"
+            ls "$JMETER_DIR/lib/ext" | grep -i webdriver || true
 
       - name: Install JMeter Plugins
         run: |
