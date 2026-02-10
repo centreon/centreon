@@ -285,7 +285,7 @@ export const inputs: Array<InputProps> = [
     group: labelIdentityProvider,
     hideInput: (values: FormikValues): boolean => !values.requestedAuthnContext,
     label: labelRequestedAuthnContextComparison,
-    required: true,
+    required: false,
     type: InputType.Custom
   },
   {
