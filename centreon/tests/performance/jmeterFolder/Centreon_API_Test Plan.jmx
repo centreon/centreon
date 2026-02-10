@@ -1,0 +1,2582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Centreon API Test Plan">
+      <boolProp name="TestPlan.functional_mode">true</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">true</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Adding filters in resource status">
+        <intProp name="ThreadGroup.num_threads">2</intProp>
+        <intProp name="ThreadGroup.ramp_time">5</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV">
+          <stringProp name="filename">${__P(users_csv_path)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">false</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login with no admin users">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/login</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{ &quot;security&quot;: { &quot;credentials&quot;: { &quot;login&quot;: &quot;${USERNAME}&quot;, &quot;password&quot;: &quot;${PASSWORD}&quot; } } }</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract no admin users Auth Token" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">MULTIPLE_USERS_TOKEN</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.security.token</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding an OK filter with all types selected">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;UP&quot;,&quot;name&quot;:&quot;Up&quot;},{&quot;id&quot;:&quot;OK&quot;,&quot;name&quot;:&quot;Ok&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;]}],&quot;name&quot;:&quot;${USERNAME} -upOkFiltre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="ok_filter">
+            <stringProp name="JSONPostProcessor.referenceNames">ok_filter</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+            <stringProp name="Scope.variable"></stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding a warning filtre" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;WARNING&quot;,&quot;name&quot;:&quot;Warning&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -Warning filtre&quot;}&#xd;
+</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="warning_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">warning_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding a critical  filtre" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;CRITICAL&quot;,&quot;name&quot;:&quot;Critical&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;]}],&quot;name&quot;:&quot;${USERNAME} -Critical filtre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="critical_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">critical_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding an unknown filtre" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;UNKNOWN&quot;,&quot;name&quot;:&quot;Unknown&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -Adding unknown filtre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="unknown_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">unknown_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding a pending  filtre" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;PENDING&quot;,&quot;name&quot;:&quot;Pending&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -Adding pending filtre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="pending_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">pending_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding all service filtres" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;PENDING&quot;,&quot;name&quot;:&quot;Pending&quot;},{&quot;id&quot;:&quot;OK&quot;,&quot;name&quot;:&quot;Ok&quot;},{&quot;id&quot;:&quot;WARNING&quot;,&quot;name&quot;:&quot;Warning&quot;},{&quot;id&quot;:&quot;CRITICAL&quot;,&quot;name&quot;:&quot;Critical&quot;},{&quot;id&quot;:&quot;PENDING&quot;,&quot;name&quot;:&quot;Pending&quot;},{&quot;id&quot;:&quot;UNKNOWN&quot;,&quot;name&quot;:&quot;Unknown&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -Adding all service filtres&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="all_services_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">all_services_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding down filtre" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;DOWN&quot;,&quot;name&quot;:&quot;Down&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -Down filtre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="down_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">down_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding unreachable filtre" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;UNREACHABLE&quot;,&quot;name&quot;:&quot;Unreachable&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -Unreachble filtre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="unreachable_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">unreachable_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding pending hosts filtre" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;PENDING&quot;,&quot;name&quot;:&quot;Pending&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -Pending_Hosts filtre&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="pending_hosts_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">pending_hosts_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding all host filters" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;criterias&quot;:[{&quot;name&quot;:&quot;names&quot;,&quot;object_type&quot;:&quot;names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;parent_names&quot;,&quot;object_type&quot;:&quot;parent_names&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;resource_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;host&quot;,&quot;name&quot;:&quot;Host&quot;},{&quot;id&quot;:&quot;service&quot;,&quot;name&quot;:&quot;Service&quot;},{&quot;id&quot;:&quot;metaservice&quot;,&quot;name&quot;:&quot;Meta-Service&quot;}]},{&quot;name&quot;:&quot;states&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;statuses&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[{&quot;id&quot;:&quot;PENDING&quot;,&quot;name&quot;:&quot;Pending&quot;},{&quot;id&quot;:&quot;UP&quot;,&quot;name&quot;:&quot;Up&quot;},{&quot;id&quot;:&quot;DOWN&quot;,&quot;name&quot;:&quot;Down&quot;},{&quot;id&quot;:&quot;UNREACHABLE&quot;,&quot;name&quot;:&quot;Unreachable&quot;}]},{&quot;name&quot;:&quot;status_types&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_groups&quot;,&quot;object_type&quot;:&quot;host_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_groups&quot;,&quot;object_type&quot;:&quot;service_groups&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;monitoring_servers&quot;,&quot;object_type&quot;:&quot;monitoring_servers&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_categories&quot;,&quot;object_type&quot;:&quot;host_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_categories&quot;,&quot;object_type&quot;:&quot;service_categories&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severities&quot;,&quot;object_type&quot;:&quot;host_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;host_severity_levels&quot;,&quot;object_type&quot;:&quot;host_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severities&quot;,&quot;object_type&quot;:&quot;service_severities&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;service_severity_levels&quot;,&quot;object_type&quot;:&quot;service_severity_levels&quot;,&quot;type&quot;:&quot;multi_select&quot;,&quot;value&quot;:[]},{&quot;name&quot;:&quot;search&quot;,&quot;object_type&quot;:null,&quot;type&quot;:&quot;text&quot;,&quot;value&quot;:&quot;&quot;},{&quot;name&quot;:&quot;sort&quot;,&quot;type&quot;:&quot;array&quot;,&quot;value&quot;:[&quot;status_severity_code&quot;,&quot;desc&quot;],&quot;object_type&quot;:null,&quot;search_data&quot;:null}],&quot;name&quot;:&quot;${USERNAME} -all host filtres&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="all_hosts_filtre" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">all_hosts_filtre</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Through Filters">
+          <intProp name="LoopController.loops">-1</intProp>
+        </LoopController>
+        <hashTree>
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Get all filters">
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">def currentUser = vars.get(&quot;USERNAME&quot;)
+
+if (vars.get(&quot;LAST_USER&quot;) == null) {
+    vars.put(&quot;LAST_USER&quot;, currentUser)
+}
+
+if (vars.get(&quot;LAST_USER&quot;) != currentUser) {
+    log.info(&quot;👤 New user detected: &quot; + currentUser + &quot; -&gt; resetting filter index&quot;)
+    vars.put(&quot;FILTER_INDEX&quot;, &quot;0&quot;)
+    vars.put(&quot;STOP_LOOP&quot;, &quot;false&quot;)
+    vars.put(&quot;LAST_USER&quot;, currentUser)
+}
+
+if (vars.get(&quot;FILTER_INDEX&quot;) == null) {
+    vars.put(&quot;FILTER_INDEX&quot;, &quot;0&quot;)
+}
+
+// Retrieve filters and IGNORE NOT_FOUND
+def filters = [
+    vars.get(&quot;ok_filter&quot;),
+    vars.get(&quot;warning_filtre&quot;),
+    vars.get(&quot;critical_filtre&quot;),
+    vars.get(&quot;unknown_filtre&quot;),
+    vars.get(&quot;pending_filtre&quot;),
+    vars.get(&quot;all_services_filtre&quot;),
+    vars.get(&quot;down_filtre&quot;),
+    vars.get(&quot;unreachable_filtre&quot;),
+    vars.get(&quot;pending_hosts_filtre&quot;),
+    vars.get(&quot;all_hosts_filtre&quot;)
+].findAll {
+    it != null &amp;&amp;
+    !it.isEmpty() &amp;&amp;
+    it != &quot;NOT_FOUND&quot;
+}
+
+def loopIndex = vars.get(&quot;FILTER_INDEX&quot;).toInteger()
+
+if (loopIndex &lt; filters.size()) {
+
+    def filterId = filters[loopIndex].trim()
+    vars.put(&quot;CURRENT_FILTER&quot;, filterId)
+
+    log.info(&quot;🔄 User: ${currentUser} | Deleting filter ${loopIndex + 1}/${filters.size()} -&gt; ID=${filterId}&quot;)
+
+    vars.put(&quot;FILTER_INDEX&quot;, (loopIndex + 1).toString())
+
+    if (loopIndex + 1 &gt;= filters.size()) {
+        vars.put(&quot;STOP_LOOP&quot;, &quot;true&quot;)
+        log.info(&quot;✅ All filters deleted for user: &quot; + currentUser)
+    }
+
+} else {
+    vars.put(&quot;STOP_LOOP&quot;, &quot;true&quot;)
+    log.info(&quot;🚫 No more filters to process for user: &quot; + currentUser)
+}
+</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223PreProcessor>
+          <hashTree/>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Delete all filters">
+            <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view/${CURRENT_FILTER}</stringProp>
+            <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">DELETE</stringProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                  <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="JSR223 PostProcessor">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">if (vars.get(&quot;STOP_LOOP&quot;) == &quot;true&quot;) {
+    log.info(&quot;End of filter list reached. Stopping thread.&quot;)
+    ctx.getThread().stop()
+}</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Top counter">
+        <intProp name="ThreadGroup.num_threads">6</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV">
+          <stringProp name="filename">${__P(users_csv_path)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">false</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login with no admin users" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/login</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{ &quot;security&quot;: { &quot;credentials&quot;: { &quot;login&quot;: &quot;${USERNAME}&quot;, &quot;password&quot;: &quot;${PASSWORD}&quot; } } }</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract no admin users Auth Token">
+            <stringProp name="JSONPostProcessor.referenceNames">MULTIPLE_USERS_TOKEN</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.security.token</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting up and ok resrouces" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;UP&quot;, &quot;OK&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting warning resrouces" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;WARNING&quot;] </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting critical resrouces" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;CRITICAL&quot;] </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting unknown resrouces" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;UNKNOWN&quot;] </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting pending resrouces" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;PENDING&quot;] </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting resrouces with all statuses" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;PENDING&quot;,&quot;OK&quot;,&quot;WARNING&quot;,&quot;CRITICAL&quot;,&quot;PENDING&quot;,&quot;UNKNOWN&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting down resrouces" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;DOWN&quot;] </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting unreachable resrouces" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;UNREACHABLE&quot;] </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Filter for UP/DOWN/PENDING/UNREACHABLE Statuses" enabled="true">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/users/filters/events-view</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;status_severity_code&quot;: &quot;desc&quot;, &quot;last_status_change&quot;: &quot;desc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$and&quot;: []}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+              <elementProp name="types" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;host&quot;, &quot;service&quot;, &quot;metaservice&quot;]</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">types</stringProp>
+              </elementProp>
+              <elementProp name="statuses" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">[&quot;PENDING&quot;,&quot;UP&quot;,&quot;DOWN&quot;,&quot;UNREACHABLE&quot;] </stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">statuses</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Bam">
+        <intProp name="ThreadGroup.num_threads">2</intProp>
+        <intProp name="ThreadGroup.ramp_time">3</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV">
+          <stringProp name="filename">${__P(users_csv_path)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">false</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler guiclass="com.googlecode.jmeter.plugins.webdriver.sampler.gui.WebDriverSamplerGui" testclass="com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler" testname="Getting PHPSESSID">
+          <stringProp name="WebDriverSampler.script">import org.openqa.selenium.By
+import org.openqa.selenium.WebElement
+import org.openqa.selenium.Cookie
+import org.openqa.selenium.support.ui.WebDriverWait
+import org.openqa.selenium.support.ui.ExpectedConditions
+import java.time.Duration
+
+
+try {
+    WDS.browser.get(&quot;http://172.16.20.138/qa-perf-platform/login&quot;)
+
+    String user = WDS.vars.get(&quot;USERNAME&quot;)
+    String password = WDS.vars.get(&quot;PASSWORD&quot;)
+
+    WebDriverWait wait = new WebDriverWait(WDS.browser, Duration.ofSeconds(10))
+
+    WebElement aliasInput = wait.until(
+        ExpectedConditions.visibilityOfElementLocated(By.cssSelector(&quot;input[aria-label=&apos;Alias&apos;]&quot;))
+    )
+    aliasInput.sendKeys(user)
+
+    WebElement passwordInput = WDS.browser.findElement(By.cssSelector(
+        &quot;input[aria-label=&apos;Mot de passe&apos;], input[aria-label=&apos;Password&apos;]&quot;
+    ))
+    passwordInput.sendKeys(password)
+
+    WDS.browser.findElement(By.xpath(&quot;//button[contains(text(),&apos;Connexion&apos;)]&quot;)).click()
+
+    Thread.sleep(2000)
+
+    for (def c : WDS.browser.manage().getCookies()) {
+        if (c.getName().equals(&quot;PHPSESSID&quot;)) {
+            WDS.vars.put(&quot;PHPSESSID&quot;, c.getValue())
+            WDS.log.info(&quot;PHPSESSID found: &quot; + c.getValue())
+        }
+    }
+
+    WDS.sampleResult.setSuccessful(true)
+
+} catch (Exception e) {
+    WDS.sampleResult.setSuccessful(false)
+    WDS.sampleResult.setResponseMessage(&quot;Script failed: &quot; + e.getMessage())
+}</stringProp>
+          <stringProp name="WebDriverSampler.parameters"></stringProp>
+          <stringProp name="WebDriverSampler.language">groovy</stringProp>
+        </com.googlecode.jmeter.plugins.webdriver.sampler.WebDriverSampler>
+        <hashTree>
+          <com.googlecode.jmeter.plugins.webdriver.config.ChromeDriverConfig guiclass="com.googlecode.jmeter.plugins.webdriver.config.gui.ChromeDriverConfigGui" testclass="com.googlecode.jmeter.plugins.webdriver.config.ChromeDriverConfig" testname="Chrome driver path">
+            <boolProp name="WebDriverConfig.acceptinsecurecerts">false</boolProp>
+            <boolProp name="WebDriverConfig.reset_per_iteration">true</boolProp>
+            <stringProp name="WebDriverConfig.driver_path">C:\Drivers\chromedriver-win64\chromedriver.exe</stringProp>
+            <boolProp name="WebDriverConfig.dev_mode">false</boolProp>
+            <boolProp name="WebDriverConfig.headless">true</boolProp>
+            <boolProp name="WebDriverConfig.maximize_browser">true</boolProp>
+            <stringProp name="ChromeDriverConfig.additional_args"></stringProp>
+            <stringProp name="ChromeDriverConfig.binary_path"></stringProp>
+            <stringProp name="WebDriverConfig.proxy_type">SYSTEM</stringProp>
+            <stringProp name="WebDriverConfig.proxy_pac_url"></stringProp>
+            <stringProp name="WebDriverConfig.http_host"></stringProp>
+            <intProp name="WebDriverConfig.http_port">8080</intProp>
+            <boolProp name="WebDriverConfig.use_http_for_all_protocols">true</boolProp>
+            <stringProp name="WebDriverConfig.https_host"></stringProp>
+            <intProp name="WebDriverConfig.https_port">8080</intProp>
+            <boolProp name="WebDriverConfig.use_ftp_proxy">true</boolProp>
+            <stringProp name="WebDriverConfig.ftp_host"></stringProp>
+            <intProp name="WebDriverConfig.ftp_port">8080</intProp>
+            <boolProp name="WebDriverConfig.use_socks_proxy">true</boolProp>
+            <stringProp name="WebDriverConfig.socks_host"></stringProp>
+            <intProp name="WebDriverConfig.socks_port">8080</intProp>
+            <stringProp name="WebDriverConfig.no_proxy">localhost</stringProp>
+            <stringProp name="WebDriverConfig.custom_capabilites"></stringProp>
+          </com.googlecode.jmeter.plugins.webdriver.config.ChromeDriverConfig>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login with no admin users">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/login</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.BROWSER_COMPATIBLE_MULTIPART">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{ &quot;security&quot;: { &quot;credentials&quot;: { &quot;login&quot;: &quot;${USERNAME}&quot;, &quot;password&quot;: &quot;${PASSWORD}&quot; } } }</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+            <collectionProp name="CookieManager.cookies"/>
+            <boolProp name="CookieManager.clearEachIteration">false</boolProp>
+            <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
+          </CookieManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract no admin users Auth Token">
+            <stringProp name="JSONPostProcessor.referenceNames">MULTIPLE_USERS_TOKEN</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.security.token</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login with  admin user">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/login</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{ &quot;security&quot;: { &quot;credentials&quot;: { &quot;login&quot;: &quot;admin&quot;, &quot;password&quot;: &quot;Centreon!2021&quot; } } }</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract  admin user Auth Token">
+            <stringProp name="JSONPostProcessor.referenceNames">ADMIN_TOKEN</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.security.token</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+            <stringProp name="Sample.scope">all</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting acl group id">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/access-groups</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Acl_group_id">
+            <stringProp name="JSONPostProcessor.referenceNames">acl_group_id</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.result[?(@.name==&apos;name-administrator-ACLGROUP&apos;)].id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1 </stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND </stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Cheking list of BVs">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/bam/configuration/business-views</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;name&quot;:&quot;asc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Getting list of BVs">
+            <stringProp name="JSONPostProcessor.referenceNames">BV_TOTAL</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.meta.total</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">BV_NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller">
+          <stringProp name="IfController.condition">${__groovy(vars.get(&quot;BV_TOTAL&quot;) as int == 0)}</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+          <boolProp name="IfController.useExpression">true</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding BV">
+            <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.path">/qa-perf-platform/api/external.php?object=centreon_business_view&amp;action=create</stringProp>
+            <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">{&quot;id&quot;:null,&quot;name&quot;:&quot;NEW BV&quot;,&quot;description&quot;:null,&quot;visible&quot;:true,&quot;aclGroups&quot;:[{&quot;id&quot;:${acl_group_id},&quot;name&quot;:&quot;name-administrator-ACLGROUP&quot;,&quot;alias&quot;:&quot;alias-administrator-ACLGROUP&quot;,&quot;changed&quot;:false,&quot;activate&quot;:true}],&quot;businessActivities&quot;:[]}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">CENTREON-AUTH-TOKEN</stringProp>
+                  <stringProp name="Header.value">${ADMIN_TOKEN}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Getting BV ID">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">import groovy.json.JsonSlurper
+
+def response = prev.getResponseDataAsString()
+def json = new JsonSlurper().parseText(response)
+
+// chercher l&apos;objet avec name == &quot;NEW BV&quot;
+def bv = json.result.find { it.name == &quot;NEW BV&quot; }
+
+if (bv) {
+    // variable JMeter locale
+    vars.put(&quot;NEW_BV_ID&quot;, bv.id.toString())
+
+    // variable globale JMeter
+    props.put(&quot;GLOBAL_NEW_BV_ID&quot;, bv.id.toString())
+
+    log.info(&quot;NEW BV ID = &quot; + bv.id)
+} else {
+    log.error(&quot;NEW BV not found in response&quot;)
+}
+</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting id of the added BV ">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/bam/configuration/business-views</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;name&quot;:&quot;asc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="JSR223 PostProcessor" enabled="true">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import groovy.json.JsonSlurper
+
+def response = prev.getResponseDataAsString()
+def json = new JsonSlurper().parseText(response)
+
+// chercher l&apos;objet avec name == &quot;NEW BV&quot;
+def bv = json.result.find { it.name == &quot;NEW BV&quot; }
+
+if (bv) {
+    // variable JMeter locale
+    vars.put(&quot;NEW_BV_ID&quot;, bv.id.toString())
+
+    // variable globale JMeter
+    props.put(&quot;GLOBAL_NEW_BV_ID&quot;, bv.id.toString())
+
+    log.info(&quot;NEW BV ID = &quot; + bv.id)
+} else {
+    log.error(&quot;NEW BV not found in response&quot;)
+}
+</stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Getting list  of BV">
+            <stringProp name="JSONPostProcessor.referenceNames">BV_TOTAL</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.meta.total</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">BV_NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding BAM">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/internal.php?object=centreon_business_activity&amp;action=create</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;id&quot;:null,&quot;name&quot;:&quot;${USERNAME} NEW BA&quot;,&quot;description&quot;:null,&quot;icon&quot;:null,&quot;bam_kpi&quot;:[],&quot;bam_contact&quot;:[],&quot;groups&quot;:[{&quot;id&quot;:${NEW_BV_ID} ,&quot;name&quot;:&quot;NEW BV&quot;,&quot;description&quot;:null,&quot;visible&quot;:true}],&quot;notification_period&quot;:{&quot;id&quot;:1,&quot;name&quot;:&quot;24x7&quot;,&quot;alias&quot;:&quot;24_Hours_A_Day,_7_Days_A_Week&quot;},&quot;notification_interval&quot;:null,&quot;notification_options&quot;:[],&quot;notifications_enabled&quot;:false,&quot;level_w&quot;:80,&quot;level_c&quot;:70,&quot;activate&quot;:true,&quot;id_reporting_period&quot;:{&quot;id&quot;:1,&quot;name&quot;:&quot;24x7&quot;,&quot;alias&quot;:&quot;24_Hours_A_Day,_7_Days_A_Week&quot;},&quot;reporting_timeperiods&quot;:[],&quot;sla_month_percent_warn&quot;:null,&quot;sla_month_percent_crit&quot;:null,&quot;sla_month_duration_warn&quot;:null,&quot;sla_month_duration_crit&quot;:null,&quot;bam_esc&quot;:[],&quot;event_handler_enabled&quot;:false,&quot;event_handler_command&quot;:null,&quot;event_handler_args&quot;:null,&quot;geo_coords&quot;:null,&quot;first_notification_delay&quot;:null,&quot;recovery_notification_delay&quot;:null,&quot;infrastructure_view&quot;:null,&quot;calculationMethod&quot;:{&quot;id&quot;:2,&quot;name&quot;:&quot;Worst status&quot;},&quot;inheritKpiDowntimeOption&quot;:{&quot;id&quot;:1,&quot;name&quot;:&quot;Inherit the planned downtime on the Business Activity&quot;},&quot;calculationMethodPercentage&quot;:false,&quot;additional_poller&quot;:[]}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">CENTREON-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Content-Type</stringProp>
+                <stringProp name="Header.value">application/json</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Cookie</stringProp>
+                <stringProp name="Header.value">PHPSESSID=${PHPSESSID}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Getting BAM ids">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/bam/configuration/business-activities</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;name&quot;:&quot;asc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Get BA ids">
+            <stringProp name="JSONPostProcessor.referenceNames">user_id</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.result[*].id</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">-1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Get user name ">
+            <stringProp name="JSONPostProcessor.referenceNames">user_name</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.result[*].name</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">-1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Adding BA ids into an array">
+            <stringProp name="scriptLanguage">groovy</stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="script">import groovy.json.JsonOutput
+
+// Nombre d&apos;IDs trouvés
+def countStr = vars.get(&quot;user_id_matchNr&quot;)  // &lt;- ici, user_id_matchNr
+if (countStr == null || countStr == &quot;0&quot;) {
+    log.warn(&quot;Aucun ID trouvé, rien à supprimer&quot;)
+    return
+}
+
+def count = countStr.toInteger()
+
+// Crée un tableau [{&quot;id&quot;:43},{&quot;id&quot;:42}] de façon sûre
+def bodyArray = []
+
+for (int i = 1; i &lt;= count; i++) {
+    def idStr = vars.get(&quot;user_id_${i}&quot;)  // &lt;- user_id_1, user_id_2...
+    if (idStr != null &amp;&amp; !idStr.isEmpty()) {
+        try {
+            bodyArray &lt;&lt; [ &quot;id&quot;: idStr.toInteger() ]
+        } catch (Exception e) {
+            log.error(&quot;Impossible de convertir user_id_${i}=&apos;$idStr&apos; en entier&quot;, e)
+        }
+    } else {
+        log.warn(&quot;user_id_${i} est null ou vide&quot;)
+    }
+}
+
+// Transforme en JSON
+def jsonBody = JsonOutput.toJson(bodyArray)
+
+// Stocke dans une variable JMeter
+vars.put(&quot;DELETE_BODY&quot;, jsonBody)
+
+log.info(&quot;Body pour DELETE: ${jsonBody}&quot;)
+</stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
+        </hashTree>
+        <ForeachController guiclass="ForeachControlPanel" testclass="ForeachController" testname="ForEach Controller">
+          <stringProp name="ForeachController.inputVal">user_id</stringProp>
+          <stringProp name="ForeachController.returnVal"></stringProp>
+          <boolProp name="ForeachController.useSeparator">true</boolProp>
+          <stringProp name="ForeachController.startIndex">CURRENT_ID</stringProp>
+          <stringProp name="ForeachController.endIndex">1</stringProp>
+        </ForeachController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Delete all added BAs">
+            <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+            <stringProp name="HTTPSampler.path">/qa-perf-platform/api/internal.php?object=centreon_business_activity&amp;action=delete</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">DELETE</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">${DELETE_BODY}</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">CENTREON-AUTH-TOKEN</stringProp>
+                  <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Cookie</stringProp>
+                  <stringProp name="Header.value">PHPSESSID=${PHPSESSID}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="JSR223 PreProcessor">
+              <stringProp name="scriptLanguage">groovy</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="script">import groovy.json.JsonOutput
+
+// Vérifie que CURRENT_ID existe
+def idStr = vars.get(&quot;CURRENT_ID&quot;)
+if (idStr == null || idStr.isEmpty()) {
+    log.error(&quot;CURRENT_ID est null ou vide !&quot;)
+    return
+}
+
+// Récupère le nom correspondant via l’index du ForEach
+def index = vars.get(&quot;user_id_index&quot;)?.toInteger() ?: 1
+def name = vars.get(&quot;user_name_${index}&quot;) ?: &quot;UNKNOWN_USER&quot;
+vars.put(&quot;CURRENT_NAME&quot;, name)
+
+// Prépare le body DELETE pour cet utilisateur
+def body = [[ &quot;id&quot;: idStr.toInteger() ]]
+vars.put(&quot;DELETE_BODY&quot;, JsonOutput.toJson(body))
+
+log.info(&quot;Utilisateur à supprimer: ${name} - Body: ${vars.get(&quot;DELETE_BODY&quot;)}&quot;)</stringProp>
+            </JSR223PreProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler">
+          <boolProp name="displayJMeterProperties">false</boolProp>
+          <boolProp name="displayJMeterVariables">true</boolProp>
+          <boolProp name="displaySystemProperties">false</boolProp>
+        </DebugSampler>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Cheking if BV exist">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/bam/configuration/business-views</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">30</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;name&quot;:&quot;asc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Getting list of BVs">
+            <stringProp name="JSONPostProcessor.referenceNames">BV_TOTAL</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.meta.total</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">BV_NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Check that the BV exist or not">
+          <stringProp name="IfController.condition">${__groovy(vars.get(&quot;BV_TOTAL&quot;) as int == 1)}</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+          <boolProp name="IfController.useExpression">true</boolProp>
+        </IfController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Delete The added BV">
+            <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+            <stringProp name="HTTPSampler.path">/qa-perf-platform/api/external.php?object=centreon_business_view&amp;action=delete</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">DELETE</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">[{&quot;id&quot;:${NEW_BV_ID}}]&#xd;
+</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">CENTREON-AUTH-TOKEN</stringProp>
+                  <stringProp name="Header.value">${ADMIN_TOKEN}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/json</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <objProp>
+            <name>saveConfig</name>
+            <value class="SampleSaveConfiguration">
+              <time>true</time>
+              <latency>true</latency>
+              <timestamp>true</timestamp>
+              <success>true</success>
+              <label>true</label>
+              <code>true</code>
+              <message>true</message>
+              <threadName>true</threadName>
+              <dataType>true</dataType>
+              <encoding>false</encoding>
+              <assertions>true</assertions>
+              <subresults>true</subresults>
+              <responseData>false</responseData>
+              <samplerData>false</samplerData>
+              <xml>false</xml>
+              <fieldNames>true</fieldNames>
+              <responseHeaders>false</responseHeaders>
+              <requestHeaders>false</requestHeaders>
+              <responseDataOnError>false</responseDataOnError>
+              <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+              <assertionsResultsToSave>0</assertionsResultsToSave>
+              <bytes>true</bytes>
+              <sentBytes>true</sentBytes>
+              <url>true</url>
+              <threadCounts>true</threadCounts>
+              <idleTime>true</idleTime>
+              <connectTime>true</connectTime>
+            </value>
+          </objProp>
+          <stringProp name="filename"></stringProp>
+        </ResultCollector>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="ITEE">
+        <intProp name="ThreadGroup.num_threads">2</intProp>
+        <intProp name="ThreadGroup.ramp_time">1</intProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">false</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">1</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
+      </ThreadGroup>
+      <hashTree>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV">
+          <stringProp name="filename">${__P(users_csv_path)}</stringProp>
+          <stringProp name="fileEncoding">UTF-8</stringProp>
+          <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
+          <boolProp name="ignoreFirstLine">true</boolProp>
+          <stringProp name="delimiter">,</stringProp>
+          <boolProp name="quotedData">false</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">shareMode.all</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Login with no admin users">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/login</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{ &quot;security&quot;: { &quot;credentials&quot;: { &quot;login&quot;: &quot;${USERNAME}&quot;, &quot;password&quot;: &quot;${PASSWORD}&quot; } } }</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract no admin users Auth Token">
+            <stringProp name="JSONPostProcessor.referenceNames">MULTIPLE_USERS_TOKEN</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.security.token</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">0</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding a dashboard ">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/dashboards</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;description&quot;:&quot;Description &quot;,&quot;name&quot;:&quot;New Dashboard ${USERNAME}&quot;,&quot;panels&quot;:[],&quot;refresh&quot;:{&quot;interval&quot;:null,&quot;type&quot;:&quot;global&quot;}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Get DAshboard ID ">
+            <stringProp name="JSONPostProcessor.referenceNames">DASHBOARD_ID </stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id </stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Dashboards">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/dashboards/${DASHBOARD_ID}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding widget to dashboard ">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/dashboards/${DASHBOARD_ID}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              </elementProp>
+              <elementProp name="panels[0][name]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> centreon-widget-clock</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][name]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][widget_type]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> /widgets/clock</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][widget_type]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][layout][x]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][layout][x]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][layout][y]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][layout][y]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][layout][width]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 6</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][layout][width]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][layout][height]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 3</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][layout][height]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][layout][min_width]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 4</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][layout][min_width]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][layout][min_height]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][layout][min_height]</stringProp>
+              </elementProp>
+              <elementProp name="panels[0][widget_settings]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> {&quot;data&quot;:{},&quot;options&quot;:{&quot;displayType&quot;:&quot;clock&quot;,&quot;showTimezone&quot;:true,&quot;showDate&quot;:true,&quot;timeFormat&quot;:&quot;12&quot;,&quot;description&quot;:{&quot;content&quot;:&quot;{\&quot;root\&quot;:{\&quot;children\&quot;:[{\&quot;children\&quot;:[],\&quot;direction\&quot;:null,\&quot;format\&quot;:\&quot;\&quot;,\&quot;indent\&quot;:0,\&quot;type\&quot;:\&quot;paragraph\&quot;,\&quot;version\&quot;:1,\&quot;textFormat\&quot;:0,\&quot;textStyle\&quot;:\&quot;\&quot;}],\&quot;direction\&quot;:null,\&quot;format\&quot;:\&quot;\&quot;,\&quot;indent\&quot;:0,\&quot;type\&quot;:\&quot;root\&quot;,\&quot;version\&quot;:1}}&quot;,&quot;enabled&quot;:true},&quot;name&quot;:&quot;New clock timer widget&quot;}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[0][widget_settings]</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              </elementProp>
+              <elementProp name="panels[1][name]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> centreon-widget-generictext</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][name]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][widget_type]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> /widgets/generictext</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][widget_type]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][layout][x]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 6</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][layout][x]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][layout][y]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][layout][y]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][layout][width]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 6</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][layout][width]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][layout][height]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 3</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][layout][height]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][layout][min_width]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 4</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][layout][min_width]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][layout][min_height]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][layout][min_height]</stringProp>
+              </elementProp>
+              <elementProp name="panels[1][widget_settings]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> {&quot;data&quot;:{},&quot;options&quot;:{&quot;description&quot;:{&quot;content&quot;:&quot;{\&quot;root\&quot;:{\&quot;children\&quot;:[{\&quot;children\&quot;:[],\&quot;direction\&quot;:null,\&quot;format\&quot;:\&quot;\&quot;,\&quot;indent\&quot;:0,\&quot;type\&quot;:\&quot;paragraph\&quot;,\&quot;version\&quot;:1,\&quot;textFormat\&quot;:0,\&quot;textStyle\&quot;:\&quot;\&quot;}],\&quot;direction\&quot;:null,\&quot;format\&quot;:\&quot;\&quot;,\&quot;indent\&quot;:0,\&quot;type\&quot;:\&quot;root\&quot;,\&quot;version\&quot;:1}}&quot;,&quot;enabled&quot;:true},&quot;name&quot;:&quot;New generic text&quot;}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[1][widget_settings]</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"></stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+              </elementProp>
+              <elementProp name="panels[2][name]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> centreon-widget-webpage</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][name]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][widget_type]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> /widgets/webpage</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][widget_type]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][layout][x]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 12</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][layout][x]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][layout][y]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 0</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][layout][y]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][layout][width]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 11</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][layout][width]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][layout][height]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 3</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][layout][height]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][layout][min_width]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 4</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][layout][min_width]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][layout][min_height]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> 2</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][layout][min_height]</stringProp>
+              </elementProp>
+              <elementProp name="panels[2][widget_settings]" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value"> {&quot;data&quot;:{},&quot;options&quot;:{&quot;url&quot;:&quot;https://docs.centreon.com/fr/&quot;,&quot;refreshInterval&quot;:&quot;default&quot;,&quot;description&quot;:{&quot;content&quot;:&quot;{\&quot;root\&quot;:{\&quot;children\&quot;:[{\&quot;children\&quot;:[],\&quot;direction\&quot;:null,\&quot;format\&quot;:\&quot;\&quot;,\&quot;indent\&quot;:0,\&quot;type\&quot;:\&quot;paragraph\&quot;,\&quot;version\&quot;:1,\&quot;textFormat\&quot;:0,\&quot;textStyle\&quot;:\&quot;\&quot;}],\&quot;direction\&quot;:null,\&quot;format\&quot;:\&quot;\&quot;,\&quot;indent\&quot;:0,\&quot;type\&quot;:\&quot;root\&quot;,\&quot;version\&quot;:1}}&quot;,&quot;enabled&quot;:true},&quot;name&quot;:&quot;New web page&quot;}}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">panels[2][widget_settings]</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Make a dashboard as a favotrite one">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/dashboards/favorites</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;dashboard_id&quot;:${DASHBOARD_ID}}&#xd;
+</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Content-Type</stringProp>
+                <stringProp name="Header.value">application/json</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Favorite Dashboards">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/dashboards/favorites</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">10</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;name&quot;:&quot;asc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$or&quot;:[{&quot;name&quot;:{&quot;$rg&quot;:&quot;&quot;}}]}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Remove dashboard from favorites list">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/dashboards/${DASHBOARD_ID}/favorites</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">&#xd;
+</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Content-Type</stringProp>
+                <stringProp name="Header.value">application/json</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Adding playlist">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/it-edition-extensions/configuration/dashboards/playlists</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;dashboards&quot;:[{&quot;id&quot;:${DASHBOARD_ID},&quot;order&quot;:1}],&quot;description&quot;:null,&quot;has_public_access&quot;:false,&quot;name&quot;:&quot;New playlist ${USERNAME}&quot;,&quot;rotation_time&quot;:10}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Get Playlist ID ">
+            <stringProp name="JSONPostProcessor.referenceNames">PLAYLIST_ID </stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.id </stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+            <stringProp name="JSONPostProcessor.defaultValues">NOT_FOUND</stringProp>
+          </JSONPostProcessor>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Playlists">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/it-edition-extensions/configuration/dashboards/playlists</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="page" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">1</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">page</stringProp>
+              </elementProp>
+              <elementProp name="limit" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">10</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">limit</stringProp>
+              </elementProp>
+              <elementProp name="sort_by" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;name&quot;:&quot;asc&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">sort_by</stringProp>
+              </elementProp>
+              <elementProp name="search" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                <stringProp name="Argument.value">{&quot;$or&quot;:[{&quot;name&quot;:{&quot;$rg&quot;:&quot;&quot;}}]}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+                <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                <stringProp name="Argument.name">search</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Delete dashboard">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/configuration/dashboards/${DASHBOARD_ID}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Delete playlist">
+          <stringProp name="HTTPSampler.domain">172.16.20.138</stringProp>
+          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.path">/qa-perf-platform/api/latest/it-edition-extensions/configuration/dashboards/playlists/${PLAYLIST_ID}</stringProp>
+          <boolProp name="HTTPSampler.auto_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+        </HTTPSamplerProxy>
+        <hashTree>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-AUTH-TOKEN</stringProp>
+                <stringProp name="Header.value">${MULTIPLE_USERS_TOKEN}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>true</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <sentBytes>true</sentBytes>
+            <url>true</url>
+            <threadCounts>true</threadCounts>
+            <idleTime>true</idleTime>
+            <connectTime>true</connectTime>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>
