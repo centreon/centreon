@@ -69,10 +69,10 @@ $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $ve
     }
 
     $errorMessage = 'Unable to find admin contact to deploy default agent configuration';
-    $adminInfos = $pearDB->fetchAllAssociative(
+    $adminInfos = $pearDB->fetchAssociative(
         "SELECT `contact_id`, `contact_alias` FROM `contact` WHERE `contact_admin` = '1' LIMIT 1"
     );
-    if ($adminInfos === []) {
+    if ($adminInfos === false) {
         CentreonLog::create()->warning(
             CentreonLog::TYPE_BUSINESS_LOG,
             'No admin contact found, skipping default agent configuration deployment'
@@ -84,8 +84,8 @@ $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $ve
     $errorMessage = 'Error during default agent configuration deployment';
     $request = new DeployDefaultAgentConfigurationForPollerRequest(
         pollerId: $centralId,
-        creatorId: $adminInfos[0]['contact_id'],
-        creatorName: $adminInfos[0]['contact_alias'],
+        creatorId: $adminInfos['contact_id'],
+        creatorName: $adminInfos['contact_alias'],
     );
     $deployAgentConfiguration($request);
     CentreonLog::create()->info(
