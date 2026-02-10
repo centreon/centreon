@@ -110,7 +110,8 @@ jobs:
           set -eu
           # Check if github.ref is develop or dev-xxx branches where workflow and action are hosted
           # This must never run on any other ref than develop or dev-xxx
-          if [[ "${{ github.ref_name }}" == 'develop' ]]; then
+          #if [[ "${{ github.ref_name }}" == 'develop' ]]; then
+          if [[ "${{ github.ref_name }}" == 'MON-194770' ]]; then
             echo "[DEBUG] ref hosting release workflow is valid: ${{ github.ref_name }}"
           elif  [[ "${{ github.ref_name }}" =~ ^dev-[2-9][0-9].[0-9][0-9].x ]]; then
             echo "[DEBUG] ref hosting release workflow is valid: ${{ github.ref_name }}"
