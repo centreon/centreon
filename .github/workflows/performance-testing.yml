@@ -38,7 +38,7 @@ jobs:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   performance-test:
-    needs: [dependency-scan]
+    # needs: [dependency-scan]
     runs-on: centreon-perf-testing
     defaults:
       run:
