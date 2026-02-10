@@ -138,12 +138,6 @@ jobs:
           ls "$JMETER_DIR/lib/ext" | grep -iE "WebDriver|selenium" || echo "⚠️ None found"
         shell: bash -eo pipefail {0}
 
-      - name: Install Chrome & ChromeDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable chromium-chromedriver
-          echo "ChromeDriver installed at: $(which chromedriver)"
-
       - name: Display inputs
         run: |
           echo "Test jmeter_domain value is: ${{ github.event.inputs.jmeter_domain }}"
@@ -183,7 +177,6 @@ jobs:
             sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.num_threads\">.*</intProp>|<intProp name=\"ThreadGroup.num_threads\">${{ github.event.inputs.number_of_users }}</intProp>|g" "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.ramp_time\">.*</intProp>|<intProp name=\"ThreadGroup.ramp_time\">${{ github.event.inputs.ramp_time }}</intProp>|g" "$JMX_FILE"
-            sed -i 's|<stringProp name="WebDriverConfig.driver_path">.*</stringProp>|<stringProp name="WebDriverConfig.driver_path">/usr/bin/chromedriver</stringProp>|g' "$JMX_FILE"
 
             echo "Updated $JMX_FILE:"
             cat $JMX_FILE
@@ -215,7 +208,7 @@ jobs:
 
           ./jmeter -n -t "$JMX_FILE" \
             -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
-            -Jchrome_driver_path="/usr/bin/chromedriver" \
+            -Jchrome_driver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chromedriver/chromedriver.exe" \
             -l "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
             -j "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/jmeter_$(basename "$JMX_FILE" .jmx).log" \
             -LDEBUG

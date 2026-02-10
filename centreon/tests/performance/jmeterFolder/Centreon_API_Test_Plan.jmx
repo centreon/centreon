@@ -1305,7 +1305,7 @@ try {
           <com.googlecode.jmeter.plugins.webdriver.config.ChromeDriverConfig guiclass="com.googlecode.jmeter.plugins.webdriver.config.gui.ChromeDriverConfigGui" testclass="com.googlecode.jmeter.plugins.webdriver.config.ChromeDriverConfig" testname="Chrome driver path">
             <boolProp name="WebDriverConfig.acceptinsecurecerts">false</boolProp>
             <boolProp name="WebDriverConfig.reset_per_iteration">true</boolProp>
-            <stringProp name="WebDriverConfig.driver_path">C:\Drivers\chromedriver-win64\chromedriver.exe</stringProp>
+            <stringProp name="WebDriverConfig.driver_path">${__P(chromedriver_path)}</stringProp>
             <boolProp name="WebDriverConfig.dev_mode">false</boolProp>
             <boolProp name="WebDriverConfig.headless">true</boolProp>
             <boolProp name="WebDriverConfig.maximize_browser">true</boolProp>
