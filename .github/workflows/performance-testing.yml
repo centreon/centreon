@@ -93,29 +93,59 @@ jobs:
           rm jpgc-dummy-0.4.zip  # Nettoyage après installation
           echo "Plugins installed successfully!"
 
-      - name: Install JMeter Plugins (WebDriver)
+      - name: Install JMeter WebDriver + Selenium dependencies
         run: |
           JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
           echo "🔍 Found JMeter at: $JMETER_DIR"
 
           mkdir -p "$JMETER_DIR/lib/ext"
+          echo "📂 Ensured $JMETER_DIR/lib/ext exists"
 
-          # Download Plugins Manager
-          echo "⬇️ Downloading JMeter Plugins Manager..."
-          wget -q https://repo1.maven.org/maven2/kg/apc/jmeter-plugins-manager/1.10/jmeter-plugins-manager-1.10.jar \
-              -O "$JMETER_DIR/lib/ext/PluginsManager.jar" || { echo "❌ Failed to download Plugins Manager"; exit 1; }
+          # Créer un dossier temporaire
+          TMP=$(mktemp -d)
+          cd "$TMP" || { echo "❌ Failed to cd into $TMP"; exit 1; }
 
-          # Install WebDriver plugin (with all Selenium dependencies)
-          echo "⚙️ Installing WebDriver plugin via Plugins Manager..."
-          java -cp "$JMETER_DIR/lib/ext/PluginsManager.jar" org.jmeterplugins.repository.PluginManagerCMDInstaller install-webdriver || { echo "❌ WebDriver installation failed"; exit 1; }
+          # --- Télécharger WebDriver plugin JMeter ---
+          WEB_DRIVER_VERSION="4.13.0.2"
+          WEB_DRIVER_ZIP="jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
+          echo "⬇️ Downloading WebDriver plugin $WEB_DRIVER_VERSION..."
+          wget -q "https://jmeter-plugins.org/files/packages/$WEB_DRIVER_ZIP" || { echo "❌ Download failed"; exit 1; }
+          unzip -q "$WEB_DRIVER_ZIP" -d webdriver || { echo "❌ Unzip failed"; exit 1; }
 
-          echo "✅ Installed plugins:"
-          ls "$JMETER_DIR/lib/ext" | grep -i webdriver || echo "⚠️ No WebDriver plugin found"
+          # Copier les JAR du plugin
+          shopt -s nullglob
+          for jar in webdriver/lib/ext/*.jar; do
+              echo "📤 Copying $jar to $JMETER_DIR/lib/ext"
+              cp "$jar" "$JMETER_DIR/lib/ext/" || { echo "❌ Failed to copy $jar"; exit 1; }
+          done
+          shopt -u nullglob
 
-      - name: Install Required Tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip wget curl
+          # --- Télécharger les dépendances Selenium manuellement ---
+          declare -A SELENIUM_JARS=(
+            ["selenium-api-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.13.0/selenium-api-4.13.0.jar"
+            ["selenium-chrome-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.13.0/selenium-chrome-driver-4.13.0.jar"
+            ["selenium-remote-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-driver/4.13.0/selenium-remote-driver-4.13.0.jar"
+            ["selenium-support-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-support/4.13.0/selenium-support-4.13.0.jar"
+            ["selenium-manager-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-manager/4.13.0/selenium-manager-4.13.0.jar"
+          )
+
+          for jar in "${!SELENIUM_JARS[@]}"; do
+              echo "⬇️ Downloading $jar..."
+              wget -q "${SELENIUM_JARS[$jar]}" -O "$JMETER_DIR/lib/ext/$jar" || { echo "❌ Failed to download $jar"; exit 1; }
+          done
+
+          # Nettoyage
+          cd "$GITHUB_WORKSPACE"
+          rm -rf "$TMP"
+          echo "🧹 Cleaned up temporary folder"
+
+          # Vérifier
+          echo "📋 Installed WebDriver + Selenium JARs in $JMETER_DIR/lib/ext:"
+          ls "$JMETER_DIR/lib/ext" | grep -iE "WebDriver|selenium" || echo "⚠️ No WebDriver / Selenium JARs found"
+            - name: Install Required Tools
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y unzip wget curl
 
       - name: Display inputs
         run: |
