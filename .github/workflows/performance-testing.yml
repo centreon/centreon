@@ -22,11 +22,11 @@ on:
         required: true
         type: string
       api_prefix:
-        description: 'API prefix to insert before /api/latest/configuration'
+        description: 'API prefix to insert before /api/latest/configuration in the JMX file'
         required: true
         type: string
       number_of_users:
-        description: 'Number of users for the test'
+        description: 'Number of users for the test (affects .env file)'
         required: true
         type: string
       ramp_time:
@@ -66,17 +66,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ================================
-      # 🔥 Selenium stack
-      # ================================
-      - name: Install Chrome, ChromeDriver and Xvfb
+      - name: Install JMeter WebDriver Plugin
         run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver xvfb
+          JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
+          cd $JMETER_DIR || exit 1
 
-          echo "Versions:"
-          chromium-browser --version || true
-          chromedriver --version || true
+          # Plugin manager
+          wget -q https://jmeter-plugins.org/get/
+          mv get/PluginsManager.jar lib/ext/
+
+          # WebDriver
+          java -jar lib/ext/PluginsManager.jar install webdriver
 
       - name: Install Required Tools
         run: |
@@ -85,28 +85,31 @@ jobs:
 
       - name: Display inputs
         run: |
-          echo "Domain: ${{ github.event.inputs.jmeter_domain }}"
-          echo "Port: ${{ github.event.inputs.jmeter_port }}"
-          echo "Protocol: ${{ github.event.inputs.jmeter_protocol }}"
-          echo "API Prefix: ${{ github.event.inputs.api_prefix }}"
-          echo "Users: ${{ github.event.inputs.number_of_users }}"
-          echo "Ramp time: ${{ github.event.inputs.ramp_time }}"
+          echo "Test jmeter_domain value is: ${{ github.event.inputs.jmeter_domain }}"
+          echo "Test jmeter_port value is: ${{ github.event.inputs.jmeter_port }}"
+          echo "Test jmeter_protocol value is: ${{ github.event.inputs.jmeter_protocol }}"
+          echo "Test api_prefix value is: ${{ github.event.inputs.api_prefix }}"
+          echo "Test number_of_users value is: ${{ github.event.inputs.number_of_users }}"
+          echo "Test ramp_time value is: ${{ github.event.inputs.ramp_time }}"
 
       - name: Update .env with input number of users
         run: |
           ENV_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/.env"
+
+          echo "Updating NUMBER_OF_USERS in $ENV_FILE"
           sed -i "s/^NUMBER_OF_USERS=.*/NUMBER_OF_USERS=${{ github.event.inputs.number_of_users }}/" "$ENV_FILE"
+
+          echo "Updated .env file content:"
           cat "$ENV_FILE"
 
-      # ================================
-      # 🔧 Patch JMX files
-      # ================================
       - name: Update JMeter .jmx with inputs
         run: |
+          echo "Updating JMeter configuration with inputs..."
+
           JMX_FILES=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/*.jmx
 
           for JMX_FILE in $JMX_FILES; do
-            echo "Updating $JMX_FILE"
+            echo "Updating $JMX_FILE with inputs..."
 
             if [[ -n "${{ github.event.inputs.jmeter_port }}" ]]; then
                 sed -i "s|<stringProp name=\"HTTPSampler.port\">.*</stringProp>|<stringProp name=\"HTTPSampler.port\">${{ github.event.inputs.jmeter_port }}</stringProp>|g" $JMX_FILE
@@ -119,41 +122,49 @@ jobs:
             sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.num_threads\">.*</intProp>|<intProp name=\"ThreadGroup.num_threads\">${{ github.event.inputs.number_of_users }}</intProp>|g" "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.ramp_time\">.*</intProp>|<intProp name=\"ThreadGroup.ramp_time\">${{ github.event.inputs.ramp_time }}</intProp>|g" "$JMX_FILE"
-
-            # 🔥 Selenium driver path fix
             sed -i 's|C:\\\\.*chromedriver.exe|/usr/bin/chromedriver|g' "$JMX_FILE"
+
+            echo "Updated $JMX_FILE:"
+            cat $JMX_FILE
           done
 
       - name: Inject Data into database
         run: node injectData.mjs
 
+      - name: Display users.csv content
+        run: |
+            echo "Displaying contents of users.csv..."
+            cat $GITHUB_WORKSPACE/centreon/tests/performance/users.csv
+
       - name: Install JMeter
         run: |
+          java -version
+          echo "Finding latest JMeter version..."
           JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
-          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip
-          unzip -q jmeter.zip
-          rm jmeter.zip
 
-      # ================================
-      # 🔌 JMeter plugins + WebDriver
-      # ================================
-      - name: Install JMeter Plugins + WebDriver
+          echo "Latest JMeter version: $JMETER_VERSION"
+
+          echo "Downloading JMeter..."
+          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip || { echo "Download failed!"; exit 1; }
+
+          echo "Unzipping JMeter..."
+          unzip -q jmeter.zip || { echo "Unzip failed!"; exit 1; }
+
+          rm jmeter.zip
+          echo "JMeter installed successfully!"
+
+
+      - name: Install JMeter Plugins
         run: |
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
-          cd $JMETER_DIR || exit 1
+          cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
 
-          # Plugin manager
-          wget -q https://jmeter-plugins.org/get/
-          mv get/PluginsManager.jar lib/ext/
+          wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
+          unzip -o jpgc-dummy-0.4.zip
+          rm jpgc-dummy-0.4.zip  # Nettoyage après installation
+          echo "Plugins installed successfully!"
 
-          # Plugins
-          java -jar lib/ext/PluginsManager.jar install webdriver
-          java -jar lib/ext/PluginsManager.jar install jpgc-dummy
-
-      # ================================
-      # 🚀 Run JMeter (headless + Selenium)
-      # ================================
-      - name: Run JMX Scripts (Headless Selenium)
+      - name: Run JMX Scripts
         run: |
           JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
           cd $JMETER_BIN
@@ -163,23 +174,119 @@ jobs:
 
           JMX_FILE=$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/${{ github.event.inputs.jmeter_test_file }}
 
-          xvfb-run -a ./jmeter -n -t "$JMX_FILE" \
+          if [ ! -f "$JMX_FILE" ]; then
+            echo "❌ Selected JMX file does not exist: $JMX_FILE"
+            exit 1
+          fi
+
+          ./jmeter -n -t "$JMX_FILE" \
             -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
             -l "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
             -j "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/jmeter_$(basename "$JMX_FILE" .jmx).log" \
-            -LINFO
+            -LDEBUG
 
-      # ================================
-      # 📦 Artifacts
-      # ================================
+          ./jmeter -g "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl" \
+            -o "$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
+
       - name: Upload JMeter results
-        uses: actions/upload-artifact@v4
+        if: success()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: jmeter-results
           path: centreon/tests/performance/jmeterFolder/jmeter_results
 
       - name: Upload JMeter HTML Reports
-        uses: actions/upload-artifact@v4
+        if: success()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: jmeter-html-reports
           path: centreon/tests/performance/jmeterFolder/jmeter_html_report
+
+      - name: Display HTML Report in GitHub Summary
+        if: success()
+        run: |
+          echo "Looking for JTL files..."
+          ls -la $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
+
+          NUMBER_OF_USERS="${{ github.event.inputs.number_of_users }}"
+          RAMP_TIME="${{ github.event.inputs.ramp_time }}"
+
+          echo "<h2>📊 JMeter Test Results</h2>" >> $GITHUB_STEP_SUMMARY
+          echo "<p>👥 <strong>Number of users :</strong> $NUMBER_OF_USERS</p>" >> $GITHUB_STEP_SUMMARY
+          echo "<p>⏳ <strong> Ramp-Up Time (seconds) :</strong> $RAMP_TIME</p>" >> $GITHUB_STEP_SUMMARY
+
+          # Boucle sur chaque fichier JTL
+          for JTL_FILE in $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/*.jtl; do
+
+              echo "Found JTL file: $JTL_FILE"
+
+              if [ ! -f "$JTL_FILE" ]; then
+                  echo "Error: No JTL file found!"
+                  exit 1
+              fi
+
+              # En-tête du tableau
+              echo "<table style='width:100%; border-collapse: collapse; border: 1px solid #ddd; text-align: left;'>" >> $GITHUB_STEP_SUMMARY
+              echo "<thead><tr><th>Timestamp</th><th>Elapsed (ms)</th><th>Label</th><th>Response Code</th><th>Response Message</th><th>Thread Name</th><th>Success</th><th>Bytes</th><th>Latency (ms)</th></tr></thead>" >> $GITHUB_STEP_SUMMARY
+              echo "<tbody>" >> $GITHUB_STEP_SUMMARY
+
+              line_counter=0
+
+              while IFS=',' read -r timestamp elapsed label response_code response_message thread_name data_type success failure_message bytes sent_bytes grp_threads all_threads url latency idle_time connect
+              do
+                  if [ "$timestamp" == "timeStamp" ]; then
+                      continue
+                  fi
+
+                  line_counter=$((line_counter + 1))
+
+                  if [ "$line_counter" -gt 5 ]; then
+                      break
+                  fi
+
+                  if [ "$success" == "true" ]; then
+                      success_icon="🟢"
+                  else
+                      success_icon="🚨"
+                  fi
+
+                  if [[ "$latency" == "null" || "$latency" == "0" || -z "$latency" ]]; then
+                      latency="N/A"
+                  fi
+
+                  echo "<tr><td>$timestamp</td><td>$elapsed</td><td>$label</td><td>✅ $response_code</td><td>$response_message</td><td>$thread_name</td><td>$success_icon</td><td>$bytes</td><td>$latency</td></tr>" >> $GITHUB_STEP_SUMMARY
+              done < "$JTL_FILE"
+
+              if [ "$line_counter" -gt 5 ]; then
+                  echo "<tr><td colspan='9' style='color: red;'> ℹ️ Please refer to the artifact for more details.</td></tr>" >> $GITHUB_STEP_SUMMARY
+              fi
+
+              echo "</tbody></table>" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Cleaning up database
+        if: success()
+        run: node cleaningUpData.mjs
+
+      - name: Install python3.11-venv
+        if: success()
+        run: sudo apt-get update && sudo apt-get install -y python3.11-venv
+
+      - name: Set up Python Virtual Environment
+        if: success()
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install pandas
+
+      - name: Run Pandas Analysis
+        if: success()
+        run: |
+          source .venv/bin/activate
+          if [[ -f analyze_results.py ]]; then
+              python3 analyze_results.py >> $GITHUB_STEP_SUMMARY || true
+          else
+            echo "❌ analyze_results.py not found!" >> $GITHUB_STEP_SUMMARY
+            exit 0  # ou `true` pour ne pas faire échouer
+          fi
