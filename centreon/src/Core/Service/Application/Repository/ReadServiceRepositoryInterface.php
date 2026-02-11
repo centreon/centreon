@@ -29,6 +29,7 @@ use Core\Service\Domain\Model\Service;
 use Core\Service\Domain\Model\ServiceInheritance;
 use Core\Service\Domain\Model\ServiceLight;
 use Core\Service\Domain\Model\ServiceNamesByHost;
+use Core\Service\Domain\Model\ServiceRelation;
 use Core\Service\Domain\Model\TinyService;
 
 interface ReadServiceRepositoryInterface
