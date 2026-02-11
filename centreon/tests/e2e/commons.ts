@@ -16,7 +16,6 @@ interface SubmitResult {
   updatetime?: string;
 }
 
-// trigger
 const stepWaitingTime = 250;
 const pollingCheckTimeout = 200000;
 const maxSteps = pollingCheckTimeout / stepWaitingTime;
