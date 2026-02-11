@@ -151,8 +151,9 @@ jobs:
 
       - name: Install JMeter and Plugins Manager
         run: |
-          echo "Finding latest JMeter version..."
+          echo "🚀 Étape : Téléchargement de JMeter"
           JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
+          echo "🔍 Version détectée : $JMETER_VERSION"
 
           wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip
           unzip -q jmeter.zip
@@ -160,21 +161,29 @@ jobs:
 
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
           echo "JMETER_HOME=$JMETER_DIR" >> $GITHUB_ENV
+          echo "📂 JMeter installé dans : $JMETER_DIR"
 
-          # 1. Téléchargement des deux fichiers nécessaires
           cd $JMETER_DIR
+          echo "🚀 Étape : Téléchargement du Plugin Manager et CMDRunner"
           wget -q https://jmeter-plugins.org/get/ -O lib/ext/jmeter-plugins-manager.jar
           wget -q https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -O lib/cmdrunner.jar
 
-          # 2. Installation de CMDRunner dans lib/ext pour qu'il soit reconnu (Fix pour NoClassDefFoundError)
-          # On utilise le classpath combiné pour l'installation initiale
-          java -cp lib/ext/jmeter-plugins-manager.jar:lib/cmdrunner.jar org.jmeterplugins.repository.PluginManagerCMD install-for-jmeter-plugins
+          echo "🚀 Étape : Génération du script PluginsManagerCMD.sh"
+          java -cp lib/cmdrunner.jar:lib/ext/jmeter-plugins-manager.jar kg.apc.cmdtools.PluginsManagerCMD --tool install-for-jmeter-plugins
 
-          # 3. Maintenant que l'environnement est prêt, on installe les plugins WebDriver
-          # On utilise le script généré par l'étape précédente
+          if [ -f "./bin/PluginsManagerCMD.sh" ]; then
+            echo "✅ Script PluginsManagerCMD.sh généré avec succès."
+          else
+            echo "❌ ÉCHEC : Le script PluginsManagerCMD.sh n'a pas été créé."
+            exit 1
+          fi
+
+          echo "🚀 Étape : Installation des plugins (WebDriver, Dummy)"
           ./bin/PluginsManagerCMD.sh install jpgc-webdriver,jpgc-dummy
 
-          echo "✅ JMeter et plugins installés avec succès."
+          echo "🔍 Vérification des librairies Selenium installées :"
+          ls lib/ext | grep -E "selenium|webdriver" || echo "⚠️ Attention : Aucun JAR Selenium trouvé dans lib/ext"
+          echo "✅ Fin de l'installation JMeter."
 
       - name: Install ChromeDriver for Linux
         run: |
