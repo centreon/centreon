@@ -288,7 +288,11 @@ class Automatic
         }
 
         $service['service_state'] = $service['state'];
-        $service['state_str'] = $params['service_state'];
+
+        if (isset($params['service_state'])) {
+            $service['state_str'] = $params['service_state'];
+        }
+        
         $service['last_state_change_duration'] = CentreonDuration::toString(
             time() - $service['last_state_change']
         );
@@ -736,14 +740,17 @@ class Automatic
      */
     protected function getServiceTicket($params, $macroName)
     {
-        $stmt = $this->dbCentstorage->prepare(
-            'SELECT SQL_CALC_FOUND_ROWS mot.ticket_value AS ticket_id 
-            FROM services s 
-            LEFT JOIN customvariables cv ON ( cv.service_id = :service_id AND cv.name = :macro_name)
-            LEFT JOIN mod_open_tickets mot ON cv.value = mot.ticket_value 
-            WHERE s.service_id = :service_id'
-        );
+        $query =<<<SQL
+            SELECT cv.value AS ticket_id
+            FROM customvariables cv
+            WHERE service_id = :service_id
+                AND host_id = :host_id
+                AND cv.name = :macro_name
+        SQL;
+
+        $stmt = $this->dbCentstorage->prepare($query);
         $stmt->bindParam(':service_id', $params['service_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':host_id', $params['host_id'], PDO::PARAM_INT);
         $stmt->bindParam(':macro_name', $macroName, PDO::PARAM_STR);
 
         $stmt->execute();
