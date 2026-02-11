@@ -356,8 +356,6 @@ function insertHostGroupInDBForCloud(array $submittedValues = []): int
 {
     global $pearDB, $centreon;
 
-    $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
-
     $statement = $pearDB->prepare(
         'INSERT INTO hostgroup (hg_name, hg_alias, geo_coords) VALUES (:hg_name, :hg_alias, :geo_coords)'
     );
@@ -399,8 +397,6 @@ function insertHostGroupInDBForCloud(array $submittedValues = []): int
 function insertHostGroupInDBForOnPrem(array $submittedValues = []): int
 {
     global $pearDB, $centreon;
-
-    $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
 
     $request = <<<'SQL'
             INSERT INTO hostgroup
@@ -841,7 +837,6 @@ function updateHostGroupInDBForCloud(int $hostGroupId, array $submittedValues, b
     }
 
     if (isset($submittedValues['hg_name'])) {
-        $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
         $request .= ', hg_name = :name';
         $bindValues[':name'] = [
             PDO::PARAM_STR,
@@ -904,7 +899,6 @@ function updateHostGroupInDBForOnPrem(int $hostGroupId, array $submittedValues, 
     $submittedValues = $submittedValues ?: $form->getSubmitValues();
 
     if (isset($submittedValues['hg_name'])) {
-        $submittedValues['hg_name'] = $centreon->checkIllegalChar($submittedValues['hg_name']);
         $request .= ' hg_name = :name';
         $bindValues[':name'] = [
             PDO::PARAM_STR,

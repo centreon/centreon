@@ -2920,7 +2920,57 @@
 					"response": []
 				},
 				{
-					"name": "Creation of a new host group with special characters (successful)",
+					"name": "Creation of a new host group with special characters (error)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"The host group creation fails due to unauthorized characters in name.\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"name\": \"Test_H_Grôup_4!\",\n\"alias\": \"I want to break free !\",\n\"comment\":\"   \"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/configuration/hosts/groups",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"configuration",
+								"hosts",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Creation of a new host group with unicode characters (successful)",
 					"event": [
 						{
 							"listen": "test",
@@ -2961,8 +3011,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Grôup_4!\");\r",
-									"pm.collectionVariables.set(\"HostGroup4Alias\", \"I want to break free !\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Name\", \"Test_H_Grôup_4\");\r",
+									"pm.collectionVariables.set(\"HostGroup4Alias\", \"I want to break free\");\r",
 									""
 								],
 								"type": "text/javascript"
@@ -3014,7 +3064,7 @@
 									"*/\r",
 									"const responseJson = pm.response.json();\r",
 									"pm.test(\"The host groups retrieved are listed with: id, name, alias, notes, notes_url, action_url, icon_id, icon_map_id, rrd, geo_coords, comment and is_activated\", function () {\r",
-									"    // Check the number of host groups (4)\r",
+									"    // Check the number of host groups (4) - special char test now fails so only 3 created\r",
 									"    pm.expect(responseJson.result.length).to.eql(4);\r",
 									"\r",
 									"    // Check the properties of each host group\r",

@@ -435,6 +435,7 @@ msgstr "Tempo limite do reconhecimento"
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/install/front_translate.php
 msgid "Action"
 msgstr "Ação"
@@ -621,6 +622,10 @@ msgstr "Adicionar Processamento de Dados"
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 msgid "Add Group"
 msgstr "Adicionar Grupo"
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Add Image(s)"
+msgstr "Adiciona imagem(s)"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "Add Vendor"
@@ -1145,6 +1150,7 @@ msgstr "Alertas"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
@@ -2129,6 +2135,7 @@ msgstr "Não é possivel escrever no diretorio"
 
 #: centreon/www/include/monitoring/downtime/listDowntime.php
 #: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Cancel"
@@ -3185,6 +3192,7 @@ msgstr "Tipo de Comentário"
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -3327,6 +3335,10 @@ msgstr "Apelido obrigatorio"
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 msgid "Compulsory field"
 msgstr "Campo obrigatorio"
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Compulsory image name"
+msgstr "Nome da imagem obrigatorio"
 
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 msgid "Compulsory name"
@@ -3572,6 +3584,7 @@ msgstr "Grupos de Contato notificados por este serviço"
 
 #: centreon/src/Core/Command/Infrastructure/Command/Exception/CommandMigrationCommandException.php
 #: centreon/src/Core/Media/Infrastructure/Command/Exception/MediaMigrationCommandException.php
+#: centreon/www/include/configuration/configObject/contact/formContact.php
 msgid "Contact not found"
 msgstr "Contato não encontrado"
 
@@ -4600,6 +4613,7 @@ msgid "Developers"
 msgstr "Desenvolvedores"
 
 #: centreon/www/include/Administration/parameters/general/form.php
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/options/media/images/listImg.php
 msgid "Directory"
 msgstr "Diretorio"
@@ -4763,6 +4777,7 @@ msgstr ""
 msgid "Disabled"
 msgstr "Desativado"
 
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 msgid "Disabled Hosts"
 msgstr "Hosts Desativados"
@@ -5697,6 +5712,7 @@ msgstr ""
 msgid "Enabled"
 msgstr "Ativado"
 
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 msgid "Enabled Hosts"
 msgstr "Hosts Ativos"
@@ -6137,6 +6153,10 @@ msgstr ""
 msgid "Error while adding the service template"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while creating contact"
+msgstr ""
+
 #: centreon/src/Core/HostCategory/Application/Exception/HostCategoryException.php
 msgid "Error while creating host category"
 msgstr ""
@@ -6233,6 +6253,10 @@ msgstr ""
 msgid "Error while fetching ACL topologies"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
+msgid "Error while importing LDAP contact"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while linking a dashboard to its thumbnail"
 msgstr ""
@@ -6275,12 +6299,24 @@ msgstr ""
 msgid "Error while partially updating the token"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/contact.php
+msgid "Error while processing contacts"
+msgstr ""
+
 #: centreon/src/Core/Security/ProviderConfiguration/Infrastructure/Local/Repository/ConfigurationException.php
 msgid "Error while reading local provider configuration"
 msgstr ""
 
 #: centreon/src/Centreon/Domain/Authentication/Exception/AuthenticationException.php
 msgid "Error while refresh token"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving ACL groups for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving LDAP auth information"
 msgstr ""
 
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
@@ -6340,6 +6376,14 @@ msgid ""
 "Error while retrieving contact groups allowed to receive a dashboard share"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact information for contact form"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving contact templates"
+msgstr ""
+
 #: centreon/src/Core/Dashboard/Application/Exception/DashboardException.php
 msgid "Error while retrieving contacts allowed to receive a dashboard share"
 msgstr ""
@@ -6380,6 +6424,10 @@ msgstr ""
 msgid "Error while retrieving recently created service severity"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving remote server information"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
 msgstr ""
@@ -6390,6 +6438,10 @@ msgstr ""
 
 #: centreon/src/Core/Resources/Application/Exception/ResourceException.php
 msgid "Error while retrieving the number of services by status"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while retrieving topologies for contact form"
 msgstr ""
 
 #: centreon/src/Core/ResourceAccess/Application/Exception/RuleException.php
@@ -6597,6 +6649,14 @@ msgstr ""
 msgid "Error while updating authentication tokens"
 msgstr ""
 
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact"
+msgstr ""
+
+#: centreon/www/include/configuration/configObject/contact/formContact.php
+msgid "Error while updating contact (massive change)"
+msgstr ""
+
 #: centreon/src/Core/HostSeverity/Application/Exception/HostSeverityException.php
 msgid "Error while updating host severity"
 msgstr ""
@@ -6790,6 +6850,10 @@ msgstr "Tipo de execução"
 #: centreon/src/Centreon/Infrastructure/MonitoringServer/Repository/Exception/MonitoringServerConfigurationRepositoryException.php
 msgid "Execution was too long and reached timeout"
 msgstr ""
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Existing or new directory"
+msgstr "Existente ou novo diretorio"
 
 #: centreon/www/install/front_translate.php
 msgid "Exit"
@@ -7753,6 +7817,7 @@ msgid "Graph template"
 msgstr "Modelo de Gráfico"
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
+#: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 #: centreon/www/install/menu_translation.php
 #: centreon/www/install/smarty_translate.php
 msgid "Graphs"
@@ -7886,6 +7951,7 @@ msgstr "Altura"
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/core/footer/footerPart.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/include/options/media/images/formImg.php
 msgid "Help"
 msgstr "Ajuda"
 
@@ -8720,13 +8786,22 @@ msgstr "Nome do objeto com caracteres invalidos"
 msgid "Illegal characters for Gorgone commands"
 msgstr ""
 
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/options/media/images/listImg.php
 msgid "Image"
 msgstr "imagem"
 
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Image Name"
+msgstr "Nome da Imagem"
+
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 msgid "Image Type"
 msgstr "Tipo de Imagem"
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Image or archive"
+msgstr "Imagem ou arquivo"
 
 #: centreon/www/include/options/media/images/formDirectory.php
 #: centreon/www/install/menu_translation.php
@@ -8982,6 +9057,10 @@ msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Invalid IP Address"
+msgstr ""
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Invalid Image Format."
 msgstr ""
 
 #: centreon/www/include/Administration/parameters/ldap/form.php
@@ -10650,6 +10729,7 @@ msgstr "Tipo de modificação"
 #: centreon/www/include/options/accessLists/groupsACL/formGroupConfig.php
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -10683,6 +10763,10 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 msgid "Modify Group"
 msgstr "Modificar Grupo"
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Modify Image"
+msgstr "Modifica imagem"
 
 #: centreon/www/include/configuration/configObject/traps-manufacturer/formMnftr.php
 msgid "Modify Vendor"
@@ -11143,6 +11227,7 @@ msgstr "N/D"
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -12057,6 +12142,7 @@ msgstr "Otimização"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
@@ -12919,6 +13005,7 @@ msgstr ""
 
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
+#: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Properties"
 msgstr "Propriedades"
 
@@ -13374,6 +13461,7 @@ msgstr "Requerido"
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 #: centreon/www/include/monitoring/submitPassivResults/hostPassiveCheck.php
 #: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -13699,6 +13787,14 @@ msgstr "Intervalo de tentativas"
 msgid "Retry interval (seconds)"
 msgstr ""
 
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Return to list"
+msgstr "Retorna para a lista"
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Review form after save"
+msgstr "Revisar formulário após salvar"
+
 #: centreon/www/install/front_translate.php
 msgid "Revoked"
 msgstr ""
@@ -13931,6 +14027,7 @@ msgstr "Sábado"
 #: centreon/www/include/options/accessLists/menusACL/formMenusAccess.php
 #: centreon/www/include/options/accessLists/resourcesACL/formResourcesAccess.php
 #: centreon/www/include/options/media/images/formDirectory.php
+#: centreon/www/include/options/media/images/formImg.php
 #: centreon/www/include/views/componentTemplates/formComponentTemplate.php
 #: centreon/www/include/views/graphTemplates/formGraphTemplate.php
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
@@ -14052,6 +14149,7 @@ msgstr ""
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/host_dependency/listHostDependency.php
 #: centreon/www/include/configuration/configObject/host_template_model/listHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
@@ -15407,6 +15505,7 @@ msgstr "Estatísticas"
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
 #: centreon/www/include/configuration/configObject/host_categories/formHostCategories.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/hostgroup/listHostGroup.php
 #: centreon/www/include/configuration/configObject/meta_service/formMetaService.php
 #: centreon/www/include/configuration/configObject/meta_service/listMetaService.php
@@ -16350,6 +16449,7 @@ msgid "The value cannot be null"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
+#: centreon/www/include/configuration/configObject/hostgroup/formHostGroup.php
 msgid "The value contains unauthorized characters"
 msgstr ""
 
@@ -16906,6 +17006,7 @@ msgid "Two columns"
 msgstr ""
 
 #: centreon/www/include/configuration/configObject/command/listCommand.php
+#: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/install/centreon_broker_translation.php
@@ -17543,6 +17644,10 @@ msgstr "Visualizar Processamento de Dados"
 #: centreon/www/include/configuration/configObject/traps-groups/formGroups.php
 msgid "View Group"
 msgstr "Visualizar Grupo"
+
+#: centreon/www/include/options/media/images/formImg.php
+msgid "View Image"
+msgstr "Ver imagem"
 
 #: centreon/www/include/configuration/configResources/formResources.php
 msgid "View Resource"
@@ -19364,10 +19469,6 @@ msgid "Add "
 msgstr "Adicionar"
 
 #: unknown
-msgid "Add Image(s)"
-msgstr "Adiciona imagem(s)"
-
-#: unknown
 msgid "Add a Host downtime"
 msgstr "Adicionar um tempo de inatividade para um host"
 
@@ -19974,10 +20075,6 @@ msgid "Compulsory Contact Group"
 msgstr "Grupo de Contato Obrigatório"
 
 #: unknown
-msgid "Compulsory image name"
-msgstr "Nome da imagem obrigatorio"
-
-#: unknown
 msgid "Configuration Actions"
 msgstr "Configuração de ações"
 
@@ -20430,10 +20527,6 @@ msgid "Execution start"
 msgstr "Início da execução"
 
 #: unknown
-msgid "Existing or new directory"
-msgstr "Existente ou novo diretorio"
-
-#: unknown
 msgid "Export XML"
 msgstr "Exporter au format XML"
 
@@ -20721,14 +20814,6 @@ msgstr "Hosts: planeje um tempo de parada"
 #: unknown
 msgid "Hourly"
 msgstr "De hora em hora"
-
-#: unknown
-msgid "Image Name"
-msgstr "Nome da Imagem"
-
-#: unknown
-msgid "Image or archive"
-msgstr "Imagem ou arquivo"
 
 #: unknown
 msgid "Images Directory"
@@ -21072,10 +21157,6 @@ msgstr "Meta-Service"
 #: unknown
 msgid "Mminutes"
 msgstr "Minutos"
-
-#: unknown
-msgid "Modify Image"
-msgstr "Modifica imagem"
 
 #: unknown
 msgid "Module Information"
@@ -21625,14 +21706,6 @@ msgstr "Arquivo de retenção"
 #: unknown
 msgid "Retention path"
 msgstr "Caminho de Retenção"
-
-#: unknown
-msgid "Return to list"
-msgstr "Retorna para a lista"
-
-#: unknown
-msgid "Review form after save"
-msgstr "Revisar formulário após salvar"
 
 #: unknown
 msgid "Right Click here to add an autologin link directly to your bookmarks"
@@ -22312,10 +22385,6 @@ msgstr "Imagem VRML"
 #: unknown
 msgid "Valid for an upgrade"
 msgstr "Valido para atualização"
-
-#: unknown
-msgid "View Image"
-msgstr "Ver imagem"
 
 #: unknown
 msgid "View a Meta Service indicator"

@@ -1671,7 +1671,7 @@ function truncateDecimals(string $value): string
     return $intPart . '.' . $decimalPart;
 }
 
-function checkHostNameUnauthorizedChars($string)
+function checkUnauthorizedChars($string)
 {
     $pattern = '/[~!$%^&*"|\'<>?,()=]/';
 
