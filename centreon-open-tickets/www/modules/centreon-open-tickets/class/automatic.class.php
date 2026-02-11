@@ -292,7 +292,7 @@ class Automatic
         if (isset($params['service_state'])) {
             $service['state_str'] = $params['service_state'];
         }
-        
+
         $service['last_state_change_duration'] = CentreonDuration::toString(
             time() - $service['last_state_change']
         );
@@ -741,7 +741,7 @@ class Automatic
     protected function getServiceTicket($params, $macroName)
     {
         $query =<<<SQL
-            SELECT cv.value AS ticket_id
+            SELECT SQL_CALC_FOUND_ROWS cv.value AS ticket_id
             FROM customvariables cv
             WHERE service_id = :service_id
                 AND host_id = :host_id
