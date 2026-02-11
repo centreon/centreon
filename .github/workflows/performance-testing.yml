@@ -152,38 +152,36 @@ jobs:
       - name: Install JMeter and Plugins Manager
         run: |
           echo "🚀 Étape : Téléchargement de JMeter"
-          JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
-          echo "🔍 Version détectée : $JMETER_VERSION"
-
-          wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip
+          JMETER_VERSION="5.6.3"
+          wget -q "https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip
           unzip -q jmeter.zip
-          rm jmeter.zip
 
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
           echo "JMETER_HOME=$JMETER_DIR" >> $GITHUB_ENV
-          echo "📂 JMeter installé dans : $JMETER_DIR"
 
           cd $JMETER_DIR
-          echo "🚀 Étape : Téléchargement du Plugin Manager et CMDRunner"
-          wget -q https://jmeter-plugins.org/get/ -O lib/ext/jmeter-plugins-manager.jar
+          echo "🚀 Étape : Téléchargement des JARs de gestion"
+          # On place CMDRunner directement dans lib/ pour qu'il soit prioritaire
           wget -q https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -O lib/cmdrunner.jar
+          wget -q https://jmeter-plugins.org/get/ -O lib/ext/jmeter-plugins-manager.jar
 
           echo "🚀 Étape : Génération du script PluginsManagerCMD.sh"
-          java -cp lib/cmdrunner.jar:lib/ext/jmeter-plugins-manager.jar kg.apc.cmdtools.PluginsManagerCMD --tool install-for-jmeter-plugins
+          # FIX : On utilise un chemin wildcard pour être sûr d'inclure les JARs
+          java -cp "lib/cmdrunner.jar:lib/ext/jmeter-plugins-manager.jar" kg.apc.cmdtools.PluginsManagerCMD --tool install-for-jmeter-plugins
 
           if [ -f "./bin/PluginsManagerCMD.sh" ]; then
-            echo "✅ Script PluginsManagerCMD.sh généré avec succès."
+            echo "✅ Script généré."
           else
-            echo "❌ ÉCHEC : Le script PluginsManagerCMD.sh n'a pas été créé."
-            exit 1
+            echo "❌ ÉCHEC : Génération manuelle du script..."
+            echo 'java -cp "$(dirname $0)/../lib/ext/jmeter-plugins-manager.jar:$(dirname $0)/../lib/cmdrunner.jar" org.jmeterplugins.repository.PluginManagerCMD "$@"' > ./bin/PluginsManagerCMD.sh
+            chmod +x ./bin/PluginsManagerCMD.sh
           fi
 
-          echo "🚀 Étape : Installation des plugins (WebDriver, Dummy)"
+          echo "🚀 Étape : Installation des plugins WebDriver"
           ./bin/PluginsManagerCMD.sh install jpgc-webdriver,jpgc-dummy
 
-          echo "🔍 Vérification des librairies Selenium installées :"
-          ls lib/ext | grep -E "selenium|webdriver" || echo "⚠️ Attention : Aucun JAR Selenium trouvé dans lib/ext"
-          echo "✅ Fin de l'installation JMeter."
+          echo "🔍 Vérification des librairies installées :"
+          ls lib/ext | grep -E "webdriver|selenium"
 
       - name: Install ChromeDriver for Linux
         run: |
