@@ -71,8 +71,6 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
      */
     public function getSubFilter(ResourceFilter $filter): string
     {
-
-        // Only get subRequest is asked and if ruleId is provided
         if ($filter->getRuleId() === null) {
             return '';
         }
@@ -84,44 +82,44 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
             throw new \Exception('Macro name used for rule not found');
         }
 
-        $onlyOpenedTicketsSubFilter = $filter->getOnlyWithTicketsOpened()
-            ? '(host_tickets.timestamp IS NOT NULL OR service_tickets.timestamp IS NOT NULL)'
-            : 'host_tickets.timestamp IS NULL AND service_tickets.timestamp IS NULL';
+        $serviceTicketExists = <<<SQL
+                SELECT 1
+                FROM `:dbstg`.customvariables cv
+                INNER JOIN `:dbstg`.mod_open_tickets t
+                    ON cv.value = t.ticket_value
+                INNER JOIN `:dbstg`.services s
+                    ON s.host_id = cv.host_id AND s.service_id = cv.service_id
+                WHERE cv.host_id = resources.parent_id
+                    AND cv.service_id = resources.id
+                    AND cv.name = '{$macroName}'
+                    AND (t.timestamp > s.last_time_ok OR s.last_time_ok IS NULL)
+            SQL;
+
+        $hostTicketExists = <<<SQL
+                SELECT 1
+                FROM `:dbstg`.customvariables cv
+                INNER JOIN `:dbstg`.mod_open_tickets t
+                    ON cv.value = t.ticket_value
+                INNER JOIN `:dbstg`.hosts h
+                    ON h.host_id = cv.host_id
+                WHERE cv.host_id = COALESCE(resources.parent_id, resources.id)
+                    AND (cv.service_id IS NULL OR cv.service_id = 0)
+                    AND cv.name = '{$macroName}'
+                    AND (t.timestamp > h.last_time_up OR h.last_time_up IS NULL)
+            SQL;
+
+        if ($filter->getOnlyWithTicketsOpened()) {
+            return <<<SQL
+                AND (
+                    EXISTS ({$serviceTicketExists})
+                    OR EXISTS ({$hostTicketExists})
+                )
+            SQL;
+        }
 
         return <<<SQL
-                AND EXISTS (
-                    SELECT 1 FROM `:dbstg`.hosts h
-                    LEFT JOIN `:dbstg`.services s
-                        ON s.host_id = h.host_id
-                    LEFT JOIN `:dbstg`.customvariables host_customvariables
-                        ON (
-                            h.host_id = host_customvariables.host_id
-                            AND (host_customvariables.service_id IS NULL OR host_customvariables.service_id = 0)
-                            AND host_customvariables.name = '{$macroName}'
-                        )
-                    LEFT JOIN `:dbstg`.mod_open_tickets host_tickets
-                    ON (
-                        host_customvariables.value = host_tickets.ticket_value
-                        AND (host_tickets.timestamp > h.last_time_up OR h.last_time_up IS NULL)
-                    )
-                    LEFT JOIN `:dbstg`.customvariables service_customvariables
-                        ON (
-                            s.service_id = service_customvariables.service_id
-                            AND s.host_id = service_customvariables.host_id
-                            AND service_customvariables.name = '{$macroName}'
-                        )
-                    LEFT JOIN `:dbstg`.mod_open_tickets service_tickets
-                        ON (
-                            service_customvariables.value = service_tickets.ticket_value
-                            AND (service_tickets.timestamp > s.last_time_ok OR s.last_time_ok IS NULL)
-                        )
-                    WHERE (
-                            (h.host_id = resources.parent_id AND s.service_id = resources.id)
-                            OR (h.host_id = resources.id AND s.service_id IS NULL)
-                        )
-                        AND {$onlyOpenedTicketsSubFilter}
-                    LIMIT 1
-                )
+                AND NOT EXISTS ({$serviceTicketExists})
+                AND NOT EXISTS ({$hostTicketExists})
             SQL;
     }
 
