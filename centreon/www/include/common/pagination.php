@@ -33,6 +33,7 @@ $type = filter_var(
 );
 $type = $type ? '&type=' . $type : '';
 $o = $_GET['o'] ?? null;
+$option = $o !== null ? "&o={$o}" : '';
 
 // saving current pagination filter value and current displayed page
 $centreon->historyPage[$url] = $num;
@@ -161,7 +162,7 @@ for ($i2 = 0, $iEnd = $num; ($iEnd < ($rows / $limit - 1)) && ($i2 < (5 + $i)); 
 
 if ($rows != 0) {
     for ($i = $iStart; $i <= $iEnd; $i++) {
-        $urlPage = 'main.php?p=' . $p . '&num=' . $i . $type;
+        $urlPage = 'main.php?p=' . $p . '&num=' . $i . $type . $option;
         $pageArr[$i] = ['url_page' => $urlPage, 'label_page' => '<b>' . ($i + 1) . '</b>', 'num' => $i];
     }
 
@@ -178,14 +179,14 @@ if ($rows != 0) {
     if (($prev = $num - 1) >= 0) {
         $tpl->assign(
             'pagePrev',
-            ('main.php?p=' . $p . '&num=' . $prev . '&limit=' . $limit . $type)
+            ('main.php?p=' . $p . '&num=' . $prev . '&limit=' . $limit . $type . $option)
         );
     }
 
     if (($next = $num + 1) < ($rows / $limit)) {
         $tpl->assign(
             'pageNext',
-            ('main.php?p=' . $p . '&num=' . $next . '&limit=' . $limit . $type)
+            ('main.php?p=' . $p . '&num=' . $next . '&limit=' . $limit . $type . $option)
         );
     }
 
@@ -199,13 +200,13 @@ if ($rows != 0) {
     if ($page_max > 5 && $num != 0) {
         $tpl->assign(
             'firstPage',
-            ('main.php?p=' . $p . '&num=0&limit=' . $limit . $type)
+            ('main.php?p=' . $p . '&num=0&limit=' . $limit . $type . $option)
         );
     }
     if ($page_max > 5 && $num != ($pageNumber - 1)) {
         $tpl->assign(
             'lastPage',
-            ('main.php?p=' . $p . '&num=' . ($pageNumber - 1) . '&limit=' . $limit . $type)
+            ('main.php?p=' . $p . '&num=' . ($pageNumber - 1) . '&limit=' . $limit . $type . $option)
         );
     }
 
@@ -236,7 +237,7 @@ $tpl->assign('rowsDisplayed', $rowsDisplayed);
             document.forms['form'].elements['limit'].value = _this;
             _l[0].value = _this;
             _l[1].value = _this;
-            window.history.replaceState('', '', '?p=<?= $p . $type; ?>');
+            window.history.replaceState('', '', '?p=<?= $p . $type . $option; ?>');
         }
     </script>
 <?php
