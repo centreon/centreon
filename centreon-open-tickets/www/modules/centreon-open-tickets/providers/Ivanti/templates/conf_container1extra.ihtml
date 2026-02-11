@@ -9,6 +9,7 @@
   </td>
   <td class="FormRowValue">
     {$form.address.html}
+    <span id="err-address" class="error_message" style="display: none; color: red;"></span>
   </td>
 </tr>
 <tr class="list_two">
@@ -17,6 +18,7 @@
   </td>
   <td class="FormRowValue">
     {$form.api_path.html}
+    <span id="err-api_path" class="error_message" style="display: none; color: red;"></span>
   </td>
 </tr>
 <tr class="list_one">
@@ -25,6 +27,7 @@
   </td>
   <td class="FormRowValue">
     {$form.protocol.html}
+    <span id="err-protocol" class="error_message" style="display: none; color: red;"></span>
   </td>
 </tr>
 <tr class="list_two">
@@ -33,6 +36,7 @@
   </td>
   <td class="FormRowValue">
     {$form.apiKey.html}
+    <span id="err-apiKey" class="error_message" style="display: none; color: red;"></span>
   </td>
 </tr>
 <tr class="list_one">
