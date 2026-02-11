@@ -66,7 +66,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-       # --- ÉTAPE 1 : INSTALLATION DES DÉPENDANCES SYSTÈME (Fix libnss3) ---
+          # --- ÉTAPE 1 : INSTALLATION DES DÉPENDANCES SYSTÈME (Fix libnss3) ---
       - name: Install System Dependencies for Chrome & WebDriver
         run: |
           echo "Installing shared libraries (libnss3, libgbm, etc.)..."
@@ -203,13 +203,13 @@ jobs:
             echo "Displaying contents of users.csv..."
             cat $GITHUB_WORKSPACE/centreon/tests/performance/users.csv
 
+
       - name: Run JMX Scripts
         run: |
-            # 1. On garde ta méthode de localisation du bin JMeter
             JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
             cd $JMETER_BIN
 
-            # 2. Création de tes dossiers (Inchangé)
+            # Création des dossiers
             mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
             mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs
             mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report
@@ -221,30 +221,19 @@ jobs:
               exit 1
             fi
 
-            # Définition des chemins de sortie (Inchangé)
             RESULTS_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl"
             LOG_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs/jmeter_$(basename "$JMX_FILE" .jmx).log"
             HTML_REPORT_DIR="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
 
-            # --- LES CHANGEMENTS DE SÉCURITÉ ICI ---
-
-            # A. On définit le chemin absolu du driver et on force l'exécutabilité
-            DRIVER_PATH="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver"
-            chmod +x "$DRIVER_PATH"
-
-            echo "🚀 Lancement du test JMeter..."
-            echo "Driver path: $DRIVER_PATH"
-
-            # B. Exécution du test (Correction des flags -J et -D)
+            # Exécution du test JMeter
             ./jmeter -n -t "$JMX_FILE" \
               -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
-              -Jchromedriver_path="$DRIVER_PATH" \
-              -Dwebdriver.chrome.driver="$DRIVER_PATH" \
+              -Jchromedriver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
               -l "$RESULTS_FILE" \
               -j "$LOG_FILE" \
               -LDEBUG
 
-            # 3. Génération du rapport HTML (Inchangé)
+            # Génération du rapport HTML
             ./jmeter -g "$RESULTS_FILE" -o "$HTML_REPORT_DIR"
 
       - name: Upload JMeter results
