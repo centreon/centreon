@@ -175,6 +175,20 @@ jobs:
             echo "Displaying contents of users.csv..."
             cat $GITHUB_WORKSPACE/centreon/tests/performance/users.csv
 
+      - name: Verify ChromeDriver Location
+        run: |
+          echo "Current working directory: $(pwd)"
+          CHROME_PATH="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver"
+
+          if [ -f "$CHROME_PATH" ]; then
+            echo "✅ ChromeDriver found at: $CHROME_PATH"
+            ls -l "$CHROME_PATH"
+            "$CHROME_PATH" --version
+          else
+            echo "❌ ERROR: ChromeDriver NOT found at: $CHROME_PATH"
+            find $GITHUB_WORKSPACE -name "chromedriver"
+            exit 1
+          fi
 
       - name: Run JMX Scripts
         run: |
@@ -200,7 +214,7 @@ jobs:
             # Exécution du test JMeter
             ./jmeter -n -t "$JMX_FILE" \
               -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
-              -Jchromedriver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
+              -Gchromedriver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
               -l "$RESULTS_FILE" \
               -j "$LOG_FILE" \
               -LDEBUG
