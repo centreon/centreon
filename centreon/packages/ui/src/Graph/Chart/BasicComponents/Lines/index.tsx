@@ -2,6 +2,7 @@ import type { ScaleLinear } from 'd3-scale';
 import { isNil } from 'ramda';
 import type { MutableRefObject } from 'react';
 
+import { Axis, AxisYRight } from '../../../common/Axes/models';
 import {
   getDates,
   getTimeSeriesForLines,
@@ -40,6 +41,12 @@ interface Props extends GlobalAreaLines {
   lineStyle: LineStyle | Array<LineStyle>;
   hasSecondUnit?: boolean;
   maxLeftAxisCharacters: number;
+  firstUnit?: string;
+  secondUnit?: string;
+  axis?: {
+    axisYLeft?: Axis;
+    axisYRight?: AxisYRight;
+  };
 }
 
 const Lines = ({
@@ -58,7 +65,10 @@ const Lines = ({
   scaleLogarithmicBase,
   lineStyle,
   hasSecondUnit,
-  maxLeftAxisCharacters
+  maxLeftAxisCharacters,
+  firstUnit,
+  secondUnit,
+  axis
 }: Props): JSX.Element => {
   const { stackedLinesData, invertedStackedLinesData } = useStackedLines({
     lines: displayedLines,
@@ -84,6 +94,15 @@ const Lines = ({
     maxLeftAxisCharacters,
     xScale
   };
+  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
+  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
+  const hasUnitDisplayed =
+    Boolean(firstUnit || secondUnit) ||
+    Boolean(
+      axis?.axisYLeft?.unit ||
+        axis?.axisYLeft?.displayUnit ||
+        (axis?.axisYRight?.unit && axis?.axisYRight?.displayUnit)
+    );
 
   return (
     <g>
@@ -91,6 +110,12 @@ const Lines = ({
         <GuidingLines
           graphHeight={height}
           graphWidth={width}
+          hasSecondUnit={hasSecondUnit}
+          hasUnit={hasUnitDisplayed}
+          leftScale={leftScale}
+          lines={displayedLines}
+          maxLeftAxisCharacters={maxLeftAxisCharacters}
+          rightScale={rightScale}
           timeSeries={timeSeries}
           xScale={xScale}
         />

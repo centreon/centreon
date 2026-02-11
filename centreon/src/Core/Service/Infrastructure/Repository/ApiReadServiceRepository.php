@@ -217,4 +217,12 @@ class ApiReadServiceRepository implements ReadServiceRepositoryInterface
     {
         throw RepositoryException::notYetImplemented();
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function findIdsByCommandNames(array $commandNames, array $pollerIds = [], array $hostIds = []): array
+    {
+        throw RepositoryException::notYetImplemented();
+    }
 }

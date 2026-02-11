@@ -28,8 +28,8 @@ $help['img_dir'] = dgettext(
 );
 $help['img_file'] = dgettext(
     'help',
-    'Select a local file to upload. You can upload jpg, png, gif and '
-    . 'gd2 files. Multiple images can be uploaded together inside '
+    'Select a local file to upload. You can upload jpg, png, gif, gd2 and '
+    . 'svg files. Multiple images can be uploaded together inside '
     . 'archives like zip, tar, tar.gz or tar.bz2.'
 );
 

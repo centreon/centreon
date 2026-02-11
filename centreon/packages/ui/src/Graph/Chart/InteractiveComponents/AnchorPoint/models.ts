@@ -29,6 +29,12 @@ export interface GuidingLines {
   graphWidth: number;
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
+  maxLeftAxisCharacters: number;
+  hasSecondUnit?: boolean;
+  leftScale?: ScaleLinear<number, number>;
+  lines: Array<Line>;
+  rightScale?: ScaleLinear<number, number>;
+  hasUnit?: boolean;
 }
 
 export interface GetYAnchorPoint {
