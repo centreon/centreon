@@ -92,6 +92,14 @@ jobs:
           sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
           google-chrome --version
 
+
+      # --- INSTALLATION DE JQ ---
+      - name: Install jq
+        run: |
+          echo "Installing jq..."
+          sudo apt-get update
+          sudo apt-get install -y jq
+
       # --- ÉTAPE 3 : INSTALLATION CHROMEDRIVER ---
       - name: Install ChromeDriver
         run: |
