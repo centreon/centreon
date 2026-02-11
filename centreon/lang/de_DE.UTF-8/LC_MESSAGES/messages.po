@@ -19730,6 +19730,7 @@ msgstr "benachrichtigen"
 msgid "numbers"
 msgstr "Zahlen"
 
+#: centreon/www/include/common/pagination.php
 #: centreon/www/install/front_translate.php
 msgid "of"
 msgstr ""
