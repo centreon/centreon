@@ -148,29 +148,32 @@ jobs:
       #       rm chromedriver_linux64.zip
       #       chmod +x chromedriver
       #       echo "ChromeDriver installed at $(pwd)/chromedriver"
-
-      - name: Install JMeter and Plugins
+      - name: Install JMeter and WebDriver
         run: |
-          echo "🚀 Étape 1 : Téléchargement de JMeter"
-          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz
-          tar -xzf apache-jmeter-5.6.3.tgz
+          echo "🚀 Téléchargement de JMeter (format tgz pour la rapidité)"
+          curl -L https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz | tar -xz
 
-          # On récupère le chemin ABSOLU
+          # Définir JMETER_HOME de manière absolue
           export JMETER_HOME=$(pwd)/apache-jmeter-5.6.3
           echo "JMETER_HOME=$JMETER_HOME" >> $GITHUB_ENV
 
-          echo "🚀 Étape 2 : Téléchargement des gestionnaires de plugins"
-          # On télécharge les JARs directement dans lib/ext pour être tranquille
-          wget -q https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -P $JMETER_HOME/lib/
-          wget -q https://jmeter-plugins.org/get/ -P $JMETER_HOME/lib/ext/
+          echo "🚀 Téléchargement sécurisé des outils de gestion"
+          # -L est crucial pour suivre les redirections de jmeter-plugins.org
+          curl -L https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -o $JMETER_HOME/lib/cmdrunner.jar
+          curl -L https://jmeter-plugins.org/get/ -o $JMETER_HOME/lib/ext/jmeter-plugins-manager.jar
 
-          echo "🚀 Étape 3 : Installation forcée de WebDriver (sans script intermédiaire)"
-          # On appelle directement Java avec les chemins absolus pour éviter le ClassNotFound
-          java -cp "$JMETER_HOME/lib/ext/jmeter-plugins-manager.jar:$JMETER_HOME/lib/cmdrunner.jar" \
+          echo "🔍 Vérification de la taille des fichiers téléchargés"
+          ls -lh $JMETER_HOME/lib/cmdrunner.jar
+          ls -lh $JMETER_HOME/lib/ext/jmeter-plugins-manager.jar
+
+          echo "🚀 Installation automatique de WebDriver et ses 20+ dépendances"
+          cd $JMETER_HOME
+          # Utilisation du Classpath absolu pour éviter le ClassNotFound
+          java -cp "lib/ext/jmeter-plugins-manager.jar:lib/cmdrunner.jar" \
             org.jmeterplugins.repository.PluginManagerCMD install jpgc-webdriver,jpgc-dummy
 
-          echo "🔍 Vérification des JARs Selenium téléchargés :"
-          ls $JMETER_HOME/lib/ext | grep -E "webdriver|selenium" || echo "❌ Échec de l'installation des JARs"
+          echo "✅ Installation terminée."
+
       - name: Install ChromeDriver for Linux
         run: |
           sudo apt-get update
