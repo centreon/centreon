@@ -299,9 +299,10 @@ class SqlRequestParametersTranslator
 
     public function appendQueryBuilderWithSearchParameter(QueryBuilderInterface $queryBuilder): void
     {
-        $search = $this->requestParameters->getSearch();
-        if (! empty($search)) {
-            $queryBuilder->where($this->createDatabaseQuery($search));
+        if (! empty($search = $this->requestParameters->getSearch())) {
+            if (! empty($whereQuery = $this->createDatabaseQuery($search))) {
+                $queryBuilder->where($whereQuery);
+            }
         }
     }
 
