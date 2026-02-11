@@ -51,7 +51,7 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdBy }): string => createdBy?.name,
+      getFormattedString: ({ createdBy }): string => createdBy?.name || '',
       id: 'created_by',
       label: t(labelCreator),
       sortField: 'created_by',
@@ -73,7 +73,7 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedBy }): string => updatedBy?.name,
+      getFormattedString: ({ updatedBy }): string => updatedBy?.name || '',
       id: 'updated_by',
       label: t(labelUpdateBy),
       sortField: 'updated_by',

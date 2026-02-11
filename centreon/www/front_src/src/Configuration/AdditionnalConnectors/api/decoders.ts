@@ -20,15 +20,16 @@ const additionalConnectorsDecoder =
     {
       ...namedEntityDecoder,
       createdAt: JsonDecoder.string,
-      createdBy: JsonDecoder.object<NamedEntity>(
-        namedEntityDecoder,
-        'Created By'
+      createdBy: JsonDecoder.optional(
+        JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By')
       ),
       description: JsonDecoder.nullable(JsonDecoder.string),
       type: JsonDecoder.string,
       updatedAt: JsonDecoder.nullable(JsonDecoder.string),
-      updatedBy: JsonDecoder.nullable(
-        JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+      updatedBy: JsonDecoder.optional(
+        JsonDecoder.nullable(
+          JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
+        )
       )
     },
     'Additional connector',
