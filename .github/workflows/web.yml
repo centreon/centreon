@@ -428,7 +428,7 @@ jobs:
           frontend_directory: ${{ env.base_directory }}
           module_name: centreon
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ github.events.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
+          pat: ${{ needs.get-environment.outputs.is_fork == 'true' && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: ./www/front_src/
 
   frontend-unit-test:
@@ -706,7 +706,7 @@ jobs:
           frontend_directory: ${{ env.e2e_directory }}
           module_name: ${{ env.base_directory }}
           dependencies_lock_file: ${{ env.base_directory }}/pnpm-lock.yaml
-          pat: ${{ github.event.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
+          pat: ${{ needs.get-environment.outputs.is_fork == 'true' && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
           lint_path: './features'
 
   package:
@@ -850,9 +850,9 @@ jobs:
           arch: all
           commit_hash: ${{ github.sha }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
-          rpm_gpg_key: ${{ secrets.RPM_GPG_SIGNING_KEY }}
-          rpm_gpg_signing_key_id: ${{ secrets.RPM_GPG_SIGNING_KEY_ID }}
-          rpm_gpg_signing_passphrase: ${{ secrets.RPM_GPG_SIGNING_PASSPHRASE }}
+          rpm_gpg_key: ${{ needs.get-environment.outputs.is_fork == 'false' && secrets.RPM_GPG_SIGNING_KEY || '' }}
+          rpm_gpg_signing_key_id: ${{ needs.get-environment.outputs.is_fork == 'false' && secrets.RPM_GPG_SIGNING_KEY_ID || '' }}
+          rpm_gpg_signing_passphrase: ${{ needs.get-environment.outputs.is_fork == 'false' && secrets.RPM_GPG_SIGNING_PASSPHRASE || '' }}
           stability: ${{ needs.get-environment.outputs.stability }}
           is_nightly: ${{ needs.get-environment.outputs.is_nightly }}
           upload_artifacts: ${{ needs.get-environment.outputs.is_nightly == 'true' || contains(needs.get-environment.outputs.labels, 'upload-artifacts') && 'true' || 'false' }}
@@ -907,21 +907,28 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
-          registry: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          registry: ghcr.io
           username: ${{ secrets.HARBOR_CENTREON_PUSH_USERNAME }}
           password: ${{ secrets.HARBOR_CENTREON_PUSH_TOKEN }}
+
+      - name: Login to github registry
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get FROM image tag
         id: from_image_version
         run: |
           FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
           FROM_IMAGE="centreon-web-dependencies-collect-${{ matrix.operating_system }}"
-          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ghcr.io/${{ github.repository }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
             FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
             echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
           else
-            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+            IMAGE_TAG_EXISTS=$(docker manifest inspect ghcr.io/${{ github.repository }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
             if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
               FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
               echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
@@ -966,7 +973,7 @@ jobs:
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
-          push: true
+          push: ${{ needs.get-environment.outputs.is_fork == 'false' }}
           load: true
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
@@ -1450,7 +1457,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [get-environment, deliver-deb, deliver-rpm]
     env:
-      GH_TOKEN: ${{ github.event.pull_request.head.repo.fork == false && secrets.PERSONAL_ACCESS_TOKEN || github.token }}
+      GH_TOKEN: ${{ needs.get-environment.outputs.is_fork == 'true' && github.token || secrets.PERSONAL_ACCESS_TOKEN }}
     if: |
       needs.get-environment.outputs.is_nightly == 'true' &&
       ! cancelled() &&

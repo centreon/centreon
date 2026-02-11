@@ -18,6 +18,9 @@ on:
       previous_release_bundle_tag:
         description: "previous release bundle tag"
         value: ${{ jobs.get-environment.outputs.previous_release_bundle_tag }}
+      is_fork:
+        description: "if the current PR is from a fork"
+        value: ${{ jobs.get-environment.outputs.is_fork }}
       is_cloud:
         description: "context of release (cloud or not cloud)"
         value: ${{ jobs.get-environment.outputs.is_cloud }}
@@ -70,6 +73,7 @@ jobs:
     outputs:
       latest_major_version: ${{ steps.latest_major_version.outputs.latest_major_version }}
       previous_release_bundle_tag: ${{ steps.get_previous_release_bundle_tag.outputs.previous_release_bundle_tag }}
+      is_fork: ${{ steps.detect_fork.outputs.result }}
       is_cloud: ${{ steps.detect_cloud_version.outputs.isCloud }}
       delivery_type: ${{ steps.detect_delivery_type.outputs.delivery_type }}
       linked_dev_branch: ${{ steps.linked_branches.outputs.linked_dev_branch }}
@@ -457,6 +461,14 @@ jobs:
 
             core.setOutput('is_nightly', getNightlyInput());
 
+      - name: Check if PR is a fork
+        id: detect_fork
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            return true;
+            return github.event.pull_request.head.repo.fork === true;
+
       - name: "Detect cloud version"
         id: detect_cloud_version
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
@@ -681,6 +693,8 @@ jobs:
       - name: Detect operating systems and databases to test
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         id: get_os_database_matrix
+        env:
+          IS_FORK: ${{ steps.detect_fork.outputs.result }}
         with:
           script: |
             const alma9_mariadb_10_11 = {
@@ -764,6 +778,15 @@ jobs:
                 ...matrix,
                 "operating_systems": configs,
                 "databases": configs,
+              };
+            }
+
+            if (process.env.IS_FORK === 'true') {
+              matrix = {
+                "cloud": [bookworm_mysql_8_4],
+                "main": [bookworm_mysql_8_4],
+                "operating_systems": [bookworm_mysql_8_4],
+                "databases": [bookworm_mysql_8_4],
               };
             }
 
