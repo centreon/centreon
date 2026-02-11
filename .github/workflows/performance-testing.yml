@@ -96,13 +96,16 @@ jobs:
       - name: Install ChromeDriver
         run: |
           mkdir -p chrome_driver && cd chrome_driver
-          # On utilise une version stable correspondant à Chrome
-          wget -q https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.85/linux64/chromedriver-linux64.zip
+          # Téléchargement de la version compatible avec Chrome 145
+          wget -q https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json -O versions.json
+          CHROMEDRIVER_URL=$(jq -r '.versions[] | select(.version == "145.0.7632.45") | .downloads.chromedriver[] | select(.platform == "linux64").url' versions.json)
+          wget -q "$CHROMEDRIVER_URL" -O chromedriver-linux64.zip
           unzip -q chromedriver-linux64.zip
           mv chromedriver-linux64/chromedriver .
           chmod +x chromedriver
           echo "✅ ChromeDriver check:"
           ./chromedriver --version
+          rm -rf chromedriver-linux64.zip versions.json
 
       - name: Install JMeter
         run: |
@@ -190,7 +193,7 @@ jobs:
             sed -i 's|\(<stringProp name="HTTPSampler.path">/\)[^/]*/api/latest|\1${{ github.event.inputs.api_prefix }}/api/latest|g' "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.num_threads\">.*</intProp>|<intProp name=\"ThreadGroup.num_threads\">${{ github.event.inputs.number_of_users }}</intProp>|g" "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.ramp_time\">.*</intProp>|<intProp name=\"ThreadGroup.ramp_time\">${{ github.event.inputs.ramp_time }}</intProp>|g" "$JMX_FILE"
-
+            sed -i 's|<collectionProp name="ChromeDriverConfig.arguments">|<collectionProp name="ChromeDriverConfig.arguments"><stringProp name="">--headless=new</stringProp><stringProp name="">--no-sandbox</stringProp><stringProp name="">--disable-dev-shm-usage</stringProp>|g' "$JMX_FILE"
             echo "Updated $JMX_FILE:"
             cat $JMX_FILE
           done
