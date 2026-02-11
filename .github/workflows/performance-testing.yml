@@ -206,10 +206,16 @@ jobs:
 
       - name: Run JMX Scripts
         run: |
-            JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/bin)
+            # On définit le chemin absolu du driver que TU as installé à l'étape 3
+            FINAL_DRIVER_PATH="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver"
+
+            # On s'assure qu'il est exécutable
+            chmod +x "$FINAL_DRIVER_PATH"
+
+            JMETER_BIN=$(ls -d $GITHUB_WORKSPACE/apache-jmeter-*/bin)
             cd $JMETER_BIN
 
-            # Création des dossiers
+            # Création des dossiers de sortie
             mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results
             mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs
             mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report
@@ -221,20 +227,32 @@ jobs:
               exit 1
             fi
 
-            RESULTS_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results_$(basename "$JMX_FILE" .jmx).jtl"
-            LOG_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs/jmeter_$(basename "$JMX_FILE" .jmx).log"
-            HTML_REPORT_DIR="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/$(basename "$JMX_FILE" .jmx)"
+            RESULTS_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_results/results.jtl"
+            LOG_FILE="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_logs/jmeter.log"
+            HTML_REPORT_DIR="$GITHUB_WORKSPACE/centreon/tests/performance/jmeterFolder/jmeter_html_report/report"
+
+            echo "🚀 Lancement JMeter avec Driver : $FINAL_DRIVER_PATH"
 
             # Exécution du test JMeter
+            # NOTE: On passe le driver via 3 flags différents pour couvrir toutes les configurations du plugin
             ./jmeter -n -t "$JMX_FILE" \
+              -Dwebdriver.chrome.driver="$FINAL_DRIVER_PATH" \
+              -Dchromedriver_path="$FINAL_DRIVER_PATH" \
+              -Jchromedriver_path="$FINAL_DRIVER_PATH" \
               -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
-              -Dchromedriver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
               -l "$RESULTS_FILE" \
               -j "$LOG_FILE" \
               -LDEBUG
 
             # Génération du rapport HTML
             ./jmeter -g "$RESULTS_FILE" -o "$HTML_REPORT_DIR"
+      # 5. Debug : Afficher le log si le test échoue ou "bypass"
+
+      - name: Display JMeter Logs on Failure
+        if: always()
+        run: |
+          echo "Vérification des erreurs de driver dans jmeter.log..."
+          grep -iE "error|exception|webdriver|chrome" apache-jmeter-5.6.3/bin/jmeter.log || echo "Aucune erreur critique trouvée dans les logs."
 
       - name: Upload JMeter results
         if: success()
