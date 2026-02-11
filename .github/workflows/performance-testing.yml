@@ -161,15 +161,20 @@ jobs:
           JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
           echo "JMETER_HOME=$JMETER_DIR" >> $GITHUB_ENV
 
-          # Installation du Plugin Manager et CMDRunner (Crucial pour Selenium)
+          # 1. Téléchargement des deux fichiers nécessaires
           cd $JMETER_DIR
           wget -q https://jmeter-plugins.org/get/ -O lib/ext/jmeter-plugins-manager.jar
           wget -q https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -O lib/cmdrunner.jar
-          java -cp lib/ext/jmeter-plugins-manager.jar org.jmeterplugins.repository.PluginManagerCMD install-for-jmeter-plugins
 
-          # Installation de WebDriver Sampler via CLI (gère toutes les dépendances Selenium)
+          # 2. Installation de CMDRunner dans lib/ext pour qu'il soit reconnu (Fix pour NoClassDefFoundError)
+          # On utilise le classpath combiné pour l'installation initiale
+          java -cp lib/ext/jmeter-plugins-manager.jar:lib/cmdrunner.jar org.jmeterplugins.repository.PluginManagerCMD install-for-jmeter-plugins
+
+          # 3. Maintenant que l'environnement est prêt, on installe les plugins WebDriver
+          # On utilise le script généré par l'étape précédente
           ./bin/PluginsManagerCMD.sh install jpgc-webdriver,jpgc-dummy
-          echo "✅ JMeter et plugins installés."
+
+          echo "✅ JMeter et plugins installés avec succès."
 
       - name: Install ChromeDriver for Linux
         run: |
