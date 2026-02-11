@@ -66,124 +66,62 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # - name: Install JMeter
-      #   run: |
-      #     java -version
-      #     echo "Finding latest JMeter version..."
-      #     JMETER_VERSION=$(curl -s https://downloads.apache.org/jmeter/binaries/ | grep -oP 'apache-jmeter-\d+\.\d+\.\d+\.zip' | sort -V | tail -n 1 | sed 's/apache-jmeter-\(.*\).zip/\1/')
-
-      #     echo "Latest JMeter version: $JMETER_VERSION"
-
-      #     echo "Downloading JMeter..."
-      #     wget -q "https://downloads.apache.org/jmeter/binaries/apache-jmeter-${JMETER_VERSION}.zip" -O jmeter.zip || { echo "Download failed!"; exit 1; }
-
-      #     echo "Unzipping JMeter..."
-      #     unzip -q jmeter.zip || { echo "Unzip failed!"; exit 1; }
-
-      #     rm jmeter.zip
-      #     echo "JMeter installed successfully!"
-
-      # - name: Install JMeter Plugins
-      #   run: |
-      #     JMETER_DIR=$(ls -d $GITHUB_WORKSPACE/centreon/tests/performance/apache-jmeter-*/)
-      #     cd $JMETER_DIR || { echo "JMeter directory not found!"; exit 1; }
-
-      #     wget -q --no-check-certificate https://jmeter-plugins.org/files/packages/jpgc-dummy-0.4.zip
-      #     unzip -o jpgc-dummy-0.4.zip
-      #     rm jpgc-dummy-0.4.zip  # Nettoyage après installation
-      #     echo "Plugins installed successfully!"
-
-      # - name: Setup JMeter WebDriver & Selenium
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y unzip wget curl
-
-      #     JMETER_DIR=$(find $GITHUB_WORKSPACE -type d -name "apache-jmeter-*" | head -n 1)
-      #     echo "🔍 Found JMeter at: $JMETER_DIR"
-      #     mkdir -p "$JMETER_DIR/lib/ext"
-
-      #     TMP=$(mktemp -d)
-      #     cd "$TMP" || exit 1
-
-      #     # Download WebDriver plugin
-      #     WEB_DRIVER_VERSION="4.13.0.2"
-      #     wget -q "https://jmeter-plugins.org/files/packages/jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
-      #     unzip -q "jpgc-webdriver-$WEB_DRIVER_VERSION.zip" -d webdriver
-      #     cp webdriver/lib/ext/*.jar "$JMETER_DIR/lib/ext/"
-
-      #     # Guava (required by WebDriver plugin)
-      #     wget -q "https://repo1.maven.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre.jar" -O "$JMETER_DIR/lib/guava-31.1-jre.jar"
-
-      #     # Download Selenium dependencies
-      #     declare -A SELENIUM_JARS=(
-      #       ["selenium-api-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.13.0/selenium-api-4.13.0.jar"
-      #       ["selenium-chrome-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.13.0/selenium-chrome-driver-4.13.0.jar"
-      #       ["selenium-chromium-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chromium-driver/4.13.0/selenium-chromium-driver-4.13.0.jar"
-      #       ["selenium-remote-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-driver/4.13.0/selenium-remote-driver-4.13.0.jar"
-      #       ["selenium-support-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-support/4.13.0/selenium-support-4.13.0.jar"
-      #       ["selenium-manager-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-manager/4.13.0/selenium-manager-4.13.0.jar"
-      #       ["selenium-edge-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-edge-driver/4.13.0/selenium-edge-driver-4.13.0.jar"
-      #       ["selenium-firefox-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-firefox-driver/4.13.0/selenium-firefox-driver-4.13.0.jar"
-      #       ["selenium-ie-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-ie-driver/4.13.0/selenium-ie-driver-4.13.0.jar"
-      #     )
-
-      #     for jar in "${!SELENIUM_JARS[@]}"; do
-      #       wget -q "${SELENIUM_JARS[$jar]}" -O "$JMETER_DIR/lib/ext/$jar"
-      #     done
-
-      #     cd $GITHUB_WORKSPACE
-      #     rm -rf "$TMP"
-
-      #     echo "📋 Installed WebDriver + Selenium JARs:"
-      #     ls "$JMETER_DIR/lib/ext" | grep -iE "WebDriver|selenium" || echo "⚠️ None found"
-      #   shell: bash -eo pipefail {0}
-
-      # - name: Install ChromeDriver locally
-      #   run: |
-      #       mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver
-      #       cd $GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver
-      #       # Télécharger la version Linux correspondante
-      #       wget -q https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
-      #       unzip chromedriver_linux64.zip
-      #       rm chromedriver_linux64.zip
-      #       chmod +x chromedriver
-      #       echo "ChromeDriver installed at $(pwd)/chromedriver"
-      - name: Install JMeter and WebDriver
+      - name: Install JMeter
         run: |
-          echo "🚀 Téléchargement de JMeter"
-          curl -L https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz | tar -xz
+          echo "🚀 STEP: Downloading Apache JMeter 5.6.3..."
+          wget -q https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.zip -O jmeter.zip
 
-          export JMETER_HOME=$(pwd)/apache-jmeter-5.6.3
-          echo "JMETER_HOME=$JMETER_HOME" >> $GITHUB_ENV
+          echo "📦 STEP: Unzipping JMeter archive..."
+          unzip -q jmeter.zip
+          rm jmeter.zip
+          echo "✅ SUCCESS: JMeter ready in apache-jmeter-5.6.3 folder"
 
-          echo "🚀 Téléchargement des outils"
-          curl -L https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -o $JMETER_HOME/lib/cmdrunner.jar
-          curl -L https://jmeter-plugins.org/get/ -o $JMETER_HOME/lib/ext/jmeter-plugins-manager.jar
-
-          echo "🚀 Installation des plugins via CMDRunner (La seule méthode valide)"
-          cd $JMETER_HOME
-          # On appelle la classe Main de CMDRunner, qui elle va appeler le PluginManager
-          java -cp "lib/cmdrunner.jar:lib/ext/jmeter-plugins-manager.jar" \
-            kg.apc.cmdtools.PluginsManagerCMD --tool install-for-jmeter-plugins
-
-          # Maintenant que le script .sh est généré par la commande ci-dessus, on l'utilise
-          ./bin/PluginsManagerCMD.sh install jpgc-webdriver,jpgc-dummy
-
-          echo "✅ Installation des plugins terminée avec succès."
-
-      - name: Install ChromeDriver for Linux
+      - name: Setup JMeter WebDriver & Selenium (Manual Mode)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
+          echo "🚀 STEP: Setting up WebDriver Plugin and Selenium dependencies..."
+          # Define local variable for this step
+          DIR="apache-jmeter-5.6.3"
+          mkdir -p "$DIR/lib/ext"
 
-          mkdir -p $GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver
-          cd $GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver
-          # On utilise une version stable connue pour Linux
+          echo "📥 Downloading WebDriver Plugin..."
+          WEB_DRIVER_VERSION="4.13.0.2"
+          wget -q "https://jmeter-plugins.org/files/packages/jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
+          unzip -qo "jpgc-webdriver-$WEB_DRIVER_VERSION.zip" -d webdriver_tmp
+          cp webdriver_tmp/lib/ext/*.jar "$DIR/lib/ext/"
+          cp webdriver_tmp/lib/*.jar "$DIR/lib/" || true
+
+          echo "📥 Downloading Core Selenium JARs..."
+          declare -A JARS=(
+            ["selenium-api-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.13.0/selenium-api-4.13.0.jar"
+            ["selenium-chrome-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.13.0/selenium-chrome-driver-4.13.0.jar"
+            ["selenium-chromium-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chromium-driver/4.13.0/selenium-chromium-driver-4.13.0.jar"
+            ["selenium-remote-driver-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-remote-driver/4.13.0/selenium-remote-driver-4.13.0.jar"
+            ["selenium-manager-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-manager/4.13.0/selenium-manager-4.13.0.jar"
+            ["selenium-http-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http/4.13.0/selenium-http-4.13.0.jar"
+            ["selenium-json-4.13.0.jar"]="https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-json/4.13.0/selenium-json-4.13.0.jar"
+            ["guava-31.1-jre.jar"]="https://repo1.maven.org/maven2/com/google/guava/guava/31.1-jre/guava-31.1-jre.jar"
+            ["byte-buddy-1.14.5.jar"]="https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy/1.14.5/byte-buddy-1.14.5.jar"
+            ["commons-exec-1.3.jar"]="https://repo1.maven.org/maven2/org/apache/commons/commons-exec/1.3/commons-exec-1.3.jar"
+            ["opentelemetry-api-1.28.0.jar"]="https://repo1.maven.org/maven2/io/opentelemetry/opentelemetry-api/1.28.0/opentelemetry-api-1.28.0.jar"
+            ["opentelemetry-context-1.28.0.jar"]="https://repo1.maven.org/maven2/io/opentelemetry/opentelemetry-context/1.28.0/opentelemetry-context-1.28.0.jar"
+          )
+
+          for jar in "${!JARS[@]}"; do
+            wget -q "${JARS[$jar]}" -O "$DIR/lib/$jar"
+          done
+
+          rm -rf webdriver_tmp "jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
+          echo "✅ SUCCESS: All dependencies installed."
+
+      - name: Install ChromeDriver locally
+        run: |
+          echo "🚀 STEP: Installing ChromeDriver..."
+          mkdir -p chrome_driver && cd chrome_driver
           wget -q https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.85/linux64/chromedriver-linux64.zip
-          unzip chromedriver-linux64.zip
+          unzip -q chromedriver-linux64.zip
           mv chromedriver-linux64/chromedriver .
           chmod +x chromedriver
-          echo "CHROME_DRIVER_PATH=$(pwd)/chromedriver" >> $GITHUB_ENV
+          echo "✅ SUCCESS: ChromeDriver ready."
 
       - name: Display inputs
         run: |
