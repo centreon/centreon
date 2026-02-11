@@ -54,7 +54,7 @@ const Action = ({ row }: Props): JSX.Element => {
   const isDeleteButtonDisplayed = isAdmin || !isCloudPlatform || !hasCentral;
   const isCommandButtonDisplayed =
     isNotNil(row.internalListingParentId) &&
-    !row.internalListingParentRow?.isAgentInitiated;
+    !!row.internalListingParentRow?.isAgentInitiated;
 
   return (
     <div className="grid grid-cols-2 grid-3">

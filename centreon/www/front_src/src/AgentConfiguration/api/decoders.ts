@@ -14,7 +14,7 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
   entityDecoder: JsonDecoder.object(
     {
       id: JsonDecoder.number,
-      isAgentInitiated: JsonDecoder.optional(JsonDecoder.boolean), // optional for now
+      isAgentInitiated: JsonDecoder.optional(JsonDecoder.boolean),
       name: JsonDecoder.string,
       pollers: JsonDecoder.array(
         JsonDecoder.object(

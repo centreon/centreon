@@ -24,7 +24,8 @@
     {
       "id": 2,
       "name": "AC 2",
-      "type": "telegraf",
+      "type": "centreon-agent",
+      "isAgentInitiated": true,
       "pollers": [
         {
           "id": 1,
@@ -39,7 +40,8 @@
     {
       "id": 3,
       "name": "AC 3",
-      "type": "telegraf",
+      "type": "centreon-agent",
+      "isAgentInitiated": false,
       "pollers": [
         {
           "id": 1,
