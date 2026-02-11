@@ -73,6 +73,235 @@ class Automatic
     }
 
     /**
+     * setFullMacroName: set the full ticket_id macro name ($_HOSTXXXXXXX$ or $_SERVICEXXXXXX$)
+     * 
+     * @param string $macroName the name of the macro (TICKET_ID)
+     * @param string $type the type of object (service or host)
+     * @return void
+     */
+    protected function setFullMacroName(string $macroName, string $type): void
+    {
+        if ($type === 'host') {
+                $this->fullMacroName = '$_HOST' . $macroName . '$';
+        } else {
+            $this->fullMacroName = '$_SERVICE' . $macroName . '$';
+        }
+    }
+
+
+    /**
+     * updateServiceMacro: set the value of the service ticketing macro in the config database
+     * 
+     * @param string $ticketId the ticket id
+     * @param int $serviceId the id of the service
+     * @return void
+     */
+    protected function updateServiceMacro(string $ticketId, int $serviceId): void
+    {
+
+        // check if service has the macro set up
+        $query = <<<'SQL'
+                SELECT svc_macro_id
+                FROM on_demand_macro_service
+                WHERE svc_macro_name = :macro_name AND svc_svc_id = :service_id
+            SQL;
+
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
+        $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $macroId = (int) $row['svc_macro_id'];
+            $query = <<<'SQL'
+                    UPDATE on_demand_macro_service
+                    SET svc_macro_value = :macro_value
+                    WHERE svc_macro_id = :macro_id
+                SQL;
+
+            $stmt = $this->dbCentreon->prepare($query);
+            $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
+            $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
+            $stmt->execute();
+        }
+    }
+
+    /**
+     * updateHostMacro: set the value of the service ticketing macro in the config database
+     * 
+     * @param string $ticketId tbe ticket id
+     * @param int $hostId the host id
+     * @return void
+     */
+    protected function updateHostMacro(string $ticketId, int $hostId): void
+    {
+        // check if service has the macro set up
+        $query = <<<'SQL'
+                SELECT host_macro_id
+                FROM on_demand_macro_host
+                WHERE host_macro_name = :macro_name AND host_host_id = :host_id
+            SQL;
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
+        $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $macroId = (int) $row['host_macro_id'];
+            $query = <<<'SQL'
+                    UPDATE on_demand_macro_host
+                    SET host_macro_value = :macro_value
+                    WHERE host_macro_id = :macro_id
+                SQL;
+            $stmt = $this->dbCentreon->prepare($query);
+            $stmt->bindParam(':macro_id', $macroId, PDO::PARAM_INT);
+            $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
+            $stmt->execute();
+        }
+
+    }
+
+    /**
+     * insertTicketInConfigDB: add a new macro entry for the ticket macro in the config db (with the ticket id value)
+     * 
+     * @param string $type the object type (host or service)
+     * @param string $ticketId the ticket id
+     * @param int objectId the id of the object (service id or host id)
+     * @return void
+     */
+    protected function insertTicketInConfigDB(string $type, string $ticketId, int $objectId): void
+    {
+        $macroOrder = $this->getMaxOrder($type, $objectId);
+
+        if ($type === 'host') {
+            $query = <<<'SQL'
+                    INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order)
+                    VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
+                SQL;
+        } else {
+            $query = <<<'SQL'
+                    INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order)
+                    VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
+                SQL;
+        }
+
+
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':ticket_id', $ticketId, PDO::PARAM_STR);
+        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
+        $stmt->bindParam(':macro_order', $macroOrder, PDO::PARAM_INT);
+        $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+
+        $stmt->execute();
+    }
+
+    /**
+     * getMacroId : returns the id of a macro if it is sets directly on the host or service
+     *
+     * @param string $type the type of object (can be host or service)
+     * @param int $objectId the id of the host or service
+     * @return int|null the id of the macro if directly linked to the host or service
+     */
+    protected function getTicketMacroId(string $type, int $objectId): ?int
+    {
+        if ($type === 'host') {
+            $query = <<<'SQL'
+                    SELECT host_macro_id AS macro_id
+                    FROM on_demand_macro_host
+                    WHERE host_host_id = :object_id AND host_macro_name = :macro_name
+                SQL;
+        } else {
+            $query = <<<'SQL'
+                    SELECT svc_macro_id AS macro_id
+                    FROM on_demand_macro_service
+                    WHERE svc_svc_id = :object_id AND svc_macro_name = :macro_name
+                SQL;
+        }
+
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+        $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            return (int) $row['macro_id'];
+        }
+
+        return null;
+    }
+
+/**
+ * getMaxOrder gets the order number for the next custom macro
+ *
+ * @param string $type the type of object (must be host or service)
+ * @param int $objectId the id of the service or the host
+ * @return int the next available order number
+ */
+function getMaxOrder(string $type, int $objectId): int
+{
+    if ($type === 'host') {
+        $query = <<<'SQL'
+                SELECT MAX(macro_order) AS max
+                FROM on_demand_macro_host
+                WHERE host_host_id = :object_id
+            SQL;
+    } else {
+        $query = <<<'SQL'
+                SELECT MAX(macro_order) AS max
+                FROM on_demand_macro_service
+                WHERE svc_svc_id = :object_id
+            SQL;
+    }
+
+    $stmt = $this->dbCentreon->prepare($query);
+    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        return is_null($row['max']) ? 0 : (int) $row['max'] + 1;
+    }
+
+    return 0;
+}
+
+/**
+ * insertNewMacroValue add a new macro on the object (service/host)
+ *
+ * @param string $type the type of object (must be host or service)
+ * @param string $ticketId the ticket id
+ * @param int $objectId the id of the service or the host
+ * @return void
+ */
+function insertNewMacroValue(string $type, string $ticketId, int $objectId): void
+{
+    $macroOrder = $this->getMaxOrder($type, $objectId);
+
+    if ($type === 'host') {
+        $query = <<<'SQL'
+                INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order)
+                VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
+            SQL;
+    } else {
+        $query = <<<'SQL'
+                INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order)
+                VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
+            SQL;
+    }
+
+    $stmt = $this->dbCentreon->prepare($query);
+    $stmt->bindParam(':ticket_id', $ticketId, PDO::PARAM_STR);
+    $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
+    $stmt->bindParam(':macro_order', $macroOrder, PDO::PARAM_INT);
+    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+
+    $stmt->execute();
+}
+
+    /**
      * Open a service ticket
      *
      * @param mixed $params
@@ -86,6 +315,16 @@ class Automatic
 
         $rv = $this->submitTicket($params, $ruleInfo, $contact, [], [$service]);
         $this->doChainRules($rv['chainRuleList'], $params, $contact, [], [$service]);
+
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+        $this->setFullMacroName($macroName, 'service');
+        $macroId = $this->getTicketMacroId('service', $service['service_id']);
+        if (! is_null($macroId)) {
+            $this->updateServiceMacro($rv['ticket_id'], $service['service_id']);
+        } elseif ($this->isServiceUnique($service['service_id'])) {
+            $this->insertTicketInConfigDB('service', $rv['ticket_id'], $service['service_id']);
+        }
 
         $this->externalServiceCommands($rv['providerClass'], $rv['ticket_id'], $contact, $service);
 
@@ -107,6 +346,17 @@ class Automatic
         $rv = $this->submitTicket($params, $ruleInfo, $contact, [$host], []);
         $this->doChainRules($rv['chainRuleList'], $params, $contact, [$host], []);
 
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+        $this->setFullMacroName($macroName, 'host');
+        $macroId = $this->getTicketMacroId('host', $host['host_id']);
+        
+        if (! is_null($macroId)) {
+            $this->updateHostMacro($rv['ticket_id'], $host['host_id']);
+        } else {
+            $this->insertTicketInConfigDB('host', $rv['ticket_id'], $host['host_id']);
+        }
+
         $this->externalHostCommands($rv['providerClass'], $rv['ticket_id'], $contact, $host);
 
         return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
@@ -124,6 +374,7 @@ class Automatic
         $host = $this->getHostInformation($params);
         $providerClass = $this->getProviderClass($ruleInfo);
         $macroName = $providerClass->getMacroTicketId();
+        $this->setFullMacroName($macroName, 'host');
 
         $ticketId = $this->getHostTicket($params, $macroName);
 
@@ -137,6 +388,7 @@ class Automatic
             try {
                 $providerClass->closeTicket($closeTicketData);
                 $this->changeMacroHost($macroName, $host);
+                $this->updateHostMacro("", $host['host_id']);
                 $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
             } catch (Exception $e) {
                 $rv = ['code' => -1, 'message' => $e->getMessage()];
@@ -158,6 +410,7 @@ class Automatic
         $service = $this->getServiceInformation($params);
         $providerClass = $this->getProviderClass($ruleInfo);
         $macroName = $providerClass->getMacroTicketId();
+        $this->setFullMacroName($macroName, 'service');
 
         $ticketId = $this->getServiceTicket($params, $macroName);
 
@@ -172,6 +425,7 @@ class Automatic
             try {
                 $providerClass->closeTicket($closeTicketData);
                 $this->changeMacroService($macroName, $service);
+                $this->updateServiceMacro("", $service['service_id']);
                 $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
             } catch (Exception $e) {
                 $rv = ['code' => -1, 'message' => $e->getMessage()];
