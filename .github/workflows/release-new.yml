@@ -59,7 +59,7 @@ jobs:
           RELEASE_BRANCH_PREFIX="${RELEASE_BRANCH%%-*}"
 
           echo "Checking inputs coherence against $RELEASE_BRANCH <> ${{ inputs.release_branch }}..."
-          if [[ "$RELEASE_BRANCH" == "${{ inputs.release_type }}"]];
+          if [[ "$RELEASE_BRANCH_PREFIX" == "${{ inputs.release_type }}"]]; then
             echo "Inputs are ok, continue."
           else
             echo "Inputs are NOT ok, exiting."
