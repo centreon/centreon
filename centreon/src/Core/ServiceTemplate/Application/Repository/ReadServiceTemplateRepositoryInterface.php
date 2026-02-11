@@ -121,4 +121,15 @@ interface ReadServiceTemplateRepositoryInterface
      * @return ServiceTemplate[]
      */
     public function findByHostId(int $hostId): array;
+
+    /**
+     * Find service template IDs by command names.
+     *
+     * @param string[] $commandNames
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByCommandNames(array $commandNames): array;
 }
