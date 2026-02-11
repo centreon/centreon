@@ -269,6 +269,46 @@ function getMaxOrder(string $type, int $objectId): int
 }
 
 /**
+ * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
+ *
+ * @param int $serviceId the id of the service
+ * @throws CollectionException|ConnectionException|ValueObjectException
+ * @return bool
+ */
+function isServiceUnique(int $serviceId): bool
+{
+    global $db;
+    $query = <<<'SQL'
+            SELECT count(*) AS duplicated_service
+            FROM (
+                (
+                    SELECT 1
+                    FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                        AND hostgroup_hg_id IS NOT NULL
+                ) UNION (
+                    SELECT 1
+                    FROM host_service_relation
+                    WHERE service_service_id = :service_id
+                        AND host_host_id IS NOT NULL
+                    GROUP BY service_service_id HAVING COUNT(service_service_id) > 1
+                )
+            ) AS relation
+        SQL;
+
+    $stmt = $this->dbCentreon->prepare($query);
+    $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($row) {
+        return (int) $row['duplicated_service'] === 0;
+    }
+
+    return true;
+}
+
+/**
  * insertNewMacroValue add a new macro on the object (service/host)
  *
  * @param string $type the type of object (must be host or service)
