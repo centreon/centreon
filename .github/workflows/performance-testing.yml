@@ -38,7 +38,7 @@ jobs:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
   performance-test:
-    # needs: [dependency-scan]
+    needs: [dependency-scan]
     runs-on: centreon-perf-testing
     defaults:
       run:
@@ -66,7 +66,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-          # --- ÉTAPE 1 : INSTALLATION DES DÉPENDANCES SYSTÈME (Fix libnss3) ---
       - name: Install System Dependencies for Chrome & WebDriver
         run: |
           echo "Installing shared libraries (libnss3, libgbm, etc.)..."
@@ -84,7 +83,6 @@ jobs:
             xdg-utils \
             libvulkan1
 
-      # --- ÉTAPE 2 : INSTALLATION DE GOOGLE CHROME ---
       - name: Install Google Chrome
         run: |
           echo "Installing Google Chrome Browser..."
@@ -92,19 +90,16 @@ jobs:
           sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
           google-chrome --version
 
-
-      # --- INSTALLATION DE JQ ---
       - name: Install jq
         run: |
           echo "Installing jq..."
           sudo apt-get update
           sudo apt-get install -y jq
 
-      # --- ÉTAPE 3 : INSTALLATION CHROMEDRIVER ---
       - name: Install ChromeDriver
         run: |
           mkdir -p chrome_driver && cd chrome_driver
-          # Téléchargement de la version compatible avec Chrome 145
+          # Download the version compatible with Chrome 145
           wget -q https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json -O versions.json
           CHROMEDRIVER_URL=$(jq -r '.versions[] | select(.version == "145.0.7632.45") | .downloads.chromedriver[] | select(.platform == "linux64").url' versions.json)
           wget -q "$CHROMEDRIVER_URL" -O chromedriver-linux64.zip
@@ -213,7 +208,6 @@ jobs:
         run: |
             echo "Displaying contents of users.csv..."
             cat $GITHUB_WORKSPACE/centreon/tests/performance/users.csv
-
 
       - name: Run JMX Scripts
         run: |
