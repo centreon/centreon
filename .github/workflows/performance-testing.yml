@@ -66,6 +66,44 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+       # --- ÉTAPE 1 : INSTALLATION DES DÉPENDANCES SYSTÈME (Fix libnss3) ---
+      - name: Install System Dependencies for Chrome & WebDriver
+        run: |
+          echo "Installing shared libraries (libnss3, libgbm, etc.)..."
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 \
+            libgbm1 \
+            libasound2 \
+            libxss1 \
+            libappindicator3-1 \
+            libatk-bridge2.0-0 \
+            libgtk-3-0 \
+            fonts-liberation \
+            libu2f-udev \
+            xdg-utils \
+            libvulkan1
+
+      # --- ÉTAPE 2 : INSTALLATION DE GOOGLE CHROME ---
+      - name: Install Google Chrome
+        run: |
+          echo "Installing Google Chrome Browser..."
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb
+          google-chrome --version
+
+      # --- ÉTAPE 3 : INSTALLATION CHROMEDRIVER ---
+      - name: Install ChromeDriver
+        run: |
+          mkdir -p chrome_driver && cd chrome_driver
+          # On utilise une version stable correspondant à Chrome
+          wget -q https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.85/linux64/chromedriver-linux64.zip
+          unzip -q chromedriver-linux64.zip
+          mv chromedriver-linux64/chromedriver .
+          chmod +x chromedriver
+          echo "✅ ChromeDriver check:"
+          ./chromedriver --version
+
       - name: Install JMeter
         run: |
           echo "🚀 STEP: Downloading Apache JMeter 5.6.3..."
@@ -112,16 +150,6 @@ jobs:
 
           rm -rf webdriver_tmp "jpgc-webdriver-$WEB_DRIVER_VERSION.zip"
           echo "✅ SUCCESS: All dependencies installed."
-
-      - name: Install ChromeDriver locally
-        run: |
-          echo "🚀 STEP: Installing ChromeDriver..."
-          mkdir -p chrome_driver && cd chrome_driver
-          wget -q https://storage.googleapis.com/chrome-for-testing-public/121.0.6167.85/linux64/chromedriver-linux64.zip
-          unzip -q chromedriver-linux64.zip
-          mv chromedriver-linux64/chromedriver .
-          chmod +x chromedriver
-          echo "✅ SUCCESS: ChromeDriver ready."
 
       - name: Display inputs
         run: |
@@ -175,20 +203,6 @@ jobs:
             echo "Displaying contents of users.csv..."
             cat $GITHUB_WORKSPACE/centreon/tests/performance/users.csv
 
-      - name: Verify ChromeDriver Location
-        run: |
-          echo "Current working directory: $(pwd)"
-          CHROME_PATH="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver"
-
-          if [ -f "$CHROME_PATH" ]; then
-            echo "✅ ChromeDriver found at: $CHROME_PATH"
-            ls -l "$CHROME_PATH"
-            "$CHROME_PATH" --version
-          else
-            echo "❌ ERROR: ChromeDriver NOT found at: $CHROME_PATH"
-            find $GITHUB_WORKSPACE -name "chromedriver"
-            exit 1
-          fi
 
       - name: Run JMX Scripts
         run: |
