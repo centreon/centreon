@@ -150,29 +150,26 @@ jobs:
       #       echo "ChromeDriver installed at $(pwd)/chromedriver"
       - name: Install JMeter and WebDriver
         run: |
-          echo "🚀 Téléchargement de JMeter (format tgz pour la rapidité)"
+          echo "🚀 Téléchargement de JMeter"
           curl -L https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-5.6.3.tgz | tar -xz
 
-          # Définir JMETER_HOME de manière absolue
           export JMETER_HOME=$(pwd)/apache-jmeter-5.6.3
           echo "JMETER_HOME=$JMETER_HOME" >> $GITHUB_ENV
 
-          echo "🚀 Téléchargement sécurisé des outils de gestion"
-          # -L est crucial pour suivre les redirections de jmeter-plugins.org
+          echo "🚀 Téléchargement des outils"
           curl -L https://repo1.maven.org/maven2/kg/apc/cmdrunner/2.2/cmdrunner-2.2.jar -o $JMETER_HOME/lib/cmdrunner.jar
           curl -L https://jmeter-plugins.org/get/ -o $JMETER_HOME/lib/ext/jmeter-plugins-manager.jar
 
-          echo "🔍 Vérification de la taille des fichiers téléchargés"
-          ls -lh $JMETER_HOME/lib/cmdrunner.jar
-          ls -lh $JMETER_HOME/lib/ext/jmeter-plugins-manager.jar
-
-          echo "🚀 Installation automatique de WebDriver et ses 20+ dépendances"
+          echo "🚀 Installation des plugins via CMDRunner (La seule méthode valide)"
           cd $JMETER_HOME
-          # Utilisation du Classpath absolu pour éviter le ClassNotFound
-          java -cp "lib/ext/jmeter-plugins-manager.jar:lib/cmdrunner.jar" \
-            org.jmeterplugins.repository.PluginManagerCMD install jpgc-webdriver,jpgc-dummy
+          # On appelle la classe Main de CMDRunner, qui elle va appeler le PluginManager
+          java -cp "lib/cmdrunner.jar:lib/ext/jmeter-plugins-manager.jar" \
+            kg.apc.cmdtools.PluginsManagerCMD --tool install-for-jmeter-plugins
 
-          echo "✅ Installation terminée."
+          # Maintenant que le script .sh est généré par la commande ci-dessus, on l'utilise
+          ./bin/PluginsManagerCMD.sh install jpgc-webdriver,jpgc-dummy
+
+          echo "✅ Installation des plugins terminée avec succès."
 
       - name: Install ChromeDriver for Linux
         run: |
