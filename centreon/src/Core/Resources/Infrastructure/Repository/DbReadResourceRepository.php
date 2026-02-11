@@ -535,16 +535,121 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $query = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
+        $cteHeaders = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
 
         $resourceType = self::RESOURCE_TYPE_HOST;
 
-        $joinCtes = $query === ''
+        $joinCtes = $cteHeaders === ''
             ? ''
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
-        $query .= <<<SQL
-            SELECT :sql_query_find
+        // FROM clause with JOINs needed for filtering (no severities — only needed for data output)
+        $filterFrom = <<<SQL
+            FROM `:dbstg`.`resources`
+            INNER JOIN `:dbstg`.`instances`
+                ON `instances`.instance_id = `resources`.poller_id
+            {$joinCtes}
+            LEFT JOIN `:dbstg`.`resources` parent_resource
+                ON parent_resource.id = resources.parent_id
+                AND parent_resource.type = {$resourceType}
+            SQL;
+
+        /**
+         * Handle search values.
+         */
+        $searchSubRequest = null;
+
+        try {
+            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                message: 'An error occurred while generating the request',
+                previous: $exception
+            );
+        }
+
+        $filterWhere = ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
+
+        $filterWhere .= <<<SQL
+            resources.name NOT LIKE '\_Module\_%'
+                AND resources.parent_name NOT LIKE '\_Module\_BAM%'
+                AND resources.enabled = 1
+                AND resources.type != 3
+            SQL;
+
+        // Apply only_with_performance_data
+        if ($filter->getOnlyWithPerformanceData() === true) {
+            $filterWhere .= ' AND resources.has_graph = 1';
+        }
+
+        foreach ($this->extraDataProviders as $provider) {
+            $filterWhere .= $provider->getSubFilter($filter);
+        }
+
+        if ($accessGroupIds !== []) {
+            $filterWhere .= " AND {$this->addResourceAclSubRequest($accessGroupIds)}";
+        }
+
+        $filterWhere .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
+
+        /** Resource Type filter: 'service', 'metaservice', 'host'. */
+        $filterWhere .= $this->addResourceTypeSubRequest($filter);
+
+        /** State filter: 'unhandled_problems', 'resource_problems', 'acknowledged', 'in_downtime'. */
+        $filterWhere .= $this->addResourceStateSubRequest($filter);
+
+        /** Status filter: 'OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UP', 'UNREACHABLE', 'DOWN', 'PENDING'. */
+        $filterWhere .= $this->addResourceStatusSubRequest($filter);
+
+        /** Status type filter: 'HARD', 'SOFT'. */
+        $filterWhere .= $this->addStatusTypeSubRequest($filter);
+
+        /** Monitoring Server filter. */
+        $filterWhere .= $this->addMonitoringServerSubRequest($filter, $queryParametersFromRequestParameter);
+
+        /** Severity filter (levels and/or names). */
+        $filterWhere .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
+
+        if ($onlyCount) {
+            $countQuery = "{$cteHeaders} SELECT COUNT(*) {$filterFrom} {$filterWhere}";
+            if ($this->sqlRequestTranslator->getRequestParameters()->getLimit() !== 0) {
+                $innerQuery = "{$cteHeaders} SELECT 1 {$filterFrom} {$filterWhere}";
+                $innerQuery .= $this->sqlRequestTranslator->translatePaginationToSql();
+                $countQuery = "SELECT COUNT(*) FROM ({$innerQuery}) AS temp";
+            }
+
+            return $countQuery;
+        }
+
+        // Capture count query (without ORDER BY / LIMIT)
+        $this->countQuery = "{$cteHeaders} SELECT COUNT(*) {$filterFrom} {$filterWhere}";
+
+        /** Handle sort parameters. */
+        $sortSql = $this->sqlRequestTranslator->translateSortParameterToSql();
+        $orderBy = $sortSql ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+
+        /** Handle pagination. */
+        $pagination = '';
+        if ($this->sqlRequestTranslator->getRequestParameters()->getLimit() !== 0) {
+            $pagination = $this->sqlRequestTranslator->translatePaginationToSql();
+        }
+
+        // Add severities JOIN to inner query only when the sort references severity_level
+        $innerSeveritiesJoin = '';
+        $innerSelectExtra = ', instances.name AS `monitoring_server_name`';
+        if (str_contains($orderBy, 'severity_level')) {
+            $innerSelectExtra .= ', severities.level AS `severity_level`';
+            $innerSeveritiesJoin = <<<SQL
+                LEFT JOIN `:dbstg`.`severities`
+                    ON `severities`.severity_id = `resources`.severity_id
+            SQL;
+        }
+
+        // Deferred JOIN: inner query selects IDs with filtering + sort + pagination,
+        // outer query fetches full data with expensive JOINs only for the page rows.
+        return <<<SQL
+            {$cteHeaders}
+            SELECT
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
@@ -589,120 +694,23 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 resources.flapping,
                 resources.percent_state_change
             FROM `:dbstg`.`resources`
+            INNER JOIN (
+                SELECT resources.resource_id{$innerSelectExtra}
+                {$filterFrom}
+                {$innerSeveritiesJoin}
+                {$filterWhere}
+                {$orderBy}
+                {$pagination}
+            ) AS page ON page.resource_id = resources.resource_id
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
-            {$joinCtes}
             LEFT JOIN `:dbstg`.`resources` parent_resource
                 ON parent_resource.id = resources.parent_id
                 AND parent_resource.type = {$resourceType}
             LEFT JOIN `:dbstg`.`severities`
                 ON `severities`.severity_id = `resources`.severity_id
-            SQL;
-
-        /**
-         * Handle search values.
-         */
-        $searchSubRequest = null;
-
-        try {
-            $searchSubRequest .= $this->sqlRequestTranslator->translateSearchParameterToSql();
-        } catch (RequestParametersTranslatorException $exception) {
-            throw new RepositoryException(
-                message: 'An error occurred while generating the request',
-                previous: $exception
-            );
-        }
-
-        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
-
-        $query .= <<<SQL
-            resources.name NOT LIKE '\_Module\_%'
-                AND resources.parent_name NOT LIKE '\_Module\_BAM%'
-                AND resources.enabled = 1
-                AND resources.type != 3
-            SQL;
-
-        // Apply only_with_performance_data
-        if ($filter->getOnlyWithPerformanceData() === true) {
-            $query .= ' AND resources.has_graph = 1';
-        }
-
-        foreach ($this->extraDataProviders as $provider) {
-            $query .= $provider->getSubFilter($filter);
-        }
-
-        if ($accessGroupIds !== []) {
-            $query .= " AND {$this->addResourceAclSubRequest($accessGroupIds)}";
-        }
-
-        $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
-
-        /**
-         * Resource Type filter
-         * 'service', 'metaservice', 'host'.
-         */
-        $query .= $this->addResourceTypeSubRequest($filter);
-
-        /**
-         * State filter
-         * 'unhandled_problems', 'resource_problems', 'acknowledged', 'in_downtime'.
-         */
-        $query .= $this->addResourceStateSubRequest($filter);
-
-        /**
-         * Status filter
-         * 'OK', 'WARNING', 'CRITICAL', 'UNKNOWN', 'UP', 'UNREACHABLE', 'DOWN', 'PENDING'.
-         */
-        $query .= $this->addResourceStatusSubRequest($filter);
-
-        /**
-         * Status type filter
-         * 'HARD', 'SOFT'.
-         */
-        $query .= $this->addStatusTypeSubRequest($filter);
-
-        /**
-         * Monitoring Server filter.
-         */
-        $query .= $this->addMonitoringServerSubRequest($filter, $queryParametersFromRequestParameter);
-
-        /**
-         * Severity filter (levels and/or names).
-         */
-        $query .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
-
-        if ($onlyCount) {
-            /**
-             * Handle pagination for count queries.
-             */
-            if ($this->sqlRequestTranslator->getRequestParameters()->getLimit() !== 0) {
-                $query .= $this->sqlRequestTranslator->translatePaginationToSql();
-            }
-
-            $query = str_replace(':sql_query_find', '', $query);
-            $query = "SELECT COUNT(*) FROM ({$query}) AS temp";
-        } else {
-            // Capture count query BEFORE ORDER BY and LIMIT are added.
-            $countBase = str_replace(':sql_query_find', '', $query);
-            $this->countQuery = "SELECT COUNT(*) FROM ({$countBase}) AS temp";
-
-            $query = str_replace(':sql_query_find', '', $query);
-
-            /**
-             * Handle sort parameters.
-             */
-            $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
-                ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
-
-            /**
-             * Handle pagination.
-             */
-            if ($this->sqlRequestTranslator->getRequestParameters()->getLimit() !== 0) {
-                $query .= $this->sqlRequestTranslator->translatePaginationToSql();
-            }
-        }
-
-        return $query;
+            {$orderBy}
+        SQL;
     }
 
     /**
