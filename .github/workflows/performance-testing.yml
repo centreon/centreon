@@ -228,7 +228,7 @@ jobs:
             # Exécution du test JMeter
             ./jmeter -n -t "$JMX_FILE" \
               -Jusers_csv_path="$GITHUB_WORKSPACE/centreon/tests/performance/users.csv" \
-              -Gchromedriver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
+              -Dchromedriver_path="$GITHUB_WORKSPACE/centreon/tests/performance/chrome_driver/chromedriver" \
               -l "$RESULTS_FILE" \
               -j "$LOG_FILE" \
               -LDEBUG
