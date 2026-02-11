@@ -113,7 +113,8 @@ final class FindAgentConfigurations
             $agentConfigurationDto->id = $agentConfiguration->getId();
             $agentConfigurationDto->type = $agentConfiguration->getType();
             $agentConfigurationDto->name = $agentConfiguration->getName();
-            $agentConfigurationDto->isAgentInitiated = $agentConfiguration->getConfiguration()->getData()['agent_initiated'] ?? false;
+            $agentConfigurationDto->isAgentInitiated = $agentConfiguration->getConfiguration()->getData()['agent_initiated']
+                ?? true; // If the key is not set, we defined it to true (e.g Telegraf configuration)
 
             $agentConfigurationDto->pollers = array_map(function (Poller $poller) {
                 $pollerDto = new PollerDto();
