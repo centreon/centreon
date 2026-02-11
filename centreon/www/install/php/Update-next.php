@@ -19,8 +19,10 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -128,9 +130,54 @@ $updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): vo
     );
 };
 
+/** -------------------------------------- Resource Status Indexes -------------------------------------- */
+$createResourcesListingIndex = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create index idx_resources_listing';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [resources] Creating composite index idx_resources_listing",
+    );
+
+    $dbName = $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration();
+    $indexExists = $pearDBO->fetchOne(
+        <<<'SQL'
+            SELECT 1
+            FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = :dbName
+              AND TABLE_NAME = 'resources'
+              AND INDEX_NAME = 'idx_resources_listing'
+            SQL,
+        QueryParameters::create([
+            QueryParameter::string('dbName', $dbName),
+        ])
+    );
+
+    if ($indexExists !== false) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [resources] Index idx_resources_listing already exists, skipping",
+        );
+
+        return;
+    }
+
+    $pearDBO->query(
+        <<<'SQL'
+            CREATE INDEX `idx_resources_listing`
+            ON `resources` (`enabled`, `type`, `status_ordered` DESC, `name` ASC)
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [resources] Successfully created index idx_resources_listing",
+    );
+};
+
 try {
     // DDL statements for real time database
     $updateInstancesTable();
+    $createResourcesListingIndex();
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here

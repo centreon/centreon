@@ -339,6 +339,7 @@ CREATE TABLE `resources` (
   INDEX `resources_id_index` (`id`),
   INDEX `resources_parent_id_index` (`parent_id`),
   INDEX `resources_enabled_type_index` (`enabled`, `type`),
+  INDEX `idx_resources_listing` (`enabled`, `type`, `status_ordered` DESC, `name` ASC),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
