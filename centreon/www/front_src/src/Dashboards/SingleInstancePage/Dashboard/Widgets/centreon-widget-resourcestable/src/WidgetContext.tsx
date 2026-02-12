@@ -1,3 +1,5 @@
+import type { PlatformVersions } from '@centreon/ui-context';
+
 import { createStore, Provider } from 'jotai';
 import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react';
 
@@ -7,19 +9,6 @@ import {
   platformLocalAtom
 } from './atom';
 import type { OpenTicketContext } from './models';
-
-interface Version {
-  fix: string;
-  major: string;
-  minor: string;
-  version: string;
-}
-
-interface PlatformVersions {
-  modules: Record<string, Version>;
-  web: Version;
-  widgets: Record<string, Version | null>;
-}
 
 interface WidgetProviderProps {
   children: ReactNode;

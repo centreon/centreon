@@ -1,20 +1,9 @@
+import type { PlatformVersions } from '@centreon/ui-context';
+
 import { atom } from 'jotai';
 
 import { Resource, Ticket } from './Listing/models';
 import { OpenTicketContext } from './models';
-
-interface Version {
-  fix: string;
-  major: string;
-  minor: string;
-  version: string;
-}
-
-interface PlatformVersions {
-  modules: Record<string, Version>;
-  web: Version;
-  widgets: Record<string, Version | null>;
-}
 
 /**
  * Widget-scoped atoms for managing resource table state.
