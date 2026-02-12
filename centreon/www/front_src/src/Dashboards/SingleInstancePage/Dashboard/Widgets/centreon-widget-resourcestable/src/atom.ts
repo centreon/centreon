@@ -1,6 +1,20 @@
 import { atom } from 'jotai';
 
 import { Resource, Ticket } from './Listing/models';
+import { OpenTicketContext } from './models';
+
+interface Version {
+  fix: string;
+  major: string;
+  minor: string;
+  version: string;
+}
+
+interface PlatformVersions {
+  modules: Record<string, Version>;
+  web: Version;
+  widgets: Record<string, Version | null>;
+}
 
 /**
  * Widget-scoped atoms for managing resource table state.
@@ -13,3 +27,22 @@ export const resourcesToSetDowntimeAtom = atom<Array<Resource>>([]);
 export const resourcesToOpenTicketAtom = atom<Array<Ticket>>([]);
 export const resourcesToCloseTicketAtom = atom<Array<Ticket>>([]);
 export const selectedResourcesAtom = atom<Array<Resource>>([]);
+
+/**
+ * Local scoped copies of global values.
+ * These are initialized in WidgetProvider with values from global Jotai atoms,
+ * allowing all components to use a consistent Jotai pattern instead of mixing
+ * React Context and Jotai.
+ */
+export const isOnPublicPageLocalAtom = atom(false);
+export const platformLocalAtom = atom<PlatformVersions | null>(null);
+export const openTicketContextAtom = atom<OpenTicketContext>({
+  displayResources: 'withoutTicket',
+  enableHostTicketCreation: false,
+  enableServiceTicketCreation: false,
+  isDownHostHidden: false,
+  isOpenTicketEnabled: false,
+  isOpenTicketInstalled: false,
+  isUnreachableHostHidden: false,
+  provider: undefined
+});

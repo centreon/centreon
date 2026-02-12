@@ -2,12 +2,13 @@ import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { ReactElement } from 'react';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import { isOnPublicPageLocalAtom } from '../atom';
 import { OpenTicketContext, PanelOptions } from '../models';
-import { useWidgetGlobalContext } from '../WidgetContext';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -66,7 +67,7 @@ const Listing = ({
   openTicketContext
 }: ListingProps): ReactElement => {
   const theme = useTheme();
-  const { isOnPublicPage } = useWidgetGlobalContext();
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
   const { isOpenTicketEnabled, provider } = openTicketContext;
 
   const {

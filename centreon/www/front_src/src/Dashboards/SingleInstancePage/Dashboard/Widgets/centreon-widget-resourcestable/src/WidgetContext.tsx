@@ -1,12 +1,11 @@
 import { createStore, Provider } from 'jotai';
-import {
-  createContext,
-  type ReactElement,
-  type ReactNode,
-  useContext,
-  useMemo
-} from 'react';
+import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react';
 
+import {
+  isOnPublicPageLocalAtom,
+  openTicketContextAtom,
+  platformLocalAtom
+} from './atom';
 import type { OpenTicketContext } from './models';
 
 interface Version {
@@ -22,40 +21,6 @@ interface PlatformVersions {
   widgets: Record<string, Version | null>;
 }
 
-/**
- * Context for global values that need to be accessible inside the scoped Jotai Provider.
- * These values come from global Jotai atoms (ui-context) but must be passed via React Context
- * because the widget uses a scoped Jotai store for widget-specific state isolation.
- *
- * Also includes openTicketContext for deeply nested components (like column renderers)
- * that cannot receive props directly.
- */
-interface WidgetGlobalContextValue {
-  isOnPublicPage: boolean;
-  openTicketContext: OpenTicketContext;
-  platform: PlatformVersions | null;
-}
-
-const defaultOpenTicketContext: OpenTicketContext = {
-  displayResources: 'withoutTicket',
-  enableHostTicketCreation: false,
-  enableServiceTicketCreation: false,
-  isDownHostHidden: false,
-  isOpenTicketEnabled: false,
-  isOpenTicketInstalled: false,
-  isUnreachableHostHidden: false,
-  provider: undefined
-};
-
-const WidgetGlobalContext = createContext<WidgetGlobalContextValue>({
-  isOnPublicPage: false,
-  openTicketContext: defaultOpenTicketContext,
-  platform: null
-});
-
-export const useWidgetGlobalContext = (): WidgetGlobalContextValue =>
-  useContext(WidgetGlobalContext);
-
 interface WidgetProviderProps {
   children: ReactNode;
   isOnPublicPage: boolean;
@@ -70,9 +35,9 @@ interface WidgetProviderProps {
  * sharing state through Jotai atoms. By creating a new store per widget instance,
  * each widget gets its own isolated state.
  *
- * Global values (isOnPublicPage, platform) and openTicketContext are passed via
- * React Context since they need to be accessible by deeply nested components
- * that can't receive props directly (like column renderers).
+ * Global values (isOnPublicPage, platform, openTicketContext) are initialized
+ * in the scoped store, allowing all components to use a consistent Jotai pattern
+ * with useAtomValue() instead of mixing React Context and Jotai.
  */
 export const WidgetProvider = ({
   children,
@@ -80,20 +45,27 @@ export const WidgetProvider = ({
   openTicketContext,
   platform
 }: WidgetProviderProps): ReactElement => {
-  const store = useMemo(() => createStore(), []);
+  const store = useMemo(() => {
+    const s = createStore();
+    s.set(isOnPublicPageLocalAtom, isOnPublicPage);
+    s.set(platformLocalAtom, platform);
+    s.set(openTicketContextAtom, openTicketContext);
 
-  const globalContextValue = useMemo(
-    () => ({
-      isOnPublicPage,
-      openTicketContext,
-      platform
-    }),
-    [isOnPublicPage, openTicketContext, platform]
-  );
+    return s;
+  }, []);
 
-  return (
-    <WidgetGlobalContext.Provider value={globalContextValue}>
-      <Provider store={store}>{children}</Provider>
-    </WidgetGlobalContext.Provider>
-  );
+  // Sync global values when they change
+  useEffect(() => {
+    store.set(isOnPublicPageLocalAtom, isOnPublicPage);
+  }, [isOnPublicPage, store]);
+
+  useEffect(() => {
+    store.set(platformLocalAtom, platform);
+  }, [platform, store]);
+
+  useEffect(() => {
+    store.set(openTicketContextAtom, openTicketContext);
+  }, [openTicketContext, store]);
+
+  return <Provider store={store}>{children}</Provider>;
 };

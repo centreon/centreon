@@ -1,5 +1,7 @@
 import { useFetchQuery } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
+
 import {
   type CommonWidgetProps,
   type Resource,
@@ -7,8 +9,8 @@ import {
 } from '../../../models';
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
+import { isOnPublicPageLocalAtom } from '../atom';
 import type { OpenTicketContext, PanelOptions } from '../models';
-import { useWidgetGlobalContext } from '../WidgetContext';
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
@@ -60,7 +62,7 @@ const useLoadResources = ({
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
-  const { isOnPublicPage } = useWidgetGlobalContext();
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
   const {
     displayResources,
     isDownHostHidden,

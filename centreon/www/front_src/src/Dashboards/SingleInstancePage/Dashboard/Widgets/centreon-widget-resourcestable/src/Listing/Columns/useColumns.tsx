@@ -6,6 +6,7 @@ import {
   useStyleTable
 } from '@centreon/ui';
 
+import { useAtomValue } from 'jotai';
 import {
   always,
   cond,
@@ -21,8 +22,8 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import { isOnPublicPageLocalAtom } from '../../atom';
 import type { OpenTicketContext } from '../../models';
-import { useWidgetGlobalContext } from '../../WidgetContext';
 import { DisplayType } from '../models';
 import {
   labelAction,
@@ -81,7 +82,7 @@ const useColumns = ({
     data: dataStyle.statusColumnChip
   });
 
-  const { isOnPublicPage } = useWidgetGlobalContext();
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
   const {
     displayResources,
     enableHostTicketCreation,
