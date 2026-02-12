@@ -1,16 +1,21 @@
+import { AgentConfigurationListing } from '../../models';
 import { useActionsStyles } from './Actions.styles';
 import AddButton from './AddButton';
 import InstallationCommandButton from './InstallationCommandButton';
 import Search from './Search';
 
-const Actions = (): JSX.Element => {
+interface Props {
+  rows: Array<AgentConfigurationListing>;
+}
+
+const Actions = ({ rows }: Props): JSX.Element => {
   const { classes } = useActionsStyles();
 
   return (
     <div className={classes.container}>
       <div className="flex gap-3">
         <AddButton />
-        <InstallationCommandButton />
+        <InstallationCommandButton rows={rows} />
       </div>
       <div className={classes.searchBar}>
         <Search />

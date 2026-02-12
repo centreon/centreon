@@ -38,7 +38,7 @@ const ACListing = ({ rows, total, isLoading }: Props): JSX.Element => {
   return (
     <>
       <Listing
-        actions={<Actions />}
+        actions={<Actions rows={rows} />}
         columnConfiguration={{
           selectedColumnIds,
           sortable: true
