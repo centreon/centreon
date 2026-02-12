@@ -52,9 +52,13 @@ export const WidgetProvider = ({
     store.set(platformLocalAtom, platform);
   }, [platform, store]);
 
+import { equals } from 'ramda';
+
   useEffect(() => {
-    store.set(openTicketContextAtom, openTicketContext);
-  }, [openTicketContext, store]);
+    store.set(openTicketContextAtom, (prev) =>
+      equals(prev, openTicketContext) ? prev : openTicketContext
+    );
+   }, [openTicketContext, store]);
 
   return <Provider store={store}>{children}</Provider>;
 };
