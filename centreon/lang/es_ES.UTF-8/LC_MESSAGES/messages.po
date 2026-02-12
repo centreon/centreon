@@ -11891,6 +11891,11 @@ msgstr "Número de controles antes de la validación de estado"
 msgid "Max file size in bytes"
 msgstr "Tamaño máximo en bytes"
 
+#: centreon/www/include/options/media/images/formImg.php
+#, php-format
+msgid "Max file size: %s"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Max value"
 msgstr ""
