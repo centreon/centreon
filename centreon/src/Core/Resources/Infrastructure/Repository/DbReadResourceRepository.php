@@ -898,6 +898,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $this->completeResourcesWithIcons($icons);
 
         // get total without pagination
+        $queryParametersFromRequestParameter = new QueryParameters();
         $queryCount = $this->generateFindResourcesQuery(
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
