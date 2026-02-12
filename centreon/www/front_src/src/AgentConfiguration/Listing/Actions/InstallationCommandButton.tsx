@@ -3,10 +3,10 @@ import Icon from '@mui/icons-material/CodeOffTwoTone';
 import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
+import { chain, defaultTo, find, pipe, propEq, propOr } from 'ramda';
 import { ReactElement, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { chain, defaultTo, find, pipe, propEq, propOr } from 'ramda';
 import { pollerToGenerateCommanAtom } from '../../atoms';
 import { AgentConfigurationListing } from '../../models';
 import { labelCommand } from '../../translatedLabels';

@@ -7,13 +7,9 @@ import { equals } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { CommandLine, Section, Warning } from './Components';
-import { useInstallationCommand } from './useInstallationCommand';
-
 import linuxIcon from '../../../assets/linux.png';
 import windowsIcon from '../../../assets/windows.png';
 import { getPollersEndpoint } from '../../api/endpoints';
-
 import {
   labelCommandWarning,
   labelExecuteTheScript,
@@ -25,6 +21,8 @@ import {
   labelSelectPollerThatWillMonitor,
   labelWindows
 } from '../../translatedLabels';
+import { CommandLine, Section, Warning } from './Components';
+import { useInstallationCommand } from './useInstallationCommand';
 
 enum Os {
   windows = 'windows',
@@ -76,8 +74,8 @@ const InstallationCommandModal = (): ReactElement => {
 
                   <Typography
                     className="font-medium cursor-pointer"
-                    variant="subtitle2"
                     onClick={() => setState({ ...state, os: name })}
+                    variant="subtitle2"
                   >
                     {t(label)}
                   </Typography>
