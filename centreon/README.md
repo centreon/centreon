@@ -46,6 +46,10 @@ We want to thank all [reporters and pentesters](https://github.com/centreon/.git
 
 Please read [CONTRIBUTING.md](https://github.com/centreon/.github/blob/master/CONTRIBUTING.md) for details on our code of conduct, bug report, feature request and the process for submitting pull requests for us.
 
+<h3> Contributing in PHP </h3>
+
+Please read [How To Contribute - PHP](https://github.com/centreon/centreon/doc/contributing/php.md) for details on how to contribute on PHP API.
+
 <h2> License </h2>
 
 This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE.md) file for details
