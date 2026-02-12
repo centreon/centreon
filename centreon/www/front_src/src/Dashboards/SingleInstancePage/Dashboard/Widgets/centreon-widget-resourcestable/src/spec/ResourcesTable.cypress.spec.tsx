@@ -392,6 +392,9 @@ describe('View by all', () => {
 
     cy.waitForRequest('@getResources');
 
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+
     cy.findByLabelText('arrow').click();
     cy.contains(labelCheck).click();
     cy.findByLabelText('arrow').click();
@@ -419,6 +422,9 @@ describe('View by all', () => {
     });
 
     cy.waitForRequest('@getResources');
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
 
     cy.findByLabelText(labelAcknowledge).click();
     cy.contains(labelSticky).click();

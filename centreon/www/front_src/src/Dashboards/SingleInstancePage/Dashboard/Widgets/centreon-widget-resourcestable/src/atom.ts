@@ -1,4 +1,4 @@
-import type { PlatformVersions } from '@centreon/ui-context';
+import type { Acl, PlatformVersions } from '@centreon/ui-context';
 
 import { atom } from 'jotai';
 
@@ -19,6 +19,25 @@ export const selectedResourcesAtom = atom<Array<Resource>>([]);
  * Local scoped copies of global values.
  * These are initialized in WidgetProvider with values from global Jotai atoms,
  */
+const defaultAcl: Acl = {
+  actions: {
+    host: {
+      acknowledgement: false,
+      check: false,
+      comment: false,
+      downtime: false,
+      submit_status: false
+    },
+    service: {
+      acknowledgement: false,
+      check: false,
+      comment: false,
+      downtime: false,
+      submit_status: false
+    }
+  }
+};
+export const aclLocalAtom = atom(defaultAcl);
 export const isOnPublicPageLocalAtom = atom(false);
 export const platformLocalAtom = atom<PlatformVersions | null>(null);
 export const openTicketContextAtom = atom<OpenTicketContext>({

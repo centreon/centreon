@@ -1,4 +1,8 @@
-import { isOnPublicPageAtom, platformVersionsAtom } from '@centreon/ui-context';
+import {
+  aclAtom,
+  isOnPublicPageAtom,
+  platformVersionsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { has } from 'ramda';
@@ -9,9 +13,11 @@ import ResourcesTable from './ResourcesTable';
 import { WidgetProvider } from './WidgetContext';
 
 const Widget = (props: ResourcesTableProps): ReactElement => {
+  const acl = useAtomValue(aclAtom);
   const platform = useAtomValue(platformVersionsAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
+  console.log('Widget render', acl);
   const openTicketContext = useMemo(
     (): OpenTicketContext => ({
       displayResources: props.panelOptions.displayResources,
@@ -38,6 +44,7 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
 
   return (
     <WidgetProvider
+      acl={acl}
       isOnPublicPage={isOnPublicPage}
       openTicketContext={openTicketContext}
       platform={platform}
