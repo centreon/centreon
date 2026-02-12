@@ -898,9 +898,16 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $this->completeResourcesWithIcons($icons);
 
         // get total without pagination
+        $queryCount = $this->generateFindResourcesQuery(
+            filter: $filter,
+            queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
+            accessGroupIds: $accessGroupIds,
+            withoutSort: true,
+            withoutPagination: true
+        );
         $queryTotal = $this->connection->createQueryBuilder()
             ->select('COUNT(*)')
-            ->from("({$queryFind})", 'count_resources')
+            ->from("({$queryCount})", 'count_resources')
             ->getQuery();
         if (($total = $this->connection->fetchOne($this->translateDbName($queryTotal), $queryParameters)) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
