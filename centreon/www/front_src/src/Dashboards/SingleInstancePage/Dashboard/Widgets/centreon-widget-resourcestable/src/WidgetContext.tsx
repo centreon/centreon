@@ -1,6 +1,7 @@
 import type { PlatformVersions } from '@centreon/ui-context';
 
 import { createStore, Provider } from 'jotai';
+import { equals } from 'ramda';
 import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react';
 
 import {
@@ -35,13 +36,13 @@ export const WidgetProvider = ({
   platform
 }: WidgetProviderProps): ReactElement => {
   const store = useMemo(() => {
-    const s = createStore();
-    s.set(isOnPublicPageLocalAtom, isOnPublicPage);
-    s.set(platformLocalAtom, platform);
-    s.set(openTicketContextAtom, openTicketContext);
+    const newStore = createStore();
+    newStore.set(isOnPublicPageLocalAtom, isOnPublicPage);
+    newStore.set(platformLocalAtom, platform);
+    newStore.set(openTicketContextAtom, openTicketContext);
 
-    return s;
-  }, []);
+    return newStore;
+  }, [isOnPublicPage, openTicketContext, platform]);
 
   // Sync global values when they change
   useEffect(() => {
@@ -52,13 +53,11 @@ export const WidgetProvider = ({
     store.set(platformLocalAtom, platform);
   }, [platform, store]);
 
-import { equals } from 'ramda';
-
   useEffect(() => {
     store.set(openTicketContextAtom, (prev) =>
       equals(prev, openTicketContext) ? prev : openTicketContext
     );
-   }, [openTicketContext, store]);
+  }, [openTicketContext, store]);
 
   return <Provider store={store}>{children}</Provider>;
 };
