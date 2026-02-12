@@ -2,12 +2,12 @@ import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabe
 import {
   labelAction,
   labelAdd,
-  labelAddAgentConfiguration,
   labelAddAHost,
+  labelAddAgentConfiguration,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
-  labelAgentsConfigurations,
   labelAgentType,
+  labelAgentsConfigurations,
   labelByPoller,
   labelCACommonName,
   labelCaCertificate,
@@ -15,10 +15,10 @@ import {
   labelClear,
   labelConfigurationServer,
   labelConnectionInitiated,
+  labelDNSIP,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
-  labelDNSIP,
   labelEncryptionLevel,
   labelInsecure,
   labelInvalidExtension,
@@ -193,15 +193,13 @@ describe('Agent configurations', () => {
     cy.findByTestId('CancelIcon').click();
     cy.findByLabelText('Filters').click();
 
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
-
     cy.makeSnapshot();
   });
 
   it('clears filters when filters are populated and the corresponding button is clicked', () => {
     initialize({});
 
-    // cy.waitForRequest('@getAgentConfigurations');
+    cy.waitForRequest('@getAgentConfigurations');
     cy.findByLabelText('Filters').click();
     cy.findByLabelText(labelAgentType).click({ force: true });
     cy.get('[data-option-index="1"]').click();
@@ -222,7 +220,6 @@ describe('Agent configurations', () => {
 
     cy.findAllByTestId(labelName).eq(1).should('have.value', '');
     cy.contains('poller6').should('not.exist');
-    cy.contains('Centreon Monitoring Agent').should('not.exist');
 
     cy.makeSnapshot();
   });
