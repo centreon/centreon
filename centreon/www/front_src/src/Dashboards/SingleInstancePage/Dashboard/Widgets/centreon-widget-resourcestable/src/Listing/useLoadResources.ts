@@ -1,7 +1,4 @@
 import { useFetchQuery } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
-
-import { useAtomValue } from 'jotai';
 
 import {
   type CommonWidgetProps,
@@ -10,8 +7,8 @@ import {
 } from '../../../models';
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
-import { openTicketAtom } from '../atom';
-import type { PanelOptions } from '../models';
+import type { OpenTicketContext, PanelOptions } from '../models';
+import { useWidgetGlobalContext } from '../WidgetContext';
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
@@ -23,6 +20,7 @@ interface LoadResourcesProps
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   limit?: number;
+  openTicketContext: OpenTicketContext;
   page: number | undefined;
   refreshCount: number;
   refreshIntervalToUse: number | false;
@@ -33,7 +31,6 @@ interface LoadResourcesProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
-  isOpenTicketEnabled: boolean;
 }
 
 interface LoadResources {
@@ -59,17 +56,18 @@ const useLoadResources = ({
   statusTypes,
   hostSeverities,
   serviceSeverities,
-  isOpenTicketEnabled
+  openTicketContext
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const { isOnPublicPage } = useWidgetGlobalContext();
   const {
     displayResources,
     isDownHostHidden,
+    isOpenTicketEnabled,
     isUnreachableHostHidden,
     provider
-  } = useAtomValue(openTicketAtom);
+  } = openTicketContext;
 
   const { data, isLoading } = useFetchQuery<ResourceListing>({
     getEndpoint: () =>
@@ -88,11 +86,11 @@ const useLoadResources = ({
           type: displayType,
           ...(isOpenTicketEnabled
             ? {
-                displayResources,
-                isDownHostHidden,
-                isUnreachableHostHidden,
-                provider
-              }
+              displayResources,
+              isDownHostHidden,
+              isUnreachableHostHidden,
+              provider
+            }
             : {})
         }),
         extraQueryParameters: {
@@ -123,7 +121,8 @@ const useLoadResources = ({
       page,
       refreshCount,
       isDownHostHidden,
-      isUnreachableHostHidden
+      isUnreachableHostHidden,
+      id
     ],
     queryOptions: {
       refetchInterval: refreshIntervalToUse,

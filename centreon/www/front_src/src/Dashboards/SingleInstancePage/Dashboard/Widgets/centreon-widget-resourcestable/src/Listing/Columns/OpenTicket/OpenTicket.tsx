@@ -2,12 +2,13 @@ import { useTheme } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { and, equals, or } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { openTicketAtom, resourcesToOpenTicketAtom } from '../../../atom';
+import { resourcesToOpenTicketAtom } from '../../../atom';
+import { useWidgetGlobalContext } from '../../../WidgetContext';
 import {
   labelOpenTicketForHost,
   labelOpenTicketForService
@@ -22,8 +23,9 @@ const OpenTicket = ({ row }: ComponentColumnProps): ReactElement => {
   const { palette } = useTheme();
 
   const setResourcesToOpenTicket = useSetAtom(resourcesToOpenTicketAtom);
+  const { openTicketContext } = useWidgetGlobalContext();
   const { enableHostTicketCreation, enableServiceTicketCreation } =
-    useAtomValue(openTicketAtom);
+    openTicketContext;
 
   const { type } = row;
   const isHost = equals(type, 'host');

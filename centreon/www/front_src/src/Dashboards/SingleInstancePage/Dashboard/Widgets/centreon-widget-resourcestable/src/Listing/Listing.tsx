@@ -1,15 +1,13 @@
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { ReactElement } from 'react';
 
 import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
-import { openTicketAtom } from '../atom';
-import { PanelOptions } from '../models';
+import { OpenTicketContext, PanelOptions } from '../models';
+import { useWidgetGlobalContext } from '../WidgetContext';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -29,6 +27,7 @@ interface ListingProps
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
   limit?: number;
+  openTicketContext: OpenTicketContext;
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -63,9 +62,12 @@ const Listing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities
+  serviceSeverities,
+  openTicketContext
 }: ListingProps): ReactElement => {
   const theme = useTheme();
+  const { isOnPublicPage } = useWidgetGlobalContext();
+  const { isOpenTicketEnabled, provider } = openTicketContext;
 
   const {
     selectColumns,
@@ -98,6 +100,7 @@ const Listing = ({
     id,
     isFromPreview,
     limit,
+    openTicketContext,
     playlistHash,
     refreshCount,
     refreshIntervalToUse,
@@ -111,9 +114,6 @@ const Listing = ({
     statusTypes,
     widgetPrefixQuery
   });
-
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
-  const { isOpenTicketEnabled, provider } = useAtomValue(openTicketAtom);
 
   return (
     <>

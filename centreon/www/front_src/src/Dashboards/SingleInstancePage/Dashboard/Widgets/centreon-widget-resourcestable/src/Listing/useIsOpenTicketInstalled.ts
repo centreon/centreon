@@ -1,10 +1,9 @@
-import { platformVersionsAtom } from '@centreon/ui-context';
-
-import { useAtomValue } from 'jotai';
 import { has } from 'ramda';
 
+import { useWidgetGlobalContext } from '../WidgetContext';
+
 const useIsOpenTicketInstalled = (): boolean => {
-  const platform = useAtomValue(platformVersionsAtom);
+  const { platform } = useWidgetGlobalContext();
 
   const isOpenTicketInstalled = has('centreon-open-tickets', platform?.modules);
 

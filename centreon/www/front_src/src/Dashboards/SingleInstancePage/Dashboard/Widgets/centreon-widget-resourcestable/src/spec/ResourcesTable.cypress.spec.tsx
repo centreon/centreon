@@ -16,7 +16,7 @@ import {
   resourcesEndpoint,
   viewByHostEndpoint
 } from '../api/endpoints';
-import { openTicketAtom } from '../atom';
+import Widget from '../index';
 import {
   acknowledgeEndpoint,
   checkEndpoint,
@@ -43,7 +43,6 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
-import ResourcesTable from '../ResourcesTable';
 import {
   columnsForViewByHost,
   columnsForViewByService,
@@ -110,16 +109,7 @@ const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
   store.set(aclAtom, mockAcl());
-  store.set(openTicketAtom, {
-    displayResources: options.displayResources,
-    enableHostTicketCreation: options.enableHostTicketCreation,
-    enableServiceTicketCreation: options.enableServiceTicketCreation,
-    isDownHostHidden: options.isDownHostHidden,
-    isOpenTicketEnabled: options.isOpenTicketEnabled,
-    isOpenTicketInstalled: true,
-    isUnreachableHostHidden: options.isUnreachableHostHidden,
-    provider: options.provider
-  });
+  store.set(platformVersionsAtom, platformVersions);
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -134,7 +124,7 @@ const render = ({ options, data, isPublic = false }: Props): void => {
           <SnackbarProvider>
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
-                <ResourcesTable
+                <Widget
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
@@ -146,6 +136,7 @@ const render = ({ options, data, isPublic = false }: Props): void => {
                   panelOptions={options}
                   playlistHash="hash"
                   refreshCount={0}
+                  widgetPrefixQuery="widget"
                 />
               </div>
             </Provider>

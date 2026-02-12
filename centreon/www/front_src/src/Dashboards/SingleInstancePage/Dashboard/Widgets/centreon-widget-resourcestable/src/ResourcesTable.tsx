@@ -3,7 +3,12 @@ import { useRefreshInterval } from '@centreon/ui';
 import { ReactElement } from 'react';
 
 import { Listing } from './Listing';
-import { ResourcesTableProps } from './models';
+import { OpenTicketContext, ResourcesTableProps } from './models';
+
+interface ResourceTableProps
+  extends Omit<ResourcesTableProps, 'store' | 'queryClient'> {
+  openTicketContext: OpenTicketContext;
+}
 
 const ResourceTable = ({
   globalRefreshInterval,
@@ -16,8 +21,9 @@ const ResourceTable = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery
-}: Omit<ResourcesTableProps, 'store' | 'queryClient'>): ReactElement => {
+  widgetPrefixQuery,
+  openTicketContext
+}: ResourceTableProps): ReactElement => {
   const { resources } = panelData;
 
   const {
@@ -51,6 +57,7 @@ const ResourceTable = ({
         id={id}
         isFromPreview={isFromPreview}
         limit={limit}
+        openTicketContext={openTicketContext}
         playlistHash={playlistHash}
         refreshCount={refreshCount}
         refreshIntervalToUse={refreshIntervalToUse}

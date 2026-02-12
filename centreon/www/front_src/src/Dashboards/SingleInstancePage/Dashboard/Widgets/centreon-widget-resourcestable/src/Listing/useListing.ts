@@ -1,6 +1,6 @@
 import { type Column, useSnackbar } from '@centreon/ui';
 
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,13 +8,12 @@ import { useTranslation } from 'react-i18next';
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
-  openTicketAtom,
   resourcesToAcknowledgeAtom,
   resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../atom';
-import type { PanelOptions } from '../models';
+import type { OpenTicketContext, PanelOptions } from '../models';
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
@@ -60,7 +59,7 @@ interface UseListingProps
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
   limit?: number;
-  provider?: { id: number; name: string };
+  openTicketContext: OpenTicketContext;
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -92,10 +91,12 @@ const useListing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities
+  serviceSeverities,
+  openTicketContext
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
+  const { isOpenTicketEnabled } = openTicketContext;
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -113,8 +114,6 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
-  const { isOpenTicketEnabled } = useAtomValue(openTicketAtom);
-
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
       setPanelOptions?.({ displayType: DisplayType.Service });
@@ -128,8 +127,8 @@ const useListing = ({
     displayType,
     hostSeverities,
     id,
-    isOpenTicketEnabled,
     limit,
+    openTicketContext,
     page,
     playlistHash,
     refreshCount,
@@ -182,7 +181,10 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const { columns, defaultSelectedColumnIds } = useColumns({ displayType });
+  const { columns, defaultSelectedColumnIds } = useColumns({
+    displayType,
+    openTicketContext
+  });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
     if (updatedColumnIds.length < 3) {

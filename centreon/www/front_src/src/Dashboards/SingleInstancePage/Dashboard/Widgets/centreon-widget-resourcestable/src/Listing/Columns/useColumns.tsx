@@ -5,9 +5,7 @@ import {
   useLocaleDateTimeFormat,
   useStyleTable
 } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { useAtomValue } from 'jotai';
 import {
   always,
   cond,
@@ -23,7 +21,8 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { openTicketAtom } from '../../atom';
+import type { OpenTicketContext } from '../../models';
+import { useWidgetGlobalContext } from '../../WidgetContext';
 import { DisplayType } from '../models';
 import {
   labelAction,
@@ -61,6 +60,7 @@ import StatusColumn from './Status';
 
 interface ColumnProps {
   displayType?: DisplayType;
+  openTicketContext: OpenTicketContext;
 }
 
 interface ColumnsState {
@@ -73,14 +73,15 @@ const getTicketInformations = (row) =>
   row?.parent?.extra?.open_tickets?.tickets;
 
 const useColumns = ({
-  displayType = DisplayType.All
+  displayType = DisplayType.All,
+  openTicketContext
 }: ColumnProps): ColumnsState => {
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
     data: dataStyle.statusColumnChip
   });
 
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const { isOnPublicPage } = useWidgetGlobalContext();
   const {
     displayResources,
     enableHostTicketCreation,
@@ -88,7 +89,7 @@ const useColumns = ({
     isOpenTicketEnabled,
     isOpenTicketInstalled,
     provider
-  } = useAtomValue(openTicketAtom);
+  } = openTicketContext;
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
