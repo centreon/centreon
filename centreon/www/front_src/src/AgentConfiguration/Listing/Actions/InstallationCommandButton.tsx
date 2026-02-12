@@ -14,10 +14,7 @@ const InstallationCommandButton = (): ReactElement => {
 
   const setOpenFormModal = useSetAtom(pollerToGenerateCommanAtom);
 
-  const displayModal = useCallback(
-    () => setOpenFormModal({ id: 1, name: 'hello' }),
-    []
-  );
+  const displayModal = useCallback(() => setOpenFormModal({}), []);
 
   return (
     <Button

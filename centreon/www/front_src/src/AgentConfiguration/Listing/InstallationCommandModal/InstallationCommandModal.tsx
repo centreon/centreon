@@ -1,4 +1,4 @@
-import { Link, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
 import { IconButton, SingleConnectedAutocompleteField } from '@centreon/ui';
 import { Modal } from '@centreon/ui/components';
@@ -7,13 +7,15 @@ import { equals } from 'ramda';
 import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { CommandLine, Section, Warning } from './Components';
+import { useInstallationCommand } from './useInstallationCommand';
+
 import linuxIcon from '../../../assets/linux.png';
 import windowsIcon from '../../../assets/windows.png';
 import { getPollersEndpoint } from '../../api/endpoints';
+
 import {
   labelCommandWarning,
-  labelDownload,
-  labelDownloadTheScript,
   labelExecuteTheScript,
   labelGenerateInstallationCommand,
   labelLinux,
@@ -21,11 +23,8 @@ import {
   labelSelectOperatingSystem,
   labelSelectPoller,
   labelSelectPollerThatWillMonitor,
-  labelThenCopyTheScript,
   labelWindows
 } from '../../translatedLabels';
-import { CommandLine, Section, Warning } from './Components';
-import { useInstallationCommand } from './useInstallationCommand';
 
 enum Os {
   windows = 'windows',
@@ -71,34 +70,31 @@ const InstallationCommandModal = (): ReactElement => {
                     ariaLabel={t(label)}
                     className={`flex justify-center items-center w-16 h-16 rounded-sm ${equals(name, state.os) ? 'border-2 border-primary-main' : ''}`}
                     onClick={() => setState({ ...state, os: name })}
-                    title={t(label)}
                   >
                     <img alt={label} className="h-12 w-auto" src={src} />
                   </IconButton>
-                  <Typography className="font-medium" variant="subtitle2">
+
+                  <Typography
+                    className="font-medium cursor-pointer"
+                    variant="subtitle2"
+                    onClick={() => setState({ ...state, os: name })}
+                  >
                     {t(label)}
                   </Typography>
                 </div>
               ))}
             </div>
           </Section>
-
-          <Section order={3} title={t(labelDownloadTheScript)}>
-            <Typography>
-              <Link href={state.scriptUrl} rel="noreferrer" target="_blank">
-                {t(labelDownload)}
-              </Link>
-              &nbsp;
-              {t(labelThenCopyTheScript)}
-            </Typography>
-          </Section>
-
-          <Section order={4} title={t(labelExecuteTheScript)}>
-            <div className="flex flex-col gap-1">
-              <Typography>{t(labelRunTheFollowingCommand)}</Typography>
-              <CommandLine commandLine={state.scriptCommand} />
-            </div>
-          </Section>
+          {
+            <Section order={4} title={t(labelExecuteTheScript)}>
+              {state.scriptCommand && (
+                <div className="flex flex-col gap-1">
+                  <Typography>{t(labelRunTheFollowingCommand)}</Typography>
+                  <CommandLine commandLine={state.scriptCommand} />
+                </div>
+              )}
+            </Section>
+          }
         </div>
       </Modal.Body>
     </Modal>

@@ -107,8 +107,6 @@ export enum FormVariant {
 
 export interface InstallationCommand {
   id: number;
-  windowsScriptURL: string;
-  linuxScriptURL: string;
   windowsScriptCommand: string;
   linuxScriptCommand: string;
 }

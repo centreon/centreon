@@ -152,17 +152,13 @@ export const installationCommandDecoder =
     {
       id: JsonDecoder.number,
       linuxScriptCommand: JsonDecoder.string,
-      linuxScriptURL: JsonDecoder.string,
-      windowsScriptCommand: JsonDecoder.string,
-      windowsScriptURL: JsonDecoder.string
+      windowsScriptCommand: JsonDecoder.string
     },
     'Agent configuration',
     {
       id: 'poller_id',
       linuxScriptCommand: 'linux_script_command',
-      linuxScriptURL: 'linux_script_url',
-      windowsScriptCommand: 'windows_script_command',
-      windowsScriptURL: 'windows_script_url'
+      windowsScriptCommand: 'windows_script_command'
     }
   );
 

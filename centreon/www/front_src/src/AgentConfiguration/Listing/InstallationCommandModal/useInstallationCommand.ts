@@ -18,8 +18,7 @@ export const useInstallationCommand = () => {
   const [poller, setPoller] = useAtom(pollerToGenerateCommanAtom);
   const [state, setState] = useState({
     os: Os.windows,
-    scriptCommand: '',
-    scriptUrl: ''
+    scriptCommand: ''
   });
 
   const isOpen = Boolean(poller);
@@ -53,10 +52,7 @@ export const useInstallationCommand = () => {
       os: state.os,
       scriptCommand: equals(state.os, Os.windows)
         ? data.windowsScriptCommand
-        : data.linuxScriptCommand,
-      scriptUrl: equals(state.os, Os.windows)
-        ? data.windowsScriptURL
-        : data.linuxScriptURL
+        : data.linuxScriptCommand
     });
   }, [data?.id, state.os]);
 
