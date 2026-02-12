@@ -28,7 +28,10 @@ use Core\Common\Domain\Exception\ValueObjectException;
 use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 
 require_once _CENTREON_PATH_ . 'www/class/centreonImageManager.php';
+require_once _CENTREON_PATH_ . 'www/include/common/common-Func.php';
 require_once __DIR__ . '/../../../../../bootstrap.php';
+
+$isCloudPlatform = isCloudPlatform();
 
 const BASE_CENTREON_IMG_DIRECTORY = './img/media';
 
@@ -260,7 +263,8 @@ if ($form->validate()) {
             $_FILES,
             './img/media/',
             $imgPath,
-            $imgComment
+            $imgComment,
+            $isCloudPlatform
         );
         if ($form->getSubmitValue('submitA')) {
             $valid = $oImageUploader->upload();
@@ -282,7 +286,8 @@ if ($form->validate()) {
                 $file,
                 './img/media/',
                 $imgPath,
-                $imgComment
+                $imgComment,
+                $isCloudPlatform
             );
             if ($form->getSubmitValue('submitA')) {
                 $valid = $oImageUploader->uploadFromDirectory('pendingMedia');
@@ -312,7 +317,7 @@ if ($valid) {
     $renderer->setErrorTemplate('<font color="red">{$error}</font><br />{$html}');
     $form->accept($renderer);
     $tpl->assign('form', $renderer->toArray());
-    $tpl->assign('max_uploader_file', ini_get('upload_max_filesize'));
+    $tpl->assign('max_uploader_file', sprintf(_('Max file size: %s'), $isCloudPlatform ? '2M' : '5M'));
     $tpl->assign('o', $o);
     $tpl->display('formImg.ihtml');
 }
