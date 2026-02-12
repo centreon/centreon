@@ -36,18 +36,14 @@ use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validation;
 
 #[AsCommand(name: 'agent-configuration:host:create', description: 'Create a host and deploy services for an agent configuration')]
 final readonly class CreateHostForAgentConfigurationCommand
 {
     public function __construct(
-        private readonly ReadAgentConfigurationRepositoryInterface $agentConfigurationRepository,
-        private readonly ReadHostRepositoryInterface $readHostRepository,
-        private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
-        private readonly WriteHostRepositoryInterface $writeHostRepository,
-        private readonly ReadServiceRepositoryInterface $readServiceRepository,
-        private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
-        private readonly WriteServiceRepositoryInterface $writeServiceRepository,
+        private readonly CreateHostForAgentConfiguration $usecase,
     ) {
     }
 
@@ -57,25 +53,16 @@ final readonly class CreateHostForAgentConfigurationCommand
     ): int {
         try {
             $data = json_decode($jsonArg, true, 512, JSON_THROW_ON_ERROR);
+            $this->validateJsonData($data);
 
             $request = new CreateHostForAgentConfigurationRequest(
-                pollerId: $data['pollerId'] ?? throw new \InvalidArgumentException('pollerId is required'),
-                hostName: $data['hostName'] ?? throw new \InvalidArgumentException('hostName is required'),
-                address: $data['ips'][0] ?? throw new \InvalidArgumentException('ips is required and must contain at least one IP address'),
+                pollerId: $data['pollerId'],
+                hostName: $data['hostName'],
+                address: $data['ips'][0],
                 templateName: $data['hostTemplate'] ?? null,
             );
 
-            $useCase = new CreateHostForAgentConfiguration(
-                agentConfigurationRepository: $this->agentConfigurationRepository,
-                readHostRepository: $this->readHostRepository,
-                readHostTemplateRepository: $this->readHostTemplateRepository,
-                writeHostRepository: $this->writeHostRepository,
-                readServiceRepository: $this->readServiceRepository,
-                readServiceTemplateRepository: $this->readServiceTemplateRepository,
-                writeServiceRepository: $this->writeServiceRepository,
-            );
-
-            $return = ($useCase)($request);
+            $return = ($this->usecase)($request);
 
             if ($return['success'] === true) {
                 $io->success([
@@ -105,5 +92,22 @@ final readonly class CreateHostForAgentConfigurationCommand
         }
 
         return Command::FAILURE;
+    }
+
+    private function validateJsonData(array $data): void
+    {
+        $constraint = new Assert\Collection([
+            'pollerId' => [new Assert\NotBlank(), new Assert\Type('integer')],
+            'hostName' => [new Assert\NotBlank(), new Assert\Type('string')],
+            'ips' => [new Assert\NotBlank(), new Assert\Type('array'), new Assert\Count(min: 1)],
+            'hostTemplate' => new Assert\Optional([new Assert\Type('string')]),
+        ]);
+
+        $validator = Validation::createValidator();
+        $violations = $validator->validate($data, $constraint);
+
+        if (count($violations) > 0) {
+            throw new \InvalidArgumentException((string) $violations);
+        }
     }
 }

@@ -30,7 +30,6 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\NewHost;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\NewService;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
@@ -43,7 +42,6 @@ final class CreateHostForAgentConfiguration
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
-        private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
     ) {
@@ -118,7 +116,9 @@ final class CreateHostForAgentConfiguration
             ]
         );
 
-        if ($agentConfiguration->getConfiguration()->getData()['create_host_auto'] === false) {
+        $configData = $agentConfiguration->getConfiguration()->getData();
+        $createHostAuto = $configData['create_host_auto'] ?? false;
+        if ($createHostAuto === false) {
             CentreonLog::create()->info(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                 message: '[AC][create_host_auto] Agent configuration is not set to create host automatically. Nothing to do.',
@@ -208,7 +208,7 @@ final class CreateHostForAgentConfiguration
         if ($template === null) {
             CentreonLog::create()->warning(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                message: '[AC][create_host_auto] Host template not found.',
+                message: '[AC][create_host_auto] Host template not found or undefined.',
                 customContext: [
                     'agent_configuration_id' => $agentConfigurationId,
                     'host_template_name' => $templateName,
@@ -267,15 +267,22 @@ final class CreateHostForAgentConfiguration
             $serviceTemplates = $this->readServiceTemplateRepository->findByHostId($hostParent['parent_id']);
 
             foreach ($serviceTemplates as $serviceTemplate) {
-                $serviceNames = $this->readServiceRepository->findServiceNamesByHost($hostId);
-                if (
-                    $serviceNames === null
-                    || $serviceNames->contains(new TrimmedString($serviceTemplate->getAlias()))
-                ) {
+                $alias = $serviceTemplate->getAlias();
+                if (array_key_exists($alias, $deployedServices, true)) {
+                    CentreonLog::create()->debug(
+                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
+                        message: '[AC][create_host_auto] Service already exists with that name, skipping creation.',
+                        customContext: [
+                            'agent_configuration_id' => $agentConfigurationId,
+                            'host_id' => $hostId,
+                            'service_name' => $alias,
+                        ]
+                    );
+
                     continue;
                 }
                 $service = new NewService(
-                    $serviceTemplate->getAlias(),
+                    $alias,
                     $hostId,
                     null // command line must be inherited from template when you deploy services from a host
                 );
@@ -284,7 +291,7 @@ final class CreateHostForAgentConfiguration
                 $serviceId = $this->writeServiceRepository->add($service);
                 $service = $this->readServiceRepository->findById($serviceId);
                 if ($service !== null) {
-                    $deployedServices[] = $service;
+                    $deployedServices[$alias] = $service;
 
                     CentreonLog::create()->debug(
                         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

@@ -25,7 +25,7 @@ services:
         class: Core\AgentConfiguration\Infrastructure\Repository\DbReadAgentConfigurationRepository
         public: true
 
-    Core\AgentConfiguration\Infrastructure\Command\CreateHostForAgentConfigurationCommand:
+    Core\AgentConfiguration\Application\UseCase\CreateHostForAgentConfiguration:
         arguments:
             $readHostTemplateRepository: '@Core\HostTemplate\Infrastructure\Repository\DbReadHostTemplateRepository'
             $readServiceRepository: '@Core\Service\Infrastructure\Repository\DbReadServiceRepository'
