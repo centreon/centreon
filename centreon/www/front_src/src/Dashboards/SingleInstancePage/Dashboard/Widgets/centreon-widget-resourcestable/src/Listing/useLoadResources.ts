@@ -88,11 +88,11 @@ const useLoadResources = ({
           type: displayType,
           ...(isOpenTicketEnabled
             ? {
-              displayResources,
-              isDownHostHidden,
-              isUnreachableHostHidden,
-              provider
-            }
+                displayResources,
+                isDownHostHidden,
+                isUnreachableHostHidden,
+                provider
+              }
             : {})
         }),
         extraQueryParameters: {

@@ -19,12 +19,12 @@ export interface Parameter {
 
 export interface AdditionalConnectorListItem extends NamedEntity {
   createdAt: string;
-  createdBy: NamedEntity;
+  createdBy?: NamedEntity;
   description: string | null;
   name: string;
   type: string;
   updatedAt: string | null;
-  updatedBy: NamedEntity | null;
+  updatedBy?: NamedEntity | null;
 }
 
 export interface AdditionalConnectorConfiguration {
