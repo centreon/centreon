@@ -2,12 +2,12 @@ import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabe
 import {
   labelAction,
   labelAdd,
-  labelAddAgentConfiguration,
-  labelAddAHost,
+  labelAddAHost
+  labelAddAgentConfigurationConfiguration,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
-  labelAgentsConfigurations,
-  labelAgentType,
+  labelAgentType
+  labelAgentsConfigurationsfigurations,
   labelByPoller,
   labelCACommonName,
   labelCaCertificate,
@@ -15,10 +15,10 @@ import {
   labelClear,
   labelConfigurationServer,
   labelConnectionInitiated,
-  labelDelete,
-  labelDeleteAgent,
-  labelDeletePoller,
   labelDNSIP,
+  labelDNSIP,
+  labelDelete,
+  labelDeleteAgent,ePoller,
   labelEncryptionLevel,
   labelInsecure,
   labelInvalidExtension,
@@ -491,6 +491,9 @@ describe('Agent configurations modal', () => {
 
     cy.findByTestId('By agent selected').should('be.visible');
     cy.findByTestId('By poller selected').should('not.exist');
+
+    cy.findByTestId('modal-body').scrollTo('bottom');
+
     cy.contains(labelConnectionInitiated);
     cy.contains(labelOTLPReceiver).should('be.visible');
     cy.findByLabelText(labelPublicCertificate).should('have.value', '');

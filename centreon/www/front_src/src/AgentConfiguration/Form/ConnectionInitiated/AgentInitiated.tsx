@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Checkbox, FormControlLabel } from '@mui/material';
 
 import {
   MultiConnectedAutocompleteField,
@@ -15,8 +15,9 @@ import { listTokensDecoder } from '../../api/decoders';
 import { getTokensEndpoint } from '../../api/endpoints';
 import { AgentConfigurationForm, ConnectionMode } from '../../models';
 import {
-  labelCaCertificate,
   labelCMAauthenticationToken,
+  labelCaCertificate,
+  labelCreateHostAutomatically,
   labelOTLPReceiver,
   labelPort,
   labelPrivateKey,
@@ -63,6 +64,11 @@ const AgentInitiated = (): React.ReactElement => {
     setFieldValue(tokensProperty, newTokens);
   };
 
+  const changeCreateHost = (_, checked): void => {
+    setFieldTouched('configuration.createHostAuto', true, false);
+    setFieldValue('configuration.createHostAuto', checked);
+  };
+
   const isTLSModes = useMemo(
     () =>
       equals(values.connectionMode?.id, ConnectionMode.secure) ||
@@ -71,8 +77,20 @@ const AgentInitiated = (): React.ReactElement => {
   );
 
   return (
-    <Box className={classes.container}>
-      <Box>
+    <Box className="flex flex-col">
+      <Box className="mb-2">
+        <FormControlLabel
+          control={
+            <Checkbox
+              data-testid={labelCreateHostAutomatically}
+              checked={values.configuration.createHostAuto}
+              onChange={changeCreateHost}
+            />
+          }
+          label={t(labelCreateHostAutomatically)}
+        />
+      </Box>
+      <Box className="mb-4">
         <Title label={labelOTLPReceiver} />
 
         <Box className="grid grid-cols-2 gap-4">
