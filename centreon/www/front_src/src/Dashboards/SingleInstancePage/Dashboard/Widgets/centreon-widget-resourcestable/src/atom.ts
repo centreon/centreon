@@ -1,9 +1,9 @@
-import type { Acl, PlatformVersions } from '@centreon/ui-context';
+import { defaultAcl, type PlatformVersions } from '@centreon/ui-context';
 
 import { atom } from 'jotai';
 
-import { Resource, Ticket } from './Listing/models';
-import { OpenTicketContext } from './models';
+import type { Resource, Ticket } from './Listing/models';
+import type { OpenTicketContext } from './models';
 
 /**
  * Widget-scoped atoms for managing resource table state.
@@ -19,24 +19,6 @@ export const selectedResourcesAtom = atom<Array<Resource>>([]);
  * Local scoped copies of global values.
  * These are initialized in WidgetProvider with values from global Jotai atoms,
  */
-const defaultAcl: Acl = {
-  actions: {
-    host: {
-      acknowledgement: false,
-      check: false,
-      comment: false,
-      downtime: false,
-      submit_status: false
-    },
-    service: {
-      acknowledgement: false,
-      check: false,
-      comment: false,
-      downtime: false,
-      submit_status: false
-    }
-  }
-};
 export const aclLocalAtom = atom(defaultAcl);
 export const isOnPublicPageLocalAtom = atom(false);
 export const platformLocalAtom = atom<PlatformVersions | null>(null);
