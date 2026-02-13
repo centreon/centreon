@@ -324,7 +324,6 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
         <<<'SQL'
             SELECT COUNT(*) as count
             FROM `additional_connector_configuration`
-            WHERE type = 'vmware_v6'
             AND parameters IS NOT NULL
             AND JSON_LENGTH(parameters) > 0
             SQL
