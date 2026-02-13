@@ -15,11 +15,14 @@ const jmxFolder = process.env.JMX_FOLDER || path.join(process.cwd(), 'jmeterFold
 
 /**
  * Update JMX file content
- * COMPLETELY ignores everything between <ThreadGroup testname="Map"> and </ThreadGroup>
+ * COMPLETELY ignores the Map ThreadGroup AND its associated hashTree
+ * Structure: <ThreadGroup testname="Map">...</ThreadGroup><hashTree>...samplers...</hashTree>
  */
 function updateJmxContent(content) {
   const lines = content.split('\n');
   let inMapGroup = false;
+  let inMapHashTree = false;
+  let hashTreeDepth = 0;
 
   const updatedLines = lines.map((line) => {
     // Detect entry into Map ThreadGroup
@@ -28,13 +31,29 @@ function updateJmxContent(content) {
       return line;
     }
 
-    // Detect exit of Map ThreadGroup
+    // Detect exit of Map ThreadGroup - next we expect its hashTree
     if (inMapGroup && line.includes('</ThreadGroup>')) {
       inMapGroup = false;
+      inMapHashTree = true; // The next hashTree belongs to Map
+      hashTreeDepth = 0;
       return line;
     }
 
-    // IF WE ARE IN MAP: DO NOTHING, RETURN UNTOUCHED
+    // Track hashTree depth for the Map group
+    if (inMapHashTree) {
+      if (line.includes('<hashTree>') || line.match(/<hashTree\s*\/>/)) {
+        hashTreeDepth++;
+      }
+      if (line.includes('</hashTree>')) {
+        hashTreeDepth--;
+        if (hashTreeDepth === 0) {
+          inMapHashTree = false; // Exiting Map's hashTree
+        }
+      }
+      return line; // Don't modify anything in Map's hashTree
+    }
+
+    // IF WE ARE IN MAP ThreadGroup definition: DO NOTHING
     if (inMapGroup) {
       return line;
     }
