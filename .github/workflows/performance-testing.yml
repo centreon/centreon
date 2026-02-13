@@ -32,6 +32,14 @@ on:
       ramp_time:
         description: 'Ramp-up time (in seconds)'
         required: true
+      map_server_domain:
+        description: 'Domain for MAP server (e.g., 172.16.21.21)'
+        required: true
+        type: string
+      map_server_port:
+        description: 'Port for MAP server (e.g., 8081)'
+        required: true
+        type: string
 
 jobs:
   dependency-scan:
@@ -200,8 +208,24 @@ jobs:
             sed -i "s|<intProp name=\"ThreadGroup.num_threads\">.*</intProp>|<intProp name=\"ThreadGroup.num_threads\">${{ github.event.inputs.number_of_users }}</intProp>|g" "$JMX_FILE"
             sed -i "s|<intProp name=\"ThreadGroup.ramp_time\">.*</intProp>|<intProp name=\"ThreadGroup.ramp_time\">${{ github.event.inputs.ramp_time }}</intProp>|g" "$JMX_FILE"
             sed -i 's|<collectionProp name="ChromeDriverConfig.arguments">|<collectionProp name="ChromeDriverConfig.arguments"><stringProp name="">--headless=new</stringProp><stringProp name="">--no-sandbox</stringProp><stringProp name="">--disable-dev-shm-usage</stringProp>|g' "$JMX_FILE"
-            echo "Updated $JMX_FILE:"
-            cat $JMX_FILE
+
+            # Update MAP server settings only for /centreon-map/ requests
+            MAP_DOMAIN="${{ github.event.inputs.map_server_domain }}"
+            MAP_PORT="${{ github.event.inputs.map_server_port }}"
+
+            if [[ -n "$MAP_DOMAIN" ]]; then
+              echo "Updating MAP server domain to: $MAP_DOMAIN"
+              # Use perl for multi-line matching: find HTTPSamplerProxy blocks containing /centreon-map/ and update domain
+              perl -i -0pe 's/(<HTTPSamplerProxy[^>]*>.*?)(<stringProp name="HTTPSampler\.domain">)[^<]*(<\/stringProp>)(.*?\/centreon-map\/)/$1$2'"$MAP_DOMAIN"'$3$4/gs' "$JMX_FILE"
+            fi
+
+            if [[ -n "$MAP_PORT" ]]; then
+              echo "Updating MAP server port to: $MAP_PORT"
+              # Use perl for multi-line matching: find HTTPSamplerProxy blocks containing /centreon-map/ and update port
+              perl -i -0pe 's/(<HTTPSamplerProxy[^>]*>.*?)(<stringProp name="HTTPSampler\.port">)[^<]*(<\/stringProp>)(.*?\/centreon-map\/)/$1$2'"$MAP_PORT"'$3$4/gs' "$JMX_FILE"
+            fi
+
+            echo "Updated $JMX_FILE"
           done
 
       - name: Inject Data into database
