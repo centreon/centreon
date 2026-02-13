@@ -45,7 +45,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
     private const LEGACY_PERMISSION_MAP = [
         'ROLE_CONFIGURATION_SERVICES_CATEGORIES_R' => ServiceCategoryPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_SERVICES_CATEGORIES_RW' => ServiceCategoryPermissionEnum::CanWrite->value,
-        'ROLE_CONFIGURATION_POLLERS_RESOURCES_RW' => GlobalMacroPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_POLLERS_GLOBAL_MACROS_RW' => GlobalMacroPermissionEnum::CanRead->value,
     ];
 
     /**
