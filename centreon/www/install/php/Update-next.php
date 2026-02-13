@@ -305,25 +305,19 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
     );
 
     // First, check if the parameters column exists
-    $columnExists = $pearDB->query(
-        <<<'SQL'
-            SELECT COUNT(*) as count
-            FROM information_schema.COLUMNS
-            WHERE TABLE_SCHEMA = DATABASE()
-            AND TABLE_NAME = 'additional_connector_configuration'
-            AND COLUMN_NAME = 'parameters'
-            SQL
-    );
-    $columnExistsResult = $columnExists->fetch(PDO::FETCH_ASSOC);
-
-    if ((int) $columnExistsResult['count'] === 0) {
+    if (! $pearDB->columnExists(
+            $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'additional_connector_configuration',
+            'parameters'
+    )) {
         CentreonLog::create()->info(
-            logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: [acc] Parameters column already dropped from additional_connector_configuration table",
+                logTypeId: CentreonLog::TYPE_UPGRADE,
+                message: "UPGRADE - {$version}: [acc] Parameters column already dropped from additional_connector_configuration table",
         );
 
         return;
     }
+    
 
     // Check if there are any ACCs with non-empty parameters
     $checkParams = $pearDB->query(
