@@ -221,10 +221,18 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
          * Handle search values.
          * >> To do before count and find resources to prepare the query parameters with the search values for both queries.
          */
-        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
-            $this->sqlRequestTranslator->getSearchValues()
-        );
-        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
+        try {
+            $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+                $this->sqlRequestTranslator->getSearchValues()
+            );
+            $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameters);
+        } catch (TransformerException|CollectionException $e) {
+            throw new RepositoryException(
+                message: 'An error occurred while translating search parameters to query parameters while finding parent resources by id',
+                context: ['searchValues' => $this->sqlRequestTranslator->getSearchValues()],
+                previous: $e
+            );
+        }
 
         /**
          * Translate the query with the database name.
@@ -248,7 +256,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         } catch (\Exception $totalException) {
             throw new RepositoryException(
                 message: 'An error occurred while counting parent resources by id',
-                context: ['filter' => $filter],
+                context: ['searchValues' => $this->sqlRequestTranslator->getSearchValues()],
                 previous: $totalException
             );
         }
@@ -906,6 +914,12 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             withoutSort: true,
             withoutPagination: true
         );
+
+        $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
+            $this->sqlRequestTranslator->getSearchValues()
+        );
+        $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
+
         $queryTotal = $this->connection->createQueryBuilder()
             ->select('COUNT(*)')
             ->from("({$queryCount})", 'count_resources')
