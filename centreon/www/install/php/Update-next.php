@@ -318,7 +318,6 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
         return;
     }
 
-
     // Check if there are any ACCs with non-empty parameters
     $checkParams = $pearDB->query(
         <<<'SQL'
