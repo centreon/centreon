@@ -17,7 +17,6 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
   const platform = useAtomValue(platformVersionsAtom);
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
-  console.log('Widget render', acl);
   const openTicketContext = useMemo(
     (): OpenTicketContext => ({
       displayResources: props.panelOptions.displayResources,

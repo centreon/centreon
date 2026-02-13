@@ -27,7 +27,6 @@ export const WidgetProvider = ({
   openTicketContext,
   platform
 }: WidgetProviderProps): ReactElement => {
-  console.log('WidgetProvider render');
   const store = useMemo(() => {
     const newStore = createStore();
     newStore.set(aclLocalAtom, acl);
