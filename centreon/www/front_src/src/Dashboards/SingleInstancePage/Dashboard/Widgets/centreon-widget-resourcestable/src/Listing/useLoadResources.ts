@@ -9,8 +9,8 @@ import {
 } from '../../../models';
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
-import { isOnPublicPageLocalAtom } from '../atom';
-import type { OpenTicketContext, PanelOptions } from '../models';
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../atom';
+import type { PanelOptions } from '../models';
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
@@ -22,7 +22,6 @@ interface LoadResourcesProps
   displayType: DisplayType;
   hostSeverities: Array<NamedEntity>;
   limit?: number;
-  openTicketContext: OpenTicketContext;
   page: number | undefined;
   refreshCount: number;
   refreshIntervalToUse: number | false;
@@ -57,8 +56,7 @@ const useLoadResources = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities,
-  openTicketContext
+  serviceSeverities
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
@@ -69,7 +67,7 @@ const useLoadResources = ({
     isOpenTicketEnabled,
     isUnreachableHostHidden,
     provider
-  } = openTicketContext;
+  } = useAtomValue(openTicketContextAtom);
 
   const { data, isLoading } = useFetchQuery<ResourceListing>({
     getEndpoint: () =>
@@ -88,11 +86,11 @@ const useLoadResources = ({
           type: displayType,
           ...(isOpenTicketEnabled
             ? {
-              displayResources,
-              isDownHostHidden,
-              isUnreachableHostHidden,
-              provider
-            }
+                displayResources,
+                isDownHostHidden,
+                isUnreachableHostHidden,
+                provider
+              }
             : {})
         }),
         extraQueryParameters: {

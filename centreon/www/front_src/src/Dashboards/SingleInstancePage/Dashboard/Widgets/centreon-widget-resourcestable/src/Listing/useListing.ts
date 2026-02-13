@@ -1,6 +1,6 @@
 import { type Column, useSnackbar } from '@centreon/ui';
 
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,12 +8,13 @@ import { useTranslation } from 'react-i18next';
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
+  openTicketContextAtom,
   resourcesToAcknowledgeAtom,
   resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom
 } from '../atom';
-import type { OpenTicketContext, PanelOptions } from '../models';
+import type { PanelOptions } from '../models';
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
@@ -59,7 +60,6 @@ interface UseListingProps
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
   limit?: number;
-  openTicketContext: OpenTicketContext;
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -91,12 +91,11 @@ const useListing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities,
-  openTicketContext
+  serviceSeverities
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
-  const { isOpenTicketEnabled } = openTicketContext;
+  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -128,7 +127,6 @@ const useListing = ({
     hostSeverities,
     id,
     limit,
-    openTicketContext,
     page,
     playlistHash,
     refreshCount,
@@ -182,8 +180,7 @@ const useListing = ({
   };
 
   const { columns, defaultSelectedColumnIds } = useColumns({
-    displayType,
-    openTicketContext
+    displayType
   });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {

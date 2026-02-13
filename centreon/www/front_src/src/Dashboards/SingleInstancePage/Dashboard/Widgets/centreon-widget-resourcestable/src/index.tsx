@@ -6,9 +6,9 @@ import {
 
 import { useAtomValue } from 'jotai';
 import { has } from 'ramda';
-import { ReactElement, useMemo } from 'react';
+import { type ReactElement, useMemo } from 'react';
 
-import { OpenTicketContext, ResourcesTableProps } from './models';
+import type { OpenTicketContext, ResourcesTableProps } from './models';
 import ResourcesTable from './ResourcesTable';
 import { WidgetProvider } from './WidgetContext';
 
@@ -48,7 +48,7 @@ const Widget = (props: ResourcesTableProps): ReactElement => {
       openTicketContext={openTicketContext}
       platform={platform}
     >
-      <ResourcesTable {...props} openTicketContext={openTicketContext} />
+      <ResourcesTable {...props} />
     </WidgetProvider>
   );
 };

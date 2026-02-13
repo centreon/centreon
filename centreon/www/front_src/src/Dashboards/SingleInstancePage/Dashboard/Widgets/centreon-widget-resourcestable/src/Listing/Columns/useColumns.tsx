@@ -22,8 +22,7 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { isOnPublicPageLocalAtom } from '../../atom';
-import type { OpenTicketContext } from '../../models';
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../../atom';
 import { DisplayType } from '../models';
 import {
   labelAction,
@@ -61,7 +60,6 @@ import StatusColumn from './Status';
 
 interface ColumnProps {
   displayType?: DisplayType;
-  openTicketContext: OpenTicketContext;
 }
 
 interface ColumnsState {
@@ -74,8 +72,7 @@ const getTicketInformations = (row) =>
   row?.parent?.extra?.open_tickets?.tickets;
 
 const useColumns = ({
-  displayType = DisplayType.All,
-  openTicketContext
+  displayType = DisplayType.All
 }: ColumnProps): ColumnsState => {
   const { dataStyle } = useStyleTable({});
   const { classes: statusClasses } = useStatusStyles({
@@ -90,7 +87,7 @@ const useColumns = ({
     isOpenTicketEnabled,
     isOpenTicketInstalled,
     provider
-  } = openTicketContext;
+  } = useAtomValue(openTicketContextAtom);
 
   const { format } = useLocaleDateTimeFormat();
   const { t } = useTranslation();

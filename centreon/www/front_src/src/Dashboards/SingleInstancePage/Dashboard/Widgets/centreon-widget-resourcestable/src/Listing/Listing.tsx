@@ -4,18 +4,18 @@ import { MemoizedListing, SeverityCode } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
-import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
-import { isOnPublicPageLocalAtom } from '../atom';
-import { OpenTicketContext, PanelOptions } from '../models';
+import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../atom';
+import type { PanelOptions } from '../models';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
 import CloseTicketModal from './Columns/CloseTicket/Modal';
 import OpenTicketModal from './Columns/OpenTicket/Modal';
 import { rowColorConditions } from './colors';
-import { DisplayType as DisplayTypeEnum, NamedEntity } from './models';
+import { DisplayType as DisplayTypeEnum, type NamedEntity } from './models';
 import useListing from './useListing';
 
 interface ListingProps
@@ -28,7 +28,6 @@ interface ListingProps
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
   limit?: number;
-  openTicketContext: OpenTicketContext;
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -63,12 +62,11 @@ const Listing = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities,
-  openTicketContext
+  serviceSeverities
 }: ListingProps): ReactElement => {
   const theme = useTheme();
   const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
-  const { isOpenTicketEnabled, provider } = openTicketContext;
+  const { isOpenTicketEnabled, provider } = useAtomValue(openTicketContextAtom);
 
   const {
     selectColumns,
@@ -101,7 +99,6 @@ const Listing = ({
     id,
     isFromPreview,
     limit,
-    openTicketContext,
     playlistHash,
     refreshCount,
     refreshIntervalToUse,
