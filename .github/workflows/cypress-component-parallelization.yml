@@ -151,7 +151,8 @@ jobs:
     needs: [cypress-component-test-run]
     if: |
       ! cancelled() &&
-      ! contains(needs.*.result, 'cancelled')
+      ! contains(needs.*.result, 'cancelled') &&
+      ! github.event.pull_request.head.repo.fork
     runs-on: ubuntu-24.04
 
     steps:
@@ -169,7 +170,7 @@ jobs:
           merge-multiple: true
 
       - uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
-        if: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.ref_name == 'develop' }}
+        if: ${{ github.event_name == 'pull_request' || github.ref_name == 'develop' }}
         with:
           aws-region: eu-west-1
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
