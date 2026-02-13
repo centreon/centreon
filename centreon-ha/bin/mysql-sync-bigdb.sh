@@ -186,7 +186,12 @@ if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
 else
     gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_executed')
 fi
-if ! echo "$gtid_current_pos" | grep -qE '[0-9]+-[0-9]+-[0-9]+' ; then
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+    _gtid_pattern='[0-9]+-[0-9]+-[0-9]+'
+else
+    _gtid_pattern='[0-9a-fA-F-]+:[0-9]+'
+fi
+if ! echo "$gtid_current_pos" | grep -qE "$_gtid_pattern" ; then
     mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF;'
     echo "ERROR: cannot get gtid current pos"
     exit 1

@@ -25,6 +25,7 @@ sql_fetch_db_binary()
     fi
 
     # order is important as mariadb installs a mysqld symlink
+    local _test_binary
     for _test_binary in mariadbd mysqld; do
         command -v "$_test_binary" &>/dev/null
         if [ $? -eq 0 ]; then
@@ -46,6 +47,7 @@ sql_fetch_systemd_service()
     fi
 
     # order is important as mariadb installs symlinks
+    local _test_service
     for _test_service in mariadb mysql; do
         if systemctl list-unit-files "$_test_service.service" 2>/dev/null | grep -q "$_test_service.service"; then
             SQL_SYSTEMD_SERVICE="$_test_service"
@@ -64,6 +66,7 @@ sql_fetch_db_running()
         return 1
     fi
 
+    local _process
     _process=$(ps -o args --no-headers -C "${SQL_DB_BINARY}" | head -1)
 
     if [ -n "$_process" ] ; then
@@ -81,15 +84,16 @@ sql_fetch_db_config()
         return 1
     fi
 
+    local _process _options
     _process=$(ps -o args --no-headers -C "${SQL_DB_BINARY}" | head -1)
 
     if [ -n "$_process" ] ; then
-        SQL_CONF_DATADIR=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "--datadir")) { print $i } } }' | awk -F\= '{ print $2 }')
-        SQL_CONF_DEFAULTS_FILE=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "--defaults-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-        SQL_CONF_LOG_BIN_ARG=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $1 }')
-        SQL_CONF_LOG_BIN=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "--log-bin")) { print $i } } }' | awk -F\= '{ print $2 }')
-        SQL_CONF_PID_FILE=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "--pid-file")) { print $i } } }' | awk -F\= '{ print $2 }')
-        SQL_CONF_RELAY_LOG=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "--relay-log")) { print $i } } }' | awk -F\= '{ print $2 }')
+        SQL_CONF_DATADIR=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "^--datadir=")) { print $i } } }' | awk -F\= '{ print $2 }')
+        SQL_CONF_DEFAULTS_FILE=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "^--defaults-file=")) { print $i } } }' | awk -F\= '{ print $2 }')
+        SQL_CONF_LOG_BIN_ARG=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "^--log-bin=")) { print $i } } }' | awk -F\= '{ print $1 }')
+        SQL_CONF_LOG_BIN=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "^--log-bin=")) { print $i } } }' | awk -F\= '{ print $2 }')
+        SQL_CONF_PID_FILE=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "^--pid-file=")) { print $i } } }' | awk -F\= '{ print $2 }')
+        SQL_CONF_RELAY_LOG=$(echo "$_process" | awk '{ for (i = 1; i <= NF; i++) { if (match($i, "^--relay-log=")) { print $i } } }' | awk -F\= '{ print $2 }')
         SQL_IS_RUNNING=1
     else
         SQL_IS_RUNNING=0
