@@ -446,8 +446,8 @@ jobs:
 
           docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
-          if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
-            echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
+         if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
+           echo "Running script ${COLLECTION_DIRECTORY}/setup.sh with ${{ matrix.feature }} ..."
             bash -ex ${COLLECTION_DIRECTORY}/setup.sh "${{ matrix.feature }}"
           fi
 
