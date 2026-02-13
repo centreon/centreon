@@ -20,7 +20,7 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV" enabled="true">
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV">
           <stringProp name="filename">${__P(users_csv_path)}</stringProp>
           <stringProp name="fileEncoding">UTF-8</stringProp>
           <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
@@ -521,7 +521,7 @@ if (loopIndex &lt; filters.size()) {
             <hashTree/>
           </hashTree>
         </hashTree>
-        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
             <name>saveConfig</name>
@@ -570,7 +570,7 @@ if (loopIndex &lt; filters.size()) {
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV" enabled="true">
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Read users from CSV">
           <stringProp name="filename">${__P(users_csv_path)}</stringProp>
           <stringProp name="fileEncoding">UTF-8</stringProp>
           <stringProp name="variableNames">USERNAME,PASSWORD</stringProp>
@@ -1304,7 +1304,7 @@ try {
           <com.googlecode.jmeter.plugins.webdriver.config.ChromeDriverConfig guiclass="com.googlecode.jmeter.plugins.webdriver.config.gui.ChromeDriverConfigGui" testclass="com.googlecode.jmeter.plugins.webdriver.config.ChromeDriverConfig" testname="Chrome driver path">
             <boolProp name="WebDriverConfig.acceptinsecurecerts">false</boolProp>
             <boolProp name="WebDriverConfig.reset_per_iteration">true</boolProp>
-            <stringProp name="WebDriverConfig.driver_path">${__P(chromedriver_path)} </stringProp>
+            <stringProp name="WebDriverConfig.driver_path">${__P(chromedriver_path)}</stringProp>
             <boolProp name="WebDriverConfig.dev_mode">false</boolProp>
             <boolProp name="WebDriverConfig.headless">true</boolProp>
             <boolProp name="WebDriverConfig.maximize_browser">true</boolProp>
