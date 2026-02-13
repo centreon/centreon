@@ -1390,8 +1390,7 @@ function updateHost_MC($hostId = null)
             $submittedValues['command_command_id_arg2'] = str_replace("\r", '#R#', $submittedValues['command_command_id_arg2']);
         }
     }
-
-    if (isset($submittedValues['command_command_id'])) {
+    if (! empty($submittedValues['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
         if ($command === null) {

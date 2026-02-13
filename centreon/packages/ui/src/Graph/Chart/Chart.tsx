@@ -339,8 +339,10 @@ const Chart = ({
                 )}
                 {!isEmpty(linesDisplayedAsLine) && (
                   <Lines
+                    axis={axis}
                     displayAnchor={displayAnchor}
                     displayedLines={linesDisplayedAsLine}
+                    firstUnit={firstUnit}
                     graphSvgRef={graphSvgRef}
                     hasSecondUnit={hasSecondUnit}
                     height={graphHeight - marginTop}
@@ -348,6 +350,7 @@ const Chart = ({
                     maxLeftAxisCharacters={maxLeftAxisCharacters}
                     scale={axis?.scale}
                     scaleLogarithmicBase={axis?.scaleLogarithmicBase}
+                    secondUnit={secondUnit}
                     timeSeries={timeSeries}
                     width={graphWidth}
                     xScale={xScale}
