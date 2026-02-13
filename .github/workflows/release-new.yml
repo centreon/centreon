@@ -52,6 +52,20 @@ jobs:
             echo "Inputs are not empty."
           fi
         shell: bash
+      - name: Check release branch and release type inputs coherence
+        run: |
+          # Extract release branch prefix
+          RELEASE_BRANCH="${{ inputs.release_branch }}"
+          RELEASE_BRANCH_PREFIX="${RELEASE_BRANCH%%-*}"
+
+          echo "Checking inputs coherence against $RELEASE_BRANCH <> ${{ inputs.release_branch }}..."
+          if [[ "$RELEASE_BRANCH_PREFIX" == "${{ inputs.release_type }}" ]]; then
+            echo "Inputs are ok, continue."
+          else
+            echo "Inputs are NOT ok, exiting."
+            exit 1
+          fi
+        shell: bash
       - name: Check if release or hotfix branch exists
         run: |
           echo "Given inputs:"

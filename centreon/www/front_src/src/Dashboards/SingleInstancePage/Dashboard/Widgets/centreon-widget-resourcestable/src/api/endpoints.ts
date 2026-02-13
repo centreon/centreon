@@ -66,31 +66,31 @@ export const buildResourcesEndpoint = ({
     customQueryParameters: [
       ...(provider
         ? [
-          { name: 'ticket_provider_id', value: provider.id },
-          {
-            name: 'only_with_opened_tickets',
-            value: !!equals(displayResources, 'withTicket')
-          }
-        ]
+            { name: 'ticket_provider_id', value: provider.id },
+            {
+              name: 'only_with_opened_tickets',
+              value: !!equals(displayResources, 'withTicket')
+            }
+          ]
         : []),
       { name: 'types', value: formattedType },
       { name: 'statuses', value: formattedStatuses },
       { name: 'status_types', value: statusTypes },
       ...(hostSeverities
         ? [
-          {
-            name: 'host_severity_names',
-            value: pluck('name', hostSeverities)
-          }
-        ]
+            {
+              name: 'host_severity_names',
+              value: pluck('name', hostSeverities)
+            }
+          ]
         : []),
       ...(serviceSeverities
         ? [
-          {
-            name: 'service_severity_names',
-            value: pluck('name', serviceSeverities)
-          }
-        ]
+            {
+              name: 'service_severity_names',
+              value: pluck('name', serviceSeverities)
+            }
+          ]
         : []),
       { name: 'states', value: states },
       ...resourcesCustomParameters
