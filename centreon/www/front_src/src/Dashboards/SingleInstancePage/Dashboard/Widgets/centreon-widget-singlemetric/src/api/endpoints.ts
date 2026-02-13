@@ -33,5 +33,5 @@ export const selectEndpoint = ({
 }: SelectEndpointProps) => {
   return isMetaServiceSelected
     ? getMetricsMetaServiceEndpoint({ metaServiceId: idForService, metricName })
-    : getMetricsEndpoint({ hostId, serviceId: idForService, metricName });
+    : getMetricsEndpoint({ hostId, metricName, serviceId: idForService });
 };

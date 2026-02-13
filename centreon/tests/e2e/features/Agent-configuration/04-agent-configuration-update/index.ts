@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
@@ -52,10 +53,10 @@ Given('an already existing agent configuration', () => {
   cy.contains('button', 'Add').click();
   cy.addTelegrafAgent({
     ...agentsConfiguration.telegraf1,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf1.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf1.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf1.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf1.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf1.publicCertfFileName
   });
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');
@@ -121,10 +122,10 @@ Then('a pop up is displayed with all of the agent information', () => {
 When('the user updates some information', () => {
   cy.updateTelegrafAgent({
     ...agentsConfiguration.telegraf2,
-    publicCertificationFileName:
-      agentsConfiguration.telegraf2.publicCertfFileName,
+    certificateFileName: agentsConfiguration.telegraf2.certfFileName,
     privateKeyFileName: agentsConfiguration.telegraf2.privateKFileName,
-    certificateFileName: agentsConfiguration.telegraf2.certfFileName
+    publicCertificationFileName:
+      agentsConfiguration.telegraf2.publicCertfFileName
   });
 });
 

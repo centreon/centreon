@@ -1,10 +1,9 @@
-import { useTranslation } from 'react-i18next';
-
 import { CircularProgress } from '@mui/material';
 
-import { Button } from '../../..';
-import { AccessRightInitialValues, Labels } from '../models';
+import { useTranslation } from 'react-i18next';
 
+import { Button } from '../../..';
+import type { AccessRightInitialValues, Labels } from '../models';
 import { useActionsStyles } from './Actions.styles';
 import { useActions } from './useActions';
 
@@ -41,8 +40,8 @@ const Actions = ({
       {cancel && (
         <Button
           aria-label={t(labels.cancel)}
-          variant="secondary"
           onClick={onCancel}
+          variant="secondary"
         >
           {t(labels.cancel)}
         </Button>
@@ -52,8 +51,8 @@ const Actions = ({
         disabled={isSubmitting || !dirty}
         icon={isSubmitting ? <CircularProgress size={24} /> : null}
         iconVariant={isSubmitting ? 'start' : 'none'}
-        variant="primary"
         onClick={save}
+        variant="primary"
       >
         {t(labels.save)}
       </Button>

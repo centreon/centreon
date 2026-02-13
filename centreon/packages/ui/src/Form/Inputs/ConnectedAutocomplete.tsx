@@ -1,17 +1,15 @@
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
 import { useCallback, useMemo } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, isEmpty, propEq, reject, split } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import {
-  SingleConnectedAutocompleteField,
   buildListingEndpoint,
+  SingleConnectedAutocompleteField,
   useMemoComponent
 } from '../..';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
-
-import { InputPropsWithoutGroup, InputType } from './models';
+import { type InputPropsWithoutGroup, InputType } from './models';
 
 const defaultFilterKey = 'name';
 
@@ -47,6 +45,7 @@ const ConnectedAutocomplete = ({
   const getEndpoint = (parameters): string =>
     buildListingEndpoint({
       baseEndpoint: connectedAutocomplete?.endpoint,
+      customQueryParameters: connectedAutocomplete?.customQueryParameters || [],
       parameters: {
         ...parameters,
         search: {
@@ -57,8 +56,7 @@ const ConnectedAutocomplete = ({
           ...parameters.search
         },
         sort: { [filterKey]: 'ASC' }
-      },
-      customQueryParameters: connectedAutocomplete?.customQueryParameters || []
+      }
     });
 
   const fieldNamePath = split('.', fieldName);
@@ -67,12 +65,12 @@ const ConnectedAutocomplete = ({
     (_, value): void => {
       if (change) {
         change({
-          setFieldValue,
-          value,
           setFieldTouched,
+          setFieldValue,
+          setTouched,
           setValues,
-          values,
-          setTouched
+          value,
+          values
         });
 
         return;
@@ -81,7 +79,15 @@ const ConnectedAutocomplete = ({
       setFieldTouched(fieldName, true, false);
       setFieldValue(fieldName, value);
     },
-    [fieldName, touched, additionalMemoProps]
+    [
+      fieldName,
+      change,
+      setFieldTouched,
+      setFieldValue,
+      setTouched,
+      setValues,
+      values
+    ]
   );
 
   const blur = (): void => setFieldTouched(fieldName, true);
@@ -129,27 +135,27 @@ const ConnectedAutocomplete = ({
       <AutocompleteField
         chipProps={chipProps}
         dataTestId={dataTestId}
+        decoder={connectedAutocomplete?.decoder}
         disableClearable={false}
-        disableSortedOptions={disableSortedOptions}
         disabled={disabled}
+        disableSelectAll={connectedAutocomplete?.disableSelectAll}
+        disableSortedOptions={disableSortedOptions}
         error={error}
         field={filterKey}
         getEndpoint={getEndpoint}
-        decoder={connectedAutocomplete?.decoder}
-        getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         getOptionLabel={connectedAutocomplete?.getOptionLabel}
-        optionProperty={connectedAutocomplete?.optionProperty}
+        getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}
+        limitTags={connectedAutocomplete?.limitTags}
         name={fieldName}
-        required={isRequired}
-        value={value ?? null}
         onBlur={blur}
         onChange={changeAutocomplete}
-        disableSelectAll={connectedAutocomplete?.disableSelectAll}
-        limitTags={connectedAutocomplete?.limitTags}
+        optionProperty={connectedAutocomplete?.optionProperty}
+        required={isRequired}
         searchConditions={connectedAutocomplete?.additionalConditionParameters}
+        value={value ?? null}
       />
     ),
     memoProps: [

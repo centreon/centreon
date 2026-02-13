@@ -1,5 +1,5 @@
 import { Formik } from 'formik';
-import { Provider, createStore } from 'jotai';
+import { createStore, Provider } from 'jotai';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -10,7 +10,6 @@ import {
   labelShowValueLabels,
   labelTop
 } from '../../../../translatedLabels';
-
 import TopBottomSettings from './TopBottomSettings';
 
 const initializeComponent = (canEditField = true): void => {

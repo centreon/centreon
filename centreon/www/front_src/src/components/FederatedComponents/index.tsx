@@ -1,4 +1,8 @@
-import { ReactNode, useMemo } from 'react';
+import { useMemoComponent } from '@centreon/ui';
+import {
+  federatedModulesAtom,
+  federatedWidgetsAtom
+} from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import {
@@ -11,12 +15,7 @@ import {
   reject,
   type
 } from 'ramda';
-
-import { useMemoComponent } from '@centreon/ui';
-import {
-  federatedModulesAtom,
-  federatedWidgetsAtom
-} from '@centreon/ui-context';
+import { ReactNode, useMemo } from 'react';
 
 import { Remote } from '../../federatedModules/Load';
 import {
@@ -65,8 +64,8 @@ const FederatedModules = ({
               (component) => {
                 return (
                   <Remote
-                    isFederatedComponent
                     component={component}
+                    isFederatedComponent
                     isFederatedWidget={isFederatedWidget}
                     key={component}
                     moduleFederationName={moduleFederationName}
@@ -115,28 +114,28 @@ const getLoadableComponents = ({
 
   const components = path
     ? filter(({ federatedComponentsConfiguration }) => {
-      if (equals(type(federatedComponentsConfiguration), 'Object')) {
-        return equals(path, federatedComponentsConfiguration.path);
-      }
+        if (equals(type(federatedComponentsConfiguration), 'Object')) {
+          return equals(path, federatedComponentsConfiguration.path);
+        }
 
-      return federatedComponentsConfiguration?.some(
-        ({ path: federatedPath }) => equals(path, federatedPath)
-      );
-    }, filteredFederatedModules)
+        return federatedComponentsConfiguration?.some(
+          ({ path: federatedPath }) => equals(path, federatedPath)
+        );
+      }, filteredFederatedModules)
     : filteredFederatedModules;
 
   return path
     ? components.map(({ federatedComponentsConfiguration, ...rest }) => ({
-      ...rest,
-      federatedComponentsConfiguration: equals(
-        type(federatedComponentsConfiguration),
-        'Object'
-      )
-        ? federatedComponentsConfiguration
-        : federatedComponentsConfiguration?.filter(
-          ({ path: federatedPath }) => equals(path, federatedPath)
+        ...rest,
+        federatedComponentsConfiguration: equals(
+          type(federatedComponentsConfiguration),
+          'Object'
         )
-    }))
+          ? federatedComponentsConfiguration
+          : federatedComponentsConfiguration?.filter(
+              ({ path: federatedPath }) => equals(path, federatedPath)
+            )
+      }))
     : components;
 };
 

@@ -2,14 +2,15 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useParameterStyles = makeStyles()((theme) => ({
   parameterComposition: {
+    display: 'grid',
+    gap: theme.spacing(2, 4),
+    gridTemplate: "'1fr 1fr' '1fr 1fr'",
+    gridTemplateColumns: '1fr 1fr',
     height: 'auto',
     marginBottom: theme.spacing(1.5),
     overflow: 'auto',
     paddingTop: theme.spacing(1),
-    width: '100%',
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: theme.spacing(2, 4)
+    width: '100%'
   },
   parameterCompositionItem: {
     display: 'flex',

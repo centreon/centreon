@@ -1,11 +1,10 @@
-import { useState } from 'react';
-
-import { isEmpty, or } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import TextField from '@mui/material/TextField';
 
-import Dialog, { Props as DialogProps } from '..';
+import { isEmpty, or } from 'ramda';
+import { useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import Dialog, { type Props as DialogProps } from '..';
 
 type Props = DialogProps & {
   labelInput?: string;
@@ -53,9 +52,12 @@ const Duplicate = ({
     >
       <TextField
         autoFocus
-        fullWidth
         className={classes.container}
         color="primary"
+        fullWidth
+        label={labelInput}
+        margin="dense"
+        onChange={handleChange}
         slotProps={{
           htmlInput: {
             'aria-label': 'Duplications',
@@ -63,11 +65,8 @@ const Duplicate = ({
             min: 1
           }
         }}
-        label={labelInput}
-        margin="dense"
         type="number"
         value={value}
-        onChange={handleChange}
       />
     </Dialog>
   );

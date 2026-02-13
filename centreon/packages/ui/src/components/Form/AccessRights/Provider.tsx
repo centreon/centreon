@@ -1,6 +1,5 @@
-import { ReactNode } from 'react';
-
-import { Provider as JotaiProvider, createStore } from 'jotai';
+import { createStore, Provider as JotaiProvider } from 'jotai';
+import type { ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;

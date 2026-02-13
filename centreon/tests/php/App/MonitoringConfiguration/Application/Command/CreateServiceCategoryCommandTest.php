@@ -32,7 +32,7 @@ use PHPUnit\Framework\TestCase;
 use Tests\App\MonitoringConfiguration\Infrastructure\Double\FakeServiceCategoryRepository;
 use Tests\App\Shared\Double\EventBusSpy;
 
-final class CreateServiceCategoryCommandHandlerTest extends TestCase
+final class CreateServiceCategoryCommandTest extends TestCase
 {
     public function testCreateServiceCategory(): void
     {

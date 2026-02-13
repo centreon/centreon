@@ -1,4 +1,5 @@
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import metrics from '../../fixtures/dashboards/creation/widgets/metrics.json';
 
 interface Dashboard {
@@ -179,9 +180,9 @@ Cypress.Commands.add(
       return cy
         .get('.MuiSelect-select')
         .should('be.visible')
-        .then(($elements) => {
+        .then((elements) => {
           cy.getByLabel({ label: 'close', tag: 'button' }).click();
-          return cy.wrap($elements.length === expectedElementCount);
+          return cy.wrap(elements.length === expectedElementCount);
         });
     };
 
@@ -454,11 +455,11 @@ Cypress.Commands.add(
   ): Cypress.Chainable => {
     cy.get('[data-testid="Legend"] > *')
       .eq(index)
-      .each(($legendItem) => {
-        cy.wrap($legendItem)
+      .each((legendItem) => {
+        cy.wrap(legendItem)
           .find('[class*=legendItem] a')
-          .then(($aTags) => {
-            $aTags.each((i, aTag) => {
+          .then((aTags) => {
+            aTags.each((i, aTag) => {
               cy.wrap(aTag)
                 .find('div')
                 .invoke('attr', 'style')
@@ -496,13 +497,11 @@ Cypress.Commands.add('addNewHostAndReturnId', (hostData = {}) => {
     macros: [
       {
         description: 'Some text to describe the macro',
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         is_password: false,
         name: 'MacroName',
         value: 'macroValue'
       }
     ],
-    // biome-ignore lint/style/useNamingConvention: <explanation>
     monitoring_server_id: 1,
     name: 'generic-active-host',
     templates: [2]
@@ -539,7 +538,6 @@ Cypress.Commands.add('getServiceIdByName', (serviceName) => {
 
 Cypress.Commands.add('patchServiceWithHost', (hostId, serviceId) => {
   const patchData = {
-    // biome-ignore lint/style/useNamingConvention: <explanation>
     host_id: hostId
   };
   cy.request({
@@ -555,26 +553,19 @@ Cypress.Commands.add(
   'addNewServiceAndReturnId',
   (hostId: number, serviceData = {}) => {
     const defaultServiceData = {
-      // biome-ignore lint/style/useNamingConvention: <explanation>
       check_command_args: [],
-      // biome-ignore lint/style/useNamingConvention: <explanation>
       check_command_id: null,
       comment: 'string',
-      // biome-ignore lint/style/useNamingConvention: <explanation>
       geo_coords: '48.10,12.5',
-      // biome-ignore lint/style/useNamingConvention: <explanation>
       host_id: hostId,
-      // biome-ignore lint/style/useNamingConvention: <explanation>
       max_check_attempts: 1,
       name: 'generic-service',
-      // biome-ignore lint/style/useNamingConvention: <explanation>
       service_template_id: 5
     };
 
     const requestBody = {
       ...defaultServiceData,
       ...serviceData,
-      // biome-ignore lint/style/useNamingConvention: <explanation>
       host_id: hostId
     };
 
@@ -609,7 +600,6 @@ Cypress.Commands.add(
       };
 
       const uniqueServiceData = {
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         geo_coords: '48.10,12.5',
         name: `service-${i + 1}`
       };
@@ -644,8 +634,8 @@ Cypress.Commands.add(
   (selector, timeout = 50000, interval = 2000) => {
     cy.waitUntil(
       () =>
-        cy.get('body').then(($body) => {
-          const element = $body.find(selector);
+        cy.get('body').then((body) => {
+          const element = body.find(selector);
 
           return element.length > 0 && element.is(':visible');
         }),
@@ -663,7 +653,7 @@ Cypress.Commands.add(
 );
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addMultipleHosts(
@@ -684,9 +674,9 @@ declare global {
       getServiceIdByName: (serviceName: string) => Cypress.Chainable;
       insertDashboardWithDoubleWidget: (
         dashboard: Dashboard,
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        // biome-ignore lint/suspicious/noExplicitAny: false positive
         patchBody1: Record<string, any>,
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        // biome-ignore lint/suspicious/noExplicitAny: false positive
         patchBody2: Record<string, any>,
         widgetName: string,
         widgetType: string
@@ -697,11 +687,11 @@ declare global {
       ) => Cypress.Chainable;
       insertDashboardWithWidget: (
         dashboard: Dashboard,
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        // biome-ignore lint/suspicious/noExplicitAny: false positive
         patchBody: Record<string, any>,
         widgetName: string,
         widgetType: string
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+        // biome-ignore lint/suspicious/noExplicitAny: false positive
       ) => Chainable<any>;
       verifyDuplicatesGraphContainer: (metrics) => Cypress.Chainable;
       verifyGraphContainer: (metrics) => Cypress.Chainable;

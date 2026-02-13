@@ -1,4 +1,4 @@
-import { QueryParameter } from '../../queryParameters/models';
+import type { QueryParameter } from '../../queryParameters/models';
 
 export interface BuildListingEndpointParameters {
   baseEndpoint?: string;

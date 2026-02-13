@@ -1,7 +1,3 @@
-import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
-
-import { makeStyles } from 'tss-react/mui';
-
 import {
   ClickAwayListener,
   Paper,
@@ -11,6 +7,9 @@ import {
 import type { PopperProps } from '@mui/material/Popper';
 
 import { equals, type } from 'ramda';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
 import { IconButton } from '..';
 
 const useStyles = makeStyles()((theme) => ({
@@ -86,11 +85,11 @@ const PopoverMenu = ({
     if (!canOpen && isOpen) {
       close();
     }
-  }, [canOpen]);
+  }, [canOpen, close, isOpen]);
 
   useEffect(() => {
     getPopoverData?.({ anchorEl, setAnchorEl });
-  }, [anchorEl]);
+  }, [anchorEl, getPopoverData]);
 
   return (
     <>
@@ -98,22 +97,22 @@ const PopoverMenu = ({
         ariaLabel={title}
         className={cx(classes.popoverIconButton, className)}
         data-testid={dataTestId}
+        onClick={toggle}
         size="large"
         title={title}
-        onClick={toggle}
       >
         {icon}
       </IconButton>
       {isOpen && (
         <ClickAwayListener onClickAway={close}>
           <Popper
-            open
             anchorEl={anchorEl}
             className={classes.popover}
             nonce={undefined}
-            placement={popperPlacement}
             onResize={(): undefined => undefined}
             onResizeCapture={(): undefined => undefined}
+            open
+            placement={popperPlacement}
             {...popperProps}
           >
             <Paper className={tooltipClassName}>

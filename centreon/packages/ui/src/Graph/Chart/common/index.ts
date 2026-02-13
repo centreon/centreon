@@ -1,7 +1,7 @@
-import { always, cond, equals, isNil } from 'ramda';
-
 import { alpha } from '@mui/material';
+
 import { curveCatmullRom, curveLinear, curveStep } from '@visx/curve';
+import { always, cond, equals, isNil } from 'ramda';
 
 const commonTickLabelProps = {
   fontFamily: 'Roboto, sans-serif',

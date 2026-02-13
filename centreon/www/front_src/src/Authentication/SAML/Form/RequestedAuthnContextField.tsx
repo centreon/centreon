@@ -1,9 +1,9 @@
+import { SelectEntry, SelectField } from '@centreon/ui';
+
 import { useFormikContext } from 'formik';
 import { equals, find } from 'ramda';
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { SelectEntry, SelectField } from '@centreon/ui';
 
 import {
   RequestedAuthnContextComparisonValue,
@@ -43,18 +43,18 @@ const RequestedAuthnContextComparisonField = (): React.JSX.Element => {
 
   return (
     <SelectField
-      fullWidth
-      required
       aria-label={labelRequestedAuthnContextComparison}
       dataTestId={labelRequestedAuthnContextComparison}
       error={error as string}
+      fullWidth
       label={labelRequestedAuthnContextComparison}
       name="requestedAuthnContextComparison"
+      onChange={changeValue}
       options={options}
+      required
       selectedOptionId={
         selectedOption?.id || RequestedAuthnContextComparisonValue.Minimum
       }
-      onChange={changeValue}
     />
   );
 };

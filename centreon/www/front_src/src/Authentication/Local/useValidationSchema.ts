@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
+import { array, boolean, number, object, type Schema, string } from 'yup';
 
-import { type Schema, array, boolean, number, object, string } from 'yup';
 import { PasswordSecurityPolicy } from './models';
 import { oneHour, sevenDays, twelveMonths } from './timestamps';
 import {

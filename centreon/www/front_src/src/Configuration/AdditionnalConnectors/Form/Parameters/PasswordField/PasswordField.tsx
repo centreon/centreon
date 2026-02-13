@@ -1,7 +1,7 @@
+import { TextField } from '@centreon/ui';
+
 import { FocusEventHandler, ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { TextField } from '@centreon/ui';
 
 import PasswordIcon from './PasswordIcon';
 import { usePasswordField } from './usePasswordField';
@@ -36,18 +36,16 @@ const PasswordFiled = ({
   return (
     <div className={className}>
       <TextField
-        inputRef={passwordRef}
-        fullWidth
         dataTestId="Password_value"
+        disabled={disabled}
         error={isEditMode ? undefined : error}
+        fullWidth
+        inputRef={passwordRef}
         label={t('Password')}
         name={'Password'}
-        required={!isEditMode}
-        type="password"
-        value={value}
         onBlur={onBlur}
         onChange={changePasswordValue}
-        disabled={disabled}
+        required={!isEditMode}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -55,14 +53,16 @@ const PasswordFiled = ({
             }
           }
         }}
+        type="password"
+        value={value}
       />
       {isEditMode && (
         <PasswordIcon
-          state={state}
-          setState={setState}
           clearPassword={clearPassword}
-          resetPassword={resetPassword}
           isEmpty={!value}
+          resetPassword={resetPassword}
+          setState={setState}
+          state={state}
         />
       )}
     </div>

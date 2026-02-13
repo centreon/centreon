@@ -1,9 +1,3 @@
-import { useCallback, useEffect, useState } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { path, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import GroupIcon from '@mui/icons-material/Group';
 import NotificationIconActive from '@mui/icons-material/NotificationsActive';
 import NotificationIconOff from '@mui/icons-material/NotificationsOff';
@@ -11,6 +5,11 @@ import PersonIcon from '@mui/icons-material/Person';
 import { Paper, Stack, Typography } from '@mui/material';
 
 import { getData, useRequest } from '@centreon/ui';
+
+import { useAtomValue } from 'jotai';
+import { isNil, path } from 'ramda';
+import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelAlias,
@@ -23,7 +22,6 @@ import {
   labelNotificationStatus
 } from '../../../translatedLabels';
 import { detailsAtom } from '../../detailsAtoms';
-
 import ContactCell from './ContactCell';
 import Contacts from './Contacts';
 import ContactsLoadingSkeleton from './ContactsLoadingSkeleton';

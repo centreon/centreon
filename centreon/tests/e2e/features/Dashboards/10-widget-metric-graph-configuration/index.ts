@@ -675,8 +675,8 @@ When(
 
 Then('the graph should be displayed as a bar chart', () => {
   cy.waitForElementToBeVisible('ul[data-as-list="false"] p.MuiTypography-root');
-  cy.get('ul[data-as-list="false"] p.MuiTypography-root').then(($els) => {
-    const labels = [...$els].map((el) => el.innerText.trim());
+  cy.get('ul[data-as-list="false"] p.MuiTypography-root').then((els) => {
+    const labels = [...els].map((el) => el.innerText.trim());
     cy.log('Labels:', labels.join(', '));
     expect(labels).to.include.members(['rta', 'pl', 'rtmax', 'rtmin']);
   });

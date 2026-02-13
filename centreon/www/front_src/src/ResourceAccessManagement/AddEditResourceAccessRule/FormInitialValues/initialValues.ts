@@ -17,8 +17,8 @@ export const getEmptyInitialValues = (): Omit<ResourceAccessRule, 'id'> => ({
     [
       {
         allOfResourceType: false,
-        resourceType: ResourceTypeEnum.Empty,
-        resources: []
+        resources: [],
+        resourceType: ResourceTypeEnum.Empty
       }
     ]
   ],
@@ -36,8 +36,8 @@ const nestedObjectToArray = (
       ...datasets,
       {
         allOfResourceType: isEmpty(element.resources),
-        resourceType: element.resourceType,
-        resources: element.resources
+        resources: element.resources,
+        resourceType: element.resourceType
       }
     ];
   }
@@ -46,8 +46,8 @@ const nestedObjectToArray = (
     ...datasets,
     {
       allOfResourceType: isEmpty(element.resources),
-      resourceType: element.resourceType,
-      resources: element.resources
+      resources: element.resources,
+      resourceType: element.resourceType
     }
   ];
 

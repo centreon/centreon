@@ -1,33 +1,30 @@
 import { userPermissionsAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
+import { useTranslation } from 'react-i18next';
 
 import ConfigurationBase from '../ConfigurationBase';
-import useColumns from './Columns/useColumns';
-
-import { defaultValues, useFormInputs, useValidationSchema } from './Form';
-import {
-  columnsAtomKey,
-  defaultSelectedColumnIds,
-  filtersAtomKey,
-  filtersInitialValues
-} from './utils';
-
-import { useTranslation } from 'react-i18next';
 import { ResourceType } from '../models';
-
 import {
   filtersAtom,
   isWelcomePageDisplayedAtom,
   selectedColumnIdsAtom
 } from './atoms';
-import useHostGroups from './useHostGroups';
-
+import useColumns from './Columns/useColumns';
+import { defaultValues, useFormInputs, useValidationSchema } from './Form';
 import { Filters } from './models';
 import {
   labelAddHostGroup,
   labelHostGroups,
   labelWelcomeToHostGroups
 } from './translatedLabels';
+import useHostGroups from './useHostGroups';
+import {
+  columnsAtomKey,
+  defaultSelectedColumnIds,
+  filtersAtomKey,
+  filtersInitialValues
+} from './utils';
 
 const HostGroups = () => {
   const { t } = useTranslation();
@@ -43,35 +40,35 @@ const HostGroups = () => {
 
   return (
     <ConfigurationBase<Filters>
-      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
-      filtersAtomKey={filtersAtomKey}
-      filtersAtom={filtersAtom}
-      columnsAtomKey={columnsAtomKey}
-      selectedColumnIdsAtom={selectedColumnIdsAtom}
-      columns={columns}
-      resourceType={ResourceType.HostGroup}
-      form={{ inputs, groups, validationSchema, defaultValues }}
-      api={api}
-      filtersConfiguration={filtersConfiguration}
-      filtersInitialValues={filtersInitialValues}
-      defaultSelectedColumnIds={defaultSelectedColumnIds}
       actions={{
-        massive: true,
-        enableDisable: true,
         delete: true,
         duplicate: true,
         edit: canEdit,
+        enableDisable: true,
+        massive: true,
         viewDetails: true
       }}
+      api={api}
+      columns={columns}
+      columnsAtomKey={columnsAtomKey}
+      defaultSelectedColumnIds={defaultSelectedColumnIds}
+      filtersAtom={filtersAtom}
+      filtersAtomKey={filtersAtomKey}
+      filtersConfiguration={filtersConfiguration}
+      filtersInitialValues={filtersInitialValues}
+      form={{ defaultValues, groups, inputs, validationSchema }}
+      isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={{
         title: t(labelHostGroups),
         welcomePage: {
-          title: t(labelWelcomeToHostGroups),
           actions: {
             create: t(labelAddHostGroup)
-          }
+          },
+          title: t(labelWelcomeToHostGroups)
         }
       }}
+      resourceType={ResourceType.HostGroup}
+      selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
   );
 };

@@ -1,8 +1,7 @@
-import { useCallback, useMemo } from 'react';
+import { getData, useRequest } from '@centreon/ui';
 
 import { useAtom } from 'jotai';
 import {
-  T,
   always,
   any,
   append,
@@ -18,10 +17,10 @@ import {
   not,
   pipe,
   prop,
-  propEq
+  propEq,
+  T
 } from 'ramda';
-
-import { getData, useRequest } from '@centreon/ui';
+import { useCallback, useMemo } from 'react';
 
 import Navigation, { Page } from './models';
 import navigationAtom from './navigationAtoms';

@@ -1,12 +1,12 @@
 import { useAtom, useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
-import { NotificationType } from '../../Panel/models';
 import {
   duplicatedNotificationAtom,
   isDuplicateDialogOpenAtom,
   isPanelOpenAtom
 } from '../../atom';
+import { NotificationType } from '../../Panel/models';
 import {
   labelFailedToDuplicateNotification,
   labelNotificationDuplicated

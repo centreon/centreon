@@ -1,19 +1,18 @@
-import { useEffect, useState } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isEmpty, pick } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Typography } from '@mui/material';
 
+import type { SelectEntry } from '@centreon/ui';
 import {
-  MultiAutocompleteField,
   centreonBaseURL,
   getData,
+  MultiAutocompleteField,
   postData,
   useRequest
 } from '@centreon/ui';
-import type { SelectEntry } from '@centreon/ui';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isEmpty, pick } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import routeMap from '../../reactRoutes/routeMap';
 import { useStyles } from '../../styles/partials/form/PollerWizardStyle';
@@ -124,9 +123,9 @@ const RemoteServerWizardStepTwo = ({
         <MultiAutocompleteField
           fullWidth
           label={t(labelRemoteServers)}
+          onChange={changeValue}
           options={pollersOptions || []}
           value={linkedPollers}
-          onChange={changeValue}
         />
         <WizardButtons
           disabled={loading}

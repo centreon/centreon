@@ -1,7 +1,7 @@
+import type { Theme } from '@mui/material';
+
 import numeral from 'numeral';
 import { equals, map, omit, pipe, toPairs } from 'ramda';
-
-import type { Theme } from '@mui/material';
 
 import { StatusType } from './models';
 

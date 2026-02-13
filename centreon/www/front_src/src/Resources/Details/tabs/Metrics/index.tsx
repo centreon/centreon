@@ -1,15 +1,14 @@
+import { useRequest } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { path } from 'ramda';
 
-import { useRequest } from '@centreon/ui';
-
-import InfiniteScroll from '../../InfiniteScroll';
 import { detailsAtom } from '../../detailsAtoms';
+import InfiniteScroll from '../../InfiniteScroll';
 import LoadingSkeleton from '../Services/LoadingSkeleton';
-
-import Metrics from './Metrics';
 import { listMetaServiceMetrics } from './api';
 import { metaServiceMetricListingDecoder } from './api/decoders';
+import Metrics from './Metrics';
 import { MetaServiceMetricListing } from './models';
 
 const limit = 30;

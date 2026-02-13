@@ -2,23 +2,23 @@ import { makeStyles } from 'tss-react/mui';
 
 export const useStyles = makeStyles()((theme) => ({
   actions: {
+    alignItems: 'center',
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
     width: theme.spacing(6.5)
-  },
-  removeButton: {
-    color: theme.palette.primary.main,
-    '& :hover': {
-      color: theme.palette.error.main
-    }
-  },
-  removeIcon: {
-    fontSize: theme.spacing(2.5),
-    color: theme.palette.error.main
   },
   copyIcon: {
     fontSize: theme.spacing(2.25)
+  },
+  removeButton: {
+    '& :hover': {
+      color: theme.palette.error.main
+    },
+    color: theme.palette.primary.main
+  },
+  removeIcon: {
+    color: theme.palette.error.main,
+    fontSize: theme.spacing(2.5)
   }
 }));
 

@@ -1,23 +1,26 @@
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { equals, includes, isNil } from 'ramda';
 import {
-  Dispatch,
-  ReactElement,
-  SetStateAction,
+  type Dispatch,
+  type ReactElement,
+  type SetStateAction,
   useEffect,
   useState
 } from 'react';
 
-import { useAtomValue, useSetAtom } from 'jotai';
-import { equals, includes, isNil } from 'ramda';
-
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-
-import { SelectEntry, buildListingEndpoint } from '../../../..';
+import { buildListingEndpoint, type SelectEntry } from '../../../..';
 import {
   accessRightIdsDerivedAtom,
   addAccessRightDerivedAtom,
   contactTypeAtom
 } from '../atoms';
-import { AccessRightInitialValues, ContactType, Endpoints } from '../models';
+import {
+  type AccessRightInitialValues,
+  ContactType,
+  type Endpoints
+} from '../models';
 
 interface UseShareInputState {
   add: () => void;
@@ -106,8 +109,8 @@ const useShareInput = (endpoints: Endpoints): UseShareInputState => {
     changeIdValue,
     getEndpoint,
     getOptionDisabled,
-    isContactGroup,
     getRenderedOptionText,
+    isContactGroup,
     selectContact,
     selectedContact,
     selectedRole,

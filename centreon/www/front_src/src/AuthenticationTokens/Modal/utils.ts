@@ -1,9 +1,9 @@
+import { SelectEntry } from '@centreon/ui';
+
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { equals } from 'ramda';
-
-import { SelectEntry } from '@centreon/ui';
 
 import { TokenType } from '../models';
 import { Duration, UnitDate } from './models';

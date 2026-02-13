@@ -1,3 +1,8 @@
+/** biome-ignore-all lint/a11y/useAriaPropsSupportedByRole: need it */
+import { Typography } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
@@ -6,23 +11,18 @@ import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-
+import { useLocale } from '../../../utils';
 import DateTimePickerInput from '../../DateTimePickerInput';
 import { isInvalidDate } from '../../helpers';
 import {
   CustomTimePeriodProperty,
-  DateTimePickerInputModel
+  type DateTimePickerInputModel
 } from '../../models';
 import { errorTimePeriodAtom } from '../../timePeriodsAtoms';
-
-import { useLocale } from '../../../utils';
 import ErrorText from './ErrorText';
 import {
   PickersStartEndDateDirection,
-  PickersStartEndDateProps
+  type PickersStartEndDateProps
 } from './models';
 
 dayjs.extend(utc);

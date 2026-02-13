@@ -1,12 +1,11 @@
+import { Divider } from '@mui/material';
+
 import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
-
-import { Divider } from '@mui/material';
 
 import { selectedVisualizationAtom } from '../../../../Actions/actionsAtoms';
 import { Visualization } from '../../../../models';
 import { BasicCriteria, MemoizedChild, SectionType } from '../../model';
-
 import MemoizedInputGroup from './MemoizedInputGroup';
 import MemoizedSelectInput from './MemoizedSelectInput';
 import MemoizedStatus from './MemoizedStatus';

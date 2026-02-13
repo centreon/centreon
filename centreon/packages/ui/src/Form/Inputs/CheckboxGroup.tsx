@@ -1,14 +1,12 @@
-import { ChangeEvent, useEffect } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { path, equals, includes, split } from 'ramda';
-
 import { Box, Typography } from '@mui/material';
+
+import { type FormikValues, useFormikContext } from 'formik';
+import { equals, includes, path, split } from 'ramda';
+import { type ChangeEvent, useEffect } from 'react';
 
 import { useMemoComponent } from '../..';
 import { CheckboxGroup as CheckboxGroupComponent } from '../../Checkbox';
-
-import { InputPropsWithoutGroup } from './models';
+import type { InputPropsWithoutGroup } from './models';
 
 const CheckboxGroup = ({
   checkbox,
@@ -36,7 +34,7 @@ const CheckboxGroup = ({
       checked: false
     }));
     setFieldValue(fieldName, resetedValue);
-  }, [disabled, hideCheckbox]);
+  }, [disabled, hideCheckbox, fieldName, setFieldValue, value?.map]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const label = event.target.id;
@@ -63,9 +61,9 @@ const CheckboxGroup = ({
           direction={checkbox?.direction}
           disabled={disabled}
           labelPlacement={checkbox?.labelPlacement || 'end'}
+          onChange={handleChange}
           options={checkbox?.options as Array<string>}
           values={value}
-          onChange={handleChange}
         />
       </Box>
     ),

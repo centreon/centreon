@@ -596,6 +596,9 @@ services:
         class: Core\Host\Infrastructure\Repository\DbReadHostRepository
         public: true
 
+    Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller:
+        public: true
+
     # Configuration Notifications
     Core\Notification\Infrastructure\Repository\NotificationResourceRepositoryProvider:
         arguments:

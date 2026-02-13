@@ -48,7 +48,7 @@ Cypress.Commands.add('getClosestVersionFile', (currentVersion, versionDir) => {
         Math.abs(current[1] - fileVersion[1]);
 
       if (!closest || currentDiff < closest.diff) {
-        return { version, diff: currentDiff };
+        return { diff: currentDiff, version };
       }
 
       return closest;
@@ -68,7 +68,7 @@ Cypress.Commands.add('getClosestVersionFile', (currentVersion, versionDir) => {
 });
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       getClosestVersionFile(

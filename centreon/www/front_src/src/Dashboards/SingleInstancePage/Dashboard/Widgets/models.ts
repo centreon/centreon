@@ -1,5 +1,6 @@
-import { QueryClient } from '@tanstack/react-query';
 import { SelectEntry } from '@centreon/ui';
+
+import { QueryClient } from '@tanstack/react-query';
 
 export interface FormThreshold {
   criticalType: 'default' | 'custom';

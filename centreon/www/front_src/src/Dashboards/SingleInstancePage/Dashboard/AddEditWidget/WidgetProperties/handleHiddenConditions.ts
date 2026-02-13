@@ -1,17 +1,19 @@
 import { FeatureFlags } from '@centreon/ui-context';
+
 import { FormikValues } from 'formik';
 import {
-  path,
   difference,
   equals,
   has,
   includes,
   isEmpty,
   isNil,
+  path,
   pluck,
   reject,
   type
 } from 'ramda';
+
 import {
   FederatedWidgetOption,
   WidgetHiddenCondition
@@ -102,8 +104,8 @@ export const handleHiddenConditions = ({
       return (value.hiddenCondition as Array<WidgetHiddenCondition>).some(
         (hiddenCondition) =>
           checkHiddenCondition({
-            hasModule,
             featureFlags,
+            hasModule,
             hiddenCondition,
             values
           })
@@ -111,8 +113,8 @@ export const handleHiddenConditions = ({
     }
 
     return checkHiddenCondition({
-      hasModule,
       featureFlags,
+      hasModule,
       hiddenCondition: value.hiddenCondition as WidgetHiddenCondition,
       values
     });

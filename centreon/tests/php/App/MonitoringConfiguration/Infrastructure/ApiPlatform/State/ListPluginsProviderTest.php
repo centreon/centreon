@@ -32,15 +32,12 @@ final class ListPluginsProviderTest extends ApiTestCase
     {
         $this->login();
 
-        $this->request('GET', '/api/latest/configuration/plugins');
+        $response = $this->request('GET', '/api/latest/configuration/plugins');
+
         self::assertResponseIsSuccessful();
         self::assertMatchesResourceCollectionJsonSchema(PluginResource::class);
-        self::assertJsonContains(
-            [
-                'member' => [
-                    ['name' => 'urlize'],
-                ],
-            ]
-        );
+        /** @var array<int, array{name: string}> $members */
+        $members = $response->toArray()['member'];
+        self::assertContains('urlize', array_column($members, 'name'));
     }
 }

@@ -1,8 +1,10 @@
 import { OpenInFull } from '@mui/icons-material';
+
 import { useState } from 'react';
+
 import { Modal } from '../Modal';
 import { useStyles } from './expandableContainer.styles';
-import { Parameters } from './models';
+import type { Parameters } from './models';
 import { labelExpand, labelReduce } from './translatedLabels';
 
 interface Props {
@@ -20,19 +22,19 @@ const ExpandableContainer = ({ children }: Props) => {
   const currentMode = isExpanded ? labelExpand : labelReduce;
 
   const reducedChildrenData = {
-    toggleExpand,
-    isExpanded: false,
-    label: labelExpand,
     Icon: OpenInFull,
-    key: currentMode
+    isExpanded: false,
+    key: currentMode,
+    label: labelExpand,
+    toggleExpand
   };
 
   const expandedChildrenData = {
-    toggleExpand,
-    isExpanded,
-    label: labelReduce,
     Icon: OpenInFull,
-    key: currentMode
+    isExpanded,
+    key: currentMode,
+    label: labelReduce,
+    toggleExpand
   };
 
   return (
@@ -40,18 +42,18 @@ const ExpandableContainer = ({ children }: Props) => {
       {children(reducedChildrenData)}
       {isExpanded && (
         <Modal
-          open={isExpanded}
-          size="xlarge"
           classes={{
             paper: classes.papper
           }}
+          hasCloseButton={false}
+          open={isExpanded}
           PaperProps={{
             style: {
-              width: '90vw',
-              maxWidth: '90vw'
+              maxWidth: '90vw',
+              width: '90vw'
             }
           }}
-          hasCloseButton={false}
+          size="xlarge"
         >
           {children(expandedChildrenData)}
         </Modal>

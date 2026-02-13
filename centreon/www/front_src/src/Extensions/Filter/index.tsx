@@ -1,12 +1,12 @@
+import CloseIcon from '@mui/icons-material/Close';
+import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
+
 import {
-  KeyboardEvent,
-  RefObject,
-  Suspense,
-  lazy,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
+  IconButton,
+  LoadingSkeleton,
+  MemoizedFilter,
+  SearchField
+} from '@centreon/ui';
 
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
@@ -19,21 +19,19 @@ import {
   last,
   length
 } from 'ramda';
+import {
+  KeyboardEvent,
+  lazy,
+  RefObject,
+  Suspense,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import CloseIcon from '@mui/icons-material/Close';
-import { ClickAwayListener, MenuItem, Paper, Popper } from '@mui/material';
-
-import {
-  IconButton,
-  LoadingSkeleton,
-  MemoizedFilter,
-  SearchField
-} from '@centreon/ui';
-
 import { labelClearFilter, labelSearch } from '../translatedLabels';
-
 import { getAutocompleteSuggestions } from './Criterias/searchQueryLanguage';
 import {
   applyCurrentFilterDerivedAtom,
@@ -65,9 +63,9 @@ const renderClearFilter = (onClear) => (): JSX.Element => {
   return (
     <IconButton
       ariaLabel={t(labelClearFilter)}
+      onClick={onClear}
       size="small"
       title={t(labelClearFilter)}
-      onClick={onClear}
     >
       <CloseIcon color="action" fontSize="small" />
     </IconButton>
@@ -323,11 +321,9 @@ const Filter = (): JSX.Element => {
           <ClickAwayListener onClickAway={closeSuggestionPopover}>
             <div>
               <SearchField
-                fullWidth
                 EndAdornment={renderClearFilter(clearFilter)}
+                fullWidth
                 inputRef={searchRef as RefObject<HTMLInputElement>}
-                placeholder={t(labelSearch)}
-                value={search}
                 onBlur={blurInput}
                 onChange={prepareSearch}
                 onClick={(): void => {
@@ -335,6 +331,8 @@ const Filter = (): JSX.Element => {
                 }}
                 onFocus={(): void => setIsSearchFieldFocused(true)}
                 onKeyDown={inputKey}
+                placeholder={t(labelSearch)}
+                value={search}
               />
               <Popper
                 anchorEl={autocompleteAnchor}
@@ -349,11 +347,11 @@ const Filter = (): JSX.Element => {
                     return (
                       <MenuItem
                         key={suggestion}
-                        selected={index === selectedSuggestionIndex}
                         onClick={(): void => {
                           acceptAutocompleteSuggestionAtIndex(index);
                           searchRef?.current?.focus();
                         }}
+                        selected={index === selectedSuggestionIndex}
                       >
                         {suggestion}
                       </MenuItem>

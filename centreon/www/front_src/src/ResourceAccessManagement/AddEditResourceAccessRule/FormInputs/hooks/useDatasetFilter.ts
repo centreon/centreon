@@ -1,10 +1,13 @@
-import { ChangeEvent, useMemo } from 'react';
+import {
+  buildListingEndpoint,
+  QueryParameter,
+  SelectEntry
+} from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtom, useAtomValue } from 'jotai';
 import {
-  path,
-  T,
   always,
   cond,
   equals,
@@ -14,17 +17,13 @@ import {
   isEmpty,
   isNil,
   last,
+  path,
   pluck,
   propEq,
-  reject
+  reject,
+  T
 } from 'ramda';
-
-import {
-  QueryParameter,
-  SelectEntry,
-  buildListingEndpoint
-} from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
+import { ChangeEvent, useMemo } from 'react';
 
 import { baseEndpoint } from '../../../../api/endpoint';
 import { selectedDatasetFiltersAtom } from '../../../atom';
@@ -312,8 +311,8 @@ const useDatasetFilter = (
       ...(datasetFilter || []),
       {
         allOfResourceType: false,
-        resourceType: ResourceTypeEnum.Empty,
-        resources: []
+        resources: [],
+        resourceType: ResourceTypeEnum.Empty
       }
     ]);
 
@@ -403,8 +402,8 @@ const useDatasetFilter = (
             if (equals(i, index)) {
               return {
                 allOfResourceType: false,
-                resourceType: e.target.value,
-                resources: []
+                resources: [],
+                resourceType: e.target.value
               };
             }
 
@@ -541,8 +540,8 @@ const useDatasetFilter = (
   return {
     addResource,
     changeResource,
-    changeResourceType,
     changeResources,
+    changeResourceType,
     deleteButtonHidden,
     deleteResource,
     deleteResourceItem,

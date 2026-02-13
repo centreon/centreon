@@ -1,8 +1,8 @@
 import type { ParentSizeProps } from '@visx/responsive/lib/components/ParentSize';
-import { ParentSize } from '../..';
 
-import ResponsiveTimeline from './ResponsiveTimeline';
+import { ParentSize } from '../..';
 import type { TimelineProps } from './models';
+import ResponsiveTimeline from './ResponsiveTimeline';
 
 interface Props extends ParentSizeProps, TimelineProps {}
 
@@ -18,11 +18,11 @@ const Timeline = ({
     {({ width, height }) => (
       <ResponsiveTimeline
         data={data}
-        startDate={startDate}
         endDate={endDate}
+        height={height}
+        startDate={startDate}
         TooltipContent={TooltipContent}
         tooltipClassName={tooltipClassName}
-        height={height}
         width={width}
       />
     )}

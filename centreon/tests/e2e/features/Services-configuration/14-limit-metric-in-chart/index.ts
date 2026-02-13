@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import vms from '../../../fixtures/services/virtual-metric.json';
 
 const checkFirstVmFromListing = () => {
@@ -56,8 +57,8 @@ Given('many virtual metrics are linked to a configured service', () => {
   cy.addOrUpdateVirtualMetric(
     {
       ...vms.vmForMemory,
-      warningThreshold: vms.vmForMemory.warning_threshold,
-      criticalThreshold: vms.vmForMemory.critical_threshold
+      criticalThreshold: vms.vmForMemory.critical_threshold,
+      warningThreshold: vms.vmForMemory.warning_threshold
     },
     true
   );

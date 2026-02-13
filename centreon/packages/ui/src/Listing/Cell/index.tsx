@@ -1,25 +1,24 @@
-import { useAtom } from 'jotai';
-import { append, equals, includes, isNil, reject } from 'ramda';
-import { CSSObject } from 'tss-react';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
-  TableCell,
-  TableCellBaseProps,
-  TableCellProps,
-  Theme,
   alpha,
+  TableCell,
+  type TableCellBaseProps,
+  type TableCellProps,
+  type Theme,
   useTheme
 } from '@mui/material';
 
-import { ListingVariant } from '@centreon/ui-context';
+import type { ListingVariant } from '@centreon/ui-context';
+
+import { useAtom } from 'jotai';
+import { append, equals, includes, isNil, reject } from 'ramda';
+import type { ElementType } from 'react';
+import type { CSSObject } from 'tss-react';
 
 import { IconButton } from '../..';
 import { subItemsPivotsAtom } from '../tableAtoms';
 import { getTextStyleByViewMode } from '../useStyleTable';
-
-import { ElementType } from 'react';
-import { Props as DataCellProps } from './DataCell';
+import type { Props as DataCellProps } from './DataCell';
 
 interface GetBackgroundColorProps extends Omit<Props, 'isRowHighlighted'> {
   theme: Theme;
@@ -139,6 +138,10 @@ const Cell = ({
 
   return (
     <TableCell
+      classes={{
+        root: 'flex items-center h-full overflow-hidden border-b-1 border-divider px-2 whitespace-nowrap py-0'
+      }}
+      component={'div' as unknown as ElementType<TableCellBaseProps>}
       style={{
         backgroundColor: getBackgroundColor({
           disableRowCondition,
@@ -152,17 +155,13 @@ const Cell = ({
           theme
         }),
         ...getRowTextColor({
-          isRowHighlighted,
           disableRowCondition,
+          isRowHighlighted,
           row,
           theme
         }),
         ...style
       }}
-      classes={{
-        root: 'flex items-center h-full overflow-hidden border-b-1 border-divider px-2 whitespace-nowrap py-0'
-      }}
-      component={'div' as unknown as ElementType<TableCellBaseProps>}
       {...props}
     >
       {displaySubItemsCaret && hasSubItems && (
@@ -170,8 +169,8 @@ const Cell = ({
           ariaLabel={`${isSubItemsExpanded ? labelCollapse : labelExpand} ${
             row.id
           }`}
-          size="small"
           onClick={click}
+          size="small"
         >
           <ExpandMoreIcon
             className={`transition-transform ${isSubItemsExpanded ? 'rotate-z-180' : 'rotate-z-0'} transform-gpu`}

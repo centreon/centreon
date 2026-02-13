@@ -1,4 +1,4 @@
-import { SetStateAction, useAtom } from 'jotai';
+import { type SetStateAction, useAtom } from 'jotai';
 import { isEmpty, isNil, prop } from 'ramda';
 
 import { imagesAtom } from './atoms';

@@ -1,12 +1,11 @@
-import { Suspense, lazy } from 'react';
+import { lazy, Suspense } from 'react';
 import 'intl-pluralrules';
-
-import { makeStyles } from 'tss-react/mui';
 
 import { LoadingSkeleton, useFullscreenListener } from '@centreon/ui';
 
-import PageLoader from '../components/PageLoader';
+import { makeStyles } from 'tss-react/mui';
 
+import PageLoader from '../components/PageLoader';
 import useApp from './useApp';
 
 const useStyles = makeStyles()({

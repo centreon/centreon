@@ -1,13 +1,12 @@
 /* eslint-disable import/no-unresolved */
 
+import { Method, TestQueryProvider } from '@centreon/ui';
+
 import { Formik } from 'formik';
 import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { T, always, cond } from 'ramda';
+import { createStore, Provider } from 'jotai';
+import { always, cond, T } from 'ramda';
 import { initReactI18next } from 'react-i18next';
-import widgetDataProperties from '../../../../Widgets/centreon-widget-data/properties.json';
-
-import { Method, TestQueryProvider } from '@centreon/ui';
 
 import { hasEditPermissionAtom, isEditingAtom } from '../../../../atoms';
 import {
@@ -18,17 +17,16 @@ import {
   labelThresholdsAreAutomaticallyHidden,
   labelYouHaveTooManyMetrics
 } from '../../../../translatedLabels';
+import widgetDataProperties from '../../../../Widgets/centreon-widget-data/properties.json';
 import { metricsEndpoint } from '../../../api/endpoints';
 import { widgetPropertiesAtom } from '../../../atoms';
 import { WidgetDataResource } from '../../../models';
-
 import Metrics from './Metrics';
 
 const emptyMetrics = [];
 
 const defaultResources: Array<WidgetDataResource> = [
   {
-    resourceType: 'host-group',
     resources: [
       {
         id: 1,
@@ -38,13 +36,13 @@ const defaultResources: Array<WidgetDataResource> = [
         id: 2,
         name: 'Host group 2'
       }
-    ]
+    ],
+    resourceType: 'host-group'
   }
 ];
 
 const notFullfilledResources: Array<WidgetDataResource> = [
   {
-    resourceType: 'host-group',
     resources: [
       {
         id: 1,
@@ -54,11 +52,12 @@ const notFullfilledResources: Array<WidgetDataResource> = [
         id: 2,
         name: 'Host group 2'
       }
-    ]
+    ],
+    resourceType: 'host-group'
   },
   {
-    resourceType: 'service',
-    resources: []
+    resources: [],
+    resourceType: 'service'
   }
 ];
 

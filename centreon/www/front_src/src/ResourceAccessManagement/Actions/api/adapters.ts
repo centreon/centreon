@@ -1,4 +1,4 @@
-import { path, isNil, pluck } from 'ramda';
+import { isNil, path, pluck } from 'ramda';
 
 import { DatasetFilter } from '../../models';
 

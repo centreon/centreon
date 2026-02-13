@@ -1,17 +1,16 @@
-import { Provider, createStore } from 'jotai';
-
 import { cloudDocsURL, getOnPremDocsURL } from '@centreon/ui';
 import {
   platformFeaturesAtom,
   platformVersionsAtom
 } from '@centreon/ui-context';
 
+import { createStore, Provider } from 'jotai';
+
 import {
   labelFindExplanationsAndExamples,
   labelHere,
   labelNeedHelpWithSearchBarUsage
 } from '../translatedLabels';
-
 import SearchHelp from './SearchHelp';
 
 const platformVersions = {

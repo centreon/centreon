@@ -1,4 +1,5 @@
 import { browserLocaleAtom, userAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 
 export const useLocale = () => {

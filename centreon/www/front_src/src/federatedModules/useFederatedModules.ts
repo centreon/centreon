@@ -1,13 +1,11 @@
-import { useCallback, useEffect } from 'react';
-
-import { useAtom } from 'jotai';
-
 import { getData, useDeepCompare, useRequest } from '@centreon/ui';
 import { federatedModulesAtom } from '@centreon/ui-context';
 
+import { useAtom } from 'jotai';
+import { useCallback, useEffect } from 'react';
+
 import { store } from '../Main/Provider';
 import usePlatformVersions from '../Main/usePlatformVersions';
-
 import { FederatedModule } from './models';
 import { loadScript } from './utils';
 
@@ -36,7 +34,7 @@ const useFederatedModules = (): UseFederatedModulesState => {
       return;
     }
 
-    const timestamp = `?t=${new Date().getTime()}`;
+    const timestamp = `?t=${Date.now()}`;
 
     Promise.all(
       modules?.map((moduleName) =>

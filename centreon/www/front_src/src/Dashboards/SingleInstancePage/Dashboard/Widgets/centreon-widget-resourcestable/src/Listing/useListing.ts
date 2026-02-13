@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { type Column, useSnackbar } from '@centreon/ui';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { equals, isEmpty, isNotNil } from 'ramda';
+import { equals } from 'ramda';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { type Column, useSnackbar } from '@centreon/ui';
 
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
@@ -16,7 +15,6 @@ import {
   selectedResourcesAtom
 } from '../atom';
 import type { PanelOptions } from '../models';
-
 import useColumns from './Columns/useColumns';
 import {
   DisplayType,
@@ -115,8 +113,7 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
-  const { isOpenTicketEnabled, isOpenTicketInstalled, provider } =
-    useAtomValue(openTicketAtom);
+  const { isOpenTicketEnabled } = useAtomValue(openTicketAtom);
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
@@ -126,13 +123,12 @@ const useListing = ({
     }
   }, [isOpenTicketEnabled]);
 
-  const hasProvider = isNotNil(provider) && !isEmpty(provider);
-
   const { data, isLoading } = useLoadResources({
     dashboardId,
     displayType,
     hostSeverities,
     id,
+    isOpenTicketEnabled,
     limit,
     page,
     playlistHash,
@@ -143,11 +139,9 @@ const useListing = ({
     sortField,
     sortOrder,
     states,
-    statusTypes,
     statuses,
-    widgetPrefixQuery,
-    isOpenTicketEnabled:
-      isOpenTicketInstalled && hasProvider && isOpenTicketEnabled
+    statusTypes,
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (row): void => {

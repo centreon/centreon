@@ -1,10 +1,8 @@
 import { Scale } from '@visx/visx';
 import { bisector } from 'd3-array';
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import numeral from 'numeral';
 import {
-  path,
-  T,
   add,
   addIndex,
   always,
@@ -26,6 +24,7 @@ import {
   lt,
   map,
   negate,
+  path,
   pipe,
   pluck,
   prop,
@@ -34,13 +33,13 @@ import {
   reject,
   sortBy,
   split,
+  T,
   uniq
 } from 'ramda';
 
 import { margin } from '../../Chart/common';
-import { LineChartData } from '../models';
-
-import {
+import type { LineChartData } from '../models';
+import type {
   AxeScale,
   FormatMetricValueProps,
   Line,
@@ -137,11 +136,11 @@ const toLine = ({
   metric_id,
   minimum_value,
   name: legend,
+  stackKey: ds_data.ds_stack_key || null,
   stackOrder:
     equals(ds_data.ds_stack, '1') || equals(ds_data.ds_stack, true)
       ? Number.parseInt(ds_data.ds_order || '0', 10)
       : null,
-  stackKey: ds_data.ds_stack_key || null,
   transparency: ds_data.ds_transparency,
   unit
 });
@@ -441,9 +440,9 @@ const getScale = ({
 
     return scaleType<number>({
       base: scaleLogarithmicBase || 2,
+      clamp: min || max,
       domain: [-greatestValue, greatestValue],
-      range: isHorizontal ? range : range.reverse(),
-      clamp: min || max
+      range: isHorizontal ? range : range.reverse()
     });
   }
 
@@ -451,9 +450,9 @@ const getScale = ({
 
   return scaleType<number>({
     base: scaleLogarithmicBase || 2,
+    clamp: min || max,
     domain,
-    range: isHorizontal ? range : range.reverse(),
-    clamp: min || max
+    range: isHorizontal ? range : range.reverse()
   });
 };
 
@@ -549,12 +548,12 @@ const getYScaleUnit = ({
     invert,
     isCenteredZero,
     isHorizontal,
+    max: boundaryToApplyToUnit({ boundariesUnit, boundary: max, unit }),
+    min: boundaryToApplyToUnit({ boundariesUnit, boundary: min, unit }),
     scale,
     scaleLogarithmicBase,
     stackedValues,
-    thresholds: shouldApplyThresholds ? thresholds : [],
-    min: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: min }),
-    max: boundaryToApplyToUnit({ unit, boundariesUnit, boundary: max })
+    thresholds: shouldApplyThresholds ? thresholds : []
   });
 };
 
@@ -598,24 +597,24 @@ const getYScalePerUnit = ({
     return {
       ...acc,
       [unit]: getYScaleUnit({
+        boundariesUnit,
         dataLines,
         dataTimeSeries,
         invert: dataLines.some(
           ({ unit: lineUnit, invert }) => equals(lineUnit, unit) && invert
         ),
+        isBarChart,
         isCenteredZero,
+        isFilled,
         isHorizontal,
+        max,
+        min,
         scale,
         scaleLogarithmicBase,
-        thresholdUnit,
         thresholds,
+        thresholdUnit,
         unit,
-        valueGraphHeight,
-        min,
-        max,
-        isBarChart,
-        boundariesUnit,
-        isFilled
+        valueGraphHeight
       })
     };
   }, {});
@@ -631,7 +630,7 @@ const registerMsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'milliseconds', {
       format: (value) => {
-        return formatTime({ value, unit: 'ms' });
+        return formatTime({ unit: 'ms', value });
       },
       regexps: {
         format: /(ms)/,
@@ -652,7 +651,7 @@ const registerSecondsUnitToNumeral = (): null => {
   try {
     numeral.register('format', 'seconds', {
       format: (value) => {
-        return formatTime({ value, unit: 's' });
+        return formatTime({ unit: 's', value });
       },
       regexps: {
         format: /(s)/,
@@ -853,9 +852,9 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
         [stackedKey]: {
           lines: relatedLines,
           timeSeries: getTimeSeriesForLines({
+            invert,
             lines: relatedLines,
-            timeSeries,
-            invert
+            timeSeries
           })
         }
       };
@@ -864,11 +863,11 @@ export const getStackedLinesTimeSeriesPerStackAndUnit = ({
   );
 
   return {
+    stackedKeys,
     stackedLinesTimeSeriesPerStackKeyAndUnit: {
       ...stackedLinesTimeSeriesPerStackKey,
       ...stackedLinesTimeSeriesPerUnit
-    },
-    stackedKeys
+    }
   };
 };
 

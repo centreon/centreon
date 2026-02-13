@@ -1,6 +1,6 @@
-import { atom } from 'jotai';
+import { atom } from "jotai";
 
-import { defaultRefreshInterval } from './defaults';
+import { defaultRefreshInterval } from "./defaults";
 
 const refreshIntervalAtom = atom(defaultRefreshInterval);
 

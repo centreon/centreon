@@ -1,5 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
 import {
   MoreHoriz as MoreIcon,
   Share as ShareIcon,
@@ -9,18 +7,19 @@ import { Box } from '@mui/material';
 
 import { ComponentColumnProps, IconButton } from '@centreon/ui';
 
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { resource } from '../../../../../api/models';
 import { useDashboardUserPermissions } from '../../../DashboardUserPermissions/useDashboardUserPermissions';
+import FavoriteAction from '../../Actions/favoriteAction';
 import {
   labelMoreActions,
   labelShareWithContacts,
   labelUnshare
 } from '../../translatedLabels';
 import { useColumnStyles } from '../useColumnStyles';
-
-import { useIsFetching, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
-import { resource } from '../../../../../api/models';
-import FavoriteAction from '../../Actions/favoriteAction';
 import MoreActions from './MoreActions';
 import useActions from './useActions';
 
@@ -47,7 +46,7 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
   if (isNestedRow) {
     return (
       <div className={classes.spacing}>
-        <IconButton title={t(labelUnshare)} onClick={openAskBeforeRevoke}>
+        <IconButton onClick={openAskBeforeRevoke} title={t(labelUnshare)}>
           <UnShareIcon className={classes.icon} />
         </IconButton>
       </div>
@@ -60,8 +59,8 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
         <FavoriteAction
           dashboardId={row.id}
           isFavorite={row?.isFavorite}
-          refetch={refetch}
           isFetching={isFetchingListing > 0}
+          refetch={refetch}
         />
         <Box className={classes.line}>-</Box>
       </div>
@@ -73,20 +72,20 @@ const Actions = ({ row }: ComponentColumnProps): JSX.Element => {
       <FavoriteAction
         dashboardId={row.id}
         isFavorite={row?.isFavorite}
-        refetch={refetch}
         isFetching={isFetchingListing > 0}
+        refetch={refetch}
       />
       <IconButton
         ariaLabel={t(labelShareWithContacts)}
-        title={t(labelShareWithContacts)}
         onClick={editAccessRights}
+        title={t(labelShareWithContacts)}
       >
         <ShareIcon className={classes.icon} />
       </IconButton>
       <IconButton
         ariaLabel={t(labelMoreActions)}
-        title={t(labelMoreActions)}
         onClick={openMoreActions}
+        title={t(labelMoreActions)}
       >
         <MoreIcon />
       </IconButton>

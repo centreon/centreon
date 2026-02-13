@@ -1,7 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 
 import { PatternType } from '../../../../../packages/js-config/cypress/e2e/commands';
-
 import dashboards from '../../../fixtures/dashboards/creation/dashboards.json';
 import genericTextWidget from '../../../fixtures/dashboards/creation/widgets/genericText.json';
 import dashboardCreatorUser from '../../../fixtures/users/user-dashboard-creator.json';

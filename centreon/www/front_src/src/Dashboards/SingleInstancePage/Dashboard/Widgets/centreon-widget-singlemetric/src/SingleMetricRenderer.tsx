@@ -1,12 +1,11 @@
-import { T, always, cond, equals } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Box } from '@mui/material';
 
 import { Gauge, GraphText, SingleBar, Thresholds } from '@centreon/ui';
 
-import { labelCritical, labelWarning } from '../../translatedLabels';
+import { always, cond, equals, T } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
+import { labelCritical, labelWarning } from '../../translatedLabels';
 import { useGraphStyles } from './Graph.styles';
 import { SingleMetricGraphType } from './models';
 
@@ -43,12 +42,12 @@ const SingleMetricRenderer = ({
             always(
               <GraphText
                 {...graphProps}
-                prefThresholds={hasTwoThresholds ? 7 : 11}
-                minThresholds="8px"
                 labels={{
                   critical: t(labelCritical),
                   warning: t(labelWarning)
                 }}
+                minThresholds="8px"
+                prefThresholds={hasTwoThresholds ? 7 : 11}
               />
             )
           ]

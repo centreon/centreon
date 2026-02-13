@@ -1,15 +1,15 @@
+import { useSnackbar } from '@centreon/ui';
+
 import { useAtomValue } from 'jotai';
 import { lt } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { useSnackbar } from '@centreon/ui';
-
-import ResourceActions from '../../../Actions/Resource';
 import {
   Action,
   CheckActionModel,
   MainActionModel
 } from '../../../Actions/model';
+import ResourceActions from '../../../Actions/Resource';
 import {
   labelResourceDetailsCheckCommandSent,
   labelResourceDetailsCheckDescription,
@@ -18,7 +18,6 @@ import {
 } from '../../../translatedLabels';
 import { panelWidthStorageAtom } from '../../detailsAtoms';
 import { ResourceDetails } from '../../models';
-
 import { checkActionDetailsAtom } from './atoms';
 import { useStyles } from './details.styles';
 

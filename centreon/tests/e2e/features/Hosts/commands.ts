@@ -12,8 +12,8 @@ Cypress.Commands.add(
         }),
       {
         errorMsg: `Element ${elementSelector} not found in iframe ${iframeSelector} after waiting`,
-        timeout: 60000,
-        interval: 1000
+        interval: 1000,
+        timeout: 60000
       }
     );
   }
@@ -204,9 +204,9 @@ interface HostDependency {
   notificationFailsOnDown: number;
   notificationFailsOnUnreachable: number;
   notificationFailsOnPending: number;
-  hostNames: string[];
-  dependentHostNames: string[];
-  dependentServices: string[];
+  hostNames: Array<string>;
+  dependentHostNames: Array<string>;
+  dependentServices: Array<string>;
   comment: string;
 }
 
@@ -224,13 +224,13 @@ interface HostGroupDependency {
   notificationFailsOnDown: number;
   notificationFailsOnUnreachable: number;
   notificationFailsOnPending: number;
-  hostGroupsNames: string[];
-  dependentHostGroupsNames: string[];
+  hostGroupsNames: Array<string>;
+  dependentHostGroupsNames: Array<string>;
   comment: string;
 }
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       waitForElementInIframe: (

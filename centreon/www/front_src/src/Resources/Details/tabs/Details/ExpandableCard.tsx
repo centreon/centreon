@@ -1,13 +1,12 @@
+import { Button, CardActions, Divider, Typography } from '@mui/material';
+
+import { getStatusColors, SeverityCode } from '@centreon/ui';
+
 import { isEmpty, pipe, reject, slice } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, CardActions, Divider, Typography } from '@mui/material';
-
-import { SeverityCode, getStatusColors } from '@centreon/ui';
-
 import { labelLess, labelMore } from '../../../translatedLabels';
-
 import Card from './Card';
 import { ChangeExpandedCardsProps, ExpandAction } from './SortableCards/models';
 
@@ -83,7 +82,7 @@ const ExpandableCard = ({
 
   return (
     <Card className={classes.card}>
-      <Typography gutterBottom className={classes.title} variant="subtitle2">
+      <Typography className={classes.title} gutterBottom variant="subtitle2">
         {title}
       </Typography>
       {threeFirstLines.map(Line)}
@@ -92,7 +91,7 @@ const ExpandableCard = ({
         <>
           <Divider />
           <CardActions>
-            <Button color="primary" size="small" onClick={toggleOutputExpanded}>
+            <Button color="primary" onClick={toggleOutputExpanded} size="small">
               {expandedCard ? t(labelLess) : t(labelMore)}
             </Button>
           </CardActions>

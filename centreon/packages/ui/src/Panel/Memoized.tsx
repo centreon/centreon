@@ -3,8 +3,7 @@
 import { forwardRef } from 'react';
 
 import { useMemoComponent } from '../utils';
-
-import Panel, { Props } from '.';
+import Panel, { type Props } from '.';
 
 interface MemoizedPanelProps extends Props {
   memoProps?: Array<unknown>;
