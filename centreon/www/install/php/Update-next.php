@@ -83,8 +83,8 @@ $deployDefaultAgentConfiguration = function () use ($pearDB, &$errorMessage, $ve
 
     $errorMessage = 'Error during default agent configuration deployment';
     $request = new DeployDefaultAgentConfigurationForPollerRequest(
-        pollerId: $centralId,
-        creatorId: $adminInfos['contact_id'],
+        pollerId: (int) $centralId,
+        creatorId: (int) $adminInfos['contact_id'],
         creatorName: $adminInfos['contact_alias'],
     );
     $deployAgentConfiguration($request);
