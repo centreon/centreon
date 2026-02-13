@@ -87,6 +87,11 @@ final readonly class CreateHostForAgentConfigurationCommand
         return Command::FAILURE;
     }
 
+    /**
+     * Undocumented function
+     *
+     * @param array<string, mixed> $data
+     */
     private function validateJsonData(array $data): void
     {
         $constraint = new Assert\Collection([
