@@ -181,7 +181,11 @@ fi
 ############# END SANITY CHECK
 #############
 
-gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_current_pos')
+else
+    gtid_current_pos=$(mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = ON; SELECT @@gtid_executed')
+fi
 if ! echo "$gtid_current_pos" | grep -qE '[0-9]+-[0-9]+-[0-9]+' ; then
     mysql -B -N -u "$DBROOTUSER" -h "$master_hostname" -p"$DBROOTPASSWORD" -e 'SET GLOBAL read_only = OFF;'
     echo "ERROR: cannot get gtid current pos"
@@ -312,15 +316,28 @@ echo "OK"
 # Demarrer la replication
 ###
 echo "Start Replication"
-mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
+if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+    mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
 RESET MASTER;
 STOP SLAVE;
 RESET SLAVE;
 SET GLOBAL gtid_slave_pos = '$gtid_current_pos';
 CHANGE MASTER TO MASTER_HOST='$master_hostname', MASTER_USER='$DBREPLUSER', MASTER_PASSWORD='$DBREPLPASSWORD', master_use_gtid=slave_pos;
 START SLAVE;
-show processlist;
+SHOW PROCESSLIST;
 quit
 EOF
+else
+    mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
+RESET MASTER;
+STOP REPLICA;
+RESET REPLICA ALL;
+SET GLOBAL gtid_purged = '$gtid_current_pos';
+CHANGE REPLICATION SOURCE TO SOURCE_HOST='$master_hostname', SOURCE_USER='$DBREPLUSER', SOURCE_PASSWORD='$DBREPLPASSWORD', SOURCE_AUTO_POSITION=1;
+START REPLICA;
+SHOW PROCESSLIST;
+quit
+EOF
+fi
 
 exit 0
