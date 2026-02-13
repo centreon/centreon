@@ -15,8 +15,8 @@ import { listTokensDecoder } from '../../api/decoders';
 import { getTokensEndpoint } from '../../api/endpoints';
 import { AgentConfigurationForm, ConnectionMode } from '../../models';
 import {
-  labelCMAauthenticationToken,
   labelCaCertificate,
+  labelCMAauthenticationToken,
   labelCreateHostAutomatically,
   labelOTLPReceiver,
   labelPort,
@@ -82,8 +82,8 @@ const AgentInitiated = (): React.ReactElement => {
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelCreateHostAutomatically}
               checked={values.configuration.createHostAuto}
+              data-testid={labelCreateHostAutomatically}
               onChange={changeCreateHost}
             />
           }
