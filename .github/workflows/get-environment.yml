@@ -467,6 +467,7 @@ jobs:
         with:
           script: |
             return true;
+            console.log(github.event.pull_request.head.repo.fork)
             return github.event.pull_request.head.repo.fork === true;
 
       - name: "Detect cloud version"
