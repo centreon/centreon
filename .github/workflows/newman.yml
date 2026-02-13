@@ -452,7 +452,7 @@ jobs:
           fi
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
-            echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh ..."
+            echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh with ${{ matrix.feature }} ..."
             docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
             docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex /tmp/setup-web.sh "${{ matrix.feature }}"
           fi
