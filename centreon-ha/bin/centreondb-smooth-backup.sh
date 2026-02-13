@@ -57,6 +57,16 @@ sql_fetch_db_binary
 sql_fetch_systemd_service
 sql_fetch_db_config
 
+if [ -z "$SQL_DB_BINARY" ] ; then
+    echo "ERROR: Cannot find MariaDB/MySQL binary." >&2
+    exit 1
+fi
+
+if [ -z "$SQL_SYSTEMD_SERVICE" ] ; then
+    echo "ERROR: Cannot find MariaDB/MySQL systemd service." >&2
+    exit 1
+fi
+
 logbin_activated=1
 
 #####

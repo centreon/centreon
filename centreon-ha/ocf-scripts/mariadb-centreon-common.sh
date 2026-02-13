@@ -239,7 +239,9 @@ mysql_common_start()
     local pid
     local service_name
 
-    # Auto-detect the systemd service name
+    # Auto-detect the systemd service name.
+    # This duplicates logic from mysql-functions.sh because this OCF script
+    # runs under Pacemaker with #!/bin/sh and must remain self-contained.
     for service_name in mariadb mysql; do
         if systemctl list-unit-files "$service_name.service" 2>/dev/null | grep -q "$service_name.service"; then
             break
