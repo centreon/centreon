@@ -20026,6 +20026,7 @@ msgstr "Notifier"
 msgid "numbers"
 msgstr "nombres"
 
+#: centreon/www/include/common/pagination.php
 #: centreon/www/install/front_translate.php
 msgid "of"
 msgstr "de"
