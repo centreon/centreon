@@ -317,14 +317,14 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
 
         return;
     }
-    
+
 
     // Check if there are any ACCs with non-empty parameters
     $checkParams = $pearDB->query(
         <<<'SQL'
             SELECT COUNT(*) as count
             FROM `additional_connector_configuration`
-            AND parameters IS NOT NULL
+            WHERE parameters IS NOT NULL
             AND JSON_LENGTH(parameters) > 0
             SQL
     );
