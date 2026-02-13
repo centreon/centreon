@@ -106,10 +106,16 @@ get_current_logbin_file() {
 		mysqladmin --user="$DBROOTUSER" --password="$DBROOTPASSWORD" flush-logs
 	fi
 
-	if [ -z "$DBROOTPASSWORD" ] ; then
-		file=$(mysql -B -u "$DBROOTUSER" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+	if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
+		_show_status="SHOW MASTER STATUS"
 	else
-		file=$(mysql -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e 'SHOW MASTER STATUS\G' 2>&1 | grep 'File:' | awk '{ print $2 }')
+		_show_status="SHOW BINARY LOG STATUS"
+	fi
+
+	if [ -z "$DBROOTPASSWORD" ] ; then
+		file=$(mysql -B -u "$DBROOTUSER" -e "$_show_status\G" 2>&1 | grep 'File:' | awk '{ print $2 }')
+	else
+		file=$(mysql -B -u "$DBROOTUSER" -p"$DBROOTPASSWORD" -e "$_show_status\G" 2>&1 | grep 'File:' | awk '{ print $2 }')
 	fi
 	if [ "$?" -ne "0" ] ; then
 		output_log "ERROR: connection MySQL to get index file." 1
