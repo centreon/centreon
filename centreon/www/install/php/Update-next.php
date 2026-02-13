@@ -145,7 +145,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: All required fields for Broker output 'event_script' already exist, skipping creation",
         );
-    } elseif ($countFields !== 4) {
+    } elseif ($countFields !== 0 && $countFields < 4) {
         // Not supposed to happen
         throw new RuntimeException('Not all required fields for Broker output "event_script" exist');
     } else {
