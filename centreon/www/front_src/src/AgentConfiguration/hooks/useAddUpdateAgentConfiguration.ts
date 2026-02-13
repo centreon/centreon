@@ -83,9 +83,6 @@ const adaptCMAConfigurationToAPI = (
     type: (agentConfiguration.type as SelectEntry).id,
     configuration: {
       port: configuration.agentInitiated ? configuration?.port : null,
-      create_host_auto: configuration.agentInitiated
-        ? configuration?.createHostAuto
-        : null,
       agent_initiated: configuration.agentInitiated,
       poller_initiated: configuration.pollerInitiated,
       tokens: configuration.agentInitiated
