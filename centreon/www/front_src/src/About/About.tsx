@@ -45,6 +45,7 @@ const About = (): JSX.Element => {
   const { classes } = useStyles();
   const { t } = useTranslation();
 
+  // trigger
   const platformVersion = useAtomValue(platformVersionsAtom);
 
   return (
