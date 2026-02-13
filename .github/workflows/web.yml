@@ -959,6 +959,16 @@ jobs:
 
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
+        with:
+          images: |
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}
+          tags: |
+            type=raw,value=${{ github.head_ref || github.ref_name }}
+
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
@@ -976,15 +986,14 @@ jobs:
           pull: true
           push: ${{ needs.get-environment.outputs.is_fork == 'false' }}
           load: true
-          tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Store slim image in local archive
         run: |
-          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
           mkdir -p docker-image
-          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.meta.outputs.version }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -993,14 +1002,14 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
         shell: bash
 
       - name: Store slim image in cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
+          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.meta.outputs.version }}
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
