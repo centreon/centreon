@@ -124,7 +124,7 @@ $updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): vo
             ADD COLUMN `cma_certificate_peremption` INT(11) DEFAULT NULL COMMENT 'CMA certificate peremption timestamp'
             SQL
     );
-  
+
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
         message: "UPGRADE - {$version}: [broker instances] Successfully added CMA certificate fields to broker instances table",
@@ -562,7 +562,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         message: "UPGRADE - {$version}: Successfully inserted Broker output 'central-broker-master-event-script' for CMA",
     );
 };
-    
+
 try {
     // DDL statements for real time database
     $updateInstancesTable();
