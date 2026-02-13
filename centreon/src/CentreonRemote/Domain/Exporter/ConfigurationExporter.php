@@ -130,7 +130,9 @@ class ConfigurationExporter extends ExporterServiceAbstract
             }
         } catch (\ErrorException $e) {
             // rollback changes
-            $db->rollBack();
+            if ($db->getCentreonDBInstance()->inTransaction()) {
+                $db->rollBack();
+            }
             echo date('Y-m-d H:i:s') . " - ERROR - Loading failed.\n";
         }
 
