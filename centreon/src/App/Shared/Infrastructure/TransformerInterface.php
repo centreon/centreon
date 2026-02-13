@@ -21,10 +21,18 @@
 
 declare(strict_types=1);
 
-namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
+namespace App\Shared\Infrastructure;
 
-use Core\Application\Common\UseCase\ErrorResponse;
-
-final class UpdateSAMLConfigurationErrorResponse extends ErrorResponse
+/**
+ * @template TFrom
+ * @template TTo
+ */
+interface TransformerInterface
 {
+    /**
+     * @param TFrom $from
+     *
+     * @return TTo
+     */
+    public function transform(mixed $from): mixed;
 }
