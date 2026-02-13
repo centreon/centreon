@@ -30,6 +30,7 @@ use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\NewHost;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\NewService;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
@@ -42,6 +43,7 @@ final class CreateHostForAgentConfiguration
         private readonly ReadHostRepositoryInterface $readHostRepository,
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
         private readonly WriteHostRepositoryInterface $writeHostRepository,
+        private readonly ReadServiceRepositoryInterface $readServiceRepository,
         private readonly ReadServiceTemplateRepositoryInterface $readServiceTemplateRepository,
         private readonly WriteServiceRepositoryInterface $writeServiceRepository,
     ) {
@@ -179,7 +181,7 @@ final class CreateHostForAgentConfiguration
             'success' => true,
             'message' => 'Host creation process completed successfully.',
             'details' => sprintf(
-                'Host ID: %d, Service IDs: [%s]',
+                'Host ID: %d, Service IDs: %s',
                 $hostId,
                 implode(', ', $serviceIds)
             ),
@@ -268,7 +270,7 @@ final class CreateHostForAgentConfiguration
 
             foreach ($serviceTemplates as $serviceTemplate) {
                 $alias = $serviceTemplate->getAlias();
-                if (array_key_exists($alias, $deployedServices, true)) {
+                if (array_key_exists($alias, $deployedServices)) {
                     CentreonLog::create()->debug(
                         logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
                         message: '[AC][create_host_auto] Service already exists with that name, skipping creation.',

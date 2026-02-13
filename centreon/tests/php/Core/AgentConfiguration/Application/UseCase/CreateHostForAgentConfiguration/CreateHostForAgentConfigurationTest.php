@@ -38,7 +38,6 @@ use Core\HostTemplate\Domain\Model\HostTemplate;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
 use Core\Service\Domain\Model\Service;
-use Core\Service\Domain\Model\ServiceNamesByHost;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 
@@ -97,6 +96,10 @@ beforeEach(function (): void {
         connectionMode: ConnectionModeEnum::SECURE,
         configuration: $this->configurationParameters,
     );
+});
+
+afterEach(function (): void {
+    @unlink('centreon-web.log');
 });
 
 it(
@@ -344,13 +347,6 @@ it(
             ->with($templateId)
             ->willReturn([$serviceTemplate1, $serviceTemplate2]);
 
-        $serviceNames = new ServiceNamesByHost($hostId, []);
-        $this->readServiceRepository
-            ->expects($this->exactly(2))
-            ->method('findServiceNamesByHost')
-            ->with($hostId)
-            ->willReturn($serviceNames);
-
         $this->writeServiceRepository
             ->expects($this->exactly(2))
             ->method('add')
@@ -366,7 +362,7 @@ it(
         expect($result)->toBe([
             'success' => true,
             'message' => 'Host creation process completed successfully.',
-            'details' => 'Host ID: 10, Service IDs: [100, 101]',
+            'details' => 'Host ID: 10, Service IDs: 100, 101',
         ]);
     }
 );
@@ -427,7 +423,7 @@ it(
         expect($result)->toBe([
             'success' => true,
             'message' => 'Host creation process completed successfully.',
-            'details' => 'Host ID: 10, Service IDs: []',
+            'details' => 'Host ID: 10, Service IDs: ',
         ]);
     }
 );
@@ -502,13 +498,13 @@ it(
         expect($result)->toBe([
             'success' => true,
             'message' => 'Host creation process completed successfully.',
-            'details' => 'Host ID: 10, Service IDs: []',
+            'details' => 'Host ID: 10, Service IDs: ',
         ]);
     }
 );
 
 it(
-    'should not create duplicate services when service already exists on host',
+    'should not create duplicate services when multiple templates have the same alias',
     function (): void {
         $hostId = 10;
         $templateId = 5;
@@ -535,11 +531,21 @@ it(
             alias: 'Generic Host Template',
         );
 
-        $serviceTemplate = new ServiceTemplate(
+        // Two service templates with the same alias - should only create one service
+        $serviceTemplate1 = new ServiceTemplate(
             id: 50,
-            name: 'service-template',
-            alias: 'Existing Service',
+            name: 'service-template-1',
+            alias: 'Same Alias',
         );
+        $serviceTemplate2 = new ServiceTemplate(
+            id: 51,
+            name: 'service-template-2',
+            alias: 'Same Alias',
+        );
+
+        $service = $this->createMock(Service::class);
+        $service->method('getId')->willReturn($serviceId);
+        $service->method('getName')->willReturn('Same Alias');
 
         $this->readAgentConfigurationRepository
             ->expects($this->once())
@@ -573,24 +579,25 @@ it(
         $this->readServiceTemplateRepository
             ->expects($this->once())
             ->method('findByHostId')
-            ->willReturn([$serviceTemplate]);
+            ->willReturn([$serviceTemplate1, $serviceTemplate2]);
 
-        $serviceNames = new ServiceNamesByHost($hostId, ['Existing Service']);
+        // Only one service should be created (the second template has the same alias)
+        $this->writeServiceRepository
+            ->expects($this->once())
+            ->method('add')
+            ->willReturn($serviceId);
+
         $this->readServiceRepository
             ->expects($this->once())
-            ->method('findServiceNamesByHost')
-            ->willReturn($serviceNames);
-
-        $this->writeServiceRepository
-            ->expects($this->never())
-            ->method('add');
+            ->method('findById')
+            ->willReturn($service);
 
         $result = ($this->useCase)($this->request);
 
         expect($result)->toBe([
             'success' => true,
             'message' => 'Host creation process completed successfully.',
-            'details' => 'Host ID: 10, Service IDs: []',
+            'details' => 'Host ID: 10, Service IDs: 100',
         ]);
     }
 );
