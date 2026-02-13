@@ -1,7 +1,7 @@
+import { userAtom } from '@centreon/ui-context';
+
 import { act, renderHook } from '@testing-library/react';
 import { useAtomValue } from 'jotai';
-
-import { userAtom } from '@centreon/ui-context';
 
 import useNavigation from '../../Navigation/useNavigation';
 import { pollerConfigurationPageNumber } from '../Poller/getPollerPropsAdapter';
@@ -22,7 +22,6 @@ import {
   labelPollerNotRunning,
   labelPollers
 } from '../Poller/translatedLabels';
-
 import {
   initialize,
   openSubMenu,

@@ -623,8 +623,8 @@ Then('the dashboard administrator clicks on the downtime filter', () => {
 Then('the resources set to in downtime should be displayed', () => {
   cy.waitUntil(
     () =>
-      cy.get('body').then(($body) => {
-        const element = $body.find('svg[data-icon="Downtime"]');
+      cy.get('body').then((body) => {
+        const element = body.find('svg[data-icon="Downtime"]');
 
         return element.length > 0 && element.is(':visible');
       }),

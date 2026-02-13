@@ -1,425 +1,425 @@
 {
   "dataForCreation": [
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_description",
+      "tag": "input",
       "valueOrIndex": "HostGroupService"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "class",
       "attributValue": "select2-search__field",
+      "tag": "input",
       "valueOrIndex": "0"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "Windows-Servers",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "1"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "generic-service",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "2"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "check_http",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "3"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "workhours",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_max_check_attempts",
+      "tag": "input",
       "valueOrIndex": "15"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_normal_check_interval",
+      "tag": "input",
       "valueOrIndex": 7
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_retry_check_interval",
+      "tag": "input",
       "valueOrIndex": 9
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "4"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "Guest",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "5"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "Supervisors",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_notification_interval",
+      "tag": "input",
       "valueOrIndex": 23
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "6"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "workhours",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_first_notification_delay",
+      "tag": "input",
       "valueOrIndex": "4"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_recovery_notification_delay",
+      "tag": "input",
       "valueOrIndex": "3"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "7"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "service_group",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "8"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "3com - brDatabaseFull",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_freshness_threshold",
+      "tag": "input",
       "valueOrIndex": "22"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "11"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "service-category",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_notes_url",
+      "tag": "input",
       "valueOrIndex": "serviceUrl"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_notes",
+      "tag": "input",
       "valueOrIndex": "serviceNotes"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_action_url",
+      "tag": "input",
       "valueOrIndex": "serviceActionUrl"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_icon_image_alt",
+      "tag": "input",
       "valueOrIndex": "serviceAltIcon"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "geo_coords",
+      "tag": "input",
       "valueOrIndex": "2.3522219,48.856614"
     },
     {
-      "tag": "textarea",
       "attribut": "name",
       "attributValue": "service_comment",
+      "tag": "textarea",
       "valueOrIndex": "hostGroupServiceComments"
     }
   ],
   "dataForUpdate": [
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_description",
+      "tag": "input",
       "valueOrIndex": "HostGroupService-changed"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "class",
       "attributValue": "select2-search__field",
+      "tag": "input",
       "valueOrIndex": "0"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "Firewall",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "1"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "Ping-LAN",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "2"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "check_https",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "3"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "24x7",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_max_check_attempts",
+      "tag": "input",
       "valueOrIndex": "10"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_normal_check_interval",
+      "tag": "input",
       "valueOrIndex": "8"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_retry_check_interval",
+      "tag": "input",
       "valueOrIndex": "7"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "4"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "User",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "5"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "Guest",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_notification_interval",
+      "tag": "input",
       "valueOrIndex": "25"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "6"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "workhours",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_first_notification_delay",
+      "tag": "input",
       "valueOrIndex": "5"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_recovery_notification_delay",
+      "tag": "input",
       "valueOrIndex": "2"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "7"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "service_group_2",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "8"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "3com - eventGenericTrap",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "service_freshness_threshold",
+      "tag": "input",
       "valueOrIndex": "20"
     },
     {
-      "tag": "span",
       "attribut": "title",
       "attributValue": "Clear field",
+      "tag": "span",
       "valueOrIndex": "11"
     },
     {
-      "tag": "div",
       "attribut": "title",
       "attributValue": "Ping",
+      "tag": "div",
       "valueOrIndex": "0"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_notes_url",
+      "tag": "input",
       "valueOrIndex": "serviceUrl-changed"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_notes",
+      "tag": "input",
       "valueOrIndex": "serviceNotes-changed"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_action_url",
+      "tag": "input",
       "valueOrIndex": "serviceActionUrl-changed"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "esi_icon_image_alt",
+      "tag": "input",
       "valueOrIndex": "serviceAltIcon-changed"
     },
     {
-      "tag": "input",
       "attribut": "name",
       "attributValue": "geo_coords",
+      "tag": "input",
       "valueOrIndex": "2.3522214,48.856615"
     },
     {
-      "tag": "textarea",
       "attribut": "name",
       "attributValue": "service_comment",
+      "tag": "textarea",
       "valueOrIndex": "hostGroupServiceComments-changed"
     }
   ]

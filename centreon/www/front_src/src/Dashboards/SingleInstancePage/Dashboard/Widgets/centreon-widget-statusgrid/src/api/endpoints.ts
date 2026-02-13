@@ -1,4 +1,10 @@
 import {
+  buildListingEndpoint,
+  ListingParameters,
+  QueryParameter
+} from '@centreon/ui';
+
+import {
   equals,
   flatten,
   includes,
@@ -8,11 +14,6 @@ import {
   toUpper
 } from 'ramda';
 
-import {
-  ListingParameters,
-  QueryParameter,
-  buildListingEndpoint
-} from '@centreon/ui';
 import { Resource } from '../../../models';
 import {
   buildResourceTypeNameForSearchParameter,

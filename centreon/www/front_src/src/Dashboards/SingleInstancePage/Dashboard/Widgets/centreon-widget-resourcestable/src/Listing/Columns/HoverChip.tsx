@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
-
-import { not } from 'ramda';
-
 import { Tooltip } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
+
+import { not } from 'ramda';
+import { useEffect, useState } from 'react';
 
 import { useHoverChiptStyles } from './Columns.styles';
 
@@ -41,20 +40,11 @@ const HoverChip = ({
   return useMemoComponent({
     Component: (
       <Tooltip
-        PopperProps={{
-          onClick: (e): void => {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-        }}
         aria-label={label}
         classes={{ tooltip: classes.tooltip }}
         enterDelay={200}
         enterNextDelay={200}
         leaveDelay={0}
-        open={isChipHovered}
-        placement="left"
-        title={<span>{children({ close: closeTooltip, isChipHovered })}</span>}
         onClick={(e): void => {
           e.preventDefault();
           e.stopPropagation();
@@ -63,6 +53,15 @@ const HoverChip = ({
         }}
         onClose={closeTooltip}
         onOpen={openTooltip}
+        open={isChipHovered}
+        PopperProps={{
+          onClick: (e): void => {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
+        placement="left"
+        title={<span>{children({ close: closeTooltip, isChipHovered })}</span>}
       >
         <span>
           <Chip />

@@ -131,9 +131,4 @@ final class ListStandardMacrosProviderTest extends ApiTestCase
         self::assertResponseIsSuccessful();
         $this->assertCount(5, (array) $response->toArray()['member']);
     }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
-    }
 }

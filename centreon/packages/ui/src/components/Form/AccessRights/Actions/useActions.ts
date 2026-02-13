@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 import { equals } from 'ramda';
 
 import { initialValuesAtom, valuesAtom } from '../atoms';
-import { AccessRightInitialValues, Labels } from '../models';
+import type { AccessRightInitialValues, Labels } from '../models';
 import { formatValue, formatValueForSubmition } from '../utils';
 
 interface Props {

@@ -1,14 +1,14 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Popover } from '@mui/material';
 
-import PickersStartEndDate from './PickersStartEndDate';
+import { makeStyles } from 'tss-react/mui';
+
 import {
-  PickersData,
-  PopoverData,
   defaultAnchorOrigin,
-  defaultTransformOrigin
+  defaultTransformOrigin,
+  type PickersData,
+  type PopoverData
 } from './models';
+import PickersStartEndDate from './PickersStartEndDate';
 import usePickersStartEndDate from './usePickersStartEndDate';
 
 const useStyles = makeStyles()((theme) => ({
@@ -57,9 +57,9 @@ const PopoverCustomTimePeriod = ({
       anchorPosition={anchorPosition}
       anchorReference={anchorReference}
       className={classes.paper}
+      onClose={onClose}
       open={open}
       transformOrigin={transformOrigin ?? defaultTransformOrigin}
-      onClose={onClose}
     >
       <PickersStartEndDate
         changeDate={changeDate}

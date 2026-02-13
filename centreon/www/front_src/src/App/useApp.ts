@@ -1,10 +1,3 @@
-import { useEffect, useRef } from 'react';
-
-import { useAtom, useSetAtom } from 'jotai';
-import { path, equals, not, pathEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router';
-
 import type { Actions } from '@centreon/ui';
 import { getData, useRequest, useSnackbar } from '@centreon/ui';
 import {
@@ -19,12 +12,17 @@ import {
   userPermissionsAtom
 } from '@centreon/ui-context';
 
+import { useAtom, useSetAtom } from 'jotai';
+import { equals, not, path, pathEq } from 'ramda';
+import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate, useSearchParams } from 'react-router';
+
+import { logoutEndpoint } from '../api/endpoint';
 import { loginPageCustomisationEndpoint } from '../Login/api/endpoint';
 import { areUserParametersLoadedAtom } from '../Main/useUser';
 import useNavigation from '../Navigation/useNavigation';
-import { logoutEndpoint } from '../api/endpoint';
 import reactRoutes from '../reactRoutes/routeMap';
-
 import {
   aclEndpoint,
   parametersEndpoint,

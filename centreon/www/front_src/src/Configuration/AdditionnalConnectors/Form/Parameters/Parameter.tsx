@@ -1,12 +1,11 @@
-import { ReactElement } from 'react';
-
-import { equals, keys } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { TextField } from '@centreon/ui';
 import { ItemComposition } from '@centreon/ui/components';
-import { ParameterKeys, Parameter as ParameterModel } from '../../models';
 
+import { equals, keys } from 'ramda';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
+
+import { ParameterKeys, Parameter as ParameterModel } from '../../models';
 import PasswordFiled from './PasswordField/PasswordField';
 import useParameter from './useParameter';
 import { useParameterStyles } from './useParametersStyles';
@@ -33,29 +32,29 @@ const Parameter = ({ parameter, index }: Props): ReactElement => {
         {keys(parameter).map((name) => (
           <div className={classes.parameterCompositionItem} key={name}>
             <ItemComposition.Item
-              deleteButtonHidden
               className={classes.parameterItem}
+              deleteButtonHidden
               key={name}
             >
               {equals(name, ParameterKeys.password) ? (
                 <PasswordFiled
-                  index={index}
                   error={getError?.(name)}
+                  index={index}
                   onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
                   value={parameter[name]}
                 />
               ) : (
                 <TextField
-                  fullWidth
                   dataTestId={`${name}_value`}
                   error={getError?.(name)}
+                  fullWidth
                   label={t(name)}
                   name={name}
+                  onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
+                  onChange={changeParameterValue}
                   required={true}
                   type="text"
                   value={parameter[name] as string}
-                  onBlur={handleBlur(`parameters.vcenters.${index}.${name}`)}
-                  onChange={changeParameterValue}
                 />
               )}
             </ItemComposition.Item>

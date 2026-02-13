@@ -1,31 +1,31 @@
-import { replace } from 'ramda';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { labelSave } from '../Local/translatedLabels';
+import { replace } from 'ramda';
+
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
   contactGroupsEndpoint
 } from '../api/endpoints';
+import { labelSave } from '../Local/translatedLabels';
 import { Provider } from '../models';
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
-  labelConditionValue,
   labelConditionsAttributePath,
+  labelConditionValue,
   labelContactGroup,
   labelContactTemplate,
   labelDeleteRelation,
   labelEnableAutoImport,
   labelEnableAutomaticManagement,
   labelEnableConditionsOnIdentityProvider,
-  labelGroupValue,
   labelGroupsAttributePath,
+  labelGroupValue,
   labelMixed,
-  labelRoleValue,
   labelRolesAttributePath,
-  labelRolesMapping
+  labelRolesMapping,
+  labelRoleValue
 } from '../shared/translatedLabels';
 import {
   labelAuthenticationConditions,
@@ -33,7 +33,7 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from '../translatedLabels';
-
+import SAMLConfigurationForm from '.';
 import { retrievedSAMLConfiguration } from './defaults';
 import {
   labelBothIdentityProviderAndCentreonUI,
@@ -51,8 +51,6 @@ import {
   labelSAMLOnly,
   labelUserIdAttribute
 } from './translatedLabels';
-
-import SAMLConfigurationForm from '.';
 
 const getRetrievedEntities = (label: string): object => ({
   meta: {

@@ -1,10 +1,10 @@
 export const filtersInitialValues = {
+  creationDate: null,
+  creators: [],
+  disabled: false,
+  enabled: false,
+  expirationDate: null,
   name: '',
   types: [],
-  users: [],
-  creators: [],
-  expirationDate: null,
-  creationDate: null,
-  enabled: false,
-  disabled: false
+  users: []
 };

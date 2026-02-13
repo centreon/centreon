@@ -1,8 +1,7 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { CopyToContainerContentType } from '../../../../packages/js-config/cypress/e2e/commands';
-
-import { PAGES } from 'fixtures/shared/constants/pages';
 import { checkIfConfigurationIsExported, insertFixture } from '../../commons';
 
 const dateBeforeLogin = new Date();
@@ -478,8 +477,8 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
             // Copy the Update-next.php content to container with proper name
             return cy
               .copyToContainer({
-                source: updateNextFile,
                 destination: targetUpdateFile,
+                source: updateNextFile,
                 type: CopyToContainerContentType.File
               })
               .then(() => {
@@ -522,8 +521,8 @@ When('administrator runs the update procedure', () => {
     });
 
     cy.wait('@getStep2').then(() => {
-      cy.get('span[style]').each(($span) => {
-        cy.wrap($span).should('have.text', 'Loaded');
+      cy.get('span[style]').each((span) => {
+        cy.wrap(span).should('have.text', 'Loaded');
       });
       cy.get('.btc.bt_info').should('be.visible').click();
     });
@@ -547,8 +546,8 @@ When('administrator runs the update procedure', () => {
 
     cy.wait('@generatingCache')
       .get('span[style]', { timeout: 15000 })
-      .each(($span) => {
-        cy.wrap($span).should('have.text', 'OK');
+      .each((span) => {
+        cy.wrap(span).should('have.text', 'OK');
       });
     cy.get('.btc.bt_info', { timeout: 15000 }).should('be.visible').click();
 
@@ -556,8 +555,8 @@ When('administrator runs the update procedure', () => {
     cy.contains('Congratulations');
 
     // disable statistics if checkbox is available (only on upgrade to new major version)
-    cy.get('body').then(($body) => {
-      if ($body.find('#send_statistics').length) {
+    cy.get('body').then((body) => {
+      if (body.find('#send_statistics').length) {
         cy.get('#send_statistics').uncheck({ force: true });
       }
     });
@@ -612,8 +611,8 @@ Then(
       () => {
         cy.get('[aria-label="Refresh"]').click({ force: true });
 
-        return cy.get('#content').then(($el) => {
-          return $el.find(':contains("service1")').length > 0;
+        return cy.get('#content').then((el) => {
+          return el.find(':contains("service1")').length > 0;
         });
       },
       {
@@ -637,8 +636,8 @@ Then('legacy services grid page should still work', () => {
     return cy
       .getIframeBody()
       .find('.ListTable tr:not(.ListHeader)')
-      .then(($el) => {
-        return $el.find(':contains("host1")').length > 0;
+      .then((el) => {
+        return el.find(':contains("host1")').length > 0;
       });
   });
 });

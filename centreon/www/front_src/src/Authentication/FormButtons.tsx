@@ -1,11 +1,3 @@
-import { useEffect, useState } from 'react';
-
-import { FormikValues, useFormikContext } from 'formik';
-import { useAtom } from 'jotai';
-import { equals, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { Button } from '@mui/material';
 
 import {
@@ -14,6 +6,13 @@ import {
   UnsavedChangesDialog,
   useMemoComponent
 } from '@centreon/ui';
+
+import { FormikValues, useFormikContext } from 'formik';
+import { useAtom } from 'jotai';
+import { equals, not } from 'ramda';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   labelCancel,
@@ -105,8 +104,8 @@ const FormButtons = (): JSX.Element => {
         <Button
           aria-label={t(labelReset)}
           disabled={not(canReset)}
-          size="small"
           onClick={askBeforeReset}
+          size="small"
         >
           {t(labelReset)}
         </Button>
@@ -116,19 +115,19 @@ const FormButtons = (): JSX.Element => {
           labelSave={labelSave}
           labelSucceeded={labelSaved}
           loading={isSubmitting}
+          onClick={submit}
           size="small"
           succeeded={submitted}
-          onClick={submit}
         />
         <ConfirmDialog
           labelCancel={t(labelCancel)}
           labelConfirm={t(labelReset)}
           labelMessage={t(labelDoYouWantToResetTheForm)}
           labelTitle={t(labelResetTheForm)}
-          open={askingBeforeReset}
           onCancel={closeAskingBeforeReset}
           onClose={closeAskingBeforeReset}
           onConfirm={reset}
+          open={askingBeforeReset}
         />
         <UnsavedChangesDialog
           closeDialog={closeUnsavedDialog}

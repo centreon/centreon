@@ -1,15 +1,13 @@
-import { useRef } from 'react';
-
-import { equals } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Theme } from '@mui/material';
 
 import { useFullscreen } from '@centreon/ui';
 import { ThemeMode } from '@centreon/ui-context';
 
-import FederatedComponent from '../components/FederatedComponents';
+import { equals } from 'ramda';
+import { useRef } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
+import FederatedComponent from '../components/FederatedComponents';
 import Poller from './Poller';
 import HostStatusCounter from './Resources/Host';
 import ServiceStatusCounter from './Resources/Service';

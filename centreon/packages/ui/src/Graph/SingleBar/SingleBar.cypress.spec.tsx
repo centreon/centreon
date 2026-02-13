@@ -5,9 +5,8 @@ import {
   warningThresholds
 } from '../common/testUtils';
 import dataLastWeek from '../mockedData/lastWeek.json';
-
+import type { SingleBarProps } from './models';
 import SingleBar from './SingleBar';
-import { SingleBarProps } from './models';
 
 const initialize = (
   args: Omit<SingleBarProps, 'data' | 'labels' | 'baseColor'>
@@ -121,9 +120,9 @@ describe('Single bar', () => {
 
   it('displays the value on the left of the bar when the corresponding prop is set', () => {
     initialize({
-      thresholds: successThresholds,
       direction: 'row',
-      textWidth: 100
+      textWidth: 100,
+      thresholds: successThresholds
     });
 
     cy.contains('0.41 s').should('be.visible');
@@ -133,10 +132,10 @@ describe('Single bar', () => {
 
   it('displays the value on the left of the bar when the corresponding prop is set and the size is mall', () => {
     initialize({
-      thresholds: criticalThresholds,
       direction: 'row',
+      size: 'small',
       textWidth: 70,
-      size: 'small'
+      thresholds: criticalThresholds
     });
 
     cy.contains('0.41 s').should('be.visible');

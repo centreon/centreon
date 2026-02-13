@@ -1,13 +1,11 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 import { isNil, map, pipe } from 'ramda';
 
 import { bisectDate } from '../../../common/timeSeries';
-import { TimeValue } from '../../../common/timeSeries/models';
-
-import { StackValue } from './models';
-import useTickGraph from './useTickGraph';
-
+import type { TimeValue } from '../../../common/timeSeries/models';
 import AnchorPoint from '.';
+import type { StackValue } from './models';
+import useTickGraph from './useTickGraph';
 
 interface Props {
   lineColor: string;
@@ -59,10 +57,10 @@ const StackedAnchorPoint = ({
   maxLeftAxisCharacters
 }: Props): JSX.Element | null => {
   const { tickAxisBottom: timeTick } = useTickGraph({
-    timeSeries,
-    xScale,
     hasSecondUnit,
-    maxLeftAxisCharacters
+    maxLeftAxisCharacters,
+    timeSeries,
+    xScale
   });
 
   if (isNil(timeTick)) {

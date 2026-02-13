@@ -2,8 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { array, number, object, string } from 'yup';
 
 import {
-  labelAtLeastOneVCenterIsRequired,
   labelAteastOnePollerIsRequired,
+  labelAtLeastOneVCenterIsRequired,
   labelDescription,
   labelDescriptionMustBeMost,
   labelInvalidPortNumber,
@@ -32,8 +32,8 @@ const useValidationSchema = (): { validationSchema } => {
 
   const vcenterSchema = object().shape({
     Password: string().required(t(labelRequired)),
-    Username: string().required(t(labelRequired)),
     URL: urlValidationSchema,
+    Username: string().required(t(labelRequired)),
     'vCenter name': string()
       .required(t(labelRequired))
       .test(

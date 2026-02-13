@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/commands/connector.json';
 
 before(() => {
@@ -37,8 +37,8 @@ When('the user creates a connector', () => {
   cy.addConnectors({
     ...data.connector,
     commandLine: data.connector.command_line,
-    usedByCommand: data.connector.used_by_command,
-    isEnabled: data.connector.is_enabled
+    isEnabled: data.connector.is_enabled,
+    usedByCommand: data.connector.used_by_command
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -69,8 +69,8 @@ When('the user changes the properties of a connector', () => {
   cy.updateConnectors({
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
-    usedByCommand: data.connectorUpdated.used_by_command,
-    isEnabled: data.connectorUpdated.is_enabled
+    isEnabled: data.connectorUpdated.is_enabled,
+    usedByCommand: data.connectorUpdated.used_by_command
   });
   // Click on the first "Save" button
   cy.getIframeBody()
@@ -92,8 +92,8 @@ Then('the properties are updated', () => {
   cy.checkValuesOfConnectors(data.connectorUpdated.name, {
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
-    usedByCommand: data.connectorUpdated.used_by_command,
-    isEnabled: data.connectorUpdated.is_enabled
+    isEnabled: data.connectorUpdated.is_enabled,
+    usedByCommand: data.connectorUpdated.used_by_command
   });
 });
 
@@ -134,8 +134,8 @@ Then('the new connector has the same properties', () => {
   cy.checkValuesOfConnectors(`${data.connectorUpdated.name}_1`, {
     ...data.connectorUpdated,
     commandLine: data.connectorUpdated.command_line,
-    usedByCommand: data.connectorUpdated.used_by_command,
-    isEnabled: data.connectorUpdated.is_enabled
+    isEnabled: data.connectorUpdated.is_enabled,
+    usedByCommand: data.connectorUpdated.used_by_command
   });
 });
 

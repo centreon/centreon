@@ -1,7 +1,4 @@
-import parse from 'html-react-parser';
-import { always, cond, equals, find, propEq } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import {
   Box,
@@ -13,7 +10,10 @@ import {
 
 import { SingleAutocompleteField } from '@centreon/ui';
 import { Avatar, CollapsibleItem } from '@centreon/ui/components';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import parse from 'html-react-parser';
+import { always, cond, equals, find, propEq } from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import type { FederatedWidgetProperties } from '../../../../../federatedModules/models';
 import { useCanEditProperties } from '../../hooks/useCanEditDashboard';
@@ -24,7 +24,6 @@ import {
   labelWidgetType
 } from '../../translatedLabels';
 import { useAddWidgetStyles } from '../addWidget.styles';
-
 import { WidgetType } from '../models';
 import useWidgetSelection from './useWidgetSelection';
 import { useWidgetSelectionStyles } from './widgetProperties.styles';
@@ -48,13 +47,13 @@ const WidgetSelection = (): JSX.Element => {
 
   const renderGroup = ({ group, key, ...rest }): JSX.Element => (
     <CollapsibleItem
+      classes={{ root: classes.groupContainer }}
       dataTestId={group}
       defaultExpanded
+      expandIcon={<ExpandMoreIcon htmlColor={theme.palette.common.white} />}
       key={key}
       title={t(getWidgetGroupTitle(group))}
-      classes={{ root: classes.groupContainer }}
-      titleProps={{ variant: 'body1', color: theme.palette.common.white }}
-      expandIcon={<ExpandMoreIcon htmlColor={theme.palette.common.white} />}
+      titleProps={{ color: theme.palette.common.white, variant: 'body1' }}
     >
       {rest?.children}
     </CollapsibleItem>
@@ -95,20 +94,20 @@ const WidgetSelection = (): JSX.Element => {
 
   return (
     <Box className={classes.widgetSelection}>
-      <Avatar compact className={avatarClasses.widgetAvatar}>
+      <Avatar className={avatarClasses.widgetAvatar} compact>
         1
       </Avatar>
       <SingleAutocompleteField
         className={classes.selectField}
         disabled={!canEditField}
+        groupBy={(option) => option.widgetType}
         label={t(labelWidgetType)}
-        options={options}
-        renderOption={renderOption}
-        value={selectedWidget || null}
         onChange={(_, newValue) => selectWidget(newValue)}
         onTextChange={searchWidgets}
-        groupBy={(option) => option.widgetType}
+        options={options}
         renderGroup={renderGroup}
+        renderOption={renderOption}
+        value={selectedWidget || null}
       />
     </Box>
   );

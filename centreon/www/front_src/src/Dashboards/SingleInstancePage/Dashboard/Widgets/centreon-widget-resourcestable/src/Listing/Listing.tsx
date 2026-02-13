@@ -1,16 +1,15 @@
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
-import { ReactElement } from 'react';
-
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
-import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
-import { PanelOptions } from '../models';
+import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
+import { ReactElement } from 'react';
 
+import { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { openTicketAtom } from '../atom';
+import { PanelOptions } from '../models';
 import Actions from './Actions';
 import AcknowledgeForm from './Actions/Acknowledge';
 import DowntimeForm from './Actions/Downtime';
@@ -108,8 +107,8 @@ const Listing = ({
     sortField,
     sortOrder,
     states,
-    statusTypes,
     statuses,
+    statusTypes,
     widgetPrefixQuery
   });
 
@@ -119,17 +118,16 @@ const Listing = ({
   return (
     <>
       <MemoizedListing
-        isActionBarVisible={!isOnPublicPage}
-        checkable
         actions={
           <Actions
             displayType={displayType}
             hasMetaService={hasMetaService}
-            setPanelOptions={setPanelOptions}
             isOpenTicketEnabled={isOpenTicketEnabled}
+            setPanelOptions={setPanelOptions}
           />
         }
         actionsBarMemoProps={[displayType, hasMetaService, isOpenTicketEnabled]}
+        checkable
         columnConfiguration={{
           selectedColumnIds: selectedColumnIds || defaultSelectedColumnIds,
           sortable: true
@@ -139,6 +137,7 @@ const Listing = ({
         getHighlightRowCondition={({ status }): boolean =>
           equals(status?.severity_code, SeverityCode.High)
         }
+        isActionBarVisible={!isOnPublicPage}
         limit={limit}
         loading={isLoading}
         memoProps={[
@@ -151,6 +150,13 @@ const Listing = ({
           displayType,
           selectedResources
         ]}
+        onLimitChange={changeLimit}
+        onPaginate={changePage}
+        onResetColumns={resetColumns}
+        onRowClick={goToResourceStatusPage}
+        onSelectColumns={selectColumns}
+        onSelectRows={setSelectedResources}
+        onSort={changeSort}
         rowColorConditions={rowColorConditions(theme)}
         rows={data?.result}
         selectedRows={selectedResources}
@@ -164,33 +170,26 @@ const Listing = ({
           labelExpand: 'Expand'
         }}
         totalRows={data?.meta?.total}
-        onLimitChange={changeLimit}
-        onPaginate={changePage}
-        onResetColumns={resetColumns}
-        onRowClick={goToResourceStatusPage}
-        onSelectColumns={selectColumns}
-        onSelectRows={setSelectedResources}
-        onSort={changeSort}
       />
       {resourcesToAcknowledge.length > 0 && (
         <AcknowledgeForm
-          resources={resourcesToAcknowledge}
           onClose={cancelAcknowledge}
           onSuccess={confirmAcknowledge}
+          resources={resourcesToAcknowledge}
         />
       )}
       {resourcesToSetDowntime.length > 0 && (
         <DowntimeForm
-          resources={resourcesToSetDowntime}
           onClose={cancelSetDowntime}
           onSuccess={confirmSetDowntime}
+          resources={resourcesToSetDowntime}
         />
       )}
 
       {resourcesToOpenTicket.length > 0 && (
         <OpenTicketModal
-          isOpen
           close={onTicketClose}
+          isOpen
           providerID={provider?.id}
           resource={resourcesToOpenTicket[0]}
         />

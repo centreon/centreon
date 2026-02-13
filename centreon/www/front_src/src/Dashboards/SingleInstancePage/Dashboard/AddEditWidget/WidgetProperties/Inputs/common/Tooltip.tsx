@@ -1,6 +1,9 @@
-import { Tooltip as TooltipComponent } from '@centreon/ui/components';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
+import { Tooltip as TooltipComponent } from '@centreon/ui/components';
+
 import { useTranslation } from 'react-i18next';
+
 import { WidgetPropertyProps } from '../../../models';
 
 const Tooltip = ({

@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useLocaleDateTimeFormat, useRequest, useSnackbar } from '@centreon/ui';
+import { downtimeAtom, userAtom } from '@centreon/ui-context';
 
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -6,10 +7,8 @@ import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { useFormik } from 'formik';
 import { useAtomValue } from 'jotai';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { useLocaleDateTimeFormat, useRequest, useSnackbar } from '@centreon/ui';
-import { downtimeAtom, userAtom } from '@centreon/ui-context';
 
 import { Resource } from '../../models';
 import {
@@ -17,7 +16,6 @@ import {
   labelDowntimeCommandSent
 } from '../../translatedLabels';
 import { setDowntimeOnResources } from '../api';
-
 import DialogDowntime from './Dialog';
 import { getValidationSchema } from './validation';
 
@@ -130,12 +128,12 @@ const DowntimeForm = ({
       canConfirm={form.isValid}
       errors={form.errors}
       handleChange={form.handleChange}
+      onCancel={onClose}
+      onConfirm={form.submitForm}
       resources={resources}
       setFieldValue={form.setFieldValue}
       submitting={sendingSetDowntingOnResources}
       values={form.values}
-      onCancel={onClose}
-      onConfirm={form.submitForm}
     />
   );
 };

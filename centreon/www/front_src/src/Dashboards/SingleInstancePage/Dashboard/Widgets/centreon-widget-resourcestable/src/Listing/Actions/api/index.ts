@@ -4,7 +4,6 @@ import { equals } from 'ramda';
 import { Resource, ResourceCategory } from '../../models';
 import { AcknowledgeFormValues } from '../Acknowledge';
 import { DowntimeToPost } from '../Downtime';
-
 import { acknowledgeEndpoint, downtimeEndpoint } from './endpoint';
 
 interface ResourcesWithAcknowledgeParams {

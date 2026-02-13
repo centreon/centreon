@@ -1,15 +1,19 @@
-import { Dispatch, MutableRefObject, SetStateAction, useMemo } from 'react';
+import { Stack } from '@mui/material';
 
 import { equals, gt, isNil, lte, reduce } from 'ramda';
-
-import { Stack } from '@mui/material';
+import {
+  type Dispatch,
+  type MutableRefObject,
+  type SetStateAction,
+  useMemo
+} from 'react';
 
 import Legend from '../../Chart/Legend';
 import { legendWidth } from '../../Chart/Legend/Legend.styles';
-import { LegendModel } from '../../Chart/models';
-import { Line } from '../timeSeries/models';
+import type { LegendModel } from '../../Chart/models';
+import type { Line } from '../timeSeries/models';
 import Header from './Header';
-import { LineChartHeader } from './Header/models';
+import type { LineChartHeader } from './Header/models';
 import { useBaseChartStyles } from './useBaseChartStyles';
 
 interface Props {
@@ -80,7 +84,7 @@ const BaseChart = ({
   return (
     <>
       <div ref={titleRef}>
-        <Header header={header} title={title} ref={titleRef} />
+        <Header header={header} ref={titleRef} title={title} />
       </div>
       <div className={classes.container}>
         <Stack
@@ -100,19 +104,19 @@ const BaseChart = ({
               >
                 <Legend
                   base={base}
+                  graphHeight={graphHeight}
                   height={height}
                   limitLegend={limitLegend}
                   lines={lines}
                   mode={legend?.mode}
                   placement="left"
                   renderExtraComponent={legend?.renderExtraComponent}
+                  secondaryClick={legend?.secondaryClick}
                   setLinesGraph={setLines}
                   shouldDisplayLegendInCompactMode={
                     shouldDisplayLegendInCompactMode
                   }
                   showCalculations={legend?.showCalculations}
-                  secondaryClick={legend?.secondaryClick}
-                  graphHeight={graphHeight}
                 />
               </div>
             )}
@@ -126,17 +130,17 @@ const BaseChart = ({
         >
           <Legend
             base={base}
+            graphHeight={graphHeight}
             height={height}
             limitLegend={limitLegend}
             lines={lines}
             mode={legend.mode}
             placement="bottom"
             renderExtraComponent={legend.renderExtraComponent}
+            secondaryClick={legend?.secondaryClick}
             setLinesGraph={setLines}
             shouldDisplayLegendInCompactMode={shouldDisplayLegendInCompactMode}
-            secondaryClick={legend?.secondaryClick}
             showCalculations={legend?.showCalculations}
-            graphHeight={graphHeight}
           />
         </div>
       )}

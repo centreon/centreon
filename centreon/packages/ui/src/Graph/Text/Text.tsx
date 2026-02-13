@@ -1,17 +1,16 @@
-import { isNil } from 'ramda';
-
 import { useTheme } from '@mui/material';
 
+import { isNil } from 'ramda';
+import type { ReactElement } from 'react';
+import useResizeObserver from 'use-resize-observer';
+
 import FluidTypography from '../../Typography/FluidTypography';
-import { LineChartData, Thresholds } from '../common/models';
+import type { LineChartData, Thresholds } from '../common/models';
 import {
   formatMetricValueWithUnit,
   getMetricWithLatestData
 } from '../common/timeSeries';
 import { getColorFromDataAndTresholds } from '../common/utils';
-
-import { type ReactElement } from 'react';
-import useResizeObserver from 'use-resize-observer';
 import { useTextStyles } from './Text.styles';
 
 export interface Props {
@@ -93,18 +92,18 @@ export const Text = ({
           <FluidTypography
             containerClassName={cx(classes.thresholdLabel, classes.warning)}
             max="30px"
+            min={minThresholds}
             pref={prefThresholds}
             text={`${warningLabel}${warningThresholdLabels.join(' - ')}`}
             variant="h5"
-            min={minThresholds}
           />
           <FluidTypography
             containerClassName={cx(classes.thresholdLabel, classes.critical)}
             max="30px"
+            min={minThresholds}
             pref={prefThresholds}
             text={`${criticalLabel}${criticalThresholdLabels.join(' - ')}`}
             variant="h5"
-            min={minThresholds}
           />
         </div>
       )}

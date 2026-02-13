@@ -33,6 +33,21 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
+/** -------------------------------------- Global macros -------------------------------------- */
+$rewordingResourceToGlobalMacro = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to update Resource to Global macros';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [global_macro] Rewording Resource to Global macros",
+    );
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE topology
+            SET topology_name = 'Global macros'
+            WHERE topology_name = 'Resources'
+            SQL
+    );
+};
 /** -------------------------------------- Host Group Topology -------------------------------------- */
 $fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to fix duplicate Host Groups topology';
@@ -65,9 +80,57 @@ $fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $vers
     );
 };
 
+/** -------------------------------------- Broker Instances CMA fields -------------------------------------- */
+$updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add CMA certificate fields to broker instances table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [broker instances] Adding CMA certificate fields to broker instances table",
+    );
+
+    if (
+        $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_sha'
+        )
+        || $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_cn'
+        )
+        || $pearDBO->columnExists(
+            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            'instances',
+            'cma_certificate_peremption'
+        )
+    ) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [broker instances] CMA certificate fields already exist in broker instances table, skipping",
+        );
+
+        return;
+    }
+
+    $pearDBO->query(
+        <<<'SQL'
+            ALTER TABLE `instances`
+            ADD COLUMN `cma_certificate_sha` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate fingerprint',
+            ADD COLUMN `cma_certificate_cn` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate host name',
+            ADD COLUMN `cma_certificate_peremption` INT(11) DEFAULT NULL COMMENT 'CMA certificate peremption timestamp'
+            SQL
+    );
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: [broker instances] Successfully added CMA certificate fields to broker instances table",
+    );
+};
+
 try {
     // DDL statements for real time database
-    // TODO add your function calls to update the real time database structure here
+    $updateInstancesTable();
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
@@ -77,6 +140,7 @@ try {
         $pearDB->startTransaction();
     }
 
+    $rewordingResourceToGlobalMacro();
     $fixDuplicateHostGroupTopology();
 
     $pearDB->commitTransaction();

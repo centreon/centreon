@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/notifications/escalation.json';
 import metaServices from '../../../fixtures/services/meta_service.json';
 import servicesData from '../../../fixtures/services/service.json';
@@ -108,17 +108,17 @@ When('the user fills all the properties of an escalation', () => {
   cy.getIframeBody().contains('a', 'Add').eq(0).click();
   cy.addEscalation({
     ...data.default,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 
@@ -141,34 +141,34 @@ When('the user changes the properties of the configured escalation', () => {
   cy.getIframeBody().contains(data.default.name).click();
   cy.updateEscalation({
     ...data.escalation1,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 
 Then('the properties are updated', () => {
   cy.checkValuesOfEscalation(data.escalation1.name, {
     ...data.escalation1,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 
@@ -183,17 +183,17 @@ When('the user duplicates the configured escalation', () => {
 Then('a new escalation is created with identical properties', () => {
   cy.checkValuesOfEscalation(`${data.escalation1.name}_1`, {
     ...data.escalation1,
-    firstNotification: data.default.first_notification,
-    lastNotification: data.default.last_notification,
-    notificationInterval: data.default.notification_interval,
-    escalationPeriod: data.default.escalation_period,
     contactGroups: data.default.contactgroups,
-    hostInheritanceToServices: data.default.host_inheritance_to_services,
-    hostGroups: data.default.hostgroups,
+    escalationPeriod: data.default.escalation_period,
+    firstNotification: data.default.first_notification,
     hostGroupInheritanceToServices:
       data.default.hostgroup_inheritance_to_services,
-    serviceGroups: data.default.servicegroups,
-    metaServices: data.default.metaservices
+    hostGroups: data.default.hostgroups,
+    hostInheritanceToServices: data.default.host_inheritance_to_services,
+    lastNotification: data.default.last_notification,
+    metaServices: data.default.metaservices,
+    notificationInterval: data.default.notification_interval,
+    serviceGroups: data.default.servicegroups
   });
 });
 

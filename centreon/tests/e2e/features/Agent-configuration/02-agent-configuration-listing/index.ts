@@ -1,5 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
 before(() => {
@@ -183,8 +184,8 @@ Given('some poller agent configurations are created', () => {
   cy.get('*[role="listbox"]').contains('Centreon Monitoring Agent').click();
   cy.fillCmaMandatoryFields({
     ...agentsConfiguration.CMA1,
-    publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName,
-    privateKeyFileName: agentsConfiguration.CMA1.privateKFileName
+    privateKeyFileName: agentsConfiguration.CMA1.privateKFileName,
+    publicCertificationFileName: agentsConfiguration.CMA1.publicCertfFileName
   });
   cy.getByTestId({ testId: 'submit' }).click();
   cy.wait('@addAgents');

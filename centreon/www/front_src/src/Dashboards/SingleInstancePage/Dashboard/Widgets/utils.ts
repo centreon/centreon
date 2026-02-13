@@ -1,5 +1,11 @@
 import {
-  T,
+  centreonBaseURL,
+  ResourceType,
+  SelectEntry,
+  SeverityCode
+} from '@centreon/ui';
+
+import {
   always,
   cond,
   equals,
@@ -14,17 +20,11 @@ import {
   pipe,
   pluck,
   reject,
+  T,
   toPairs,
   toUpper,
   type
 } from 'ramda';
-
-import {
-  ResourceType,
-  SelectEntry,
-  SeverityCode,
-  centreonBaseURL
-} from '@centreon/ui';
 
 import { WidgetResourceType } from '../AddEditWidget/models';
 import { Resource, SeverityStatus, Status } from './models';

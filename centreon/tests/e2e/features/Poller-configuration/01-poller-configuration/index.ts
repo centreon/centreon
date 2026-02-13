@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import { checkIfConfigurationIsExported } from '../../../commons';
 import {
   breakSomePollers,
@@ -102,7 +102,7 @@ When('I select some pollers', () => {
   cy.getIframeBody()
     .find('form .list_one>td')
     .eq(1)
-    .then(($text) => cy.wrap($text.text()).as('pollerName'));
+    .then((text) => cy.wrap(text.text()).as('pollerName'));
 });
 
 When('I click on the Export configuration button', () => {
@@ -173,8 +173,8 @@ Then('the configuration is generated on selected pollers', () => {
         .get('iframe#main-content')
         .its('0.contentDocument.body')
         .find('div#console')
-        .then(($el) => {
-          return $el.find('label#progressPct:contains("100%")').length > 0;
+        .then((el) => {
+          return el.find('label#progressPct:contains("100%")').length > 0;
         });
     },
     { timeout: 10000 }

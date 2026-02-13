@@ -1,18 +1,17 @@
 import { equals, isNil, prop } from 'ramda';
 
 import { getTime, getYScale } from '../../../../common/timeSeries';
-import { TimeValue } from '../../../../common/timeSeries/models';
+import type { TimeValue } from '../../../../common/timeSeries/models';
 import { displayArea } from '../../../helpers/index';
-import { ThresholdType, VariationThreshold } from '../../../models';
-
+import { ThresholdType, type VariationThreshold } from '../../../models';
 import { envelopeVariationFormula } from './helpers';
 import {
-  LinesThreshold,
-  ScaleVariationThreshold,
-  WrapperThresholdLinesModel,
   findLineOfOriginMetricThreshold,
+  type LinesThreshold,
   lowerLineName,
-  upperLineName
+  type ScaleVariationThreshold,
+  upperLineName,
+  type WrapperThresholdLinesModel
 } from './models';
 
 interface Result extends Partial<ScaleVariationThreshold> {

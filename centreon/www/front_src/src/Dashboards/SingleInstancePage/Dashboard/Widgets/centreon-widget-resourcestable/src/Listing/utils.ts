@@ -1,6 +1,6 @@
-import { cond, equals, map } from 'ramda';
-
 import { SeverityCode } from '@centreon/ui';
+
+import { cond, equals, map } from 'ramda';
 
 import { DisplayType, ResourceListing } from './models';
 

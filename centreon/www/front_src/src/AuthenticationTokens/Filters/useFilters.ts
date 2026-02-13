@@ -1,13 +1,12 @@
-import { equals, isNil, map, pick, propEq, reject } from 'ramda';
-
 import { SelectEntry } from '@centreon/ui';
-
-import { Filter, NamedEntity } from '../models';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtom } from 'jotai';
+import { equals, isNil, map, pick, propEq, reject } from 'ramda';
 import { useEffect, useState } from 'react';
+
 import { filtersAtom } from '../atoms';
+import { Filter, NamedEntity } from '../models';
 import { filtersInitialValues } from '../utils';
 
 interface UseFiltersState {
@@ -123,19 +122,19 @@ const useFilters = (): UseFiltersState => {
   }, [filters, isClearClicked]);
 
   return {
-    isClearDisabled,
+    changeCreator,
     changeName,
     changeTypes,
     changeUser,
-    changeCreator,
-    filterCreators,
     deleteCreator,
-    deleteUser,
     deleteType,
+    deleteUser,
+    filterCreators,
+    filters,
+    isClearDisabled,
     isOptionEqualToValue,
     reload,
-    reset,
-    filters
+    reset
   };
 };
 

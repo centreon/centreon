@@ -1000,11 +1000,8 @@ class CentreonWidget
                                 AND cvur.locked = 0
                                 AND (
                                         cvur.user_id = :userId
-                                        {$groupClause}
-                                    )
-                            )
-                        )
                 SQL;
+            $updateSql .= "{$groupClause})))";
         }
         try {
             $params = [

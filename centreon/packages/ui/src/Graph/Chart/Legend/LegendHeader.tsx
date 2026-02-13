@@ -1,14 +1,14 @@
 import { Typography } from '@mui/material';
 
+import type { ReactElement } from 'react';
+
 import {
   EllipsisTypography,
   formatMetricName,
   formatMetricValue
 } from '../../..';
 import { Tooltip } from '../../../components';
-import { Line } from '../../common/timeSeries/models';
-
-import { ReactElement } from 'react';
+import type { Line } from '../../common/timeSeries/models';
 import LegendContent from './LegendContent';
 import { LegendDisplayMode } from './models';
 

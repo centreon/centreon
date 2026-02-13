@@ -1,4 +1,4 @@
-import { Line } from '../common/timeSeries/models';
+import type { Line } from '../common/timeSeries/models';
 
 export type TooltipData =
   | {

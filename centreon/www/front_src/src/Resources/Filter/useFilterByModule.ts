@@ -1,14 +1,13 @@
-import { useEffect } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-
 import { SelectEntry, useDeepCompare } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+
 import {
+  authorizedFilterByModules,
   CriteriaById,
   CriteriaNames,
-  authorizedFilterByModules,
   criteriaValueNameById,
   selectableCriterias,
   selectableResourceTypes

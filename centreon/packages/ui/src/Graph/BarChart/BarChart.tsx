@@ -3,23 +3,23 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/pt';
+
+import { Box } from '@mui/material';
+
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { Provider } from 'jotai';
-
-import { Box } from '@mui/material';
+import type { ReactElement } from 'react';
+import useResizeObserver from 'use-resize-observer';
 
 import Loading from '../../LoadingSkeleton';
 import LoadingSkeleton from '../Chart/LoadingSkeleton';
-import { LineChartProps } from '../Chart/models';
+import type { LineChartProps } from '../Chart/models';
 import useChartData from '../Chart/useChartData';
-import { LineChartData, Thresholds } from '../common/models';
-
-import { ReactElement } from 'react';
-import useResizeObserver from 'use-resize-observer';
+import type { LineChartData, Thresholds } from '../common/models';
+import type { BarStyle } from './models';
 import ResponsiveBarChart from './ResponsiveBarChart';
-import { BarStyle } from './models';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -66,9 +66,9 @@ const BarChart = ({
     mode: 'grid',
     placement: 'bottom',
     showCalculations: {
-      min: true,
+      avg: true,
       max: true,
-      avg: true
+      min: true
     }
   },
   loading,
@@ -89,7 +89,7 @@ const BarChart = ({
   timeShiftZones,
   annotationEvent
 }: BarChartProps): ReactElement => {
-  const { adjustedData } = useChartData({ data, end, start, min, max });
+  const { adjustedData } = useChartData({ data, end, max, min, start });
   const { ref, width, height: responsiveHeight } = useResizeObserver();
 
   if (loading && !adjustedData) {
@@ -112,28 +112,28 @@ const BarChart = ({
           <Loading height={height || '100%'} width={width} />
         ) : (
           <ResponsiveBarChart
+            annotationEvent={annotationEvent}
             axis={axis}
             barStyle={barStyle}
+            boundariesUnit={boundariesUnit}
+            end={end}
             graphData={adjustedData}
             graphRef={ref}
             header={header}
             height={height || responsiveHeight || 0}
             legend={legend}
             limitLegend={limitLegend}
+            max={max}
+            min={min}
             orientation={orientation}
-            thresholdUnit={thresholdUnit}
+            skipIntersectionObserver={skipIntersectionObserver}
+            start={start}
             thresholds={thresholds}
+            thresholdUnit={thresholdUnit}
+            timeShiftZones={timeShiftZones}
             tooltip={tooltip}
             width={width || 0}
-            skipIntersectionObserver={skipIntersectionObserver}
-            min={min}
-            max={max}
-            boundariesUnit={boundariesUnit}
             zoomPreview={zoomPreview}
-            timeShiftZones={timeShiftZones}
-            annotationEvent={annotationEvent}
-            start={start}
-            end={end}
           />
         )}
       </Box>

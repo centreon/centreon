@@ -1,5 +1,6 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+
 import { Filters } from './models';
 import { columnsAtomKey, filtersAtomKey, filtersInitialValues } from './utils';
 

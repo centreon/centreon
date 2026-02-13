@@ -1,10 +1,9 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import serviceCategories from '../../../fixtures/services/category.json';
 import data from '../../../fixtures/services/host_group.json';
 import servicesData from '../../../fixtures/services/service.json';
-
-import { PAGES } from 'fixtures/shared/constants/pages';
 import htmldata from './data.json';
 
 const services = {
@@ -113,28 +112,28 @@ When('the user Add a new host group service', () => {
   cy.createOrUpdateHostGroupService(
     {
       ...data.default,
-      hostGroups: data.default.hostgroups,
-      checkCommand: data.default.checkcommand,
-      macroName: data.default.macroname,
-      macroValue: data.default.macrovalue,
-      checkPeriod: data.default.checkperiod,
-      maxCheckAttempts: data.default.maxcheckattempts,
-      normalCheckInterval: data.default.normalcheckinterval,
-      retryCheckInterval: data.default.retrycheckinterval,
-      contactGroups: data.default.contactgroups,
-      notificationInterval: data.default.notinterval,
-      notificationPeriod: data.default.notificationperiod,
-      firstNotificationDelay: data.default.firstnotdelay,
-      recoveryNotificationDelay: data.default.recoverynotdelay,
-      serviceGroups: data.default.servicegroups,
-      serviceTrap: data.default.servicetrap,
-      freshnessThreshold: data.default.freshnessthreshold,
-      serviceCategories: data.default.servicecategories,
-      noteUrl: data.default.noteurl,
       actionUrl: data.default.actionurl,
       atlIcon: data.default.atlicon,
+      checkCommand: data.default.checkcommand,
+      checkPeriod: data.default.checkperiod,
+      contactGroups: data.default.contactgroups,
+      firstNotificationDelay: data.default.firstnotdelay,
+      freshnessThreshold: data.default.freshnessthreshold,
       geoCoords: data.default.geocoords,
-      geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
+      geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated,
+      hostGroups: data.default.hostgroups,
+      macroName: data.default.macroname,
+      macroValue: data.default.macrovalue,
+      maxCheckAttempts: data.default.maxcheckattempts,
+      normalCheckInterval: data.default.normalcheckinterval,
+      noteUrl: data.default.noteurl,
+      notificationInterval: data.default.notinterval,
+      notificationPeriod: data.default.notificationperiod,
+      recoveryNotificationDelay: data.default.recoverynotdelay,
+      retryCheckInterval: data.default.retrycheckinterval,
+      serviceCategories: data.default.servicecategories,
+      serviceGroups: data.default.servicegroups,
+      serviceTrap: data.default.servicetrap
     },
     false,
     htmldata.dataForCreation.map((elt) => ({
@@ -160,28 +159,28 @@ When('the user changes the properties of the host group service', () => {
   cy.createOrUpdateHostGroupService(
     {
       ...data.hostgroupservice,
-      hostGroups: data.hostgroupservice.hostgroups,
-      checkCommand: data.hostgroupservice.checkcommand,
-      macroName: data.hostgroupservice.macroname,
-      macroValue: data.hostgroupservice.macrovalue,
-      checkPeriod: data.hostgroupservice.checkperiod,
-      maxCheckAttempts: data.hostgroupservice.maxcheckattempts,
-      normalCheckInterval: data.hostgroupservice.normalcheckinterval,
-      retryCheckInterval: data.hostgroupservice.retrycheckinterval,
-      contactGroups: data.hostgroupservice.contactgroups,
-      notificationInterval: data.hostgroupservice.notinterval,
-      notificationPeriod: data.hostgroupservice.notificationperiod,
-      firstNotificationDelay: data.hostgroupservice.firstnotdelay,
-      recoveryNotificationDelay: data.hostgroupservice.recoverynotdelay,
-      serviceGroups: data.hostgroupservice.servicegroups,
-      serviceTrap: data.hostgroupservice.servicetrap,
-      freshnessThreshold: data.hostgroupservice.freshnessthreshold,
-      serviceCategories: data.hostgroupservice.servicecategories,
-      noteUrl: data.hostgroupservice.noteurl,
       actionUrl: data.hostgroupservice.actionurl,
       atlIcon: data.hostgroupservice.atlicon,
+      checkCommand: data.hostgroupservice.checkcommand,
+      checkPeriod: data.hostgroupservice.checkperiod,
+      contactGroups: data.hostgroupservice.contactgroups,
+      firstNotificationDelay: data.hostgroupservice.firstnotdelay,
+      freshnessThreshold: data.hostgroupservice.freshnessthreshold,
       geoCoords: data.hostgroupservice.geocoords,
-      geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
+      geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated,
+      hostGroups: data.hostgroupservice.hostgroups,
+      macroName: data.hostgroupservice.macroname,
+      macroValue: data.hostgroupservice.macrovalue,
+      maxCheckAttempts: data.hostgroupservice.maxcheckattempts,
+      normalCheckInterval: data.hostgroupservice.normalcheckinterval,
+      noteUrl: data.hostgroupservice.noteurl,
+      notificationInterval: data.hostgroupservice.notinterval,
+      notificationPeriod: data.hostgroupservice.notificationperiod,
+      recoveryNotificationDelay: data.hostgroupservice.recoverynotdelay,
+      retryCheckInterval: data.hostgroupservice.retrycheckinterval,
+      serviceCategories: data.hostgroupservice.servicecategories,
+      serviceGroups: data.hostgroupservice.servicegroups,
+      serviceTrap: data.hostgroupservice.servicetrap
     },
     true,
     htmldata.dataForUpdate
@@ -191,28 +190,28 @@ When('the user changes the properties of the host group service', () => {
 Then('the properties are updated', () => {
   cy.checkValuesOfHostGroupService(data.hostgroupservice.name, {
     ...data.hostgroupservice,
-    hostGroups: data.hostgroupservice.hostgroups,
-    checkCommand: data.hostgroupservice.checkcommand,
-    macroName: data.hostgroupservice.macroname,
-    macroValue: data.hostgroupservice.macrovalue,
-    checkPeriod: data.hostgroupservice.checkperiod,
-    maxCheckAttempts: data.hostgroupservice.maxcheckattempts,
-    normalCheckInterval: data.hostgroupservice.normalcheckinterval,
-    retryCheckInterval: data.hostgroupservice.retrycheckinterval,
-    contactGroups: data.hostgroupservice.contactgroups,
-    notificationInterval: data.hostgroupservice.notinterval,
-    notificationPeriod: data.hostgroupservice.notificationperiod,
-    firstNotificationDelay: data.hostgroupservice.firstnotdelay,
-    recoveryNotificationDelay: data.hostgroupservice.recoverynotdelay,
-    serviceGroups: data.hostgroupservice.servicegroups,
-    serviceTrap: data.hostgroupservice.servicetrap,
-    freshnessThreshold: data.hostgroupservice.freshnessthreshold,
-    serviceCategories: data.hostgroupservice.servicecategories,
-    noteUrl: data.hostgroupservice.noteurl,
     actionUrl: data.hostgroupservice.actionurl,
     atlIcon: data.hostgroupservice.atlicon,
+    checkCommand: data.hostgroupservice.checkcommand,
+    checkPeriod: data.hostgroupservice.checkperiod,
+    contactGroups: data.hostgroupservice.contactgroups,
+    firstNotificationDelay: data.hostgroupservice.firstnotdelay,
+    freshnessThreshold: data.hostgroupservice.freshnessthreshold,
     geoCoords: data.hostgroupservice.geocoords,
-    geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
+    geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated,
+    hostGroups: data.hostgroupservice.hostgroups,
+    macroName: data.hostgroupservice.macroname,
+    macroValue: data.hostgroupservice.macrovalue,
+    maxCheckAttempts: data.hostgroupservice.maxcheckattempts,
+    normalCheckInterval: data.hostgroupservice.normalcheckinterval,
+    noteUrl: data.hostgroupservice.noteurl,
+    notificationInterval: data.hostgroupservice.notinterval,
+    notificationPeriod: data.hostgroupservice.notificationperiod,
+    recoveryNotificationDelay: data.hostgroupservice.recoverynotdelay,
+    retryCheckInterval: data.hostgroupservice.retrycheckinterval,
+    serviceCategories: data.hostgroupservice.servicecategories,
+    serviceGroups: data.hostgroupservice.servicegroups,
+    serviceTrap: data.hostgroupservice.servicetrap
   });
 });
 
@@ -227,28 +226,28 @@ When('the user duplicates the host group service', () => {
 Then('the new duplicated host group service has the same properties', () => {
   cy.checkValuesOfHostGroupService(`${data.hostgroupservice.name}_1`, {
     ...data.hostgroupservice,
-    hostGroups: data.hostgroupservice.hostgroups,
-    checkCommand: data.hostgroupservice.checkcommand,
-    macroName: data.hostgroupservice.macroname,
-    macroValue: data.hostgroupservice.macrovalue,
-    checkPeriod: data.hostgroupservice.checkperiod,
-    maxCheckAttempts: data.hostgroupservice.maxcheckattempts,
-    normalCheckInterval: data.hostgroupservice.normalcheckinterval,
-    retryCheckInterval: data.hostgroupservice.retrycheckinterval,
-    contactGroups: data.hostgroupservice.contactgroups,
-    notificationInterval: data.hostgroupservice.notinterval,
-    notificationPeriod: data.hostgroupservice.notificationperiod,
-    firstNotificationDelay: data.hostgroupservice.firstnotdelay,
-    recoveryNotificationDelay: data.hostgroupservice.recoverynotdelay,
-    serviceGroups: data.hostgroupservice.servicegroups,
-    serviceTrap: data.hostgroupservice.servicetrap,
-    freshnessThreshold: data.hostgroupservice.freshnessthreshold,
-    serviceCategories: data.hostgroupservice.servicecategories,
-    noteUrl: data.hostgroupservice.noteurl,
     actionUrl: data.hostgroupservice.actionurl,
     atlIcon: data.hostgroupservice.atlicon,
+    checkCommand: data.hostgroupservice.checkcommand,
+    checkPeriod: data.hostgroupservice.checkperiod,
+    contactGroups: data.hostgroupservice.contactgroups,
+    firstNotificationDelay: data.hostgroupservice.firstnotdelay,
+    freshnessThreshold: data.hostgroupservice.freshnessthreshold,
     geoCoords: data.hostgroupservice.geocoords,
-    geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated
+    geoCoordsTruncated: data.hostgroupservice.geoCoordsTruncated,
+    hostGroups: data.hostgroupservice.hostgroups,
+    macroName: data.hostgroupservice.macroname,
+    macroValue: data.hostgroupservice.macrovalue,
+    maxCheckAttempts: data.hostgroupservice.maxcheckattempts,
+    normalCheckInterval: data.hostgroupservice.normalcheckinterval,
+    noteUrl: data.hostgroupservice.noteurl,
+    notificationInterval: data.hostgroupservice.notinterval,
+    notificationPeriod: data.hostgroupservice.notificationperiod,
+    recoveryNotificationDelay: data.hostgroupservice.recoverynotdelay,
+    retryCheckInterval: data.hostgroupservice.retrycheckinterval,
+    serviceCategories: data.hostgroupservice.servicecategories,
+    serviceGroups: data.hostgroupservice.servicegroups,
+    serviceTrap: data.hostgroupservice.servicetrap
   });
 });
 

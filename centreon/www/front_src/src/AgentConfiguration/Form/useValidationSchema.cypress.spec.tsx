@@ -1,5 +1,6 @@
 import React from 'react';
 import { AnyObject, ObjectSchema } from 'yup';
+
 import { AgentType } from '../models';
 import { useValidationSchema } from './useValidationSchema';
 
@@ -43,14 +44,14 @@ describe('useValidationSchema', () => {
   it('validate certificate files with .crt extension', () => {
     cy.then(async () => {
       const validData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080,
           otelPublicCertificate: '/path/to/cert.crt'
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.Telegraf }
       };
 
       const result = await schema.validate(validData, {
@@ -63,14 +64,14 @@ describe('useValidationSchema', () => {
   it('validate certificate files with .cert extension', () => {
     cy.then(async () => {
       const validData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080,
           otelPublicCertificate: 'cert.cert'
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.Telegraf }
       };
 
       const result = await schema.validate(validData, {
@@ -83,14 +84,14 @@ describe('useValidationSchema', () => {
   it('validate key files with .key extension', () => {
     cy.then(async () => {
       const validData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080,
           otelPrivateKey: '/path/to/key.key'
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.Telegraf }
       };
 
       const result = await schema.validate(validData, {
@@ -103,14 +104,14 @@ describe('useValidationSchema', () => {
   it('reject invalid certificate extensions', () => {
     cy.then(async () => {
       const invalidData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080,
           otelPublicCertificate: '/path/to/cert.txt'
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.Telegraf }
       };
 
       try {
@@ -127,10 +128,6 @@ describe('useValidationSchema', () => {
   it('reject relative paths', () => {
     cy.then(async () => {
       const invalidData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080,
           otelPublicCertificate: './path/to/cert.cert'
@@ -151,13 +148,13 @@ describe('useValidationSchema', () => {
   it('validate valid port numbers', () => {
     cy.then(async () => {
       const validData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 443
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.Telegraf }
       };
 
       const result = await schema.validate(validData, {
@@ -170,13 +167,13 @@ describe('useValidationSchema', () => {
   it('reject invalid port numbers', () => {
     cy.then(async () => {
       const invalidData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 0
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.Telegraf }
       };
 
       try {
@@ -193,24 +190,24 @@ describe('useValidationSchema', () => {
   it('validate CMA agent with agentInitiated', () => {
     cy.then(async () => {
       const validData = {
-        name: 'test',
-        type: { id: AgentType.CMA },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
-          port: 4317,
           agentInitiated: true,
+          hosts: [],
           pollerInitiated: false,
-          tokens: [{ id: '1', name: 'token1', creatorId: 1 }],
-          hosts: []
-        }
+          port: 4317,
+          tokens: [{ creatorId: 1, id: '1', name: 'token1' }]
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.CMA }
       };
 
       const result = await schema.validate(validData, {
         context: {
+          configuration: { agentInitiated: true },
           connectionMode: { id: 'secure' },
-          type: { id: AgentType.CMA },
-          configuration: { agentInitiated: true }
+          type: { id: AgentType.CMA }
         }
       });
       expect(result).to.exist;
@@ -220,37 +217,37 @@ describe('useValidationSchema', () => {
   it('validate CMA agent with pollerInitiated', () => {
     cy.then(async () => {
       const validData = {
-        name: 'test',
-        type: { id: AgentType.CMA },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
-          port: null,
           agentInitiated: false,
-          pollerInitiated: true,
-          tokens: null,
           hosts: [
             {
               address: '192.168.1.100',
-              port: 4317,
               pollerCaCertificate: null,
               pollerCaName: null,
+              port: 4317,
               token: {
+                creatorId: 1,
                 id: '1',
                 name: 'token1',
-                creatorId: 1,
                 token_name: 'test-token'
               }
             }
-          ]
-        }
+          ],
+          pollerInitiated: true,
+          port: null,
+          tokens: null
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.CMA }
       };
 
       const result = await schema.validate(validData, {
         context: {
+          configuration: { pollerInitiated: true },
           connectionMode: { id: 'secure' },
-          type: { id: AgentType.CMA },
-          configuration: { pollerInitiated: true }
+          type: { id: AgentType.CMA }
         }
       });
       expect(result).to.exist;
@@ -260,17 +257,17 @@ describe('useValidationSchema', () => {
   it('require at least one connection mode for CMA', () => {
     cy.then(async () => {
       const invalidData = {
-        name: 'test',
-        type: { id: AgentType.CMA },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
-          port: 4317,
           agentInitiated: false,
+          hosts: [],
           pollerInitiated: false,
-          tokens: null,
-          hosts: []
-        }
+          port: 4317,
+          tokens: null
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.CMA }
       };
 
       try {
@@ -287,13 +284,13 @@ describe('useValidationSchema', () => {
   it('require agent name', () => {
     cy.then(async () => {
       const invalidData = {
-        name: '',
-        type: { id: AgentType.Telegraf },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: '',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.Telegraf }
       };
 
       try {
@@ -310,13 +307,13 @@ describe('useValidationSchema', () => {
   it('require at least one poller', () => {
     cy.then(async () => {
       const invalidData = {
-        name: 'test',
-        type: { id: AgentType.Telegraf },
-        pollers: [],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
           confServerPort: 8080
-        }
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [],
+        type: { id: AgentType.Telegraf }
       };
 
       try {
@@ -333,38 +330,38 @@ describe('useValidationSchema', () => {
   it('validate host addresses', () => {
     cy.then(async () => {
       const validData = {
-        name: 'test',
-        type: { id: AgentType.CMA },
-        pollers: [{ id: 1, name: 'poller1' }],
-        connectionMode: { id: 'secure', name: 'Secure' },
         configuration: {
-          port: null,
           agentInitiated: false,
-          pollerInitiated: true,
           hosts: [
             {
               address: '192.168.1.1',
-              port: 4317,
               pollerCaCertificate: null,
               pollerCaName: null,
+              port: 4317,
               token: {
+                creatorId: 1,
                 id: '1',
                 name: 'token1',
-                creatorId: 1,
                 token_name: 'test-token'
               }
             }
-          ]
-        }
+          ],
+          pollerInitiated: true,
+          port: null
+        },
+        connectionMode: { id: 'secure', name: 'Secure' },
+        name: 'test',
+        pollers: [{ id: 1, name: 'poller1' }],
+        type: { id: AgentType.CMA }
       };
 
       const result = await schema.validate(validData, {
         context: {
-          connectionMode: { id: 'secure' },
-          type: { id: AgentType.CMA },
           configuration: {
             pollerInitiated: true
-          }
+          },
+          connectionMode: { id: 'secure' },
+          type: { id: AgentType.CMA }
         }
       });
       expect(result).to.exist;

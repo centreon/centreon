@@ -1,11 +1,10 @@
+import { Grid, Typography } from '@mui/material';
+
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
-import { Grid, Typography } from '@mui/material';
-
 import { CriteriaNames } from '../../../../Filter/Criterias/models';
 import { Category, Group } from '../../../models';
-
 import GroupChip from './GroupChip';
 
 interface Props {
@@ -29,7 +28,7 @@ const GroupChips = ({ groups = [], title, getType }: Props): JSX.Element => {
   const type = getType();
 
   return (
-    <Grid container className={classes.groups} spacing={1}>
+    <Grid className={classes.groups} container spacing={1}>
       <Grid item xs={12}>
         <Typography color="textSecondary" variant="body1">
           {t(title)}

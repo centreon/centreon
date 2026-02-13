@@ -1,4 +1,10 @@
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
+import {
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 
 interface ViewportIntersectionState {
   isInViewport: boolean;
@@ -30,7 +36,7 @@ export const useViewportIntersection = (
     return (): void => {
       observer.current?.disconnect();
     };
-  }, [element]);
+  }, [element, options]);
 
   return {
     isInViewport: entry?.isIntersecting ?? true,

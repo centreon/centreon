@@ -1,13 +1,13 @@
-import { Modal } from '@centreon/ui/components';
-
 import { Typography } from '@mui/material';
 
+import { Modal } from '@centreon/ui/components';
+
 import { useTranslation } from 'react-i18next';
+
 import { labelCreateAuthenticationToken } from '../translatedLabels';
 import Form from './Form/Form';
-import useModal from './useModal';
-
 import { useStyles } from './Modal.styles';
+import useModal from './useModal';
 
 const FormModal = (): JSX.Element => {
   const { classes } = useStyles();
@@ -16,7 +16,7 @@ const FormModal = (): JSX.Element => {
   const { close, isOpen } = useModal();
 
   return (
-    <Modal data-testid="Modal" open={isOpen} size="medium" onClose={close}>
+    <Modal data-testid="Modal" onClose={close} open={isOpen} size="medium">
       <Modal.Header data-testid="Modal-header">
         <Typography className={classes.modalHeader}>
           {t(labelCreateAuthenticationToken)}

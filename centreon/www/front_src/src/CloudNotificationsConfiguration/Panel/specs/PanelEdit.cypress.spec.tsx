@@ -1,9 +1,8 @@
-import { Provider, createStore } from 'jotai';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import Form from '..';
+import { createStore, Provider } from 'jotai';
+
 import { DeleteConfirmationDialog } from '../../Actions/Delete';
 import { DuplicationForm } from '../../Actions/Duplicate';
 import { notificationsNamesAtom, panelWidthStorageAtom } from '../../atom';
@@ -39,13 +38,13 @@ import {
   labelTimePeriod,
   labelTimePeriodFieldShouldNotBeEmpty
 } from '../../translatedLabels';
+import Form from '..';
 import {
   availableTimePeriodsEndpoint,
   notificationEndpoint
 } from '../api/endpoints';
 import { editedNotificationIdAtom, panelModeAtom } from '../atom';
 import { PanelMode } from '../models';
-
 import {
   getNotificationResponse,
   platformVersions,
@@ -67,11 +66,9 @@ const PanelWithQueryProvider = (): JSX.Element => {
       <Provider store={store}>
         <TestQueryProvider>
           <SnackbarProvider>
-            <>
-              <Form marginBottom={0} />
-              <DeleteConfirmationDialog />
-              <DuplicationForm />
-            </>
+            <Form marginBottom={0} />
+            <DeleteConfirmationDialog />
+            <DuplicationForm />
           </SnackbarProvider>
         </TestQueryProvider>
       </Provider>

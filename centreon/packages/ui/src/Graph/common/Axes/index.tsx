@@ -1,15 +1,14 @@
-import { Axis } from '@visx/visx';
-import { ScaleLinear } from 'd3-scale';
-import { equals, head, isNil, last } from 'ramda';
-
 import { useLocaleDateTimeFormat } from '@centreon/ui';
+
+import { Axis } from '@visx/visx';
+import type { ScaleLinear } from 'd3-scale';
+import { equals, head, isNil, last } from 'ramda';
 
 import { margin } from '../../Chart/common';
 import { getXAxisTickFormat } from '../../Chart/helpers';
 import { getUnits } from '../timeSeries';
-
+import type { Data } from './models';
 import UnitLabel from './UnitLabel';
-import { Data } from './models';
 import useAxisY from './useAxisY';
 
 interface Props {
@@ -74,18 +73,18 @@ const Axes = ({
         tickFormat={formatAxisTick}
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
-          dx: isHorizontal ? 16 : -4
+          dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -4)
         })}
         top={isHorizontal ? height - margin.bottom : 0}
       />
 
       {axisLeft.displayUnit && (
         <UnitLabel
+          onUnitChange={data.axisYLeft?.onUnitChange}
           unit={axisLeft.unit}
           units={allUnits}
           x={isHorizontal ? -8 : width + 8}
           y={isHorizontal ? 16 : -2}
-          onUnitChange={data.axisYLeft?.onUnitChange}
         />
       )}
 
@@ -122,11 +121,11 @@ const Axes = ({
       )}
       {axisRight.displayUnit && (
         <UnitLabel
+          onUnitChange={data.axisYRight?.onUnitChange}
           unit={axisRight.unit}
           units={allUnits}
           x={width}
           y={isHorizontal ? 16 : -(height + 8)}
-          onUnitChange={data.axisYRight?.onUnitChange}
         />
       )}
     </g>

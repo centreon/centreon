@@ -1,9 +1,15 @@
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  buildListingEndpoint,
+  QueryParameter,
+  RegexSearchParameter,
+  SearchParameter,
+  SelectEntry
+} from '@centreon/ui';
+import { additionalResourcesAtom } from '@centreon/ui-context';
 
 import { useFormikContext } from 'formik';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
-  T,
   always,
   cond,
   equals,
@@ -23,22 +29,14 @@ import {
   project,
   propEq,
   reject,
+  T,
   type,
   uniqBy
 } from 'ramda';
-
-import {
-  QueryParameter,
-  RegexSearchParameter,
-  SearchParameter,
-  SelectEntry,
-  buildListingEndpoint
-} from '@centreon/ui';
-import { additionalResourcesAtom } from '@centreon/ui-context';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { baseEndpoint } from '../../../../../../../api/endpoint';
 import { WidgetHiddenCondition } from '../../../../../../../federatedModules/models';
-import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   labelHost,
   labelHostCategory,
@@ -49,12 +47,11 @@ import {
   labelServiceCategory,
   labelServiceGroup
 } from '../../../../translatedLabels';
+import { getIsMetaServiceSelected } from '../../../../Widgets/utils';
 import {
   hasMetricInputTypeDerivedAtom,
   widgetPropertiesMetaPropertiesDerivedAtom
 } from '../../../atoms';
-import { checkHiddenCondition } from '../../handleHiddenConditions';
-
 import {
   ForceSingleAutocompleteConditions,
   Widget,
@@ -62,6 +59,7 @@ import {
   WidgetPropertyProps,
   WidgetResourceType
 } from '../../../models';
+import { checkHiddenCondition } from '../../handleHiddenConditions';
 import {
   buildResourceTypeNameForSearchParameter,
   getDataProperty
@@ -267,32 +265,32 @@ const useResources = ({
 
   const [isRegexFieldPerResourceType, setIsRegexPerResourceType] = useState({
     [WidgetResourceType.host]: getIsRegexResourceType({
-      resourceType: WidgetResourceType.host,
-      resources: value
+      resources: value,
+      resourceType: WidgetResourceType.host
     }),
     [WidgetResourceType.service]: getIsRegexResourceType({
-      resourceType: WidgetResourceType.service,
-      resources: value
+      resources: value,
+      resourceType: WidgetResourceType.service
     }),
     [WidgetResourceType.serviceGroup]: getIsRegexResourceType({
-      resourceType: WidgetResourceType.serviceGroup,
-      resources: value
+      resources: value,
+      resourceType: WidgetResourceType.serviceGroup
     }),
     [WidgetResourceType.metaService]: getIsRegexResourceType({
-      resourceType: WidgetResourceType.metaService,
-      resources: value
+      resources: value,
+      resourceType: WidgetResourceType.metaService
     }),
     [WidgetResourceType.serviceCategory]: getIsRegexResourceType({
-      resourceType: WidgetResourceType.serviceCategory,
-      resources: value
+      resources: value,
+      resourceType: WidgetResourceType.serviceCategory
     }),
     [WidgetResourceType.hostGroup]: getIsRegexResourceType({
-      resourceType: WidgetResourceType.hostGroup,
-      resources: value
+      resources: value,
+      resourceType: WidgetResourceType.hostGroup
     }),
     [WidgetResourceType.hostCategory]: getIsRegexResourceType({
-      resourceType: WidgetResourceType.hostCategory,
-      resources: value
+      resources: value,
+      resourceType: WidgetResourceType.hostCategory
     })
   });
   const setResourceToToggleRegex = useSetAtom(resourceTypeToToggleRegexAtom);
@@ -345,8 +343,8 @@ const useResources = ({
         setFieldValue(
           `data.${propertyName}`,
           defaultResourceTypes.map((resourceType) => ({
-            resourceType,
-            resources: []
+            resources: [],
+            resourceType
           }))
         );
 
@@ -418,8 +416,8 @@ const useResources = ({
     setFieldValue(`data.${propertyName}`, [
       ...(value || []),
       {
-        resourceType: '',
-        resources: []
+        resources: [],
+        resourceType: ''
       }
     ]);
   };
@@ -469,9 +467,9 @@ const useResources = ({
       fetch(
         getResourceResourceBaseEndpoint({
           index: nextResourceIndex,
-          resourceType: nextResourceType,
+          parentResources,
           resourcesToSearch: pluck('name', nextResources),
-          parentResources
+          resourceType: nextResourceType
         })({})
       )
         .then((response) => response.ok && response.json())
@@ -560,6 +558,10 @@ const useResources = ({
 
       return {
         customParameters,
+        regexParameters: {
+          fields: [buildResourceTypeNameForSearchParameter(searchParameter)],
+          value: searchValues
+        },
         searchParameters: [
           {
             field: `${searchParameter.replace('-', '_')}.name`,
@@ -568,11 +570,7 @@ const useResources = ({
             }
           },
           ...searchForExactResource
-        ],
-        regexParameters: {
-          fields: [buildResourceTypeNameForSearchParameter(searchParameter)],
-          value: searchValues
-        }
+        ]
       };
     }
 
@@ -742,8 +740,8 @@ const useResources = ({
       setFieldValue(
         `data.${propertyName}`,
         defaultResourceTypes.map((resourceType) => ({
-          resourceType,
-          resources: []
+          resources: [],
+          resourceType
         }))
       );
 
@@ -752,8 +750,8 @@ const useResources = ({
 
     setFieldValue(`data.${propertyName}`, [
       {
-        resourceType: '',
-        resources: []
+        resources: [],
+        resourceType: ''
       }
     ]);
   }, [values.moduleName]);
@@ -808,8 +806,8 @@ const useResources = ({
           forceSingleAutocompleteConditions.conditions as Array<WidgetHiddenCondition>
         ).some((condition) =>
           checkHiddenCondition({
-            hasModule: true,
             featureFlags: null,
+            hasModule: true,
             hiddenCondition: condition,
             values
           })
@@ -817,8 +815,8 @@ const useResources = ({
       }
 
       return checkHiddenCondition({
-        hasModule: true,
         featureFlags: null,
+        hasModule: true,
         hiddenCondition:
           forceSingleAutocompleteConditions.condition as WidgetHiddenCondition,
         values
@@ -848,9 +846,9 @@ const useResources = ({
       (): void => {
         if (!isEmpty(value?.[index].resources) && !bypassResourcesCheck) {
           setResourceToToggleRegex({
-            resourceType,
             index,
-            isRegexMode: isRegexFieldPerResourceType[resourceType]
+            isRegexMode: isRegexFieldPerResourceType[resourceType],
+            resourceType
           });
 
           return;
@@ -880,27 +878,27 @@ const useResources = ({
   return {
     addResource,
     changeIdValue,
+    changeRegexField,
+    changeRegexFieldOnResourceType,
     changeResource,
-    changeResourceType,
     changeResources,
+    changeResourceType,
+    checkForceSingleAutocomplete,
     deleteResource,
     deleteResourceItem,
     error: errorToDisplay,
+    getIsRegexAllowedOnResourceType,
+    getIsRegexFieldOnResourceType,
     getResourceResourceBaseEndpoint,
     getResourceStatic,
     getResourceTypeOptions,
     getSearchField,
     hasSelectedHostForSingleMetricwidget,
-    isLastResourceInTree,
-    singleResourceSelection: widgetProperties?.singleResourceSelection,
-    value: value || [],
-    isValidatingResources,
     hideResourceDeleteButton,
-    checkForceSingleAutocomplete,
-    getIsRegexAllowedOnResourceType,
-    getIsRegexFieldOnResourceType,
-    changeRegexFieldOnResourceType,
-    changeRegexField
+    isLastResourceInTree,
+    isValidatingResources,
+    singleResourceSelection: widgetProperties?.singleResourceSelection,
+    value: value || []
   };
 };
 

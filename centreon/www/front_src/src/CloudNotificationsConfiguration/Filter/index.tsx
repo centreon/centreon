@@ -1,11 +1,10 @@
-import { useRef } from 'react';
-
-import { useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import debounce from '@mui/utils/debounce';
 
 import { SearchField } from '@centreon/ui';
+
+import { useSetAtom } from 'jotai';
+import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { searchAtom } from '../atom';
 import { labelSearch } from '../translatedLabels';
@@ -27,11 +26,11 @@ const Filter = (): JSX.Element => {
 
   return (
     <SearchField
+      dataTestId={t(labelSearch)}
       debounced
       fullWidth
-      dataTestId={t(labelSearch)}
-      placeholder={t(labelSearch) as string}
       onChange={onChange}
+      placeholder={t(labelSearch) as string}
     />
   );
 };

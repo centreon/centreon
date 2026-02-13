@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/host-groups/dependency.json';
 import grps from '../../../fixtures/notifications/data-for-notification.json';
 
@@ -41,23 +41,23 @@ Given('a host group dependency is configured', () => {
   cy.getIframeBody().contains('a', 'Add').click();
   cy.wait('@getTimeZone');
   cy.addHostGroupDependency({
-    name: data.default.name,
+    comment: data.default.comment,
+    dependentHostGroupsNames: data.default.dependentHostGrpsNames,
     description: data.default.description,
-    parentRelationship: data.default.parent_relationship,
-    executionFailsOnOk: data.default.execution_fails_on_ok,
     executionFailsOnDown: data.default.execution_fails_on_down,
-    executionFailsOnUnreachable: data.default.execution_fails_on_unreachable,
-    executionFailsOnPending: data.default.execution_fails_on_pending,
     executionFailsOnNone: data.default.notification_fails_on_none,
+    executionFailsOnOk: data.default.execution_fails_on_ok,
+    executionFailsOnPending: data.default.execution_fails_on_pending,
+    executionFailsOnUnreachable: data.default.execution_fails_on_unreachable,
+    hostGroupsNames: data.default.hostGrpsNames,
+    name: data.default.name,
+    notificationFailsOnDown: data.default.notification_fails_on_down,
     notificationFailsOnNone: data.default.notification_fails_on_none,
     notificationFailsOnOk: data.default.notification_fails_on_ok,
-    notificationFailsOnDown: data.default.notification_fails_on_down,
+    notificationFailsOnPending: data.default.notification_fails_on_pending,
     notificationFailsOnUnreachable:
       data.default.notification_fails_on_unreachable,
-    notificationFailsOnPending: data.default.notification_fails_on_pending,
-    hostGroupsNames: data.default.hostGrpsNames,
-    dependentHostGroupsNames: data.default.dependentHostGrpsNames,
-    comment: data.default.comment
+    parentRelationship: data.default.parent_relationship
   });
 });
 
@@ -68,25 +68,25 @@ When('the user changes the properties of a host group dependency', () => {
   );
   cy.getIframeBody().contains(data.default.name).click();
   cy.updateHostGroupDependency({
-    name: data.HostGrpDependency1.name,
+    comment: data.HostGrpDependency1.comment,
+    dependentHostGroupsNames: data.HostGrpDependency1.dependentHostGrpsNames,
     description: data.HostGrpDependency1.description,
-    parentRelationship: data.HostGrpDependency1.parent_relationship,
-    executionFailsOnOk: data.HostGrpDependency1.execution_fails_on_ok,
     executionFailsOnDown: data.HostGrpDependency1.execution_fails_on_down,
+    executionFailsOnNone: data.HostGrpDependency1.execution_fails_on_none,
+    executionFailsOnOk: data.HostGrpDependency1.execution_fails_on_ok,
+    executionFailsOnPending: data.HostGrpDependency1.execution_fails_on_pending,
     executionFailsOnUnreachable:
       data.HostGrpDependency1.execution_fails_on_unreachable,
-    executionFailsOnPending: data.HostGrpDependency1.execution_fails_on_pending,
-    executionFailsOnNone: data.HostGrpDependency1.execution_fails_on_none,
+    hostGroupsNames: data.HostGrpDependency1.hostGrpsNames,
+    name: data.HostGrpDependency1.name,
+    notificationFailsOnDown: data.HostGrpDependency1.notification_fails_on_down,
     notificationFailsOnNone: data.HostGrpDependency1.notification_fails_on_none,
     notificationFailsOnOk: data.HostGrpDependency1.notification_fails_on_ok,
-    notificationFailsOnDown: data.HostGrpDependency1.notification_fails_on_down,
-    notificationFailsOnUnreachable:
-      data.HostGrpDependency1.notification_fails_on_unreachable,
     notificationFailsOnPending:
       data.HostGrpDependency1.notification_fails_on_pending,
-    hostGroupsNames: data.HostGrpDependency1.hostGrpsNames,
-    dependentHostGroupsNames: data.HostGrpDependency1.dependentHostGrpsNames,
-    comment: data.HostGrpDependency1.comment
+    notificationFailsOnUnreachable:
+      data.HostGrpDependency1.notification_fails_on_unreachable,
+    parentRelationship: data.HostGrpDependency1.parent_relationship
   });
 });
 

@@ -1,7 +1,7 @@
+import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
+
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
-
-import { Column, ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
 import {
   labelCreationDate,
@@ -12,7 +12,6 @@ import {
   labelType,
   labelUpdateBy
 } from '../translatedLabels';
-
 import Name from './Name';
 
 const useColumns = (): {
@@ -23,12 +22,12 @@ const useColumns = (): {
 
   const columns = [
     {
-      disablePadding: false,
       Component: Name,
+      disablePadding: false,
       id: 'name',
       label: t(labelName),
-      sortField: 'name',
       sortable: true,
+      sortField: 'name',
       type: ColumnType.component
     },
     {
@@ -37,8 +36,8 @@ const useColumns = (): {
         equals(type, 'vmware_v6') ? 'VMWare 6/7' : type,
       id: 'type',
       label: t(labelType),
-      sortField: 'type',
       sortable: true,
+      sortField: 'type',
       type: ColumnType.string
     },
     {
@@ -51,11 +50,11 @@ const useColumns = (): {
     },
     {
       disablePadding: false,
-      getFormattedString: ({ createdBy }): string => createdBy?.name,
+      getFormattedString: ({ createdBy }): string => createdBy?.name || '',
       id: 'created_by',
       label: t(labelCreator),
-      sortField: 'created_by',
       sortable: true,
+      sortField: 'created_by',
       type: ColumnType.string
     },
     {
@@ -67,17 +66,17 @@ const useColumns = (): {
         }),
       id: 'created_at',
       label: t(labelCreationDate),
-      sortField: 'created_at',
       sortable: true,
+      sortField: 'created_at',
       type: ColumnType.string
     },
     {
       disablePadding: false,
-      getFormattedString: ({ updatedBy }): string => updatedBy?.name,
+      getFormattedString: ({ updatedBy }): string => updatedBy?.name || '',
       id: 'updated_by',
       label: t(labelUpdateBy),
-      sortField: 'updated_by',
       sortable: true,
+      sortField: 'updated_by',
       type: ColumnType.string
     },
     {
@@ -91,8 +90,8 @@ const useColumns = (): {
           : '',
       id: 'updated_at',
       label: t(labelLastUpdate),
-      sortField: 'updated_at',
       sortable: true,
+      sortField: 'updated_at',
       type: ColumnType.string
     }
   ];

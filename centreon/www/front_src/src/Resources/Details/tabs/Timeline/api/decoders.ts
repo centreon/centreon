@@ -1,6 +1,6 @@
-import { JsonDecoder } from 'ts.data.json';
-
 import { buildListingDecoder } from '@centreon/ui';
+
+import { JsonDecoder } from 'ts.data.json';
 
 import { statusDecoder } from '../../../../decoders';
 import { TimelineEvent, WithName } from '../models';

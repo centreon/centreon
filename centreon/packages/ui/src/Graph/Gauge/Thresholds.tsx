@@ -1,11 +1,11 @@
+import { useTheme } from '@mui/material';
+
 import { scaleOrdinal } from '@visx/scale';
 import { Pie } from '@visx/shape';
 import { equals, pluck } from 'ramda';
 
-import { useTheme } from '@mui/material';
-
 import AnimatedPie from './AnimatedPie';
-import { GaugeProps } from './models';
+import type { GaugeProps } from './models';
 import { getAngles } from './utils';
 
 export const thresholdThickness = 12;

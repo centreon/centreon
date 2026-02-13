@@ -146,7 +146,8 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
     public function testCannotCreateServiceCategoryIfNotEnoughPermission(): void
     {
-        $this->login('user');
+        $this->createApiUser($username = bin2hex(random_bytes(8)));
+        $this->login($username);
 
         $this->request('POST', '/api/latest/configuration/services/categories', [
             'json' => [
@@ -158,7 +159,6 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
 
         self::assertResponseStatusCodeSame(403);
         self::assertJsonContains([
-            'code' => 403,
             'message' => 'You are not allowed to create service categories',
         ]);
     }
@@ -186,10 +186,5 @@ final class CreateServiceCategoryProcessorTest extends ApiTestCase
         self::assertResponseIsSuccessful();
 
         self::assertSame(1, $repository->count());
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
     }
 }

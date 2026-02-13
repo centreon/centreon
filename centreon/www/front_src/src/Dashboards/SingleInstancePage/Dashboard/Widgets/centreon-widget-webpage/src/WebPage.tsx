@@ -1,8 +1,10 @@
 import { useRefreshInterval } from '@centreon/ui';
+
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Preview from './Preview';
+
 import type { WebPageProps } from './models';
+import Preview from './Preview';
 import { labelWebpageDisplay } from './translatedLabels';
 import { useIframeStyles } from './useWebPage.styles';
 
@@ -11,7 +13,7 @@ const getIframeSrc = (url: string) =>
 
 const refreshIframe = (iframeRef) => {
   if (iframeRef.current) {
-    // biome-ignore lint/correctness/noSelfAssign: <explanation>
+    // biome-ignore lint/correctness/noSelfAssign: false positive
     iframeRef.current.src = iframeRef.current?.src;
   }
 };
@@ -65,12 +67,12 @@ const WebPage = ({
   return (
     <div className={classes.container}>
       <iframe
+        className={classes.iframe}
+        data-testid={labelWebpageDisplay}
+        id={`Webpage_${widgetId}`}
         ref={iframeRef}
         src={getIframeSrc(url)}
-        className={classes.iframe}
         title={t(labelWebpageDisplay)}
-        id={`Webpage_${widgetId}`}
-        data-testid={labelWebpageDisplay}
       />
     </div>
   );

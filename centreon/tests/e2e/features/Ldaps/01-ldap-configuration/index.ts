@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import ldaps from '../../../fixtures/ldaps/ldap.json';
 
 const checkFirstLdapFromListing = () => {

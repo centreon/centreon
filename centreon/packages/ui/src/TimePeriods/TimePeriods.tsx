@@ -3,18 +3,19 @@ import 'dayjs/locale/en';
 import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/pt';
+
+import { Paper, type Theme, useMediaQuery } from '@mui/material';
+
 import duration from 'dayjs/plugin/duration';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
 import { lt } from 'ramda';
 
-import { Paper, type Theme, useMediaQuery } from '@mui/material';
-
 import CustomTimePeriod from './CustomTimePeriod';
+import type { WrapperTimePeriodProps } from './models';
 import SelectedTimePeriod from './SelectedTimePeriod';
 import { useStyles } from './TimePeriods.styles';
-import type { WrapperTimePeriodProps } from './models';
 import useTimePeriod from './useTimePeriod';
 
 dayjs.extend(isSameOrAfter);

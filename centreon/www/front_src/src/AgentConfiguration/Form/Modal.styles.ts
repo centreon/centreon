@@ -15,7 +15,7 @@ export const useFormStyles = makeStyles()((theme) => ({
 
 export const useInputsStyles = makeStyles()((theme) => ({
   titleGroup: {
-    fontWeight: theme.typography.fontWeightMedium,
-    fontSize: theme.typography.subtitle1.fontSize
+    fontSize: theme.typography.subtitle1.fontSize,
+    fontWeight: theme.typography.fontWeightMedium
   }
 }));

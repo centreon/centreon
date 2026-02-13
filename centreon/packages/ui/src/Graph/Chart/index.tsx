@@ -1,20 +1,24 @@
-import dayjs from "dayjs";
-import { memo, useRef } from "react";
-import "dayjs/locale/en";
-import "dayjs/locale/es";
-import "dayjs/locale/fr";
-import "dayjs/locale/pt";
-import localizedFormat from "dayjs/plugin/localizedFormat";
-import timezonePlugin from "dayjs/plugin/timezone";
-import utcPlugin from "dayjs/plugin/utc";
-import useResizeObserver from "use-resize-observer";
-import Loading from "../../LoadingSkeleton";
-import type { LineChartData, Thresholds } from "../common/models";
-import Chart from "./Chart";
-import { useChartStyles } from "./Chart.styles";
-import LoadingSkeleton from "./LoadingSkeleton";
-import type { GlobalAreaLines, LineChartProps } from "./models";
-import useChartData from "./useChartData";
+import dayjs from 'dayjs';
+import { memo, useRef } from 'react';
+import 'dayjs/locale/en';
+import 'dayjs/locale/es';
+import 'dayjs/locale/fr';
+import 'dayjs/locale/pt';
+
+import { NoData } from '@centreon/ui';
+
+import localizedFormat from 'dayjs/plugin/localizedFormat';
+import timezonePlugin from 'dayjs/plugin/timezone';
+import utcPlugin from 'dayjs/plugin/utc';
+import useResizeObserver from 'use-resize-observer';
+
+import Loading from '../../LoadingSkeleton';
+import type { LineChartData, Thresholds } from '../common/models';
+import Chart from './Chart';
+import { useChartStyles } from './Chart.styles';
+import LoadingSkeleton from './LoadingSkeleton';
+import type { GlobalAreaLines, LineChartProps } from './models';
+import useChartData from './useChartData';
 
 dayjs.extend(localizedFormat);
 dayjs.extend(utcPlugin);
@@ -50,19 +54,19 @@ const WrapperChart = ({
   loading,
   timeShiftZones,
   tooltip = {
-    mode: "all",
-    sortOrder: "name",
+    mode: 'all',
+    sortOrder: 'name'
   },
   annotationEvent,
   legend = {
     display: true,
-    mode: "grid",
-    placement: "bottom",
+    mode: 'grid',
+    placement: 'bottom',
     showCalculations: {
-      min: true,
-      max: true,
       avg: true,
-    },
+      max: true,
+      min: true
+    }
   },
   header,
   lineStyle,
@@ -79,7 +83,6 @@ const WrapperChart = ({
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
-
   const { adjustedData } = useChartData({ data, end, start });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -87,7 +90,7 @@ const WrapperChart = ({
   const {
     ref: resizeObserverRef,
     width: responsiveWidth,
-    height: responsiveHeight,
+    height: responsiveHeight
   } = useResizeObserver();
 
   const combinedRef = (element: HTMLDivElement | null) => {
@@ -100,7 +103,6 @@ const WrapperChart = ({
     resizeObserverRef(element);
   };
 
-
   if (loading && !adjustedData) {
     return (
       <LoadingSkeleton
@@ -111,21 +113,23 @@ const WrapperChart = ({
   }
 
   if (!adjustedData) {
-    return <div />;
+    return <NoData />;
   }
 
   return (
     <div
-      ref={combinedRef}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
+      ref={combinedRef}
     >
       {!responsiveHeight ? (
-        <Loading height={height || "100%"} width={width} />
+        <Loading height={height || '100%'} width={width} />
       ) : (
         <Chart
+          additionalLines={additionalLines}
           annotationEvent={annotationEvent}
           axis={axis}
           barStyle={barStyle}
+          boundariesUnit={boundariesUnit}
           displayAnchor={displayAnchor}
           graphData={adjustedData}
           graphInterval={{ end, start }}
@@ -135,19 +139,17 @@ const WrapperChart = ({
           legend={legend}
           limitLegend={limitLegend}
           lineStyle={lineStyle}
+          max={max}
+          min={min}
           shapeLines={shapeLines}
-          thresholdUnit={thresholdUnit}
+          skipIntersectionObserver={rest.skipIntersectionObserver}
           thresholds={thresholds}
+          thresholdUnit={thresholdUnit}
           timeShiftZones={timeShiftZones}
           tooltip={tooltip}
+          transformMatrix={transformMatrix}
           width={width || responsiveWidth || 0}
           zoomPreview={zoomPreview}
-          skipIntersectionObserver={rest.skipIntersectionObserver}
-          additionalLines={additionalLines}
-          transformMatrix={transformMatrix}
-          min={min}
-          max={max}
-          boundariesUnit={boundariesUnit}
         />
       )}
     </div>

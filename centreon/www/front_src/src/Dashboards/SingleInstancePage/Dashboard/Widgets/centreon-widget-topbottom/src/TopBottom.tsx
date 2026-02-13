@@ -1,8 +1,8 @@
-import { equals } from 'ramda';
-
 import { LoadingSkeleton } from '@centreon/ui';
 
-import NoResources from '../../NoResources';
+import { equals } from 'ramda';
+import { useRef } from 'react';
+
 import {
   CommonWidgetProps,
   FormThreshold,
@@ -10,14 +10,13 @@ import {
   Metric,
   Resource
 } from '../../models';
+import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
-
-import { useRef } from 'react';
 import Label from './Label';
 import MetricContainer from './MetricContainer';
 import MetricTop from './MetricTop';
-import { useTopBottomStyles } from './TopBottom.styles';
 import { TopBottomSettings } from './models';
+import { useTopBottomStyles } from './TopBottom.styles';
 import useSingleBarCurrentWidth from './useSingleBarCurrentWidth';
 import useTopBottom from './useTopBottom';
 
@@ -92,14 +91,14 @@ const TopBottom = ({
   }
 
   return (
-    <div ref={containerRef} className={classes.topBottomContainer}>
+    <div className={classes.topBottomContainer} ref={containerRef}>
       <div className={classes.labelContainer}>
         {(metricsTop?.resources || []).map((metricTop, index) => (
           <Label
-            ref={labelRef}
+            index={index}
             key={`label_${metricTop.name}_${metricTop.id}`}
             metricTop={metricTop}
-            index={index}
+            ref={labelRef}
           />
         ))}
       </div>

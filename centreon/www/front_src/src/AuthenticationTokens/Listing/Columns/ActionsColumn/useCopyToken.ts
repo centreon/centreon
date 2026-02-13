@@ -1,8 +1,9 @@
 import { useCopyToClipboard } from '@centreon/ui';
+
 import { useTranslation } from 'react-i18next';
+
 import { useGetToken } from '../../../api';
 import { getTokenEndpoint } from '../../../api/endpoints';
-
 import {
   labelTokenCopiedToTheClipboard,
   labelTokenCouldNotBeCopied

@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { grey } from '@mui/material/colors';
+
+import { makeStyles } from 'tss-react/mui';
 
 interface StylesProps {
   statusCreating: boolean | null;

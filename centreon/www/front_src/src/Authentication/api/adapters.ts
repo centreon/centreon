@@ -20,10 +20,6 @@ import {
   SAMLConfigurationToAPI
 } from '../SAML/models';
 import {
-  WebSSOConfiguration,
-  WebSSOConfigurationToAPI
-} from '../WebSSO/models';
-import {
   adaptGroupsRelationsToAPI,
   adaptRolesRelationsToAPI
 } from '../shared/adapters';
@@ -37,6 +33,10 @@ import {
   SharedGroupsMappingToAPI,
   SharedRolesMappingToAPI
 } from '../shared/modelsAPI';
+import {
+  WebSSOConfiguration,
+  WebSSOConfigurationToAPI
+} from '../WebSSO/models';
 
 export const adaptPasswordSecurityPolicyFromAPI = (
   securityPolicy: PasswordSecurityPolicy
@@ -288,10 +288,10 @@ export const adaptSAMLConfigurationToAPI = ({
   logout_from: logoutFrom,
   logout_from_url: logoutFromUrl,
   remote_login_url: remoteLoginUrl,
-  roles_mapping: adaptSAMLRolesMapping(rolesMapping),
+  requested_authn_context: requestedAuthnContext,
   requested_authn_context_comparison:
     requestedAuthnContextComparison ||
     RequestedAuthnContextComparisonValue.Minimum,
-  requested_authn_context: requestedAuthnContext,
+  roles_mapping: adaptSAMLRolesMapping(rolesMapping),
   user_id_attribute: userIdAttribute
 });

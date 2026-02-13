@@ -8,7 +8,6 @@ import {
 } from '../../../../Resources/Listing/columns';
 import { selectedColumnIdsAtom } from '../../../../Resources/Listing/listingAtoms';
 import { Visualization } from '../../../../Resources/models';
-import { areResourcesFullfilled } from '../Widgets/utils';
 import {
   labelBusinessActivity,
   labelBusinessView,
@@ -18,6 +17,7 @@ import {
   getResourcesUrlForMetricsWidgets,
   getUrlForResourcesOnlyWidgets
 } from '../utils';
+import { areResourcesFullfilled } from '../Widgets/utils';
 
 interface UseLinkToResourceStatus {
   changeViewMode: (options) => void;

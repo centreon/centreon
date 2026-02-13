@@ -1,10 +1,10 @@
+import { useFetchQuery } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { path } from 'ramda';
 
-import { useFetchQuery } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
 import centreonLogo from '../assets/logo-centreon-colors.svg';
-
 import { loginPageCustomisationDecoder } from './api/decoder';
 import { loginPageCustomisationEndpoint } from './api/endpoint';
 import { LoginPageCustomisation } from './models';

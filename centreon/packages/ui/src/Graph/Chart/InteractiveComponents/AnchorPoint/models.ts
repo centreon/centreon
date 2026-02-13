@@ -1,6 +1,6 @@
-import { ScaleLinear, ScaleTime } from 'd3-scale';
+import type { ScaleLinear, ScaleTime } from 'd3-scale';
 
-import { Line, TimeValue } from '../../../common/timeSeries/models';
+import type { Line, TimeValue } from '../../../common/timeSeries/models';
 
 interface AnchorPoint {
   areaColor: string;
@@ -29,6 +29,12 @@ export interface GuidingLines {
   graphWidth: number;
   timeSeries: Array<TimeValue>;
   xScale: ScaleLinear<number, number>;
+  maxLeftAxisCharacters: number;
+  hasSecondUnit?: boolean;
+  leftScale?: ScaleLinear<number, number>;
+  lines: Array<Line>;
+  rightScale?: ScaleLinear<number, number>;
+  hasUnit?: boolean;
 }
 
 export interface GetYAnchorPoint {

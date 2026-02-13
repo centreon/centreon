@@ -1,10 +1,10 @@
-import { FormikValues } from 'formik';
+import type { SvgIconProps, TypographyProps } from '@mui/material';
 
-import { SvgIconProps, TypographyProps } from '@mui/material';
+import type { FormikValues } from 'formik';
 
-import { SelectEntry } from '../../InputField/Select';
-import { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
-import { QueryParameter } from '../../queryParameters/models';
+import type { ConditionsSearchParameter } from '../../api/buildListingEndpoint/models';
+import type { SelectEntry } from '../../InputField/Select';
+import type { QueryParameter } from '../../queryParameters/models';
 
 export enum InputType {
   Switch = 0,

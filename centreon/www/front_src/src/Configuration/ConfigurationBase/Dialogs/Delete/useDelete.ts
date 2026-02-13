@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { capitalize } from '@mui/material';
 
 import {
   ResponseError,
@@ -6,20 +6,19 @@ import {
   useBulkResponse,
   useSnackbar
 } from '@centreon/ui';
-import { capitalize } from '@mui/material';
+
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import pluralize from 'pluralize';
 import { equals, isEmpty, pluck } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { resourcesToDeleteAtom, selectedRowsAtom } from '../../Listing/atoms';
-import { configurationAtom } from '../../atoms';
 
 import {
   useDeleteOne as useDeleteOneRequest,
   useDelete as useDeleteRequest
 } from '../../api';
-
+import { configurationAtom } from '../../atoms';
+import { resourcesToDeleteAtom, selectedRowsAtom } from '../../Listing/atoms';
 import {
   labelDeleteResource,
   labelDeleteResourceConfirmation,
@@ -89,10 +88,10 @@ const useDelete = (): UseDeleteState => {
 
     handleBulkResponse({
       data: results,
-      labelWarning: t(labelFailedToDeleteSomeResources),
+      items: resourcesToDelete,
       labelFailed: t(labelFailedToDeleteResources(labelResourceType)),
       labelSuccess: t(labelResourceDeleted(capitalize(labelResourceType))),
-      items: resourcesToDelete
+      labelWarning: t(labelFailedToDeleteSomeResources)
     });
 
     resetSelections();
@@ -117,12 +116,12 @@ const useDelete = (): UseDeleteState => {
   );
 
   return {
-    confirm,
+    bodyContent,
     close: resetSelections,
-    isMutating: isMutating || isMutatingOne,
-    isOpened,
+    confirm,
     headerContent,
-    bodyContent
+    isMutating: isMutating || isMutatingOne,
+    isOpened
   };
 };
 

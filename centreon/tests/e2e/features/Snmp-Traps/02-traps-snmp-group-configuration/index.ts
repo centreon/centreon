@@ -1,6 +1,6 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
-
 import { PAGES } from 'fixtures/shared/constants/pages';
+
 import data from '../../../fixtures/snmp-traps/snmp-trap.json';
 import { CreateOrUpdateTrapGroup } from '../common';
 
@@ -63,8 +63,8 @@ Then('the properties are updated', () => {
   cy.getIframeBody()
     .find('select[id="traps"]')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([
@@ -91,8 +91,8 @@ Then('the a new trap group is created with identical properties', () => {
   cy.getIframeBody()
     .find('select[id="traps"]')
     .find('option:selected')
-    .then(($selectedOptions) => {
-      const selectedTexts = Array.from($selectedOptions).map(
+    .then((selectedOptions) => {
+      const selectedTexts = Array.from(selectedOptions).map(
         (option) => option.textContent
       );
       expect(selectedTexts).to.include.members([

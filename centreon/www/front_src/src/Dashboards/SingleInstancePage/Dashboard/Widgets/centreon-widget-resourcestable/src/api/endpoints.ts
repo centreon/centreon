@@ -1,6 +1,6 @@
-import { T, always, cond, equals, pluck } from 'ramda';
-
 import { buildListingEndpoint } from '@centreon/ui';
+
+import { always, cond, equals, pluck, T } from 'ramda';
 
 import type { NamedEntity, Resource } from '../../../models';
 import {

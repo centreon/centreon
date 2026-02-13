@@ -104,12 +104,12 @@ Cypress.Commands.add(
     retryAttempts: number,
     retryDelay: number
   ) => {
-    const attempt = ($iframe): Promise<boolean> => {
+    const attempt = (iframe): Promise<boolean> => {
       return new Cypress.Promise((resolve) => {
-        const $body = $iframe.contents().find('body');
-        const containsText = $body.text().includes(textToFind);
+        const Body = iframe.contents().find('body');
+        const containsText = Body.text().includes(textToFind);
         if (containsText) {
-          action($body);
+          action(Body);
           resolve(true);
         } else {
           resolve(false);
@@ -123,8 +123,8 @@ Cypress.Commands.add(
         throw new Error(`The ${textToFind} not found in the iframe body`);
       }
 
-      return cy.get('iframe#main-content').then(($iframe) => {
-        return attempt($iframe).then((found) => {
+      return cy.get('iframe#main-content').then((iframe) => {
+        return attempt(iframe).then((found) => {
           if (!found) {
             return new Cypress.Promise((resolve) => {
               setTimeout(() => {
@@ -177,7 +177,7 @@ Cypress.Commands.add(
 );
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       addAclActionToAclGroup: (

@@ -1,3 +1,5 @@
+import { useFormikContext } from 'formik';
+import { equals, isNil } from 'ramda';
 import {
   Dispatch,
   RefObject,
@@ -7,16 +9,12 @@ import {
   useRef,
   useState
 } from 'react';
-
-import { useFormikContext } from 'formik';
-import { equals, isNil } from 'ramda';
 import { useSearchParams } from 'react-router';
 
 import {
   AdditionalConnectorConfiguration,
   PasswordActionState
 } from '../../../models';
-
 import { maskedPassword } from '../../../utils';
 
 interface UsePasswordFieldState {
@@ -84,14 +82,14 @@ export const usePasswordField = ({
   }, []);
 
   return {
-    disabled,
-    className,
     changePasswordValue,
+    className,
     clearPassword,
-    resetPassword,
+    disabled,
+    isEditMode,
     passwordRef,
-    state,
+    resetPassword,
     setState,
-    isEditMode
+    state
   };
 };

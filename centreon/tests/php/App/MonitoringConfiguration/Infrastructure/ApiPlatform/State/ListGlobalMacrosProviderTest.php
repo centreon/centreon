@@ -49,7 +49,8 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
 
     public function testItFindAllGlobalMacrosIsUnauthorizedForUserWithoutSufficientACL(): void
     {
-        $this->login('user');
+        $this->createApiUser($username = bin2hex(random_bytes(8)));
+        $this->login($username);
 
         $this->request('GET', self::BASE_ENDPOINT);
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
@@ -154,10 +155,5 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
         );
         self::assertResponseIsSuccessful();
         $this->assertCount(1, (array) $response->toArray()['member']);
-    }
-
-    protected static function apiUsers(): array
-    {
-        return ['user'];
     }
 }
