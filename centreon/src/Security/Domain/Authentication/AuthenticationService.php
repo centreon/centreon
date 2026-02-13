@@ -25,6 +25,8 @@ namespace Security\Domain\Authentication;
 
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
 use Centreon\Domain\Log\LoggerTrait;
+use Core\Common\Domain\Exception\RepositoryException;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Repository\ReadTokenRepositoryInterface;
 use Core\Security\Authentication\Domain\Model\AuthenticationTokens;
@@ -66,14 +68,20 @@ class AuthenticationService implements AuthenticationServiceInterface
             return false;
         }
 
-        $configuration = $this->readConfigurationFactory->getConfigurationById(
-            $authenticationTokens->getConfigurationProviderId()
-        );
+        try {
+            $configuration = $this->readConfigurationFactory->getConfigurationById(
+                $authenticationTokens->getConfigurationProviderId()
+            );
+        } catch (RepositoryException $e) {
+            ExceptionLogger::create()->log($e);
+
+            return false;
+        }
 
         try {
             $provider = $this->providerFactory->create($configuration->getType());
-        } catch (ProviderException) {
-            $this->notice('[AUTHENTICATION SERVICE] Provider not found');
+        } catch (ProviderException $e) {
+            ExceptionLogger::create()->log($e);
 
             return false;
         }
@@ -128,10 +136,10 @@ class AuthenticationService implements AuthenticationServiceInterface
     /**
      * @inheritDoc
      */
-    public function updateAuthenticationTokens(AuthenticationTokens $authenticationTokens): void
+    public function updateAuthenticationTokens(AuthenticationTokens $authenticationToken): void
     {
         try {
-            $this->authenticationRepository->updateAuthenticationTokens($authenticationTokens);
+            $this->authenticationRepository->updateAuthenticationTokens($authenticationToken);
         } catch (\Exception $ex) {
             throw AuthenticationException::updateAuthenticationTokens($ex);
         }

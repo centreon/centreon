@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Tests\Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration;
 
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationFactoryInterface;
 use Core\Security\Authentication\Application\Provider\ProviderAuthenticationInterface;
 use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\FindSAMLConfiguration;
@@ -40,13 +39,13 @@ use Security\Domain\Authentication\Exceptions\ProviderException;
 
 beforeEach(function (): void {
     $this->providerFactory = $this->createMock(ProviderAuthenticationFactoryInterface::class);
-    $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->provider = $this->createMock(ProviderAuthenticationInterface::class);
+    $this->presenter = new FindSAMLConfigurationPresenterStub();
 });
 
 it('should present a SAML provider configuration', function (): void {
     $configuration = new Configuration(1, 'saml', 'saml', '{}', true, true);
-    $customConfiguration = new CustomConfiguration([
+    $customConfiguration = CustomConfiguration::createFromValues([
         'is_active' => true,
         'is_forced' => false,
         'entity_id_url' => 'http://127.0.0.1:4000/realms/my-realm',
@@ -55,7 +54,8 @@ it('should present a SAML provider configuration', function (): void {
         'logout_from' => true,
         'logout_from_url' => 'http://127.0.0.1:4000/realms/my-realm/protocol/saml',
         'user_id_attribute' => 'email',
-        'requested_authn_context' => 'exact',
+        'requested_authn_context' => false,
+        'requested_authn_context_comparison' => 'exact',
         'auto_import' => false,
         'contact_template' => null,
         'fullname_bind_attribute' => null,
@@ -78,23 +78,22 @@ it('should present a SAML provider configuration', function (): void {
         ->willReturn($this->provider);
 
     $useCase = new FindSAMLConfiguration($this->providerFactory);
-    $presenter = new FindSAMLConfigurationPresenterStub($this->presenterFormatter);
 
-    $useCase($presenter);
+    $useCase($this->presenter);
 
-    expect($presenter->response)->toBeInstanceOf(FindSAMLConfigurationResponse::class);
-    expect($presenter->response->isActive)->toBeTrue();
-    expect($presenter->response->isForced)->toBeTrue();
-    expect($presenter->response->entityIdUrl)->toBe($customConfiguration->getEntityIDUrl());
-    expect($presenter->response->remoteLoginUrl)->toBe($customConfiguration->getRemoteLoginUrl());
-    expect($presenter->response->logoutFrom)->toBe($customConfiguration->getLogoutFrom());
-    expect($presenter->response->logoutFromUrl)->toBe($customConfiguration->getLogoutFromUrl());
-    expect($presenter->response->userIdAttribute)->toBe($customConfiguration->getUserIdAttribute());
-    expect($presenter->response->requestedAuthnContext)
-        ->toBe($customConfiguration->getRequestedAuthnContext()->toString());
+    expect($this->presenter->response)->toBeInstanceOf(FindSAMLConfigurationResponse::class)
+        ->and($this->presenter->response->isActive)->toBeTrue()
+        ->and($this->presenter->response->isForced)->toBeTrue()
+        ->and($this->presenter->response->entityIdUrl)->toBe('http://127.0.0.1:4000/realms/my-realm')
+        ->and($this->presenter->response->remoteLoginUrl)->toBe('http://127.0.0.1:4000/realms/my-realm/protocol/saml/clients/my-client')
+        ->and($this->presenter->response->logoutFrom)->toBeTrue()
+        ->and($this->presenter->response->logoutFromUrl)->toBe('http://127.0.0.1:4000/realms/my-realm/protocol/saml')
+        ->and($this->presenter->response->userIdAttribute)->toBe('email')
+        ->and($this->presenter->response->requestAuthnContext)->toBeFalse()
+        ->and($this->presenter->response->requestedAuthnContextComparison->value)->toBe('exact');
 });
 
-it('should present an ErrorResponse when an error occurs during the process', function (): void {
+it('should present an ErrorResponse when the provider has not found', function (): void {
     $this->providerFactory
         ->expects($this->once())
         ->method('create')
@@ -102,10 +101,9 @@ it('should present an ErrorResponse when an error occurs during the process', fu
         ->willThrowException(ProviderException::providerConfigurationNotFound(Provider::SAML));
 
     $useCase = new FindSAMLConfiguration($this->providerFactory);
-    $presenter = new FindSAMLConfigurationPresenterStub($this->presenterFormatter);
 
-    $useCase($presenter);
+    $useCase($this->presenter);
 
-    expect($presenter->getResponseStatus())->toBeInstanceOf(ErrorResponse::class);
-    expect($presenter->getResponseStatus()?->getMessage())->toBe('Provider configuration (saml) not found');
+    expect($this->presenter->response)->toBeInstanceOf(ErrorResponse::class)
+        ->and($this->presenter->response->getMessage())->toBe('Provider configuration (saml) not found');
 });
