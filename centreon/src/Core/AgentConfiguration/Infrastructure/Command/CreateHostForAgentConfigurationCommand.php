@@ -23,15 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Infrastructure\Command;
 
-use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
 use Core\AgentConfiguration\Application\UseCase\CreateHostForAgentConfiguration\CreateHostForAgentConfiguration;
 use Core\AgentConfiguration\Application\UseCase\CreateHostForAgentConfiguration\CreateHostForAgentConfigurationRequest;
-use Core\Host\Application\Repository\ReadHostRepositoryInterface;
-use Core\Host\Application\Repository\WriteHostRepositoryInterface;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
-use Core\Service\Application\Repository\WriteServiceRepositoryInterface;
-use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;

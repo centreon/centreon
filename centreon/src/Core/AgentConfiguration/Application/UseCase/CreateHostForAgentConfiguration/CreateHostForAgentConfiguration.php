@@ -25,7 +25,6 @@ namespace Core\AgentConfiguration\Application\UseCase\CreateHostForAgentConfigur
 
 use CentreonLog;
 use Core\AgentConfiguration\Application\Repository\ReadAgentConfigurationRepositoryInterface;
-use Core\Common\Domain\TrimmedString;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Domain\Model\NewHost;
