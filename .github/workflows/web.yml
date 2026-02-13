@@ -340,7 +340,7 @@ jobs:
         with:
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 10
-          token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+          token: ${{ needs.get-environment.outputs.is_fork == 'true' && secrets.GITHUB_TOKEN || secrets.CENTREON_TECHNIQUE_PAT }}
 
       - name: Build translations
         id: build-translations
