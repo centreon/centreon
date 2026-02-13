@@ -93,7 +93,6 @@ export const labelAtLeastOneConnexionMode =
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
 
-// commands
 export const labelGenerateInstallationCommand =
   'Generate your CMA installation command';
 export const labelCommandWarning =

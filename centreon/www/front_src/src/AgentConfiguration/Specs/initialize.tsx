@@ -2,20 +2,21 @@ import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformFeaturesAtom, userAtom } from '@centreon/ui-context';
 
 import i18next from 'i18next';
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { initReactI18next } from 'react-i18next';
 import { BrowserRouter as Router } from 'react-router';
 
+import AgentConfigurationPage from '../Page';
 import {
   agentConfigurationPollersEndpoint,
   getAgentConfigurationEndpoint,
   getAgentConfigurationsEndpoint,
+  getInstallationCommandEndpoint,
   getPollerAgentEndpoint,
   hostsConfigurationEndpoint,
   listTokensEndpoint,
   pollersEndpoint
 } from '../api/endpoints';
-import AgentConfigurationPage from '../Page';
 
 const mockRequest = (isListingEmpty): void => {
   if (isListingEmpty) {
@@ -135,6 +136,17 @@ const mockRequest = (isListingEmpty): void => {
       ]
     }
   });
+
+  cy.fixture('AgentConfigurations/installation-command.json').then(
+    (response): void => {
+      cy.interceptAPIRequest({
+        alias: 'getCommandDetails',
+        method: Method.GET,
+        path: `./api/latest${getInstallationCommandEndpoint(1)}`,
+        response
+      });
+    }
+  );
 };
 
 const initialize = ({ isListingEmpty = false }) => {

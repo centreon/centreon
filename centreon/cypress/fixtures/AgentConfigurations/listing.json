@@ -29,7 +29,8 @@
       "pollers": [
         {
           "id": 1,
-          "name": "poller 1"
+          "name": "Central",
+          "is_central": true
         },
         {
           "id": 2,

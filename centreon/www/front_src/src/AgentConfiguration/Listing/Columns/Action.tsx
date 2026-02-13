@@ -9,7 +9,7 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { itemToDeleteAtom, pollerToGenerateCommanAtom } from '../../atoms';
-import { AgentConfigurationListing } from '../../models';
+import { AgentConfigurationListing, AgentType } from '../../models';
 import { labelDelete } from '../../translatedLabels';
 import { useStyles } from './Action.styles';
 
@@ -54,6 +54,7 @@ const Action = ({ row }: Props): JSX.Element => {
   const isDeleteButtonDisplayed = isAdmin || !isCloudPlatform || !hasCentral;
   const isCommandButtonDisplayed =
     isNotNil(row.internalListingParentId) &&
+    equals(row.internalListingParentRow.type, AgentType.CMA) &&
     !!row.internalListingParentRow?.isAgentInitiated;
 
   return (

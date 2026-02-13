@@ -13,6 +13,8 @@ import {
   labelCaCertificate,
   labelCancel,
   labelClear,
+  labelCommand,
+  labelCommandWarning,
   labelConfigurationServer,
   labelConnectionInitiated,
   labelDNSIP,
@@ -20,6 +22,8 @@ import {
   labelDeleteAgent,
   labelDeletePoller,
   labelEncryptionLevel,
+  labelExecuteTheScript,
+  labelGenerateInstallationCommand,
   labelInsecure,
   labelInvalidExtension,
   labelInvalidPath,
@@ -39,6 +43,8 @@ import {
   labelSelectExistingCMAToken,
   labelSelectExistingCMATokens,
   labelSelectHost,
+  labelSelectOperatingSystem,
+  labelSelectPollerThatWillMonitor,
   labelTLS,
   labelWarningEncryptionLevelCMA,
   labelWarningEncryptionLevelTelegraf,
@@ -1039,6 +1045,32 @@ describe('Agent configurations modal', () => {
     });
 
     cy.contains(labelAgentConfigurationCreated).should('be.visible');
+
+    cy.makeSnapshot();
+  });
+
+  it('commands', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.get('button').contains(labelCommand).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+
+    cy.contains(labelCommandWarning);
+
+    cy.contains(labelSelectPollerThatWillMonitor);
+
+    cy.contains('Central');
+
+    cy.contains(labelSelectOperatingSystem);
+
+    cy.contains(labelExecuteTheScript);
 
     cy.makeSnapshot();
   });
