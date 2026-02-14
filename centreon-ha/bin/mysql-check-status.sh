@@ -12,6 +12,11 @@
 
 sql_fetch_db_binary
 
+if [ -z "$SQL_DB_BINARY" ] ; then
+	echo "ERROR: Cannot find MariaDB/MySQL binary." >&2
+	exit 1
+fi
+
 if [ "$SQL_IS_MARIADB" -eq 1 ] ; then
 	SQL_SHOW_REPLICA_STATUS="SHOW SLAVE STATUS"
 	SQL_SHOW_PRIMARY_STATUS="SHOW MASTER STATUS"

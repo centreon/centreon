@@ -100,13 +100,13 @@ sql_fetch_db_config()
     fi
 
     if [ -n "$SQL_CONF_DEFAULTS_FILE" ] ; then
-        _options=$($SQL_DB_BINARY --print-defaults "--defaults-file=$SQL_CONF_DEFAULTS_FILE" | grep -v "would have been started with the following argument" | awk '{ for (i = 1; i <= NF; i++) { print $i } }')
+        _options=$($SQL_DB_BINARY "--defaults-file=$SQL_CONF_DEFAULTS_FILE" --print-defaults | grep -v "would have been started with the following argument" | awk '{ for (i = 1; i <= NF; i++) { print $i } }')
     else
         _options=$($SQL_DB_BINARY --print-defaults | grep -v "would have been started with the following argument" | awk '{ for (i = 1; i <= NF; i++) { print $i } }')
     fi
 
     if [ -z "$SQL_CONF_DATADIR" ] ; then
-        SQL_CONF_DATADIR=$(echo "$_options" | grep -E '^--datadir=' | awk -F\= '{ print $2 }')
+        SQL_CONF_DATADIR=$(echo "$_options" | grep -E '^--datadir=' | tail -1 | awk -F\= '{ print $2 }')
     fi
     if [ -z "$SQL_CONF_DATADIR" ] ; then
         SQL_CONF_DATADIR="/var/lib/mysql"
@@ -116,7 +116,7 @@ sql_fetch_db_config()
     SQL_CONF_DATADIR=$(realpath "$SQL_CONF_DATADIR")
 
     if [ -z "$SQL_CONF_PID_FILE" ] ; then
-        SQL_CONF_PID_FILE=$(echo "$_options" | grep -E '^--pid-file=' | awk -F\= '{ print $2 }')
+        SQL_CONF_PID_FILE=$(echo "$_options" | grep -E '^--pid-file=' | tail -1 | awk -F\= '{ print $2 }')
     fi
     if [ -z "$SQL_CONF_PID_FILE" ] ; then
         SQL_CONF_PID_FILE=$(hostname -s)
@@ -125,8 +125,8 @@ sql_fetch_db_config()
     fi
 
     if [ -z "$SQL_CONF_LOG_BIN_ARG" ] ; then
-        SQL_CONF_LOG_BIN_ARG=$(echo "$_options" | grep -E '^--log-bin=' | awk -F\= '{ print $1 }')
-        SQL_CONF_LOG_BIN=$(echo "$_options" | grep -E '^--log-bin=' | awk -F\= '{ print $2 }')
+        SQL_CONF_LOG_BIN_ARG=$(echo "$_options" | grep -E '^--log-bin=' | tail -1 | awk -F\= '{ print $1 }')
+        SQL_CONF_LOG_BIN=$(echo "$_options" | grep -E '^--log-bin=' | tail -1 | awk -F\= '{ print $2 }')
     fi
 
     if [ -z "$SQL_CONF_LOG_BIN" ] ; then
@@ -134,7 +134,7 @@ sql_fetch_db_config()
     fi
 
     if [ -z "$SQL_CONF_RELAY_LOG" ] ; then
-        SQL_CONF_RELAY_LOG=$(echo "$_options" | grep -E '^--relay-log=' | awk -F\= '{ print $2 }')
+        SQL_CONF_RELAY_LOG=$(echo "$_options" | grep -E '^--relay-log=' | tail -1 | awk -F\= '{ print $2 }')
     fi
 
     if [ -z "$SQL_CONF_RELAY_LOG" ] ; then

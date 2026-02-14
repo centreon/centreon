@@ -334,7 +334,7 @@ quit
 EOF
 else
     mysql -f -u "$DBROOTUSER" -h "$slave_hostname" -p"$DBROOTPASSWORD" << EOF
-RESET MASTER;
+RESET BINARY LOGS AND GTIDS;
 STOP REPLICA;
 RESET REPLICA ALL;
 SET GLOBAL gtid_purged = '$gtid_current_pos';
