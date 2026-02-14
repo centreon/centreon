@@ -166,6 +166,8 @@ fi
 
 slave_hostname=$(get_other_db_hostname)
 master_hostname=$(get_other_db_hostname $slave_hostname)
+# Note: SQL_DB_BINARY and SQL_SYSTEMD_SERVICE are detected locally.
+# Both HA nodes are assumed to run the same database engine.
 echo "Connection to slave Server (verify mysql stopped): $slave_hostname"
 result=$($USER_SUDO ssh -p $SSH_PORT $slave_hostname 'if ps --no-headers -C '"$SQL_DB_BINARY"' >/dev/null; then echo "yes" ; else echo "no"; fi')
 if [ "$result" != "no" ] ; then

@@ -352,7 +352,12 @@ set_gtid() {
     fi
 
     # Ensure that we got something like a valid GTID
-    if ! echo $gtid | grep -q '-'; then
+    if [ "$_is_mariadb" -eq 1 ] ; then
+        _gtid_valid=$(echo $gtid | grep -cE '[0-9]+-[0-9]+-[0-9]+')
+    else
+        _gtid_valid=$(echo $gtid | grep -cE '[0-9a-fA-F-]+:[0-9]+')
+    fi
+    if [ "$_gtid_valid" -eq 0 ]; then
         ocf_exit_reason "Unable to read GTID from $_DB_NAME"
         ocf_log err "Unable to read GTID from $_DB_NAME"
         return $OCF_ERR_GENERIC
@@ -868,6 +873,8 @@ mysql_start() {
     fi
 
     # Enable semi-sync
+    # Note: the MySQL branch uses variable names introduced in MySQL 8.0.26
+    # (rpl_semi_sync_source_*, sync_source_info). MySQL < 8.0.26 is not supported.
     if [ "$_is_mariadb" -eq 1 ] ; then
         ocf_run -q $MYSQL $MYSQL_OPTIONS_TEST \
                 -e "SET GLOBAL rpl_semi_sync_slave_enabled='OFF', \
