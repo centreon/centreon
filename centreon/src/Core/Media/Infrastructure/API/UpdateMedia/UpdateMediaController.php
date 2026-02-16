@@ -98,7 +98,7 @@ final class UpdateMediaController extends AbstractController
     /**
      * @param UploadedFile $file
      *
-     * @throws FileException
+     * @throws FileException|MediaException
      * @return string
      */
     private function sanitizeData(UploadedFile $file): string
@@ -111,7 +111,12 @@ final class UpdateMediaController extends AbstractController
         ) {
             $this->svgSanitizer->minify(true);
 
-            return $this->svgSanitizer->sanitize($file->getContent());
+            $content = $this->svgSanitizer->sanitize($file->getContent());
+            if ($content === false) {
+                throw MediaException::errorUploadingFile($file->getClientOriginalName());
+            }
+
+            return $content;
         }
 
         return $file->getContent();

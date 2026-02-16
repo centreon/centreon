@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\AddHostGroup;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -38,6 +39,7 @@ use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
 use Core\HostGroup\Domain\Model\NewHostGroup;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Application\Repository\WriteAccessGroupRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
@@ -108,7 +110,7 @@ final class AddHostGroup
      */
     private function addHostGroupAsAdmin(AddHostGroupRequest $request): AddHostGroupResponse
     {
-        $this->assertNameDoesNotAlreadyExists($request);
+        $this->assertNameIsValid($request);
         $this->assertNotNullIconsExist($request);
 
         $newHostGroup = $this->createNewHostGroup($request);
@@ -129,7 +131,7 @@ final class AddHostGroup
      */
     private function addHostGroupAsContact(AddHostGroupRequest $request): AddHostGroupResponse
     {
-        $this->assertNameDoesNotAlreadyExists($request);
+        $this->assertNameIsValid($request);
         $this->assertNotNullIconsExist($request);
 
         $accessGroups = $this->readAccessGroupRepository->findByContact($this->contact);
@@ -169,8 +171,14 @@ final class AddHostGroup
      * @throws HostGroupException
      * @throws \Throwable
      */
-    private function assertNameDoesNotAlreadyExists(AddHostGroupRequest $request): void
+    private function assertNameIsValid(AddHostGroupRequest $request): void
     {
+        Assertion::unauthorizedCharacters(
+            $request->name,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            'HostGroup::name'
+        );
+
         if ($this->readHostGroupRepository->nameAlreadyExists($request->name)) {
             $this->error('Host group name already exists', ['name' => $request->name]);
 

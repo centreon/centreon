@@ -15,7 +15,8 @@
     "fullname_bind_attribute",
     "authentication_conditions",
     "groups_mapping",
-    "roles_mapping"
+    "roles_mapping",
+    "requested_authn_context"
   ],
   "properties": {
     "is_active": {
@@ -43,6 +44,9 @@
       "type": "string"
     },
     "requested_authn_context": {
+      "type": "boolean"
+    },
+    "requested_authn_context_comparison": {
       "type": "string"
     },
     "logout_from": {

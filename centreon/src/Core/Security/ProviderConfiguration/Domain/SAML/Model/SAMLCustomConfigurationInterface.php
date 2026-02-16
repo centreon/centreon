@@ -35,33 +35,15 @@ interface SAMLCustomConfigurationInterface
      */
     public function getAuthorizationRules(): array;
 
-    /**
-     * @return bool
-     */
     public function isAutoImportEnabled(): bool;
 
-    /**
-     * @return ContactTemplate|null
-     */
     public function getContactTemplate(): ?ContactTemplate;
 
-    /**
-     * @return string|null
-     */
     public function getEmailBindAttribute(): ?string;
 
-    /**
-     * @return string|null
-     */
     public function getUserNameBindAttribute(): ?string;
 
-    /**
-     * @return ContactGroup|null
-     */
     public function getContactGroup(): ?ContactGroup;
 
-    /**
-     * @return AuthenticationConditions
-     */
     public function getAuthenticationConditions(): AuthenticationConditions;
 }

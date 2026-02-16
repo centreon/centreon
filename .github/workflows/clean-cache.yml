@@ -6,11 +6,7 @@ on:
       - closed
 
 jobs:
-  dependency-scan:
-    uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
-
   clean-cache:
-    needs: [dependency-scan]
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources

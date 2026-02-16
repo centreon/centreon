@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Core\HostGroup\Application\UseCase\UpdateHostGroup;
 
 use Assert\AssertionFailedException;
+use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
@@ -39,6 +40,7 @@ use Core\HostGroup\Application\Exceptions\HostGroupException;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
 use Core\HostGroup\Application\Repository\WriteHostGroupRepositoryInterface;
 use Core\HostGroup\Domain\Model\HostGroup;
+use Core\MonitoringServer\Model\MonitoringServer;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ViewImg\Application\Repository\ReadViewImgRepositoryInterface;
 
@@ -122,7 +124,7 @@ final class UpdateHostGroup
             return new NotFoundResponse('Host group');
         }
 
-        $this->assertNameDoesNotAlreadyExists($hostGroup, $request);
+        $this->assertNameIsValid($hostGroup, $request);
         $this->assertNotNullIconsExist($request);
 
         $modifiedHostGroup = $this->createModifiedHostGroup($hostGroup, $request);
@@ -150,7 +152,7 @@ final class UpdateHostGroup
             return new NotFoundResponse('Host group');
         }
 
-        $this->assertNameDoesNotAlreadyExists($hostGroup, $request);
+        $this->assertNameIsValid($hostGroup, $request);
         $this->assertNotNullIconsExist($request);
 
         $modifiedHostGroup = $this->createModifiedHostGroup($hostGroup, $request);
@@ -166,8 +168,14 @@ final class UpdateHostGroup
      * @throws HostGroupException
      * @throws \Throwable
      */
-    private function assertNameDoesNotAlreadyExists(HostGroup $hostGroup, UpdateHostGroupRequest $request): void
+    private function assertNameIsValid(HostGroup $hostGroup, UpdateHostGroupRequest $request): void
     {
+        Assertion::unauthorizedCharacters(
+            $request->name,
+            MonitoringServer::ILLEGAL_CHARACTERS,
+            'HostGroup::name'
+        );
+
         if (
             $hostGroup->getName() !== $request->name
             && $this->readHostGroupRepository->nameAlreadyExists($request->name)

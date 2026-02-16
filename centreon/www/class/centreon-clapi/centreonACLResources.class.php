@@ -57,11 +57,12 @@ class CentreonACLResources
      */
     public function getACLResourceID($name)
     {
-        $request = "SELECT acl_group_id FROM acl_groups WHERE acl_group_name LIKE '"
-            . htmlentities($name, ENT_QUOTES) . "'";
-        $DBRESULT = $this->_DB->query($request);
-        $data = $DBRESULT->fetchRow();
-        if ($data['acl_group_id']) {
+        $request = 'SELECT acl_group_id FROM acl_groups WHERE acl_group_name LIKE :name';
+        $stmt = $this->_DB->prepare($request);
+        $stmt->bindValue(':name', $name, \PDO::PARAM_STR);
+        $stmt->execute();
+        $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if ($data && isset($data['acl_group_id'])) {
             return $data['acl_group_id'];
         }
 
@@ -77,14 +78,17 @@ class CentreonACLResources
      */
     public function addContact($contact_id, $aclid)
     {
-        $request = 'DELETE FROM acl_group_contacts_relations '
-            . "WHERE acl_group_id = '{$aclid}' AND contact_contact_id = '{$contact_id}'";
-        $this->_DB->query($request);
+        $deleteRequest = 'DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :aclid AND contact_contact_id = :contact_id';
+        $deleteStmt = $this->_DB->prepare($deleteRequest);
+        $deleteStmt->bindValue(':aclid', $aclid, \PDO::PARAM_INT);
+        $deleteStmt->bindValue(':contact_id', $contact_id, \PDO::PARAM_INT);
+        $deleteStmt->execute();
 
-        $request = 'INSERT INTO acl_group_contacts_relations '
-            . '(acl_group_id, contact_contact_id) '
-            . "VALUES ('" . $aclid . "', '" . $contact_id . "')";
-        $this->_DB->query($request);
+        $insertRequest = 'INSERT INTO acl_group_contacts_relations (acl_group_id, contact_contact_id) VALUES (:aclid, :contact_id)';
+        $insertStmt = $this->_DB->prepare($insertRequest);
+        $insertStmt->bindValue(':aclid', $aclid, \PDO::PARAM_INT);
+        $insertStmt->bindValue(':contact_id', $contact_id, \PDO::PARAM_INT);
+        $insertStmt->execute();
 
         return 0;
     }
@@ -98,9 +102,11 @@ class CentreonACLResources
      */
     public function delContact($contact_id, $aclid)
     {
-        $request = 'DELETE FROM acl_group_contacts_relations '
-            . "WHERE acl_group_id = '{$aclid}' AND contact_contact_id = '{$contact_id}'";
-        $this->_DB->query($request);
+        $deleteRequest = 'DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :aclid AND contact_contact_id = :contact_id';
+        $deleteStmt = $this->_DB->prepare($deleteRequest);
+        $deleteStmt->bindValue(':aclid', $aclid, \PDO::PARAM_INT);
+        $deleteStmt->bindValue(':contact_id', $contact_id, \PDO::PARAM_INT);
+        $deleteStmt->execute();
 
         return 0;
     }
@@ -111,8 +117,9 @@ class CentreonACLResources
      */
     public function updateACL()
     {
-        $request = "UPDATE `acl_resources` SET `changed` = '1'";
-        $this->_DB->query($request);
+        $updateRequest = "UPDATE `acl_resources` SET `changed` = '1'";
+        $updateStmt = $this->_DB->prepare($updateRequest);
+        $updateStmt->execute();
 
         return 0;
     }

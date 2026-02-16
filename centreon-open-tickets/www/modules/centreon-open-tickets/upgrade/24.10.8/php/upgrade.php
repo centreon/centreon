@@ -18,13 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-declare(strict_types=1);
-
-namespace Core\Security\ProviderConfiguration\Application\SAML\UseCase\UpdateSAMLConfiguration;
-
-use Core\Application\Common\UseCase\ErrorResponse;
-
-final class UpdateSAMLConfigurationErrorResponse extends ErrorResponse
-{
-}

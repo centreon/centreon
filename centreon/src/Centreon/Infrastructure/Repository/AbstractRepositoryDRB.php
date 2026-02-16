@@ -29,6 +29,7 @@ use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Infrastructure\DatabaseConnection;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use JsonSchema\Constraints\Constraint;
+use JsonSchema\Exception\InvalidArgumentException;
 use JsonSchema\Validator;
 
 /**
@@ -84,7 +85,8 @@ class AbstractRepositoryDRB
      *
      * @param string $jsonRecord The JSON Property to validate
      * @param string $jsonSchemaFilePath The JSON Schema Validation file
-     * @throws RepositoryException
+     *
+     * @throws RepositoryException|InvalidArgumentException
      */
     protected function validateJsonRecord(string $jsonRecord, string $jsonSchemaFilePath): void
     {
