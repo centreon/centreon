@@ -1,14 +1,14 @@
 import {
-  getData,
   type LineChartData,
   NoData,
   ParentSize,
+  getData,
   timeFormat,
   useLocaleDateTimeFormat,
-  useRequest,
-} from "@centreon/ui";
-import { Skeleton, Typography } from "@mui/material";
-import { useAtomValue } from "jotai";
+  useRequest
+} from '@centreon/ui';
+import { Skeleton, Typography } from '@mui/material';
+import { useAtomValue } from 'jotai';
 import {
   equals,
   find,
@@ -23,39 +23,38 @@ import {
   propEq,
   propOr,
   reject,
-  sortBy,
-} from "ramda";
+  sortBy
+} from 'ramda';
 import {
   type MutableRefObject,
   type ReactNode,
   useEffect,
   useRef,
-  useState,
-} from "react";
-import { useTranslation } from "react-i18next";
-import { makeStyles } from "tss-react/mui";
+  useState
+} from 'react';
+import { makeStyles } from 'tss-react/mui';
 
-import type { CommentParameters } from "../../Actions/api";
-import { selectedResourcesDetailsAtom } from "../../Details/detailsAtoms";
-import type { ResourceDetails } from "../../Details/models";
-import type { TimelineEvent } from "../../Details/tabs/Timeline/models";
-import type { Resource } from "../../models";
-import Graph from "./Graph";
+import type { CommentParameters } from '../../Actions/api';
+import { selectedResourcesDetailsAtom } from '../../Details/detailsAtoms';
+import type { ResourceDetails } from '../../Details/models';
+import type { TimelineEvent } from '../../Details/tabs/Timeline/models';
+import type { Resource } from '../../models';
+import Graph from './Graph';
 import {
   isListingGraphOpenAtom,
-  timeValueAtom,
-} from "./Graph/mouseTimeValueAtoms";
-import Legend from "./Legend";
-import LoadingSkeleton from "./LoadingSkeleton";
+  timeValueAtom
+} from './Graph/mouseTimeValueAtoms';
+import Legend from './Legend';
+import LoadingSkeleton from './LoadingSkeleton';
 import type {
   FilterLines,
   GraphData,
   Line as LineModel,
   LinesProps,
   NewLines,
-  TimeValue,
-} from "./models";
-import { getLineData, getMetrics, getTimeSeries } from "./timeSeries";
+  TimeValue
+} from './models';
+import { getLineData, getMetrics, getTimeSeries } from './timeSeries';
 
 interface Props {
   canAdjustTimePeriod?: boolean;
@@ -66,7 +65,7 @@ interface Props {
   endpoint?: string;
   filterLines?: ({ lines, resource }: FilterLines) => NewLines;
   getPerformanceGraphRef?: (
-    value: MutableRefObject<HTMLDivElement | null>,
+    value: MutableRefObject<HTMLDivElement | null>
   ) => void;
   graphActions?: ReactNode;
   graphHeight: number;
@@ -82,50 +81,50 @@ interface Props {
   xAxisTickFormat?: string;
 }
 
-interface MakeStylesProps extends Pick<Props, "graphHeight" | "displayTitle"> {
+interface MakeStylesProps extends Pick<Props, 'graphHeight' | 'displayTitle'> {
   canAdjustTimePeriod: boolean;
 }
 
 const useStyles = makeStyles<MakeStylesProps>()(
   (theme, { graphHeight, displayTitle, canAdjustTimePeriod }) => ({
     container: {
-      display: "grid",
-      flexDirection: "column",
+      display: 'grid',
+      flexDirection: 'column',
       gridGap: theme.spacing(0.5),
-      gridTemplateRows: `${displayTitle ? "min-content" : ""} ${theme.spacing(
-        2,
+      gridTemplateRows: `${displayTitle ? 'min-content' : ''} ${theme.spacing(
+        2
       )} ${graphHeight}px min-content`,
-      height: "100%",
-      width: "auto",
+      height: '100%',
+      width: 'auto'
     },
     graphHeader: {
-      display: "grid",
-      gridTemplateColumns: "0.4fr 1fr 0.4fr",
-      justifyItems: "end",
-      width: "100%",
+      display: 'grid',
+      gridTemplateColumns: '0.4fr 1fr 0.4fr',
+      justifyItems: 'end',
+      width: '100%'
     },
     graphTranslation: {
       columnGap: theme.spacing(1),
-      display: "grid",
+      display: 'grid',
       gridTemplateColumns: canAdjustTimePeriod
-        ? "min-content auto min-content"
-        : "auto",
-      justifyContent: canAdjustTimePeriod ? "space-between" : "center",
+        ? 'min-content auto min-content'
+        : 'auto',
+      justifyContent: canAdjustTimePeriod ? 'space-between' : 'center',
       margin: theme.spacing(0, 1),
-      width: "90%",
+      width: '90%'
     },
     loadingContainer: {
       height: theme.spacing(2),
-      width: theme.spacing(2),
+      width: theme.spacing(2)
     },
     title: {
-      maxWidth: "100%",
-      overflow: "hidden",
-      placeSelf: "center",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
-    },
-  }),
+      maxWidth: '100%',
+      overflow: 'hidden',
+      placeSelf: 'center',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  })
 );
 
 const PerformanceGraph = <T,>({
@@ -148,12 +147,12 @@ const PerformanceGraph = <T,>({
   renderAdditionalLines,
   end,
   start,
-  filterLines,
+  filterLines
 }: Props): JSX.Element => {
   const { classes } = useStyles({
     canAdjustTimePeriod,
     displayTitle,
-    graphHeight,
+    graphHeight
   });
 
   const [timeSeries, setTimeSeries] = useState<Array<TimeValue>>([]);
@@ -168,9 +167,9 @@ const PerformanceGraph = <T,>({
 
   const {
     sendRequest: sendGetGraphDataRequest,
-    sending: sendingGetGraphDataRequest,
+    sending: sendingGetGraphDataRequest
   } = useRequest<GraphData>({
-    request: getData,
+    request: getData
   });
 
   const selectedResource = useAtomValue(selectedResourcesDetailsAtom);
@@ -186,7 +185,7 @@ const PerformanceGraph = <T,>({
     }
 
     sendGetGraphDataRequest({
-      endpoint,
+      endpoint
     })
       .then((graphData) => {
         setPerformanceGraphData(graphData);
@@ -199,8 +198,8 @@ const PerformanceGraph = <T,>({
             newLineData.map((line) => ({
               ...line,
               display:
-                find(propEq(line.name, "name"), lineData)?.display ?? true,
-            })),
+                find(propEq(line.name, 'name'), lineData)?.display ?? true
+            }))
           );
 
           return;
@@ -256,15 +255,15 @@ const PerformanceGraph = <T,>({
   }
 
   const getLineByMetric = (metric): LineModel => {
-    return find(propEq(metric, "metric"), lineData) as LineModel;
+    return find(propEq(metric, 'metric'), lineData) as LineModel;
   };
 
   const toggleMetricLine = (metric): void => {
     const line = getLineByMetric(metric);
 
     setLineData([
-      ...reject(propEq(metric, "metric"), lineData),
-      { ...line, display: !line.display },
+      ...reject(propEq(metric, 'metric'), lineData),
+      { ...line, display: !line.display }
     ]);
   };
 
@@ -272,8 +271,8 @@ const PerformanceGraph = <T,>({
     const fadedLines = map((line) => ({ ...line, highlight: false }), lineData);
 
     setLineData([
-      ...reject(propEq(metric, "metric"), fadedLines),
-      { ...getLineByMetric(metric), highlight: true },
+      ...reject(propEq(metric, 'metric'), fadedLines),
+      { ...getLineByMetric(metric), highlight: true }
     ]);
   };
 
@@ -283,13 +282,13 @@ const PerformanceGraph = <T,>({
 
   const filtredLines = filterLines?.({
     lines: lineData,
-    resource,
+    resource
   });
 
   const sortedLines =
-    filtredLines?.newSortedLines ?? sortBy(prop("name"), lineData);
+    filtredLines?.newSortedLines ?? sortBy(prop('name'), lineData);
   const displayedLines =
-    filtredLines?.newLines ?? reject(propEq(false, "display"), sortedLines);
+    filtredLines?.newLines ?? reject(propEq(false, 'display'), sortedLines);
 
   const selectMetricLine = (metric: string): void => {
     const metricLine = getLineByMetric(metric);
@@ -302,10 +301,10 @@ const PerformanceGraph = <T,>({
         map(
           (line) => ({
             ...line,
-            display: true,
+            display: true
           }),
-          lineData,
-        ),
+          lineData
+        )
       );
 
       return;
@@ -315,17 +314,17 @@ const PerformanceGraph = <T,>({
       map(
         (line) => ({
           ...line,
-          display: equals(line, metricLine),
+          display: equals(line, metricLine)
         }),
-        lineData,
-      ),
+        lineData
+      )
     );
   };
 
   const timeTick = propOr<string, TimeValue | null, string>(
-    "",
-    "timeTick",
-    timeValue,
+    '',
+    'timeTick',
+    timeValue
   );
 
   const metrics = getMetrics(timeValue as TimeValue);
