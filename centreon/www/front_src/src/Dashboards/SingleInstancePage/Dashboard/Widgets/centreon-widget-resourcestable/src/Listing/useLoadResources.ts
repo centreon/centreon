@@ -33,7 +33,7 @@ interface LoadResourcesProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
-  isOpenTicketEnabled?: boolean;
+  isOpenTicketEnabled: boolean;
 }
 
 interface LoadResources {
@@ -107,6 +107,7 @@ const useLoadResources = ({
     getQueryKey: () => [
       widgetPrefixQuery,
       'resourcestable',
+      isOpenTicketEnabled,
       displayType,
       JSON.stringify(states),
       JSON.stringify(statuses),

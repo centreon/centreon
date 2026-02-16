@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
 
@@ -50,6 +50,20 @@ jobs:
             exit 1
           else
             echo "Inputs are not empty."
+          fi
+        shell: bash
+      - name: Check release branch and release type inputs coherence
+        run: |
+          # Extract release branch prefix
+          RELEASE_BRANCH="${{ inputs.release_branch }}"
+          RELEASE_BRANCH_PREFIX="${RELEASE_BRANCH%%-*}"
+
+          echo "Checking inputs coherence against $RELEASE_BRANCH <> ${{ inputs.release_branch }}..."
+          if [[ "$RELEASE_BRANCH_PREFIX" == "${{ inputs.release_type }}" ]]; then
+            echo "Inputs are ok, continue."
+          else
+            echo "Inputs are NOT ok, exiting."
+            exit 1
           fi
         shell: bash
       - name: Check if release or hotfix branch exists
@@ -77,7 +91,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0
 

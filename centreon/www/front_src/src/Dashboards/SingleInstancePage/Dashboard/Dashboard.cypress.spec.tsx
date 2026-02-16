@@ -43,7 +43,11 @@ import {
   labelSharesSaved,
   labelUpdate
 } from '../../translatedLabels';
-import { dashboardAtom, isRedirectionBlockedAtom } from './atoms';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  isRedirectionBlockedAtom
+} from './atoms';
 import Dashboard from './Dashboard';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
@@ -281,6 +285,7 @@ const initializeAndMount = ({
       resourceType: 'business-activity'
     }
   ]);
+  store.set(isEditingAtom, false);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -679,6 +684,8 @@ describe('Dashboard', () => {
       cy.findAllByLabelText(labelSave).eq(1).click();
 
       cy.contains('Text for the new widget').should('be.visible');
+
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
 
     it('adds a widget according to its custom default size when a widget type is selected and the submission button is clicked', () => {
@@ -686,6 +693,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findByLabelText(labelAddAWidget).click();
 
       cy.findByLabelText(labelWidgetType).click();
@@ -705,6 +713,7 @@ describe('Dashboard', () => {
       cy.get('.react-grid-item').eq(3).should('have.css', 'width', '598px');
 
       cy.get('.react-grid-item').eq(3).should('have.css', 'height', '444px');
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
   });
 
@@ -714,6 +723,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
@@ -739,12 +749,16 @@ describe('Dashboard', () => {
         });
 
       cy.makeSnapshot();
+
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
 
     it('resizes the widget to its minimum size when the handle is dragged', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelEditDashboard).click();
 
       cy.get('[data-can-move="true"]')
         .eq(0)
@@ -763,6 +777,24 @@ describe('Dashboard', () => {
         .eq(0)
         .parent()
         .should('have.css', 'height');
+
+      cy.findAllByLabelText(labelSave).eq(0).click();
+    });
+  });
+
+  describe('Duplicate', () => {
+    it('duplicates the widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelEditDashboard).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findAllByText('Widget text').should('have.length', 2);
+      cy.get('body').click();
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
   });
 
@@ -772,6 +804,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
@@ -784,6 +817,8 @@ describe('Dashboard', () => {
       cy.contains(labelAddAWidget).should('be.visible');
 
       cy.makeSnapshot();
+
+      cy.findByTestId('save_dashboard').click({ force: true });
     });
 
     it('does not display the name of the widget when the corresponding button is clicked', () => {
@@ -791,6 +826,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findAllByLabelText(labelMoreActions).eq(2).click();
       cy.contains(labelDeleteWidget).click();
 
@@ -799,55 +835,13 @@ describe('Dashboard', () => {
       );
 
       cy.makeSnapshot();
-    });
-  });
 
-  describe('View mode', () => {
-    it('displays the widget form in editor mode when the user has editor role and the user is not editing the dashboard', () => {
-      initializeAndMount(editorRoles);
-
-      cy.contains(labelCancel).click();
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.findByLabelText(labelEditWidget).click();
-
-      cy.findByLabelText(labelWidgetType).should('be.enabled');
-
-      cy.findByLabelText('close').click();
-
-      cy.findByLabelText(labelWidgetType).should('exist');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the widget form in view mode when the user has viewer role', () => {
-      initializeAndMount(viewerRoles);
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.findByLabelText(labelViewProperties).click();
-
-      cy.findByLabelText(labelWidgetType).should('be.disabled');
-      cy.findByLabelText(labelCancel).should('not.exist');
-      cy.findByLabelText(labelSave).should('not.exist');
-      cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
-      cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
-
-      cy.makeSnapshot();
-    });
-  });
-
-  describe('Duplicate', () => {
-    it('duplicates the widget when the corresponding button is clicked', () => {
-      initializeAndMount(editorRoles);
-
-      cy.waitForRequest('@getDashboardDetails');
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-      cy.findByLabelText(labelDuplicate).click();
-
-      cy.findAllByText('Widget text').should('have.length', 2);
+      cy.findByTestId('cancel').click();
+      cy.contains('The widget will be permanently deleted.').should(
+        'not.exist'
+      );
+      cy.get('body').click();
+      cy.findByTestId('cancel_dashboard').click();
     });
   });
 
@@ -856,8 +850,6 @@ describe('Dashboard', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
-
-      cy.findByLabelText(labelCancel).click();
 
       cy.findByLabelText('edit').click();
 
@@ -1243,7 +1235,43 @@ describe('Dashboard with complex layout', () => {
     cy.findAllByLabelText(labelSave).eq(1).click();
 
     cy.get('.react-grid-item')
-      .eq(4)
-      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 317, 12)');
+      .eq(3)
+      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 12, 240)');
+  });
+
+  describe('View mode', () => {
+    it('displays the widget form in editor mode when the user has editor role and the user is not editing the dashboard', () => {
+      initializeAndMount(editorRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelEditWidget).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.enabled');
+
+      cy.findByLabelText('close').click();
+
+      cy.findByLabelText(labelWidgetType).should('exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the widget form in view mode when the user has viewer role', () => {
+      initializeAndMount(viewerRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelViewProperties).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.disabled');
+      cy.findByLabelText(labelCancel).should('not.exist');
+      cy.findByLabelText(labelSave).should('not.exist');
+      cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
+      cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
+
+      cy.makeSnapshot();
+
+      cy.findByLabelText('close').click();
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { lt } from 'ramda';
-import type { Layout } from 'react-grid-layout';
+import type { LayoutItem } from 'react-grid-layout';
 
 const minColumns = 1;
 const breakpoint = 768;
@@ -13,7 +13,7 @@ export const getIsSmallScreenSize = (): boolean =>
 export const getColumnsFromScreenSize = (): number =>
   getIsSmallScreenSize() ? minColumns : maxColumns;
 
-export const getLayout = <T extends Layout>(layout: Array<T>): Array<T> => {
+export const getLayout = <T extends LayoutItem>(layout: Array<T>): Array<T> => {
   const isSmallScreenSize = getIsSmallScreenSize();
   if (!isSmallScreenSize) {
     return layout;
