@@ -23,16 +23,16 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Interfaces;
 
+use Core\Security\Authentication\Domain\Exception\AuthenticationException;
 use Core\Security\Authentication\Domain\Model\NewProviderToken;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
-use Throwable;
 
 interface LocalProviderInterface extends ProviderInterface
 {
     /**
      * @param array<string, mixed> $data
      *
-     * @throws Throwable
+     * @throws AuthenticationException
      */
     public function authenticateOrFail(array $data): void;
 

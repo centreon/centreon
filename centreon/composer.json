@@ -29,8 +29,9 @@
     "curl/curl": "2.5.*",
     "doctrine/annotations": "1.14.*",
     "doctrine/dbal": "4.2.*",
+    "doctrine/doctrine-bundle": "2.15.*",
     "dragonmantank/cron-expression": "3.1.*",
-    "enshrined/svg-sanitize": "0.15.*",
+    "enshrined/svg-sanitize": "0.22.*",
     "firebase/php-jwt": "6.11.*",
     "friendsofsymfony/rest-bundle": "3.7.*",
     "jms/serializer-bundle": "5.4.*",
@@ -80,7 +81,6 @@
     "symfony/yaml": "6.4.*"
   },
   "require-dev": {
-    "behat/behat": "3.14.*",
     "behat/mink-selenium2-driver": "1.6.*",
     "centreon/centreon-test-lib": "24.10.x-dev",
     "friends-of-behat/mink": "1.11.*",
