@@ -306,13 +306,13 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
 
     // First, check if the parameters column exists
     if (! $pearDB->columnExists(
-            $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'additional_connector_configuration',
-            'parameters'
+        $pearDB->getConnectionConfig()->getDatabaseNameConfiguration(),
+        'additional_connector_configuration',
+        'parameters'
     )) {
         CentreonLog::create()->info(
-                logTypeId: CentreonLog::TYPE_UPGRADE,
-                message: "UPGRADE - {$version}: [acc] Parameters column already dropped from additional_connector_configuration table",
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: [acc] Parameters column already dropped from additional_connector_configuration table",
         );
 
         return;
@@ -361,7 +361,6 @@ try {
     $updateInstancesTable();
 
     // DDL statements for configuration database
-    // TODO add your function calls to update the configuration database structure here
     $createAccTables();
 
     // Transactional queries for configuration database
