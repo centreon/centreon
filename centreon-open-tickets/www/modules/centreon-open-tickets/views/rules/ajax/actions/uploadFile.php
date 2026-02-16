@@ -35,7 +35,8 @@ if (! preg_match('/^[a-f0-9]{13}(\.[0-9]{8})?$/', $uniq_id)) {
 }
 
 $target_dir = sys_get_temp_dir() . '/opentickets';
-if (! is_dir($target_dir) && ! mkdir($target_dir, 0750)) {
+// Second is_dir() handles the race where another request created it between the first check and mkdir().
+if (! is_dir($target_dir) && ! mkdir($target_dir, 0750) && ! is_dir($target_dir)) {
     $resultat = ['code' => 1, 'msg' => 'Failed to create upload directory.'];
 
     return;
