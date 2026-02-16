@@ -1200,7 +1200,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
         $uuid = retrieveServiceSecretUuidFromDatabase($pearDB, $serviceId);
     }
 
-    if (isset($ret['command_command_id'])) {
+    if (! empty($ret['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $ret['command_command_id']);
         if ($command === null) {
@@ -2704,7 +2704,7 @@ function updateService_MC($service_id = null, $params = [])
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $service_id);
     }
 
-    if (isset($ret['command_command_id'])) {
+    if (! empty($ret['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $ret['command_command_id']);
         if ($command === null) {

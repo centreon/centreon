@@ -426,4 +426,8 @@ function updateNonLocalContactByMyAccountInDB($userIdConnected = null): void
 
     // Update user object..
     $centreon->user->lang = $ret['contact_lang'];
+
+    if ($centreon->user->authType === 'ldap') {
+        updateNotificationOptions($userIdConnected);
+    }
 }

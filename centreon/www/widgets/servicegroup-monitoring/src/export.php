@@ -90,13 +90,13 @@ if (! $centreon->user->admin) {
 
     $configurationDatabaseName = $configurationDatabase->getConnectionConfig()->getDatabaseNameConfiguration();
     $baseQuery .= <<<SQL
-            INNER JOIN {$configurationDatabaseName}.acl_resources_sg_relations arsr
+            INNER JOIN `{$configurationDatabaseName}`.acl_resources_sg_relations arsr
                 ON servicegroups.servicegroup_id = arsr.sg_id
-            INNER JOIN {$configurationDatabaseName}.acl_resources res
+            INNER JOIN `{$configurationDatabaseName}`.acl_resources res
                 ON arsr.acl_res_id = res.acl_res_id
-            INNER JOIN {$configurationDatabaseName}.acl_res_group_relations argr
+            INNER JOIN `{$configurationDatabaseName}`.acl_res_group_relations argr
                 ON res.acl_res_id = argr.acl_res_id
-            INNER JOIN {$configurationDatabaseName}.acl_groups ag
+            INNER JOIN `{$configurationDatabaseName}`.acl_groups ag
                 ON argr.acl_group_id = ag.acl_group_id
             WHERE ag.acl_group_id IN ({$accessGroupList})
         SQL;
