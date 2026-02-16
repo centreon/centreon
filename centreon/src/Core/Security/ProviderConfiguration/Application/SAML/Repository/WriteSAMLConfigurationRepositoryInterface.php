@@ -23,33 +23,39 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\SAML\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\ProviderConfiguration\Domain\Model\AuthorizationRule;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
+use Core\Security\ProviderConfiguration\Domain\Model\ContactGroupRelation;
 
 interface WriteSAMLConfigurationRepositoryInterface
 {
     /**
-     * Update the SAML Provider.
-     *
-     * @param Configuration $configuration
-     *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function updateConfiguration(Configuration $configuration): void;
 
     /**
-     * Delete Authorization rules.
-     *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function deleteAuthorizationRules(): void;
 
     /**
-     * Insert Authorization rules.
-     *
      * @param AuthorizationRule[] $authorizationRules
      *
-     * @throws \Throwable
+     * @throws RepositoryException
      */
     public function insertAuthorizationRules(array $authorizationRules): void;
+
+    /**
+     * @throws RepositoryException
+     */
+    public function deleteContactGroupRelations(): void;
+
+    /**
+     * @param ContactGroupRelation[] $contactGroupRelations
+     *
+     * @throws RepositoryException
+     */
+    public function insertContactGroupRelations(array $contactGroupRelations): void;
 }

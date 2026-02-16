@@ -25,30 +25,35 @@ namespace Core\Security\ProviderConfiguration\Infrastructure\SAML\Api\FindSAMLCo
 
 use Centreon\Application\Controller\AbstractController;
 use Centreon\Domain\Contact\Contact;
-use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\{
-    FindSAMLConfiguration,
-    FindSAMLConfigurationPresenterInterface
-};
+use Centreon\Domain\Log\Logger;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Common\Infrastructure\ExceptionLogger\ExceptionLogger;
+use Core\Security\ProviderConfiguration\Application\SAML\UseCase\FindSAMLConfiguration\FindSAMLConfiguration;
 use Symfony\Component\HttpFoundation\Response;
 
 final class FindSAMLConfigurationController extends AbstractController
 {
-    /**
-     * @param FindSAMLConfiguration $useCase
-     * @param FindSAMLConfigurationPresenterInterface $presenter
-     *
-     * @return object
-     */
     public function __invoke(
         FindSAMLConfiguration $useCase,
-        FindSAMLConfigurationPresenterInterface $presenter,
+        FindSAMLConfigurationPresenter $presenter,
     ): object {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-        /**
-         * @var Contact $contact
-         */
-        $contact = $this->getUser();
+        try {
+            /** @var Contact $contact */
+            $contact = $this->getUser();
+        } catch (\LogicException $e) {
+            ExceptionLogger::create()->log($e);
+            $presenter->setResponseStatus(
+                new ErrorResponse('User not found when trying to get SAML configuration')
+            );
+
+            return $presenter->show();
+        }
         if (! $contact->hasTopologyRole(Contact::ROLE_ADMINISTRATION_AUTHENTICATION_READ_WRITE)) {
+            Logger::create()->warning(
+                'User does not have the rights to get SAML configuration',
+                ['user_id' => $contact->getId()]
+            );
+
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
         $useCase($presenter);

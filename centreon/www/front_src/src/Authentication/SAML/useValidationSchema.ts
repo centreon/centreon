@@ -86,6 +86,7 @@ const useValidationSchema = (): Schema<SAMLConfiguration> => {
       isEnabled: switchSchema,
       relations: array().of(rolesRelationSchema)
     }),
+    requestedAuthnContext: boolean().required(t(labelRequired)),
     userIdAttribute: string().required(t(labelRequired))
   });
 };
