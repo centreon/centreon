@@ -21,11 +21,48 @@
 
 $resultat = ['code' => 0, 'msg' => 'ok'];
 
-$uniq_id = $_REQUEST['uniqId'];
+if (! isset($_SESSION['centreon'])) {
+    $resultat = ['code' => 1, 'msg' => 'Unauthorized.'];
+
+    return;
+}
+
+$uniq_id = $_REQUEST['uniqId'] ?? '';
+if (! preg_match('/^[a-f0-9]{13}(\.[0-9]{8})?$/', $uniq_id)) {
+    $resultat = ['code' => 1, 'msg' => 'Invalid uniqId format.'];
+
+    return;
+}
+
+$target_dir = sys_get_temp_dir() . '/opentickets';
+if (! is_dir($target_dir) && ! mkdir($target_dir, 0750)) {
+    $resultat = ['code' => 1, 'msg' => 'Failed to create upload directory.'];
+
+    return;
+}
+
 foreach ($_FILES as $file) {
-    $dir = dirname($file['tmp_name']);
-    $file_dst = $dir . '/opentickets/' . $uniq_id . '__' . $file['name'];
-    @mkdir($dir . '/opentickets', 0750);
+    $safe_filename = basename($file['name']);
+    if (
+        $safe_filename === ''
+        || $safe_filename === '.'
+        || $safe_filename === '..'
+        || preg_match('/[\x00-\x1f\x7f]/', $safe_filename)
+        || strlen($safe_filename) > 200
+    ) {
+        $resultat = ['code' => 1, 'msg' => 'Invalid filename.'];
+        continue;
+    }
+
+    $file_dst = $target_dir . '/' . $uniq_id . '__' . $safe_filename;
+
+    $real_target_dir = realpath($target_dir);
+    $real_dst_dir = realpath(dirname($file_dst));
+    if ($real_target_dir === false || $real_dst_dir === false || $real_dst_dir !== $real_target_dir) {
+        $resultat = ['code' => 1, 'msg' => 'Invalid file path.'];
+        continue;
+    }
+
     if (rename($file['tmp_name'], $file_dst)) {
         if (! isset($_SESSION['ot_upload_files'])) {
             $_SESSION['ot_upload_files'] = [];
