@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace Core\Security\Authentication\Application\Provider;
 
+use Security\Domain\Authentication\Exceptions\ProviderException;
+
 interface ProviderAuthenticationFactoryInterface
 {
     /**
-     * @param string $providerType
-     *
-     * @return ProviderAuthenticationInterface
+     * @throws ProviderException
      */
     public function create(string $providerType): ProviderAuthenticationInterface;
 }

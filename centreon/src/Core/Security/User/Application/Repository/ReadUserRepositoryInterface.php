@@ -23,16 +23,13 @@ declare(strict_types=1);
 
 namespace Core\Security\User\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\User\Domain\Model\User;
 
 interface ReadUserRepositoryInterface
 {
     /**
-     * Find a user by his alias.
-     *
-     * @param string $alias
-     *
-     * @return User|null
+     * @throws RepositoryException
      */
     public function findUserByAlias(string $alias): ?User;
 }

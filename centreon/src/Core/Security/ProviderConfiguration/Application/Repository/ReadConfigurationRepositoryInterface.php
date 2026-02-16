@@ -23,36 +23,29 @@ declare(strict_types=1);
 
 namespace Core\Security\ProviderConfiguration\Application\Repository;
 
+use Core\Common\Domain\Exception\RepositoryException;
 use Core\Security\ProviderConfiguration\Domain\Model\Configuration;
 
 interface ReadConfigurationRepositoryInterface
 {
     /**
-     * Get provider configuration by name.
-     *
-     * @param string $providerType
-     *
-     * @return Configuration
+     * @throws RepositoryException
      */
     public function getConfigurationByType(string $providerType): Configuration;
 
     /**
-     * Get provider configuration by id.
-     *
-     * @param int $id
-     *
-     * @return Configuration
+     * @throws RepositoryException
      */
     public function getConfigurationById(int $id): Configuration;
 
     /**
-     * Get providers configurations.
-     *
+     * @throws RepositoryException
      * @return Configuration[]
      */
     public function findConfigurations(): array;
 
     /**
+     * @throws RepositoryException
      * @return array<string,mixed>
      */
     public function findExcludedUsers(): array;
