@@ -44,7 +44,7 @@ $real_file_path = realpath($file_path);
 if (
     $real_target_dir === false
     || $real_file_path === false
-    || strpos($real_file_path, $real_target_dir . '/') !== 0
+    || ! str_starts_with($real_file_path, $real_target_dir . '/')
 ) {
     $resultat = ['code' => 1, 'msg' => 'File not found.'];
 
@@ -59,7 +59,12 @@ if (! isset($_SESSION['ot_upload_files'][$uniq_id][$real_file_path])
     return;
 }
 
-unlink($real_file_path);
+if (! unlink($real_file_path)) {
+    $resultat = ['code' => 1, 'msg' => 'Failed to delete file.'];
+
+    return;
+}
+
 unset($_SESSION['ot_upload_files'][$uniq_id][$real_file_path]);
 unset($_SESSION['ot_upload_files'][$uniq_id][$file_path]);
 if (empty($_SESSION['ot_upload_files'][$uniq_id])) {

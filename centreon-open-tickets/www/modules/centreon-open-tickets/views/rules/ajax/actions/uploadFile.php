@@ -51,7 +51,8 @@ foreach ($_FILES as $file) {
         || strlen($safe_filename) > 200
     ) {
         $resultat = ['code' => 1, 'msg' => 'Invalid filename.'];
-        continue;
+
+        return;
     }
 
     $file_dst = $target_dir . '/' . $uniq_id . '__' . $safe_filename;
@@ -60,12 +61,14 @@ foreach ($_FILES as $file) {
     $real_dst_dir = realpath(dirname($file_dst));
     if ($real_target_dir === false || $real_dst_dir === false || $real_dst_dir !== $real_target_dir) {
         $resultat = ['code' => 1, 'msg' => 'Invalid file path.'];
-        continue;
+
+        return;
     }
 
     if (! move_uploaded_file($file['tmp_name'], $file_dst)) {
         $resultat = ['code' => 1, 'msg' => 'Failed to save uploaded file.'];
-        continue;
+
+        return;
     }
 
     if (! isset($_SESSION['ot_upload_files'])) {
