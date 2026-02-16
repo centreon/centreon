@@ -63,14 +63,17 @@ foreach ($_FILES as $file) {
         continue;
     }
 
-    if (rename($file['tmp_name'], $file_dst)) {
-        if (! isset($_SESSION['ot_upload_files'])) {
-            $_SESSION['ot_upload_files'] = [];
-        }
-        if (! isset($_SESSION['ot_upload_files'][$uniq_id])) {
-            $_SESSION['ot_upload_files'][$uniq_id] = [];
-        }
-
-        $_SESSION['ot_upload_files'][$uniq_id][$file_dst] = 1;
+    if (! move_uploaded_file($file['tmp_name'], $file_dst)) {
+        $resultat = ['code' => 1, 'msg' => 'Failed to save uploaded file.'];
+        continue;
     }
+
+    if (! isset($_SESSION['ot_upload_files'])) {
+        $_SESSION['ot_upload_files'] = [];
+    }
+    if (! isset($_SESSION['ot_upload_files'][$uniq_id])) {
+        $_SESSION['ot_upload_files'][$uniq_id] = [];
+    }
+
+    $_SESSION['ot_upload_files'][$uniq_id][$file_dst] = 1;
 }

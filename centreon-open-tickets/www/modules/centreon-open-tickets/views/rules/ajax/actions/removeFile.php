@@ -60,4 +60,8 @@ if (! isset($_SESSION['ot_upload_files'][$uniq_id][$real_file_path])
 }
 
 unlink($real_file_path);
-unset($_SESSION['ot_upload_files'][$uniq_id]);
+unset($_SESSION['ot_upload_files'][$uniq_id][$real_file_path]);
+unset($_SESSION['ot_upload_files'][$uniq_id][$file_path]);
+if (empty($_SESSION['ot_upload_files'][$uniq_id])) {
+    unset($_SESSION['ot_upload_files'][$uniq_id]);
+}
