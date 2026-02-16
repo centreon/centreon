@@ -10404,6 +10404,11 @@ msgstr "Maximale Überprüfungsversuche"
 msgid "Max file size in bytes"
 msgstr "Maximale Dateigröße in Bytes"
 
+#: centreon/www/include/options/media/images/formImg.php
+#, php-format
+msgid "Max file size: %s"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Max value"
 msgstr ""
