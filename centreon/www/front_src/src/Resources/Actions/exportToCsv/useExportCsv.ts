@@ -111,7 +111,6 @@ const useExportCsv = ({
       }
     ];
 
-
     const filtersParameters = {
       search: {
         ...(getSearch({
