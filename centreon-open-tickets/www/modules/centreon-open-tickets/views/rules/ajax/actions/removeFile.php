@@ -30,7 +30,7 @@ if (! isset($_SESSION['centreon'])) {
 $uniq_id = $get_information['uniqId'] ?? '';
 $filename = basename($get_information['filename'] ?? '');
 
-if (! preg_match('/^[a-f0-9]{13}(\.[0-9]{8})?$/', $uniq_id) || $filename === '') {
+if (! preg_match('/^[a-f0-9]{13}(\.[0-9]{8})?$/D', $uniq_id) || $filename === '') {
     $resultat = ['code' => 1, 'msg' => 'Invalid parameters.'];
 
     return;

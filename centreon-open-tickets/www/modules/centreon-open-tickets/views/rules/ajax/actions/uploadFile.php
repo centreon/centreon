@@ -28,7 +28,7 @@ if (! isset($_SESSION['centreon'])) {
 }
 
 $uniq_id = $_REQUEST['uniqId'] ?? '';
-if (! preg_match('/^[a-f0-9]{13}(\.[0-9]{8})?$/', $uniq_id)) {
+if (! preg_match('/^[a-f0-9]{13}(\.[0-9]{8})?$/D', $uniq_id)) {
     $resultat = ['code' => 1, 'msg' => 'Invalid uniqId format.'];
 
     return;
