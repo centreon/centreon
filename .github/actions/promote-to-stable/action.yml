@@ -40,7 +40,7 @@ runs:
             throw new Error('release_type input must be defined (release or hotfix)');
           }
 
-    - uses: jfrog/setup-jfrog-cli@e5d3afdd1d75e4aa14a4f217cca93a2a9b5b846d # v4.8.0
+    - uses: jfrog/setup-jfrog-cli@5b06f730cc5a6f55d78b30753f8583454b08c0aa # v4.8.1
       env:
         JF_URL: https://packages.centreon.com
         JF_ACCESS_TOKEN: ${{ inputs.artifactory_token }}
@@ -106,7 +106,7 @@ runs:
           fi
 
           # Upload previously downloaded candidates to TARGET_PATH
-          for ARTIFACT_DL in $(ls | grep ".rpm" || true); do
+          for ARTIFACT_DL in $(find . -maxdepth 1 -type f -name '*.rpm' -printf '%f\n'); do
             echo "[DEBUG] - Promoting (upload) $ARTIFACT_DL to stable $TARGET_PATH."
             jf rt upload "$ARTIFACT_DL" "$TARGET_PATH" --flat $DRY_RUN_FLAG
           done
@@ -188,7 +188,7 @@ runs:
           DRY_RUN_FLAG=""
         fi
 
-        for ARTIFACT_DL in $(ls | grep ".deb" || true); do
+        for ARTIFACT_DL in $(find . -maxdepth 1 -type f -name '*.deb' -printf '%f\n'); do
           ARCH=$(echo $ARTIFACT_DL | cut -d '_' -f3 | cut -d '.' -f1)
           if [[ "${{ inputs.major_version }}" < "25.05" ]]; then
             POOL_SUBPATH="${{ inputs.module_name }}"

@@ -128,6 +128,7 @@ const useListing = ({
     displayType,
     hostSeverities,
     id,
+    isOpenTicketEnabled,
     limit,
     page,
     playlistHash,

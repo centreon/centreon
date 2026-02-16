@@ -5,6 +5,8 @@ import 'dayjs/locale/es';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/pt';
 
+import { NoData } from '@centreon/ui';
+
 import localizedFormat from 'dayjs/plugin/localizedFormat';
 import timezonePlugin from 'dayjs/plugin/timezone';
 import utcPlugin from 'dayjs/plugin/utc';
@@ -81,7 +83,6 @@ const WrapperChart = ({
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
-
   const { adjustedData } = useChartData({ data, end, start });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -112,7 +113,7 @@ const WrapperChart = ({
   }
 
   if (!adjustedData) {
-    return <div />;
+    return <NoData />;
   }
 
   return (

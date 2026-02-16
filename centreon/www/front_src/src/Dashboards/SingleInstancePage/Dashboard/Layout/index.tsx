@@ -41,7 +41,11 @@ const DashboardPageLayout = (): JSX.Element => {
     const isEmptyLayout =
       equals(layout.length, 1) && equals(layout[0].i, addWidgetId);
 
-    if (isOneColumnDisplay || isEmptyLayout) {
+    if (
+      isOneColumnDisplay ||
+      isEmptyLayout ||
+      equals(dashboard.layout, layout)
+    ) {
       return;
     }
 
