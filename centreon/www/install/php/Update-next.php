@@ -364,7 +364,7 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
             );
         }
     } else {
-        CentreonLog::create()->warning(
+        CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: [acc] Parameters column retained in additional_connector_configuration table due to {$remainingCount} unmigrated records",
         );
