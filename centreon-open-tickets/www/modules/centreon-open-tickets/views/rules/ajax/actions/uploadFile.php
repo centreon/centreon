@@ -42,6 +42,8 @@ if (! is_dir($target_dir) && ! mkdir($target_dir, 0750) && ! is_dir($target_dir)
     return;
 }
 
+$real_target_dir = realpath($target_dir);
+
 foreach ($_FILES as $file) {
     $safe_filename = basename($file['name']);
     if (
@@ -58,7 +60,6 @@ foreach ($_FILES as $file) {
 
     $file_dst = $target_dir . '/' . $uniq_id . '__' . $safe_filename;
 
-    $real_target_dir = realpath($target_dir);
     $real_dst_dir = realpath(dirname($file_dst));
     if ($real_target_dir === false || $real_dst_dir === false || $real_dst_dir !== $real_target_dir) {
         $resultat = ['code' => 1, 'msg' => 'Invalid file path.'];
