@@ -36,7 +36,7 @@ export const useViewportIntersection = (
     return (): void => {
       observer.current?.disconnect();
     };
-  }, [element, options]);
+  }, [element, JSON.stringify(options)]);
 
   return {
     isInViewport: entry?.isIntersecting ?? true,
