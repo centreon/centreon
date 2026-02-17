@@ -35,32 +35,28 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
     global $pearDB;
 
     // Insert inclusions
-    if (isset($includeTab) && is_array($includeTab)) {
-        $str = '';
+    if (isset($includeTab) && is_array($includeTab) && count($includeTab) > 0) {
+        $includeStmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id)
+            VALUES (:tpId, :tpIncludeId)'
+        );
         foreach ($includeTab as $tpIncludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpIncludeId . "')";
-        }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id ) VALUES ' . $str;
-            $pearDB->query($query);
+            $includeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
+            $includeStmt->bindValue(':tpIncludeId', (int) $tpIncludeId, PDO::PARAM_INT);
+            $includeStmt->execute();
         }
     }
 
     // Insert exclusions
-    if (isset($excludeTab) && is_array($excludeTab)) {
-        $str = '';
+    if (isset($excludeTab) && is_array($excludeTab) && count($excludeTab) > 0) {
+        $excludeStmt = $pearDB->prepare(
+            'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id)
+            VALUES (:tpId, :tpExcludeId)'
+        );
         foreach ($excludeTab as $tpExcludeId) {
-            if ($str != '') {
-                $str .= ', ';
-            }
-            $str .= "('" . $tpId . "', '" . $tpExcludeId . "')";
-        }
-        if (strlen($str)) {
-            $query = 'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id ) VALUES ' . $str;
-            $pearDB->query($query);
+            $excludeStmt->bindValue(':tpId', (int) $tpId, PDO::PARAM_INT);
+            $excludeStmt->bindValue(':tpExcludeId', (int) $tpExcludeId, PDO::PARAM_INT);
+            $excludeStmt->execute();
         }
     }
 }
@@ -83,12 +79,11 @@ function testTPExistence($name = null)
     );
     $statement->execute();
     $tp = $statement->fetch(PDO::FETCH_ASSOC);
-    // Modif case
-    if ($statement->rowCount() >= 1 && $tp['tp_id'] == $id) {
+    if ($tp === false) {
         return true;
     }
 
-    return ! ($statement->rowCount() >= 1 && $tp['tp_id'] != $id);  // Duplicate entry
+    return $tp['tp_id'] == $id;
 }
 
 function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
@@ -99,10 +94,15 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         global $pearDB;
 
         $fields = [];
-        $dbResult = $pearDB->query("SELECT * FROM timeperiod WHERE tp_id = '" . $key . "' LIMIT 1");
+        $selectStmt = $pearDB->prepare('SELECT * FROM timeperiod WHERE tp_id = :tpId LIMIT 1');
+        $selectStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $dbResult = $selectStmt;
 
-        $query = "SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = '" . $key . "'";
-        $res = $pearDB->query($query);
+        $exceptionStmt = $pearDB->prepare('SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :tpId');
+        $exceptionStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $exceptionStmt->execute();
+        $res = $exceptionStmt;
         while ($row = $res->fetch()) {
             foreach ($row as $keyz => $valz) {
                 $fields[$keyz] = $valz;
@@ -200,9 +200,11 @@ function getTimeperiodIdByName($name)
     global $pearDB;
 
     $id = 0;
-    $res = $pearDB->query("SELECT tp_id FROM timeperiod WHERE tp_name = '" . $pearDB->escape($name) . "'");
-    if ($res->rowCount()) {
-        $row = $res->fetch();
+    $stmt = $pearDB->prepare('SELECT tp_id FROM timeperiod WHERE tp_name = :tpName');
+    $stmt->bindValue(':tpName', $name, PDO::PARAM_STR);
+    $stmt->execute();
+    if ($stmt->rowCount()) {
+        $row = $stmt->fetch();
         $id = $row['tp_id'];
     }
 
