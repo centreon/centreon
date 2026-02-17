@@ -178,7 +178,7 @@ abstract class AbstractService extends AbstractObject
         foreach ($serviceMacros as $serviceMacro) {
             // maybe the current service/template is a child of the current macro.
             // if so, we need to use its own macro value if it exists
-            $childMacro = $serviceMacro->getChild($service['service_id']; 
+            $childMacro = $serviceMacro->getChild($service['service_id']); 
             if (!is_null($childMacro)) {
                 $serviceMacro = $childMacro;
             }

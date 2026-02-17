@@ -307,7 +307,7 @@ abstract class AbstractHost extends AbstractObject
         foreach ($hostMacros as $hostMacro) {
             // maybe the current host/template is a child of the current macro.
             // if so, we need to use its own macro value if it exists
-            $childMacro = $hostMacro->getChild($host['host_id']; 
+            $childMacro = $hostMacro->getChild($host['host_id']); 
             if (!is_null($childMacro)) {
                 $hostMacro = $childMacro;
             }
