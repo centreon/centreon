@@ -38,12 +38,11 @@ function testServiceDependencyExistence($name = null)
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
     $statement->execute();
     $dep = $statement->fetch();
-    // Modif case
-    if ($statement->rowCount() >= 1 && $dep['dep_id'] == $id) {
+    if ($dep === false) {
         return true;
-    } // Duplicate entry
+    }
 
-    return ! ($statement->rowCount() >= 1 && $dep['dep_id'] != $id);
+    return $dep['dep_id'] == $id;
 }
 
 function testCycleH($childs = null)
@@ -69,15 +68,15 @@ function testCycleH($childs = null)
 function deleteServiceDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
+    $selectStatement = $pearDB->prepare('SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1');
+    $deleteStatement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     foreach ($dependencies as $key => $value) {
-        $statement = $pearDB->prepare('SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1');
-        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
+        $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectStatement->execute();
+        $row = $selectStatement->fetch();
 
-        $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
-        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
+        $deleteStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $deleteStatement->execute();
         $oreon->CentreonLogAction->insertLog('service dependency', $key, $row['dep_name'], 'd');
     }
 }
@@ -114,17 +113,16 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
                 $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
                 $insertStmt->execute();
-                $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
-                $maxId = $dbResult->fetch();
-                if (isset($maxId['MAX(dep_id)'])) {
+                $lastId = (int) $pearDB->lastInsertId();
+                if ($lastId > 0) {
                     $statement2 = $pearDB->prepare('SELECT * FROM dependency_hostChild_relation WHERE dependency_dep_id = :dep_id');
                     $statement2->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
                     $statement2->execute();
                     $fields['dep_hostPar'] = '';
-                    $query = 'INSERT INTO dependency_hostChild_relation VALUES (:dep_id, :host_host_id)';
+                    $query = 'INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id) VALUES (:dep_id, :host_host_id)';
                     $statement = $pearDB->prepare($query);
                     while ($host = $statement2->fetch()) {
-                        $statement->bindValue(':dep_id', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':dep_id', (int) $lastId, PDO::PARAM_INT);
                         $statement->bindValue(':host_host_id', (int) $host['host_host_id'], PDO::PARAM_INT);
                         $statement->execute();
                         $fields['dep_hostPar'] .= $host['host_host_id'] . ',';
@@ -135,11 +133,11 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                     $statement2->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
                     $statement2->execute();
                     $fields['dep_hSvPar'] = '';
-                    $query = 'INSERT INTO dependency_serviceParent_relation
+                    $query = 'INSERT INTO dependency_serviceParent_relation (dependency_dep_id, service_service_id, host_host_id)
                         VALUES (:dep_id, :service_service_id, :host_host_id)';
                     $statement = $pearDB->prepare($query);
                     while ($service = $statement2->fetch()) {
-                        $statement->bindValue(':dep_id', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':dep_id', (int) $lastId, PDO::PARAM_INT);
                         $statement->bindValue(
                             ':service_service_id',
                             (int) $service['service_service_id'],
@@ -154,11 +152,11 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                     $statement2->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
                     $statement2->execute();
                     $fields['dep_hSvChi'] = '';
-                    $query = 'INSERT INTO dependency_serviceChild_relation
+                    $query = 'INSERT INTO dependency_serviceChild_relation (dependency_dep_id, service_service_id, host_host_id)
                         VALUES (:dep_id, :service_service_id, :host_host_id)';
                     $statement = $pearDB->prepare($query);
                     while ($service = $statement2->fetch()) {
-                        $statement->bindValue(':dep_id', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':dep_id', (int) $lastId, PDO::PARAM_INT);
                         $statement->bindValue(
                             ':service_service_id',
                             (int) $service['service_service_id'],
@@ -171,7 +169,7 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                     $fields['dep_hSvChi'] = trim($fields['dep_hSvChi'], ',');
                     $oreon->CentreonLogAction->insertLog(
                         'service dependency',
-                        $maxId['MAX(dep_id)'],
+                        $lastId,
                         $dep_name,
                         'a',
                         $fields
@@ -240,19 +238,18 @@ function insertServiceDependency($ret = []): int
     $statement->bindValue(':depComment', $resourceValues['dep_comment'], PDO::PARAM_STR);
     $statement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
-    $depId = $dbResult->fetch();
+    $depId = (int) $pearDB->lastInsertId();
 
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         'service dependency',
-        $depId['MAX(dep_id)'],
+        $depId,
         $resourceValues['dep_name'],
         'a',
         $fields
     );
 
-    return (int) $depId['MAX(dep_id)'];
+    return $depId;
 }
 
 /**

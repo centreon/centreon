@@ -38,12 +38,11 @@ function testExistence($name = null)
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
     $statement->execute();
     $dep = $statement->fetch();
-    // Modif case
-    if ($statement->rowCount() >= 1 && $dep['dep_id'] == $id) {
+    if ($dep === false) {
         return true;
-    } // Duplicate entry
+    }
 
-    return ! ($statement->rowCount() >= 1 && $dep['dep_id'] != $id);
+    return $dep['dep_id'] == $id;
 }
 
 function testCycle($childs = null)
@@ -69,8 +68,8 @@ function testCycle($childs = null)
 function deleteMetaServiceDependencyInDB($dependencies = [])
 {
     global $pearDB;
+    $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     foreach ($dependencies as $key => $value) {
-        $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
     }
@@ -102,17 +101,16 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
                 $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
                 $insertStmt->execute();
-                $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
-                $maxId = $dbResult->fetch();
-                if (isset($maxId['MAX(dep_id)'])) {
+                $lastId = (int) $pearDB->lastInsertId();
+                if ($lastId > 0) {
                     $selectStatement = $pearDB->prepare('SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceParent_relation '
                         . 'WHERE dependency_dep_id = :dep_id');
                     $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
                     $selectStatement->execute();
-                    $statement = $pearDB->prepare('INSERT INTO dependency_metaserviceParent_relation '
+                    $statement = $pearDB->prepare('INSERT INTO dependency_metaserviceParent_relation (dependency_dep_id, meta_service_meta_id) '
                         . 'VALUES (:maxId, :metaId)');
                     while ($ms = $selectStatement->fetch()) {
-                        $statement->bindValue(':maxId', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':maxId', (int) $lastId, PDO::PARAM_INT);
                         $statement->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
                         $statement->execute();
                     }
@@ -121,10 +119,10 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
                         . 'WHERE dependency_dep_id = :dep_id');
                     $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
                     $selectStatement->execute();
-                    $childStatement = $pearDB->prepare('INSERT INTO dependency_metaserviceChild_relation '
+                    $childStatement = $pearDB->prepare('INSERT INTO dependency_metaserviceChild_relation (dependency_dep_id, meta_service_meta_id) '
                         . 'VALUES (:maxId, :metaId)');
                     while ($ms = $selectStatement->fetch()) {
-                        $childStatement->bindValue(':maxId', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
+                        $childStatement->bindValue(':maxId', (int) $lastId, PDO::PARAM_INT);
                         $childStatement->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
                         $childStatement->execute();
                     }
@@ -179,20 +177,19 @@ function insertMetaServiceDependency(): int
     $statement->bindValue(':depComment', $resourceValues['dep_comment'], PDO::PARAM_STR);
     $statement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
-    $depId = $dbResult->fetch();
+    $depId = (int) $pearDB->lastInsertId();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($resourceValues);
     $centreon->CentreonLogAction->insertLog(
         'metaservice dependency',
-        $depId['MAX(dep_id)'],
+        $depId,
         $resourceValues['dep_name'],
         'a',
         $fields
     );
 
-    return (int) $depId['MAX(dep_id)'];
+    return $depId;
 }
 
 /**
