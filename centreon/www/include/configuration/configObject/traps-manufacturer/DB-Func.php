@@ -59,40 +59,43 @@ function deleteMnftrInDB($mnftr = [])
 
 function multipleMnftrInDB($mnftr = [], $nbrDup = [])
 {
+    global $pearDB, $oreon;
+
+    $selectStmt = $pearDB->prepare(
+        'SELECT name, alias, description FROM traps_vendor WHERE id = :id LIMIT 1'
+    );
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO traps_vendor (name, alias, description)
+        VALUES (:name, :alias, :description)'
+    );
+
     foreach (array_keys($mnftr) as $key) {
-        global $pearDB, $oreon;
-        $statement = $pearDB->prepare('SELECT * FROM traps_vendor WHERE id = :id LIMIT 1');
-        $statement->bindValue(':id', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch();
+        $selectStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
-        $insertStmt = $pearDB->prepare(
-            'INSERT INTO traps_vendor (name, alias, description)
-            VALUES (:name, :alias, :description)'
-        );
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $name = $row['name'] . '_' . $i;
+            if (! testMnftrExistence($name)) {
+                continue;
+            }
             $fields = [];
             foreach ($row as $key2 => $value2) {
-                if ($key2 != 'id') {
-                    $fields[$key2] = $key2 == 'name' ? $name : $value2;
-                }
+                $fields[$key2] = $key2 === 'name' ? $name : $value2;
             }
-            if (testMnftrExistence($name)) {
-                $insertStmt->bindValue(':name', $name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':alias', $row['alias'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':description', $row['description'], PDO::PARAM_STR);
-                $insertStmt->execute();
-                $oreon->CentreonLogAction->insertLog(
-                    'manufacturer',
-                    $key,
-                    $name,
-                    'a',
-                    $fields
-                );
-            }
+            $insertStmt->bindValue(':name', $name, PDO::PARAM_STR);
+            $insertStmt->bindValue(':alias', $row['alias'], PDO::PARAM_STR);
+            $insertStmt->bindValue(':description', $row['description'], PDO::PARAM_STR);
+            $insertStmt->execute();
+            $oreon->CentreonLogAction->insertLog(
+                'manufacturer',
+                $key,
+                $name,
+                'a',
+                $fields
+            );
         }
     }
 }

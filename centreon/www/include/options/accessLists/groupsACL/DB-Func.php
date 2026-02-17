@@ -61,15 +61,12 @@ function testGroupExistence($name = null)
     );
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
     $statement->execute();
-    $dbResult = $statement;
-    $cg = $dbResult->fetch();
-    if ($dbResult->rowCount() >= 1 && $cg['acl_group_id'] == $id) {
+    $cg = $statement->fetch();
+    if ($cg === false) {
         return true;
     }
 
-    return ! ($dbResult->rowCount() >= 1 && $cg['acl_group_id'] != $id);
-    // Duplicate entry
-
+    return $cg['acl_group_id'] == $id;
 }
 
 /**
@@ -173,7 +170,10 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
-    $selectStmt = $pearDB->prepare('SELECT * FROM acl_groups WHERE acl_group_id = :aclGroupId LIMIT 1');
+    $selectStmt = $pearDB->prepare(
+        'SELECT acl_group_name, acl_group_alias, acl_group_activate, acl_group_changed
+        FROM acl_groups WHERE acl_group_id = :aclGroupId LIMIT 1'
+    );
     $insertStmt = $pearDB->prepare(
         'INSERT INTO acl_groups (acl_group_name, acl_group_alias, acl_group_activate, acl_group_changed)'
         . ' VALUES (:name, :alias, :activate, :changed)'
@@ -183,6 +183,9 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
         $selectStmt->bindValue(':aclGroupId', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
 
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $acl_group_name = $row['acl_group_name'] . '_' . $i;
