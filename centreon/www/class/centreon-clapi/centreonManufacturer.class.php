@@ -142,9 +142,12 @@ class CentreonManufacturer extends CentreonObject
             throw new CentreonClapiException(self::FILE_NOT_FOUND . ": " . $mibFile);
         }
         copy($mibFile, $tmpMibFile);
-        $centreonDir = realpath(__DIR__ . "/../../../");
-        passthru("export MIBS=ALL && $centreonDir/bin/snmpttconvertmib --in=$tmpMibFile --out=$tmpMibFile.conf");
-        passthru("$centreonDir/bin/centFillTrapDB -f $tmpMibFile.conf -m $vendorId");
+        $centreonDir = realpath(__DIR__ . '/../../../');
+        $escapedMibFile = escapeshellarg($tmpMibFile);
+        $escapedMibConfFile = escapeshellarg($tmpMibFile . '.conf');
+        $escapedVendorId = escapeshellarg((string) $vendorId);
+        passthru("export MIBS=ALL && {$centreonDir}/bin/snmpttconvertmib --in={$escapedMibFile} --out={$escapedMibConfFile}");
+        passthru("{$centreonDir}/bin/centFillTrapDB -f {$escapedMibConfFile} -m {$escapedVendorId}");
         unlink($tmpMibFile);
         if (file_exists($tmpMibFile . ".conf")) {
             unlink($tmpMibFile . ".conf");
