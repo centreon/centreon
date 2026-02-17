@@ -34,16 +34,16 @@ function testServiceDependencyExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $query = "SELECT dep_name, dep_id FROM dependency WHERE dep_name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $dep = $dbResult->fetch();
+    $statement = $pearDB->prepare("SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name");
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->execute();
+    $dep = $statement->fetch();
     // Modif case
-    if ($dbResult->rowCount() >= 1 && $dep['dep_id'] == $id) {
+    if ($statement->rowCount() >= 1 && $dep['dep_id'] == $id) {
         return true;
     } // Duplicate entry
 
-    return ! ($dbResult->rowCount() >= 1 && $dep['dep_id'] != $id);
+    return ! ($statement->rowCount() >= 1 && $dep['dep_id'] != $id);
 }
 
 function testCycleH($childs = null)
@@ -92,26 +92,28 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
         $row = $statement->fetch();
         $row['dep_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
+            $dep_name = $row['dep_name'] . '_' . $i;
+            $fields = [];
             foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'dep_name') {
-                    $dep_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val
-                    ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
                 if ($key2 != 'dep_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($dep_name)) {
-                    $fields['dep_name'] = $dep_name;
+                    $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
                 }
             }
-            if (isset($dep_name) && testServiceDependencyExistence($dep_name)) {
-                $rq = $val ? 'INSERT INTO dependency VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
+            if (testServiceDependencyExistence($dep_name)) {
+                $insertStmt = $pearDB->prepare(
+                    'INSERT INTO dependency
+                    (dep_name, dep_description, inherits_parent, execution_failure_criteria,
+                     notification_failure_criteria, dep_comment)
+                    VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
+                     :notification_failure_criteria, :dep_comment)'
+                );
+                $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
+                $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
+                $insertStmt->execute();
                 $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
                 $maxId = $dbResult->fetch();
                 if (isset($maxId['MAX(dep_id)'])) {
@@ -359,19 +361,22 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = [])
     if (! count($ret)) {
         $ret = $form->getSubmitValues();
     }
-    $rq = 'DELETE FROM dependency_serviceParent_relation ';
-    $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare('DELETE FROM dependency_serviceParent_relation WHERE dependency_dep_id = :dep_id');
+    $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+    $statement->execute();
     $ret1 = $ret['dep_hSvPar'] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hSvPar');
+    $statement = $pearDB->prepare(
+        'INSERT INTO dependency_serviceParent_relation (dependency_dep_id, service_service_id, host_host_id)
+        VALUES (:dep_id, :service_id, :host_id)'
+    );
     $counter = count($ret1);
     for ($i = 0; $i < $counter; $i++) {
         $exp = explode('-', $ret1[$i]);
         if (count($exp) == 2) {
-            $rq = 'INSERT INTO dependency_serviceParent_relation ';
-            $rq .= '(dependency_dep_id, service_service_id, host_host_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $dep_id . "', '" . $exp[1] . "', '" . $exp[0] . "')";
-            $dbResult = $pearDB->query($rq);
+            $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $exp[1], PDO::PARAM_INT);
+            $statement->bindValue(':host_id', (int) $exp[0], PDO::PARAM_INT);
+            $statement->execute();
         }
     }
 }
@@ -386,19 +391,22 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = [])
     if (! count($ret)) {
         $ret = $form->getSubmitValues();
     }
-    $rq = 'DELETE FROM dependency_serviceChild_relation ';
-    $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare('DELETE FROM dependency_serviceChild_relation WHERE dependency_dep_id = :dep_id');
+    $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+    $statement->execute();
     $ret1 = $ret['dep_hSvChi'] ?? CentreonUtils::mergeWithInitialValues($form, 'dep_hSvChi');
+    $statement = $pearDB->prepare(
+        'INSERT INTO dependency_serviceChild_relation (dependency_dep_id, service_service_id, host_host_id)
+        VALUES (:dep_id, :service_id, :host_id)'
+    );
     $counter = count($ret1);
     for ($i = 0; $i < $counter; $i++) {
         $exp = explode('-', $ret1[$i]);
         if (count($exp) == 2) {
-            $rq = 'INSERT INTO dependency_serviceChild_relation ';
-            $rq .= '(dependency_dep_id, service_service_id, host_host_id) ';
-            $rq .= 'VALUES ';
-            $rq .= "('" . $dep_id . "', '" . $exp[1] . "', '" . $exp[0] . "')";
-            $dbResult = $pearDB->query($rq);
+            $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+            $statement->bindValue(':service_id', (int) $exp[1], PDO::PARAM_INT);
+            $statement->bindValue(':host_id', (int) $exp[0], PDO::PARAM_INT);
+            $statement->execute();
         }
     }
 }
@@ -418,20 +426,22 @@ function updateServiceDependencyHostChildren($dep_id = null, $ret = [])
     if (! count($ret)) {
         $ret = $form->getSubmitValues();
     }
-    $rq = 'DELETE FROM dependency_hostChild_relation ';
-    $rq .= "WHERE dependency_dep_id = '" . $dep_id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare('DELETE FROM dependency_hostChild_relation WHERE dependency_dep_id = :dep_id');
+    $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+    $statement->execute();
     if (isset($ret['dep_hHostChi'])) {
         $ret1 = $ret['dep_hHostChi'];
     } else {
         $ret1 = CentreonUtils::mergeWithInitialValues($form, 'dep_hHostChi');
     }
+    $statement = $pearDB->prepare(
+        'INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
+        VALUES (:dep_id, :host_id)'
+    );
     $counter = count($ret1);
     for ($i = 0; $i < $counter; $i++) {
-        $rq = 'INSERT INTO dependency_hostChild_relation ';
-        $rq .= '(dependency_dep_id, host_host_id) ';
-        $rq .= 'VALUES ';
-        $rq .= "('" . $dep_id . "', '" . $ret1[$i] . "')";
-        $dbResult = $pearDB->query($rq);
+        $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
+        $statement->bindValue(':host_id', (int) $ret1[$i], PDO::PARAM_INT);
+        $statement->execute();
     }
 }
