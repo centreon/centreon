@@ -87,48 +87,49 @@ function deleteServiceDependencyInDB($dependencies = [])
 function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     global $pearDB, $oreon;
+    $selectStmt = $pearDB->prepare(
+        'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
+                notification_failure_criteria, dep_comment
+        FROM dependency WHERE dep_id = :dep_id LIMIT 1'
+    );
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO dependency
+        (dep_name, dep_description, inherits_parent, execution_failure_criteria,
+         notification_failure_criteria, dep_comment)
+        VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
+         :notification_failure_criteria, :dep_comment)'
+    );
+    $selectHostChildStmt = $pearDB->prepare(
+        'SELECT host_host_id FROM dependency_hostChild_relation WHERE dependency_dep_id = :dep_id'
+    );
+    $insertHostChildStmt = $pearDB->prepare(
+        'INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
+        VALUES (:depId, :hostId)'
+    );
+    $selectServiceParentStmt = $pearDB->prepare(
+        'SELECT service_service_id, host_host_id FROM dependency_serviceParent_relation
+        WHERE dependency_dep_id = :dep_id'
+    );
+    $insertServiceParentStmt = $pearDB->prepare(
+        'INSERT INTO dependency_serviceParent_relation (dependency_dep_id, service_service_id, host_host_id)
+        VALUES (:depId, :serviceId, :hostId)'
+    );
+    $selectServiceChildStmt = $pearDB->prepare(
+        'SELECT service_service_id, host_host_id FROM dependency_serviceChild_relation
+        WHERE dependency_dep_id = :dep_id'
+    );
+    $insertServiceChildStmt = $pearDB->prepare(
+        'INSERT INTO dependency_serviceChild_relation (dependency_dep_id, service_service_id, host_host_id)
+        VALUES (:depId, :serviceId, :hostId)'
+    );
+
     foreach (array_keys($dependencies) as $key) {
-        $statement = $pearDB->prepare(
-            'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                    notification_failure_criteria, dep_comment
-            FROM dependency WHERE dep_id = :dep_id LIMIT 1'
-        );
-        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
+        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
-        $insertStmt = $pearDB->prepare(
-            'INSERT INTO dependency
-            (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-             notification_failure_criteria, dep_comment)
-            VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-             :notification_failure_criteria, :dep_comment)'
-        );
-        $selectHostChildStmt = $pearDB->prepare(
-            'SELECT host_host_id FROM dependency_hostChild_relation WHERE dependency_dep_id = :dep_id'
-        );
-        $insertHostChildStmt = $pearDB->prepare(
-            'INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
-            VALUES (:depId, :hostId)'
-        );
-        $selectServiceParentStmt = $pearDB->prepare(
-            'SELECT service_service_id, host_host_id FROM dependency_serviceParent_relation
-            WHERE dependency_dep_id = :dep_id'
-        );
-        $insertServiceParentStmt = $pearDB->prepare(
-            'INSERT INTO dependency_serviceParent_relation (dependency_dep_id, service_service_id, host_host_id)
-            VALUES (:depId, :serviceId, :hostId)'
-        );
-        $selectServiceChildStmt = $pearDB->prepare(
-            'SELECT service_service_id, host_host_id FROM dependency_serviceChild_relation
-            WHERE dependency_dep_id = :dep_id'
-        );
-        $insertServiceChildStmt = $pearDB->prepare(
-            'INSERT INTO dependency_serviceChild_relation (dependency_dep_id, service_service_id, host_host_id)
-            VALUES (:depId, :serviceId, :hostId)'
-        );
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $dep_name = $row['dep_name'] . '_' . $i;
             $fields = [];

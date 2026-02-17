@@ -87,41 +87,42 @@ function deleteServiceGroupDependencyInDB($dependencies = [])
 function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
     global $pearDB, $oreon;
+    $selectStmt = $pearDB->prepare(
+        'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
+                notification_failure_criteria, dep_comment
+        FROM dependency WHERE dep_id = :dep_id LIMIT 1'
+    );
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO dependency
+        (dep_name, dep_description, inherits_parent, execution_failure_criteria,
+         notification_failure_criteria, dep_comment)
+        VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
+         :notification_failure_criteria, :dep_comment)'
+    );
+    $selectParentStmt = $pearDB->prepare(
+        'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupParent_relation '
+        . 'WHERE dependency_dep_id = :dep_id'
+    );
+    $insertParentStmt = $pearDB->prepare(
+        'INSERT INTO dependency_servicegroupParent_relation (dependency_dep_id, servicegroup_sg_id) '
+        . 'VALUES (:depId, :servicegroupId)'
+    );
+    $selectChildStmt = $pearDB->prepare(
+        'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupChild_relation '
+        . 'WHERE dependency_dep_id = :dep_id'
+    );
+    $insertChildStmt = $pearDB->prepare(
+        'INSERT INTO dependency_servicegroupChild_relation (dependency_dep_id, servicegroup_sg_id) '
+        . 'VALUES (:depId, :servicegroupId)'
+    );
+
     foreach (array_keys($dependencies) as $key) {
-        $statement = $pearDB->prepare(
-            'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                    notification_failure_criteria, dep_comment
-            FROM dependency WHERE dep_id = :dep_id LIMIT 1'
-        );
-        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-        $statement->execute();
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
+        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
-        $insertStmt = $pearDB->prepare(
-            'INSERT INTO dependency
-            (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-             notification_failure_criteria, dep_comment)
-            VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-             :notification_failure_criteria, :dep_comment)'
-        );
-        $selectParentStmt = $pearDB->prepare(
-            'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupParent_relation '
-            . 'WHERE dependency_dep_id = :dep_id'
-        );
-        $insertParentStmt = $pearDB->prepare(
-            'INSERT INTO dependency_servicegroupParent_relation (dependency_dep_id, servicegroup_sg_id) '
-            . 'VALUES (:depId, :servicegroupId)'
-        );
-        $selectChildStmt = $pearDB->prepare(
-            'SELECT DISTINCT servicegroup_sg_id FROM dependency_servicegroupChild_relation '
-            . 'WHERE dependency_dep_id = :dep_id'
-        );
-        $insertChildStmt = $pearDB->prepare(
-            'INSERT INTO dependency_servicegroupChild_relation (dependency_dep_id, servicegroup_sg_id) '
-            . 'VALUES (:depId, :servicegroupId)'
-        );
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $dep_name = $row['dep_name'] . '_' . $i;
             $fields = [];
