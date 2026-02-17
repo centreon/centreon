@@ -79,14 +79,17 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach (array_keys($dependencies) as $key) {
         global $pearDB;
-        $statement = $pearDB->prepare('SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1');
+        $statement = $pearDB->prepare(
+            'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
+                    notification_failure_criteria, dep_comment
+            FROM dependency WHERE dep_id = :dep_id LIMIT 1'
+        );
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
         if ($row === false) {
             continue;
         }
-        $row['dep_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $dep_name = $row['dep_name'] . '_' . $i;
             if (testExistence($dep_name)) {
