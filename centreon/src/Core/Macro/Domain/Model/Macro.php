@@ -42,6 +42,8 @@ class Macro
 
     private bool $shouldBeEncrypted = false;
 
+    private array $childrenList = [];
+
     /**
      * @param int $id|null
      * @param int $ownerId
@@ -112,6 +114,24 @@ class Macro
         return $this->description;
     }
 
+    public function getChild(int $childId)
+    {
+        if (isset($this->childrenList[$childId])) {
+            return $this->childrenList[$childId];
+        }
+
+        return null;
+    }
+
+    public function addChild(int $childId, $macro): self
+    {
+        if (!in_array($childId, $this->childrenList)) {
+            $this->childrenList[$childId] = $macro;
+        }
+
+        return $this;
+    }
+
     /**
      * @param string $description
      *
@@ -167,14 +187,17 @@ class Macro
 
         /** @var array<string,Macro> $inheritedMacros */
         $inheritedMacros = [];
-        foreach ($inheritanceLine as $parentId) {
-            foreach ($macros as $macro) {
-                if (
-                    ! isset($inheritedMacros[$macro->getName()])
-                    && $macro->getOwnerId() === $parentId
-                ) {
-                    $inheritedMacros[$macro->getName()] = $macro;
-                }
+        foreach ($macros as $macro) {
+            if (
+                ! isset($inheritedMacros[$macro->getName()])
+                && in_array($macro->getOwnerId(), $inheritanceLine)
+            ) {
+                $inheritedMacros[$macro->getName()] = $macro;
+            } elseif (
+                isset($inheritedMacros[$macro->getName()])
+                && in_array($macro->getOwnerId(), $inheritanceLine)
+            ) {
+                $inheritedMacros[$macro->getName()]->addChild($macro->getOwnerId(), $macro);
             }
         }
 
