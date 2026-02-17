@@ -767,23 +767,42 @@ function updateODSConfigData()
         $ret['audit_log_retention'] = 0;
     }
 
-    $rq = "UPDATE `config` SET `RRDdatabase_path` = '" . $ret['RRDdatabase_path'] . "',
-        `RRDdatabase_status_path` = '" . $ret['RRDdatabase_status_path'] . "',
-        `RRDdatabase_nagios_stats_path` = '" . $ret['RRDdatabase_nagios_stats_path'] . "',
-        `len_storage_rrd` = '" . $ret['len_storage_rrd'] . "',
-        `len_storage_mysql` = '" . $ret['len_storage_mysql'] . "',
-        `autodelete_rrd_db` = '" . $ret['autodelete_rrd_db'] . "',
-        `purge_interval` = '" . $ret['purge_interval'] . "',
-        `archive_log` = '" . $ret['archive_log'] . "',
-        `archive_retention` = '" . $ret['archive_retention'] . "',
-        `reporting_retention` = '" . $ret['reporting_retention'] . "',
-        `audit_log_option` = '" . $ret['audit_log_option'] . "',
-        `storage_type` = " . ($ret['storage_type'] ?? 'NULL') . ",
-        `len_storage_downtimes` = '" . $ret['len_storage_downtimes'] . "',
-        `audit_log_retention` = '" . $ret['audit_log_retention'] . "',
-        `len_storage_comments` = '" . $ret['len_storage_comments'] . "' "
-        . ' WHERE `id` = 1 LIMIT 1 ;';
-    $DBRESULT = $pearDBO->query($rq);
+    $statement = $pearDBO->prepare(
+        'UPDATE `config` SET
+        `RRDdatabase_path` = :rrdPath,
+        `RRDdatabase_status_path` = :rrdStatusPath,
+        `RRDdatabase_nagios_stats_path` = :rrdStatsPath,
+        `len_storage_rrd` = :lenRrd,
+        `len_storage_mysql` = :lenMysql,
+        `autodelete_rrd_db` = :autodeleteRrd,
+        `purge_interval` = :purgeInterval,
+        `archive_log` = :archiveLog,
+        `archive_retention` = :archiveRetention,
+        `reporting_retention` = :reportingRetention,
+        `audit_log_option` = :auditLogOption,
+        `storage_type` = :storageType,
+        `len_storage_downtimes` = :lenDowntimes,
+        `audit_log_retention` = :auditLogRetention,
+        `len_storage_comments` = :lenComments
+        WHERE `id` = 1 LIMIT 1'
+    );
+    $statement->bindValue(':rrdPath', $ret['RRDdatabase_path'], PDO::PARAM_STR);
+    $statement->bindValue(':rrdStatusPath', $ret['RRDdatabase_status_path'], PDO::PARAM_STR);
+    $statement->bindValue(':rrdStatsPath', $ret['RRDdatabase_nagios_stats_path'], PDO::PARAM_STR);
+    $statement->bindValue(':lenRrd', (int) $ret['len_storage_rrd'], PDO::PARAM_INT);
+    $statement->bindValue(':lenMysql', (int) $ret['len_storage_mysql'], PDO::PARAM_INT);
+    $statement->bindValue(':autodeleteRrd', (int) $ret['autodelete_rrd_db'], PDO::PARAM_INT);
+    $statement->bindValue(':purgeInterval', (int) $ret['purge_interval'], PDO::PARAM_INT);
+    $statement->bindValue(':archiveLog', $ret['archive_log'], PDO::PARAM_STR);
+    $statement->bindValue(':archiveRetention', (int) $ret['archive_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':reportingRetention', (int) $ret['reporting_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':auditLogOption', $ret['audit_log_option'], PDO::PARAM_STR);
+    $storageType = $ret['storage_type'] ?? null;
+    $statement->bindValue(':storageType', $storageType !== null ? (int) $storageType : null, $storageType !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+    $statement->bindValue(':lenDowntimes', (int) $ret['len_storage_downtimes'], PDO::PARAM_INT);
+    $statement->bindValue(':auditLogRetention', (int) $ret['audit_log_retention'], PDO::PARAM_INT);
+    $statement->bindValue(':lenComments', (int) $ret['len_storage_comments'], PDO::PARAM_INT);
+    $statement->execute();
 
     updateOption(
         $pearDB,
