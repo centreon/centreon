@@ -32,7 +32,7 @@ const commandsDecoder = JsonDecoder.object<CommandsListItem>(
     hostsCount: 'used_hosts_count',
     hostTemplatesCount: 'used_host_templates_count',
     isActivated: 'is_activated',
-    isFromMonitoringConnectors: 'is_from_monitoring_connectors',
+    isFromMonitoringConnectors: 'is_from_monitoring_connector',
     servicesCount: 'used_services_count',
     serviceTemplatesCount: 'used_service_templates_count'
   }
