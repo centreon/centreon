@@ -95,7 +95,7 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         );
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
-        $row = $statement->fetch();
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
@@ -158,6 +158,7 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
                         $insertChildStmt->execute();
                         $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
                     }
+                    $selectChildStmt->closeCursor();
                     $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
                     $oreon->CentreonLogAction->insertLog(
                         'servicegroup dependency',
@@ -166,7 +167,6 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
                         'a',
                         $fields
                     );
-                    $selectChildStmt->closeCursor();
                 }
             }
         }

@@ -95,7 +95,7 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
         );
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
-        $row = $statement->fetch();
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
