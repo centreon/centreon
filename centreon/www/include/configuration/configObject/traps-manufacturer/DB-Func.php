@@ -27,60 +27,67 @@ function testMnftrExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('id');
     }
-    $query = "SELECT name, id FROM traps_vendor WHERE name = '" . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'";
-    $dbResult = $pearDB->query($query);
-    $mnftr = $dbResult->fetch();
-    // Modif case
-    if ($dbResult->rowCount() >= 1 && $mnftr['id'] == $id) {
+    $statement = $pearDB->prepare('SELECT name, id FROM traps_vendor WHERE name = :name');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->execute();
+    $mnftr = $statement->fetch();
+    if ($mnftr === false) {
         return true;
-    } // Duplicate entry
+    }
 
-    return ! ($dbResult->rowCount() >= 1 && $mnftr['id'] != $id);
+    return $mnftr['id'] == $id;
 }
 
 function deleteMnftrInDB($mnftr = [])
 {
     global $pearDB, $oreon;
-    foreach ($mnftr as $key => $value) {
-        $dbResult2 = $pearDB->query("SELECT name FROM `traps_vendor` WHERE `id` = '" . $key . "' LIMIT 1");
-        $row = $dbResult2->fetch();
+    $selectStatement = $pearDB->prepare('SELECT name FROM `traps_vendor` WHERE `id` = :id LIMIT 1');
+    $deleteStatement = $pearDB->prepare('DELETE FROM traps_vendor WHERE id = :id');
+    foreach (array_keys($mnftr) as $key) {
+        $selectStatement->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $selectStatement->execute();
+        $row = $selectStatement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
-        $pearDB->query("DELETE FROM traps_vendor WHERE id = '" . htmlentities($key, ENT_QUOTES, 'UTF-8') . "'");
+        $deleteStatement->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $deleteStatement->execute();
         $oreon->CentreonLogAction->insertLog('manufacturer', $key, $row['name'], 'd');
     }
 }
 
 function multipleMnftrInDB($mnftr = [], $nbrDup = [])
 {
-    foreach ($mnftr as $key => $value) {
+    foreach (array_keys($mnftr) as $key) {
         global $pearDB, $oreon;
-        $query = "SELECT * FROM traps_vendor WHERE id = '" . htmlentities($key, ENT_QUOTES, 'UTF-8') . "' LIMIT 1";
-        $dbResult = $pearDB->query($query);
-        $row = $dbResult->fetch();
-        $row['id'] = null;
+        $statement = $pearDB->prepare('SELECT * FROM traps_vendor WHERE id = :id LIMIT 1');
+        $statement->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $statement->execute();
+        $row = $statement->fetch();
+        if ($row === false) {
+            continue;
+        }
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO traps_vendor (name, alias, description)
+            VALUES (:name, :alias, :description)'
+        );
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
+            $name = $row['name'] . '_' . $i;
+            $fields = [];
             foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $name = '';
-                if ($key2 == 'name') {
-                    $name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val
-                    ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
                 if ($key2 != 'id') {
-                    $fields[$key2] = $value2;
+                    $fields[$key2] = $key2 == 'name' ? $name : $value2;
                 }
-                $fields['name'] = $name;
             }
             if (testMnftrExistence($name)) {
-                $rq = $val ? 'INSERT INTO traps_vendor VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
+                $insertStmt->bindValue(':name', $name, PDO::PARAM_STR);
+                $insertStmt->bindValue(':alias', $row['alias'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':description', $row['description'], PDO::PARAM_STR);
+                $insertStmt->execute();
                 $oreon->CentreonLogAction->insertLog(
                     'manufacturer',
-                    htmlentities($key, ENT_QUOTES, 'UTF-8'),
+                    $key,
                     $name,
                     'a',
                     $fields
@@ -108,12 +115,14 @@ function updateMnftr($id = null)
 
     $ret = [];
     $ret = $form->getSubmitValues();
-    $rq = 'UPDATE traps_vendor ';
-    $rq .= "SET name = '" . htmlentities($ret['name'], ENT_QUOTES, 'UTF-8') . "', ";
-    $rq .= "alias = '" . htmlentities($ret['alias'], ENT_QUOTES, 'UTF-8') . "', ";
-    $rq .= "description = '" . htmlentities($ret['description'], ENT_QUOTES, 'UTF-8') . "' ";
-    $rq .= "WHERE id = '" . $id . "'";
-    $dbResult = $pearDB->query($rq);
+    $statement = $pearDB->prepare(
+        'UPDATE traps_vendor SET name = :name, alias = :alias, description = :description WHERE id = :id'
+    );
+    $statement->bindValue(':name', $ret['name'], PDO::PARAM_STR);
+    $statement->bindValue(':alias', $ret['alias'], PDO::PARAM_STR);
+    $statement->bindValue(':description', $ret['description'], PDO::PARAM_STR);
+    $statement->bindValue(':id', (int) $id, PDO::PARAM_INT);
+    $statement->execute();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -133,19 +142,18 @@ function insertMnftr($ret = [])
         $ret = $form->getSubmitValues();
     }
 
-    $rq = 'INSERT INTO traps_vendor ';
-    $rq .= '(name, alias, description) ';
-    $rq .= 'VALUES ';
-    $rq .= "('" . htmlentities($ret['name'], ENT_QUOTES, 'UTF-8') . "', ";
-    $rq .= "'" . htmlentities($ret['alias'], ENT_QUOTES, 'UTF-8') . "', ";
-    $rq .= "'" . htmlentities($ret['description'], ENT_QUOTES, 'UTF-8') . "')";
-    $dbResult = $pearDB->query($rq);
-    $dbResult = $pearDB->query('SELECT MAX(id) FROM traps_vendor');
-    $mnftr_id = $dbResult->fetch();
+    $statement = $pearDB->prepare(
+        'INSERT INTO traps_vendor (name, alias, description) VALUES (:name, :alias, :description)'
+    );
+    $statement->bindValue(':name', $ret['name'], PDO::PARAM_STR);
+    $statement->bindValue(':alias', $ret['alias'], PDO::PARAM_STR);
+    $statement->bindValue(':description', $ret['description'], PDO::PARAM_STR);
+    $statement->execute();
+    $mnftrId = (int) $pearDB->lastInsertId();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
-    $oreon->CentreonLogAction->insertLog('manufacturer', $mnftr_id['MAX(id)'], $fields['name'], 'a', $fields);
+    $oreon->CentreonLogAction->insertLog('manufacturer', $mnftrId, $fields['name'], 'a', $fields);
 
-    return $mnftr_id['MAX(id)'];
+    return $mnftrId;
 }
