@@ -28,11 +28,12 @@
 function getCentreonBrokerDirCfg($ns_id)
 {
     global $pearDB;
-    $query = 'SELECT centreonbroker_cfg_path
+    $statement = $pearDB->prepare('SELECT centreonbroker_cfg_path
 	    	FROM nagios_server
-	    	WHERE id = ' . $ns_id;
-    $res = $pearDB->query($query);
-    $row = $res->fetch();
+	    	WHERE id = :ns_id');
+    $statement->bindValue(':ns_id', (int) $ns_id, PDO::PARAM_INT);
+    $statement->execute();
+    $row = $statement->fetch();
     if (trim($row['centreonbroker_cfg_path']) != '') {
         return trim($row['centreonbroker_cfg_path']);
     }
