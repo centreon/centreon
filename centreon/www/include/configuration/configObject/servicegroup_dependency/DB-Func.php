@@ -34,7 +34,7 @@ function testServiceGroupDependencyExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $statement = $pearDB->prepare("SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name");
+    $statement = $pearDB->prepare('SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name');
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
     $statement->execute();
     $dep = $statement->fetch();
@@ -70,12 +70,12 @@ function deleteServiceGroupDependencyInDB($dependencies = [])
 {
     global $pearDB, $oreon;
     foreach ($dependencies as $key => $value) {
-        $statement = $pearDB->prepare("SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1");
+        $statement = $pearDB->prepare('SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1');
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
 
-        $statement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
+        $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
         $oreon->CentreonLogAction->insertLog('servicegroup dependency', $key, $row['dep_name'], 'd');
@@ -86,7 +86,7 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB, $oreon;
-        $statement = $pearDB->prepare("SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1");
+        $statement = $pearDB->prepare('SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1');
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();

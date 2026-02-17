@@ -34,7 +34,7 @@ function testExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $statement = $pearDB->prepare("SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name");
+    $statement = $pearDB->prepare('SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name');
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
     $statement->execute();
     $dep = $statement->fetch();
@@ -70,7 +70,7 @@ function deleteMetaServiceDependencyInDB($dependencies = [])
 {
     global $pearDB;
     foreach ($dependencies as $key => $value) {
-        $statement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
+        $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
     }
@@ -80,7 +80,7 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB;
-        $statement = $pearDB->prepare("SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1");
+        $statement = $pearDB->prepare('SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1');
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
