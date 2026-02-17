@@ -28,16 +28,15 @@ function testExistence($name = null)
         $id = $form->getSubmitValue('nagios_id');
     }
 
-    $dbResult = $pearDB->query(
-        "SELECT nagios_name, nagios_id FROM cfg_nagios WHERE nagios_name = '"
-        . htmlentities($name, ENT_QUOTES, 'UTF-8') . "'"
-    );
-    $nagios = $dbResult->fetch();
-    if ($dbResult->rowCount() >= 1 && $nagios['nagios_id'] == $id) {
+    $statement = $pearDB->prepare('SELECT nagios_name, nagios_id FROM cfg_nagios WHERE nagios_name = :name');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->execute();
+    $nagios = $statement->fetch();
+    if ($nagios === false) {
         return true;
     }
 
-    return ! ($dbResult->rowCount() >= 1 && $nagios['nagios_id'] != $id);
+    return $nagios['nagios_id'] == $id;
 }
 
 /**
@@ -51,10 +50,10 @@ function enableNagiosInDB($nagiosId = null)
         return;
     }
 
-    $dbResult = $pearDB->query(
-        "SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = '" . $nagiosId . "'"
-    );
-    $data = $dbResult->fetch();
+    $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = :nagios_id');
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
+    $data = $statement->fetch();
 
     $statement = $pearDB->prepare(
         "UPDATE `cfg_nagios`
@@ -64,9 +63,9 @@ function enableNagiosInDB($nagiosId = null)
     $statement->bindValue(':nagios_server_id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
     $statement->execute();
 
-    $pearDB->query(
-        "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = '" . $nagiosId . "'"
-    );
+    $statement = $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id");
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
 
     $query = "SELECT `id`, `name` FROM nagios_server WHERE `ns_activate` = '0' AND `id` = :id";
     $statement = $pearDB->prepare($query);
@@ -94,14 +93,14 @@ function disableNagiosInDB($nagiosId = null)
         return;
     }
 
-    $dbResult = $pearDB->query(
-        "SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = '" . $nagiosId . "'"
-    );
-    $data = $dbResult->fetch();
+    $statement = $pearDB->prepare('SELECT `nagios_server_id` FROM cfg_nagios WHERE nagios_id = :nagios_id');
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
+    $data = $statement->fetch();
 
-    $pearDB->query(
-        "UPDATE cfg_nagios SET nagios_activate = '0' WHERE `nagios_id` = '" . $nagiosId . "'"
-    );
+    $statement = $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '0' WHERE `nagios_id` = :nagios_id");
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
+    $statement->execute();
 
     $query = "SELECT `nagios_id` FROM cfg_nagios WHERE `nagios_activate` = '1' "
              . 'AND `nagios_server_id` = :nagios_server_id';
@@ -130,13 +129,13 @@ function deleteNagiosInDB($nagios = [])
 {
     global $pearDB;
 
-    foreach ($nagios as $key => $value) {
-        $pearDB->query(
-            "DELETE FROM cfg_nagios WHERE nagios_id = '" . $key . "'"
-        );
-        $pearDB->query(
-            "DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = '" . $key . "'"
-        );
+    $deleteNagios = $pearDB->prepare('DELETE FROM cfg_nagios WHERE nagios_id = :nagios_id');
+    $deleteBroker = $pearDB->prepare('DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagios_id');
+    foreach (array_keys($nagios) as $key) {
+        $deleteNagios->bindValue(':nagios_id', (int) $key, PDO::PARAM_INT);
+        $deleteNagios->execute();
+        $deleteBroker->bindValue(':nagios_id', (int) $key, PDO::PARAM_INT);
+        $deleteBroker->execute();
     }
     $dbResult = $pearDB->query(
         "SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1'"
@@ -641,8 +640,9 @@ function updateNagios($nagiosId = null)
     $queryPieces = array_map(fn ($columnName) => "`{$columnName}` = :{$columnName}", array_keys($nagiosCfg));
 
     $statement = $pearDB->prepare(
-        'UPDATE cfg_nagios SET ' . implode(', ', $queryPieces) . " WHERE nagios_id = {$nagiosId}"
+        'UPDATE cfg_nagios SET ' . implode(', ', $queryPieces) . ' WHERE nagios_id = :nagios_id'
     );
+    $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
 
     array_walk(
         $nagiosCfg,
