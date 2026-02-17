@@ -70,7 +70,9 @@ function deleteMetaServiceDependencyInDB($dependencies = [])
 {
     global $pearDB;
     foreach ($dependencies as $key => $value) {
-        $dbResult = $pearDB->query("DELETE FROM dependency WHERE dep_id = '" . $key . "'");
+        $statement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
+        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $statement->execute();
     }
 }
 
@@ -78,8 +80,10 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     foreach ($dependencies as $key => $value) {
         global $pearDB;
-        $dbResult = $pearDB->query("SELECT * FROM dependency WHERE dep_id = '" . $key . "' LIMIT 1");
-        $row = $dbResult->fetch();
+        $statement = $pearDB->prepare("SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1");
+        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $statement->execute();
+        $row = $statement->fetch();
         $row['dep_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $val = null;
@@ -99,28 +103,30 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 $dbResult = $pearDB->query('SELECT MAX(dep_id) FROM dependency');
                 $maxId = $dbResult->fetch();
                 if (isset($maxId['MAX(dep_id)'])) {
-                    $query = 'SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceParent_relation '
-                        . "WHERE dependency_dep_id = '" . $key . "'";
-                    $dbResult = $pearDB->query($query);
+                    $selectStatement = $pearDB->prepare('SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceParent_relation '
+                        . 'WHERE dependency_dep_id = :dep_id');
+                    $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectStatement->execute();
                     $statement = $pearDB->prepare('INSERT INTO dependency_metaserviceParent_relation '
                         . 'VALUES (:maxId, :metaId)');
-                    while ($ms = $dbResult->fetch()) {
+                    while ($ms = $selectStatement->fetch()) {
                         $statement->bindValue(':maxId', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
                         $statement->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
                         $statement->execute();
                     }
-                    $dbResult->closeCursor();
-                    $query = 'SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceChild_relation '
-                        . "WHERE dependency_dep_id = '" . $key . "'";
-                    $dbResult = $pearDB->query($query);
+                    $selectStatement->closeCursor();
+                    $selectStatement = $pearDB->prepare('SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceChild_relation '
+                        . 'WHERE dependency_dep_id = :dep_id');
+                    $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectStatement->execute();
                     $childStatement = $pearDB->prepare('INSERT INTO dependency_metaserviceChild_relation '
                         . 'VALUES (:maxId, :metaId)');
-                    while ($ms = $dbResult->fetch()) {
+                    while ($ms = $selectStatement->fetch()) {
                         $childStatement->bindValue(':maxId', (int) $maxId['MAX(dep_id)'], PDO::PARAM_INT);
                         $childStatement->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
                         $childStatement->execute();
                     }
-                    $dbResult->closeCursor();
+                    $selectStatement->closeCursor();
                 }
             }
         }
