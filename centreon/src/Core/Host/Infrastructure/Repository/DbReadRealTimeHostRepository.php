@@ -83,7 +83,17 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
                 AND hosts.enabled = 1
                 AND hosts.name NOT LIKE "_Module_%"
             SQL;
-        $request .= $this->getStatesCondition($requestParameters);
+        try {
+            $request .= $this->getStatesCondition($requestParameters);
+        } catch (\JsonException $exception) {
+            throw new RepositoryException(
+                'An error occurred while translating state parameters to sql',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
 
         $request .= ' GROUP BY hosts.id, hosts.name, hosts.status ';
 
@@ -159,7 +169,17 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
         }
         $request .= $search !== null ? ' AND ' : ' WHERE ';
         $request .= "hosts.type = 1 AND hosts.enabled = 1 AND acls.group_id IN ({$bindQuery})";
-        $request .= $this->getStatesCondition($requestParameters);
+        try {
+            $request .= $this->getStatesCondition($requestParameters);
+        } catch (\JsonException $exception) {
+            throw new RepositoryException(
+                'An error occurred while translating state parameters to sql',
+                [
+                    'requestParameters' => $requestParameters->toArray(),
+                ],
+                $exception,
+            );
+        }
         $request .= ' GROUP BY hosts.id, hosts.name, hosts.status ';
 
         $sort = $sqlTranslator->translateSortParameterToSql();
@@ -331,12 +351,16 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
 
     /**
      * @param RequestParametersInterface $requestParameters
-     *
+     * @throws \JsonException
      * @return string
      */
     private function getStatesCondition(RequestParametersInterface $requestParameters): string
     {
-        $states = json_decode($requestParameters->getExtraParameter('states') ?? '', true);
+        $states = json_decode(
+            json: $requestParameters->getExtraParameter('states') ?? '',
+            associative: true,
+            flags: JSON_THROW_ON_ERROR,
+        );
         $stateConditions = [];
         if (is_array($states) && $states !== []) {
             $sqlStateCatalog = [
