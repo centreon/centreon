@@ -69,7 +69,7 @@ function deleteMetaServiceDependencyInDB($dependencies = [])
 {
     global $pearDB;
     $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
-    foreach ($dependencies as $key => $value) {
+    foreach (array_keys($dependencies) as $key) {
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
     }
@@ -77,12 +77,15 @@ function deleteMetaServiceDependencyInDB($dependencies = [])
 
 function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
-    foreach ($dependencies as $key => $value) {
+    foreach (array_keys($dependencies) as $key) {
         global $pearDB;
         $statement = $pearDB->prepare('SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1');
         $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
+        if ($row === false) {
+            continue;
+        }
         $row['dep_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $dep_name = $row['dep_name'] . '_' . $i;
