@@ -77,8 +77,8 @@ function deleteMetaServiceDependencyInDB($dependencies = [])
 
 function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
+    global $pearDB;
     foreach (array_keys($dependencies) as $key) {
-        global $pearDB;
         $statement = $pearDB->prepare(
             'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
                     notification_failure_criteria, dep_comment
@@ -90,16 +90,32 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO dependency
+            (dep_name, dep_description, inherits_parent, execution_failure_criteria,
+             notification_failure_criteria, dep_comment)
+            VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
+             :notification_failure_criteria, :dep_comment)'
+        );
+        $selectParentStmt = $pearDB->prepare(
+            'SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceParent_relation '
+            . 'WHERE dependency_dep_id = :dep_id'
+        );
+        $insertParentStmt = $pearDB->prepare(
+            'INSERT INTO dependency_metaserviceParent_relation (dependency_dep_id, meta_service_meta_id) '
+            . 'VALUES (:depId, :metaId)'
+        );
+        $selectChildStmt = $pearDB->prepare(
+            'SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceChild_relation '
+            . 'WHERE dependency_dep_id = :dep_id'
+        );
+        $insertChildStmt = $pearDB->prepare(
+            'INSERT INTO dependency_metaserviceChild_relation (dependency_dep_id, meta_service_meta_id) '
+            . 'VALUES (:depId, :metaId)'
+        );
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $dep_name = $row['dep_name'] . '_' . $i;
             if (testExistence($dep_name)) {
-                $insertStmt = $pearDB->prepare(
-                    'INSERT INTO dependency
-                    (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                     notification_failure_criteria, dep_comment)
-                    VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-                     :notification_failure_criteria, :dep_comment)'
-                );
                 $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
                 $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
                 $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
@@ -109,30 +125,22 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 $insertStmt->execute();
                 $lastId = (int) $pearDB->lastInsertId();
                 if ($lastId > 0) {
-                    $selectStatement = $pearDB->prepare('SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceParent_relation '
-                        . 'WHERE dependency_dep_id = :dep_id');
-                    $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectStatement->execute();
-                    $statement = $pearDB->prepare('INSERT INTO dependency_metaserviceParent_relation (dependency_dep_id, meta_service_meta_id) '
-                        . 'VALUES (:maxId, :metaId)');
-                    while ($ms = $selectStatement->fetch()) {
-                        $statement->bindValue(':maxId', (int) $lastId, PDO::PARAM_INT);
-                        $statement->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $statement->execute();
+                    $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectParentStmt->execute();
+                    while ($ms = $selectParentStmt->fetch()) {
+                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                        $insertParentStmt->execute();
                     }
-                    $selectStatement->closeCursor();
-                    $selectStatement = $pearDB->prepare('SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceChild_relation '
-                        . 'WHERE dependency_dep_id = :dep_id');
-                    $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectStatement->execute();
-                    $childStatement = $pearDB->prepare('INSERT INTO dependency_metaserviceChild_relation (dependency_dep_id, meta_service_meta_id) '
-                        . 'VALUES (:maxId, :metaId)');
-                    while ($ms = $selectStatement->fetch()) {
-                        $childStatement->bindValue(':maxId', (int) $lastId, PDO::PARAM_INT);
-                        $childStatement->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $childStatement->execute();
+                    $selectParentStmt->closeCursor();
+                    $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectChildStmt->execute();
+                    while ($ms = $selectChildStmt->fetch()) {
+                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                        $insertChildStmt->execute();
                     }
-                    $selectStatement->closeCursor();
+                    $selectChildStmt->closeCursor();
                 }
             }
         }
