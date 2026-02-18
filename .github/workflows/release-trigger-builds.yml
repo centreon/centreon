@@ -384,12 +384,12 @@ jobs:
               exit 0
             else
               for COMPONENT in "${COMPONENTS_OSS_CHANGED[@]}"; do
-                echo "Dispatching trigger to $COMPONENT workflow."
                 # Handle special case of component web that has a directory named centreon
                 # but workflow is named web
                 if [[ "$COMPONENT" == "centreon" ]]; then
                   COMPONENT="web"
                 fi
+                echo "Dispatching trigger to $COMPONENT workflow."
                 # gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
               done
             fi
