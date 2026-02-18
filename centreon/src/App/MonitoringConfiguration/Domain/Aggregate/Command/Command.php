@@ -54,11 +54,6 @@ final class Command extends AggregateRoot
         $this->name = $name;
     }
 
-    public function updateType(CommandTypeEnum $type): void
-    {
-        $this->type = $type;
-    }
-
     public function updateCommandLine(CommandLine $commandLine): void
     {
         $this->commandLine = $commandLine;
