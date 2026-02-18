@@ -19,18 +19,21 @@ export interface Parameter {
 
 export interface AdditionalConnectorListItem extends NamedEntity {
   createdAt: string;
-  createdBy: NamedEntity;
+  createdBy?: NamedEntity;
   description: string | null;
   name: string;
   type: string;
   updatedAt: string | null;
-  updatedBy: NamedEntity | null;
+  updatedBy?: NamedEntity | null;
 }
 
 export interface AdditionalConnectorConfiguration {
   description: null | string;
   name: string;
-  parameters: { port: number; vcenters: Array<Parameter> };
+  parameters: {
+    port: number;
+    vcenters: Array<Parameter & { id: number | null }>;
+  };
   pollers: Array<NamedEntity>;
   type: number;
 }

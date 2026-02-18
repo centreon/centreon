@@ -18,6 +18,7 @@ export interface AxisYRight extends Axis {
 
 export interface AxisX {
   xAxisTickFormat?: string;
+  dx?: number;
 }
 export interface Data
   extends Omit<ChartAxis, 'axisX' | 'axisYLeft' | 'axisYRight'> {

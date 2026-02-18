@@ -38,8 +38,8 @@ const useZoomPreview = ({
 }: Props): ZoomPreview => {
   const [zoomBoundaries, setZoomBoundaries] = useState<Boundaries | null>(null);
   const [isApplyingZoom, setApplyingZoom] = useAtom(applyingZoomAtomAtom);
+  const [eventMouseUp, setEventMouseUp] = useAtom(eventMouseUpAtom);
   const eventMouseDown = useAtomValue(eventMouseDownAtom);
-  const eventMouseUp = useAtomValue(eventMouseUpAtom);
   const mousePosition = useAtomValue(mousePositionAtom);
 
   const mousePointDown =
@@ -60,6 +60,7 @@ const useZoomPreview = ({
       end: xScale?.invert(zoomBoundaries?.end || graphWidth),
       start: xScale?.invert(zoomBoundaries?.start || 0)
     });
+    setEventMouseUp(null);
   }, [xScale, zoomBoundaries, graphWidth, getInterval]);
 
   useEffect(() => {
@@ -103,6 +104,7 @@ const useZoomPreview = ({
       return;
     }
     setZoomBoundaries(null);
+    setEventMouseUp(null);
   }, [isApplyingZoom]);
 
   const zoomBarWidth = Math.abs(
