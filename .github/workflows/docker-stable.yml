@@ -221,6 +221,7 @@ jobs:
             "COLLECT_MINOR_VERSION=${{ steps.export-minor-versions.outputs.collect_minor_version }}"
             "COMMON_MINOR_VERSION=${{ steps.export-minor-versions.outputs.common_minor_version }}"
             "GORGONE_MINOR_VERSION=${{ steps.export-minor-versions.outputs.gorgone_minor_version }}"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=stable"
@@ -237,6 +238,7 @@ jobs:
             "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
@@ -254,6 +256,7 @@ jobs:
             "OPEN_TICKETS_MINOR_VERSION=${{ steps.export-minor-versions.outputs.open_tickets_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
             "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
