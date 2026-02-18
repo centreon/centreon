@@ -66,6 +66,14 @@ jobs:
           PREVIOUS_STABLE_BUNDLE_TAG="" # bundle tag
           PREVIOUS_STABLE_BUNDLE_TAG_COMMIT_SHA="" # sha of the commit pointed by PREVIOUS_STABLE_BUNDLE_TAG
 
+          # Check if dispatch_target_release_branch is a release or hotfix branch
+          if [[ "${{ inputs.dispatch_target_release_branch }}" =~ ^(release|hotfix)-.*-next$ ]]; then
+            echo "DISPATCH_TARGET_RELEASE_BRANCH requested is ${{ inputs.dispatch_target_release_branch }}, proceeding further."
+          else
+            echo "::error::DISPATCH_TARGET_RELEASE_BRANCH requested is ${{ inputs.dispatch_target_release_branch }}, exiting, only release branches are currently supported."
+            exit 1
+          fi
+
           # Extract RELEASE_BRANCH_MAJOR_VERSION
           RELEASE_BRANCH_MAJOR_VERSION="$(echo ${{ inputs.dispatch_target_release_branch }} | cut -d "-" -f2)"
           echo "Major version detected: $RELEASE_BRANCH_MAJOR_VERSION"
@@ -257,8 +265,8 @@ jobs:
               -d "$PAYLOAD" \
               "https://api.github.com/repos/centreon/centreon/git/refs")
 
-            API_HTTP_CODE=$(echo API_HTTP_CODE: "$API_RESPONSE_BODY" | tail -n1)
-            API_RESPONSE=$(echo "API_RESPONSE: $API_RESPONSE_BODY" | sed '$d')
+            API_HTTP_CODE=$(printf '%s' "$API_RESPONSE_BODY" | tail -n1)
+            API_RESPONSE=$(printf '%s' "$API_RESPONSE_BODY" | sed '$d')
 
             echo "Create ref HTTP status: $API_HTTP_CODE"
             echo "Create ref response: $API_RESPONSE"
@@ -307,7 +315,7 @@ jobs:
           name: component-commit-lists
           path: component-commit-lists-dir
 
-      - name: Trigger changed components on selected branches
+      - name: Trigger components on selected branch
         run: |
           set -eux
 
@@ -319,15 +327,15 @@ jobs:
           COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "open-tickets" "web")
           #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
           #COMPONENTS_MODULES_FULL=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm" "php-pecl-gnupg" "sourceguardian-loader")
-          #COMPONENTS_COLLECT_REGULAR=("centreon-collect" "centreon-common" "gorgone" "monitoring-agent")
-          #COMPONENTS_COLLECT_FULL=("centreon-collect" "centreon-common" "gorgone" "monitoring-agent" "docker-packaging" "docker-collect-testing" "docker-gorgone-testing" "libzmq" "lua-curl")
+          #COMPONENTS_COLLECT_REGULAR=("collect" "common" "gorgone" "monitoring-agent")
+          #COMPONENTS_COLLECT_FULL=("collect" "common" "gorgone" "monitoring-agent" "docker-packaging" "docker-collect-testing" "docker-gorgone-testing" "libzmq" "lua-curl")
           declare -a COMPONENTS_CHANGED=()
           RUNS_URL=""
 
           # DEBUG
           echo "Selected dispatch_target_release_branch is ${{ inputs.dispatch_target_release_branch }}."
           echo "Selected dispatch_content mode is ${{ inputs.dispatch_content }}."
-          echo "Components with changes are: $(cat component-commit-lists-dir/changed-components.txt)"
+          echo "Components with changes are: \n$(cat component-commit-lists-dir/changed-components.txt)"
 
           # Loading component changed into array
           mapfile -t COMPONENTS_OSS_CHANGED < component-commit-lists-dir/changed-components.txt
@@ -338,7 +346,8 @@ jobs:
           # develop: start of a new major version (not a release) (develop)
 
           # Build link to list of runs for selected branch
-          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} == "develop" ]] || [[ ${{ inputs.dispatch_target_release_branch }} =~ ^hotfix-2[0-9]\.[0-9]+-next$ ]];then
+          # Support for develop or dev branch will be added later
+          if [[ ${{ inputs.dispatch_target_release_branch }} =~ ^release-2[0-9]\.[0-9]+-next$ ]] || [[ ${{ inputs.dispatch_target_release_branch }} =~ ^hotfix-2[0-9]\.[0-9]+-next$ ]];then
             echo "Using ${{ inputs.dispatch_target_release_branch }} as branch to build testing packages."
             RUNS_URL="https://github.com/centreon/centreon/actions?query=branch%3A${{ inputs.dispatch_target_release_branch }}"
           else
