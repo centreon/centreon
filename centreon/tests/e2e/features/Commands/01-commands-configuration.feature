@@ -52,7 +52,7 @@ Feature: Configuration of a command
     And the admin user can configure those arguments on the service form
 
   Scenario: Displaying the number of services using a check command
-    Given a check command being configured
+    Given a check command is configured
     And a service is configured
     When the admin user opens the service in edit mode
     And the admin user sets the configured check command as the check command of the service

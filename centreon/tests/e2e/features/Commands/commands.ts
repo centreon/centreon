@@ -30,6 +30,7 @@ Cypress.Commands.add(
 Cypress.Commands.add('searchForCommandsByName', (name: string) => {
   cy.get('#searchbar').clear().type(name);
   cy.wait('@getCommandsList');
+  cy.wait(2000);
   cy.contains('p', name).should('be.visible');
 });
 
