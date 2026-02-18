@@ -269,8 +269,7 @@ Then(
     cy.enterIframe('#open-ticket').within(() => {
       cy.get('td.FormRowField').should('include.text', 'New ticket opened');
     });
-    cy.get('[class$="modalCloseButton"]')
-      .find('[aria-label="close"]')
+    cy.get('[aria-label="close"]')
       .eq(1)
       .click();
     cy.getByLabel({ label: 'Resources linked to a ticket' }).click();
