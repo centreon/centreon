@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
-  openTicketAtom,
+  openTicketContextAtom,
   resourcesToAcknowledgeAtom,
   resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
@@ -60,7 +60,6 @@ interface UseListingProps
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
   limit?: number;
-  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -96,6 +95,7 @@ const useListing = ({
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
+  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -113,8 +113,6 @@ const useListing = ({
     resourcesToSetDowntimeAtom
   );
 
-  const { isOpenTicketEnabled } = useAtomValue(openTicketAtom);
-
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
       setPanelOptions?.({ displayType: DisplayType.Service });
@@ -128,7 +126,6 @@ const useListing = ({
     displayType,
     hostSeverities,
     id,
-    isOpenTicketEnabled,
     limit,
     page,
     playlistHash,
@@ -182,7 +179,9 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const { columns, defaultSelectedColumnIds } = useColumns({ displayType });
+  const { columns, defaultSelectedColumnIds } = useColumns({
+    displayType
+  });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
     if (updatedColumnIds.length < 3) {
