@@ -51,8 +51,8 @@ final readonly class UpdateCommandCommandHandler
     {
         $existingCommand = $this->commandRepository->getById($command->id);
 
-        if ($existingCommand->isFromMonitoringConnector) {
-            throw new CommandCanNotBeUpdatedException(['id' => $existingCommand->id()->value], 'A command from a monitoring connector cannot be updated.', 400);
+        if ($existingCommand->isFromMonitoringConnector && ! $this->isCommandUnchanged($command, $existingCommand)){
+            throw new CommandCanNotBeUpdatedException(['id' => $existingCommand->id()->value], 'Only status can be updated for a command from a monitoring connector.', 400);
         }
 
         if ($command->name instanceof CommandName) {
@@ -103,5 +103,20 @@ final readonly class UpdateCommandCommandHandler
         $this->eventBus->fire(new CommandUpdated($existingCommand, $command->updatedBy));
 
         return $existingCommand;
+    }
+
+    private function isCommandUnchanged(UpdateCommandCommand $command, Command $existingCommand): bool
+    {
+        if ($command->name->value === $existingCommand->name->value
+            && $command->type === $existingCommand->type
+            && $command->commandLine->value === $existingCommand->commandLine->value
+            && $command->comment === $existingCommand->comment
+            && $command->isShellEnabled === $existingCommand->isShellEnabled
+            && ($command->connectorId === null || $existingCommand->connector()?->id()->value === $command->connectorId->value)
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }
