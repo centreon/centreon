@@ -9,7 +9,7 @@ import { type Column, useSnackbar } from '@centreon/ui';
 import type { CommonWidgetProps, Resource, SortOrder } from '../../../models';
 import { getResourcesUrl, goToUrl } from '../../../utils';
 import {
-  openTicketAtom,
+  openTicketContextAtom,
   resourcesToAcknowledgeAtom,
   resourcesToOpenTicketAtom,
   resourcesToSetDowntimeAtom,
@@ -62,7 +62,6 @@ interface UseListingProps
   hostSeverities: Array<NamedEntity>;
   isFromPreview?: boolean;
   limit?: number;
-  provider?: { id: number; name: string };
   refreshCount: number;
   refreshIntervalToUse: number | false;
   resources: Array<Resource>;
@@ -98,6 +97,7 @@ const useListing = ({
 }: UseListingProps): UseListingState => {
   const { showWarningMessage } = useSnackbar();
   const { t } = useTranslation();
+  const { isOpenTicketEnabled } = useAtomValue(openTicketContextAtom);
 
   const [page, setPage] = useState(1);
   const [resourcesToOpenTicket, setResourcesToOpenTicket] = useAtom(
@@ -114,9 +114,6 @@ const useListing = ({
   const [resourcesToSetDowntime, setResourcesToSetDowntime] = useAtom(
     resourcesToSetDowntimeAtom
   );
-
-  const { isOpenTicketEnabled, isOpenTicketInstalled, provider } =
-    useAtomValue(openTicketAtom);
 
   useEffect(() => {
     if (isOpenTicketEnabled && isFromPreview) {
@@ -188,7 +185,9 @@ const useListing = ({
     setPage(updatedPage + 1);
   };
 
-  const { columns, defaultSelectedColumnIds } = useColumns({ displayType });
+  const { columns, defaultSelectedColumnIds } = useColumns({
+    displayType
+  });
 
   const selectColumns = (updatedColumnIds: Array<string>): void => {
     if (updatedColumnIds.length < 3) {

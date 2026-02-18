@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai';
 
 import { useFetchQuery } from '@centreon/ui';
-import { isOnPublicPageAtom } from '@centreon/ui-context';
+
 
 import {
   type CommonWidgetProps,
@@ -10,9 +10,9 @@ import {
 } from '../../../models';
 import { getWidgetEndpoint } from '../../../utils';
 import { buildResourcesEndpoint } from '../api/endpoints';
+import { isOnPublicPageLocalAtom, openTicketContextAtom } from '../atom';
 import type { PanelOptions } from '../models';
 
-import { openTicketAtom } from '../atom';
 import type { DisplayType, NamedEntity, ResourceListing } from './models';
 import { formatRessources } from './utils';
 
@@ -34,7 +34,6 @@ interface LoadResourcesProps
   states: Array<string>;
   statusTypes: Array<'hard' | 'soft'>;
   statuses: Array<string>;
-  isOpenTicketEnabled?: boolean;
 }
 
 interface LoadResources {
@@ -59,18 +58,18 @@ const useLoadResources = ({
   widgetPrefixQuery,
   statusTypes,
   hostSeverities,
-  serviceSeverities,
-  isOpenTicketEnabled
+  serviceSeverities
 }: LoadResourcesProps): LoadResources => {
   const sort = { [sortField as string]: sortOrder };
 
-  const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
+  const isOnPublicPage = useAtomValue(isOnPublicPageLocalAtom);
   const {
     displayResources,
     isDownHostHidden,
+    isOpenTicketEnabled,
     isUnreachableHostHidden,
     provider
-  } = useAtomValue(openTicketAtom);
+  } = useAtomValue(openTicketContextAtom);
 
   const { data, isLoading } = useFetchQuery<ResourceListing>({
     getEndpoint: () =>
@@ -123,7 +122,8 @@ const useLoadResources = ({
       page,
       refreshCount,
       isDownHostHidden,
-      isUnreachableHostHidden
+      isUnreachableHostHidden,
+      id
     ],
     queryOptions: {
       refetchInterval: refreshIntervalToUse,
