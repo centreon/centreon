@@ -83,7 +83,7 @@ final class UpdateCommandCommandHandlerTest extends TestCase
             id: new CommandId($command->id()->value),
             name: new CommandName('updated name'),
             commandLine: new CommandLine('updated command'),
-            type: CommandTypeEnum::Notification,
+            type: CommandTypeEnum::Check,
             isShellEnabled: true,
             isActivated: false,
             comment: new CommandComment('updated comment'),
@@ -95,7 +95,7 @@ final class UpdateCommandCommandHandlerTest extends TestCase
 
         self::assertSame('updated name', $updatedCommand->name->value);
         self::assertSame('updated command', $updatedCommand->commandLine->value);
-        self::assertSame(CommandTypeEnum::Notification, $updatedCommand->type);
+        self::assertSame(CommandTypeEnum::Check, $updatedCommand->type);
         self::assertTrue($updatedCommand->isShellEnabled);
         self::assertFalse($updatedCommand->isActivated);
         self::assertSame('updated comment', $updatedCommand->comment?->value);
@@ -155,7 +155,7 @@ final class UpdateCommandCommandHandlerTest extends TestCase
             id: new CommandId($commandToUpdate->id()->value),
             name: new CommandName('existing name'),
             commandLine: new CommandLine('updated command'),
-            type: CommandTypeEnum::Notification,
+            type: CommandTypeEnum::Check,
             isShellEnabled: true,
             isActivated: false,
             comment: new CommandComment('updated comment'),
@@ -220,7 +220,7 @@ final class UpdateCommandCommandHandlerTest extends TestCase
             id: new CommandId($command->id()->value),
             name: new CommandName('updated name'),
             commandLine: new CommandLine('updated command'),
-            type: CommandTypeEnum::Notification,
+            type: CommandTypeEnum::Check,
             isShellEnabled: true,
             isActivated: false,
             comment: new CommandComment('updated comment'),
