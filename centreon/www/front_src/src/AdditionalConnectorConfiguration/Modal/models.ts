@@ -17,7 +17,10 @@ export interface Parameter {
 export interface AdditionalConnectorConfiguration {
   description: null | string;
   name: string;
-  parameters: { port: number; vcenters: Array<Parameter> };
+  parameters: {
+    port: number;
+    vcenters: Array<Parameter & { id: number | null }>;
+  };
   pollers: Array<NamedEntity>;
   type: number;
 }

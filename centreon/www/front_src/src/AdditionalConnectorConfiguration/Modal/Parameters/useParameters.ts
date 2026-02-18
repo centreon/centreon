@@ -1,5 +1,5 @@
 import { useFormikContext } from 'formik';
-import { remove } from 'ramda';
+import { dissoc, map, remove } from 'ramda';
 
 import { getDefaultParameters } from '../../utils';
 import { AdditionalConnectorConfiguration, Parameter } from '../models';
@@ -31,7 +31,7 @@ const useParameters = (): UseParameterStates => {
   return {
     addParameterGroup,
     deleteParameterGroup,
-    parameters: values.parameters.vcenters
+    parameters: map(dissoc('id'), values.parameters.vcenters)
   };
 };
 

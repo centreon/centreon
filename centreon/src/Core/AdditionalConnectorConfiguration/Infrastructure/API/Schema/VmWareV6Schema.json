@@ -21,6 +21,7 @@
                 "vcenters": {
                     "type": "array",
                     "required": [
+                        "id",
                         "name",
                         "url",
                         "username",
@@ -29,6 +30,9 @@
                     "items": {
                         "type": "object",
                         "properties": {
+                            "id": {
+                                "type": ["integer", "null"]
+                            },
                             "name": {
                                 "type": "string"
                             },
