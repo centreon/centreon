@@ -322,7 +322,7 @@ jobs:
           # VARS
           # names defined in workflow files per components
           # these are the default component_list values, they can be overriden further in the code
-          COMPONENTS_OSS=("awie" "dsm" "ha" "open-tickets" "web")
+          COMPONENTS_OSS_REGULAR=("awie" "dsm" "ha" "open-tickets" "web")
           COMPONENTS_OSS_EXTRA=("docker-keycloak" "docker-packaging" "docker-translation" "docker-web-dependencies")
           COMPONENTS_OSS_FULL=("awie" "dsm" "ha" "open-tickets" "web")
           #COMPONENTS_MODULES=("anomaly-detection" "autodiscovery" "bam" "cloud-business-extensions" "cloud-extensions" "it-edition-extensions" "lm" "map" "mbi" "ppm")
