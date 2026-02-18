@@ -26,7 +26,7 @@ use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$version = '24.10.20';
+$version = '24.10.21';
 
 $errorMessage = '';
 
