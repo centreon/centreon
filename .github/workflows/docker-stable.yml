@@ -201,7 +201,7 @@ jobs:
             "STABILITY=stable"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag  }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
