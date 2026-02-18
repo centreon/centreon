@@ -390,6 +390,7 @@ jobs:
                   COMPONENT="web"
                 fi
                 echo "Dispatching trigger to $COMPONENT workflow."
+                COMPONENT_SHORT=$(echo "${COMPONENT#*-}")
                 gh workflow run "$COMPONENT" -r ${{ inputs.dispatch_target_release_branch }}
               done
             fi
