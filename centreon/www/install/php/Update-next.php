@@ -373,7 +373,6 @@ $dropParametersColumn = function () use ($pearDB, &$errorMessage, $version): voi
     }
 };
 
-<<<<<<< HEAD
 /** -------------------------------------- Command redesign updates-------------------------------------- */
 $addNewCommandPage = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add new command page topology';
@@ -617,8 +616,6 @@ $deleteOldCommandsTopologies = function () use ($pearDB, &$errorMessage, $versio
     );
 };
 
-=======
->>>>>>> e2cabb3daecd53c90bfa7935d962b76b74232bb8
 try {
     // DDL statements for real time database
     $updateInstancesTable();
@@ -635,15 +632,12 @@ try {
     $fixDuplicateHostGroupTopology();
     $migrateAccJsonToTables();
 
-<<<<<<< HEAD
     // Command redesign updates
     $addNewCommandPage();
     $updateCommandsParentTopology();
     $moveCommandACLTopologyIntoACLActions();
     $deleteOldCommandsTopologies();
 
-=======
->>>>>>> e2cabb3daecd53c90bfa7935d962b76b74232bb8
     if ($pearDB->isTransactionActive()) {
         $pearDB->commitTransaction();
     }
