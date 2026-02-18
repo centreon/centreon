@@ -24,7 +24,7 @@ use Adaptation\Database\Connection\Exception\ConnectionException;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
-$version = '25.10.8';
+$version = '25.10.9';
 
 $errorMessage = '';
 
