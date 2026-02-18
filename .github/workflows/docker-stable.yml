@@ -196,6 +196,7 @@ jobs:
           target: web_dependencies
           context: .
           build-args: |
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=stable"
