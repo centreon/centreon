@@ -335,7 +335,7 @@ jobs:
           # DEBUG
           echo "Selected dispatch_target_release_branch is ${{ inputs.dispatch_target_release_branch }}."
           echo "Selected dispatch_content mode is ${{ inputs.dispatch_content }}."
-          echo "Components with changes are: \n$(cat component-commit-lists-dir/changed-components.txt)"
+          echo -e "Components with changes are: \n$(cat component-commit-lists-dir/changed-components.txt)"
 
           # Loading component changed into array
           mapfile -t COMPONENTS_OSS_CHANGED < component-commit-lists-dir/changed-components.txt
