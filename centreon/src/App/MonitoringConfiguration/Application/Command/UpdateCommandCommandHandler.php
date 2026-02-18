@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Application\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\Command;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandLine;
 use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandName;
-use App\MonitoringConfiguration\Domain\Aggregate\Command\CommandTypeEnum;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\Connector;
 use App\MonitoringConfiguration\Domain\Aggregate\Connector\ConnectorId;
 use App\MonitoringConfiguration\Domain\Event\CommandUpdated;
@@ -107,16 +106,11 @@ final readonly class UpdateCommandCommandHandler
 
     private function isCommandUnchanged(UpdateCommandCommand $command, Command $existingCommand): bool
     {
-        if ($command->name->value === $existingCommand->name->value
+        return $command->name->value === $existingCommand->name->value
             && $command->type === $existingCommand->type
             && $command->commandLine->value === $existingCommand->commandLine->value
             && $command->comment === $existingCommand->comment
             && $command->isShellEnabled === $existingCommand->isShellEnabled
-            && ($command->connectorId === null || $existingCommand->connector()?->id()->value === $command->connectorId->value)
-        ) {
-            return true;
-        }
-
-        return false;
+            && (! $command->connectorId instanceof ConnectorId || $existingCommand->connector()?->id()->value === $command->connectorId->value);
     }
 }
