@@ -84,6 +84,14 @@ const LoginForm = (): JSX.Element => {
         required
         StartAdornment={PersonIcon}
         value={aliasValue || ''}
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelAlias) as string,
+              autoComplete: 'username'
+            }
+          }
+        }}
       />
       <TextField
         ariaLabel={labelPassword}
