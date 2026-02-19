@@ -94,17 +94,22 @@ function removeRelationLastServicegroupDependency(int $servicegroupId): void
 {
     global $pearDB;
 
-    $query = 'SELECT count(dependency_dep_id) AS nb_dependency , dependency_dep_id AS id
-              FROM dependency_servicegroupParent_relation
-              WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
-                                         WHERE servicegroup_sg_id =  ' . $servicegroupId . ')
-              GROUP BY dependency_dep_id';
-    $dbResult = $pearDB->query($query);
-    $result = $dbResult->fetch();
+    $statement = $pearDB->prepare(
+        'SELECT count(dependency_dep_id) AS nb_dependency, dependency_dep_id AS id
+        FROM dependency_servicegroupParent_relation
+        WHERE dependency_dep_id = (SELECT dependency_dep_id FROM dependency_servicegroupParent_relation
+                                   WHERE servicegroup_sg_id = :sg_id)
+        GROUP BY dependency_dep_id'
+    );
+    $statement->bindValue(':sg_id', $servicegroupId, PDO::PARAM_INT);
+    $statement->execute();
+    $result = $statement->fetch();
 
     // is last parent
     if (isset($result['nb_dependency']) && $result['nb_dependency'] == 1) {
-        $pearDB->query('DELETE FROM dependency WHERE dep_id = ' . $result['id']);
+        $deleteStmt = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
+        $deleteStmt->bindValue(':dep_id', (int) $result['id'], PDO::PARAM_INT);
+        $deleteStmt->execute();
     }
 }
 
@@ -207,11 +212,9 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                     }
                     $statement->execute();
                 }
-                $dbResult = $pearDB->query('SELECT MAX(sg_id) FROM servicegroup');
-                $maxId = $dbResult->fetch();
-                if (isset($maxId['MAX(sg_id)'])) {
-                    $sgAcl[$maxId['MAX(sg_id)']] = $sgId;
-                    $dbResult->closeCursor();
+                $newSgId = (int) $pearDB->lastInsertId();
+                if ($newSgId > 0) {
+                    $sgAcl[$newSgId] = $sgId;
                     $statement = $pearDB->prepare('
                         SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id
                         FROM servicegroup_relation sgr WHERE sgr.servicegroup_sg_id = :sg_id
@@ -242,7 +245,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                                         : $bindParams[':service_service_id'] = [PDO::PARAM_NULL => null];
                                     break;
                             }
-                            $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $maxId['MAX(sg_id)']];
+                            $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $newSgId];
                         }
                         $statement2 = $pearDB->prepare('
                             INSERT INTO servicegroup_relation
@@ -259,10 +262,10 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                     }
                     $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
 
-                    signalConfigurationChange('servicegroup', $maxId['MAX(sg_id)']);
+                    signalConfigurationChange('servicegroup', $newSgId);
                     $centreon->CentreonLogAction->insertLog(
                         'servicegroup',
-                        $maxId['MAX(sg_id)'],
+                        $newSgId,
                         $sgName,
                         'a',
                         $fields
@@ -575,21 +578,19 @@ function insertServiceGroup($submittedValues = [])
     }
     $statement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(sg_id) FROM servicegroup');
-    $sgId = $dbResult->fetch();
-    $dbResult->closeCursor();
+    $sgId = (int) $pearDB->lastInsertId();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($submittedValues);
     $centreon->CentreonLogAction->insertLog(
         'servicegroup',
-        $sgId['MAX(sg_id)'],
+        $sgId,
         htmlentities($submittedValues['sg_name'], ENT_QUOTES, 'UTF-8'),
         'a',
         $fields
     );
 
-    return $sgId['MAX(sg_id)'];
+    return $sgId;
 }
 
 function updateServiceGroup($serviceGroupId, $submittedValues = [])
