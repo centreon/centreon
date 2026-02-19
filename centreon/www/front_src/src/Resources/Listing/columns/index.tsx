@@ -183,7 +183,7 @@ export const getColumns = ({
       id: 'information',
       label: t(labelInformation),
       rowMemoProps: ['information'],
-      sortable: false,
+      sortable: true,
       type: ColumnType.string,
       width: 'minmax(100px, 1fr)'
     },
