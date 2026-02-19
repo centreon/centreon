@@ -411,6 +411,84 @@ class DbReadHostRepository extends AbstractRepositoryRDB implements ReadHostRepo
     /**
      * @inheritDoc
      */
+    public function findParentsByHostIds(array $hostIds): array
+    {
+        if ($hostIds === []) {
+            return [];
+        }
+
+        [$bindValues, $hostIdsQuery] = $this->createMultipleBindQuery($hostIds, ':host_');
+
+        $request = $this->translateDbName(
+            <<<SQL
+                WITH RECURSIVE parents AS (
+                    SELECT * FROM `:db`.`host_template_relation`
+                    WHERE `host_host_id` IN ({$hostIdsQuery})
+                    UNION
+                    SELECT rel.* FROM `:db`.`host_template_relation` AS rel, parents AS p
+                    WHERE rel.`host_host_id` = p.`host_tpl_id`
+                )
+                SELECT `host_host_id` AS child_id, `host_tpl_id` AS parent_id, `order`
+                FROM parents
+                SQL
+        );
+
+        $statement = $this->db->prepare($request);
+        foreach ($bindValues as $key => $value) {
+            $statement->bindValue($key, $value, \PDO::PARAM_INT);
+        }
+        $statement->execute();
+
+        /** @var array<array{child_id: int, parent_id: int, order: int}> $allParents */
+        $allParents = $statement->fetchAll(\PDO::FETCH_ASSOC);
+
+        $result = [];
+        foreach ($hostIds as $hostId) {
+            $result[$hostId] = $this->filterParentsForHost($hostId, $allParents);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Filter the global parent list to get only relations reachable from a specific host.
+     *
+     * @param int $hostId
+     * @param array<array{child_id: int|string, parent_id: int|string, order: int|string}> $allParents
+     *
+     * @return array<array{parent_id: int, child_id: int, order: int}>
+     */
+    private function filterParentsForHost(int $hostId, array $allParents): array
+    {
+        $relevant = [];
+        $idsToProcess = [$hostId];
+        $processed = [];
+
+        while (! empty($idsToProcess)) {
+            $currentId = array_shift($idsToProcess);
+            if (isset($processed[$currentId])) {
+                continue;
+            }
+            $processed[$currentId] = true;
+
+            foreach ($allParents as $parent) {
+                if ((int) $parent['child_id'] === $currentId) {
+                    $relevant[] = [
+                        'parent_id' => (int) $parent['parent_id'],
+                        'child_id' => (int) $parent['child_id'],
+                        'order' => (int) $parent['order'],
+                    ];
+                    $idsToProcess[] = (int) $parent['parent_id'];
+                }
+            }
+        }
+
+        return $relevant;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function findNames(array $hostIds): HostNamesById
     {
         $concatenator = new SqlConcatenator();
