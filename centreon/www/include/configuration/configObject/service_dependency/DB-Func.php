@@ -66,8 +66,8 @@ function testCycleH($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = [];
-    $childs = [];
+    $parents = array();
+    $childs = array();
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_hSvPar');
         $childs = $form->getSubmitValue('dep_hSvChi');
@@ -81,7 +81,7 @@ function testCycleH($childs = null)
     return true;
 }
 
-function deleteServiceDependencyInDB($dependencies = [])
+function deleteServiceDependencyInDB($dependencies = array())
 {
     global $pearDB, $oreon;
     $selectStatement = $pearDB->prepare("SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1");
@@ -100,7 +100,7 @@ function deleteServiceDependencyInDB($dependencies = [])
     }
 }
 
-function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
+function multipleServiceDependencyInDB($dependencies = array(), $nbrDup = array())
 {
     global $pearDB, $oreon;
     $selectStmt = $pearDB->prepare(
@@ -228,7 +228,7 @@ function updateServiceDependencyInDB($dep_id = null)
     updateServiceDependencyHostChildren($dep_id);
 }
 
-function insertServiceDependencyInDB($ret = [])
+function insertServiceDependencyInDB($ret = array())
 {
     $dep_id = insertServiceDependency($ret);
     updateServiceDependencyServiceParents($dep_id, $ret);
@@ -243,7 +243,7 @@ function insertServiceDependencyInDB($ret = [])
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertServiceDependency($ret = []): int
+function insertServiceDependency($ret = array()): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -383,7 +383,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateServiceDependencyServiceParents($dep_id = null, $ret = [])
+function updateServiceDependencyServiceParents($dep_id = null, $ret = array())
 {
     if (!$dep_id) {
         exit();
@@ -396,13 +396,16 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = [])
     $statement = $pearDB->prepare("DELETE FROM dependency_serviceParent_relation WHERE dependency_dep_id = :dep_id");
     $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
     $statement->execute();
-    $ret1 = $ret["dep_hSvPar"] ?? CentreonUtils::mergeWithInitialValues($form, "dep_hSvPar");
+    if (isset($ret["dep_hSvPar"])) {
+        $ret1 = $ret["dep_hSvPar"];
+    } else {
+        $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvPar");
+    }
     $statement = $pearDB->prepare(
         "INSERT INTO dependency_serviceParent_relation (dependency_dep_id, service_service_id, host_host_id)
         VALUES (:dep_id, :service_id, :host_id)"
     );
-    $counter = count($ret1);
-    for ($i = 0; $i < $counter; $i++) {
+    for ($i = 0; $i < count($ret1); $i++) {
         $exp = explode("-", $ret1[$i]);
         if (count($exp) == 2) {
             $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
@@ -413,7 +416,7 @@ function updateServiceDependencyServiceParents($dep_id = null, $ret = [])
     }
 }
 
-function updateServiceDependencyServiceChilds($dep_id = null, $ret = [])
+function updateServiceDependencyServiceChilds($dep_id = null, $ret = array())
 {
     if (!$dep_id) {
         exit();
@@ -426,13 +429,16 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = [])
     $statement = $pearDB->prepare("DELETE FROM dependency_serviceChild_relation WHERE dependency_dep_id = :dep_id");
     $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
     $statement->execute();
-    $ret1 = $ret["dep_hSvChi"] ?? CentreonUtils::mergeWithInitialValues($form, "dep_hSvChi");
+    if (isset($ret["dep_hSvChi"])) {
+        $ret1 = $ret["dep_hSvChi"];
+    } else {
+        $ret1 = CentreonUtils::mergeWithInitialValues($form, "dep_hSvChi");
+    }
     $statement = $pearDB->prepare(
         "INSERT INTO dependency_serviceChild_relation (dependency_dep_id, service_service_id, host_host_id)
         VALUES (:dep_id, :service_id, :host_id)"
     );
-    $counter = count($ret1);
-    for ($i = 0; $i < $counter; $i++) {
+    for ($i = 0; $i < count($ret1); $i++) {
         $exp = explode("-", $ret1[$i]);
         if (count($exp) == 2) {
             $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
@@ -448,7 +454,7 @@ function updateServiceDependencyServiceChilds($dep_id = null, $ret = [])
  * @param null|mixed $dep_id
  * @param mixed $ret
  */
-function updateServiceDependencyHostChildren($dep_id = null, $ret = [])
+function updateServiceDependencyHostChildren($dep_id = null, $ret = array())
 {
     if (!$dep_id) {
         exit();
@@ -470,8 +476,7 @@ function updateServiceDependencyHostChildren($dep_id = null, $ret = [])
         "INSERT INTO dependency_hostChild_relation (dependency_dep_id, host_host_id)
         VALUES (:dep_id, :host_id)"
     );
-    $counter = count($ret1);
-    for ($i = 0; $i < $counter; $i++) {
+    for ($i = 0; $i < count($ret1); $i++) {
         $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
         $statement->bindValue(':host_id', (int) $ret1[$i], \PDO::PARAM_INT);
         $statement->execute();

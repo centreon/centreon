@@ -66,8 +66,8 @@ function testServiceGroupDependencyCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = [];
-    $childs = [];
+    $parents = array();
+    $childs = array();
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_sgParents');
         $childs = $form->getSubmitValue('dep_sgChilds');
@@ -81,7 +81,7 @@ function testServiceGroupDependencyCycle($childs = null)
     return true;
 }
 
-function deleteServiceGroupDependencyInDB($dependencies = [])
+function deleteServiceGroupDependencyInDB($dependencies = array())
 {
     global $pearDB, $oreon;
     $selectStatement = $pearDB->prepare("SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1");
@@ -100,7 +100,7 @@ function deleteServiceGroupDependencyInDB($dependencies = [])
     }
 }
 
-function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
+function multipleServiceGroupDependencyInDB($dependencies = array(), $nbrDup = array())
 {
     global $pearDB, $oreon;
     $selectStmt = $pearDB->prepare(
@@ -200,7 +200,7 @@ function updateServiceGroupDependencyInDB($dep_id = null)
     updateServiceGroupDependencyServiceGroupChilds($dep_id);
 }
 
-function insertServiceGroupDependencyInDB($ret = [])
+function insertServiceGroupDependencyInDB($ret = array())
 {
     $dep_id = insertServiceGroupDependency($ret);
     updateServiceGroupDependencyServiceGroupParents($dep_id, $ret);
@@ -214,7 +214,7 @@ function insertServiceGroupDependencyInDB($ret = [])
  * @param array<string, mixed> $ret
  * @return int
  */
-function insertServiceGroupDependency($ret = []): int
+function insertServiceGroupDependency($ret = array()): int
 {
     global $form, $pearDB, $centreon;
     if (!count($ret)) {
@@ -335,7 +335,7 @@ function sanitizeResourceParameters(array $resources): array
     return $sanitizedParameters;
 }
 
-function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = [])
+function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = array())
 {
     if (!$dep_id) {
         exit();
@@ -357,15 +357,14 @@ function updateServiceGroupDependencyServiceGroupParents($dep_id = null, $ret = 
         "INSERT INTO dependency_servicegroupParent_relation (dependency_dep_id, servicegroup_sg_id)
         VALUES (:dep_id, :sg_id)"
     );
-    $counter = count($ret);
-    for ($i = 0; $i < $counter; $i++) {
+    for ($i = 0; $i < count($ret); $i++) {
         $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
         $statement->bindValue(':sg_id', (int) $ret[$i], \PDO::PARAM_INT);
         $statement->execute();
     }
 }
 
-function updateServiceGroupDependencyServiceGroupChilds($dep_id = null, $ret = [])
+function updateServiceGroupDependencyServiceGroupChilds($dep_id = null, $ret = array())
 {
     if (!$dep_id) {
         exit();
@@ -387,8 +386,7 @@ function updateServiceGroupDependencyServiceGroupChilds($dep_id = null, $ret = [
         "INSERT INTO dependency_servicegroupChild_relation (dependency_dep_id, servicegroup_sg_id)
         VALUES (:dep_id, :sg_id)"
     );
-    $counter = count($ret);
-    for ($i = 0; $i < $counter; $i++) {
+    for ($i = 0; $i < count($ret); $i++) {
         $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
         $statement->bindValue(':sg_id', (int) $ret[$i], \PDO::PARAM_INT);
         $statement->execute();

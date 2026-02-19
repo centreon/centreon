@@ -63,8 +63,8 @@ function testCycle($childs = null)
 {
     global $pearDB;
     global $form;
-    $parents = [];
-    $childs = [];
+    $parents = array();
+    $childs = array();
     if (isset($form)) {
         $parents = $form->getSubmitValue('dep_msParents');
         $childs = $form->getSubmitValue('dep_msChilds');
@@ -78,7 +78,7 @@ function testCycle($childs = null)
     return true;
 }
 
-function deleteMetaServiceDependencyInDB($dependencies = [])
+function deleteMetaServiceDependencyInDB($dependencies = array())
 {
     global $pearDB;
     $statement = $pearDB->prepare("DELETE FROM dependency WHERE dep_id = :dep_id");
@@ -88,7 +88,7 @@ function deleteMetaServiceDependencyInDB($dependencies = [])
     }
 }
 
-function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
+function multipleMetaServiceDependencyInDB($dependencies = array(), $nbrDup = array())
 {
     global $pearDB;
     $selectStmt = $pearDB->prepare(
@@ -313,14 +313,13 @@ function updateMetaServiceDependencyMetaServiceParents($dep_id = null)
     $statement = $pearDB->prepare("DELETE FROM dependency_metaserviceParent_relation WHERE dependency_dep_id = :dep_id");
     $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
     $statement->execute();
-    $ret = [];
+    $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msParents');
     $statement = $pearDB->prepare(
         "INSERT INTO dependency_metaserviceParent_relation (dependency_dep_id, meta_service_meta_id)
         VALUES (:dep_id, :meta_id)"
     );
-    $counter = count($ret);
-    for ($i = 0; $i < $counter; $i++) {
+    for ($i = 0; $i < count($ret); $i++) {
         $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
         $statement->bindValue(':meta_id', (int) $ret[$i], \PDO::PARAM_INT);
         $statement->execute();
@@ -337,14 +336,13 @@ function updateMetaServiceDependencyMetaServiceChilds($dep_id = null)
     $statement = $pearDB->prepare("DELETE FROM dependency_metaserviceChild_relation WHERE dependency_dep_id = :dep_id");
     $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
     $statement->execute();
-    $ret = [];
+    $ret = array();
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msChilds');
     $statement = $pearDB->prepare(
         "INSERT INTO dependency_metaserviceChild_relation (dependency_dep_id, meta_service_meta_id)
         VALUES (:dep_id, :meta_id)"
     );
-    $counter = count($ret);
-    for ($i = 0; $i < $counter; $i++) {
+    for ($i = 0; $i < count($ret); $i++) {
         $statement->bindValue(':dep_id', (int) $dep_id, \PDO::PARAM_INT);
         $statement->bindValue(':meta_id', (int) $ret[$i], \PDO::PARAM_INT);
         $statement->execute();
