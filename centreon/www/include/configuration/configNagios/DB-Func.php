@@ -157,57 +157,60 @@ function deleteNagiosInDB($nagios = [])
 // Duplicate Engine Configuration file in DB
 function multipleNagiosInDB($nagios = [], $nbrDup = [])
 {
+    global $pearDB;
+
+    $selectStmt = $pearDB->prepare('SELECT * FROM cfg_nagios WHERE nagios_id = :nagiosId LIMIT 1');
+    $selectBrokerStmt = $pearDB->prepare(
+        'SELECT broker_module FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagiosId'
+    );
+    $insertBrokerStmt = $pearDB->prepare(
+        'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)
+        VALUES (:nagiosId, :brokerModule)'
+    );
+
     foreach ($nagios as $originalNagiosId => $value) {
-        global $pearDB;
-
-        $stmt = $pearDB->prepare('SELECT * FROM cfg_nagios WHERE nagios_id = :nagiosId LIMIT 1');
-        $stmt->bindValue('nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch();
-        $row['nagios_id'] = '';
-        $row['nagios_activate'] = '0';
-        $stmt->closeCursor();
-
-        $rowBks = [];
-        $stmt = $pearDB->prepare('SELECT * FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagiosId');
-        $stmt->bindValue('nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
-        $stmt->execute();
-        while ($rowBk = $stmt->fetch()) {
-            $rowBks[] = $rowBk;
+        $selectStmt->bindValue(':nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
         }
-        $stmt->closeCursor();
+        $selectStmt->closeCursor();
 
+        unset($row['nagios_id']);
+        $row['nagios_activate'] = '0';
+
+        $selectBrokerStmt->bindValue(':nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
+        $selectBrokerStmt->execute();
+        $rowBks = $selectBrokerStmt->fetchAll(PDO::FETCH_ASSOC);
+        $selectBrokerStmt->closeCursor();
+
+        $columns = array_keys($row);
+        $placeholders = array_map(fn ($col) => ':' . $col, $columns);
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO cfg_nagios (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')'
+        );
+
+        $originalName = $row['nagios_name'];
         for ($i = 1; $i <= $nbrDup[$originalNagiosId]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                $value2 = $pearDB->escape($value2);
-                if ($key2 == 'nagios_name') {
-                    $nagios_name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
-                }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-            }
+            $nagios_name = $originalName . '_' . $i;
+            $row['nagios_name'] = $nagios_name;
+
             if (testExistence($nagios_name)) {
-                $rq = $val ? 'INSERT INTO cfg_nagios VALUES (' . $val . ')' : null;
-                $dbResult = $pearDB->query($rq);
-                // Find the new last nagios_id once
-                $dbResult = $pearDB->query('SELECT MAX(nagios_id) FROM cfg_nagios');
-                $nagiosId = $dbResult->fetch();
-                $dbResult->closeCursor();
-                foreach ($rowBks as $keyBk => $valBk) {
+                foreach ($columns as $col) {
+                    $insertStmt->bindValue(':' . $col, $row[$col]);
+                }
+                $insertStmt->execute();
+                $newNagiosId = (int) $pearDB->lastInsertId();
+
+                foreach ($rowBks as $valBk) {
                     if ($valBk['broker_module']) {
-                        $stmt = $pearDB->prepare(
-                            'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)
-                            VALUES (:nagiosId, :brokerModule)'
-                        );
-                        $stmt->bindValue('nagiosId', (int) $nagiosId['MAX(nagios_id)'], PDO::PARAM_INT);
-                        $stmt->bindValue('brokerModule', $valBk['broker_module'], PDO::PARAM_STR);
-                        $stmt->execute();
+                        $insertBrokerStmt->bindValue(':nagiosId', $newNagiosId, PDO::PARAM_INT);
+                        $insertBrokerStmt->bindValue(':brokerModule', $valBk['broker_module'], PDO::PARAM_STR);
+                        $insertBrokerStmt->execute();
                     }
                 }
-                duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $nagiosId['MAX(nagios_id)']);
+                duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $newNagiosId);
             }
         }
     }
