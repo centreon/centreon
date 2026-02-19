@@ -13,7 +13,7 @@ on:
         required: true
         type: string
       is_nightly:
-        required: true
+        required: false
         type: string
     outputs:
       test_plan_key_alma8:
