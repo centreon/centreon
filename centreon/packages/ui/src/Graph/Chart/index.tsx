@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { memo, type RefCallback, useEffect } from "react";
+import { memo, type RefCallback, useEffect, useRef } from "react";
 import "dayjs/locale/en";
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
@@ -32,7 +32,7 @@ interface Props extends Partial<LineChartProps> {
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
-  getRef?: (ref: RefCallback<Element>) => void;
+  getRef?: (ref: React.RefObject<HTMLDivElement | null>) => void;
   containerStyle?: string;
   transformMatrix?: {
     fx?: (pointX: number) => number;
@@ -78,15 +78,25 @@ const WrapperChart = ({
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
   const { adjustedData } = useChartData({ data, end, start });
+
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
   const {
-    ref,
+    ref: resizeObserverRef,
     width: responsiveWidth,
     height: responsiveHeight,
   } = useResizeObserver();
 
-  useEffect(() => {
-    getRef?.(ref);
-  }, [ref?.current]);
+  const combinedRef = (element: HTMLDivElement | null) => {
+    if (containerRef.current !== element) {
+      containerRef.current = element;
+      if (element) {
+        getRef?.(containerRef);
+      }
+    }
+    resizeObserverRef(element);
+  };
+
 
   if (loading && !adjustedData) {
     return (
@@ -103,7 +113,7 @@ const WrapperChart = ({
 
   return (
     <div
-      ref={ref}
+      ref={combinedRef}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
       {!responsiveHeight ? (
@@ -116,7 +126,7 @@ const WrapperChart = ({
           displayAnchor={displayAnchor}
           graphData={adjustedData}
           graphInterval={{ end, start }}
-          graphRef={ref}
+          graphRef={containerRef}
           header={header}
           height={height || responsiveHeight || 0}
           legend={legend}
