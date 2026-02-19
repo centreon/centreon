@@ -477,9 +477,7 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                         $pearDB->executePreparedQuery($statement, $parameters, true);
                         $pearDB->closeQuery($statement);
 
-                        $statement = $pearDB->executeQuery('SELECT MAX(pool_id) FROM `mod_dsm_pool`');
-                        $cmd_id = $pearDB->fetch($statement);
-                        $pearDB->closeQuery($statement);
+                        $cmd_id = ['MAX(pool_id)' => (int) $pearDB->lastInsertId()];
                     }
                 }
             }
@@ -822,9 +820,7 @@ function insertPool($ret = [])
         $pearDB->executePreparedQuery($statement, $parameters, true);
         $pearDB->closeQuery($statement);
 
-        $statementMax = $pearDB->executeQuery('SELECT MAX(pool_id) FROM mod_dsm_pool');
-        $pool_id = $pearDB->fetch($statementMax);
-        $pearDB->closeQuery($statementMax);
+        $pool_id = ['MAX(pool_id)' => (int) $pearDB->lastInsertId()];
 
         if ($ret['pool_activate']['pool_activate'] == 1) {
             enablePoolInDB($pool_id['MAX(pool_id)']);

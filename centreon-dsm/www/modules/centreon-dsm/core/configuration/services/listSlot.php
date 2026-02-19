@@ -65,7 +65,7 @@ $tpl->assign('search', $search);
 $tpl->assign('p', $p);
 
 if ($search) {
-    $rq = "SELECT
+    $rq = 'SELECT
             pool_id,
             pool_prefix,
             pool_name,
@@ -74,9 +74,14 @@ if ($search) {
             pool_activate
         FROM mod_dsm_pool
         WHERE (
-            pool_name LIKE '%" . htmlentities($search, ENT_QUOTES) . "%'
-        OR pool_description LIKE '%" . htmlentities($search, ENT_QUOTES) . "%')
-        ORDER BY pool_name LIMIT " . $num * $limit . ', ' . $limit;
+            pool_name LIKE :search
+        OR pool_description LIKE :search)
+        ORDER BY pool_name LIMIT :offset, :limit';
+    $dbResult = $pearDB->prepare($rq);
+    $dbResult->bindValue(':search', '%' . $search . '%');
+    $dbResult->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
+    $dbResult->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $dbResult->execute();
 } else {
     $rq = 'SELECT
             pool_id,
@@ -87,9 +92,12 @@ if ($search) {
             pool_activate
         FROM mod_dsm_pool
         ORDER BY pool_name
-        LIMIT ' . $num * $limit . ', ' . $limit;
+        LIMIT :offset, :limit';
+    $dbResult = $pearDB->prepare($rq);
+    $dbResult->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
+    $dbResult->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $dbResult->execute();
 }
-$dbResult = $pearDB->query($rq);
 
 $search = tidySearchKey($search, $advanced_search);
 
