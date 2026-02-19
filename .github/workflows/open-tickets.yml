@@ -485,7 +485,8 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' )
+      (needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:
