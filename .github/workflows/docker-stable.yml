@@ -196,12 +196,13 @@ jobs:
           target: web_dependencies
           context: .
           build-args: |
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=stable"
           pull: true
           load: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ inputs.release_bundle_tag  }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
@@ -220,12 +221,13 @@ jobs:
             "COLLECT_MINOR_VERSION=${{ steps.export-minor-versions.outputs.collect_minor_version }}"
             "COMMON_MINOR_VERSION=${{ steps.export-minor-versions.outputs.common_minor_version }}"
             "GORGONE_MINOR_VERSION=${{ steps.export-minor-versions.outputs.gorgone_minor_version }}"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "IS_CLOUD=${{ needs.check-inputs.outputs.is_cloud }}"
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -235,12 +237,13 @@ jobs:
           build-args: |
             "WEB_MINOR_VERSION=${{ steps.export-minor-versions.outputs.web_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
+            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
 
       - name: Build and push OSS image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -252,9 +255,10 @@ jobs:
             "DSM_MINOR_VERSION=${{ steps.export-minor-versions.outputs.dsm_minor_version }}"
             "OPEN_TICKETS_MINOR_VERSION=${{ steps.export-minor-versions.outputs.open_tickets_minor_version }}"
             "REGISTRY_URL=${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-            "FROM_IMAGE_VERSION=${{ inputs.dev_branch || inputs.release_bundle_tag }}"
+            "FROM_IMAGE_VERSION=${{ inputs.release_bundle_tag }}"
+            "VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "MAJOR_VERSION=${{ needs.check-inputs.outputs.major_version }}"
             "STABILITY=stable"
           pull: false
           push: true
-          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ inputs.dev_branch || inputs.release_bundle_tag }}
+          tags: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-oss-${{ matrix.distrib }}:${{ inputs.release_bundle_tag }}
