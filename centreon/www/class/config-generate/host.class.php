@@ -360,7 +360,14 @@ class Host extends AbstractHost
             $isPollerEncryptionReady
         );
 
-        return  Macro::resolveInheritance($existingHostMacros, $inheritanceLine, $hostId);
+        [$directMacros] = Macro::resolveInheritance($existingHostMacros, $inheritanceLine, $hostId);
+
+        $allTemplateMacros = array_filter(
+            $existingHostMacros,
+            fn (Macro $macro): bool => $macro->getOwnerId() !== $hostId
+        );
+
+        return [$directMacros, array_values($allTemplateMacros)];
     }
 
     private function findServiceRelatedMacros(int $hostId, bool $isPollerEncryptionReady): array
@@ -382,9 +389,14 @@ class Host extends AbstractHost
                 $serviceTemplateInheritances
             );
             $existingMacros = $readServiceMacroRepository->findByServiceIds($serviceId, ...$inheritanceLine);
-            [$directMacros, $indirectMacros] = Macro::resolveInheritance($existingMacros, $inheritanceLine, $serviceId);
+            [$directMacros] = Macro::resolveInheritance($existingMacros, $inheritanceLine, $serviceId);
             $serviceMacros = array_merge($serviceMacros, array_values($directMacros));
-            $serviceTemplateMacros = array_merge($serviceTemplateMacros, array_values($indirectMacros));
+
+            $allTemplateMacros = array_filter(
+                $existingMacros,
+                fn (Macro $macro): bool => $macro->getOwnerId() !== $serviceId
+            );
+            $serviceTemplateMacros = array_merge($serviceTemplateMacros, array_values($allTemplateMacros));
         }
 
         array_walk(
