@@ -95,31 +95,28 @@ const useCommands = (): UseCommandsState => {
     []
   );
 
-  const filtersConfiguration: Array<FilterConfiguration> = useMemo(
-    () => [
-      {
-        fieldName: 'name',
-        fieldType: FieldType.Text,
-        name: t(labelName)
-      },
-      {
-        fieldName: 'type',
-        fieldType: FieldType.Checkboxes,
-        name: t(labelType),
-        options: typeOptions
-      },
-      {
-        fieldType: FieldType.Status,
-        name: t(labelStatus)
-      },
-      {
-        fieldName: 'is_from_monitoring_connector',
-        fieldType: FieldType.Checkbox,
-        name: t(labelLockedElements)
-      }
-    ],
-    []
-  );
+  const filtersConfiguration: Array<FilterConfiguration> = [
+    {
+      fieldName: 'name',
+      fieldType: FieldType.Text,
+      name: t(labelName)
+    },
+    {
+      fieldName: 'type',
+      fieldType: FieldType.Checkboxes,
+      name: t(labelType),
+      options: typeOptions
+    },
+    {
+      fieldType: FieldType.Status,
+      name: t(labelStatus)
+    },
+    {
+      fieldName: 'is_from_monitoring_connector',
+      fieldType: FieldType.Checkbox,
+      name: t(labelLockedElements)
+    }
+  ];
 
   return {
     api,
