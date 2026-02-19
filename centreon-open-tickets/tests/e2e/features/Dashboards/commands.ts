@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-namespace */
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 Cypress.Commands.add('visitDashboards', () => {
   cy.intercept({
@@ -7,11 +7,11 @@ Cypress.Commands.add('visitDashboards', () => {
     url: '/centreon/api/latest/configuration/dashboards*'
   }).as('listAllDashboards');
 
-  const dashboardsUrl = '/centreon/home/dashboards/library';
+  const dashboardsUrl = PAGES.monitoring.dashboardsLibrary;
   cy.url().then((url) =>
     url.includes(dashboardsUrl)
       ? cy.visit(dashboardsUrl)
-      : cy.navigateTo({ page: 'Dashboards', rootItemNumber: 0 })
+      : cy.visit(PAGES.monitoring.dashboards)
   );
 
   cy.wait('@listAllDashboards');
@@ -167,5 +167,3 @@ declare global {
     }
   }
 }
-
-export {};
