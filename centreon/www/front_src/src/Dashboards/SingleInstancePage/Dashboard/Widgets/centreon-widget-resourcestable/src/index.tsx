@@ -8,9 +8,9 @@ import { useAtomValue } from 'jotai';
 import { has } from 'ramda';
 import { type ReactElement, useMemo } from 'react';
 
-import type { OpenTicketContext, ResourcesTableProps } from './models';
 import ResourcesTable from './ResourcesTable';
 import { WidgetProvider } from './WidgetContext';
+import type { OpenTicketContext, ResourcesTableProps } from './models';
 
 const Widget = (props: ResourcesTableProps): ReactElement => {
   const acl = useAtomValue(aclAtom);

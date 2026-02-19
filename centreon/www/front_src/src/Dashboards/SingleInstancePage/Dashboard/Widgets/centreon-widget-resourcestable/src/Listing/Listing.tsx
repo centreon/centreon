@@ -1,7 +1,3 @@
-import { useAtomValue } from 'jotai';
-import { equals } from 'ramda';
-import { ReactElement } from 'react';
-
 import { useTheme } from '@mui/material';
 
 import { MemoizedListing, SeverityCode } from '@centreon/ui';

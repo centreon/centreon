@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { useAtom, useAtomValue } from 'jotai';
-import { equals, isEmpty, isNotNil } from 'ramda';
+import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { type Column, useSnackbar } from '@centreon/ui';
@@ -123,8 +123,6 @@ const useListing = ({
     }
   }, [isOpenTicketEnabled]);
 
-  const hasProvider = isNotNil(provider) && !isEmpty(provider);
-
   const { data, isLoading } = useLoadResources({
     dashboardId,
     displayType,
@@ -142,9 +140,7 @@ const useListing = ({
     states,
     statusTypes,
     statuses,
-    widgetPrefixQuery,
-    isOpenTicketEnabled:
-      isOpenTicketInstalled && hasProvider && isOpenTicketEnabled
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (row): void => {

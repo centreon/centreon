@@ -2,7 +2,6 @@ import { useAtomValue } from 'jotai';
 
 import { useFetchQuery } from '@centreon/ui';
 
-
 import {
   type CommonWidgetProps,
   type Resource,

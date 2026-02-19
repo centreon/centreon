@@ -12,12 +12,6 @@ import {
 import { SortOrder } from '../../../models';
 import { getPublicWidgetEndpoint } from '../../../utils';
 import {
-  closeTicketEndpoint,
-  resourcesEndpoint,
-  viewByHostEndpoint
-} from '../api/endpoints';
-import Widget from '../index';
-import {
   acknowledgeEndpoint,
   checkEndpoint,
   downtimeEndpoint
@@ -43,6 +37,12 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
+import {
+  closeTicketEndpoint,
+  resourcesEndpoint,
+  viewByHostEndpoint
+} from '../api/endpoints';
+import Widget from '../index';
 import {
   columnsForViewByHost,
   columnsForViewByService,
@@ -135,7 +135,9 @@ const render = ({ options, data, isPublic = false }: Props): void => {
                   panelOptions={options}
                   playlistHash="hash"
                   refreshCount={0}
-                  widgetPrefixQuery="widget" hasDescription={false}                />
+                  widgetPrefixQuery="widget"
+                  hasDescription={false}
+                />
               </div>
             </Provider>
           </SnackbarProvider>

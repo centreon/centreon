@@ -1,4 +1,4 @@
-import { defaultAcl, type PlatformVersions } from '@centreon/ui-context';
+import { type PlatformVersions, defaultAcl } from '@centreon/ui-context';
 
 import { atom } from 'jotai';
 

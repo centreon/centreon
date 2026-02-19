@@ -1,6 +1,6 @@
 import type { Acl, PlatformVersions } from '@centreon/ui-context';
 
-import { createStore, Provider } from 'jotai';
+import { Provider, createStore } from 'jotai';
 import { equals } from 'ramda';
 import { type ReactElement, type ReactNode, useEffect, useMemo } from 'react';
 
