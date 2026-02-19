@@ -115,11 +115,11 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
 function deleteVirtualMetricInDB($vmetrics = [])
 {
     global $pearDB;
+    $prepareStatement = $pearDB->prepare(
+        'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
+    );
     foreach (array_keys($vmetrics) as $vmetricId) {
         try {
-            $prepareStatement = $pearDB->prepare(
-                'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
-            );
             $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
             $prepareStatement->execute();
         } catch (PDOException $e) {
@@ -138,52 +138,55 @@ function deleteVirtualMetricInDB($vmetrics = [])
 function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 {
     global $pearDB;
-    foreach (array_keys($vmetrics) as $vmetricId) {
-        $prepareStatement = $pearDB->prepare(
-            'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
-        );
-        $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
 
+    if (empty($vmetrics) || empty($nbrDup)) {
+        return;
+    }
+
+    $columns = [
+        'index_id', 'vmetric_name', 'def_type', 'rpn_function',
+        'unit_name', 'warn', 'crit', 'hidden', 'comment',
+        'vmetric_activate', 'ck_state',
+    ];
+    $selectStmt = $pearDB->prepare(
+        'SELECT ' . implode(', ', $columns) . ' FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
+    );
+    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+    );
+
+    foreach (array_keys($vmetrics) as $vmetricId) {
+        $selectStmt->bindValue(':vmetric_id', (int) $vmetricId, PDO::PARAM_INT);
         try {
-            $prepareStatement->execute();
+            $selectStmt->execute();
         } catch (PDOException $e) {
             echo 'DB Error : ' . $e->getMessage();
+            continue;
+        }
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
         }
 
-        $vmConfiguration = $prepareStatement->fetch();
-        $vmConfiguration['vmetric_id'] = '';
-
+        $indexId = (int) $row['index_id'];
+        $originalName = $row['vmetric_name'];
         for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
-            $val = null;
-            $virtualMetricName = null;
-            foreach ($vmConfiguration as $cfgName => $cfgValue) {
-                if ($cfgName == 'vmetric_name') {
-                    $indexId = (int) $vmConfiguration['index_id'];
-                    $count = 1;
-                    $virtualMetricName = $cfgValue . '_' . $count;
-                    while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
-                        $count++;
-                        $virtualMetricName = $cfgValue . '_' . $count;
-                    }
-                    $cfgValue = $virtualMetricName;
-                }
-
-                if (is_null($val)) {
-                    $val .= ($cfgValue == null)
-                        ? 'NULL'
-                        : "'" . $pearDB->escape($cfgValue) . "'";
-                } else {
-                    $val .= ($cfgValue == null)
-                        ? ', NULL'
-                        : ", '" . $pearDB->escape($cfgValue) . "'";
-                }
+            $count = 1;
+            $virtualMetricName = $originalName . '_' . $count;
+            while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
+                $count++;
+                $virtualMetricName = $originalName . '_' . $count;
             }
-            if (! is_null($val)) {
-                try {
-                    $pearDB->query("INSERT INTO virtual_metrics VALUES ({$val})");
-                } catch (PDOException $e) {
-                    echo 'DB Error : ' . $e->getMessage();
+            $row['vmetric_name'] = $virtualMetricName;
+
+            try {
+                foreach ($columns as $col) {
+                    $insertStmt->bindValue(':' . $col, $row[$col]);
                 }
+                $insertStmt->execute();
+            } catch (PDOException $e) {
+                echo 'DB Error : ' . $e->getMessage();
             }
         }
     }
@@ -289,10 +292,7 @@ function insertVirtualMetric()
 
     $insertStatement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(vmetric_id) FROM virtual_metrics');
-    $vmetricId = $dbResult->fetch();
-
-    return $vmetricId['MAX(vmetric_id)'];
+    return (int) $pearDB->lastInsertId();
 }
 
 /**
