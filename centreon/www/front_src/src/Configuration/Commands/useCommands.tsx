@@ -48,32 +48,24 @@ const useCommands = (): UseCommandsState => {
     canViewMiscellaneousCommands
   } = useUserPermissions();
 
-  const typeOptions = useMemo(
-    () => [
-      {
-        disabled: !canViewNotificationCommands,
-        id: 'Notification',
-        name: labelNotification
-      },
-      { disabled: !canViewCheckCommands, id: 'Check', name: labelCheck },
-      {
-        disabled: !canViewMiscellaneousCommands,
-        id: 'Miscellaneous',
-        name: labelMiscellaneous
-      },
-      {
-        disabled: !canViewDiscoveryCommands,
-        id: 'Discovery',
-        name: labelDiscovery
-      }
-    ],
-    [
-      canViewCheckCommands,
-      canViewNotificationCommands,
-      canViewDiscoveryCommands,
-      canViewMiscellaneousCommands
-    ]
-  );
+  const typeOptions = [
+    {
+      disabled: !canViewNotificationCommands,
+      id: 'Notification',
+      name: labelNotification
+    },
+    { disabled: !canViewCheckCommands, id: 'Check', name: labelCheck },
+    {
+      disabled: !canViewMiscellaneousCommands,
+      id: 'Miscellaneous',
+      name: labelMiscellaneous
+    },
+    {
+      disabled: !canViewDiscoveryCommands,
+      id: 'Discovery',
+      name: labelDiscovery
+    }
+  ];
 
   const api: APIType = useMemo(
     () => ({
