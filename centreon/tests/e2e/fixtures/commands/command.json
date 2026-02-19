@@ -19,6 +19,16 @@
         "connectorName": "SSH Connector",
         "comments": "Comments"
     },
+    "check_updated": {
+        "name": "A_check_cmd_updated",
+        "type": "Check",
+        "globalMacros": "$CENTREONPLUGINS",
+        "standardMacros": "$HOSTNAME$",
+        "installedPlugins": "check_dhcp",
+        "is_shell": false,
+        "connectorName": "Telegraf",
+        "comments": "Comments Updated"
+    },
     "miscellaneous": {
         "name": "A_miscellaneous_cmd",
         "type": "Miscellaneous",

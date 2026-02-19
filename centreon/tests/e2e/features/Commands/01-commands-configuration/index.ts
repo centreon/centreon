@@ -91,7 +91,7 @@ When('the admin user changes the properties of a command', () => {
   cy.contains(data.check.name).click();
   cy.wait('@getCommandDetails');
   cy.contains('Modify a command').should('be.visible');
-  cy.addOrUpdateCommands(data.miscellaneous);
+  cy.addOrUpdateCommands(data.check_updated);
   // Click on the "Save" button
   cy.getByLabel({ label: 'Save', tag: 'button' }).click();
   cy.wait('@getCommandsList');
@@ -99,18 +99,18 @@ When('the admin user changes the properties of a command', () => {
 });
 
 Then('the properties are updated', () => {
-  // Search for the already updated miscellaneous command
-  cy.searchForCommandsByName(data.miscellaneous.name);
+  // Search for the already updated check command
+  cy.searchForCommandsByName(data.check_updated.name);
   // Click on the command
-  cy.contains(data.miscellaneous.name).click();
+  cy.contains(data.check_updated.name).click();
   cy.wait('@getCommandDetails');
   cy.contains('Modify a command').should('be.visible');
-  cy.checkValuesOfCommands(data.miscellaneous.name, data.miscellaneous);
+  cy.checkValuesOfCommands(data.check_updated.name, data.check_updated);
 });
 
 When('the admin user duplicates a command', () => {
-  // Search for the already existing miscellaneous command
-  cy.searchForCommandsByName(data.miscellaneous.name);
+  // Search for the already existing check command
+  cy.searchForCommandsByName(data.check_updated.name);
   // Click on the "Duplicate" icon to duplicate the command
   cy.get('#Duplicate').eq(0).click();
   cy.get('button[type="submit"][aria-label="Duplicate"]')
@@ -122,13 +122,13 @@ When('the admin user duplicates a command', () => {
 
 Then('the new command has the same properties', () => {
   // Click on the duplicated command
-  cy.contains(`${data.miscellaneous.name}_`).click();
-  cy.checkValuesOfCommands(`${data.miscellaneous.name}_`, data.miscellaneous);
+  cy.contains(`${data.check_updated.name}_`).click();
+  cy.checkValuesOfCommands(`${data.check_updated.name}_`, data.check_updated);
 });
 
 When('the admin user deletes a command', () => {
-  // Search for the already existing miscellaneous command
-  cy.searchForCommandsByName(data.miscellaneous.name);
+  // Search for the already existing check command
+  cy.searchForCommandsByName(`${data.check_updated.name}_`);
   // Click on the "Delete" icon to delete the command
   cy.get('#Delete').eq(0).click();
   cy.get('button[type="submit"][aria-label="Delete"]')
@@ -139,7 +139,10 @@ When('the admin user deletes a command', () => {
 });
 
 Then('the deleted command is not displayed in the list', () => {
-  cy.get('body').should('not.have.text', data.miscellaneous.name);
+  cy.get('body').should(
+    'not.contain.text',
+    new RegExp(`${data.check_updated.name}_\\d+`)
+  );
 });
 
 When('the admin user creates a {string} command', (type: string) => {
@@ -251,20 +254,9 @@ Then('the admin user can configure those arguments on the host form', () => {
     .click();
 });
 
-Given('a check command being configured', () => {
-  // Click on the "Add" button
-  cy.getByLabel({ label: 'Add', tag: 'button' }).click();
-  cy.contains('Add a command').should('be.visible');
-  cy.addOrUpdateCommands(data.check);
-  // Click on the "Save" button
-  cy.getByLabel({ label: 'Save', tag: 'button' }).click();
-  cy.wait('@getCommandsList');
-  cy.exportConfig();
-});
-
 Given('a check command is configured', () => {
   // Search for the command
-  cy.searchForCommandsByName(data.check.name);
+  cy.searchForCommandsByName(data.check_updated.name);
 });
 
 Given('a service is configured', () => {
@@ -286,7 +278,7 @@ When('the admin user opens the service in edit mode', () => {
 When(
   'the admin user sets the configured check command as the check command of the service',
   () => {
-    cy.addCommandToResource(2, data.check.name);
+    cy.addCommandToResource(2, data.check_updated.name);
   }
 );
 
@@ -304,7 +296,7 @@ Then(
     cy.visit(PAGES.configuration.commands);
 
     // Search for the command
-    cy.searchForCommandsByName(data.check.name);
+    cy.searchForCommandsByName(data.check_updated.name);
     cy.contains('p', '1 (0)').should('be.visible');
   }
 );
@@ -325,7 +317,7 @@ When('the admin user opens the host in edit mode', () => {
 When(
   'the admin user sets the configured check command as the check command of the host',
   () => {
-    cy.addCommandToResource(1, data.check.name);
+    cy.addCommandToResource(1, data.check_updated.name);
   }
 );
 
@@ -335,7 +327,7 @@ Then(
     cy.visit(PAGES.configuration.commands);
 
     // Search for the command
-    cy.searchForCommandsByName(data.check.name);
+    cy.searchForCommandsByName(data.check_updated.name);
     cy.get('p.MuiTypography-root')
       .filter((_index, el) => el.innerText === '1 (0)') // one for the host and one for the service
       .should('have.length', 2);
