@@ -34,6 +34,10 @@ msgstr ""
 msgid " Table is not partitioned "
 msgstr ""
 
+#: centreon/www/include/options/media/images/formImg.php
+msgid "Max file size: %s"
+msgstr ""
+
 #: centreon/www/include/monitoring/downtime/AddDowntime.php
 msgid " The timezone used is configured on your user settings"
 msgstr ""

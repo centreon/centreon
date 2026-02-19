@@ -2679,12 +2679,12 @@ msgstr "Duração máxima da pesquisa antes de parar."
 
 #: centreon/www/include/options/media/images/help.php
 msgid ""
-"Select a local file to upload. You can upload jpg, png, gif and gd2 files. "
+"Select a local file to upload. You can upload jpg, png, gif, gd2 and svg files. "
 "Multiple images can be uploaded together inside archives like zip, tar, "
 "tar.gz or tar.bz2."
 msgstr ""
 "Selecione um arquivo local para enviar. \n"
-"Você pode enviar um arquivo do tipo jpg, png, gif e gd2. \n"
+"Você pode enviar um arquivo do tipo jpg, png, gif, gd2 e svg. \n"
 "Múltiplas imagens podem ser enviadas dentro de um arquivo do tipo zip, tar, "
 "tar.gz ou tar.bz2."
 
