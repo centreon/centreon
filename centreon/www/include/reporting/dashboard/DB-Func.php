@@ -60,11 +60,15 @@ function getLogInDbForHost($host_id, $start_date, $end_date, $reportTimePeriod)
         . ' sum(`UNDETERMINEDTimeScheduled`) as UNDETERMINED_T, '
         . ' sum(`MaintenanceTime`) as MAINTENANCE_T '
         . 'FROM `log_archive_host` '
-        . 'WHERE `host_id` = ' . $host_id . ' AND `date_start` >=  ' . $start_date . ' AND `date_end` <= ' . $end_date
+        . 'WHERE `host_id` = :host_id AND `date_start` >= :start_date AND `date_end` <= :end_date'
         . ' ' . "AND DATE_FORMAT( FROM_UNIXTIME( `date_start`), '%W') IN (" . $days_of_week . ') '
         . 'GROUP BY `host_id` ';
 
-    $dbResult = $pearDBO->query($rq);
+    $dbResult = $pearDBO->prepare($rq);
+    $dbResult->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $dbResult->bindValue(':start_date', (int) $start_date, PDO::PARAM_INT);
+    $dbResult->bindValue(':end_date', (int) $end_date, PDO::PARAM_INT);
+    $dbResult->execute();
     if ($row = $dbResult->fetch()) {
         $hostStats = $row;
     }
@@ -273,12 +277,16 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
         . 'sum(UNDETERMINEDTimeScheduled) as UNDETERMINED_T, '
         . 'sum(MaintenanceTime) as MAINTENANCE_T '
         . 'FROM log_archive_service las '
-        . 'WHERE las.host_id = ' . $host_id . ' '
+        . 'WHERE las.host_id = :host_id '
         . $aclCondition . ' '
-        . 'AND date_start >= ' . $start_date . ' AND date_end <= ' . $end_date . ' '
+        . 'AND date_start >= :start_date AND date_end <= :end_date '
         . "AND DATE_FORMAT(FROM_UNIXTIME(date_start), '%W') IN (" . $days_of_week . ') '
         . 'GROUP BY las.service_id ';
-    $dbResult = $pearDBO->query($rq);
+    $dbResult = $pearDBO->prepare($rq);
+    $dbResult->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $dbResult->bindValue(':start_date', (int) $start_date, PDO::PARAM_INT);
+    $dbResult->bindValue(':end_date', (int) $end_date, PDO::PARAM_INT);
+    $dbResult->execute();
     while ($row = $dbResult->fetch()) {
         if (isset($hostServiceStats[$row['service_id']])) {
             $hostServiceStats[$row['service_id']] = $row;
@@ -699,9 +707,10 @@ function getreportingTimePeriod()
 function getHostNameFromId($host_id)
 {
     global $pearDB;
-    $req = 'SELECT  `host_name` FROM `host` WHERE `host_id` = ' . $host_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `host_name` FROM `host` WHERE `host_id` = :host_id');
+    $statement->bindValue(':host_id', (int) $host_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['host_name'];
     }
 
@@ -711,9 +720,10 @@ function getHostNameFromId($host_id)
 function getHostgroupNameFromId($hostgroup_id)
 {
     global $pearDB;
-    $req = 'SELECT  `hg_name` FROM `hostgroup` WHERE `hg_id` = ' . $hostgroup_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `hg_name` FROM `hostgroup` WHERE `hg_id` = :hg_id');
+    $statement->bindValue(':hg_id', (int) $hostgroup_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['hg_name'];
     }
 
@@ -723,9 +733,10 @@ function getHostgroupNameFromId($hostgroup_id)
 function getServiceDescriptionFromId($service_id)
 {
     global $pearDB;
-    $req = 'SELECT  `service_description` FROM `service` WHERE `service_id` = ' . $service_id;
-    $dbResult = $pearDB->query($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `service_description` FROM `service` WHERE `service_id` = :service_id');
+    $statement->bindValue(':service_id', (int) $service_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['service_description'];
     }
 
@@ -735,13 +746,12 @@ function getServiceDescriptionFromId($service_id)
 function getServiceGroupNameFromId($sg_id)
 {
     global $pearDB;
-    $req = 'SELECT  `sg_name` FROM `servicegroup` WHERE `sg_id` = ' . $sg_id;
-    $dbResult = $pearDB->query($req);
-    unset($req);
-    if ($row = $dbResult->fetch()) {
+    $statement = $pearDB->prepare('SELECT `sg_name` FROM `servicegroup` WHERE `sg_id` = :sg_id');
+    $statement->bindValue(':sg_id', (int) $sg_id, PDO::PARAM_INT);
+    $statement->execute();
+    if ($row = $statement->fetch()) {
         return $row['sg_name'];
     }
-    $dbResult->closeCursor();
 
     return 'undefined';
 }
