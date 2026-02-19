@@ -171,29 +171,46 @@ function noDefaultOreonGraph()
 function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
 {
     global $pearDB;
+
+    if (empty($compos) || empty($nbrDup)) {
+        return;
+    }
+
+    $columns = [
+        'name', 'ds_name', 'ds_color_line', 'ds_color_line_mode',
+        'ds_color_area', 'ds_color_area_warn', 'ds_color_area_crit',
+        'ds_filled', 'ds_max', 'ds_min', 'ds_minmax_int',
+        'ds_average', 'ds_last', 'ds_total', 'ds_tickness',
+        'ds_transparency', 'ds_invert', 'ds_legend', 'ds_jumpline',
+        'ds_stack', 'ds_hidecurve', 'ds_order', 'ds_color_forecast',
+        'ds_color_forecast_warn', 'ds_color_forecast_crit',
+        'host_id', 'service_id', 'default_tpl1', 'comment',
+    ];
+    $selectStmt = $pearDB->prepare(
+        'SELECT ' . implode(', ', $columns) . ' FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1'
+    );
+    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO giv_components_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+    );
+
     foreach ($compos as $key => $value) {
-        $stmt = $pearDB->prepare(
-            'SELECT * FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1'
-        );
-        $stmt->bindValue(':compo_id', $key, PDO::PARAM_INT);
-        $stmt->execute();
-        $row = $stmt->fetch();
-        $row['compo_id'] = '';
+        $selectStmt->bindValue(':compo_id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+
         $row['default_tpl1'] = '0';
+        $originalName = $row['name'];
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $val = null;
-            foreach ($row as $key2 => $value2) {
-                $value2 = is_int($value2) ? (string) $value2 : $value2;
-                if ($key2 == 'name') {
-                    $name = $value2 . '_' . $i;
-                    $value2 = $value2 . '_' . $i;
+            $row['name'] = $originalName . '_' . $i;
+            if (NameHsrTestExistence($row['name'])) {
+                foreach ($columns as $col) {
+                    $insertStmt->bindValue(':' . $col, $row[$col]);
                 }
-                $val ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-            }
-            if (NameHsrTestExistence($name)) {
-                $rq = $val ? 'INSERT INTO giv_components_template VALUES (' . $val . ')' : null;
-                $pearDB->query($rq);
+                $insertStmt->execute();
             }
         }
     }
