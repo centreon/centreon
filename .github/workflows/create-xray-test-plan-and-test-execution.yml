@@ -117,7 +117,7 @@ jobs:
 
             # Determine the summary's prefix
             summary_prefix=''
-            if [[ ${{ inputs.is_nightly }} == 'true' ]]; then
+            if [[ ${{ inputs.is_nightly || '' }} == 'true' ]]; then
               summary_prefix="NIGHTLY"
             else
               echo "The github_ref_name is: $GITHUB_REF_NAME"
@@ -197,7 +197,7 @@ jobs:
         run: |
           # Determine the summary's prefix
           summary_prefix=''
-          if [[ ${{ inputs.is_nightly }} == 'true' ]]; then
+          if [[ ${{ inputs.is_nightly || '' }} == 'true' ]]; then
             summary_prefix="NIGHTLY"
           else
             echo "The github_ref_name is: $GITHUB_REF_NAME"
