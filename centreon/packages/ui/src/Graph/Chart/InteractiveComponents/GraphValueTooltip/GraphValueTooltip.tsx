@@ -25,6 +25,11 @@ const GraphValueTooltip = ({
   if (thresholdTooltip) {
     return (
       <MuiTooltip
+        PopperProps={{
+          popperOptions: {
+            strategy: 'fixed'
+          }
+        }}
         classes={{
           tooltip: classes.tooltip
         }}
@@ -38,6 +43,11 @@ const GraphValueTooltip = ({
 
   return (
     <MuiTooltip
+      PopperProps={{
+        popperOptions: {
+          strategy: 'fixed'
+        }
+      }}
       classes={{
         tooltip: cx(classes.tooltip, classes.tooltipDisablePadding)
       }}
