@@ -1592,67 +1592,57 @@ Output: {$service.output|substr:0:1024}
             $db_storage->beginTransaction();
 
             if ($extra_args['no_create_ticket_id'] == false) {
-                $db_storage->query(
-                    'INSERT INTO mod_open_tickets
-                        (`timestamp`, `user`' . (is_null($extra_args['ticket_value']) ? '' : ', `ticket_value`') . ")
-                    VALUES ('" . $result['ticket_time'] . "', '"
-                    . $db_storage->escape($extra_args['contact']['name']) . "'"
-                    . (is_null($extra_args['ticket_value']) ? '' : ", '"
-                    . $db_storage->escape($extra_args['ticket_value']) . "'") . ')'
-                );
+                if (is_null($extra_args['ticket_value'])) {
+                    $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES (:timestamp, :user)');
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time']);
+                    $insertTicket->bindValue(':user', $extra_args['contact']['name']);
+                } else {
+                    $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES (:timestamp, :user, :ticketValue)');
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time']);
+                    $insertTicket->bindValue(':user', $extra_args['contact']['name']);
+                    $insertTicket->bindValue(':ticketValue', $extra_args['ticket_value']);
+                }
+                $insertTicket->execute();
                 $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
             }
 
             if (is_null($extra_args['ticket_value'])) {
-                $db_storage->query(
-                    "UPDATE mod_open_tickets SET `ticket_value` = '" . $db_storage->escape($result['ticket_id']) . "'
-                    WHERE `ticket_id` = '" . $db_storage->escape($result['ticket_id']) . "'"
-                );
+                $updateTicket = $db_storage->prepare('UPDATE mod_open_tickets SET `ticket_value` = :ticketValue WHERE `ticket_id` = :ticketId');
+                $updateTicket->bindValue(':ticketValue', $result['ticket_id']);
+                $updateTicket->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
+                $updateTicket->execute();
             }
 
+            $insertHostLink = $db_storage->prepare('INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES (:ticketId, :hostId, :hostState, :hostname)');
             foreach ($extra_args['host_problems'] as $row) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($row['host_id']) . "',
-                        '" . $db_storage->escape($row['host_state']) . "',
-                        '" . $db_storage->escape($row['name']) . "'
-                    )"
-                );
+                $insertHostLink->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostId', (int) $row['host_id'], \PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostState', (int) $row['host_state'], \PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostname', $row['name']);
+                $insertHostLink->execute();
             }
+            $insertSvcLink = $db_storage->prepare(
+                'INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`, `service_id`, `service_state`, `service_description`)
+                 VALUES (:ticketId, :hostId, :hostState, :hostname, :serviceId, :serviceState, :serviceDescription)'
+            );
             foreach ($extra_args['service_problems'] as $row) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_link (
-                        `ticket_id`,
-                        `host_id`,
-                        `host_state`,
-                        `hostname`,
-                        `service_id`,
-                        `service_state`,
-                        `service_description`
-                    ) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($row['host_id']) . "',
-                        '" . $db_storage->escape($row['host_state']) . "',
-                        '" . $db_storage->escape($row['host_name']) . "',
-                        '" . $db_storage->escape($row['service_id']) . "',
-                        '" . $db_storage->escape($row['service_state']) . "',
-                        '" . $db_storage->escape($row['description']) . "'
-                    )"
-                );
+                $insertSvcLink->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostId', (int) $row['host_id'], \PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostState', (int) $row['host_state'], \PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostname', $row['host_name']);
+                $insertSvcLink->bindValue(':serviceId', (int) $row['service_id'], \PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceState', (int) $row['service_state'], \PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceDescription', $row['description']);
+                $insertSvcLink->execute();
             }
 
             if (! is_null($extra_args['data_type']) && ! is_null($extra_args['data'])) {
-                $db_storage->query(
-                    "INSERT INTO mod_open_tickets_data (
-                        `ticket_id`, `subject`, `data_type`, `data`
-                    ) VALUES (
-                        '" . $db_storage->escape($result['ticket_id']) . "',
-                        '" . $db_storage->escape($extra_args['subject']) . "',
-                        '" . $db_storage->escape($extra_args['data_type']) . "',
-                        '" . $db_storage->escape($extra_args['data']) . "'
-                    )"
-                );
+                $insertData = $db_storage->prepare('INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`, `data_type`, `data`) VALUES (:ticketId, :subject, :dataType, :data)');
+                $insertData->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
+                $insertData->bindValue(':subject', $extra_args['subject']);
+                $insertData->bindValue(':dataType', (int) $extra_args['data_type'], \PDO::PARAM_INT);
+                $insertData->bindValue(':data', $extra_args['data']);
+                $insertData->execute();
             }
 
             $result['ticket_id'] = is_null($extra_args['ticket_value'])

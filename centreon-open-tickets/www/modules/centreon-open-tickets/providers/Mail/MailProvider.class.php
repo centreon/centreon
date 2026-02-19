@@ -135,10 +135,11 @@ class MailProvider extends AbstractProvider
          * @phpstan-ignore-next-line
          * FIXME $contact['name'] => Offset 'name' does not exist on string => $contact is a string or an array ??
          */
-        $values = "('" . $result['ticket_time'] . "', '" . $db_storage->escape($contact['name']) . "')";
-
         try {
-            $db_storage->query("INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES {$values}");
+            $insertStatement = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES (:timestamp, :user)');
+            $insertStatement->bindValue(':timestamp', $result['ticket_time']);
+            $insertStatement->bindValue(':user', $contact['name']);
+            $insertStatement->execute();
             $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
         } catch (Exception $e) {
             $result['ticket_error_message'] = $e->getMessage();
