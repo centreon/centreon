@@ -32,7 +32,7 @@ interface Props extends Partial<LineChartProps> {
   start: string;
   thresholdUnit?: string;
   thresholds?: Thresholds;
-  getRef?: (ref: RefCallback<Element>) => void;
+  getRef?: (ref: React.RefObject<HTMLDivElement | null>) => void;
   containerStyle?: string;
   transformMatrix?: {
     fx?: (pointX: number) => number;
@@ -84,9 +84,24 @@ const WrapperChart = ({
     height: responsiveHeight,
   } = useResizeObserver();
 
-  useEffect(() => {
-    getRef?.(ref);
-  }, [ref?.current]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    ref: resizeObserverRef,
+    width: responsiveWidth,
+    height: responsiveHeight,
+  } = useResizeObserver();
+
+  const combinedRef = (element: HTMLDivElement | null) => {
+    if (containerRef.current !== element) {
+      containerRef.current = element;
+      if (element) {
+        getRef?.(containerRef);
+      }
+    }
+    resizeObserverRef(element);
+  };
+
 
   if (loading && !adjustedData) {
     return (
@@ -103,7 +118,7 @@ const WrapperChart = ({
 
   return (
     <div
-      ref={ref}
+      ref={combinedRef}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
       {!responsiveHeight || !data ? (
@@ -116,7 +131,7 @@ const WrapperChart = ({
           displayAnchor={displayAnchor}
           graphData={adjustedData}
           graphInterval={{ end, start }}
-          graphRef={ref}
+          graphRef={containerRef}
           header={header}
           height={height || responsiveHeight}
           legend={legend}

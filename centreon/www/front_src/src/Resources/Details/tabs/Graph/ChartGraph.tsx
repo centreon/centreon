@@ -1,6 +1,3 @@
-import { path } from 'ramda';
-import { ReactElement, RefObject, useState } from 'react';
-
 import {
   type Interval,
   LineChart,
@@ -9,6 +6,8 @@ import {
   type TooltipData,
   useFetchQuery
 } from '@centreon/ui';
+import { path } from 'ramda';
+import { type ReactElement, type RefObject, useState } from 'react';
 
 import FederatedComponent from '../../../../components/FederatedComponents';
 import MemoizedGraphActions from '../../../Graph/Performance/GraphActions';
@@ -16,7 +15,6 @@ import TooManyElementsCard from '../../../TooManyElementsCard';
 import { graphsCapNumber } from '../../../constants';
 import type { Resource } from '../../../models';
 import type { ResourceDetails } from '../../models';
-
 import Comment from './Comment';
 import { useChartGraphStyles } from './chartGraph.styles';
 import useRetrieveTimeLine from './useRetrieveTimeLine';
@@ -34,7 +32,8 @@ const ChartGraph = ({
 }: Props) => {
   const { classes } = useChartGraphStyles();
 
-  const [graphRef, setGraphRef] = useState<RefObject<HTMLDivElement>>();
+  const [graphRef, setGraphRef] = useState<RefObject<HTMLDivElement | null>>();
+
   const [areaThresholdLines, setAreaThresholdLines] = useState();
 
   const graphEndpoint = path<string>(
@@ -72,7 +71,7 @@ const ChartGraph = ({
     updatedGraphInterval(interval);
   };
 
-  const getRef = (ref: RefObject<HTMLDivElement>) => {
+  const getRef = (ref: RefObject<HTMLDivElement | null>) => {
     setGraphRef(ref);
   };
 
