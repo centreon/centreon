@@ -695,9 +695,17 @@ class CentreonConfigCentreonBroker
         }
 
         $iIdServer = $values['ns_nagios_server'];
-        $iId = $objMain->insertServerInCfgNagios(-1, $iIdServer, $values['name']);
-        if (! empty($iId)) {
-            $objMain->insertDefaultCfgNagiosLogger($iId);
+        $hasEngineCfg = $this->db->prepare(
+            "SELECT COUNT(*) as nb FROM cfg_nagios WHERE nagios_server_id = :server_id"
+        );
+        $hasEngineCfg->bindValue(':server_id', (int) $iIdServer, PDO::PARAM_INT);
+        $hasEngineCfg->execute();
+        $row = $hasEngineCfg->fetch(PDO::FETCH_ASSOC);
+        if ((int) $row['nb'] === 0) {
+            $iId = $objMain->insertServerInCfgNagios(-1, $iIdServer, $values['name']);
+            if (! empty($iId)) {
+                $objMain->insertDefaultCfgNagiosLogger($iId);
+            }
         }
 
         // Get the ID
