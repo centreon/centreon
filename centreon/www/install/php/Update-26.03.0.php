@@ -90,17 +90,17 @@ $updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): vo
 
     if (
         $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            $pearDBO->getConnectionConfig()->getDatabaseNameRealTime(),
             'instances',
             'cma_certificate_sha'
         )
         || $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            $pearDBO->getConnectionConfig()->getDatabaseNameRealTime(),
             'instances',
             'cma_certificate_cn'
         )
         || $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
+            $pearDBO->getConnectionConfig()->getDatabaseNameRealTime(),
             'instances',
             'cma_certificate_peremption'
         )
