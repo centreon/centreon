@@ -18,7 +18,8 @@ import {
   type ForwardedRef,
   forwardRef,
   type HTMLAttributes,
-  type ReactElement
+  type ReactElement,
+  ReactNode
 } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -32,6 +33,7 @@ import { useAutoCompleteStyles } from './autoComplete.styles';
 export type Props = {
   autoFocus?: boolean;
   autoSize?: boolean;
+  helperText?: ReactNode;
   autoSizeCustomPadding?: number;
   autoSizeDefaultWidth?: number;
   dataTestId?: string;
@@ -95,6 +97,7 @@ const AutocompleteField = forwardRef(
       displayPopupIcon = true,
       autoFocus = false,
       hideInput = false,
+      helperText,
       dataTestId,
       autoSize = false,
       autoSizeDefaultWidth = 0,
@@ -142,6 +145,7 @@ const AutocompleteField = forwardRef(
       return (
         <TextField
           {...params}
+          helperText={helperText}
           autoFocus={autoFocus}
           autoSize={autoSize}
           autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
