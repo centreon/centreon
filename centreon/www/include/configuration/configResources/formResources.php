@@ -19,6 +19,7 @@
  */
 if (! $centreon->user->admin
     && isset($resourceId)
+    && $resourceId !== false
     && count($allowedResourceConf)
     && ! isset($allowedResourceConf[$resourceId])
 ) {
