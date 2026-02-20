@@ -358,8 +358,7 @@ class CentreonMainCfg
             ':debug_verbosity' => $baseValues['debug_verbosity'],
             ':max_debug_file_size' => $baseValues['max_debug_file_size'],
             ':cfg_file' => $baseValues['cfg_file'],
-            ':broker_module_cfg_file' => $baseValues['broker_module_cfg_file']
-                ?? "/etc/centreon-broker/{$sName}-module.json",
+            ':broker_module_cfg_file' => "/etc/centreon-broker/{$sName}-module.json",
         ];
 
         try {

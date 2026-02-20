@@ -391,7 +391,9 @@ function duplicateServer(array $server, array $nbrDup): void
                     if ($statement->rowCount() > 0) {
                         $row = $statement->fetch(PDO::FETCH_ASSOC);
                         $iId = $obj->insertServerInCfgNagios($serverId, $row['id'], $serverName);
-                        $obj->insertCfgNagiosLogger($iId, $serverId);
+                        if (! empty($iId)) {
+                            $obj->insertCfgNagiosLogger($iId, $serverId);
+                        }
 
                         if (isset($rowBks)) {
                             $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
