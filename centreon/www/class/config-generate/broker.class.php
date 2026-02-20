@@ -347,10 +347,17 @@ class Broker extends AbstractObjectJSON
 
                             // We override with external values
                             if (isset($this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId])) {
-                                $object[$key][$subvalue['config_group_id']][$subvalue['config_key']]
-                                    = $this->getInfoDb(
-                                        $this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId]
-                                    );
+                                if ($subvalue['config_key'] === 'event') {
+                                    $object[$key][$subvalue['config_group_id']]['filters'][$subvalue['config_key']]
+                                        = $this->getInfoDb(
+                                            $this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId]
+                                        );
+                                } else {
+                                    $object[$key][$subvalue['config_group_id']][$subvalue['config_key']]
+                                        = $this->getInfoDb(
+                                            $this->cacheExternalValue[$subvalue['config_key'] . '_' . $blockId]
+                                        );
+                                }
                             }
                             // Let broker insert in index data in pollers
                             if (

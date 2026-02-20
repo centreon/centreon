@@ -154,7 +154,11 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('openid_connect_client_basic_auth', '0'),
 ('openid_connect_verify_peer', '0'),
 ('unified_sql_db_type', 'mysql'),
-('resource_status_search_mode', 1);
+('resource_status_search_mode', 1),
+('brokercfg_event_script_timeout', 15),
+('brokercfg_event_script_managed_event_ttl', 3600),
+('brokercfg_event_script_script_path', '/usr/share/centreon/bin/console agent-configuration:host:create'),
+('brokercfg_event_script_event', 'neb:UnknownHost');
 
 --
 -- Contenu de la table `giv_components_template`
@@ -556,7 +560,8 @@ INSERT INTO `cb_type` (`cb_type_id`, `type_name`, `type_shortname`, `cb_module_i
 (33, 'Stream connector', 'lua', 21),
 (34, 'Unified SQL', 'unified_sql', 8),
 (35, 'BBDO Server', 'bbdo_server', 23),
-(36, 'BBDO Client', 'bbdo_client', 23);
+(36, 'BBDO Client', 'bbdo_client', 23),
+(37, 'Run script on event', 'event_script', 21);
 
 --
 -- Contenu de la table `cb_field`
@@ -663,7 +668,11 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (72, 'value', 'Value', 'Value of the metric.', 'text', NULL, 4),
 (73, 'type', 'Type', 'Type of the metric.', 'select', NULL, 4),
 (87, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1),
-(97, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1);
+(97, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1),
+(98, 'script_path', 'Script path', 'Path to the script to execute', 'text', 'T=options:C=value:CK=key:K=brokercfg_event_script_script_path', NULL),
+(99, 'timeout', 'Timeout', 'Maximum execution time of the script in seconds', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_timeout', NULL),
+(100, 'managed_event_ttl', 'Managed event TTL', 'Minimum delay before a new call to the script can be made in seconds', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl', NULL),
+(101, 'event', 'Event', 'Filtered event type', 'select', 'T=options:C=value:CK=key:K=brokercfg_event_script_event', 1);
 
 --
 -- Contenu de la table `cb_list`
@@ -701,7 +710,8 @@ INSERT INTO `cb_list` (`cb_list_id`, `cb_field_id`, `default_value`) VALUES
 (13, 91, 'gRPC'),
 (1, 93, 'no'),
 (1, 96, 'no'),
-(6, 97, NULL);
+(6, 97, NULL),
+(14, 101, NULL);
 
 --
 -- Contenu de la table `cb_list_values`
@@ -744,7 +754,36 @@ INSERT INTO `cb_list_values` (`cb_list_id`, `value_name`, `value_value`) VALUES
 (12, 'TCP Port', 'tcp'),
 (12, 'UNIX Socket', 'unix'),
 (13, 'gRPC', 'gRPC'),
-(13, 'TCP', 'TCP');
+(13, 'TCP', 'TCP'),
+(14, 'neb:Acknowledgement', 'neb:Acknowledgement'),
+(14, 'neb:AdaptiveHost', 'neb:AdaptiveHost'),
+(14, 'neb:AdaptiveHostStatus', 'neb:AdaptiveHostStatus'),
+(14, 'neb:AdaptiveService', 'neb:AdaptiveService'),
+(14, 'neb:AdaptiveServiceStatus', 'neb:AdaptiveServiceStatus'),
+(14, 'neb:AgentStats', 'neb:AgentStats'),
+(14, 'neb:Comment', 'neb:Comment'),
+(14, 'neb:CustomVariables', 'neb:CustomVariables'),
+(14, 'neb:Downtime', 'neb:Downtime'),
+(14, 'neb:Host', 'neb:Host'),
+(14, 'neb:HostCheck', 'neb:HostCheck'),
+(14, 'neb:HostGroup', 'neb:HostGroup'),
+(14, 'neb:HostGroupMember', 'neb:HostGroupMember'),
+(14, 'neb:HostParent', 'neb:HostParent'),
+(14, 'neb:HostStatus', 'neb:HostStatus'),
+(14, 'neb:Instance', 'neb:Instance'),
+(14, 'neb:InstanceConfiguration', 'neb:InstanceConfiguration'),
+(14, 'neb:InstanceStatus', 'neb:InstanceStatus'),
+(14, 'neb:LogEntry', 'neb:LogEntry'),
+(14, 'neb:OTLMetrics', 'neb:OTLMetrics'),
+(14, 'neb:ResponsiveInstance', 'neb:ResponsiveInstance'),
+(14, 'neb:Service', 'neb:Service'),
+(14, 'neb:ServiceCheck', 'neb:ServiceCheck'),
+(14, 'neb:ServiceGroup', 'neb:ServiceGroup'),
+(14, 'neb:ServiceGroupMember', 'neb:ServiceGroupMember'),
+(14, 'neb:ServiceStatus', 'neb:ServiceStatus'),
+(14, 'neb:Severity', 'neb:Severity'),
+(14, 'neb:Tag', 'neb:Tag'),
+(14, 'neb:UnknownHost', 'neb:UnknownHost');
 
 --
 -- Contenu de la table `cb_module_relation`
@@ -786,7 +825,8 @@ INSERT INTO `cb_tag_type_relation` (`cb_tag_id`, `cb_type_id`, `cb_type_uniq`) V
 (1, 35, 1),
 (2, 35, 1),
 (1, 36, 1),
-(2, 36, 1);
+(2, 36, 1),
+(1, 37, 0);
 
 --
 -- Contenu de la table `cb_type_field_relation`
@@ -949,7 +989,11 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (36, 92, 0, 4),
 (36, 94, 0, 6),
 (36, 95, 0, 7),
-(36, 97, 0, 9);
+(36, 97, 0, 9),
+(37, 98, 1, 1),
+(37, 99, 1, 3),
+(37, 100, 1, 4),
+(37, 101, 0, 2);
 
 --
 -- Contenu de la table `cb_type_field_relation`
