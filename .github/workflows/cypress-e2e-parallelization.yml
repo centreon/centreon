@@ -296,7 +296,7 @@ jobs:
     if: |
       ! cancelled() &&
       ! contains(needs.*.result, 'cancelled') &&
-      (inputs.stability == 'testing' || github.event_name == 'schedule') &&
+      (inputs.stability == 'testing' || inputs.is_nightly == 'true') &&
       needs.cypress-e2e-test-list.outputs.has_features == 'true'
     runs-on: ubuntu-24.04
     steps:
