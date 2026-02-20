@@ -340,7 +340,7 @@ function updateResource(int $resourceId, array $submitedValues): void
     $centreon->CentreonLogAction->insertLog(
         'resource',
         $resourceId,
-        CentreonDB::escape($submitedValues['resource_name']),
+        $submitedValues['resource_name'],
         'c',
         $fields
     );
@@ -403,7 +403,7 @@ function insertResource($ret = [])
     $centreon->CentreonLogAction->insertLog(
         'resource',
         $resource_id,
-        CentreonDB::escape($ret['resource_name']),
+        $ret['resource_name'],
         'a',
         $fields
     );

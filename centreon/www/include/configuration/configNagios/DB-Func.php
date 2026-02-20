@@ -312,9 +312,7 @@ function concatMacrosWhitelist(array $macros): string
     return trim(
         implode(
             ',',
-            array_map(function ($macro) {
-                return CentreonDB::escape($macro);
-            }, $macros)
+            $macros
         )
     );
 }
@@ -598,7 +596,7 @@ function insertNagios($data = [], $brokerTab = [])
     $centreon->CentreonLogAction->insertLog(
         'engine',
         $nagios_id['MAX(nagios_id)'],
-        $pearDB->escape($data['nagios_name']),
+        $data['nagios_name'],
         'a',
         $fields
     );
@@ -675,7 +673,7 @@ function updateNagios($nagiosId = null)
     $centreon->CentreonLogAction->insertLog(
         'engine',
         $nagiosId,
-        $pearDB->escape($data['nagios_name']),
+        $data['nagios_name'],
         'c',
         $fields
     );

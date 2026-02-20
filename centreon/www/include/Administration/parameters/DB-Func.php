@@ -145,25 +145,25 @@ function updateNagiosConfigData($gopt_id = null)
         $pearDB,
         'nagios_path_plugins',
         isset($ret['nagios_path_plugins']) && $ret['nagios_path_plugins'] != null
-            ? $pearDB->escape($ret['nagios_path_plugins']) : 'NULL'
+            ? $ret['nagios_path_plugins'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'mailer_path_bin',
         isset($ret['mailer_path_bin']) && $ret['mailer_path_bin'] != null
-            ? $pearDB->escape($ret['mailer_path_bin']) : 'NULL'
+            ? $ret['mailer_path_bin'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'interval_length',
         isset($ret['interval_length']) && $ret['interval_length'] != null
-            ? $pearDB->escape($ret['interval_length']) : 'NULL'
+            ? $ret['interval_length'] : 'NULL'
     );
     updateOption(
         $pearDB,
         'broker',
         isset($ret['broker']) && $ret['broker'] != null
-            ? $pearDB->escape($ret['broker']) : 'broker'
+            ? $ret['broker'] : 'broker'
     );
     $pearDB->query('UPDATE acl_resources SET changed = 1');
 
@@ -204,13 +204,13 @@ function updateNagiosConfigData($gopt_id = null)
         $pearDB,
         'monitoring_dwt_duration',
         isset($ret['monitoring_dwt_duration']) && $ret['monitoring_dwt_duration']
-            ? $pearDB->escape($ret['monitoring_dwt_duration']) : 3600
+            ? $ret['monitoring_dwt_duration'] : 3600
     );
     updateOption(
         $pearDB,
         'monitoring_dwt_duration_scale',
         isset($ret['monitoring_dwt_duration_scale']) && $ret['monitoring_dwt_duration_scale']
-            ? $pearDB->escape($ret['monitoring_dwt_duration_scale']) : 's'
+            ? $ret['monitoring_dwt_duration_scale'] : 's'
     );
     updateOption(
         $pearDB,
@@ -814,7 +814,7 @@ function updateODSConfigData()
     updateOption(
         $pearDB,
         'centstorage_drop_file',
-        isset($ret['centstorage_drop_file']) ? $pearDB->escape($ret['centstorage_drop_file']) : ''
+        isset($ret['centstorage_drop_file']) ? $ret['centstorage_drop_file'] : ''
     );
 }
 

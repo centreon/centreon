@@ -47,7 +47,9 @@ $pearDBO = new CentreonDB('centstorage');
 
 $sid = session_id();
 
-$DBRESULT = $pearDB->query("SELECT * FROM session WHERE session_id = '" . $pearDB->escape($sid) . "'");
+$DBRESULT = $pearDB->prepare('SELECT * FROM session WHERE session_id = :sid');
+$DBRESULT->bindValue(':sid', $sid);
+$DBRESULT->execute();
 if (! $DBRESULT->rowCount()) {
     exit();
 }

@@ -747,7 +747,7 @@ function insertServer(array $data): int
     $centreon->CentreonLogAction->insertLog(
         'poller',
         $poller['last_id'] ?? null,
-        CentreonDB::escape($data['name']),
+        $data['name'],
         'a',
         $fields
     );
@@ -795,7 +795,7 @@ function addUserRessource(int $serverId): bool
             $centreon->CentreonLogAction->insertLog(
                 'resource',
                 $serverId,
-                CentreonDB::escape($resource['resource_name']),
+                $resource['resource_name'],
                 'a',
                 $fields
             );
@@ -1076,7 +1076,7 @@ function updateServer(int $id, array $data): void
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);
-    $centreon->CentreonLogAction->insertLog('poller', $id, CentreonDB::escape($data['name']), 'c', $fields);
+    $centreon->CentreonLogAction->insertLog('poller', $id, $data['name'], 'c', $fields);
 }
 
 /**

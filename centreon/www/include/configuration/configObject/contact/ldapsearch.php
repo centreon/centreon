@@ -153,10 +153,11 @@ foreach ($ids as $arId) {
                     $searchResult[$i]['name'] = str_replace("\'", "\\\'", $searchResult[$i]['name']);
 
                     $buffer->startElement('user');
-                    $query = 'SELECT `ar_id`, `ar_name`
-                              FROM auth_ressource
-                              WHERE ar_id = ' . $pearDB->escape($arId);
-                    $resServer = $pearDB->query($query);
+                    $resServer = $pearDB->prepare(
+                        'SELECT `ar_id`, `ar_name` FROM auth_ressource WHERE ar_id = :arId'
+                    );
+                    $resServer->bindValue(':arId', (int) $arId, \PDO::PARAM_INT);
+                    $resServer->execute();
                     $row = $resServer->fetchRow();
                     $buffer->writeAttribute('server', $row['ar_name']);
                     $buffer->writeAttribute('ar_id', $row['ar_id']);
