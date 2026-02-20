@@ -711,7 +711,8 @@ class CentreonConfigCentreonBroker
             }
             $this->db->commit();
         } catch (PDOException $e) {
-            $this->db->rollBack();
+            try { $this->db->rollBack(); } catch (PDOException $ignored) {}
+            error_log('Failed to create engine config for server ' . $iIdServer . ': ' . $e->getMessage());
         }
 
         // Get the ID
