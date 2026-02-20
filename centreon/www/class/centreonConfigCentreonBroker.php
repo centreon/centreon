@@ -695,24 +695,9 @@ class CentreonConfigCentreonBroker
         }
 
         $iIdServer = $values['ns_nagios_server'];
-        try {
-            $this->db->beginTransaction();
-            $hasEngineCfg = $this->db->prepare(
-                "SELECT COUNT(*) as nb FROM cfg_nagios WHERE nagios_server_id = :server_id FOR UPDATE"
-            );
-            $hasEngineCfg->bindValue(':server_id', (int) $iIdServer, PDO::PARAM_INT);
-            $hasEngineCfg->execute();
-            $row = $hasEngineCfg->fetch(PDO::FETCH_ASSOC);
-            if ((int) $row['nb'] === 0) {
-                $iId = $objMain->insertServerInCfgNagios(-1, $iIdServer, $values['name']);
-                if (! empty($iId)) {
-                    $objMain->insertDefaultCfgNagiosLogger($iId);
-                }
-            }
-            $this->db->commit();
-        } catch (PDOException $e) {
-            try { $this->db->rollBack(); } catch (PDOException $ignored) {}
-            error_log('Failed to create engine config for server ' . $iIdServer . ': ' . $e->getMessage());
+        $iId = $objMain->insertServerInCfgNagios(-1, $iIdServer, $values['name']);
+        if (! empty($iId)) {
+            $objMain->insertDefaultCfgNagiosLogger($iId);
         }
 
         // Get the ID

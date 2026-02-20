@@ -223,6 +223,16 @@ class CentreonMainCfg
             return false;
         }
 
+        $hasEngineCfg = $this->DB->prepare(
+            "SELECT COUNT(*) as nb FROM cfg_nagios WHERE nagios_server_id = :server_id"
+        );
+        $hasEngineCfg->bindValue(':server_id', (int) $iId, PDO::PARAM_INT);
+        $hasEngineCfg->execute();
+        $row = $hasEngineCfg->fetch(PDO::FETCH_ASSOC);
+        if ((int) $row['nb'] > 0) {
+            return false;
+        }
+
         $res = $this->DB->query('SELECT * FROM cfg_nagios WHERE  nagios_server_id = ' . $source);
         $baseValues = $res->rowCount() == 0 ? $this->aInstanceDefaultValues : $res->fetch();
 
