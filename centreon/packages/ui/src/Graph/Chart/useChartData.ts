@@ -29,6 +29,16 @@ interface Props {
 }
 
 const getBoolean = (value) => Boolean(Number(value));
+const defaultDsData = {
+  ds_color_area: '#FFFFFF',
+  ds_color_line: '#000000',
+  ds_filled: false,
+  ds_invert: false,
+  ds_legend: '',
+  ds_order: '0',
+  ds_stack: '0',
+  ds_transparency: 80
+};
 
 const useGraphData = ({ data }: Props): GraphDataResult => {
   const adjustedDataRef = useRef<Data>();
@@ -42,9 +52,17 @@ const useGraphData = ({ data }: Props): GraphDataResult => {
       return undefined;
     }
 
+    const metricsWithValidDsData = (data?.metrics || []).map((metric) => ({
+      ...metric,
+      ds_data: {
+        ...defaultDsData,
+        ...(metric?.ds_data || {})
+      }
+    }));
+
     const metricsGroupedByColor = groupBy(
-      (metric) => metric.ds_data.ds_color_line
-    )(data?.metrics || []);
+      (metric) => metric.ds_data?.ds_color_line || '#000000'
+    )(metricsWithValidDsData);
 
     const newMetrics = Object.entries(metricsGroupedByColor).map(
       ([color, value]) => {
