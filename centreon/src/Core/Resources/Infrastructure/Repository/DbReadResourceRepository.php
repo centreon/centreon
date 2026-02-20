@@ -43,7 +43,6 @@ use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParame
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
-use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
@@ -97,7 +96,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param ConnectionInterface $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
-     * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
      * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      *
      * @throws \InvalidArgumentException
@@ -106,7 +104,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         ConnectionInterface $db,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
-        private readonly \Traversable $resourceACLProviders,
         \Traversable $extraDataProviders,
     ) {
         parent::__construct($db);
@@ -493,14 +490,50 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countAllResourcesByAccessGroupIds(array $accessGroupIds): int
     {
         try {
-            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
-            $query = $this->connection->createQueryBuilder()
-                ->select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
-                ->from('`:dbstg`.`resources`')
-                ->where($accessGroupRequest)
-                ->getQuery();
+            $queryParameters = new QueryParameters();
+            if ($accessGroupIds !== []) {
+                foreach ($accessGroupIds as $index => $accessGroupId) {
+                    $key = ":access_group_{$index}";
+                    $queryParameters->add($key, QueryParameter::int($key, $accessGroupId));
+                    $aclKeys[] = $key;
 
-            return (int) $this->connection->fetchOne($this->translateDbName($query));
+                    $accessGroupPrepareKeys = implode(', ', $aclKeys);
+                }
+                // Use a derived table JOIN instead of correlated EXISTS subqueries to avoid O(n) subquery
+                // executions per outer row. UNION ALL is safe here because type=1 and type IN (0,2,4)
+                // are mutually exclusive, so no resource_id can appear in both branches.
+                $aclJoin = <<<SQL
+
+                        INNER JOIN (
+                            SELECT r.resource_id
+                            FROM `:dbstg`.`resources` r
+                            INNER JOIN `:dbstg`.`centreon_acl`
+                                ON r.type = 1
+                                AND r.id = centreon_acl.host_id
+                                AND centreon_acl.group_id IN ({$accessGroupPrepareKeys})
+                            WHERE r.enabled = 1
+
+                            UNION ALL
+
+                            SELECT r.resource_id
+                            FROM `:dbstg`.`resources` r
+                            INNER JOIN `:dbstg`.`centreon_acl`
+                                ON r.type IN (0, 2, 4)
+                                AND r.parent_id = centreon_acl.host_id
+                                AND r.id = centreon_acl.service_id
+                                AND centreon_acl.group_id IN ({$accessGroupPrepareKeys})
+                            WHERE r.enabled = 1
+                        ) acl_authorized ON acl_authorized.resource_id = resources.resource_id
+                    SQL;
+            }
+
+            $query = <<<SQL
+                SELECT COUNT(DISTINCT resources.resource_id) AS REALTIME
+                FROM `:dbstg`.`resources`
+                {$aclJoin}
+                SQL;
+
+            return $this->count($query, $queryParameters, false);
         } catch (\Throwable $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',
@@ -539,8 +572,44 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             ? ''
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
+        $aclJoin = '';
+        if ($accessGroupIds !== []) {
+            foreach ($accessGroupIds as $index => $accessGroupId) {
+                $key = ":access_group_{$index}";
+                $queryParametersFromRequestParameter->add($key, QueryParameter::int($key, $accessGroupId));
+                $aclKeys[] = $key;
+
+                $accessGroupPrepareKeys = implode(', ', $aclKeys);
+            }
+            // Use a derived table JOIN instead of correlated EXISTS subqueries to avoid O(n) subquery
+            // executions per outer row. UNION (not ALL) is required: within each branch a resource_id
+            // can appear multiple times because centreon_acl has one row per (group_id, host_id, service_id),
+            // so a resource authorized in N groups produces N matching ACL rows.
+            $aclJoin = <<<SQL
+
+                    INNER JOIN (
+                        SELECT r.resource_id
+                        FROM `:dbstg`.`resources` r
+                        INNER JOIN `:dbstg`.`centreon_acl`
+                            ON r.type = 1
+                            AND r.id = centreon_acl.host_id
+                            AND centreon_acl.group_id IN ({$accessGroupPrepareKeys})
+                        WHERE r.enabled = 1
+                        UNION
+                        SELECT r.resource_id
+                        FROM `:dbstg`.`resources` r
+                        INNER JOIN `:dbstg`.`centreon_acl`
+                            ON r.type IN (0, 2, 4)
+                            AND r.parent_id = centreon_acl.host_id
+                            AND r.id = centreon_acl.service_id
+                            AND centreon_acl.group_id IN ({$accessGroupPrepareKeys})
+                        WHERE r.enabled = 1
+                    ) acl_authorized ON acl_authorized.resource_id = resources.resource_id
+                SQL;
+        }
+
         $query .= <<<SQL
-            SELECT :sql_query_find DISTINCT
+            SELECT :sql_query_find
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
@@ -585,7 +654,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 resources.flapping,
                 resources.percent_state_change
             FROM `:dbstg`.`resources`
-            INNER JOIN `:dbstg`.`instances`
+            STRAIGHT_JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
             {$joinCtes}
             LEFT JOIN `:dbstg`.`resources` parent_resource
@@ -593,8 +662,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 AND parent_resource.type = {$resourceType}
             LEFT JOIN `:dbstg`.`severities`
                 ON `severities`.severity_id = `resources`.severity_id
-            LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                ON `rtags`.resource_id = `resources`.resource_id
+            {$aclJoin}
             SQL;
 
         /**
@@ -627,10 +695,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         foreach ($this->extraDataProviders as $provider) {
             $query .= $provider->getSubFilter($filter);
-        }
-
-        if ($accessGroupIds !== []) {
-            $query .= " AND {$this->addResourceAclSubRequest($accessGroupIds)}";
         }
 
         $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
@@ -674,7 +738,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
              * Handle sort parameters.
              */
             $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
-                ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+                ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
         }
 
         /**
@@ -692,25 +756,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         }
 
         return $query;
-    }
-
-    /**
-     * @param int[] $accessGroupIds
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function addResourceAclSubRequest(array $accessGroupIds): string
-    {
-        $orConditions = array_map(
-            static fn (ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
-            iterator_to_array($this->resourceACLProviders)
-        );
-
-        if ($orConditions === []) {
-            throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
-        }
-
-        return sprintf('(%s)', implode(' OR ', $orConditions));
     }
 
     /**
@@ -757,18 +802,19 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                     UNION
                     SELECT resources.resource_id
                     FROM `:dbstg`.`resources` AS resources
-                    INNER JOIN `:dbstg`.`resources` AS parent_resource
-                        ON parent_resource.id = resources.parent_id
-                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
-                        ON rtags.resource_id = parent_resource.resource_id
-                    INNER JOIN `:dbstg`.`tags` AS tags
-                        ON tags.tag_id = rtags.tag_id
-                    WHERE tags.type = 1
-                        AND tags.name IN ({$hostGroupPrepareKeys})
-                        AND resources.enabled = 1
-                        AND parent_resource.enabled = 1
-                        AND parent_resource.type = 1
-                    GROUP BY resources.resource_id
+                    WHERE resources.enabled = 1
+                        AND resources.parent_id IN (
+                            SELECT parent_resource.id
+                            FROM `:dbstg`.`resources` AS parent_resource
+                            INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                                ON rtags.resource_id = parent_resource.resource_id
+                            INNER JOIN `:dbstg`.`tags` AS tags
+                                ON tags.tag_id = rtags.tag_id
+                            WHERE tags.type = 1
+                                AND tags.name IN ({$hostGroupPrepareKeys})
+                                AND parent_resource.enabled = 1
+                                AND parent_resource.type = 1
+                        )
                 )
                 SQL;
         }
@@ -799,18 +845,19 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                     UNION
                     SELECT resources.resource_id
                     FROM `:dbstg`.`resources` AS resources
-                    INNER JOIN `:dbstg`.`resources` AS parent_resource
-                        ON parent_resource.id = resources.parent_id
-                    INNER JOIN `:dbstg`.`resources_tags` AS rtags
-                        ON rtags.resource_id = parent_resource.resource_id
-                    INNER JOIN `:dbstg`.`tags` AS tags
-                        ON tags.tag_id = rtags.tag_id
-                    WHERE tags.type = 3
-                        AND tags.name IN ({$hostCategoryPrepareKeys})
-                        AND resources.enabled = 1
-                        AND parent_resource.enabled = 1
-                        AND parent_resource.type = 1
-                    GROUP BY resources.resource_id
+                    WHERE resources.enabled = 1
+                        AND resources.parent_id IN (
+                            SELECT parent_resource.id
+                            FROM `:dbstg`.`resources` AS parent_resource
+                            INNER JOIN `:dbstg`.`resources_tags` AS rtags
+                                ON rtags.resource_id = parent_resource.resource_id
+                            INNER JOIN `:dbstg`.`tags` AS tags
+                                ON tags.tag_id = rtags.tag_id
+                            WHERE tags.type = 3
+                                AND tags.name IN ({$hostCategoryPrepareKeys})
+                                AND parent_resource.enabled = 1
+                                AND parent_resource.type = 1
+                        )
                 )
                 SQL;
         }
@@ -827,10 +874,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $nextHeaders();
             $headers .= <<<SQL
                 service_groups AS (
-                    SELECT rtags.resource_id
+                    SELECT DISTINCT rtags.resource_id
                     FROM `:dbstg`.resources_tags AS rtags
                     INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
+                    INNER JOIN `:dbstg`.resources
+                        ON resources.resource_id = rtags.resource_id
+                        AND resources.enabled = 1
                     WHERE tags.name IN ({$serviceGroupPrepareKeys})
                         AND tags.type = 0
                 )
@@ -849,10 +899,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $nextHeaders();
             $headers .= <<<SQL
                 service_categories AS (
-                    SELECT rtags.resource_id
+                    SELECT DISTINCT rtags.resource_id
                     FROM `:dbstg`.resources_tags AS rtags
                     INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
+                    INNER JOIN `:dbstg`.resources
+                        ON resources.resource_id = rtags.resource_id
+                        AND resources.enabled = 1
                     WHERE tags.name IN ({$serviceCategoryPrepareKeys})
                         AND tags.type = 2
                 )
@@ -1144,20 +1197,21 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $filteredNames !== []
             || $filteredLevels !== []
         ) {
-            $subRequest = ' AND EXISTS (
-                SELECT 1 FROM `:dbstg`.severities
-                WHERE (severities.severity_id = resources.severity_id OR severities.severity_id = parent_resource.severity_id)
-                    AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
-
-            $subRequest .= $filteredNames !== []
+            $typeCondition = ' AND severities.type IN (' . implode(', ', $filteredTypes) . ')';
+            $nameCondition = $filteredNames !== []
                 ? ' AND severities.name IN (' . implode(', ', $filteredNames) . ')'
                 : '';
-
-            $subRequest .= $filteredLevels !== []
+            $levelCondition = $filteredLevels !== []
                 ? ' AND severities.level IN (' . implode(', ', $filteredLevels) . ')'
                 : '';
 
-            $subRequest .= ' LIMIT 1)';
+            $severitySubQuery = 'SELECT 1 FROM `:dbstg`.severities WHERE severities.severity_id = %s'
+                . $typeCondition . $nameCondition . $levelCondition;
+
+            $subRequest = ' AND ('
+                . 'EXISTS (' . sprintf($severitySubQuery, 'resources.severity_id') . ')'
+                . ' OR EXISTS (' . sprintf($severitySubQuery, 'parent_resource.severity_id') . ')'
+                . ')';
         }
 
         return $subRequest;
