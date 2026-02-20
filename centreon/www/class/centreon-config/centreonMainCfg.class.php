@@ -367,9 +367,7 @@ class CentreonMainCfg
             return false;
         }
 
-        $res1 = $this->DB->query('SELECT MAX(nagios_id) as last_id FROM `cfg_nagios`');
-        $nagios = $res1->fetch();
-        $lastId = $nagios['last_id'];
+        $lastId = (int) $this->DB->lastInsertId();
 
         if ($baseValues['nagios_activate'] === '1' || $baseValues['nagios_activate'] === 1) {
             $deactivate = $this->DB->prepare(
