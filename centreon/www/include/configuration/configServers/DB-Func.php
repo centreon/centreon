@@ -393,17 +393,17 @@ function duplicateServer(array $server, array $nbrDup): void
                         $iId = $obj->insertServerInCfgNagios($serverId, $row['id'], $serverName);
                         if (! empty($iId)) {
                             $obj->insertCfgNagiosLogger($iId, $serverId);
-                        }
 
-                        if (isset($rowBks)) {
-                            $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
-                                    . ' VALUES (:cfg_nagios_id, :broker_module)';
-                            $statement = $pearDB->prepare($rqBk);
-                            foreach ($rowBks as $keyBk => $valBk) {
-                                if ($valBk['broker_module']) {
-                                    $statement->bindValue(':cfg_nagios_id', (int) $iId, PDO::PARAM_INT);
-                                    $statement->bindValue(':broker_module', $valBk['broker_module'], PDO::PARAM_STR);
-                                    $statement->execute();
+                            if (isset($rowBks)) {
+                                $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
+                                        . ' VALUES (:cfg_nagios_id, :broker_module)';
+                                $statement = $pearDB->prepare($rqBk);
+                                foreach ($rowBks as $keyBk => $valBk) {
+                                    if ($valBk['broker_module']) {
+                                        $statement->bindValue(':cfg_nagios_id', (int) $iId, PDO::PARAM_INT);
+                                        $statement->bindValue(':broker_module', $valBk['broker_module'], PDO::PARAM_STR);
+                                        $statement->execute();
+                                    }
                                 }
                             }
                         }
