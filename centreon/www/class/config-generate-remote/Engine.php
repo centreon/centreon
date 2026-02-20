@@ -214,7 +214,7 @@ class Engine extends AbstractObject
             $this->stmtEngine = $this->backendInstance->db->prepare(
                 "SELECT {$this->attributesSelect} FROM cfg_nagios "
                 . "WHERE nagios_server_id = :poller_id AND nagios_activate = '1' "
-                . "ORDER BY nagios_id ASC LIMIT 1"
+                . 'ORDER BY nagios_id ASC LIMIT 1'
             );
         }
         $this->stmtEngine->bindParam(':poller_id', $pollerId, PDO::PARAM_INT);
