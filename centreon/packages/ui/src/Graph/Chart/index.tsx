@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
-import { memo, type RefCallback, useEffect } from "react";
 import "dayjs/locale/en";
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
 import "dayjs/locale/pt";
+import { memo } from "react";
 
 import { NoData } from "@centreon/ui";
 
@@ -78,11 +78,6 @@ const WrapperChart = ({
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
   const { adjustedData } = useChartData({ data, end, start });
-  const {
-    ref,
-    width: responsiveWidth,
-    height: responsiveHeight,
-  } = useResizeObserver();
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
