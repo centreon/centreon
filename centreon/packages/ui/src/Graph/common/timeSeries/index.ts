@@ -55,7 +55,6 @@ interface TimeTickWithMetrics {
 }
 
 const defaultDsData = {
-  ds_color_area: '#FFFFFF',
   ds_color_line: '#000000',
   ds_filled: false,
   ds_invert: false,
@@ -133,7 +132,12 @@ const toLine = ({
   metric_id,
   displayAs
 }: Metric): Line => {
-  const safeDsData = { ...defaultDsData, ...(ds_data || {}) };
+  const safeDsData = {
+    ...defaultDsData,
+    ...(ds_data || {}),
+    ds_color_area:
+      ds_data?.ds_color_area ?? ds_data?.ds_color_line ?? defaultDsData.ds_color_line
+  };
 
   return {
     areaColor: safeDsData.ds_color_area,

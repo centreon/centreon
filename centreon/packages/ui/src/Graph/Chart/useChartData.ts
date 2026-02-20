@@ -30,7 +30,6 @@ interface Props {
 
 const getBoolean = (value) => Boolean(Number(value));
 const defaultDsData = {
-  ds_color_area: '#FFFFFF',
   ds_color_line: '#000000',
   ds_filled: false,
   ds_invert: false,
@@ -56,7 +55,11 @@ const useGraphData = ({ data }: Props): GraphDataResult => {
       ...metric,
       ds_data: {
         ...defaultDsData,
-        ...(metric?.ds_data || {})
+        ...(metric?.ds_data || {}),
+        ds_color_area:
+          metric?.ds_data?.ds_color_area ??
+          metric?.ds_data?.ds_color_line ??
+          defaultDsData.ds_color_line
       }
     }));
 
