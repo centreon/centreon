@@ -4,7 +4,7 @@ import { Button } from '@centreon/ui/components';
 
 import { useSetAtom } from 'jotai';
 import { chain, defaultTo, find, pipe, propEq, propOr } from 'ramda';
-import { ReactElement, useCallback } from 'react';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { pollerToGenerateCommanAtom } from '../../atoms';
@@ -20,7 +20,7 @@ const InstallationCommandButton = ({ rows }: Props): ReactElement => {
 
   const setOpenFormModal = useSetAtom(pollerToGenerateCommanAtom);
 
-  const displayModal = useCallback(() => {
+  const displayModal = (): void => {
     const getCentralPoller = pipe(
       chain(propOr([], 'pollers')),
       find(propEq(true, 'isCentral')),
@@ -28,7 +28,7 @@ const InstallationCommandButton = ({ rows }: Props): ReactElement => {
     );
 
     setOpenFormModal(getCentralPoller(rows) as { id?: number; name?: string });
-  }, []);
+  };
 
   return (
     <Button
