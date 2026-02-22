@@ -10,9 +10,8 @@ import { useTranslation } from 'react-i18next';
 
 import { itemToDeleteAtom, pollerToGenerateCommanAtom } from '../../atoms';
 import { AgentConfigurationListing, AgentType } from '../../models';
-import { useStyles } from './Action.styles';
-
 import { labelCommand, labelDelete } from '../../translatedLabels';
+import { useStyles } from './Action.styles';
 
 interface Props {
   row: AgentConfigurationListing & {
