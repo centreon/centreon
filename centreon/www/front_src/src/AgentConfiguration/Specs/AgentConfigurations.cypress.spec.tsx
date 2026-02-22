@@ -1,3 +1,5 @@
+import initialize, { linuxCommandLine, windowsCommandLine } from './initialize';
+
 import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabels';
 import {
   labelAction,
@@ -50,7 +52,6 @@ import {
   labelWarningEncryptionLevelTelegraf,
   labelWelcomeToTheAgentsConfigurationPage
 } from '../translatedLabels';
-import initialize from './initialize';
 
 describe('Agent configurations', () => {
   it('displays a welcome label when the listing is empty', () => {
@@ -1049,7 +1050,59 @@ describe('Agent configurations modal', () => {
     cy.makeSnapshot();
   });
 
-  it('commands', () => {
+  it('opens modal from global command button and shows values for central poller', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.get('button').contains(labelCommand).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+    cy.contains(labelCommandWarning);
+    cy.contains(labelSelectPollerThatWillMonitor);
+
+    cy.findByTestId('Select poller').should('have.value', 'Central');
+
+    cy.contains(labelSelectOperatingSystem);
+
+    cy.findByTestId('Windows').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId('Linux').should('be.visible');
+
+    cy.contains(labelExecuteTheScript);
+
+    cy.findByTestId(labelCommand).should('have.text', windowsCommandLine);
+
+    cy.makeSnapshot();
+
+    cy.findByTestId('CloseIcon');
+  });
+
+  it('opens modal from row command icon and display the values for the selected poller', () => {
+    initialize({});
+
+    cy.waitForRequest('@getAgentConfigurations');
+
+    cy.contains(labelAgentsConfigurations).should('be.visible');
+
+    cy.findAllByTestId('ExpandMoreIcon').eq(2).click();
+
+    cy.findAllByTestId(labelCommand).should('have.length', 2);
+    cy.findAllByTestId(labelCommand).eq(0).click();
+
+    cy.waitForRequest('@getCommandDetails');
+
+    cy.contains(labelGenerateInstallationCommand);
+
+    cy.findByTestId('Select poller').should('have.value', 'Central');
+
+    cy.findByTestId('CloseIcon');
+  });
+
+  it('updates displayed command when changing operating system', () => {
     initialize({});
 
     cy.waitForRequest('@getAgentConfigurations');
@@ -1062,16 +1115,18 @@ describe('Agent configurations modal', () => {
 
     cy.contains(labelGenerateInstallationCommand);
 
-    cy.contains(labelCommandWarning);
-
-    cy.contains(labelSelectPollerThatWillMonitor);
-
-    cy.contains('Central');
-
     cy.contains(labelSelectOperatingSystem);
 
-    cy.contains(labelExecuteTheScript);
+    cy.findByTestId('Windows').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId('Linux').should('have.attr', 'data-selected', 'false');
+    cy.findByTestId(labelCommand).should('have.text', windowsCommandLine);
+
+    cy.findByTestId('Linux').click();
+    cy.findByTestId('Linux').should('have.attr', 'data-selected', 'true');
+    cy.findByTestId(labelCommand).should('have.text', linuxCommandLine);
 
     cy.makeSnapshot();
+
+    cy.findByTestId('CloseIcon');
   });
 });

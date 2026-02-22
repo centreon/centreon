@@ -18,6 +18,11 @@ import {
   pollersEndpoint
 } from '../api/endpoints';
 
+export const windowsCommandLine =
+  'installcma.ps /FINGERPRINT=wwwww  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4318';
+export const linuxCommandLine =
+  'installcma.ps /FINGERPRINT=lllllll  /COMPONENTS=agent,plugins /HOST=host_1 /ENDPOINT=https://central/centreon:4317';
+
 const mockRequest = (isListingEmpty): void => {
   if (isListingEmpty) {
     cy.interceptAPIRequest({

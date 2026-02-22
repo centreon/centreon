@@ -25,7 +25,7 @@
       "id": 2,
       "name": "AC 2",
       "type": "centreon-agent",
-      "isAgentInitiated": true,
+      "is_agent_initiated": true,
       "pollers": [
         {
           "id": 1,
@@ -42,15 +42,17 @@
       "id": 3,
       "name": "AC 3",
       "type": "centreon-agent",
-      "isAgentInitiated": false,
+      "is_agent_initiated": false,
       "pollers": [
         {
           "id": 1,
-          "name": "poller 1"
+          "name": "poller 1",
+          "is_central": true
         },
         {
           "id": 2,
-          "name": "poller 2"
+          "name": "poller 2",
+          "is_central": true
         }
       ]
     },

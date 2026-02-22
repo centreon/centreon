@@ -10,8 +10,9 @@ import { useTranslation } from 'react-i18next';
 
 import { itemToDeleteAtom, pollerToGenerateCommanAtom } from '../../atoms';
 import { AgentConfigurationListing, AgentType } from '../../models';
-import { labelDelete } from '../../translatedLabels';
 import { useStyles } from './Action.styles';
+
+import { labelCommand, labelDelete } from '../../translatedLabels';
 
 interface Props {
   row: AgentConfigurationListing & {
@@ -62,9 +63,9 @@ const Action = ({ row }: Props): JSX.Element => {
       <div>
         {isCommandButtonDisplayed && (
           <IconButton
-            ariaLabel={t(labelDelete)}
+            ariaLabel={t(labelCommand)}
             onClick={displayCommandModal}
-            title={t(labelDelete)}
+            title={t(labelCommand)}
           >
             <CodeOffTwoTone className={classes.commandIcon} />
           </IconButton>

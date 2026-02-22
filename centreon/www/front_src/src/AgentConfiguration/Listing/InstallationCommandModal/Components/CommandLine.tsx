@@ -7,6 +7,7 @@ import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
+  labelCommand,
   labelCommandCopied,
   labelCopyCommand,
   labelFailedToCopyTheCommand
@@ -26,7 +27,7 @@ export const CommandLine = ({
 
   return (
     <Box className="bg-text-primary text-primary-contrastText rounded-sm p-2 flex justify-between">
-      <Typography>{commandLine}</Typography>
+      <Typography data-testid={labelCommand}>{commandLine}</Typography>
       <IconButton
         ariaLabel={t(labelCopyCommand)}
         className="text-primary-contrastText"

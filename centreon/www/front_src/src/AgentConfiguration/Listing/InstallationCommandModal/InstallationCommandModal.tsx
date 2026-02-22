@@ -68,6 +68,7 @@ const InstallationCommandModal = (): ReactElement => {
                     ariaLabel={t(label)}
                     className={`flex justify-center items-center w-16 h-16 rounded-sm ${equals(name, state.os) ? 'border-2 border-primary-main' : ''}`}
                     onClick={() => setState({ ...state, os: name })}
+                    data-selected={equals(name, state.os)}
                   >
                     <img alt={label} className="h-12 w-auto" src={src} />
                   </IconButton>
