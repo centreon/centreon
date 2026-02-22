@@ -145,6 +145,7 @@ const ConnectedAutocomplete = ({
         getEndpoint={getEndpoint}
         getOptionLabel={connectedAutocomplete?.getOptionLabel}
         getRenderedOptionText={connectedAutocomplete?.getRenderedOptionText}
+        helperText={connectedAutocomplete?.helperText}
         initialPage={1}
         isOptionEqualToValue={isOptionEqualToValue}
         label={t(label)}
