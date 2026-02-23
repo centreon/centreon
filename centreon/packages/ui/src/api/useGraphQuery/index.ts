@@ -65,9 +65,9 @@ const isCustomTimePeriod = (
   timePeriod:
     | number
     | {
-      end?: string | null;
-      start?: string | null;
-    }
+        end?: string | null;
+        start?: string | null;
+      }
 ): boolean => has('end', timePeriod) && has('start', timePeriod);
 
 interface PerformanceGraphData extends Omit<LineChartData, 'global'> {
@@ -107,9 +107,9 @@ const useGraphQuery = ({
 }: UseMetricsQueryProps): UseMetricsQueryState => {
   const timePeriodToUse = equals(timePeriod?.timePeriodType, -1)
     ? {
-      end: timePeriod.end,
-      start: timePeriod.start
-    }
+        end: timePeriod.end,
+        start: timePeriod.start
+      }
     : timePeriod?.timePeriodType;
 
   const startAndEnd = isCustomTimePeriod(timePeriodToUse)
@@ -184,13 +184,13 @@ const useGraphQuery = ({
     return bypassMetricsExclusion
       ? data.current.metrics
       : data.current.metrics.filter(({ metric_id }) => {
-        return pipe(
-          pluck('excludedMetrics'),
-          flatten,
-          includes(metric_id),
-          not
-        )(metrics);
-      });
+          return pipe(
+            pluck('excludedMetrics'),
+            flatten,
+            includes(metric_id),
+            not
+          )(metrics);
+        });
   };
 
   const formatLegend = ({
@@ -272,13 +272,13 @@ const useGraphQuery = ({
 
   const formattedGraphData = data.current
     ? {
-      global: {
-        base: data.current.base,
-        title: ''
-      },
-      metrics: getFormattedMetrics(),
-      times: data.current.times
-    }
+        global: {
+          base: data.current.base,
+          title: ''
+        },
+        metrics: getFormattedMetrics(),
+        times: data.current.times
+      }
     : undefined;
 
   const { end, start } = isCustomTimePeriod(timePeriodToUse)

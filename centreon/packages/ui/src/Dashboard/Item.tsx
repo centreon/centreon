@@ -11,7 +11,6 @@ import {
   useMemo
 } from 'react';
 
-import LoadingSkeleton from '../LoadingSkeleton';
 import ExpandableContainer from '../components/ExpandableContainer';
 import type { Parameters } from '../components/ExpandableContainer/models';
 import { useMemoComponent, useViewportIntersection } from '../utils';
@@ -114,59 +113,58 @@ const Item = ({
                   ...rest
                 })
               : header;
-              
 
-              return (
-                <div key={key} className={classes.widgetSubContainer}>
-                  <Card
-                    className={classes.widgetContainer}
-                    data-padding={!disablePadding}
-                  >
-                    {childrenHeader && (
-                      <div
-                        className={classes.widgetHeader}
-                        data-can-move={canControl}
-                      >
-                        {canControl && (
-                          <div
-                            {...listeners}
-                            className={classes.widgetHeaderDraggable}
-                            data-testid={`${id}_move_panel`}
-                          />
-                        )}
-                        {childrenHeader}
-                      </div>
-                    )}
+            return (
+              <div className={classes.widgetSubContainer} key={key}>
+                <Card
+                  className={classes.widgetContainer}
+                  data-padding={!disablePadding}
+                >
+                  {childrenHeader && (
                     <div
-                      className={cx(
-                        classes.widgetContent,
-                        !disablePadding && classes.widgetPadding
-                      )}
+                      className={classes.widgetHeader}
+                      data-can-move={canControl}
                     >
-                     {children.map((child) =>
-                        typeof child === 'function'
-                          ? child({ isInViewport })
-                          : child
-                     )}
+                      {canControl && (
+                        <div
+                          {...listeners}
+                          className={classes.widgetHeaderDraggable}
+                          data-testid={`${id}_move_panel`}
+                        />
+                      )}
+                      {childrenHeader}
                     </div>
-                  </Card>
-                </div>
-              );
-            }}
-          </ExpandableContainer>
-        </div>
-      ),
-      memoProps: isInViewport
-        ? [
-            style,
-            className,
-            header,
-            theme.palette.mode,
-            canMove,
-            isInViewport,
-            ...additionalMemoProps
-          ]
-        : [isInViewport, theme.palette.mode, style]
+                  )}
+                  <div
+                    className={cx(
+                      classes.widgetContent,
+                      !disablePadding && classes.widgetPadding
+                    )}
+                  >
+                    {children.map((child) =>
+                      typeof child === 'function'
+                        ? child({ isInViewport })
+                        : child
+                    )}
+                  </div>
+                </Card>
+              </div>
+            );
+          }}
+        </ExpandableContainer>
+      </div>
+    ),
+    memoProps: isInViewport
+      ? [
+          style,
+          className,
+          header,
+          theme.palette.mode,
+          canMove,
+          isInViewport,
+          ...additionalMemoProps
+        ]
+      : [isInViewport, theme.palette.mode, style]
   });
 };
 
