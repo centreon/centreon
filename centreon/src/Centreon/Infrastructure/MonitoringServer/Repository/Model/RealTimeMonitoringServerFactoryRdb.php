@@ -45,7 +45,6 @@ class RealTimeMonitoringServerFactoryRdb
             ->setRunning((bool) $data['running'])
             ->setLastAlive((int) $data['last_alive'])
             ->setVersion($data['version'])
-            ->setDescription($data['description'])
-            ->setAddress($data['address']);
+            ->setAddress($data['ns_ip_address']);
     }
 }
