@@ -409,15 +409,19 @@ jobs:
           IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
             FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
-            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
           else
             IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
             if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
               FROM_IMAGE_VERSION="${{ github.base_ref || github.ref_name }}"
-              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
+            elif [[ "${{ needs.get-environment.outputs.release_type }}" == "hotfix" ]]; then
+              IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ needs.get-environment.outputs.major_version }}-latest >/dev/null 2>&1 && echo yes || echo no)
+              if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
+                FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}-latest"
+              fi
             fi
           fi
 
+          echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
           echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -485,7 +489,8 @@ jobs:
       ! cancelled() &&
       ! contains(needs.*.result, 'failure') &&
       ! contains(needs.*.result, 'cancelled') &&
-      ( needs.get-environment.outputs.stability == 'testing' || github.event_name == 'schedule' )
+      (needs.get-environment.outputs.stability == 'testing' || needs.get-environment.outputs.is_nightly == 'true') &&
+      github.repository == 'centreon/centreon'
     strategy:
       fail-fast: false
       matrix:
