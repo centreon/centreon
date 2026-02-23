@@ -195,11 +195,11 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
     }
 
     /**
-     * @param int $ticketId
+     * @param string $ticketId
      * @param _RuleDetails $data
      * @return string
      */
-    private function generateLinkForTicket(int $ticketId, array $data): string
+    private function generateLinkForTicket(string $ticketId, array $data): string
     {
         $url = $data['url'] ?? '';
 
@@ -216,7 +216,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
         }
 
         /** @var non-empty-string $url */
-        return preg_replace('/\{\$ticket_id\}/', (string) $ticketId, $url) ?? $url;
+        return preg_replace('/\{\$ticket_id\}/', $ticketId, $url) ?? $url;
     }
 
     /**
@@ -247,7 +247,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
      * @param int[] $resources
      * @param string $macroName
      * @return array<int, array{
-     *  id:int,
+     *  id:string,
      *  subject:string,
      *  created_at:\DateTimeInterface
      * }>|array{}
@@ -299,7 +299,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
              * @var _TicketData $record
              */
             $tickets[(int) $record['resource_id']] = [
-                'id' => (int) $record['ticket_value'],
+                'id' => $record['ticket_value'],
                 'subject' => $record['subject'],
                 'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp']),
             ];
@@ -312,7 +312,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
      * @param int[] $parentResources
      * @param string $macroName
      * @return array<int, array{
-     *  id:int,
+     *  id:string,
      *  subject:string,
      *  created_at:\DateTimeInterface
      * }>|array{}
@@ -363,7 +363,7 @@ final class OpenTicketExtraDataProvider extends DatabaseRepository implements Ex
              * @var _TicketData $record
              */
             $tickets[(int) $record['resource_id']] = [
-                'id' => (int) $record['ticket_value'],
+                'id' => $record['ticket_value'],
                 'subject' => $record['subject'],
                 'created_at' => (new \DateTimeImmutable())->setTimestamp((int) $record['timestamp']),
             ];
