@@ -1,22 +1,22 @@
+import { Card, useTheme } from '@mui/material';
+
+import { useAtomValue } from 'jotai';
+import { equals, isNil, omit, type } from 'ramda';
 import {
-  CSSProperties,
-  ForwardedRef,
-  MouseEvent,
-  ReactElement,
-  forwardRef,
+  type CSSProperties,
+  type MouseEvent,
+  type ReactElement,
+  RefObject,
   useEffect,
   useMemo
 } from 'react';
 
-import { useAtomValue } from 'jotai';
-import { equals, isNil, omit, type } from 'ramda';
-
-import { Card, useTheme } from '@mui/material';
+import LoadingSkeleton from '../LoadingSkeleton';
 import ExpandableContainer from '../components/ExpandableContainer';
-import { Parameters } from '../components/ExpandableContainer/models';
+import type { Parameters } from '../components/ExpandableContainer/models';
 import { useMemoComponent, useViewportIntersection } from '../utils';
-import { useDashboardItemStyles } from './Dashboard.styles';
 import { isResizingItemAtom } from './atoms';
+import { useDashboardItemStyles } from './Dashboard.styles';
 
 interface DashboardItemProps {
   additionalMemoProps?: Array<unknown>;
@@ -33,64 +33,62 @@ interface DashboardItemProps {
   onMouseUp?: (e: MouseEvent<HTMLDivElement>) => void;
   onTouchEnd?: (e) => void;
   style?: CSSProperties;
+  ref?: RefObject<HTMLDivElement>;
 }
 
-const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
-  (
-    {
-      children,
-      style,
-      className,
-      header,
-      onMouseDown,
-      onMouseUp,
-      onTouchEnd,
-      id,
-      disablePadding = false,
-      canMove = false,
-      additionalMemoProps = []
-    }: DashboardItemProps,
-    ref: ForwardedRef<HTMLDivElement>
-  ): ReactElement => {
-    const { isInViewport, setElement } = useViewportIntersection({
-      rootMargin: '140px 0px 140px 0px'
-    });
-    const hasHeader = !isNil(header);
+const Item = ({
+  children,
+  style,
+  className,
+  header,
+  onMouseDown,
+  onMouseUp,
+  onTouchEnd,
+  id,
+  disablePadding = false,
+  canMove = false,
+  additionalMemoProps = [],
+  ref
+}: DashboardItemProps): ReactElement => {
+  const { isInViewport, setElement } = useViewportIntersection({
+    rootMargin: '140px 0px 140px 0px'
+  });
+  const hasHeader = !isNil(header);
 
-    const { classes, cx } = useDashboardItemStyles({ hasHeader });
-    const theme = useTheme();
+  const { classes, cx } = useDashboardItemStyles({ hasHeader });
+  const theme = useTheme();
 
-    const isResizingItem = useAtomValue(isResizingItemAtom);
+  const isResizingItem = useAtomValue(isResizingItemAtom);
 
-    const isResizing = useMemo(
-      () => equals(id, isResizingItem),
-      [isResizingItem, id]
-    );
+  const isResizing = useMemo(
+    () => equals(id, isResizingItem),
+    [isResizingItem, id]
+  );
 
-    const sanitizedReactGridLayoutClassName = useMemo(
-      () => (isResizing ? className : className?.replace(' resizing ', '')),
-      [className, isResizing]
-    );
+  const sanitizedReactGridLayoutClassName = useMemo(
+    () => (isResizing ? className : className?.replace(' resizing ', '')),
+    [className, isResizing]
+  );
 
-    const listeners = {
-      onMouseDown,
-      onMouseUp,
-      onTouchEnd
-    };
+  const listeners = {
+    onMouseDown,
+    onMouseUp,
+    onTouchEnd
+  };
 
-    const cardContainerListeners = !hasHeader ? listeners : {};
+  const cardContainerListeners = !hasHeader ? listeners : {};
 
-    useEffect(() => {
-      if (isNil(ref?.current)) {
-        return;
-      }
+  useEffect(() => {
+    if (isNil(ref?.current)) {
+      return;
+    }
 
-      setElement(ref.current);
-    }, [ref]);
+    setElement(ref.current);
+  }, [ref, setElement]);
 
-    const newTransform =
-      style?.transform &&
-      `translate3d(${style.transform.match(/translate\(([a-z0-9\ \,\-]+)\)/)[1]}, 0px)`;
+  const newTransform =
+    style?.transform &&
+    `translate3d(${style.transform.match(/translate\(([a-z0-9 ,-]+)\)/)[1]}, 0px)`;
 
     const memoProps = useMemo(
       () => [
@@ -113,30 +111,31 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
       ]
     );
 
-    return useMemoComponent({
-      Component: (
-        <div
-          {...cardContainerListeners}
-          className={sanitizedReactGridLayoutClassName}
-          ref={ref}
-          style={{
-            ...omit(['transform'], style || {}),
-            transform: newTransform
-          }}
-        >
-          <ExpandableContainer>
-            {({ isExpanded, label, key, ...rest }) => {
-              const canControl = isExpanded ? false : canMove;
+  return useMemoComponent({
+    Component: (
+      <div
+        {...cardContainerListeners}
+        className={sanitizedReactGridLayoutClassName}
+        ref={ref}
+        style={{
+          ...omit(['transform'], style || {}),
+          transform: newTransform
+        }}
+      >
+        <ExpandableContainer>
+          {({ isExpanded, label, key, ...rest }) => {
+            const canControl = isExpanded ? false : canMove;
 
-              const childrenHeader = equals(type(header), 'Function')
-                ? (header as (params: Parameters) => ReactElement)({
-                    isExpanded,
-                    label,
-                    ref,
-                    key,
-                    ...rest
-                  })
-                : header;
+            const childrenHeader = equals(type(header), 'Function')
+              ? (header as (params: Parameters) => ReactElement)({
+                  isExpanded,
+                  key,
+                  label,
+                  ref,
+                  ...rest
+                })
+              : header;
+              
 
               return (
                 <div key={key} className={classes.widgetSubContainer}>
@@ -165,11 +164,10 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
                         !disablePadding && classes.widgetPadding
                       )}
                     >
-                      {children.map((child) =>
+                     {children.map((child) =>
                         typeof child === 'function'
                           ? child({ isInViewport })
-                          : child
-                      )}
+                          : child}
                     </div>
                   </Card>
                 </div>
@@ -179,7 +177,15 @@ const Item = forwardRef<HTMLDivElement, DashboardItemProps>(
         </div>
       ),
       memoProps: isInViewport
-        ? memoProps
+        ? [
+            style,
+            className,
+            header,
+            theme.palette.mode,
+            canMove,
+            isInViewport,
+            ...additionalMemoProps
+          ]
         : [isInViewport, theme.palette.mode, style]
     });
   }

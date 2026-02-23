@@ -38,7 +38,7 @@ export const useIntersectionObserver = ({
         observer.current.observe(node);
       }
     },
-    [maxPage, page, loading]
+    [maxPage, page, loading, action, intersectionObserverOptions]
   );
 
   return lastElementRef;

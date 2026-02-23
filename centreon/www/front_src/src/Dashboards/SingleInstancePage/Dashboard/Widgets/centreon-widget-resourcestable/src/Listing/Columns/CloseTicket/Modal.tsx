@@ -1,11 +1,13 @@
-import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Typography } from '@mui/material';
 
 import { Method, useMutationQuery, useSnackbar } from '@centreon/ui';
 import { Button, Modal } from '@centreon/ui/components';
-import { Typography } from '@mui/material';
+
 import { useAtom } from 'jotai';
 import { equals } from 'ramda';
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { closeTicketEndpoint } from '../../../api/endpoints';
 import { resourcesToCloseTicketAtom } from '../../../atom';
 import {
@@ -29,17 +31,17 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
 
   const { mutateAsync } = useMutationQuery({
     baseEndpoint: '',
-    method: Method.POST,
     getEndpoint: () => closeTicketEndpoint,
+    method: Method.POST,
+    onMutate: () => {
+      setResourcesToCloseTicket([]);
+    },
     onSuccess: (data) => {
       if (!equals(data?.code, 0)) {
         showErrorMessage(data?.msg);
         return;
       }
       showSuccessMessage(t(labelTicketClosed));
-    },
-    onMutate: () => {
-      setResourcesToCloseTicket([]);
     }
   });
 
@@ -54,17 +56,17 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
     mutateAsync({
       payload: {
         data: {
+          rule_id: `${providerID}`,
           selection: resource?.serviceID
             ? `${resource?.hostID};${resource?.serviceID}`
-            : `${resource?.hostID}`,
-          rule_id: `${providerID}`
+            : `${resource?.hostID}`
         }
       }
     });
   }, [resource]);
 
   return (
-    <Modal hasCloseButton open={isOpen} onClose={close}>
+    <Modal hasCloseButton onClose={close} open={isOpen}>
       <Modal.Header> {t(labelCloseATicket)} </Modal.Header>
       <Modal.Body>
         <Typography>
@@ -72,7 +74,7 @@ const CloseTicketModal = ({ providerID }: Props): JSX.Element => {
         </Typography>
       </Modal.Body>
       <Modal.Actions>
-        <Button variant="secondary" onClick={close}>
+        <Button onClick={close} variant="secondary">
           {t(labelCancel)}
         </Button>
         <Button onClick={confirm}>{t(labelConfirm)}</Button>

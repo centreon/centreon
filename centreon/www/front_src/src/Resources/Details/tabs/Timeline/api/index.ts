@@ -1,7 +1,7 @@
-import { CancelToken } from 'axios';
-
-import { buildListingEndpoint, getData } from '@centreon/ui';
 import type { ListingModel, ListingParameters } from '@centreon/ui';
+import { buildListingEndpoint, getData } from '@centreon/ui';
+
+import { CancelToken } from 'axios';
 
 import { TimelineEvent } from '../models';
 

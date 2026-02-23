@@ -1,8 +1,11 @@
-import { Button } from '@centreon/ui/components';
 import { Add } from '@mui/icons-material';
+
+import { Button } from '@centreon/ui/components';
+
 import { useSetAtom } from 'jotai';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { openFormModalAtom } from '../../atoms';
 import { labelAdd } from '../../translatedLabels';
 
@@ -15,11 +18,11 @@ const AddButton = (): JSX.Element => {
 
   return (
     <Button
-      size="medium"
+      data-testid="add-agent-configuration"
       icon={<Add />}
       iconVariant="start"
       onClick={add}
-      data-testid="add-agent-configuration"
+      size="medium"
     >
       {t(labelAdd)}
     </Button>

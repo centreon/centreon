@@ -33,7 +33,7 @@ use App\MonitoringConfiguration\Infrastructure\Dbal\DbalPollerRepository;
 use App\Shared\Domain\Collection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class DbalOptionRepositoryTest extends KernelTestCase
+final class DbalPollerRepositoryTest extends KernelTestCase
 {
     private DbalPollerRepository $repository;
 

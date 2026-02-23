@@ -1,9 +1,8 @@
-import { Provider, createStore } from 'jotai';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import { platformVersionsAtom } from '@centreon/ui-context';
 
-import Form from '..';
+import { createStore, Provider } from 'jotai';
+
 import { panelWidthStorageAtom } from '../../atom';
 import {
   labelActiveOrInactive,
@@ -23,6 +22,7 @@ import {
   labelSuccessfulNotificationAdded,
   labelYourFormHasUnsavedChanges
 } from '../../translatedLabels';
+import Form from '..';
 import {
   availableTimePeriodsEndpoint,
   hostsGroupsEndpoint,
@@ -31,7 +31,6 @@ import {
   usersEndpoint
 } from '../api/endpoints';
 import { defaultEmailSubject } from '../utils';
-
 import {
   emailBodyText,
   formData,

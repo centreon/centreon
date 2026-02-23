@@ -1,7 +1,3 @@
-import { useTranslation } from 'react-i18next';
-
-import { labelDisabled, labelEnabled, labelStatus } from '../translatedLabels';
-
 import {
   Checkbox,
   FormControlLabel,
@@ -10,7 +6,10 @@ import {
 } from '@mui/material';
 
 import { useAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+
 import { filtersAtom } from '../atoms';
+import { labelDisabled, labelEnabled, labelStatus } from '../translatedLabels';
 import { useStyles } from './Filters.styles';
 
 const Status = (): JSX.Element => {
@@ -34,8 +33,8 @@ const Status = (): JSX.Element => {
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelEnabled}
               checked={filters.enabled}
+              data-testid={labelEnabled}
               name={t(labelEnabled)}
               onChange={change('enabled')}
             />
@@ -45,8 +44,8 @@ const Status = (): JSX.Element => {
         <FormControlLabel
           control={
             <Checkbox
-              data-testid={labelDisabled}
               checked={filters.disabled}
+              data-testid={labelDisabled}
               name={t(labelDisabled)}
               onChange={change('disabled')}
             />

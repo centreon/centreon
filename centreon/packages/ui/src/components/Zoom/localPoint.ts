@@ -1,10 +1,9 @@
+import type { Point } from '@visx/point';
 import type {
   FocusEvent as ReactFocusEvent,
   MouseEvent as ReactMouseEvent,
   TouchEvent as ReactTouchEvent
 } from 'react';
-
-import { Point } from '@visx/point';
 
 type EventType =
   | MouseEvent

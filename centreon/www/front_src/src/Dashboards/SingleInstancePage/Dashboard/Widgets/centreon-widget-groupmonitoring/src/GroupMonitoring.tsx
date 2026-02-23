@@ -1,8 +1,8 @@
-import { includes, isNotNil } from 'ramda';
-
 import { MemoizedListing } from '@centreon/ui';
 
+import { includes, isNotNil } from 'ramda';
 import { ReactElement } from 'react';
+
 import NoResources from '../../NoResources';
 import { useColumns } from './Columns/useColumns';
 import { FormattedGroup, WidgetProps } from './models';
@@ -38,6 +38,7 @@ const GroupMonitoring = ({
   } = useGroupMonitoring({
     dashboardId,
     globalRefreshInterval,
+    hasDescription,
     id,
     isFromPreview,
     panelData,
@@ -46,9 +47,7 @@ const GroupMonitoring = ({
     refreshCount,
     setPanelOptions,
     widgetPrefixQuery,
-    hasDescription,
-    isInViewport,
-    queryClient
+    isInViewport
   });
 
   const columns = useColumns({
@@ -69,21 +68,21 @@ const GroupMonitoring = ({
 
   return (
     <MemoizedListing<FormattedGroup>
-      isResponsive
       columnConfiguration={{
         selectedColumnIds: columnsToDisplay,
         sortable: false
       }}
       columns={columns}
       currentPage={page}
+      isResponsive
       limit={limit}
+      onLimitChange={changeLimit}
+      onPaginate={changePage}
+      onSort={changeSort}
       rows={listing?.result || []}
       sortField={sortField}
       sortOrder={sortOrder}
       totalRows={listing?.meta.total || 0}
-      onLimitChange={changeLimit}
-      onPaginate={changePage}
-      onSort={changeSort}
     />
   );
 };

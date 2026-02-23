@@ -7,13 +7,12 @@ import {
   TopCounterResourceSubMenu
 } from '@centreon/ui';
 
-import { hostStatusDecoder } from '../../api/decoders';
 import type { HostStatusResponse } from '../../api/decoders';
+import { hostStatusDecoder } from '../../api/decoders';
 import { hostStatusEndpoint } from '../../api/endpoints';
 import useResourceCounters from '../useResourceCounters';
-
-import getHostPropsAdapter from './getHostPropsAdapter';
 import type { HostPropsAdapterOutput } from './getHostPropsAdapter';
+import getHostPropsAdapter from './getHostPropsAdapter';
 
 const HostStatusCounter = (): JSX.Element | null => {
   const { isLoading, data, isAllowed } = useResourceCounters<

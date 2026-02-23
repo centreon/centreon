@@ -1,6 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-
 import { pick } from 'ramda';
+
 import { configurationAtom } from '../../../atoms';
 import { resourcesToDeleteAtom, resourcesToDuplicateAtom } from '../../atoms';
 
@@ -28,10 +28,10 @@ const useActions = (row): UseActionsState => {
   const canDuplicate = !!actions?.duplicate;
 
   return {
-    openDeleteModal,
-    openDuplicateModal,
     canDelete,
-    canDuplicate
+    canDuplicate,
+    openDeleteModal,
+    openDuplicateModal
   };
 };
 

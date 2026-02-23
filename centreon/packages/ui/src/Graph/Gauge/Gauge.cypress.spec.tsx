@@ -5,8 +5,7 @@ import {
   warningThresholds
 } from '../common/testUtils';
 import dataLastWeek from '../mockedData/lastWeek.json';
-
-import { Gauge, Props } from './Gauge';
+import { Gauge, type Props } from './Gauge';
 
 const initialize = (
   args: Omit<Props, 'data' | 'labels' | 'baseColor'>

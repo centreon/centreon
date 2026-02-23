@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useEffect, useState } from 'react';
+import { CircularProgress, useTheme } from '@mui/material';
 
 import {
   equals,
@@ -13,12 +13,10 @@ import {
   prop,
   uniqBy
 } from 'ramda';
+import { type ReactElement, useCallback, useEffect, useState } from 'react';
 
-import { CircularProgress, useTheme } from '@mui/material';
-
-import { Props as AutocompleteFieldProps } from '..';
-import { ListingMapModel, ListingModel, SelectEntry } from '../../../..';
-import {
+import type { ListingMapModel, ListingModel, SelectEntry } from '../../../..';
+import type {
   ConditionsSearchParameter,
   SearchParameter
 } from '../../../../api/buildListingEndpoint/models';
@@ -29,6 +27,7 @@ import {
   useIntersectionObserver
 } from '../../../../utils';
 import Option from '../../Option';
+import type { Props as AutocompleteFieldProps } from '..';
 
 interface OptionResult<T> {
   result: Array<T>;
@@ -99,8 +98,8 @@ const ConnectedAutocompleteField = (
     const { fetchQuery, isFetching, prefetchNextPage, data } = useFetchQuery<
       ListingModel<TData> | ListingMapModel<TData>
     >({
-      decoder,
       baseEndpoint,
+      decoder,
       fetchHeaders: getRequestHeaders,
       getEndpoint: (params) => {
         return getEndpoint({
@@ -115,8 +114,8 @@ const ConnectedAutocompleteField = (
       ],
       isPaginated: true,
       queryOptions: {
-        gcTime: 0,
         enabled: false,
+        gcTime: 0,
         staleTime: 0,
         suspense: false
       }
@@ -128,21 +127,21 @@ const ConnectedAutocompleteField = (
       ): OptionResult<TData> => {
         if ('result' in newOptions)
           return {
+            limit: newOptions.meta.limit || 1,
             result: newOptions.result || [],
-            total: newOptions.meta.total || 1,
-            limit: newOptions.meta.limit || 1
+            total: newOptions.meta.total || 1
           };
         if ('content' in newOptions)
           return {
+            limit: newOptions.size || 1,
             result: newOptions.content || [],
-            total: newOptions.totalElements || 1,
-            limit: newOptions.size || 1
+            total: newOptions.totalElements || 1
           };
 
         return {
+          limit: 1,
           result: [],
-          total: 1,
-          limit: 1
+          total: 1
         };
       },
       []
@@ -169,8 +168,8 @@ const ConnectedAutocompleteField = (
         : [selectedValue];
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $ni: map(
             prop(exclusionOptionProperty),
@@ -190,8 +189,8 @@ const ConnectedAutocompleteField = (
       }
 
       return {
-        operator: '$and',
         field,
+        operator: '$and',
         values: {
           $lk: `%${searchedValue}%`
         }
@@ -260,14 +259,14 @@ const ConnectedAutocompleteField = (
       );
     };
 
-    const renameKey = ({ object, key, newKey }): Partial<TData> => {
+    const renameKey = useCallback(({ object, key, newKey }): Partial<TData> => {
       const oldKeyValue = object[key];
       const newObject = { ...object, [newKey]: oldKeyValue };
 
       return omit([key], newObject);
-    };
+    }, []);
 
-    const fetchOptionsAndPrefetchNextOptions = (): void => {
+    const fetchOptionsAndPrefetchNextOptions = useCallback((): void => {
       fetchQuery().then((newOptions) => {
         const isError = has('isError', newOptions);
 
@@ -314,7 +313,18 @@ const ConnectedAutocompleteField = (
           page
         });
       });
-    };
+    }, [
+      changeIdValue,
+      fetchQuery,
+      getOptionResult,
+      labelKey,
+      options,
+      page,
+      prefetchNextPage,
+      props.label,
+      renameKey,
+      searchParameter
+    ]);
 
     useEffect(() => {
       if (!optionsOpen) {
@@ -326,18 +336,15 @@ const ConnectedAutocompleteField = (
             : undefined
         );
       }
-    }, [optionsOpen]);
+    }, [optionsOpen, initialPage, JSON.stringify(searchConditions)]);
 
-    useEffect(
-      () => {
-        setSearchParameter(
-          !isEmpty(searchConditions)
-            ? { conditions: searchConditions }
-            : undefined
-        );
-      },
-      useDeepCompare([searchConditions])
-    );
+    useEffect(() => {
+      setSearchParameter(
+        !isEmpty(searchConditions)
+          ? { conditions: searchConditions }
+          : undefined
+      );
+    }, [...useDeepCompare([searchConditions])]);
 
     useEffect(() => {
       if (!autocompleteChangedValue && !props?.value) {
@@ -356,19 +363,19 @@ const ConnectedAutocompleteField = (
 
     return (
       <AutocompleteField
-        total={data?.meta?.total || data?.totalElements || 1}
         filterOptions={(opt): SelectEntry => opt}
         loading={isFetching}
-        options={
-          allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
-        }
-        renderOption={renderOptions}
         onChange={(_, value) => {
           setAutocompleteChangedValue(value);
         }}
         onClose={(): void => setOptionsOpen(false)}
         onOpen={(): void => setOptionsOpen(true)}
         onTextChange={changeText}
+        options={
+          allowUniqOption ? uniqBy(getRenderedOptionText, options) : options
+        }
+        renderOption={renderOptions}
+        total={data?.meta?.total || data?.totalElements || 1}
         {...props}
       />
     );

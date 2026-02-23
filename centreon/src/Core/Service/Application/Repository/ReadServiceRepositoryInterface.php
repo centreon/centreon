@@ -91,6 +91,17 @@ interface ReadServiceRepositoryInterface
     public function findServiceIdsLinkedToHostId(int $hostId): array;
 
     /**
+     * Find all service IDs link to the host through host groups.
+     *
+     * @param int $hostId Host ID for which the services are linked
+     *
+     * @throws \Throwable
+     *
+     * @return list<int>
+     */
+    public function findServiceIdsLinkedToHostThroughHostGroups(int $hostId): array;
+
+    /**
      * Find service IDs that are exclusively linked to the host.
      * These are services that should be deleted when the host is deleted
      * because they are not used by any other host.
@@ -205,4 +216,21 @@ interface ReadServiceRepositoryInterface
      * @return string|null
      */
     public function findNameById(int $serviceId): ?string;
+
+    /**
+     * Find service IDs by command names.
+     *
+     * @param string[] $commandNames
+     * @param int[] $pollerIds
+     * @param int[] $hostIds
+     *
+     * @throws \Throwable
+     *
+     * @return int[]
+     */
+    public function findIdsByCommandNames(
+        array $commandNames,
+        array $pollerIds = [],
+        array $hostIds = [],
+    ): array;
 }

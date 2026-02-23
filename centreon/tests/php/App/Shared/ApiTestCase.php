@@ -30,61 +30,11 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 abstract class ApiTestCase extends SymfonyApiTestCase
 {
-    private const TEST_PASSWORD = 'Centreon!2021';
-
     protected static ?bool $alwaysBootKernel = true;
 
+    protected ?string $token = null;
+
     private Client $client;
-
-    private ?string $token = null;
-
-    public static function setUpBeforeClass(): void
-    {
-        /** @var Connection $connection */
-        $connection = static::getContainer()->get('doctrine.dbal.test_setup_default_connection');
-        $connection->beginTransaction();
-
-        try {
-            foreach (static::apiUsers() as $apiUser) {
-                if (\is_string($apiUser)) {
-                    $apiUser = ['identifier' => $apiUser, 'admin' => false];
-                }
-
-                self::createApiUser($connection, $apiUser['identifier'], $apiUser['admin'] ?? false);
-            }
-
-            $connection->commit();
-        } catch (\Throwable $e) {
-            $connection->rollBack();
-
-            throw $e;
-        }
-    }
-
-    public static function tearDownAfterClass(): void
-    {
-        /** @var Connection $connection */
-        $connection = static::getContainer()->get('doctrine.dbal.test_setup_default_connection');
-        $connection->beginTransaction();
-
-        try {
-            foreach (static::apiUsers() as $apiUser) {
-                if (\is_string($apiUser)) {
-                    $apiUser = ['identifier' => $apiUser];
-                }
-
-                self::deleteApiUser($connection, $apiUser['identifier']);
-            }
-
-            $connection->commit();
-        } catch (\Throwable $e) {
-            $connection->rollBack();
-
-            throw $e;
-        }
-
-        parent::tearDownAfterClass();
-    }
 
     protected function setUp(): void
     {
@@ -106,47 +56,81 @@ abstract class ApiTestCase extends SymfonyApiTestCase
         return $this->client->request($method, $url, $options);
     }
 
-    /**
-     * Define API users to create for the current test class.
-     *
-     * @return list<array{identifier: string, admin?: bool}|string>
-     */
-    protected static function apiUsers(): array
-    {
-        return [];
-    }
-
     final protected function login(string $login = 'admin'): void
     {
-        $this->request('POST', '/api/latest/login', [
-            'json' => [
-                'security' => [
-                    'credentials' => [
-                        'login' => $login,
-                        'password' => self::TEST_PASSWORD,
-                    ],
-                ],
-            ],
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get('doctrine.dbal.default_connection');
+
+        $this->token = base64_encode(random_bytes(48));
+        $qb = $connection->createQueryBuilder();
+        /** @var string|false $contact */
+        $contact = $qb->select('contact_id')
+            ->from('contact')
+            ->where('contact_alias = :login')
+            ->setParameter('login', $login)
+            ->executeQuery()
+            ->fetchOne();
+
+        if ($contact === false) {
+            $this->createApiUser($login, admin: false);
+            $qb = $connection->createQueryBuilder();
+            /** @var string $contact */
+            $contact = $qb->select('contact_id')
+                ->from('contact')
+                ->where('contact_alias = :login')
+                ->setParameter('login', $login)
+                ->executeQuery()
+                ->fetchOne();
+        }
+
+        // create authentication token directly in the database
+        $connection->insert('security_token', [
+            'token' => $this->token,
+            'creation_date' => time(),
+            'expiration_date' => null,
         ]);
 
-        $response = $this->client->getResponse();
+        $tokenId = (int) $connection->lastInsertId();
 
-        /** @var array{security: array{token: string}}|null $content */
-        $content = $response?->toArray();
-
-        $this->token = $content['security']['token'] ?? null;
-        if (! $this->token) {
-            throw new \RuntimeException('Cannot find authentication token');
-        }
+        $connection->insert('security_authentication_tokens', [
+            'provider_token_id' => $tokenId,
+            'user_id' => (int) $contact,
+            'token' => $this->token,
+            'provider_token_refresh_id' => null,
+            'provider_configuration_id' => 1,
+            'is_revoked' => 0,
+        ]);
     }
 
     final protected function logout(): void
     {
+        if (! $this->token) {
+            return;
+        }
+
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get('doctrine.dbal.default_connection');
+
+        $qb = $connection->createQueryBuilder();
+        $qb->delete('security_authentication_tokens')
+            ->where('token = :token')
+            ->setParameter('token', $this->token)
+            ->executeStatement();
+
+        $qb = $connection->createQueryBuilder();
+        $qb->delete('security_token')
+            ->where('token = :token')
+            ->setParameter('token', $this->token)
+            ->executeStatement();
+
         $this->token = null;
     }
 
-    private static function createApiUser(Connection $connection, string $identifier, bool $admin = false): void
+    final protected function createApiUser(string $identifier, bool $admin = false): void
     {
+        /** @var Connection $connection */
+        $connection = static::getContainer()->get('doctrine.dbal.default_connection');
+
         $connection->insert('contact', [
             'contact_name' => $identifier,
             'contact_alias' => $identifier,
@@ -160,16 +144,6 @@ abstract class ApiTestCase extends SymfonyApiTestCase
             'contact_id' => (int) $connection->lastInsertId(),
             'password' => password_hash('Centreon!2021', \PASSWORD_BCRYPT),
             'creation_date' => (new \DateTimeImmutable())->getTimestamp(),
-        ]);
-    }
-
-    private static function deleteApiUser(Connection $connection, string $identifier): void
-    {
-        $connection->executeStatement('DELETE FROM contact_password WHERE contact_id IN (SELECT contact_id FROM contact WHERE contact_alias = :identifier)', [
-            'identifier' => $identifier,
-        ]);
-        $connection->executeStatement('DELETE FROM contact WHERE contact_alias = :identifier', [
-            'identifier' => $identifier,
         ]);
     }
 }

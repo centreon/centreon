@@ -45,6 +45,13 @@ export const useTileStyles = makeStyles<Props>()(
       justifyContent: 'center',
       width: '100%'
     },
+    seeMoreLabel: {
+      display: '-webkit-box',
+      overflow: 'hidden',
+      WebkitBoxOrient: 'vertical',
+      WebkitLineClamp: isMediumSize ? 1 : 3,
+      width: tileSize
+    },
     stateContent: {
       display: 'flex',
       flexDirection: 'row',
@@ -66,13 +73,6 @@ export const useTileStyles = makeStyles<Props>()(
       right: '0%',
       top: '0%',
       width: '100%'
-    },
-    seeMoreLabel: {
-      overflow: 'hidden',
-      display: '-webkit-box',
-      WebkitLineClamp: isMediumSize ? 1 : 3,
-      WebkitBoxOrient: 'vertical',
-      width: tileSize
     }
   })
 );
@@ -88,14 +88,14 @@ export const useHostTooltipContentStyles = makeStyles()((theme) => ({
     padding: theme.spacing(1),
     textAlign: 'center'
   },
+  boleanRulebody: {
+    paddingBottom: theme.spacing(1)
+  },
   boleanRuleLink: {
     color: theme.palette.primary.main
   },
   boleanRuleLinkWrapper: {
     marginLeft: theme.spacing(0.5)
-  },
-  boleanRulebody: {
-    paddingBottom: theme.spacing(1)
   },
   container: {
     minWidth: theme.spacing(30)

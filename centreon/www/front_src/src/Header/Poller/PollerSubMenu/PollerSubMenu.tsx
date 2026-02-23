@@ -1,10 +1,9 @@
+import { Button, List, ListItem, Typography } from '@mui/material';
+
 import { isEmpty } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
-import { Button, List, ListItem, Typography } from '@mui/material';
-
 import FederatedComponent from '../../../components/FederatedComponents';
-
 import ExportConfiguration from './ExportConfiguration';
 
 const useStyles = makeStyles()((theme) => ({
@@ -87,11 +86,11 @@ export const PollerSubMenu = ({
       {displayPollerButton && (
         <ListItem className={classes.listItem} onClick={closeSubMenu}>
           <Button
-            fullWidth
             data-testid={pollerConfig.testId}
+            fullWidth
+            onClick={pollerConfig.redirect}
             size="small"
             variant="outlined"
-            onClick={pollerConfig.redirect}
           >
             {pollerConfig.label}
           </Button>

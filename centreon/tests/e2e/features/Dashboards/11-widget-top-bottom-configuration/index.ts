@@ -570,8 +570,8 @@ Then(
             );
           }),
       {
-        timeout: 10000,
-        interval: 500
+        interval: 500,
+        timeout: 10000
       }
     );
   }
@@ -604,8 +604,8 @@ Then(
             );
           }),
       {
-        timeout: 10000,
-        interval: 500
+        interval: 500,
+        timeout: 10000
       }
     );
   }
@@ -646,8 +646,8 @@ Then(
             );
           }),
       {
-        timeout: 10000,
-        interval: 500
+        interval: 500,
+        timeout: 10000
       }
     );
   }

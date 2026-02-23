@@ -1,3 +1,4 @@
+import type { LineChartData } from '../models';
 import {
   formatMetricValue,
   formatMetricValueWithUnit,
@@ -5,9 +6,9 @@ import {
   getInvertedStackedLines,
   getLineData,
   getLineForMetric,
+  getMetrics,
   getMetricValuesForLines,
   getMetricValuesForUnit,
-  getMetrics,
   getNotInvertedStackedLines,
   getSortedStackedLines,
   getStackedMetricValues,
@@ -16,7 +17,6 @@ import {
   getUnits,
   hasUnitStackedLines
 } from '.';
-import { LineChartData } from '../models';
 
 type TestCase = [number | null, string, 1000 | 1024, string | null];
 
@@ -374,21 +374,18 @@ describe('timeSeries', () => {
   describe(formatMetricValue, () => {
     const cases: Array<TestCase> = [
       [218857269, '', 1000, '218.86m'],
-      [218857269, '', 1024, '208.72 M'],
+      [218857269, '', 1024, '208.72 Mi'],
       [0.12232323445, '', 1000, '0.12'],
-      [1024, 'B', 1000, '1 KB'],
-      [1024, 'B', 1024, '1 KB'],
+      [1024, 'B', 1000, '1 KiB'],
+      [1024, 'B', 1024, '1 KiB'],
       [null, 'B', 1024, null]
     ];
 
-    it.each(cases)(
-      'formats the given value to a human readable form according to the given unit and base',
-      (value, unit, base, formattedResult) => {
-        expect(formatMetricValue({ base, unit, value })).toEqual(
-          formattedResult
-        );
-      }
-    );
+    it.each(
+      cases
+    )('formats the given value to a human readable form according to the given unit and base', (value, unit, base, formattedResult) => {
+      expect(formatMetricValue({ base, unit, value })).toEqual(formattedResult);
+    });
   });
 
   describe('getSortedStackedLines', () => {
@@ -573,7 +570,7 @@ describe('Format value with unit', () => {
       return '324.23m';
     }
 
-    return `309.21 M${unit}`;
+    return `309.21 Mi${unit}`;
   };
 
   const humanReadableTestCases = units.map((unit) => {
@@ -626,31 +623,33 @@ describe('Format value with unit', () => {
   });
 
   describe('Format the value as human readable', () => {
-    it.each(humanReadableTestCases)(
-      'formats the value with $unit',
-      ({ value, unit, expectedResult }) => {
-        expect(
-          formatMetricValueWithUnit({
-            unit,
-            value
-          })
-        ).toEqual(expectedResult);
-      }
-    );
+    it.each(humanReadableTestCases)('formats the value with $unit', ({
+      value,
+      unit,
+      expectedResult
+    }) => {
+      expect(
+        formatMetricValueWithUnit({
+          unit,
+          value
+        })
+      ).toEqual(expectedResult);
+    });
   });
 
   describe('Format the value as raw', () => {
-    it.each(rawTestCases)(
-      'formats the value with $unit',
-      ({ value, unit, expectedResult }) => {
-        expect(
-          formatMetricValueWithUnit({
-            isRaw: true,
-            unit,
-            value
-          })
-        ).toEqual(expectedResult);
-      }
-    );
+    it.each(rawTestCases)('formats the value with $unit', ({
+      value,
+      unit,
+      expectedResult
+    }) => {
+      expect(
+        formatMetricValueWithUnit({
+          isRaw: true,
+          unit,
+          value
+        })
+      ).toEqual(expectedResult);
+    });
   });
 });

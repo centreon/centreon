@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
-import StatusChart from './StatusChart';
+
 import { StatusChartProps } from './models';
+import StatusChart from './StatusChart';
 
 const Widget = (props: StatusChartProps): ReactElement => (
   <StatusChart {...props} />

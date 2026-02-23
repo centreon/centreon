@@ -1,29 +1,21 @@
+import { PAGES } from 'fixtures/shared/constants/pages';
+
 Cypress.Commands.add(
   'waitForElementInIframe',
   (iframeSelector, elementSelector) => {
     cy.waitUntil(
       () =>
-        cy.get(iframeSelector).then(($iframe) => {
-          const iframeBody = ($iframe[0] as HTMLIFrameElement).contentDocument
-            ?.body;
-          if (iframeBody) {
-            const $element = Cypress.$(iframeBody).find(elementSelector);
+        cy.getIframeBody(iframeSelector).then(($iframeBody) => {
+          const element = $iframeBody.find(elementSelector);
 
-            return $element.length > 0 && $element.is(':visible');
-          }
-
-          return false;
+          return element.length > 0 && element.is(':visible');
         }),
       {
-        errorMsg: 'The element is not visible within the iframe',
-        interval: 5000,
-        timeout: 100000
+        errorMsg: `Element ${elementSelector} not found in iframe ${iframeSelector} after waiting`,
+        interval: 1000,
+        timeout: 60000
       }
-    ).then((isVisible) => {
-      if (!isVisible) {
-        throw new Error('The element is not visible');
-      }
-    });
+    );
   }
 );
 
@@ -184,12 +176,8 @@ Cypress.Commands.add('lockHostTemplateWithSql', (name: string) => {
   });
 });
 
-Cypress.Commands.add('visitHostsListingPage', (index: number) => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: index,
-    subMenu: 'Hosts'
-  });
+Cypress.Commands.add('visitHostsListingPage', () => {
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
 });
 
@@ -216,9 +204,9 @@ interface HostDependency {
   notificationFailsOnDown: number;
   notificationFailsOnUnreachable: number;
   notificationFailsOnPending: number;
-  hostNames: string[];
-  dependentHostNames: string[];
-  dependentServices: string[];
+  hostNames: Array<string>;
+  dependentHostNames: Array<string>;
+  dependentServices: Array<string>;
   comment: string;
 }
 
@@ -236,13 +224,13 @@ interface HostGroupDependency {
   notificationFailsOnDown: number;
   notificationFailsOnUnreachable: number;
   notificationFailsOnPending: number;
-  hostGroupsNames: string[];
-  dependentHostGroupsNames: string[];
+  hostGroupsNames: Array<string>;
+  dependentHostGroupsNames: Array<string>;
   comment: string;
 }
 
 declare global {
-  // biome-ignore lint/style/noNamespace: <explanation>
+  // biome-ignore lint/style/noNamespace: false positive
   namespace Cypress {
     interface Chainable {
       waitForElementInIframe: (
@@ -261,9 +249,7 @@ declare global {
         body: HostGroupDependency
       ) => Cypress.Chainable;
       lockHostTemplateWithSql: (name: string) => Cypress.Chainable;
-      visitHostsListingPage: (index: number) => Cypress.Chainable;
+      visitHostsListingPage: () => Cypress.Chainable;
     }
   }
 }
-
-export {};

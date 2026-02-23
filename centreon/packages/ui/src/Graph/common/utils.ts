@@ -1,6 +1,8 @@
+import { darken, getLuminance, lighten, type Theme } from '@mui/material';
+
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import {
-  T,
   always,
   cond,
   equals,
@@ -15,18 +17,16 @@ import {
   lt,
   lte,
   pluck,
+  T,
   type
 } from 'ramda';
 
-import { Theme, darken, getLuminance, lighten } from '@mui/material';
-
-import dayjs from 'dayjs';
-import { BarStyle } from '../BarChart/models';
+import type { BarStyle } from '../BarChart/models';
 import { margin } from '../Chart/common';
-import { LineStyle } from '../Chart/models';
-import { Threshold, Thresholds } from './models';
+import type { LineStyle } from '../Chart/models';
+import type { Threshold, Thresholds } from './models';
 import { formatMetricValueWithUnit } from './timeSeries';
-import { Line, TimeValue } from './timeSeries/models';
+import type { Line, TimeValue } from './timeSeries/models';
 
 interface GetColorFromDataAndThresholdsProps {
   baseColor?: string;
@@ -235,9 +235,9 @@ export const getFormattedAxisValues = ({
   const formattedData = metricIds.map((metricId) =>
     timeSeries.map((data) =>
       formatMetricValueWithUnit({
-        value: data[metricId],
+        base,
         unit: axisUnit,
-        base
+        value: data[metricId]
       })
     )
   );
@@ -247,9 +247,9 @@ export const getFormattedAxisValues = ({
   const formattedThresholdValues = equals(thresholdUnit, axisUnit)
     ? threshold.map(({ value }) =>
         formatMetricValueWithUnit({
-          value,
+          base,
           unit: axisUnit,
-          base
+          value
         })
       ) || []
     : [];

@@ -1,7 +1,7 @@
+import { SvgIcon, useTheme } from '@mui/material';
+
 import parse from 'html-react-parser';
 import { equals } from 'ramda';
-
-import { SvgIcon, useTheme } from '@mui/material';
 
 import { DisplayType } from '../../models';
 

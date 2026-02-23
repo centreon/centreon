@@ -1,15 +1,13 @@
-import { useMemo } from 'react';
-
-import { useTranslation } from 'react-i18next';
-
 import { Slider as MuiSlider, Typography } from '@mui/material';
 
 import { NumberField } from '@centreon/ui';
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../../../components/Subtitle';
 import { useCanEditProperties } from '../../../../hooks/useCanEditDashboard';
 import { WidgetPropertyProps } from '../../../models';
-
 import { useSliderStyles } from './Slider.styles';
 import { useSlider } from './useSlider';
 
@@ -41,9 +39,9 @@ const Slider = ({
           disabled={!canEditField}
           max={slider?.max || 100}
           min={slider?.min || 0}
+          onChange={changeSliderValue}
           track={false}
           value={value || 0}
-          onChange={changeSliderValue}
         />
         <div className={classes.inputContainer}>
           <NumberField
@@ -51,6 +49,8 @@ const Slider = ({
             containerClassName={classes.field}
             dataTestId="slider-input"
             disabled={!canEditField}
+            onChange={changeInputValue}
+            size="compact"
             textFieldSlotsAndSlotProps={{
               slotProps: {
                 htmlInput: {
@@ -60,9 +60,7 @@ const Slider = ({
                 }
               }
             }}
-            size="compact"
             value={value?.toString()}
-            onChange={changeInputValue}
           />
           {slider?.unit && <Typography>{slider.unit}</Typography>}
         </div>

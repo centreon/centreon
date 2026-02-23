@@ -1,8 +1,8 @@
 import { atom } from 'jotai';
 import { isNil } from 'ramda';
 
-import { TimeValue } from '../../common/timeSeries/models';
-import { GraphTooltipData } from '../models';
+import type { TimeValue } from '../../common/timeSeries/models';
+import type { GraphTooltipData } from '../models';
 
 export const eventMouseDownAtom = atom<null | MouseEvent>(null);
 export const eventMouseUpAtom = atom<null | MouseEvent>(null);

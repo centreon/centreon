@@ -1,6 +1,3 @@
-import { useAtomValue } from 'jotai';
-import { equals, isNil, last } from 'ramda';
-
 import {
   ContentWithCircularLoading,
   useGraphQuery,
@@ -8,18 +5,22 @@ import {
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { equals, isNil, last } from 'ramda';
 import { ReactElement } from 'react';
-import NoResources from '../../NoResources';
+
+
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
+import NoResources from '../../NoResources';
 import useThresholds from '../../useThresholds';
 import {
   areResourcesFullfilled,
   getIsMetaServiceSelected,
   getWidgetEndpoint
 } from '../../utils';
-import SingleMetricRenderer from './SingleMetricRenderer';
 import { selectEndpoint } from './api/endpoints';
 import { FormThreshold, SingleMetricGraphType, ValueFormat } from './models';
+import SingleMetricRenderer from './SingleMetricRenderer';
 
 interface Props {
   dashboardId: number | string;
@@ -90,9 +91,9 @@ const Graph = ({
   const baseEndpoint = getWidgetEndpoint({
     dashboardId,
     defaultEndpoint: selectEndpoint({
-      isMetaServiceSelected,
-      idForService: getServiceId(),
       hostId,
+      idForService: getServiceId(),
+      isMetaServiceSelected,
       metricName
     }),
     displayType,
@@ -105,14 +106,14 @@ const Graph = ({
     baseEndpoint,
     bypassMetricsExclusion: true,
     bypassQueryParams: true,
+    isEnabled:
+      isInViewport &&
+      Boolean(hostId && (getServiceId() || isMetaServiceSelected)),
     metrics,
     prefix: widgetPrefixQuery,
     refreshCount,
     refreshInterval: refreshIntervalToUse,
-    resources,
-    isEnabled:
-      isInViewport &&
-      Boolean(hostId && (getServiceId() || isMetaServiceSelected))
+    resources
   });
 
   const displayAsRaw = equals('raw')(valueFormat);
@@ -130,9 +131,9 @@ const Graph = ({
   const formattedThresholds = useThresholds({
     data: formattedGraphData,
     displayAsRaw,
+    isMetaServiceSelected,
     metricName,
-    thresholds: threshold,
-    isMetaServiceSelected
+    thresholds: threshold
   });
 
   const areResourcesOk = areResourcesFullfilled(resources);

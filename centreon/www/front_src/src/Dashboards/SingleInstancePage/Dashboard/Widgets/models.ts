@@ -89,7 +89,7 @@ export interface CommonWidgetProps<T extends object> {
   setPanelOptions?: (panelOptions: Partial<T>) => void;
   widgetPrefixQuery: string;
   isInViewport: boolean;
-  queryClient: QueryClient;
+  queryClient?: QueryClient;
 }
 
 export type StatusDetail = {

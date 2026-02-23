@@ -1,4 +1,4 @@
-import { AddSVGProps } from '@visx/shape/lib/types';
+import type { AddSVGProps } from '@visx/shape/lib/types';
 import { Shape } from '@visx/visx';
 
 interface BarProps {

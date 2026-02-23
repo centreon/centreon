@@ -1,12 +1,12 @@
-import { ReactElement, ReactNode } from 'react';
-
 import {
   Tooltip as MuiTooltip,
-  TooltipProps as MuiTooltipProps
+  type TooltipProps as MuiTooltipProps
 } from '@mui/material';
 
-import { AriaLabelingAttributes } from '../../@types/aria-attributes';
-import { DataTestAttributes } from '../../@types/data-attributes';
+import type { ReactElement, ReactNode } from 'react';
+
+import type { AriaLabelingAttributes } from '../../@types/aria-attributes';
+import type { DataTestAttributes } from '../../@types/data-attributes';
 
 export type TooltipProps = {
   children: ReactElement;

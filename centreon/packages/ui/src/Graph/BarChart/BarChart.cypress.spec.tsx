@@ -1,18 +1,17 @@
+import { userAtom } from '@centreon/ui-context';
+
 import { renderHook } from '@testing-library/react';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
 
-import { userAtom } from '@centreon/ui-context';
-
+import { labelAvg, labelMax, labelMin } from '../Chart/translatedLabels';
 import dataMissingPoint from '../mockedData/dataWithMissingPoint.json';
 import dataLastWeek from '../mockedData/lastWeek.json';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceLinesStackKeys from '../mockedData/pingServiceWithStackedKeys.json';
-
-import { labelAvg, labelMax, labelMin } from '../Chart/translatedLabels';
-import BarChart, { BarChartProps } from './BarChart';
+import BarChart, { type BarChartProps } from './BarChart';
 
 const defaultStart = new Date(
   dayjs(Date.now()).subtract(24, 'hour').toDate().getTime()
@@ -58,10 +57,10 @@ const initialize = ({
           barStyle={barStyle}
           data={data}
           legend={legend}
+          max={max}
+          min={min}
           orientation={orientation ?? 'horizontal'}
           tooltip={tooltip}
-          min={min}
-          max={max}
           {...defaultArgs}
         />
       </div>
@@ -76,14 +75,14 @@ const checkWidth = (orientation): void => {
     cy.get('g[class*="visx-rows"] > line')
       .eq(0)
       .should('have.attr', 'x2')
-      .and('equal', '1145');
+      .and('equal', '1133');
 
     return;
   }
   cy.get('g[class*="visx-rows"] > line')
     .eq(0)
     .should('have.attr', 'x2')
-    .and('equal', '1180');
+    .and('equal', '1168');
 };
 
 describe('Bar chart', () => {
@@ -103,7 +102,7 @@ describe('Bar chart', () => {
     cy.contains('Centreon-Server: Round-Trip Maximum Time').should(
       'be.visible'
     );
-    cy.contains('7.47 KB').should('be.visible');
+    cy.contains('7.47 KiB').should('be.visible');
 
     cy.makeSnapshot();
   });
@@ -278,8 +277,8 @@ describe('Bar chart', () => {
   it('displays the bar chart according to min and max boundaries', () => {
     initialize({
       data: dataLastWeek,
-      min: -0.05,
-      max: 1
+      max: 1,
+      min: -0.05
     });
 
     cy.contains('05/31/2023').should('be.visible');
@@ -308,16 +307,16 @@ describe('Bar chart', () => {
   it('does not displays corresponding calculations when props are set', () => {
     initialize({
       data: dataLastWeek,
-      orientation: 'horizontal',
       legend: {
-        placement: 'bottom',
         mode: 'grid',
+        placement: 'bottom',
         showCalculations: {
-          min: true,
+          avg: false,
           max: false,
-          avg: false
+          min: true
         }
-      }
+      },
+      orientation: 'horizontal'
     });
 
     cy.contains(labelMin).should('be.visible');

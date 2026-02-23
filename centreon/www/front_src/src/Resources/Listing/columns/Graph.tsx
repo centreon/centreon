@@ -1,8 +1,3 @@
-import dayjs from 'dayjs';
-import { ReactElement, Suspense, useState } from 'react';
-import { path, isNil, not } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import IconGraph from '@mui/icons-material/BarChart';
 import { Paper } from '@mui/material';
 
@@ -16,15 +11,19 @@ import {
   useFetchQuery
 } from '@centreon/ui';
 
+import dayjs from 'dayjs';
+import { isNil, not, path } from 'ramda';
+import { ReactElement, Suspense, useState } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
 import FederatedComponent from '../../../components/FederatedComponents';
+import { graphsCapNumber } from '../../constants';
 import type { ResourceDetails } from '../../Details/models';
 import type { Resource } from '../../models';
+import TooManyElementsCard from '../../TooManyElementsCard';
 import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
-import { graphsCapNumber } from '../../constants';
-
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
-import TooManyElementsCard from '../../TooManyElementsCard';
 
 const useStyles = makeStyles()((theme) => ({
   button: {
@@ -70,10 +69,7 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   if (metricsCount > graphsCapNumber) {
     return (
       <Suspense fallback={<LoadingSkeleton height="100%" />}>
-        <TooManyElementsCard
-          listing={true}
-          title={data?.global.title ?? ''}
-        />
+        <TooManyElementsCard listing={true} title={data?.global.title ?? ''} />
       </Suspense>
     );
   }
@@ -81,27 +77,27 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   return (
     <Suspense fallback={<LoadingSkeleton height="100%" />}>
       <FederatedComponent
+        getShapeLines={getShapeLines}
         path="/anomaly-detection/enableThresholdLines"
         styleMenuSkeleton={{ height: 0, width: 0 }}
         type={row?.type}
-        getShapeLines={getShapeLines}
       />
       <LineChart
-        loading={isFetching || isLoading || !data}
         data={data}
-        end={end}
-        height={200}
-        legend={{ mode: 'grid', placement: 'bottom' }}
-        lineStyle={{ lineWidth: 1 }}
-        start={start}
-        tooltip={{ mode: 'hidden' }}
         displayAnchor={{
           displayGuidingLines: false,
           displayTooltipsGuidingLines: false
         }}
+        end={end}
+        height={200}
+        legend={{ mode: 'grid', placement: 'bottom' }}
+        lineStyle={{ lineWidth: 1 }}
+        loading={isFetching || isLoading || !data}
+        start={start}
         timeShiftZones={{
           enable: false
         }}
+        tooltip={{ mode: 'hidden' }}
         {...rest}
       />
     </Suspense>
@@ -114,9 +110,9 @@ const renderChip =
     <IconButton
       ariaLabel={label}
       className={className}
+      onClick={onClick}
       size="small"
       title={label}
-      onClick={onClick}
     >
       <IconGraph fontSize="small" />
     </IconButton>

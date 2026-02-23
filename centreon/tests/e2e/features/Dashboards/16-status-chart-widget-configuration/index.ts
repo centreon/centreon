@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkHostsAreMonitored,
@@ -500,8 +501,8 @@ When('the dashboard administrator clicks on a random resource', () => {
   cy.get('[data-testid="Legend"] > *')
     .first()
     .find('a')
-    .then(($link) => {
-      const href = $link.attr('href');
+    .then((link) => {
+      const href = link.attr('href');
       if (href) {
         cy.log('First link found:', href);
         cy.visit(href);
@@ -520,10 +521,7 @@ Then(
 
 Given('the dashboard administrator adds more than 20 hosts', () => {
   cy.addMultipleHosts();
-  cy.navigateTo({
-    page: 'Resources Status',
-    rootItemNumber: 1
-  });
+  cy.visit(PAGES.monitoring.resourcesStatus);
   cy.waitForElementToBeVisible('[data-testid="CloseIcon"]');
 
   cy.getByTestId({ testId: 'Clear filter' }).click({ force: true });

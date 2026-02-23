@@ -52,7 +52,7 @@ class TelegrafValidator implements TypeValidatorInterface
         foreach ($configuration as $key => $value) {
             // validate file extension
             if (str_ends_with($key, '_certificate') && (is_string($value) || is_null($value))) {
-                if (preg_match('/^(?!.*\.(cer|crt)$).+$/', (string) $value) === 1) {
+                if (preg_match('/^(?!.*\.(cer|crt|cert)$).+$/', (string) $value) === 1) {
                     throw new AssertionException(
                         sprintf("File path or format '%s' (%s) is invalid", (string) $value, "configuration.{$key}")
                     );

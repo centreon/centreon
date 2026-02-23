@@ -600,9 +600,29 @@ Given('a dashboard containing a resource table widget', () => {
 });
 
 When(
-  'the dashboard administrator clicks on a random resource from the resource table',
-  () => {
-    cy.get('[aria-label^="Select row"]').eq(0).click({ force: true });
+  'the dashboard administrator clicks on a random resource from the resource table {string}',
+  (index: string) => {
+    // Wait until element are visible on the resource table widget
+    cy.waitUntil(
+      () =>
+        cy.get('body').then((body) => {
+          const element = body.find('span:contains("Warning")');
+
+          return element.length > 0 && element.is(':visible');
+        }),
+      {
+        errorMsg: 'The element is not visible',
+        interval: 2000,
+        timeout: 50000
+      }
+    ).then((isVisible) => {
+      if (!isVisible) {
+        throw new Error('The element is not visible');
+      }
+    });
+    cy.getByLabel({ label: `Select row ${index}` })
+      .eq(1)
+      .click({ force: true });
   }
 );
 
@@ -623,8 +643,8 @@ Then('the dashboard administrator clicks on the downtime filter', () => {
 Then('the resources set to in downtime should be displayed', () => {
   cy.waitUntil(
     () =>
-      cy.get('body').then(($body) => {
-        const element = $body.find('svg[data-icon="Downtime"]');
+      cy.get('body').then((body) => {
+        const element = body.find('svg[data-icon="Downtime"]');
 
         return element.length > 0 && element.is(':visible');
       }),
@@ -644,7 +664,7 @@ Then(
   'the dashboard administrator clicks on the acknowledge button and submits',
   () => {
     cy.getByTestId({ testId: 'mainAcknowledge' }).eq(1).click({ force: true });
-    cy.getByTestId({ testId: 'Confirm' }).eq(1).click();
+    cy.getByTestId({ testId: 'Confirm' }).contains('Acknowledge').click();
     cy.wait('@setAcknowledge');
   }
 );

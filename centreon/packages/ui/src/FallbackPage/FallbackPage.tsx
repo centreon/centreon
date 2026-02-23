@@ -1,9 +1,8 @@
-import { FC } from 'react';
+import { Typography } from '@mui/material';
 
 import { equals } from 'ramda';
+import type { FC } from 'react';
 import { makeStyles } from 'tss-react/mui';
-
-import { Typography } from '@mui/material';
 
 import { Image } from '..';
 import NotAuthorizedTemplateBackgroundDark from '../@assets/images/not-authorized-template-background-dark.svg';

@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
+import { getStatusColors, SeverityCode } from '@centreon/ui';
 
-import { SeverityCode, getStatusColors } from '@centreon/ui';
+import { makeStyles } from 'tss-react/mui';
 
 interface StylesProps {
   severityCode?: SeverityCode;
@@ -13,17 +13,17 @@ const useStyles = makeStyles<StylesProps>()((theme, { severityCode }) => ({
     height: theme.spacing(2),
     width: theme.spacing(2)
   },
-  status: {
-    alignItems: 'center',
-    display: 'flex',
-    gap: theme.spacing(0.5),
-    marginRight: theme.spacing(1)
-  },
   nestedStatus: {
     alignItems: 'center',
     display: 'flex',
     gap: theme.spacing(0.5),
     marginLeft: theme.spacing(3)
+  },
+  status: {
+    alignItems: 'center',
+    display: 'flex',
+    gap: theme.spacing(0.5),
+    marginRight: theme.spacing(1)
   },
   statusCount: {
     alignItems: 'center',

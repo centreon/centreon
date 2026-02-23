@@ -54,7 +54,7 @@ class NewHostGroup
     ) {
         $shortName = (new \ReflectionClass($this))->getShortName();
 
-        $this->name = trim($this->name);
+        $this->name = self::formatName($this->name);
         Assertion::minLength($this->name, self::MIN_NAME_LENGTH, "{$shortName}::name");
         Assertion::maxLength($this->name, self::MAX_NAME_LENGTH, "{$shortName}::name");
 
@@ -97,5 +97,15 @@ class NewHostGroup
     public function getGeoCoords(): ?GeoCoords
     {
         return $this->geoCoords;
+    }
+
+    /**
+     * Format a string as per domain rules for a host group name.
+     *
+     * @param string $name
+     */
+    final public static function formatName(string $name): string
+    {
+        return str_replace(' ', '_', trim($name));
     }
 }

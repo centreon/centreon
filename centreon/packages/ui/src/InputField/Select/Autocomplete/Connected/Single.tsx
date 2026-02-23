@@ -1,5 +1,4 @@
 import AutocompleteField from '..';
-
 import ConnectedAutocompleteField from '.';
 
 const SingleConnectedAutocompleteField = ConnectedAutocompleteField(

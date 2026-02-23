@@ -336,8 +336,8 @@ When(
     cy.getByLabel({ label: 'RichTextEditor' })
       .eq(0)
       .type(genericTextWidgets.default.description);
-    cy.contains("Select all").eq(0).click();
     cy.get('input[name="unhandled_problems"]').click();
+    cy.get('[data-testid="Select all"]').eq(1).click();
     cy.getByTestId({ testId: 'Resource type' }).realClick();
     cy.getByLabel({ label: 'Host Group' }).click();
     cy.getByTestId({ testId: 'Select resource' }).click();
@@ -527,8 +527,8 @@ Then(
             );
           }),
       {
-        timeout: 10000,
-        interval: 500
+        interval: 500,
+        timeout: 10000
       }
     );
   }
@@ -577,8 +577,8 @@ Then(
           return cy
             .get('ul.MuiAutocomplete-listbox')
             .find('li')
-            .then(($items) => {
-              const textArray = $items
+            .then((items) => {
+              const textArray = items
                 .map((_index, el) => {
                   return Cypress.$(el).find('p').text();
                 })
@@ -602,7 +602,7 @@ Then(
             });
         });
       },
-      { timeout: 30000, interval: 3000 }
+      { interval: 3000, timeout: 30000 }
     ).then((found) => {
       if (found) {
         cy.log('Only services containing "ser" are displayed in the list.');

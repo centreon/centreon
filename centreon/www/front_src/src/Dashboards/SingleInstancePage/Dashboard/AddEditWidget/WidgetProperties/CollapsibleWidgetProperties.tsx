@@ -1,24 +1,23 @@
 /* eslint-disable react/prop-types */
-import { useMemo } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useAtomValue } from 'jotai';
-import { path, equals, groupBy, isEmpty, isNil, toPairs } from 'ramda';
-import { useTranslation } from 'react-i18next';
 
 import { Divider, Stack } from '@mui/material';
 
 import { CollapsibleItem } from '@centreon/ui/components';
 
+import { useFormikContext } from 'formik';
+import { useAtomValue } from 'jotai';
+import { equals, groupBy, isEmpty, isNil, path, toPairs } from 'ramda';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import Subtitle from '../../components/Subtitle';
 import { labelValueSettings } from '../../translatedLabels';
 import { widgetPropertiesAtom } from '../atoms';
 import { Widget } from '../models';
-
 import { getProperty } from './Inputs/utils';
 import ShowInputWrapper from './ShowInputWrapper';
 import SubInputs from './SubInputs';
-import { WidgetPropertiesRenderer, useWidgetInputs } from './useWidgetInputs';
+import { useWidgetInputs, WidgetPropertiesRenderer } from './useWidgetInputs';
 import { useWidgetPropertiesStyles } from './widgetProperties.styles';
 
 interface CollapsibleWidgetPropertiesProps {

@@ -1,5 +1,3 @@
-import { useRef } from 'react';
-
 import dayjs from 'dayjs';
 import {
   equals,
@@ -11,10 +9,10 @@ import {
   pipe,
   pluck
 } from 'ramda';
+import { useRef } from 'react';
 
-import { LineChartData, buildListingEndpoint, useFetchQuery } from '../..';
-
-import { Metric, Resource, WidgetResourceType } from './models';
+import { buildListingEndpoint, type LineChartData, useFetchQuery } from '../..';
+import { type Metric, type Resource, WidgetResourceType } from './models';
 
 interface CustomTimePeriod {
   end: string;
@@ -222,8 +220,8 @@ const useGraphQuery = ({
       return metrics?.map((line) => {
         const formattedLegend = formatLegend({
           host: line?.host_name,
-          service: line?.service_name,
-          metric: line?.metric
+          metric: line?.metric,
+          service: line?.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -246,8 +244,8 @@ const useGraphQuery = ({
 
       if (areHostNameRedundant) {
         const formattedLegend = formatLegend({
-          service: line.service_name,
-          metric: line.metric
+          metric: line.metric,
+          service: line.service_name
         });
 
         return { ...line, legend: formattedLegend };
@@ -264,8 +262,8 @@ const useGraphQuery = ({
 
       const formattedLegend = formatLegend({
         host: line.host_name,
-        service: line.service_name,
-        metric: line.metric
+        metric: line.metric,
+        service: line.service_name
       });
 
       return { ...line, legend: formattedLegend };

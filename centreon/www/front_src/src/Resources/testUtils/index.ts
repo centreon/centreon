@@ -72,8 +72,8 @@ const getListingEndpoint = ({
     serviceSeverityLevels,
     sort,
     states,
-    statusTypes,
-    statuses
+    statuses,
+    statusTypes
   });
 
 const cancelTokenRequestParam = { cancelToken: {} };

@@ -1,9 +1,10 @@
-import { QueryParameter } from '../../queryParameters/models';
+import type { QueryParameter } from '../../queryParameters/models';
 
 export interface BuildListingEndpointParameters {
   baseEndpoint?: string;
   customQueryParameters?: Array<QueryParameter>;
   parameters: Parameters;
+  isCustomEndpoint?: boolean;
 }
 
 export interface SearchMatch {

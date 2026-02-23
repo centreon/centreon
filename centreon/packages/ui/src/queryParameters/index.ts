@@ -1,6 +1,6 @@
 import { isEmpty, isNil } from 'ramda';
 
-import { QueryParameter } from './models';
+import type { QueryParameter } from './models';
 
 const toRawQueryParameter = ({ name, value }): string => {
   return `${name}=${encodeURIComponent(JSON.stringify(value))}`;

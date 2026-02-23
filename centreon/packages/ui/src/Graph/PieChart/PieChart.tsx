@@ -1,7 +1,6 @@
 import { ParentSize } from '../..';
-
+import type { PieProps } from './models';
 import ResponsivePie from './ResponsivePie';
-import { PieProps } from './models';
 
 const PieChart = (props: PieProps): JSX.Element => (
   <ParentSize>

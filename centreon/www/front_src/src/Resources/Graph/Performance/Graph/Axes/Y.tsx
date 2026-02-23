@@ -5,7 +5,6 @@ import { isNil } from 'ramda';
 import formatMetricValue from '../../formatMetricValue';
 import { Line } from '../../models';
 import { getUnits } from '../../timeSeries';
-
 import { commonTickLabelProps } from '.';
 
 interface Props {

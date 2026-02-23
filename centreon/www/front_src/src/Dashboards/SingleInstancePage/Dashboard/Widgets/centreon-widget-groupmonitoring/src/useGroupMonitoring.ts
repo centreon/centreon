@@ -1,20 +1,18 @@
-import { useEffect, useRef } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { inc, isEmpty, pluck } from 'ramda';
-
 import {
-  ListingModel,
   buildListingEndpoint,
+  ListingModel,
   useDeepCompare,
   useFetchQuery,
   useRefreshInterval
 } from '@centreon/ui';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
+import { useAtomValue } from 'jotai';
+import { inc, isEmpty, pluck } from 'ramda';
+import { useEffect, useRef } from 'react';
+
 import { SortOrder } from '../../models';
 import { getWidgetEndpoint, isResourceString } from '../../utils';
-
 import { groupsDecoder } from './api/decoders';
 import { getEndpoint } from './api/endpoints';
 import { FormattedGroup, Group, WidgetProps } from './models';
@@ -107,25 +105,25 @@ export const useGroupMonitoring = ({
             page: inc(pageToUse),
             search: hasResourcesDefined
               ? {
-                lists: !isResourceString(resource?.resources)
-                  ? [
-                    {
-                      field: 'name',
-                      values: pluck('name', resource?.resources)
-                    }
-                  ]
-                  : undefined,
-                conditions: isResourceString(resource?.resources)
-                  ? [
-                    {
-                      field: 'name',
-                      values: {
-                        $rg: resource?.resources
-                      }
-                    }
-                  ]
-                  : undefined
-              }
+                  conditions: isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: {
+                            $rg: resource?.resources
+                          }
+                        }
+                      ]
+                    : undefined,
+                  lists: !isResourceString(resource?.resources)
+                    ? [
+                        {
+                          field: 'name',
+                          values: pluck('name', resource?.resources)
+                        }
+                      ]
+                    : undefined
+                }
               : undefined,
             sort: {
               [sortFieldToUse]: sortOrderToUse.toUpperCase()

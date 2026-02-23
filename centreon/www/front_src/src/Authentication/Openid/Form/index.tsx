@@ -1,13 +1,13 @@
+import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
+
 import { useQueryClient } from '@tanstack/react-query';
 import { FormikValues } from 'formik';
 import { all, isEmpty, isNil, not, or, pick, pipe, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
-import { Form, Method, useMutationQuery, useSnackbar } from '@centreon/ui';
-
-import FormButtons from '../../FormButtons';
 import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
 import { authenticationProvidersEndpoint } from '../../api/endpoints';
+import FormButtons from '../../FormButtons';
 import { groups } from '../../groups';
 import { Provider } from '../../models';
 import { OpenidConfiguration, OpenidConfigurationToAPI } from '../models';
@@ -17,7 +17,6 @@ import {
   labelRequired
 } from '../translatedLabels';
 import useValidationSchema from '../useValidationSchema';
-
 import { inputs } from './inputs';
 
 interface Props {
@@ -81,11 +80,11 @@ const OpenidForm = ({
 
   return (
     <Form<OpenidConfiguration>
-      isCollapsible
       Buttons={FormButtons}
       groups={groups}
       initialValues={initialValues}
       inputs={inputs}
+      isCollapsible
       isLoading={isLoading}
       submit={submit}
       validate={validate}

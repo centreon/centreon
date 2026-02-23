@@ -1,19 +1,18 @@
-import { always, and, equals, ifElse, isNil } from 'ramda';
-
 import {
   TableCell,
-  TableCellBaseProps,
+  type TableCellBaseProps,
   TableSortLabel,
   Tooltip
 } from '@mui/material';
 
-import { Props as ListingProps } from '../..';
-import { Column } from '../../models';
+import { always, and, equals, ifElse, isNil } from 'ramda';
+
+import type { Props as ListingProps } from '../..';
+import type { Column } from '../../models';
+import useStyleTable from '../../useStyleTable';
 import { DraggableIconButton } from '../_internals/DraggableIconButton';
 import HeaderLabel from '../_internals/Label';
-
-import useStyleTable from '../../useStyleTable';
-import { StylesProps } from './ListingHeaderCell.styles';
+import type { StylesProps } from './ListingHeaderCell.styles';
 
 type Props = Pick<
   ListingProps<unknown>,
@@ -82,10 +81,10 @@ const ListingHeaderCell = ({
           <TableSortLabel
             active={sortField === columnSortField}
             aria-label={`Column ${column.label}`}
-            className="text-white"
             classes={{
               icon: 'text-white'
             }}
+            className="text-white"
             direction={sortOrder || 'desc'}
             onClick={sort}
           >

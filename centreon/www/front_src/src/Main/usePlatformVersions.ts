@@ -1,10 +1,9 @@
-import { useCallback } from 'react';
+import { getData, useRequest } from '@centreon/ui';
+import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { useAtom } from 'jotai';
 import { includes, isNil, keys } from 'ramda';
-
-import { getData, useRequest } from '@centreon/ui';
-import { platformVersionsAtom } from '@centreon/ui-context';
+import { useCallback } from 'react';
 
 import { platformVersionsDecoder } from '../api/decoders';
 import { platformVersionsEndpoint } from '../api/endpoint';

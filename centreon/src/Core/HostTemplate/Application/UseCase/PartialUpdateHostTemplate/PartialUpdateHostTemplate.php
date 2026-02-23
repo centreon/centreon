@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -89,6 +91,7 @@ final class PartialUpdateHostTemplate
         private readonly ContactInterface $user,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -240,9 +243,27 @@ final class PartialUpdateHostTemplate
             $hostTemplate->setSeverityId($request->severityId);
         }
 
+        if (! $request->freshnessChecked instanceof NoValue) {
+            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
+        }
+
+        if (! $request->freshnessThreshold instanceof NoValue) {
+            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
+        }
+
         if (! $request->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($request->checkCommandId, CommandType::Check, 'checkCommandId');
             $hostTemplate->setCheckCommandId($request->checkCommandId);
+            if ($request->checkCommandId !== null) {
+                $command = $this->readCommandRepository->findById($request->checkCommandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                    $hostTemplate->setFreshnessThreshold(120);
+                }
+            }
         }
 
         if (! $request->checkCommandArgs instanceof NoValue) {
@@ -317,14 +338,6 @@ final class PartialUpdateHostTemplate
 
         if (! $request->acknowledgementTimeout instanceof NoValue) {
             $hostTemplate->setAcknowledgementTimeout($request->acknowledgementTimeout);
-        }
-
-        if (! $request->freshnessChecked instanceof NoValue) {
-            $hostTemplate->setFreshnessChecked(YesNoDefaultConverter::fromScalar($request->freshnessChecked));
-        }
-
-        if (! $request->freshnessThreshold instanceof NoValue) {
-            $hostTemplate->setFreshnessThreshold($request->freshnessThreshold);
         }
 
         if (! $request->flapDetectionEnabled instanceof NoValue) {

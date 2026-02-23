@@ -1,13 +1,13 @@
 /* eslint-disable hooks/sort */
-import { useState } from 'react';
 
 import { Box } from '@mui/material';
-import { T, always, cond, gt, isEmpty, not } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import { Variant } from '@mui/material/styles/createTypography';
 
 import { Group, InputType } from '@centreon/ui';
+
+import { always, cond, gt, isEmpty, not, T } from 'ramda';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   labelBusinessViews,
@@ -35,9 +35,7 @@ import {
   serviceGroupsEndpoint,
   usersEndpoint
 } from '../api/endpoints';
-
 import { hostEvents, serviceEvents } from '../utils';
-
 import { EmailBody } from './Channel';
 import { useStyles } from './Inputs.styles';
 import TimePeriodTitle from './TimePeriodTitle';
@@ -74,16 +72,16 @@ const useFormInputs = ({
 
   const basicFormGroups: Array<Group> = [
     {
+      isDividerHidden: true,
       name: t(labelSelectResourcesAndEvents),
       order: 1,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     },
     {
+      isDividerHidden: true,
       name: t(labelNotificationSettings),
       order: 2,
-      titleAttributes,
-      isDividerHidden: true
+      titleAttributes
     }
   ];
 
@@ -260,7 +258,6 @@ const useFormInputs = ({
       additionalLabelClassName: classes.additionalLabel,
       fieldName: '',
       grid: {
-        gridTemplateColumns: 'repeat(3, 1fr)',
         className: classes.channels,
         columns: [
           {
@@ -293,7 +290,8 @@ const useFormInputs = ({
             label: 'Slack',
             type: InputType.Checkbox
           }
-        ]
+        ],
+        gridTemplateColumns: 'repeat(3, 1fr)'
       },
       group: basicFormGroups[1].name,
       inputClassName: classes.input,
@@ -310,9 +308,9 @@ const useFormInputs = ({
             connectedAutocomplete: {
               additionalConditionParameters: [],
               endpoint: usersEndpoint,
+              filterKey: 'alias',
               getRenderedOptionText: (option): string =>
                 option.alias?.toString(),
-              filterKey: 'alias',
               optionProperty: 'alias'
             },
             dataTestId: 'Search contacts',

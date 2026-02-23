@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
@@ -58,7 +59,7 @@ Given('a non-admin user is on the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 
@@ -102,7 +103,7 @@ Then('no certificate fields are shown', () => {
 
 When('the user enables connection initiated by the poller', () => {
   // Disable the "By agent" mode first
-  cy.getByTestId({ testId: 'enable_agent', tag: 'span' }).click();
+  cy.getByTestId({ tag: 'span', testId: 'enable_agent' }).click();
   // Then enable the "By poller" mode
   cy.contains('div', 'By poller').click();
   cy.get('input[type="checkbox"]').click();

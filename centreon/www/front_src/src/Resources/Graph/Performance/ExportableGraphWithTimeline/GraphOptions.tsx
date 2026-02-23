@@ -1,18 +1,17 @@
+import { FormControlLabel, FormGroup, Switch, Typography } from '@mui/material';
+
+import { useMemoComponent } from '@centreon/ui';
+
 import { useAtomValue, useSetAtom } from 'jotai';
 import { pluck, values } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
-
-import { FormControlLabel, FormGroup, Switch, Typography } from '@mui/material';
-
-import { useMemoComponent } from '@centreon/ui';
 
 import {
   setGraphTabParametersDerivedAtom,
   tabParametersAtom
 } from '../../../Details/detailsAtoms';
 import type { GraphOption, GraphOptions } from '../../../Details/models';
-
 import {
   changeGraphOptionsDerivedAtom,
   graphOptionsAtom
@@ -58,13 +57,13 @@ const Options = (): JSX.Element => {
               <Switch
                 checked={value}
                 color="primary"
-                size="small"
                 onChange={(): void =>
                   changeGraphOptions({
                     changeTabGraphOptions,
                     graphOptionId: id
                   })
                 }
+                size="small"
               />
             }
             data-testid={label}

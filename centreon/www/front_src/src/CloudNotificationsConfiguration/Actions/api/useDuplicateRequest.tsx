@@ -1,8 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useAtomValue } from 'jotai';
-import { and } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Method,
   ResponseError,
@@ -11,6 +6,11 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { useQueryClient } from '@tanstack/react-query';
+import { useAtomValue } from 'jotai';
+import { and } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import {
   adaptNotification as adaptFormFields,
   notificationdecoder
@@ -18,7 +18,6 @@ import {
 import { notificationEndpoint } from '../../Panel/api/endpoints';
 import { htmlEmailBodyAtom } from '../../Panel/atom';
 import { NotificationType } from '../../Panel/models';
-
 import { adaptNotification } from './adapters';
 import { addNotificationEndpoint } from './endpoints';
 

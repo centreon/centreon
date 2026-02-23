@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 beforeEach(() => {
   cy.startContainers();
@@ -17,11 +18,7 @@ Given('a user is logged in Centreon', () => {
 });
 
 Then('a service category is configured', () => {
-  cy.navigateTo({
-    page: 'Categories',
-    rootItemNumber: 3,
-    subMenu: 'Services'
-  });
+  cy.visit(PAGES.configuration.servicesCategoriesLegacy);
   cy.waitForElementInIframe('#main-content', 'input[name="searchSC"]');
   cy.getIframeBody().contains('Add').click();
   cy.waitForElementInIframe('#main-content', 'input[name="sc_name"]');

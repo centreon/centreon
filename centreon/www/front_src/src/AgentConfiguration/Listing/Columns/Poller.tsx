@@ -1,6 +1,9 @@
-import { usePluralizedTranslation } from '@centreon/ui';
 import { Box } from '@mui/material';
+
+import { usePluralizedTranslation } from '@centreon/ui';
+
 import { isNil } from 'ramda';
+
 import { labelPoller } from '../../translatedLabels';
 
 const Poller = ({ row }) => {

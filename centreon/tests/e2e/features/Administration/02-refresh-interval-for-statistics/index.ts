@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const refreshValue = 40;
 
@@ -30,11 +31,7 @@ Given('a user is logged in a Centreon server', () => {
 });
 
 When('the user goes to Administration > Parameters > Centreon UI page', () => {
-  cy.navigateTo({
-    page: 'Centreon UI',
-    rootItemNumber: 4,
-    subMenu: 'Parameters'
-  });
+  cy.visit(PAGES.configuration.centreonUiLegacy);
   cy.wait('@getTimeZone');
 });
 

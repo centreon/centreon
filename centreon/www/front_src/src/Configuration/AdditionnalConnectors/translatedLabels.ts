@@ -85,3 +85,6 @@ export const labelAddAnAdditionalConfiguration =
   'Add an additional configuration';
 export const labelModifyConnectorConfiguration =
   'Modify an additional configuration';
+
+export const labelEditPassword = 'Edit password';
+export const labelRevertToPreviousPassword = 'Revert to previous password';

@@ -1,14 +1,14 @@
-import { MutableRefObject, ReactElement } from 'react';
-
 import { Group } from '@visx/visx';
 import { equals } from 'ramda';
-import { ChartAxis } from '../../Chart/models';
+import type { MutableRefObject, ReactElement } from 'react';
+
+import { margin } from '../../Chart/common';
+import type { ChartAxis } from '../../Chart/models';
 import Axes from '../Axes';
 import Grids from '../Grids';
-import { Line, TimeValue } from '../timeSeries/models';
+import type { Line, TimeValue } from '../timeSeries/models';
 import { useMarginTop } from '../useMarginTop';
 import { computeGElementMarginLeft } from '../utils';
-import { margin } from '../../Chart/common';
 
 interface Props {
   allUnits: Array<string>;
@@ -62,10 +62,11 @@ const ChartSvgWrapper = ({
       ref={svgRef}
       width="100%"
     >
+      <title>chart</title>
       <Group.Group
         left={computeGElementMarginLeft({
-          maxCharacters: maxAxisCharacters,
-          hasSecondUnit
+          hasSecondUnit,
+          maxCharacters: maxAxisCharacters
         })}
         top={marginTop}
       >

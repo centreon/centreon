@@ -211,7 +211,8 @@ Then(
     cy.waitUntil(
       () =>
         cy.refreshListing().then(() =>
-          cy.contains(hostInAcknowledgementName)
+          cy
+            .contains(hostInAcknowledgementName)
             .parent()
             .then((hostEl) => {
               const hostAck =

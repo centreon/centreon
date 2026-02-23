@@ -1,6 +1,5 @@
-import { ReactElement } from 'react';
-
 import { Responsive } from '@visx/visx';
+import type { ReactElement } from 'react';
 
 type ParentSizeState = {
   height: number;

@@ -1,8 +1,3 @@
-import { ChangeEvent, useState } from 'react';
-
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   SaveButton as Button,
   Method,
@@ -12,6 +7,10 @@ import {
   useSnackbar
 } from '@centreon/ui';
 
+import { isNil } from 'ramda';
+import { ChangeEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { commentEndpoint } from '../../../../Actions/api/endpoint';
 import {
   labelCancel,
@@ -20,7 +19,6 @@ import {
   labelYourCommentSent
 } from '../../../../translatedLabels';
 import { ResourceDetails } from '../../../models';
-
 import { useStyles } from './addComment.styles';
 
 interface Props {
@@ -89,11 +87,15 @@ const AddCommentArea = ({
   return (
     <>
       <TextField
-        autoFocus
-        multiline
-        required
         ariaLabel={t(labelComment)}
         autoComplete="off"
+        autoFocus
+        label={t(labelComment)}
+        multiline
+        onChange={changeComment}
+        required
+        rows={3}
+        sx={{ marginTop: 1.5, width: '100%' }}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -101,28 +103,24 @@ const AddCommentArea = ({
             }
           }
         }}
-        label={t(labelComment)}
-        rows={3}
-        sx={{ marginTop: 1.5, width: '100%' }}
         value={comment}
-        onChange={changeComment}
       />
       <div className={classes.footer}>
         <Button
           data-testid={labelCancel}
           labelSave={t(labelCancel)}
+          onClick={cancel}
           startIcon={false}
           variant="text"
-          onClick={cancel}
         />
         <Button
           data-testid={labelSave}
           disabled={!comment}
           labelSave={t(labelSave)}
           loading={isMutating}
+          onClick={sendComment}
           startIcon={false}
           variant="outlined"
-          onClick={sendComment}
         />
       </div>
     </>

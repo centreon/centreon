@@ -1,20 +1,19 @@
-import { useMemo } from 'react';
-
-import { useAtom, useAtomValue } from 'jotai';
-
 import {
   Column as ColumnTable,
   ColumnType,
   useLocaleDateTimeFormat
 } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
-import { selectedColumnIdsAtom } from '../atoms';
 
+import { useAtom, useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { selectedColumnIdsAtom } from '../atoms';
 import ActionsColumn from './ActionsColumn';
 import ExpirationDate from './ExpirationDate/ExpirationDate';
-import Status from './Status/Status';
 import { Column, ColumnId } from './models';
+import Status from './Status/Status';
 
 const dateFormat = 'L';
 
@@ -60,32 +59,32 @@ export const useColumns = (): UseColumnsState => {
         getFormattedString: (row): string => row.name,
         id: ColumnId.TokenName,
         label: t(Column.Name),
-        sortField: 'token_name',
         sortable: true,
+        sortField: 'token_name',
         type: ColumnType.string
       },
       {
         getFormattedString: (row): string => row?.type.toUpperCase(),
         id: ColumnId.Type,
         label: t(Column.Type),
-        sortField: 'type',
         sortable: true,
+        sortField: 'type',
         type: ColumnType.string
       },
       {
         getFormattedString: (row): string => row?.user?.name || '-',
         id: ColumnId.UserName,
         label: t(Column.User),
-        sortField: 'user.name',
         sortable: true,
+        sortField: 'user.name',
         type: ColumnType.string
       },
       {
         getFormattedString: (row): string => row.creator.name,
         id: ColumnId.CreatorName,
         label: t(Column.Creator),
-        sortField: 'creator.name',
         sortable: true,
+        sortField: 'creator.name',
         type: ColumnType.string
       },
       {
@@ -96,16 +95,16 @@ export const useColumns = (): UseColumnsState => {
           }),
         id: ColumnId.CreationDate,
         label: t(Column.CreationDate),
-        sortField: 'creation_date',
         sortable: true,
+        sortField: 'creation_date',
         type: ColumnType.string
       },
       {
         Component: ExpirationDate,
         id: ColumnId.ExpirationDate,
         label: t(Column.ExpirationDate),
-        sortField: 'expiration_date',
         sortable: true,
+        sortField: 'expiration_date',
         type: ColumnType.component
       },
       {
@@ -118,9 +117,9 @@ export const useColumns = (): UseColumnsState => {
         Component: Status,
         id: ColumnId.Activate,
         label: t(Column.Activate),
-        type: ColumnType.component,
+        sortable: true,
         sortField: 'is_revoked',
-        sortable: true
+        type: ColumnType.component
       }
     ];
   }, [timezone]);

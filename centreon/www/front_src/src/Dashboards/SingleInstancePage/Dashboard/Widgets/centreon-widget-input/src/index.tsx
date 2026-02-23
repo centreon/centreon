@@ -15,7 +15,7 @@ const Input = ({ panelOptions, setPanelOptions }: Props): JSX.Element => {
 
   return (
     <Box>
-      <TextField value={panelOptions?.text} onChange={changeInput} />
+      <TextField onChange={changeInput} value={panelOptions?.text} />
       <Typography>{panelOptions?.text}</Typography>
     </Box>
   );
