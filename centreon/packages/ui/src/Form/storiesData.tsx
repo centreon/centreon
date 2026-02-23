@@ -326,6 +326,7 @@ export const basicFormInputs: Array<InputProps> = [
       columns: [
         {
           connectedAutocomplete: {
+            helperText: 'Hello I am testing',
             additionalConditionParameters: [],
             endpoint: 'endpoint'
           },
