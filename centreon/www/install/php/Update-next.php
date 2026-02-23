@@ -22,7 +22,7 @@
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
 
-require_once _CENTREON_PATH_ . '/bootstrap.php';
+require_once __DIR__ . '/../../../bootstrap.php';
 
 $version = 'xx.xx.x';
 
