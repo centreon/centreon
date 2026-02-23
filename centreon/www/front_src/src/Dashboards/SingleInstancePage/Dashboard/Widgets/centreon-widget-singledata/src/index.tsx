@@ -1,4 +1,5 @@
 import { FluidTypography } from '@centreon/ui';
+
 import { ReactElement } from 'react';
 
 const Data = (): ReactElement => {

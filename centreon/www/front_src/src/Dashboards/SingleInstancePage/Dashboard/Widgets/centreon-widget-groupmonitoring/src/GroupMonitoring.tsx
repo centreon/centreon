@@ -20,8 +20,7 @@ const GroupMonitoring = ({
   playlistHash,
   widgetPrefixQuery,
   hasDescription,
-  isInViewport,
-  queryClient
+  isInViewport
 }: WidgetProps): ReactElement => {
   const {
     hasResourceTypeDefined,
@@ -41,13 +40,13 @@ const GroupMonitoring = ({
     hasDescription,
     id,
     isFromPreview,
+    isInViewport,
     panelData,
     panelOptions,
     playlistHash,
     refreshCount,
     setPanelOptions,
-    widgetPrefixQuery,
-    isInViewport
+    widgetPrefixQuery
   });
 
   const columns = useColumns({

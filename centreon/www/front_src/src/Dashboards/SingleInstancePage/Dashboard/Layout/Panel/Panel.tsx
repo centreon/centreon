@@ -136,6 +136,7 @@ const Panel = ({
               id={id}
               isEditingDashboard={isEditing}
               isFederatedWidget
+              isInViewport={isInViewport}
               panelData={panelOptionsAndData?.data}
               panelOptions={panelOptionsAndData?.options}
               path={panelConfigurations.path}
@@ -145,7 +146,6 @@ const Panel = ({
               saveDashboard={saveDashboard}
               setPanelOptions={changePanelOptions}
               widgetPrefixQuery={widgetPrefixQuery}
-              isInViewport={isInViewport}
             />
           ) : (
             <Suspense
@@ -165,6 +165,7 @@ const Panel = ({
                 hasDescription={displayDescription}
                 id={id}
                 isEditingDashboard={isEditing}
+                isInViewport={isInViewport}
                 panelData={panelOptionsAndData?.data}
                 panelOptions={panelOptionsAndData?.options}
                 path={panelConfigurations.path}
@@ -174,7 +175,6 @@ const Panel = ({
                 saveDashboard={saveDashboard}
                 setPanelOptions={changePanelOptions}
                 widgetPrefixQuery={widgetPrefixQuery}
-                isInViewport={isInViewport}
               />
             </Suspense>
           )}

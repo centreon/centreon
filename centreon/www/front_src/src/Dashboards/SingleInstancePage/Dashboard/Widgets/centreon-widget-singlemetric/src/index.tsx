@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+
 import { CommonWidgetProps, Data } from '../../models';
 import Graph from './Graph';
 import { FormThreshold, ValueFormat } from './models';

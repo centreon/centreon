@@ -128,6 +128,7 @@ const useListing = ({
     displayType,
     hostSeverities,
     id,
+    isInViewport,
     limit,
     page,
     playlistHash,
@@ -140,8 +141,7 @@ const useListing = ({
     states,
     statuses,
     statusTypes,
-    widgetPrefixQuery,
-    isInViewport
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (row): void => {

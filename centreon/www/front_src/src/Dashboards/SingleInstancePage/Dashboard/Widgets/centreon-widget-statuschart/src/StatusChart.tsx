@@ -1,13 +1,13 @@
 import { useRefreshInterval } from '@centreon/ui';
 
 import { equals, includes } from 'ramda';
+import { ReactElement } from 'react';
 
 import { getResourcesUrl } from '../../utils';
 import Chart from './Chart/Chart';
 import { DisplayType, StatusChartProps } from './models';
 import { useStyles } from './StatusChart.styles';
 import { labelHosts, labelServices } from './translatedLabels';
-import { ReactElement } from 'react';
 
 const StatusChart = ({
   globalRefreshInterval,
@@ -75,8 +75,8 @@ const StatusChart = ({
             displayValues={displayValues}
             getLinkToResourceStatusPage={getLinkToResourceStatusPage}
             id={id}
-            isInViewport={isInViewport}
             isHorizontalBar={isHorizontalBar}
+            isInViewport={isInViewport}
             isSingleChart={isSingleChart}
             key={resourceType}
             playlistHash={playlistHash}

@@ -100,6 +100,7 @@ const Listing = ({
     hostSeverities,
     id,
     isFromPreview,
+    isInViewport,
     limit,
     playlistHash,
     refreshCount,
@@ -112,8 +113,7 @@ const Listing = ({
     states,
     statuses,
     statusTypes,
-    widgetPrefixQuery,
-    isInViewport
+    widgetPrefixQuery
   });
 
   return (

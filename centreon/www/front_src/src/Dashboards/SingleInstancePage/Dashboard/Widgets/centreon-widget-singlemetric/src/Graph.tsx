@@ -9,7 +9,6 @@ import { useAtomValue } from 'jotai';
 import { equals, isNil, last } from 'ramda';
 import { ReactElement } from 'react';
 
-
 import { GlobalRefreshInterval, Metric, Resource } from '../../models';
 import NoResources from '../../NoResources';
 import useThresholds from '../../useThresholds';

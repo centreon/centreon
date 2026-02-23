@@ -3,6 +3,7 @@ import { Typography } from '@mui/material';
 import { formatMetricValue, usePluralizedTranslation } from '@centreon/ui';
 
 import { equals, last, pipe, pluck, reject } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { StatusGridProps } from '../StatusGridStandard/models';
@@ -11,7 +12,6 @@ import StatusCard from './StatusCard';
 import { useStatusGridCondensedStyles } from './StatusGridCondensed.styles';
 import { labelBusinessActivity } from './translatedLabels';
 import { useStatusGridCondensed } from './useStatusGridCondensed';
-import { ReactElement } from 'react';
 
 const StatusGridCondensed = ({
   globalRefreshInterval,
@@ -58,13 +58,13 @@ const StatusGridCondensed = ({
       id,
       isBAResourceType,
       isBVResourceType,
+      isInViewport,
       lastSelectedResourceType,
       panelData,
       panelOptions,
       playlistHash,
       refreshCount,
-      widgetPrefixQuery,
-      isInViewport
+      widgetPrefixQuery
     });
 
   if (isLoading && !hasData) {

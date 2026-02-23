@@ -88,13 +88,13 @@ const WidgetLineChart = ({
         widgetId: id
       }),
       bypassQueryParams: isOnPublicPage,
+      enforceIsEnabled: isInViewport,
       metrics: panelData.metrics,
       prefix: widgetPrefixQuery,
       refreshCount,
       refreshInterval: refreshIntervalToUse,
       resources: panelData.resources,
-      timePeriod: panelOptions.timeperiod,
-      enforceIsEnabled: isInViewport
+      timePeriod: panelOptions.timeperiod
     });
 
   const isMetaServiceSelected = getIsMetaServiceSelected(panelData.resources);

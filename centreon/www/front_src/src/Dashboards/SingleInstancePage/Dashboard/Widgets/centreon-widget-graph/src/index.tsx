@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+
 import { CommonWidgetProps, Data } from '../../models';
 import LineChart from './LineChart';
 import { PanelOptions } from './models';
@@ -26,12 +27,12 @@ const Input = ({
       globalRefreshInterval={globalRefreshInterval}
       id={id}
       isFromPreview={isFromPreview}
+      isInViewport={isInViewport}
       panelData={panelData}
       panelOptions={panelOptions}
       playlistHash={playlistHash}
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
-      isInViewport={isInViewport}
     />
   );
 };

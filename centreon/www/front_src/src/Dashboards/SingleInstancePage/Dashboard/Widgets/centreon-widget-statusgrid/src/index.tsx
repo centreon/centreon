@@ -1,8 +1,8 @@
 import { equals } from 'ramda';
+import { ReactElement } from 'react';
 
 import StatusGridCondensed from './StatusGridCondensed/StatusGridCondensed';
 import { StatusGridProps } from './StatusGridStandard/models';
-import { ReactElement } from 'react';
 import StatusGrid from './StatusGridStandard/StatusGrid';
 
 const Widget = ({ panelOptions, ...props }: StatusGridProps): ReactElement =>

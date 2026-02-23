@@ -3,6 +3,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, reject } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { NoResourcesFound } from '../../../NoResourcesFound';
@@ -17,7 +18,6 @@ import TooltipContent from '../Tooltip/Tooltip';
 import useLoadResources from '../useLoadResources';
 import { useStyles } from './Chart.styles';
 import ChartSkeleton from './LoadingSkeleton';
-import { ReactElement } from 'react';
 
 const Chart = ({
   displayType,
@@ -50,13 +50,13 @@ const Chart = ({
   const { data, isLoading } = useLoadResources({
     dashboardId,
     id,
+    isInViewport,
     playlistHash,
     refreshCount,
     refreshIntervalToUse,
     resources,
     resourceType,
-    widgetPrefixQuery,
-    isInViewport
+    widgetPrefixQuery
   });
 
   const goToResourceStatusPage = (status): void => {

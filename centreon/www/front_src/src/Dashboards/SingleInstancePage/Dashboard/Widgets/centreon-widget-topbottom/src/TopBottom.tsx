@@ -51,8 +51,7 @@ const TopBottom = ({
   id,
   dashboardId,
   playlistHash,
-  widgetPrefixQuery,
-  isInViewport
+  widgetPrefixQuery
 }: TopBottomProps): ReactElement => {
   const { classes } = useTopBottomStyles({});
   const containerRef = useRef<HTMLDivElement>(null);

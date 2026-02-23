@@ -2,6 +2,7 @@ import { DashboardLayout } from '@centreon/ui';
 
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, lte } from 'ramda';
+import { ReactElement } from 'react';
 import type { Layout } from 'react-grid-layout';
 
 import { federatedWidgetsPropertiesAtom } from '../../../../federatedModules/atoms';
@@ -10,7 +11,6 @@ import useLinkToResourceStatus from '../hooks/useLinkToResourceStatus';
 import type { Panel } from '../models';
 import DashboardPanel from './Panel/Panel';
 import PanelHeader from './Panel/PanelHeader';
-import { ReactElement } from 'react';
 
 interface Props {
   canEdit?: boolean;

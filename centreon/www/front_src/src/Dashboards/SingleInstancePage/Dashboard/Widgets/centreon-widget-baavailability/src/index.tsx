@@ -1,4 +1,5 @@
 import { ReactElement } from 'react';
+
 import FederatedComponent from '../../../../../../components/FederatedComponents';
 import NoResources from '../../NoResources';
 import { areResourcesFullfilled } from '../../utils';
@@ -27,6 +28,7 @@ const Widget = ({
       globalRefreshInterval={globalRefreshInterval}
       id={id}
       isFromPreview={isFromPreview}
+      isInViewport={isInViewport}
       panelData={panelData}
       panelOptions={panelOptions}
       path="/bi/widget/baavailability"
@@ -34,7 +36,6 @@ const Widget = ({
       queryClient={queryClient}
       refreshCount={refreshCount}
       widgetPrefixQuery={widgetPrefixQuery}
-      isInViewport={isInViewport}
     />
   );
 };
