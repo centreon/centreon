@@ -356,8 +356,13 @@ class DbReadRealTimeHostRepository extends AbstractRepositoryRDB implements Read
      */
     private function getStatesCondition(RequestParametersInterface $requestParameters): string
     {
+        $rawStates = $requestParameters->getExtraParameter('states');
+        if ($rawStates === null || $rawStates === '') {
+            return '';
+        }
+
         $states = json_decode(
-            json: $requestParameters->getExtraParameter('states') ?? '',
+            json: $rawStates,
             associative: true,
             flags: JSON_THROW_ON_ERROR,
         );
