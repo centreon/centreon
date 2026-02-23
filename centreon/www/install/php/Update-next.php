@@ -446,7 +446,6 @@ try {
 
     $rewordingResourceToGlobalMacro();
     $fixDuplicateHostGroupTopology();
-    $deployDefaultAgentConfiguration();
     $migrateAccJsonToTables();
 
     if ($pearDB->isTransactionActive()) {
@@ -455,6 +454,15 @@ try {
 
     $dropParametersColumn();
 
+    try {
+        $deployDefaultAgentConfiguration();
+    } catch (Throwable $e) {
+        CentreonLog::create()->warning(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Default agent configuration deployment failed, it can be done manually",
+            exception: $e
+        );
+    }
 } catch (Throwable $throwable) {
     CentreonLog::create()->error(
         logTypeId: CentreonLog::TYPE_UPGRADE,
