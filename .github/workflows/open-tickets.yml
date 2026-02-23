@@ -590,7 +590,7 @@ jobs:
       github_models_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-rpm:
-    needs: [get-environment, changes, package]
+    needs: [get-environment, changes, package, e2e-test]
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
@@ -623,7 +623,7 @@ jobs:
           centreon_technique_pat: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-deb:
-    needs: [get-environment, changes, package]
+    needs: [get-environment, changes, package, e2e-test]
     if: |
       needs.changes.outputs.trigger_delivery == 'true' &&
       needs.get-environment.outputs.skip_workflow == 'false' &&
