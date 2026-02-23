@@ -48,7 +48,7 @@ Please read [CONTRIBUTING.md](https://github.com/centreon/.github/blob/master/CO
 
 <h3> Contributing in PHP </h3>
 
-Please read [How To Contribute - PHP](https://github.com/centreon/.github/contributing/php.md) for details on how to contribute to the PHP API.
+Please read [How To Contribute - PHP](https://github.com/centreon/.github/blob/master/contributing/php.md) for details on how to contribute to the PHP API.
 
 <h2> License </h2>
 
