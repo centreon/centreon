@@ -90,27 +90,6 @@ const Item = ({
     style?.transform &&
     `translate3d(${style.transform.match(/translate\(([a-z0-9 ,-]+)\)/)[1]}, 0px)`;
 
-    const memoProps = useMemo(
-      () => [
-        style,
-        className,
-        header,
-        theme.palette.mode,
-        canMove,
-        isInViewport,
-        ...additionalMemoProps
-      ],
-      [
-        style,
-        className,
-        header,
-        theme.palette.mode,
-        canMove,
-        isInViewport,
-        additionalMemoProps
-      ]
-    );
-
   return useMemoComponent({
     Component: (
       <div
@@ -167,7 +146,8 @@ const Item = ({
                      {children.map((child) =>
                         typeof child === 'function'
                           ? child({ isInViewport })
-                          : child}
+                          : child
+                     )}
                     </div>
                   </Card>
                 </div>
@@ -187,8 +167,7 @@ const Item = ({
             ...additionalMemoProps
           ]
         : [isInViewport, theme.palette.mode, style]
-    });
-  }
-);
+  });
+};
 
 export default Item;
