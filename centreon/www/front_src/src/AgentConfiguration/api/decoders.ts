@@ -6,6 +6,7 @@ import {
   AgentConfiguration,
   AgentType,
   CMAConfiguration,
+  InstallationCommand,
   TelegrafConfiguration
 } from '../models';
 
@@ -13,6 +14,7 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
   entityDecoder: JsonDecoder.object(
     {
       id: JsonDecoder.number,
+      isAgentInitiated: JsonDecoder.optional(JsonDecoder.boolean),
       name: JsonDecoder.string,
       pollers: JsonDecoder.array(
         JsonDecoder.object(
@@ -30,7 +32,10 @@ export const agentConfigurationsListingDecoder = buildListingDecoder({
       ),
       type: JsonDecoder.enumeration<AgentType>(AgentType, 'Agent type')
     },
-    'Agent configuration'
+    'Agent configuration',
+    {
+      isAgentInitiated: 'is_agent_initiated'
+    }
   ),
   entityDecoderName: 'Listing agents configuration',
   listingDecoderName: 'Agents configuration'
@@ -141,6 +146,21 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
     connectionMode: 'connection_mode'
   }
 );
+
+export const installationCommandDecoder =
+  JsonDecoder.object<InstallationCommand>(
+    {
+      id: JsonDecoder.number,
+      linuxScriptCommand: JsonDecoder.string,
+      windowsScriptCommand: JsonDecoder.string
+    },
+    'Agent configuration',
+    {
+      id: 'poller_id',
+      linuxScriptCommand: 'linux_script_command',
+      windowsScriptCommand: 'windows_script_command'
+    }
+  );
 
 export const tokenDecoder = JsonDecoder.object(
   {

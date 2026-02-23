@@ -28,6 +28,9 @@ export const getPollerAgentEndpoint = ({
 export const getAgentConfigurationEndpoint = (id: number) =>
   `${getAgentConfigurationsEndpoint}/${id}`;
 
+export const getInstallationCommandEndpoint = (id: number) =>
+  `/configuration/agent-configurations/installation-command?poller_id=${id}`;
+
 export const hostsConfigurationEndpoint = '/configuration/hosts';
 
 export const listTokensEndpoint = '/administration/tokens';
