@@ -145,7 +145,6 @@ const AutocompleteField = forwardRef(
       return (
         <TextField
           {...params}
-          helperText={helperText}
           autoFocus={autoFocus}
           autoSize={autoSize}
           autoSizeCustomPadding={7 + (autoSizeCustomPadding || 0)}
@@ -155,6 +154,7 @@ const AutocompleteField = forwardRef(
           }}
           error={error}
           externalValueForAutoSize={autocompleteProps?.value?.name}
+          helperText={helperText}
           label={label}
           onChange={onTextChange}
           placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}

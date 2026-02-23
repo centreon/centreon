@@ -161,7 +161,9 @@ const TextField = forwardRef(
           <MuiTextField
             data-testid={dataTestId}
             error={!isNil(error)}
-            helperText={(displayErrorInTooltip ? undefined : error) || helperText}
+            helperText={
+              (displayErrorInTooltip ? undefined : error) || helperText
+            }
             id={getNormalizedId(dataTestId || '')}
             label={label}
             onChange={changeInputValue}
