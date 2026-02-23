@@ -3,7 +3,7 @@ import "dayjs/locale/en";
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
 import "dayjs/locale/pt";
-import { memo } from "react";
+import { memo, useRef } from "react";
 
 import { NoData } from "@centreon/ui";
 
