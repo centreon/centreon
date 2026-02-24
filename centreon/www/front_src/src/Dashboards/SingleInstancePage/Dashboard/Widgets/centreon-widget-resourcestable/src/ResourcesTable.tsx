@@ -1,6 +1,6 @@
 import { useRefreshInterval } from '@centreon/ui';
 
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 
 import { Listing } from './Listing';
 import type { ResourcesTableProps } from './models';

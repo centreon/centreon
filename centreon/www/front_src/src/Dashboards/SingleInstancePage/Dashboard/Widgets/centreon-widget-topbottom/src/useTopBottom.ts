@@ -29,7 +29,7 @@ import { MetricsTop, TopBottomSettings } from './models';
 interface UseTopBottomProps
   extends Pick<
     CommonWidgetProps<object>,
-    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery'
+    'playlistHash' | 'dashboardId' | 'id' | 'widgetPrefixQuery' | 'isInViewport'
   > {
   globalRefreshInterval: GlobalRefreshInterval;
   metrics: Array<Metric>;

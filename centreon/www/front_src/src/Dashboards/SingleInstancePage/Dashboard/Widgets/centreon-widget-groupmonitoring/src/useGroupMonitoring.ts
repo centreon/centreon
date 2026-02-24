@@ -136,7 +136,7 @@ export const useGroupMonitoring = ({
       }),
     getQueryKey: () => key,
     queryOptions: {
-      enabled: isInViewport ?? hasResourceTypeDefined,
+      enabled: isInViewport && hasResourceTypeDefined,
       refetchInterval: !isFromPreview ? refreshIntervalToUse : false,
       suspense: false
     },
