@@ -1,9 +1,12 @@
 import dayjs from "dayjs";
-import { memo, useRef } from "react";
 import "dayjs/locale/en";
 import "dayjs/locale/es";
 import "dayjs/locale/fr";
 import "dayjs/locale/pt";
+import { memo, useRef } from "react";
+
+import { NoData } from "@centreon/ui";
+
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import timezonePlugin from "dayjs/plugin/timezone";
 import utcPlugin from "dayjs/plugin/utc";
@@ -31,6 +34,10 @@ interface Props extends Partial<LineChartProps> {
   thresholds?: Thresholds;
   getRef?: (ref: React.RefObject<HTMLDivElement | null>) => void;
   containerStyle?: string;
+  transformMatrix?: {
+    fx?: (pointX: number) => number;
+    fy?: (pointY: number) => number;
+  };
 }
 
 const WrapperChart = ({
@@ -52,8 +59,8 @@ const WrapperChart = ({
   annotationEvent,
   legend = {
     display: true,
-    mode: 'grid',
-    placement: 'bottom'
+    mode: "grid",
+    placement: "bottom",
   },
   header,
   lineStyle,
@@ -62,11 +69,14 @@ const WrapperChart = ({
   thresholdUnit,
   limitLegend,
   getRef,
+  transformMatrix,
+  additionalLines,
+  min,
+  max,
+  boundariesUnit,
   ...rest
 }: Props): JSX.Element | null => {
   const { classes, cx } = useChartStyles();
-  const ref = useRef<HTMLDivElement | null>(null);
-
   const { adjustedData } = useChartData({ data, end, start });
 
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -97,13 +107,17 @@ const WrapperChart = ({
     );
   }
 
+  if (!adjustedData) {
+    return <NoData />;
+  }
+
   return (
     <div
       ref={combinedRef}
       className={cx(classes.wrapperContainer, rest?.containerStyle)}
     >
       {!responsiveHeight || !data ? (
-        <Loading height={height || '100%'} width={width} />
+        <Loading height={height || "100%"} width={width} />
       ) : (
         <Chart
           annotationEvent={annotationEvent}
@@ -125,6 +139,12 @@ const WrapperChart = ({
           tooltip={tooltip}
           width={width || responsiveWidth || 0}
           zoomPreview={zoomPreview}
+          skipIntersectionObserver={rest.skipIntersectionObserver}
+          additionalLines={additionalLines}
+          transformMatrix={transformMatrix}
+          min={min}
+          max={max}
+          boundariesUnit={boundariesUnit}
         />
       )}
     </div>
