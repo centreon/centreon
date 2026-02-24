@@ -18,7 +18,7 @@ if [ ! -f /etc/centreon/centreon.conf.php ] && [ -d /usr/share/centreon/www/inst
 
   if [ $(mysql -N -s -h${MYSQL_HOST} -u root -e \
     "SELECT count(*) from information_schema.tables WHERE \
-        table_schema='centreon' and table_name='nagios_server'") -eq 1
+        table_schema='centreon' and table_name='nagios_server'") -eq 1 \
   ]; then
     echo "Centreon is already installed."
 
