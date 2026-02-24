@@ -29,6 +29,9 @@ const useRetrieveTimeLine = ({
     [GraphOptionId.displayEvents, 'value'],
     graphOptions
   );
+  const shouldBypassApiPrefix = Boolean(
+    timelineEndpoint?.includes('/api/latest/')
+  );
 
   const parameters = {
     limit: timelineEventsLimit,
@@ -45,6 +48,7 @@ const useRetrieveTimeLine = ({
     }
   };
   const { data } = useFetchQuery<ListingModel<TimelineEvent>>({
+    baseEndpoint: shouldBypassApiPrefix ? '' : undefined,
     decoder: listTimelineEventsDecoder,
     getEndpoint: () =>
       buildListTimelineEventsEndpoint({
