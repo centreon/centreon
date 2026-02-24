@@ -670,8 +670,8 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (87, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1),
 (97, 'category','Filter on event categories','Broker event categories to filter. If none is selected, all categories of events will be processed','multiselect', NULL, 1),
 (98, 'script_path', 'Script path', 'Path to the script to execute', 'text', 'T=options:C=value:CK=key:K=brokercfg_event_script_script_path', NULL),
-(99, 'timeout', 'Timeout', 'Maximum execution time of the script in seconds', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_timeout', NULL),
-(100, 'managed_event_ttl', 'Managed event TTL', 'Minimum delay before a new call to the script can be made in seconds', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl', NULL),
+(99, 'timeout', 'Timeout', 'Script response time before timeout (in seconds)', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_timeout', NULL),
+(100, 'managed_event_ttl', 'Managed event TTL', 'Delay before the script is called again for the same event (in seconds)', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl', NULL),
 (101, 'event', 'Event', 'Filtered event type', 'select', 'T=options:C=value:CK=key:K=brokercfg_event_script_event', 1);
 
 --

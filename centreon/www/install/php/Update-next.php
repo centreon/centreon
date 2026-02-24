@@ -131,7 +131,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameters::create([
                     QueryParameter::string('fieldname', 'timeout'),
                     QueryParameter::string('displayname', 'Timeout'),
-                    QueryParameter::string('description', 'Maximum execution time of the script in seconds'),
+                    QueryParameter::string('description', 'Script response time before timeout (in seconds)'),
                     QueryParameter::string('fieldtype', 'int'),
                     QueryParameter::int('cb_fieldgroup_id', null),
                     QueryParameter::string('external', 'T=options:C=value:CK=key:K=brokercfg_event_script_timeout'),
@@ -139,7 +139,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameters::create([
                     QueryParameter::string('fieldname', 'managed_event_ttl'),
                     QueryParameter::string('displayname', 'Managed event TTL'),
-                    QueryParameter::string('description', 'Minimum delay before a new call to the script can be made in seconds'),
+                    QueryParameter::string('description', 'Delay before the script is called again for the same event (in seconds)'),
                     QueryParameter::string('fieldtype', 'int'),
                     QueryParameter::int('cb_fieldgroup_id', null),
                     QueryParameter::string('external', 'T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl'),

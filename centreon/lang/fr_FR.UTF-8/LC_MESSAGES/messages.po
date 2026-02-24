@@ -24730,3 +24730,15 @@ msgstr "affichera les ressources avec un nom d'hôte commençant par"
 #: unknown
 msgid "Create host automatically"
 msgstr "Créer l'hôte automatiquement"
+
+msgid "Managed event TTL"
+msgstr "Temps de vie de l'événement géré"
+
+msgid "Script path"
+msgstr "Chemin du script"
+
+msgid "Script response time before timeout (in seconds)"
+msgstr "Délai de réponse du script avant abandon (en secondes)"
+
+msgid "Délai avant nouvel appel du script pour un même événement (en secondes)"
+msgstr "Delay before the script is called again for the same event (in seconds)"
