@@ -138,7 +138,7 @@ const Chart = ({
   ]);
 
   const displayedLines = useMemo(
-    () => linesGraph.filter(({ display }) => display),
+    () => (linesGraph || []).filter(({ display }) => display),
     [linesGraph]
   );
   const [firstUnit, secondUnit] = useMemo(
@@ -213,8 +213,13 @@ const Chart = ({
     ]
   );
 
-  const leftScale = yScalesPerUnit[axis?.axisYLeft?.unit ?? firstUnit];
-  const rightScale = yScalesPerUnit[axis?.axisYRight?.unit ?? secondUnit];
+  const allUnits = getUnits(linesGraph || []);
+
+  const fallbackLeftUnit = axis?.axisYLeft?.unit ?? firstUnit ?? allUnits?.[0];
+  const fallbackRightUnit = axis?.axisYRight?.unit ?? secondUnit ?? allUnits?.[1];
+
+  const leftScale = yScalesPerUnit[fallbackLeftUnit];
+  const rightScale = yScalesPerUnit[fallbackRightUnit];
 
   const linesDisplayedAsLine = useMemo(
     () =>
@@ -228,8 +233,6 @@ const Chart = ({
     () => displayedLines.filter(({ displayAs }) => equals(displayAs, 'bar')),
     [displayedLines]
   );
-
-  const allUnits = getUnits(linesGraph);
 
   useEffect(
     () => {
