@@ -731,7 +731,7 @@ jobs:
 
             const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
 
-            const cloud = alma8_mysql_8_0;
+            const cloud = alma9_mysql_8_0;
 
             let main = alma9_mariadb_10_11;
             if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {
