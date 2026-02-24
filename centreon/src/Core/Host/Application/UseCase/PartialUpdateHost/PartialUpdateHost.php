@@ -448,7 +448,13 @@ final class PartialUpdateHost
                 $this->accessGroups
             );
         }
-
+        $droppedIds = array_diff($categoryIds, $accessibleCategoryIds);
+        if ($droppedIds !== []) {
+            $this->warning(
+             'PartialUpdateHost: submitted category IDs not found, they will be ignored',
+             ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
+            );
+        }
         $categoryIds = array_values(array_intersect($categoryIds, $accessibleCategoryIds));
         $originalCategoryIds = array_map(
             static fn (HostCategory $category): int => $category->getId(),
@@ -497,6 +503,13 @@ final class PartialUpdateHost
             );
         }
 
+        $droppedIds = array_diff($groupIds, $accessibleGroupIds);
+        if ($droppedIds !== []) {
+            $this->warning(
+             'PartialUpdateHost: submitted category IDs not found, they will be ignored',
+             ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
+            );
+        }
         $groupIds = array_values(array_intersect($groupIds, $accessibleGroupIds));
         $originalGroupIds = array_map(
             static fn (HostGroup $group): int => $group->getId(),
