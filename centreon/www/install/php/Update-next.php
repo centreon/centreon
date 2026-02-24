@@ -148,7 +148,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
                     QueryParameter::string('fieldname', 'event'),
                     QueryParameter::string('displayname', 'Event'),
                     QueryParameter::string('description', 'Filtered event type'),
-                    QueryParameter::string('fieldtype', 'select'),
+                    QueryParameter::string('fieldtype', 'multiselect'),
                     QueryParameter::int('cb_fieldgroup_id', 1),
                     QueryParameter::string('external', 'T=options:C=value:CK=key:K=brokercfg_event_script_event'),
                 ]),
@@ -174,7 +174,7 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
         );
     } else {
         $pearDB->batchInsert(
-            'options', ['key', 'value'],
+            'options', ['`key`', '`value`'],
             BatchInsertParameters::create([
                 QueryParameters::create([
                     QueryParameter::string('key', 'brokercfg_event_script_timeout'),
@@ -375,6 +375,19 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
         return;
     }
 
+    $configGroupId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = 1
+            SQL
+    );
+    $configGroupId = $configGroupId !== null ? (int) $configGroupId + 1 : 1;
+    $typeId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `cb_type_id` FROM `cb_type`
+            WHERE `type_shortname` = 'event_script'
+            SQL
+    );
+
     $pearDB->batchInsert(
         'cfg_centreonbroker_info',
         ['config_id', 'config_key', 'config_value', 'config_group', 'config_group_id', 'grp_level', 'subgrp_id', 'parent_grp_id'],
@@ -384,7 +397,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::string('config_key', 'type'),
                 QueryParameter::string('config_value', 'event_script'),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 0),
                 QueryParameter::int('subgrp_id', null),
                 QueryParameter::int('parent_grp_id', null),
@@ -394,7 +407,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::string('config_key', 'name'),
                 QueryParameter::string('config_value', 'central-broker-master-event-script'),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 0),
                 QueryParameter::int('subgrp_id', null),
                 QueryParameter::int('parent_grp_id', null),
@@ -402,9 +415,9 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
             QueryParameters::create([
                 QueryParameter::int('config_id', 1),
                 QueryParameter::string('config_key', 'blockId'),
-                QueryParameter::string('config_value', '1_37'),
+                QueryParameter::string('config_value', '1_' . $typeId),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 0),
                 QueryParameter::int('subgrp_id', null),
                 QueryParameter::int('parent_grp_id', null),
@@ -414,7 +427,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::string('config_key', 'script_path'),
                 QueryParameter::string('config_value', '/usr/share/centreon/bin/console agent-configuration:host:create'),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 0),
                 QueryParameter::int('subgrp_id', null),
                 QueryParameter::int('parent_grp_id', null),
@@ -424,7 +437,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::string('config_key', 'timeout'),
                 QueryParameter::string('config_value', '15'),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 0),
                 QueryParameter::int('subgrp_id', null),
                 QueryParameter::int('parent_grp_id', null),
@@ -434,7 +447,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::string('config_key', 'managed_event_ttl'),
                 QueryParameter::string('config_value', '3600'),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 0),
                 QueryParameter::int('subgrp_id', null),
                 QueryParameter::int('parent_grp_id', null),
@@ -444,7 +457,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::string('config_key', 'filters'),
                 QueryParameter::string('config_value', ''),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 0),
                 QueryParameter::int('subgrp_id', 1),
                 QueryParameter::int('parent_grp_id', null),
@@ -454,7 +467,7 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
                 QueryParameter::string('config_key', 'event'),
                 QueryParameter::string('config_value', 'neb:UnknownHost'),
                 QueryParameter::string('config_group', 'output'),
-                QueryParameter::int('config_group_id', 2),
+                QueryParameter::int('config_group_id', $configGroupId),
                 QueryParameter::int('grp_level', 1),
                 QueryParameter::int('subgrp_id', null),
                 QueryParameter::int('parent_grp_id', 1),

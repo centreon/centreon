@@ -49,7 +49,7 @@ final readonly class CreateHostForAgentConfigurationCommand
             $this->validateJsonData($data);
 
             $request = new CreateHostForAgentConfigurationRequest(
-                pollerId: $data['pollerId'],
+                pollerId: (int) $data['pollerId'],
                 hostName: $data['hostName'],
                 address: $data['ips'][0],
                 templateName: $data['hostTemplate'] ?? null,
@@ -94,12 +94,15 @@ final readonly class CreateHostForAgentConfigurationCommand
      */
     private function validateJsonData(array $data): void
     {
-        $constraint = new Assert\Collection([
-            'pollerId' => [new Assert\NotBlank(), new Assert\Type('integer')],
-            'hostName' => [new Assert\NotBlank(), new Assert\Type('string')],
-            'ips' => [new Assert\NotBlank(), new Assert\Type('array'), new Assert\Count(min: 1)],
-            'hostTemplate' => new Assert\Optional([new Assert\Type('string')]),
-        ]);
+        $constraint = new Assert\Collection(
+            fields: [
+                'pollerId' => [new Assert\NotBlank(), new Assert\Type('string')],
+                'hostName' => [new Assert\NotBlank(), new Assert\Type('string')],
+                'ips' => [new Assert\NotBlank(), new Assert\Type('array'), new Assert\Count(min: 1)],
+                'hostTemplate' => new Assert\Optional([new Assert\Type('string')]),
+            ],
+            allowExtraFields: true,
+        );
 
         $validator = Validation::createValidator();
         $violations = $validator->validate($data, $constraint);
