@@ -209,12 +209,13 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
             SQL,
         QueryParameters::create([QueryParameter::int('type_id', $typeId)])
     );
-    if ($typeRelationCount === 4) {
+
+    if ((int) $typeRelationCount === 4) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
             message: "UPGRADE - {$version}: Required type_field relations for Broker output 'event_script' already exist, skipping creation",
         );
-    } elseif ($typeRelationCount !== 0) {
+    } elseif ((int) $typeRelationCount !== 0) {
         // Not supposed to happen
         throw new RuntimeException('Some type_field relations for Broker output "event_script" already exist');
     } else {

@@ -96,7 +96,12 @@ final readonly class CreateHostForAgentConfigurationCommand
             fields: [
                 'pollerId' => [new Assert\NotBlank(), new Assert\Type('numeric')],
                 'hostName' => [new Assert\NotBlank(), new Assert\Type('string')],
-                'ips' => [new Assert\NotBlank(), new Assert\Type('array'), new Assert\Count(min: 1)],
+                'ips' => [
+                    new Assert\NotBlank(),
+                    new Assert\Type('array'),
+                    new Assert\Count(min: 1),
+                    new Assert\All([new Assert\NotBlank(), new Assert\Type('string')])
+                ],
                 'hostTemplate' => new Assert\Optional([new Assert\Type('string')]),
             ],
             allowExtraFields: true,
