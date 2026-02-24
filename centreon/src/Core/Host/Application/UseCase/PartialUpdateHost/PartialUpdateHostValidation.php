@@ -239,48 +239,6 @@ class PartialUpdateHostValidation
     }
 
     /**
-     * Assert category IDs are valid.
-     *
-     * @param int[] $categoryIds
-     *
-     * @throws HostException
-     * @throws \Throwable
-     */
-    public function assertAreValidCategories(array $categoryIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $validCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
-        } else {
-            $validCategoryIds = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
-        }
-
-        if ([] !== ($invalidIds = array_diff($categoryIds, $validCategoryIds))) {
-            throw HostException::idsDoNotExist('categories', $invalidIds);
-        }
-    }
-
-    /**
-     * Assert group IDs are valid.
-     *
-     * @param int[] $groupIds
-     *
-     * @throws HostException
-     * @throws \Throwable
-     */
-    public function assertAreValidGroups(array $groupIds): void
-    {
-        if ($this->user->isAdmin()) {
-            $validGroupIds = $this->readHostGroupRepository->exist($groupIds);
-        } else {
-            $validGroupIds = $this->readHostGroupRepository->existByAccessGroups($groupIds, $this->accessGroups);
-        }
-
-        if ([] !== ($invalidIds = array_diff($groupIds, $validGroupIds))) {
-            throw HostException::idsDoNotExist('groups', $invalidIds);
-        }
-    }
-
-    /**
      * Assert template IDs are valid.
      *
      * @param int[] $templateIds

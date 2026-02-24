@@ -435,17 +435,21 @@ final class PartialUpdateHost
         }
 
         $categoryIds = array_unique($dto->categories);
-        $this->validation->assertAreValidCategories($categoryIds);
 
         if ($this->user->isAdmin()) {
+            $accessibleCategoryIds = $this->readHostCategoryRepository->exist($categoryIds);
             $originalCategories = $this->readHostCategoryRepository->findByHost($host->getId());
         } else {
+            // For non-admin users, filter submitted IDs to only those the user can access.
+            // Categories outside the user's ACL scope are silently preserved (not touched by the diff).
+            $accessibleCategoryIds = $this->readHostCategoryRepository->existByAccessGroups($categoryIds, $this->accessGroups);
             $originalCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
                 $host->getId(),
                 $this->accessGroups
             );
         }
 
+        $categoryIds = array_values(array_intersect($categoryIds, $accessibleCategoryIds));
         $originalCategoryIds = array_map(
             static fn (HostCategory $category): int => $category->getId(),
             $originalCategories
@@ -480,17 +484,20 @@ final class PartialUpdateHost
         }
 
         $groupIds = array_unique($dto->groups);
-        $this->validation->assertAreValidGroups($groupIds);
-
         if ($this->user->isAdmin()) {
+            $accessibleGroupIds = $this->readHostGroupRepository->exist($groupIds);
             $originalGroups = $this->readHostGroupRepository->findByHost($host->getId());
         } else {
+            // For non-admin users, filter submitted IDs to only those the user can access.
+            // Groups outside the user's ACL scope are silently preserved (not touched by the diff).
+            $accessibleGroupIds = $this->readHostGroupRepository->existByAccessGroups($groupIds, $this->accessGroups);
             $originalGroups = $this->readHostGroupRepository->findByHostAndAccessGroups(
                 $host->getId(),
                 $this->accessGroups
             );
         }
 
+        $groupIds = array_values(array_intersect($groupIds, $accessibleGroupIds));
         $originalGroupIds = array_map(
             static fn (HostGroup $group): int => $group->getId(),
             $originalGroups
