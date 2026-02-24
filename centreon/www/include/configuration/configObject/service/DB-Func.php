@@ -1014,7 +1014,7 @@ function updateServiceForCloud($serviceId = null, $massiveChange = false, $param
         $vaultPath = retrieveServiceVaultPathFromDatabase($pearDB, $serviceId);
     }
 
-    if (isset($ret['command_command_id'])) {
+    if (! empty($ret['command_command_id'])) {
         $kernel = Kernel::createForWeb();
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
@@ -1900,7 +1900,7 @@ function insertServiceForCloud($submittedValues = [], $onDemandMacro = null)
         $submittedValues = $form->getSubmitValues();
     }
 
-    if (isset($submittedValues['command_command_id'])) {
+    if (! empty($submittedValues['command_command_id'])) {
         $kernel = Kernel::createForWeb();
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
@@ -2114,7 +2114,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         $submittedValues = $form->getSubmitValues();
     }
 
-    if (isset($submittedValues['command_command_id']) && $submittedValues['command_command_id'] != null) {
+    if (! empty($submittedValues['command_command_id'])) {
         $kernel = Kernel::createForWeb();
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
