@@ -5,8 +5,8 @@ import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { Formik } from 'formik';
 import { useAtomValue } from 'jotai';
-import { equals, isNil, T } from 'ramda';
-import { lazy, memo, Suspense } from 'react';
+import { T, equals, isNil } from 'ramda';
+import { Suspense, lazy, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -132,6 +132,7 @@ const LoginPage = (): JSX.Element => {
             >
               <ExternalProviders
                 providersConfiguration={providersConfiguration}
+                hasForcedProvider={hasForcedProvider}
               />
             </Suspense>
           </div>
