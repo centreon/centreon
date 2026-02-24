@@ -117,7 +117,7 @@ manageApacheAndPhpFpm() {
     systemctl restart httpd || :
   else
     update-alternatives --set php /usr/bin/php8.2 > /dev/null 2>&1 || :
-    a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi > /dev/null 2>&1 || :
+    a2enmod headers proxy_fcgi setenvif proxy rewrite alias proxy proxy_fcgi proxy_wstunnel> /dev/null 2>&1 || :
     a2enconf php8.2-fpm > /dev/null 2>&1 || :
     a2dissite 000-default > /dev/null 2>&1 || :
     a2ensite centreon > /dev/null 2>&1 || :
