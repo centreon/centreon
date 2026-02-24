@@ -56,10 +56,7 @@ class PartialUpdateHostValidation
      * @param ReadHostSeverityRepositoryInterface $readHostSeverityRepository
      * @param ReadTimezoneRepositoryInterface $readTimezoneRepository
      * @param ReadCommandRepositoryInterface $readCommandRepository
-     * @param ReadHostCategoryRepositoryInterface $readHostCategoryRepository
-     * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
      * @param InheritanceManager $inheritanceManager
-     * @param ContactInterface $user
      * @param AccessGroup[] $accessGroups
      */
     public function __construct(
@@ -71,10 +68,7 @@ class PartialUpdateHostValidation
         private readonly ReadHostSeverityRepositoryInterface $readHostSeverityRepository,
         private readonly ReadTimezoneRepositoryInterface $readTimezoneRepository,
         private readonly ReadCommandRepositoryInterface $readCommandRepository,
-        private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
-        private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly InheritanceManager $inheritanceManager,
-        private readonly ContactInterface $user,
         public array $accessGroups = [],
     ) {
     }
