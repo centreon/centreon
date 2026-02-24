@@ -11,20 +11,12 @@ import {
 
 import { SortOrder } from '../../../models';
 import { getPublicWidgetEndpoint } from '../../../utils';
-import { DisplayType } from '../Listing/models';
-import ResourcesTable from '../ResourcesTable';
-import {
-  closeTicketEndpoint,
-  resourcesEndpoint,
-  viewByHostEndpoint
-} from '../api/endpoints';
-import type { Data, PanelOptions } from '../models';
-
 import {
   acknowledgeEndpoint,
   checkEndpoint,
   downtimeEndpoint
 } from '../Listing/Actions/api/endpoint';
+import { DisplayType } from '../Listing/models';
 import {
   labelAcknowledge,
   labelAcknowledgeCommandSent,
@@ -45,7 +37,12 @@ import {
   labelTicketClosed,
   labelTicketWillBeClosedInTheProvider
 } from '../Listing/translatedLabels';
-import { openTicketAtom } from '../atom';
+import {
+  closeTicketEndpoint,
+  resourcesEndpoint,
+  viewByHostEndpoint
+} from '../api/endpoints';
+import Widget from '../index';
 import {
   columnsForViewByHost,
   columnsForViewByService,
@@ -112,16 +109,7 @@ const store = createStore();
 const render = ({ options, data, isPublic = false }: Props): void => {
   store.set(isOnPublicPageAtom, isPublic);
   store.set(aclAtom, mockAcl());
-  store.set(openTicketAtom, {
-    displayResources: options.displayResources,
-    enableHostTicketCreation: options.enableHostTicketCreation,
-    enableServiceTicketCreation: options.enableServiceTicketCreation,
-    isDownHostHidden: options.isDownHostHidden,
-    isOpenTicketEnabled: options.isOpenTicketEnabled,
-    isOpenTicketInstalled: true,
-    isUnreachableHostHidden: options.isUnreachableHostHidden,
-    provider: options.provider
-  });
+  store.set(platformVersionsAtom, platformVersions);
 
   cy.window().then((window) => {
     cy.stub(window, 'open').as('windowOpen');
@@ -136,8 +124,7 @@ const render = ({ options, data, isPublic = false }: Props): void => {
           <SnackbarProvider>
             <Provider store={store}>
               <div style={{ height: '100vh', width: '100%' }}>
-                <ResourcesTable
-                  hasDescription={false}
+                <Widget
                   dashboardId={1}
                   globalRefreshInterval={{
                     interval: 30,
@@ -148,6 +135,8 @@ const render = ({ options, data, isPublic = false }: Props): void => {
                   panelOptions={options}
                   playlistHash="hash"
                   refreshCount={0}
+                  widgetPrefixQuery="widget"
+                  hasDescription={false}
                 />
               </div>
             </Provider>
@@ -403,6 +392,9 @@ describe('View by all', () => {
 
     cy.waitForRequest('@getResources');
 
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
+
     cy.findByLabelText('arrow').click();
     cy.contains(labelCheck).click();
     cy.findByLabelText('arrow').click();
@@ -430,6 +422,9 @@ describe('View by all', () => {
     });
 
     cy.waitForRequest('@getResources');
+
+    cy.findByLabelText('Select row 19').click();
+    cy.findByLabelText('Select row 24').click();
 
     cy.findByLabelText(labelAcknowledge).click();
     cy.contains(labelSticky).click();
