@@ -451,8 +451,8 @@ final class PartialUpdateHost
         $droppedIds = array_diff($categoryIds, $accessibleCategoryIds);
         if ($droppedIds !== []) {
             $this->warning(
-             'PartialUpdateHost: submitted category IDs not found, they will be ignored',
-             ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
+                'PartialUpdateHost: submitted category IDs not found, they will be ignored',
+                ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
             );
         }
         $categoryIds = array_values(array_intersect($categoryIds, $accessibleCategoryIds));
@@ -506,8 +506,8 @@ final class PartialUpdateHost
         $droppedIds = array_diff($groupIds, $accessibleGroupIds);
         if ($droppedIds !== []) {
             $this->warning(
-             'PartialUpdateHost: submitted category IDs not found, they will be ignored',
-             ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
+                'PartialUpdateHost: submitted group IDs not found, they will be ignored',
+                ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
             );
         }
         $groupIds = array_values(array_intersect($groupIds, $accessibleGroupIds));
