@@ -1394,9 +1394,13 @@ function updateHost_MC($hostId = null)
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
         if ($command === null) {
-            throw new InvalidArgumentException('The command ID does not exist.');
-        }
-        if ($command->isCentreonMonitoringAgentCommand()) {
+            // The command ID may not exist directly on the host because it can be inherited from a host template.
+            // In Massive Change context, we should not throw a fatal error but log a warning instead.
+            $logger->warning(
+                'Command ID ' . (int) $submittedValues['command_command_id']
+                . ' does not exist. It may be inherited from a host template.'
+            );
+        } elseif ($command->isCentreonMonitoringAgentCommand()) {
             $submittedValues['host_check_freshness']['host_check_freshness'] = '1';
             $submittedValues['host_freshness_threshold'] = 120;
         }
