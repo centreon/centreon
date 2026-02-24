@@ -19,8 +19,11 @@
  *
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class IvantiProvider extends AbstractProvider
 {
+    use LoggerTrait;
     public const IVANTI_INCIDENT_TYPE = 10;
     public const IVANTI_SERVICE_REQUEST_TYPE = 11;
     public const IVANTI_PROBLEM_TYPE = 12;
@@ -96,16 +99,41 @@ class IvantiProvider extends AbstractProvider
             'Content-Type: application/json',
         ];
 
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
+        curl_setopt($curl, CURLOPT_TIMEOUT, (int) $this->getFormValue('timeout', false));
+
+        $optionsToLog = [
+            'apiAddress' => $apiAddress,
+            'method' => $info['method'],
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        $this->debug('Ivanti request options', [
+            'options' => $optionsToLog,
+        ]);
 
         $curlResult = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
         if ($httpCode >= 400) {
+            $this->error('Ivanti answer', ['answer' => $curlResult]);
             throw new Exception("Erreur lors de la connexion à l'API Ivanti : HTTP {$httpCode} - {$curlResult}", 11);
         }
 
