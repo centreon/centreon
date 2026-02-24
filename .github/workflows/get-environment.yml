@@ -688,8 +688,8 @@ jobs:
               "database": "mariadb:10.11",
               "test_tags": "not @ignore"
             };
-            const alma8_mysql_8_0 = {
-              "operating_system": "alma8",
+            const alma9_mysql_8_0 = {
+              "operating_system": "alma9",
               "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
