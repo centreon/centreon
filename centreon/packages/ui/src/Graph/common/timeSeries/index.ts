@@ -395,7 +395,7 @@ const getScale = ({
           : getMin(graphValues),
         !isEmpty(stackedValues) &&
           !equals(stackedValues, [0]) &&
-          getMin(stackedValues),
+          getMin([0, ...stackedValues]),
         Math.min(...thresholds)
       ]);
   const minValue = Math.min(...sanitizedValuesForMinimum.filter(isNotNil));

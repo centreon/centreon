@@ -63,6 +63,7 @@ export interface InputProps {
     filterKey?: string;
     getRenderedOptionText?: (option) => string | JSX.Element;
     getOptionLabel?: (option) => string;
+    helperText?: string;
     optionProperty?: string;
     disableSelectAll?: boolean;
     limitTags?: number;
