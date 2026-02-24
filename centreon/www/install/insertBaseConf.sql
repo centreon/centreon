@@ -672,7 +672,7 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (98, 'script_path', 'Script path', 'Path to the script to execute', 'text', 'T=options:C=value:CK=key:K=brokercfg_event_script_script_path', NULL),
 (99, 'timeout', 'Timeout', 'Script response time before timeout (in seconds)', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_timeout', NULL),
 (100, 'managed_event_ttl', 'Managed event TTL', 'Delay before the script is called again for the same event (in seconds)', 'int', 'T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl', NULL),
-(101, 'event', 'Event', 'Filtered event type', 'select', 'T=options:C=value:CK=key:K=brokercfg_event_script_event', 1);
+(101, 'event', 'Event', 'Filtered event type', 'multiselect', 'T=options:C=value:CK=key:K=brokercfg_event_script_event', 1);
 
 --
 -- Contenu de la table `cb_list`

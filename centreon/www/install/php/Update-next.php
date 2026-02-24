@@ -318,7 +318,6 @@ $createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $vers
         'neb:Tag',
         'neb:UnknownHost',
     ];
-    $optionString = "'" . implode("','", $eventOptions) . "'";
     $listHasValue = $pearDB->fetchOne(
         <<<'SQL'
             SELECT 1 FROM `cb_list_values`

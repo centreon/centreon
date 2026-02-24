@@ -88,15 +88,13 @@ final readonly class CreateHostForAgentConfigurationCommand
     }
 
     /**
-     * Undocumented function
-     *
      * @param array<string, mixed> $data
      */
     private function validateJsonData(array $data): void
     {
         $constraint = new Assert\Collection(
             fields: [
-                'pollerId' => [new Assert\NotBlank(), new Assert\Type('string')],
+                'pollerId' => [new Assert\NotBlank(), new Assert\Type('numeric')],
                 'hostName' => [new Assert\NotBlank(), new Assert\Type('string')],
                 'ips' => [new Assert\NotBlank(), new Assert\Type('array'), new Assert\Count(min: 1)],
                 'hostTemplate' => new Assert\Optional([new Assert\Type('string')]),
