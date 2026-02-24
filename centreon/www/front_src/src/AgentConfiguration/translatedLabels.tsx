@@ -93,4 +93,4 @@ export const labelAtLeastOneConnexionMode =
 export const labelSelectAtLeastOneColumn =
   'At least one column must be selected';
 
-export const labelCreateHostAutomatically = 'Create host automatically';
+export const labelCreateHostAutomatically = 'Create hosts automatically';

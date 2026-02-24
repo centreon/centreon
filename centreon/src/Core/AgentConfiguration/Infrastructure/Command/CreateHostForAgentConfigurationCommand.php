@@ -100,7 +100,7 @@ final readonly class CreateHostForAgentConfigurationCommand
                     new Assert\NotBlank(),
                     new Assert\Type('array'),
                     new Assert\Count(min: 1),
-                    new Assert\All([new Assert\NotBlank(), new Assert\Type('string')])
+                    new Assert\All([new Assert\NotBlank(), new Assert\Type('string')]),
                 ],
                 'hostTemplate' => new Assert\Optional([new Assert\Type('string')]),
             ],

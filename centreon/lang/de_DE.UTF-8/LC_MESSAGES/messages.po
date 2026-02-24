@@ -21316,5 +21316,5 @@ msgid "it's required"
 msgstr "es ist erforderlich"
 
 #: unknown
-msgid "Create host automatically"
+msgid "Create hosts automatically"
 msgstr ""

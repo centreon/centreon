@@ -23769,5 +23769,5 @@ msgid "topology_name"
 msgstr "Nome da Topologia"
 
 #: unknown
-msgid "Create host automatically"
+msgid "Create hosts automatically"
 msgstr ""
