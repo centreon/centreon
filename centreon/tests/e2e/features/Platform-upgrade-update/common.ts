@@ -435,7 +435,7 @@ const insertResources = (): Cypress.Chainable => {
 
 const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
   return cy.getWebVersion().then(({ major_version, minor_version }) => {
-    const targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
+    let targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${minor_version}.php`;
 
     // Check if the version-specific file already exists
     return cy
@@ -444,12 +444,16 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
         name: 'web'
       })
       .then((fileCheckResult) => {
-        // If version-specific file already exists, no action needed
+        let targetMinor = minor_version;
+        // If version-specific file already exists, increment minor version for testing purposes (to make sure Update-next.php content is tested)
         if (!fileCheckResult.output.includes('File not found')) {
           cy.log(
             `Version-specific update file already exists in container: ${targetUpdateFile}`
           );
-          return cy.wrap(null);
+          cy.log('Incrementing minor version to test Update-next.php content');
+
+          targetMinor = (Number.parseInt(minor_version) + 1).toString();
+          targetUpdateFile = `/usr/share/centreon/www/install/php/Update-${major_version}.${targetMinor}.php`;
         }
 
         // If version-specific file does not exist => copy content from Update-next.php
@@ -486,7 +490,7 @@ const prepareUpdateFileForUpgrade = (): Cypress.Chainable => {
 
                     // Change version in the file
                     return cy.execInContainer({
-                      command: `sed -i "s/version = '';/version = '${major_version}.${minor_version}';/g" ${targetUpdateFile}`,
+                      command: `sed -i "s/version = '';/version = '${major_version}.${targetMinor}';/g" ${targetUpdateFile}`,
                       name: 'web'
                     });
                   });
