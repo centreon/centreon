@@ -24741,4 +24741,4 @@ msgid "Script response time before timeout (in seconds)"
 msgstr "Délai de réponse du script avant abandon (en secondes)"
 
 msgid "Delay before the script is called again for the same event (in seconds)"
-msgstr "Délai avant nouvel appel du script pour un même événement (en secondes)"
+msgstr "Délai avant nouvel appel du script pour un même évènement (en secondes)"
