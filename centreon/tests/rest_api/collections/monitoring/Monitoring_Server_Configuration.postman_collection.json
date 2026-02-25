@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "b9c7bc74-3840-4b18-a2c7-75bf41bce712",
+		"_postman_id": "6daa8a1a-bcef-4b63-bc56-7f5f27aa7bac",
 		"name": "Monitoring_Server_Configuration",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/16182525-6daa8a1a-bcef-4b63-bc56-7f5f27aa7bac?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -58,18 +59,44 @@
 					"response": []
 				},
 				{
-					"name": "Add a command",
+					"name": "POST /commands - Valid request - HTTP 201 Copy",
 					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new command \r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
 									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
+									"\r",
+									"    pm.expect(responseJson).to.include({\r",
+									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
+									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
+									"        \"is_shell_enabled\": false,\r",
+									"        \"is_activated\": true,\r",
+									"        \"is_from_monitoring_connector\": false\r",
+									"    });\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.property(\"connector\");\r",
+									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"CommandConnector\"));\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the command response\", function () {\r",
@@ -78,12 +105,11 @@
 									"        \"properties\": {\r",
 									"            \"id\": { \"type\": \"integer\" },\r",
 									"            \"name\": { \"type\": \"string\" },\r",
-									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"type\": { \"type\": \"string\" },\r",
 									"            \"command_line\": { \"type\": \"string\" },\r",
-									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_shell_enabled\": { \"type\": \"boolean\" },\r",
 									"            \"is_activated\": { \"type\": \"boolean\" },\r",
-									"            \"is_locked\": { \"type\": \"boolean\" },\r",
-									"            \"argument_example\": { \"type\": [\"string\", \"null\"], },\r",
+									"            \"is_from_monitoring_connector\": { \"type\": \"boolean\" },\r",
 									"            \"arguments\": {\r",
 									"                \"type\": \"array\",\r",
 									"                \"items\": {\r",
@@ -95,67 +121,43 @@
 									"                    \"required\": [\"name\", \"description\"]\r",
 									"                }\r",
 									"            },\r",
-									"            \"macros\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"string\" },\r",
-									"                        \"description\": { \"type\": \"string\" }\r",
-									"                    },\r",
-									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
-									"                }\r",
-									"            },\r",
 									"            \"connector\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
+									"                \"type\": \"object\",\r",
 									"                \"properties\": {\r",
 									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"command_line\": { \"type\": \"string\" },\r",
+									"                    \"description\": { \"type\": \"string\" },\r",
+									"                    \"is_activated\": { \"type\": \"boolean\" }\r",
 									"                },\r",
 									"                \"required\": [\"id\", \"name\"]\r",
 									"            },\r",
-									"            \"grap_template\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
-									"                \"properties\": {\r",
-									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
-									"                },\r",
-									"                \"required\": [\"id\", \"name\"]\r",
-									"            }\r",
-									"                        \r",
+									"            \"comment\": { \"type\": \"string\"}          \r",
 									"        },\r",
-									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell_enabled\", \"is_activated\", \"is_from_monitoring_connector\", \"connector\"]\r",
 									"    };\r",
 									"    \r",
 									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"pm.collectionVariables.set(\"Command1Name\", \"command_1\");\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableCookies": true
-					},
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "centreon-auth-token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\",\r\n    \"is_shell\": false\r\n}\r\n",
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": false,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -3514,6 +3516,7 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
@@ -3523,10 +3526,33 @@
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "CommandLine",
+			"value": "$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1"
+		},
+		{
+			"key": "CommandName",
+			"value": "command_by_generic_test"
+		},
+		{
+			"key": "CommandType",
+			"value": "Check"
+		},
+		{
+			"key": "CommandConnector",
+			"value": "/centreon/api/latest/configuration/connectors/1"
+		},
+		{
+			"key": "CommandId",
+			"value": "1"
 		}
 	]
 }

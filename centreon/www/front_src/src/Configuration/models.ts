@@ -1,4 +1,4 @@
-import { Column, Group, InputProps } from '@centreon/ui';
+import { Column, Group, InputProps, Method } from '@centreon/ui';
 
 import type { PrimitiveAtom } from 'jotai';
 import { ObjectSchema } from 'yup';
@@ -13,7 +13,8 @@ export enum ResourceType {
   Service = 'service',
   HostGroup = 'host group',
   ServiceGroup = 'service group',
-  AdditionalConfigurations = 'additional configuration'
+  AdditionalConfiguration = 'additional configuration',
+  Command = 'command'
 }
 
 export interface Form {
@@ -30,9 +31,9 @@ export type Filters = {
 } & Record<string, string | boolean>;
 
 export interface Actions {
-  delete?: boolean;
-  duplicate?: boolean;
-  enableDisable?: boolean;
+  delete?: (row?) => boolean;
+  duplicate?: (row?) => boolean;
+  enableDisable?: (row?) => boolean;
   massive?:
     | boolean
     | {
@@ -69,13 +70,19 @@ export interface ConfigurationBase<TFilters> {
   selectedColumnIdsAtom: PrimitiveAtom<Array<string>>;
   filtersAtom: PrimitiveAtom<TFilters>;
   isWelcomePageDisplayedAtom: PrimitiveAtom<boolean>;
+  navbar?: Array<{
+    label: string;
+    link: string;
+  }>;
 }
 
 export enum FieldType {
   Text = 'text',
   Status = 'status',
   MultiAutocomplete = 'multiAutocomplete',
-  MultiConnectedAutocomplete = 'multiConnectedAutocomplete'
+  MultiConnectedAutocomplete = 'multiConnectedAutocomplete',
+  Checkbox = 'Checkbox',
+  Checkboxes = 'Checkboxes'
 }
 
 export interface Endpoints {
@@ -84,8 +91,8 @@ export interface Endpoints {
   deleteOne?: ({ id }) => string;
   delete?: string;
   duplicate?: string;
-  enable?: string;
-  disable?: string;
+  enable?: ({ id }?) => string;
+  disable?: ({ id }?) => string;
   create?: string;
   update?: ({ id }) => string;
 }
@@ -97,6 +104,13 @@ export interface APIType {
     getAll?;
   };
   adapter?;
+  apiFormat?: 'Standard' | 'JSON-LD';
+  methods?: {
+    update?: Method;
+    enable?: Method;
+    disable?: Method;
+  };
+  isSingleDuplicate?: boolean;
 }
 
 export interface FilterConfiguration {

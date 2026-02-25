@@ -3,8 +3,8 @@ import { isEmpty, isNil, not } from 'ramda';
 import { JSX, useEffect, useMemo } from 'react';
 
 import { ConfigurationBase } from '../models';
-import { configurationAtom } from './atoms';
 import Page from './Page';
+import { configurationAtom } from './atoms';
 
 const Base = <TFilters,>({
   columns,
@@ -20,7 +20,8 @@ const Base = <TFilters,>({
   columnsAtomKey,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  navbar
 }: ConfigurationBase<TFilters>): JSX.Element => {
   const [configuration, setConfiguration] = useAtom(configurationAtom);
   const [filters, setFilters] = useAtom(filtersAtom);
@@ -76,6 +77,7 @@ const Base = <TFilters,>({
       form={form}
       isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
       labels={labels}
+      navbar={navbar}
       resourceType={resourceType}
       selectedColumnIdsAtom={selectedColumnIdsAtom}
     />
