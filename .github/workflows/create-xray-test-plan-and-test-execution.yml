@@ -12,6 +12,9 @@ on:
       os:
         required: true
         type: string
+      is_nightly:
+        required: false
+        type: string
     outputs:
       test_plan_key_alma8:
         value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma8 }}
@@ -179,7 +182,7 @@ jobs:
         run: |
           # Determine the summary's prefix
           summary_prefix=''
-          if [[ ${{ github.event_name }} == 'schedule' ]]; then
+          if [[ ${{ inputs.is_nightly || '' }} == 'true' ]]; then
             summary_prefix="NIGHTLY"
           else
             echo "The github_ref_name is: $GITHUB_REF_NAME"
