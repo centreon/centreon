@@ -83,8 +83,8 @@ const adaptCMAConfigurationToAPI = (
     configuration: {
       agent_initiated: configuration.agentInitiated,
       create_host_auto: configuration.agentInitiated
-        ? configuration?.createHostAuto
-        : null,
+        ? Boolean(configuration?.createHostAuto)
+        : false,
       hosts: configuration.hosts.map((host) => ({
         address: host.address,
         id: host.id,
