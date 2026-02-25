@@ -46,6 +46,7 @@ interface UseLoginState {
     values: LoginFormValues,
     { setSubmitting }: Pick<FormikHelpers<FormikValues>, 'setSubmitting'>
   ) => void;
+  externalProvidersButtonDisabled: boolean;
 }
 
 const getForcedProviders = filter<ProviderConfiguration>(
@@ -190,7 +191,7 @@ const useLogin = (): UseLoginState => {
     authenticationError,
     hasForcedProvider: !!forcedProviders,
     externalProvidersButtonDisabled:
-      !!forcedProviders && prop('REDIRECT_URI', cookies),
+      equals(forcedProviders?.length, 1) && !!prop('REDIRECT_URI', cookies),
     platformInstallationStatus,
     providersConfiguration: activeProviders,
     submitLoginForm
