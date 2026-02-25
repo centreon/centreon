@@ -3253,6 +3253,8 @@ paths:
           * poller.id
           * contact.id
           * contact.name
+          * service.id
+          * service.display_name
       responses:
         '200':
           description: OK
@@ -3355,7 +3357,7 @@ paths:
     post:
       tags:
         - Downtime
-      summary: 'Add an downtime on multiple hosts'
+      summary: 'Add a downtime on multiple hosts'
       requestBody:
         required: true
         content:
@@ -3425,7 +3427,7 @@ paths:
     post:
       tags:
         - Downtime
-      summary: 'Add an downtime on multiple services'
+      summary: 'Add a downtime on multiple services'
       requestBody:
         required: true
         content:
@@ -3544,8 +3546,6 @@ paths:
           * end_time
           * is_fixed
           * start_time
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3603,7 +3603,7 @@ paths:
         -
           $ref: '#/components/parameters/MetaId'
       description: |
-        List all downtimes of a service.
+        List all downtimes of a metaservice.
 
         The available parameters to **search** / **sort_by** are:
 
@@ -3616,8 +3616,6 @@ paths:
           * end_time
           * is_fixed
           * start_time
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3635,6 +3633,7 @@ paths:
     post:
       tags:
         - Downtime
+        - 'Meta service'
       summary: 'Add a downtime on a metaservice'
       description: 'Add a downtime on a metaservice.'
       parameters:
