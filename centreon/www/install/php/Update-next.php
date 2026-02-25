@@ -19,8 +19,11 @@
  *
  */
 
+use Adaptation\Database\Connection\Collection\BatchInsertParameters;
+use Adaptation\Database\Connection\Collection\QueryParameters;
 use Adaptation\Database\Connection\ConnectionInterface;
 use Adaptation\Database\Connection\Exception\ConnectionException;
+use Adaptation\Database\Connection\ValueObject\QueryParameter;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
@@ -33,104 +36,454 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-/** -------------------------------------- Global macros -------------------------------------- */
-$rewordingResourceToGlobalMacro = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to update Resource to Global macros';
+/** ------------------------------------- Broker output for CMA ------------------------------------- */
+$createBrokerOutputEventScript = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to create Broker output event_script';
+
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [global_macro] Rewording Resource to Global macros",
+        message: "UPGRADE - {$version}: Creating Broker output 'event_script'",
     );
-    $pearDB->update(
+
+    // Creating type
+    if ($typeId = $pearDB->fetchOne(
         <<<'SQL'
-            UPDATE topology
-            SET topology_name = 'Global macros'
-            WHERE topology_name = 'Resources'
-            SQL
-    );
-};
-/** -------------------------------------- Host Group Topology -------------------------------------- */
-$fixDuplicateHostGroupTopology = function () use ($pearDB, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to fix duplicate Host Groups topology';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [topology] Fixing duplicate Host Groups menu entries",
-    );
-
-    $pearDB->update(
-        <<<'SQL'
-            UPDATE `topology`
-            SET `topology_url` = '/configuration/hosts/groups',
-                `is_react` = '1',
-                `topology_show` = '1'
-            WHERE `topology_page` = 60102
-            SQL
-    );
-
-    // Remove duplicate topology entry 60105 introduced by 25.05 migration
-    $pearDB->delete(
-        <<<'SQL'
-            DELETE FROM `topology`
-            WHERE `topology_page` = 60105
-            SQL
-    );
-
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [topology] Successfully removed duplicate Host Groups topology entry",
-    );
-};
-
-/** -------------------------------------- Broker Instances CMA fields -------------------------------------- */
-$updateInstancesTable = function () use ($pearDBO, &$errorMessage, $version): void {
-    $errorMessage = 'Unable to add CMA certificate fields to broker instances table';
-    CentreonLog::create()->info(
-        logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [broker instances] Adding CMA certificate fields to broker instances table",
-    );
-
-    if (
-        $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'instances',
-            'cma_certificate_sha'
-        )
-        || $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'instances',
-            'cma_certificate_cn'
-        )
-        || $pearDBO->columnExists(
-            $pearDBO->getConnectionConfig()->getDatabaseNameConfiguration(),
-            'instances',
-            'cma_certificate_peremption'
-        )
+            SELECT `cb_type_id` FROM `cb_type`
+            WHERE `type_shortname` = 'event_script'
+            SQL)
     ) {
         CentreonLog::create()->info(
             logTypeId: CentreonLog::TYPE_UPGRADE,
-            message: "UPGRADE - {$version}: [broker instances] CMA certificate fields already exist in broker instances table, skipping",
+            message: "UPGRADE - {$version}: Broker output 'event_script' already exists, skipping creation",
+        );
+    } else {
+        $pearDB->insert(
+            <<<'SQL'
+                INSERT INTO `cb_type` (`cb_type_id`, `type_name`, `type_shortname`, `cb_module_id`)
+                VALUES (NULL, 'Run script on event', 'event_script', 21)
+                SQL
+        );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully created Broker output 'event_script'",
+        );
+
+        $typeId = $pearDB->lastInsertId();
+    }
+
+    // Creating tag_type relation
+    $hasTagRelation = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `cb_tag_type_relation`
+            WHERE `cb_type_id` = :type_id
+            SQL,
+        QueryParameters::create([QueryParameter::int('type_id', $typeId)])
+    );
+
+    if ($hasTagRelation) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Broker output 'event_script' tag relations already exist, skipping creation",
+        );
+    } else {
+        $pearDB->insert(
+            <<<'SQL'
+                INSERT INTO `cb_tag_type_relation` (`cb_type_id`, `cb_tag_id`) VALUES (:type_id, 1)
+                SQL,
+            QueryParameters::create([QueryParameter::int('type_id', $typeId)])
+        );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully created Broker output 'event_script' tag relations",
+        );
+    }
+
+    // Creating fields
+    $fieldIds = $pearDB->fetchAllKeyValue(
+        <<<'SQL'
+            SELECT `fieldname`, `cb_field_id` FROM `cb_field`
+            WHERE `fieldname` IN ('script_path', 'timeout', 'managed_event_ttl', 'event')
+            SQL
+    );
+    $countFields = count($fieldIds);
+    if ($countFields === 4) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: All required fields for Broker output 'event_script' already exist, skipping creation",
+        );
+    } elseif ($countFields !== 0 && $countFields < 4) {
+        // Not supposed to happen
+        throw new RuntimeException('Not all required fields for Broker output "event_script" exist');
+    } else {
+        $pearDB->batchInsert(
+            'cb_field', ['fieldname', 'displayname', 'description', 'fieldtype', 'cb_fieldgroup_id', 'external'],
+            BatchInsertParameters::create([
+                QueryParameters::create([
+                    QueryParameter::string('fieldname', 'script_path'),
+                    QueryParameter::string('displayname', 'Script path'),
+                    QueryParameter::string('description', 'Path to the script to execute'),
+                    QueryParameter::string('fieldtype', 'text'),
+                    QueryParameter::int('cb_fieldgroup_id', null),
+                    QueryParameter::string('external', 'T=options:C=value:CK=key:K=brokercfg_event_script_script_path'),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::string('fieldname', 'timeout'),
+                    QueryParameter::string('displayname', 'Timeout'),
+                    QueryParameter::string('description', 'Script response time before timeout (in seconds)'),
+                    QueryParameter::string('fieldtype', 'int'),
+                    QueryParameter::int('cb_fieldgroup_id', null),
+                    QueryParameter::string('external', 'T=options:C=value:CK=key:K=brokercfg_event_script_timeout'),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::string('fieldname', 'managed_event_ttl'),
+                    QueryParameter::string('displayname', 'Managed event TTL'),
+                    QueryParameter::string('description', 'Delay before the script is called again for the same event (in seconds)'),
+                    QueryParameter::string('fieldtype', 'int'),
+                    QueryParameter::int('cb_fieldgroup_id', null),
+                    QueryParameter::string('external', 'T=options:C=value:CK=key:K=brokercfg_event_script_managed_event_ttl'),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::string('fieldname', 'event'),
+                    QueryParameter::string('displayname', 'Event'),
+                    QueryParameter::string('description', 'Filtered event type'),
+                    QueryParameter::string('fieldtype', 'multiselect'),
+                    QueryParameter::int('cb_fieldgroup_id', 1),
+                    QueryParameter::string('external', 'T=options:C=value:CK=key:K=brokercfg_event_script_event'),
+                ]),
+            ])
+        );
+
+        $fieldIds = $pearDB->fetchAllKeyValue(
+            <<<'SQL'
+                SELECT `fieldname`, `cb_field_id` FROM `cb_field`
+                WHERE `fieldname` IN ('script_path', 'timeout', 'managed_event_ttl', 'event')
+                SQL
+        );
+    }
+
+    if ($pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `options` WHERE `key` = 'brokercfg_event_script_timeout'
+            SQL
+    ) !== false) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Default options for Broker output 'event_script' already exist, skipping insertion",
+        );
+    } else {
+        $pearDB->batchInsert(
+            'options', ['`key`', '`value`'],
+            BatchInsertParameters::create([
+                QueryParameters::create([
+                    QueryParameter::string('key', 'brokercfg_event_script_timeout'),
+                    QueryParameter::string('value', '15'),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::string('key', 'brokercfg_event_script_managed_event_ttl'),
+                    QueryParameter::string('value', '3600'),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::string('key', 'brokercfg_event_script_script_path'),
+                    QueryParameter::string('value', '/usr/share/centreon/bin/console agent-configuration:host:create'),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::string('key', 'brokercfg_event_script_event'),
+                    QueryParameter::string('value', 'neb:UnknownHost'),
+                ]),
+            ])
+        );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully inserted default options for Broker output 'event_script'",
+        );
+    }
+
+    // Creating type_field relations
+    $typeRelationCount = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT COUNT(`cb_type_id`) FROM `cb_type_field_relation`
+            WHERE `cb_type_id` = :type_id
+            SQL,
+        QueryParameters::create([QueryParameter::int('type_id', $typeId)])
+    );
+
+    if ((int) $typeRelationCount === 4) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Required type_field relations for Broker output 'event_script' already exist, skipping creation",
+        );
+    } elseif ((int) $typeRelationCount !== 0) {
+        // Not supposed to happen
+        throw new RuntimeException('Some type_field relations for Broker output "event_script" already exist');
+    } else {
+        $pearDB->batchInsert(
+            'cb_type_field_relation', ['cb_type_id', 'cb_field_id', 'is_required', 'order_display'],
+            BatchInsertParameters::create([
+                QueryParameters::create([
+                    QueryParameter::int('cb_type_id', $typeId),
+                    QueryParameter::int('cb_field_id', $fieldIds['script_path']),
+                    QueryParameter::int('is_required', 1),
+                    QueryParameter::int('order_display', 1),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('cb_type_id', $typeId),
+                    QueryParameter::int('cb_field_id', $fieldIds['event']),
+                    QueryParameter::int('is_required', 0),
+                    QueryParameter::int('order_display', 2),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('cb_type_id', $typeId),
+                    QueryParameter::int('cb_field_id', $fieldIds['timeout']),
+                    QueryParameter::int('is_required', 1),
+                    QueryParameter::int('order_display', 3),
+                ]),
+                QueryParameters::create([
+                    QueryParameter::int('cb_type_id', $typeId),
+                    QueryParameter::int('cb_field_id', $fieldIds['managed_event_ttl']),
+                    QueryParameter::int('is_required', 1),
+                    QueryParameter::int('order_display', 4),
+                ]),
+            ])
+        );
+
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Successfully created type_field relations for Broker output 'event_script'",
+        );
+    }
+
+    // Creating event options list
+    $listId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `cb_list_id` FROM `cb_list`
+            WHERE `cb_field_id` = :field_id
+            SQL,
+        QueryParameters::create([QueryParameter::int('field_id', $fieldIds['event'])])
+    );
+
+    if ($listId === false) {
+        $listId = $pearDB->fetchOne(
+            <<<'SQL'
+                SELECT MAX(`cb_list_id`) FROM `cb_list`
+                SQL
+        );
+        $listId = (int) $listId + 1;
+        $pearDB->insert(
+            <<<'SQL'
+                INSERT INTO `cb_list` (`cb_list_id`, `cb_field_id`, `default_value`)
+                VALUES (:list_id, :field_id, NULL)
+                SQL,
+            QueryParameters::create([
+                QueryParameter::int('list_id', $listId),
+                QueryParameter::int('field_id', $fieldIds['event']),
+            ])
+        );
+    } else {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Event options list for Broker output 'event_script' already exists, skipping creation",
+        );
+    }
+
+    $eventOptions = [
+        'neb:Acknowledgement',
+        'neb:AdaptiveHost',
+        'neb:AdaptiveHostStatus',
+        'neb:AdaptiveService',
+        'neb:AdaptiveServiceStatus',
+        'neb:AgentStats',
+        'neb:Comment',
+        'neb:CustomVariables',
+        'neb:Downtime',
+        'neb:Host',
+        'neb:HostCheck',
+        'neb:HostGroup',
+        'neb:HostGroupMember',
+        'neb:HostParent',
+        'neb:HostStatus',
+        'neb:Instance',
+        'neb:InstanceConfiguration',
+        'neb:InstanceStatus',
+        'neb:LogEntry',
+        'neb:OTLMetrics',
+        'neb:ResponsiveInstance',
+        'neb:Service',
+        'neb:ServiceCheck',
+        'neb:ServiceGroup',
+        'neb:ServiceGroupMember',
+        'neb:ServiceStatus',
+        'neb:Severity',
+        'neb:Tag',
+        'neb:UnknownHost',
+    ];
+    $listHasValue = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `cb_list_values`
+            WHERE `cb_list_id` = :list_id
+            SQL,
+        QueryParameters::create([QueryParameter::int('list_id', $listId)])
+    );
+
+    if ($listHasValue) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Event options for Broker output 'event_script' already exist, skipping creation",
+        );
+    } else {
+        $pearDB->batchInsert(
+            'cb_list_values', ['cb_list_id', 'value_name', 'value_value'],
+            BatchInsertParameters::create(array_map(
+                fn ($option) => QueryParameters::create([
+                    QueryParameter::int('cb_list_id', $listId),
+                    QueryParameter::string('value_name', $option),
+                    QueryParameter::string('value_value', $option),
+                ]),
+                $eventOptions
+            ))
+        );
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully created event options list for Broker output 'event_script'",
+    );
+};
+
+$insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to insert event_script output for CMA';
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Inserting Broker output 'central-broker-master-event-script' for CMA",
+    );
+
+    if ($pearDB->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM `cfg_centreonbroker_info`
+            WHERE `config_key` = 'name'
+            AND `config_value` = 'central-broker-master-event-script'
+            SQL
+    )) {
+        CentreonLog::create()->info(
+            logTypeId: CentreonLog::TYPE_UPGRADE,
+            message: "UPGRADE - {$version}: Broker output 'central-broker-master-event-script' for CMA already exists, skipping insertion",
         );
 
         return;
     }
 
-    $pearDBO->query(
+    $configGroupId = $pearDB->fetchOne(
         <<<'SQL'
-            ALTER TABLE `instances`
-            ADD COLUMN `cma_certificate_sha` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate fingerprint',
-            ADD COLUMN `cma_certificate_cn` VARCHAR(255) DEFAULT NULL COMMENT 'CMA certificate host name',
-            ADD COLUMN `cma_certificate_peremption` INT(11) DEFAULT NULL COMMENT 'CMA certificate peremption timestamp'
+            SELECT MAX(`config_group_id`) FROM `cfg_centreonbroker_info` WHERE `config_group` = 'output' AND `config_id` = 1
             SQL
+    );
+    $configGroupId = $configGroupId !== null ? (int) $configGroupId + 1 : 1;
+    $typeId = $pearDB->fetchOne(
+        <<<'SQL'
+            SELECT `cb_type_id` FROM `cb_type`
+            WHERE `type_shortname` = 'event_script'
+            SQL
+    );
+
+    $pearDB->batchInsert(
+        'cfg_centreonbroker_info',
+        ['config_id', 'config_key', 'config_value', 'config_group', 'config_group_id', 'grp_level', 'subgrp_id', 'parent_grp_id'],
+        BatchInsertParameters::create([
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'type'),
+                QueryParameter::string('config_value', 'event_script'),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 0),
+                QueryParameter::int('subgrp_id', null),
+                QueryParameter::int('parent_grp_id', null),
+            ]),
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'name'),
+                QueryParameter::string('config_value', 'central-broker-master-event-script'),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 0),
+                QueryParameter::int('subgrp_id', null),
+                QueryParameter::int('parent_grp_id', null),
+            ]),
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'blockId'),
+                QueryParameter::string('config_value', '1_' . $typeId),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 0),
+                QueryParameter::int('subgrp_id', null),
+                QueryParameter::int('parent_grp_id', null),
+            ]),
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'script_path'),
+                QueryParameter::string('config_value', '/usr/share/centreon/bin/console agent-configuration:host:create'),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 0),
+                QueryParameter::int('subgrp_id', null),
+                QueryParameter::int('parent_grp_id', null),
+            ]),
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'timeout'),
+                QueryParameter::string('config_value', '15'),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 0),
+                QueryParameter::int('subgrp_id', null),
+                QueryParameter::int('parent_grp_id', null),
+            ]),
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'managed_event_ttl'),
+                QueryParameter::string('config_value', '3600'),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 0),
+                QueryParameter::int('subgrp_id', null),
+                QueryParameter::int('parent_grp_id', null),
+            ]),
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'filters'),
+                QueryParameter::string('config_value', ''),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 0),
+                QueryParameter::int('subgrp_id', 1),
+                QueryParameter::int('parent_grp_id', null),
+            ]),
+            QueryParameters::create([
+                QueryParameter::int('config_id', 1),
+                QueryParameter::string('config_key', 'event'),
+                QueryParameter::string('config_value', 'neb:UnknownHost'),
+                QueryParameter::string('config_group', 'output'),
+                QueryParameter::int('config_group_id', $configGroupId),
+                QueryParameter::int('grp_level', 1),
+                QueryParameter::int('subgrp_id', null),
+                QueryParameter::int('parent_grp_id', 1),
+            ]),
+        ])
     );
 
     CentreonLog::create()->info(
         logTypeId: CentreonLog::TYPE_UPGRADE,
-        message: "UPGRADE - {$version}: [broker instances] Successfully added CMA certificate fields to broker instances table",
+        message: "UPGRADE - {$version}: Successfully inserted Broker output 'central-broker-master-event-script' for CMA",
     );
 };
 
 try {
     // DDL statements for real time database
-    $updateInstancesTable();
+    // TODO add your function calls to update the real time database structure here
 
     // DDL statements for configuration database
     // TODO add your function calls to update the configuration database structure here
@@ -140,8 +493,8 @@ try {
         $pearDB->startTransaction();
     }
 
-    $rewordingResourceToGlobalMacro();
-    $fixDuplicateHostGroupTopology();
+    $createBrokerOutputEventScript();
+    $insertEventScriptOutputForCMA();
 
     $pearDB->commitTransaction();
 

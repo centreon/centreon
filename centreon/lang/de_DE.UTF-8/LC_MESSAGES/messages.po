@@ -9267,6 +9267,11 @@ msgstr ""
 msgid "Invalid address"
 msgstr ""
 
+#: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
+#, php-format
+msgid "Invalid argument for '%s', expected type: %s"
+msgstr ""
+
 #: centreon/src/Core/Domain/Exception/InvalidGeoCoordException.php
 msgid "Invalid coordinates format specified"
 msgstr ""
@@ -21309,3 +21314,7 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
+
+#: unknown
+msgid "Create hosts automatically"
+msgstr ""
