@@ -123,6 +123,7 @@ const TextField = forwardRef(
       type,
       textFieldSlotsAndSlotProps,
       forceUncontrolled,
+      helperText,
       ...rest
     }: TextProps,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -160,7 +161,9 @@ const TextField = forwardRef(
           <MuiTextField
             data-testid={dataTestId}
             error={!isNil(error)}
-            helperText={displayErrorInTooltip ? undefined : error}
+            helperText={
+              (displayErrorInTooltip ? undefined : error) || helperText
+            }
             id={getNormalizedId(dataTestId || '')}
             label={label}
             onChange={changeInputValue}
