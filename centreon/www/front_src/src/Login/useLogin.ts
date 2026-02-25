@@ -17,11 +17,11 @@ import { useCookies } from 'react-cookie';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 
-import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
 import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
+import { PlatformInstallationStatus } from '../api/models';
 import routeMap from '../reactRoutes/routeMap';
 import { providersConfigurationDecoder } from './api/decoder';
 import { providersConfigurationEndpoint } from './api/endpoint';
@@ -189,6 +189,8 @@ const useLogin = (): UseLoginState => {
   return {
     authenticationError,
     hasForcedProvider: !!forcedProviders,
+    externalProvidersButtonDisabled:
+      !!forcedProviders && prop('REDIRECT_URI', cookies),
     platformInstallationStatus,
     providersConfiguration: activeProviders,
     submitLoginForm

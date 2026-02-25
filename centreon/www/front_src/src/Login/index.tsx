@@ -77,7 +77,8 @@ const LoginPage = (): JSX.Element => {
     submitLoginForm,
     providersConfiguration,
     authenticationError,
-    hasForcedProvider
+    hasForcedProvider,
+    externalProvidersButtonDisabled
   } = useLogin();
 
   const areUserParametersLoaded = useAtomValue(areUserParametersLoadedAtom);
@@ -132,7 +133,9 @@ const LoginPage = (): JSX.Element => {
             >
               <ExternalProviders
                 providersConfiguration={providersConfiguration}
-                hasForcedProvider={hasForcedProvider}
+                externalProvidersButtonDisabled={
+                  externalProvidersButtonDisabled
+                }
               />
             </Suspense>
           </div>

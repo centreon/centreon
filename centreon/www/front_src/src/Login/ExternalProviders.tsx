@@ -9,7 +9,7 @@ import { labelLoginWith, labelOr } from './translatedLabels';
 
 interface Props {
   providersConfiguration: Array<ProviderConfiguration> | null;
-  hasForcedProvider: boolean;
+  externalProvidersButtonDisabled: boolean;
 }
 
 const useStyles = makeStyles()((theme) => ({
@@ -24,7 +24,7 @@ const useStyles = makeStyles()((theme) => ({
 
 const ExternalProviders = ({
   providersConfiguration,
-  hasForcedProvider
+  externalProvidersButtonDisabled
 }: Props): JSX.Element | null => {
   const { classes } = useStyles();
   const { t } = useTranslation();
@@ -53,7 +53,7 @@ const ExternalProviders = ({
                 href={authenticationUri}
                 key={name}
                 variant="contained"
-                disabled={hasForcedProvider}
+                disabled={externalProvidersButtonDisabled}
               >
                 {data}
               </Button>
