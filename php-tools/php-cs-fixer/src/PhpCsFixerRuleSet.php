@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -222,7 +222,7 @@ class PhpCsFixerRuleSet
      */
     private static function getLicenseHeaderAsPhpComment(): string
     {
-        $year = 2025;
+        $year = 2026;
 
         return <<<"EOF"
             Copyright 2005 - {$year} Centreon (https://www.centreon.com/)
