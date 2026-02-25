@@ -30,8 +30,9 @@ export const useFilterStyles = makeStyles()((theme) => ({
     width: '100%'
   },
   statusFilter: {
-    alignItems: 'center',
+    alignItems: 'start',
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     paddingInlineStart: theme.spacing(1)
   },

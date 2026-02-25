@@ -497,6 +497,10 @@ Then('the links with the acl groups are broken', () => {
     cy.getIframeBody().contains('td.ListColLeft > a', aclGroup).click();
 
     cy.wait('@getTimeZone');
+    cy.waitForElementInIframe(
+      '#main-content',
+      'a:contains("Authorizations information")'
+    );
     cy.getIframeBody().contains('a', 'Authorizations information').click();
 
     cy.getIframeBody()

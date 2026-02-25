@@ -1,11 +1,11 @@
 import {
   Box,
   InputAdornment,
-  type InputProps,
+  InputProps,
   TextField as MuiTextField,
-  type TextFieldProps,
-  type TextFieldSlotsAndSlotProps,
-  type Theme,
+  TextFieldProps,
+  TextFieldSlotsAndSlotProps,
+  Theme,
   Tooltip,
   Typography
 } from '@mui/material';
@@ -170,6 +170,7 @@ const TextField = forwardRef(
             ref={ref}
             size={size || 'small'}
             {...getValueProps()}
+            autoComplete="off"
             className={classes.textField}
             required={required}
             slotProps={{
