@@ -35,7 +35,7 @@ Centreon AWIE is based on CLAPI commands but its added value is to allow using C
 $module_conf['centreon-awie']['is_removeable'] = '1';
 $module_conf['centreon-awie']['author'] = 'Centreon';
 $module_conf['centreon-awie']['stability'] = 'stable';
-$module_conf['centreon-awie']['last_update'] = '2025-02-24';
+$module_conf['centreon-awie']['last_update'] = '2026-02-24';
 $module_conf['centreon-awie']['images'] = [
     'images/image1.png',
 ];
