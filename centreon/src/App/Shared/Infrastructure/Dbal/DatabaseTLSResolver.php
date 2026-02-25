@@ -24,10 +24,22 @@ declare(strict_types=1);
 namespace App\Shared\Infrastructure\Dbal;
 
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Dotenv\Exception\FormatException;
+use Symfony\Component\Dotenv\Exception\PathException;
 
 final readonly class DatabaseTLSResolver
 {
     /**
+     * Returns PDO SSL options based on environment configuration.
+     *
+     * Configuration:
+     * - DATABASE_SSL_ENABLED=0|1 : Enable/disable SSL (default: disabled)
+     * - DATABASE_VERIFY_SERVER_CERT=0|1 : Verify server certificate (default: false when SSL enabled)
+     * - DATABASE_CA_PATH : Path to CA certificate file
+     * - DATABASE_SSL_CERT_PATH : Path to client certificate file
+     * - DATABASE_SSL_KEY_PATH : Path to client key file
+     *
+     * @throws FormatException|PathException
      * @return array<int, mixed>
      */
     public static function getTLSOptions(): array
@@ -35,17 +47,28 @@ final readonly class DatabaseTLSResolver
         $options = [];
 
         (new Dotenv())->loadEnv(_CENTREON_PATH_ . '/.env');
-        $verifyServerCert = $_ENV['DATABASE_VERIFY_SERVER_CERT'] ?? null;
-        if ($verifyServerCert === null) {
+
+        // Check if SSL is explicitly enabled
+        $sslEnabled = $_ENV['DATABASE_SSL_ENABLED'] ?? null;
+        if ($sslEnabled === null || ! (bool) $sslEnabled) {
+            // SSL not enabled, return empty options (no SSL)
             return $options;
         }
-        $verifyServerCert = (bool) $verifyServerCert;
+
+        // SSL is enabled, configure options
+        $verifyServerCert = (bool) ($_ENV['DATABASE_VERIFY_SERVER_CERT'] ?? false);
         $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $verifyServerCert;
 
         if ($verifyServerCert === false) {
+            // Force SSL connection without certificate verification
+            // This is required when MySQL has --require_secure_transport=ON
+            // and using self-signed certificates
+            $options[\PDO::MYSQL_ATTR_SSL_CA] = '';
+
             return $options;
         }
 
+        // SSL with certificate verification enabled
         $envToPdoOption = [
             'DATABASE_CA_PATH'        => \PDO::MYSQL_ATTR_SSL_CA,
             'DATABASE_SSL_CERT_PATH' => \PDO::MYSQL_ATTR_SSL_CERT,
