@@ -27,7 +27,8 @@ const StatusChart = ({
     displayLegend,
     displayValues,
     resourceTypes,
-    unit
+    unit,
+    stateList
   } = panelOptions;
 
   const isHorizontalBar = equals(displayType, DisplayType.Horizontal);
@@ -82,6 +83,7 @@ const StatusChart = ({
             resources={resources}
             resourceType={resourceType}
             resourceTypes={resourceTypes}
+            stateList={stateList}
             title={isOfTypeHost ? labelHosts : labelServices}
             unit={unit}
             widgetPrefixQuery={widgetPrefixQuery}

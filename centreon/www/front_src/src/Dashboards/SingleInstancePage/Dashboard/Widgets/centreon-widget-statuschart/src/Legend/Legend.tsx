@@ -4,6 +4,7 @@ import { Tooltip } from '@centreon/ui/components';
 import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
+import { ReactElement } from 'react';
 import { Link } from 'react-router';
 
 import { Resource } from '../../../models';
@@ -30,7 +31,7 @@ const Legend = ({
   getLinkToResourceStatusPage,
   resourceType,
   resources
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const isOnPublicPage = useAtomValue(isOnPublicPageAtom);
 
   const { classes } = useLegendStyles({
@@ -40,6 +41,9 @@ const Legend = ({
   return (
     <div className={classes.legend}>
       {data.map(({ value, color, label: status }) => {
+        if (!value) {
+          return null;
+        }
         return (
           <div className={classes.legendItems} key={color}>
             <Tooltip
