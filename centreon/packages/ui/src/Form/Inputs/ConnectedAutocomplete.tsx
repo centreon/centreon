@@ -1,4 +1,4 @@
-import { type FormikValues, useFormikContext } from 'formik';
+import { FormikValues, useFormikContext } from 'formik';
 import { equals, isEmpty, path, propEq, reject, split } from 'ramda';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +9,7 @@ import {
   useMemoComponent
 } from '../..';
 import MultiConnectedAutocompleteField from '../../InputField/Select/Autocomplete/Connected/Multi';
-import { type InputPropsWithoutGroup, InputType } from './models';
+import { InputPropsWithoutGroup, InputType } from './models';
 
 const defaultFilterKey = 'name';
 
@@ -42,10 +42,26 @@ const ConnectedAutocomplete = ({
 
   const isMultiple = equals(type, InputType.MultiConnectedAutocomplete);
 
-  const getEndpoint = (parameters): string =>
-    buildListingEndpoint({
+  const getEndpoint = (parameters): string => {
+    const nameQueryParameters =
+      connectedAutocomplete?.useNewAPIFormat && parameters?.search
+        ? [
+            {
+              name: 'name[lk]',
+              value: parameters.search.conditions[0].values.$lk.slice(1, -1)
+            }
+          ]
+        : [];
+
+    return buildListingEndpoint({
+      apiFormat: connectedAutocomplete?.useNewAPIFormat
+        ? 'JSON-LD'
+        : 'Standard',
       baseEndpoint: connectedAutocomplete?.endpoint,
-      customQueryParameters: connectedAutocomplete?.customQueryParameters || [],
+      customQueryParameters: [
+        ...(connectedAutocomplete?.customQueryParameters || []),
+        ...nameQueryParameters
+      ],
       parameters: {
         ...parameters,
         search: {
@@ -58,6 +74,7 @@ const ConnectedAutocomplete = ({
         sort: { [filterKey]: 'ASC' }
       }
     });
+  };
 
   const fieldNamePath = split('.', fieldName);
 
@@ -79,15 +96,7 @@ const ConnectedAutocomplete = ({
       setFieldTouched(fieldName, true, false);
       setFieldValue(fieldName, value);
     },
-    [
-      fieldName,
-      change,
-      setFieldTouched,
-      setFieldValue,
-      setTouched,
-      setValues,
-      values
-    ]
+    [fieldName, touched, additionalMemoProps]
   );
 
   const blur = (): void => setFieldTouched(fieldName, true);

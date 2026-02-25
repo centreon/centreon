@@ -18,11 +18,14 @@ export const useViewportIntersection = (
   const [element, setElement] = useState<HTMLElement | null>(null);
 
   const observer = useRef<IntersectionObserver | null>(null);
-  
+
   const sanitizedOptions = {
     ...options,
-    root: options?.root instanceof HTMLElement ? `${options.root.tagName}_${options.root.className}` : null
-  }
+    root:
+      options?.root instanceof HTMLElement
+        ? `${options.root.tagName}_${options.root.className}`
+        : null
+  };
 
   useEffect(() => {
     if (observer.current) {

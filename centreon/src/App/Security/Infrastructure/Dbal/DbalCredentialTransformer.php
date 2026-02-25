@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Dbal;
 
+use App\MonitoringConfiguration\Domain\Security\CommandPermissionEnum;
+use App\MonitoringConfiguration\Domain\Security\ConnectorPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\GlobalMacroPermissionEnum;
 use App\MonitoringConfiguration\Domain\Security\ServiceCategoryPermissionEnum;
 use App\Security\Domain\Aggregate\Credential;
@@ -46,12 +48,23 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
         'ROLE_CONFIGURATION_SERVICES_CATEGORIES_R' => ServiceCategoryPermissionEnum::CanRead->value,
         'ROLE_CONFIGURATION_SERVICES_CATEGORIES_RW' => ServiceCategoryPermissionEnum::CanWrite->value,
         'ROLE_CONFIGURATION_POLLERS_GLOBAL_MACROS_RW' => GlobalMacroPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_R' => ConnectorPermissionEnum::CanRead->value,
+        'ROLE_CONFIGURATION_COMMANDS_CONNECTORS_RW' => ConnectorPermissionEnum::CanReadAndWrite->value,
     ];
 
     /**
      * @var array<string, string>
      */
     private const LEGACY_ROLE_MAP = [
+        // commands
+        'see_check_commands' => CommandPermissionEnum::CanReadChecks->value,
+        'manage_check_commands' => CommandPermissionEnum::CanReadAndWriteChecks->value,
+        'see_notification_commands' => CommandPermissionEnum::CanReadNotifications->value,
+        'manage_notification_commands' => CommandPermissionEnum::CanReadAndWriteNotifications->value,
+        'see_discovery_commands' => CommandPermissionEnum::CanReadDiscovery->value,
+        'manage_discovery_commands' => CommandPermissionEnum::CanReadAndWriteDiscovery->value,
+        'see_miscellaneous_commands' => CommandPermissionEnum::CanReadMiscellaneous->value,
+        'manage_miscellaneous_commands' => CommandPermissionEnum::CanReadAndWriteMiscellaneous->value,
     ];
 
     /**
@@ -59,6 +72,7 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
      */
     public function transform(mixed $from): Credential
     {
+        $isAdmin = $from['c_admin'] === '1';
         $credential = new Credential(
             identifier: new CredentialIdentifier($from['c_alias']),
             userId: new UserId($from['c_id']),
@@ -71,9 +85,19 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
             }
         }
 
+        if ($isAdmin) {
+            foreach (array_keys(self::LEGACY_ROLE_MAP) as $roleString) {
+                $credential->grantPermission(new Permission(self::LEGACY_ROLE_MAP[$roleString]));
+            }
+        }
+
         foreach ($from['action_rules'] as $actionRule) {
             foreach ($this->mapActionRuleToRoles($actionRule) as $role) {
                 $credential->assignRole($role);
+            }
+
+            if (in_array($actionRule, array_keys(self::LEGACY_ROLE_MAP), true)) {
+                $credential->grantPermission(new Permission(self::LEGACY_ROLE_MAP[$actionRule]));
             }
         }
 
@@ -96,7 +120,6 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
      */
     private function mapActionRuleToRoles(string $actionRule): array
     {
-        // TODO add command ACLs
         $legacyRoles = match ($actionRule) {
             'host_schedule_check' => ['ROLE_HOST_CHECK'],
             'host_schedule_forced_check' => ['ROLE_HOST_CHECK', 'ROLE_HOST_FORCED_CHECK'],
@@ -119,6 +142,14 @@ final readonly class DbalCredentialTransformer implements TransformerInterface
             'delete_poller_cfg' => ['ROLE_DELETE_POLLER_CFG'],
             'top_counter' => ['ROLE_DISPLAY_TOP_COUNTER'],
             'poller_stats' => ['ROLE_DISPLAY_TOP_COUNTER_POLLERS_STATISTICS'],
+            'see_check_commands' => ['ROLE_SEE_CHECK_COMMANDS'],
+            'manage_check_commands' => ['ROLE_MANAGE_CHECK_COMMANDS'],
+            'see_notification_commands' => ['ROLE_SEE_NOTIFICATION_COMMANDS'],
+            'manage_notification_commands' => ['ROLE_MANAGE_NOTIFICATION_COMMANDS'],
+            'see_discovery_commands' => ['ROLE_SEE_DISCOVERY_COMMANDS'],
+            'manage_discovery_commands' => ['ROLE_MANAGE_DISCOVERY_COMMANDS'],
+            'see_miscellaneous_commands' => ['ROLE_SEE_MISCELLANEOUS_COMMANDS'],
+            'manage_miscellaneous_commands' => ['ROLE_MANAGE_MISCELLANEOUS_COMMANDS'],
             default => [],
         };
 

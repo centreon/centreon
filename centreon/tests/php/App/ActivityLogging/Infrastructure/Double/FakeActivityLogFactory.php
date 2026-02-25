@@ -32,18 +32,25 @@ use App\ActivityLogging\Domain\Aggregate\TargetName;
 use App\ActivityLogging\Domain\Aggregate\TargetTypeEnum;
 use App\ActivityLogging\Domain\Factory\ActivityLogFactoryInterface;
 use App\Shared\Domain\Aggregate\AggregateRoot;
+use App\Shared\Domain\Aggregate\AggregateRootId;
 
 /**
- * @implements ActivityLogFactoryInterface<AggregateRoot>
+ * @implements ActivityLogFactoryInterface<AggregateRoot<AggregateRootId>>
  */
 final class FakeActivityLogFactory implements ActivityLogFactoryInterface
 {
     public function create(ActionEnum $action, AggregateRoot $aggregate, Actor $firedBy, \DateTimeImmutable $firedAt): ActivityLog
     {
+
+        $type = match ($action) {
+            ActionEnum::Add => TargetTypeEnum::ServiceCategory,
+            ActionEnum::Update, ActionEnum::Delete => TargetTypeEnum::Command,
+        };
+
         $target = new Target(
             id: new TargetId(1),
             name: new TargetName('NAME'),
-            type: TargetTypeEnum::ServiceCategory,
+            type: $type,
         );
 
         return new ActivityLog(

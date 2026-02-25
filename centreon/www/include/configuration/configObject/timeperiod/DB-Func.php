@@ -26,8 +26,8 @@ if (! isset($centreon)) {
 }
 
 use Core\ActionLog\Domain\Model\ActionLog;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Infrastructure\Common\Api\Router;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
@@ -423,7 +423,6 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -432,29 +431,17 @@ function insertTimeperiodByApi(array $formData, string $basePath): int
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Cookie' => CentreonSession::resolveSessionCookie(),
-    ];
-    $response = $client->request(
-        'POST',
-        $url,
-        [
-            'headers' => $headers,
-            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
-        ],
-    );
+    $client = new InternalApiClient();
+    $response = $client->request($url, 'POST', CentreonSession::resolveSessionCookie(), $payload);
 
-    if ($response->getStatusCode() !== 201) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+    if ($response['status_code'] !== 201) {
+        $message = $response['content']['message'] ?? 'Unexpected return status';
 
-        throw new Exception($content->message ?? 'Unexpected return status');
+        throw new Exception($message);
     }
 
-    $data = $response->toArray();
-
-    /** @var array{id:int} $data */
-    return $data['id'];
+    /** @var array{id:int} $response['content'] */
+    return $response['content']['id'];
 }
 
 /**
@@ -506,7 +493,6 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new CurlHttpClient();
 
     $payload = getPayloadForTimePeriod($formData);
     $url = $router->generate(
@@ -515,23 +501,13 @@ function updateTimeperiodByApi(array $formData, string $basePath): void
         UrlGeneratorInterface::ABSOLUTE_URL,
     );
 
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Cookie' => CentreonSession::resolveSessionCookie(),
-    ];
-    $response = $client->request(
-        'PUT',
-        $url,
-        [
-            'headers' => $headers,
-            'body' => json_encode(value: $payload, flags: JSON_THROW_ON_ERROR),
-        ],
-    );
+    $client = new InternalApiClient();
+    $response = $client->request($url, 'PUT', CentreonSession::resolveSessionCookie(), $payload);
 
-    if ($response->getStatusCode() !== 204) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+    if ($response['status_code'] !== 204) {
+        $message = $response['content']['message'] ?? 'Unexpected return status';
 
-        throw new Exception($content->message ?? 'Unexpected return status');
+        throw new Exception($message);
     }
 }
 
@@ -573,12 +549,8 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
     $kernel = Kernel::createForWeb();
     /** @var Router $router */
     $router = $kernel->getContainer()->get(Router::class);
-    $client = new CurlHttpClient();
-
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Cookie' => CentreonSession::resolveSessionCookie(),
-    ];
+    $client = new InternalApiClient();
+    $sessionCookie = CentreonSession::resolveSessionCookie();
 
     foreach ($timePeriodIds as $id) {
         $url = $router->generate(
@@ -587,11 +559,10 @@ function deleteTimePeriodByAPI(string $basePath, array $timePeriodIds): void
             UrlGeneratorInterface::ABSOLUTE_URL,
         );
 
-        $response = $client->request('DELETE', $url, ['headers' => $headers]);
+        $response = $client->request($url, 'DELETE', $sessionCookie);
 
-        if ($response->getStatusCode() !== 204) {
-            $content = json_decode($response->getContent(false), true);
-            $message = $content['message'] ?? 'Unknown error';
+        if ($response['status_code'] !== 204) {
+            $message = $response['content']['message'] ?? 'Unknown error';
 
             CentreonLog::create()->error(
                 logTypeId: CentreonLog::TYPE_BUSINESS_LOG,

@@ -1,6 +1,6 @@
-import { atom } from "jotai";
+import { atom } from 'jotai';
 
-import type { FederatedModule } from "./types";
+import type { FederatedModule } from './types';
 
 export const federatedModulesAtom = atom<Array<FederatedModule> | null>(null);
 
