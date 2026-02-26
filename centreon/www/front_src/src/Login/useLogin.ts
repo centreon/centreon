@@ -190,8 +190,7 @@ const useLogin = (): UseLoginState => {
   return {
     authenticationError,
     hasForcedProvider: !!forcedProviders,
-    externalProvidersButtonDisabled:
-      equals(forcedProviders?.length, 1) && !!prop('REDIRECT_URI', cookies),
+    externalProvidersButtonDisabled: equals(forcedProviders?.length, 1),
     platformInstallationStatus,
     providersConfiguration: activeProviders,
     submitLoginForm
