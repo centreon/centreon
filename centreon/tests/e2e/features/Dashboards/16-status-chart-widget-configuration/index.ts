@@ -13,7 +13,6 @@ import genericTextWidgets from '../../../fixtures/dashboards/creation/widgets/ge
 const greenCssBackground = 'background: rgb(136, 185, 34)';
 const orangeCssBackground = 'background: rgb(253, 155, 39)';
 const redCssBackground = 'background: rgb(255, 102, 102)';
-const greyCssBackground = 'background: rgb(227, 227, 227)';
 const blueCssBackground = 'background: rgb(30, 190, 179)';
 
 const hostGroupName = 'Linux-Servers';
@@ -280,7 +279,7 @@ Then(
         redCssBackground,
         blueCssBackground
       ],
-      ['100.0%', '41.7%', '50.0%', '8.3%'],
+      ['100.0%', '41.7%', '50.0%', '8.3%']
     );
   }
 );
