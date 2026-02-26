@@ -9937,6 +9937,11 @@ msgstr ""
 msgid "Invalid address"
 msgstr ""
 
+#: centreon/src/Core/AdditionalConnectorConfiguration/Application/Exception/AccException.php
+#, php-format
+msgid "Invalid argument for '%s', expected type: %s"
+msgstr ""
+
 #: centreon/src/Core/Domain/Exception/InvalidGeoCoordException.php
 msgid "Invalid coordinates format specified"
 msgstr ""
