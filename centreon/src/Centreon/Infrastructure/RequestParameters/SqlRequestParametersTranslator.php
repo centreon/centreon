@@ -106,7 +106,6 @@ class SqlRequestParametersTranslator
             $whereQuery .= $this->createDatabaseQuery($search);
         }
 
-        // return ! empty($whereQuery) ? ' WHERE ' . $whereQuery : null;
         if (empty($whereQuery)) {
             return null;
         }
