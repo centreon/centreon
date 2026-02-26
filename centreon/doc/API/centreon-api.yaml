@@ -5099,6 +5099,7 @@ components:
       required: false
       schema:
         type: string
+        example: '{"entry_time":"DESC"}'
       description: |
         Sort acknowledgements by their properties.
         Provide the field name and sort direction (ASC or DESC).
