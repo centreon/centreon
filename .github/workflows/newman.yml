@@ -447,15 +447,15 @@ jobs:
           docker compose --profile web -f ../../../.github/docker/docker-compose.yml up -d --wait
 
           if [[ -f "${COLLECTION_DIRECTORY}/setup.sh" ]]; then
-            echo "Running script ${COLLECTION_DIRECTORY}/setup.sh ..."
-            bash -ex "${COLLECTION_DIRECTORY}/setup.sh"
-          fi
+            echo "Running script ${COLLECTION_DIRECTORY}/setup.sh with ${{ matrix.feature }} ..."
+              bash -ex ${COLLECTION_DIRECTORY}/setup.sh "${{ matrix.feature }}"
+            fi
 
-          if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
-            echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh ..."
-            docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
-            docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex "/tmp/setup-web.sh"
-          fi
+            if [[ -f "${COLLECTION_DIRECTORY}/setup-web.sh" ]]; then
+              echo "Running script ${COLLECTION_DIRECTORY}/setup-web.sh with ${{ matrix.feature }} ..."
+              docker compose -f ../../../.github/docker/docker-compose.yml cp ${COLLECTION_DIRECTORY}/setup-web.sh web:/tmp/setup-web.sh
+              docker compose -f ../../../.github/docker/docker-compose.yml exec web bash -ex /tmp/setup-web.sh "${{ matrix.feature }}"
+            fi
         shell: bash
 
       - name: Run Postman Tests and Generate HTML Report

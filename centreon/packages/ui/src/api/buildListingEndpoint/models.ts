@@ -3,8 +3,8 @@ import type { QueryParameter } from '../../queryParameters/models';
 export interface BuildListingEndpointParameters {
   baseEndpoint?: string;
   customQueryParameters?: Array<QueryParameter>;
-  parameters: Parameters;
-  isCustomEndpoint?: boolean;
+  parameters: Omit<Parameters, 'apiFormat' | 'customQueryParameters'>;
+  apiFormat?: 'Standard' | 'JSON-LD';
 }
 
 export interface SearchMatch {
@@ -18,7 +18,9 @@ export interface Parameters {
   page?: number;
   search?: SearchParameter;
   sort?: SortQueryParameterValue;
+  apiFormat: 'Standard' | 'JSON-LD';
 }
+
 export interface SearchParameter {
   conditions?: Array<ConditionsSearchParameter>;
   lists?: Array<ListsSearchParameter>;

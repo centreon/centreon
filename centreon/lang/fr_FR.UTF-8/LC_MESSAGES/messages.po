@@ -285,10 +285,6 @@ msgstr "Groupe d'accès ACL"
 msgid "ACL reloaded"
 msgstr "ACL rechargées"
 
-#: centreon/www/include/configuration/configObject/command/listCommand.php
-msgid "ADD"
-msgstr "AJOUTER"
-
 #: centreon/www/install/smarty_translate.php
 msgid "API Access Configuration"
 msgstr "Configuration d'accès à l'API"
@@ -523,7 +519,6 @@ msgstr "Action non autorisée pour une sortie de type '%s'"
 #: centreon/www/include/configuration/configKnowledge/display-hosts.php
 #: centreon/www/include/configuration/configKnowledge/display-serviceTemplates.php
 #: centreon/www/include/configuration/configKnowledge/display-services.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
@@ -682,10 +677,6 @@ msgstr "Ajouter un serveur distant Centreon"
 msgid "Add a Centreon-Broker Configuration"
 msgstr "Ajouter une configuration Centreon-Broker"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Add a Command"
-msgstr "Ajouter une commande"
-
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "Add a Connector"
 msgstr "Ajouter un connecteur"
@@ -774,6 +765,10 @@ msgstr "Ajouter un modèle utilisateur"
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Add a Virtual Metric"
 msgstr "Ajouter une métrique virtuelle"
+
+#: centreon/www/install/front_translate.php
+msgid "Add a command"
+msgstr "Ajouter une commande"
 
 #: centreon/www/include/monitoring/comments/listComment.php
 #: centreon/www/install/front_translate.php
@@ -1002,7 +997,6 @@ msgstr "Adresses complémentaires"
 msgid "Additional Configurations"
 msgstr "Configurations additionnelles"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
@@ -1024,14 +1018,6 @@ msgstr "Informations supplémentaires"
 #: centreon/www/install/front_translate.php
 msgid "Additional configuration created"
 msgstr "Configuration additionnelle créée"
-
-#: centreon/www/install/front_translate.php
-msgid "Additional configuration deleted"
-msgstr "Configuration additionnelle supprimée"
-
-#: centreon/www/install/front_translate.php
-msgid "Additional configuration duplicated"
-msgstr "Configuration additionnelle dupliquée"
 
 #: centreon/www/install/front_translate.php
 msgid "Additional configuration updated"
@@ -1620,19 +1606,6 @@ msgstr "Arguments"
 #: centreon/www/include/configuration/configObject/service/xml/argumentsXml.php
 msgid "Argument"
 msgstr "Argument"
-
-#: centreon/www/include/configuration/configObject/command/formArguments.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Argument Descriptions"
-msgstr "Description des arguments"
-
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Argument Example"
-msgstr "Exemple d'arguments"
-
-#: centreon/www/include/configuration/configObject/command/formArguments.php
-msgid "Arguments"
-msgstr "Arguments"
 
 #: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/install/dashboard_widgets.php
@@ -2740,10 +2713,13 @@ msgstr "Un graphique par courbe"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/www/include/configuration/configObject/command/commandType.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/install/front_translate.php
 msgid "Check"
 msgstr "Vérifier"
+
+#: centreon/www/install/front_translate.php
+msgid "Check "
+msgstr "Contrôle"
 
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
@@ -2850,7 +2826,6 @@ msgstr ""
 "configurée"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/install/menu_translation.php
 msgid "Checks"
 msgstr "Contrôles"
 
@@ -2957,10 +2932,6 @@ msgstr "Intervalle de contrôle de la purge"
 msgid "Clear"
 msgstr "Effacer"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Clear arguments"
-msgstr "Effacer les arguments"
-
 #: centreon/www/install/front_translate.php
 msgid "Clear filter"
 msgstr "Effacer le filtre"
@@ -2989,8 +2960,6 @@ msgstr "Horloge"
 msgid "Clock / Timer"
 msgstr "Horloge / Minuteur"
 
-#: centreon/www/include/configuration/configObject/command/formArguments.php
-#: centreon/www/include/configuration/configObject/command/formMacros.php
 #: centreon/www/include/options/media/images/syncDir.php
 #: centreon/www/install/front_translate.php
 msgid "Close"
@@ -3039,29 +3008,18 @@ msgstr "Colonnes"
 #: centreon/www/include/configuration/configServers/formServers.php
 #: centreon/www/include/eventLogs/xml/data.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "Command"
 msgstr "Commande"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/command/minHelpCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "Command Line"
 msgstr "Ligne de commande"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Command Name"
-msgstr "Nom de commande"
-
 #: centreon/www/include/monitoring/submitPassivResults/hostPassiveCheck.php
 #: centreon/www/include/monitoring/submitPassivResults/servicePassiveCheck.php
 msgid "Command Options"
 msgstr "Options de la commande"
-
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Command Type"
-msgstr "Type de commande"
 
 #: centreon/www/install/front_translate.php
 msgid "Command copied"
@@ -3086,28 +3044,41 @@ msgstr "Chemin d'accès au socket Unix de Centreon Broker"
 msgid "Command inheritance"
 msgstr "Hérité depuis la commande"
 
+#: centreon/www/install/front_translate.php
+msgid "Command line"
+msgstr "Ligne de commande"
+
 #: centreon/www/include/monitoring/objectDetails/hostDetails.php
 #: centreon/www/include/monitoring/objectDetails/serviceDetails.php
 msgid "Command sent"
 msgstr "Commande envoyée"
 
+#: centreon/www/install/front_translate.php
+msgid "Command type"
+msgstr "Type de commande"
+
 #: centreon/www/include/configuration/configNagios/formNagios.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Commands"
 msgstr "Commandes"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Commands definitions can contain Macros but they have to be valid."
+#: centreon/www/install/front_translate.php
+msgid ""
+"Commands are used by the monitoring engine to run plugins to perform "
+"actions. While most commands come ready-to-use via Monitoring Connectors, "
+"you can also create custom commands for specific needs."
 msgstr ""
-"Les définitions de commandes peuvent contenir des macros mais ces dernières "
-"doivent être valides."
+"Les commandes sont utilisées par le moteur de supervision pour exécuter des "
+"plugins qui effectuent des actions. Bien que la plupart des commandes soient "
+"prêtes à l'emploi via les connecteurs de supervision, vous pouvez également "
+"créer des commandes personnalisées pour des besoins spécifiques."
 
 #: centreon/www/class/centreonGraphPoller.class.php
 #: centreon/www/include/Administration/corePerformance/nagiosStats.php
 msgid "Commands in buffer"
 msgstr "Commandes dans le tampon"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configResources/formResources.php
 #: centreon/www/include/monitoring/acknowlegement/hostAcknowledge.php
 #: centreon/www/include/monitoring/acknowlegement/xml/broker/makeXMLForAck.php
@@ -3233,10 +3204,6 @@ msgstr "Alias obligatoire"
 msgid "Compulsory Command"
 msgstr "Commande obligatoire"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Compulsory Command Line"
-msgstr "Ligne de commande obligatoire"
-
 #: centreon/www/include/configuration/configObject/servicegroup/formServiceGroup.php
 msgid "Compulsory Description"
 msgstr "Description obligatoire"
@@ -3255,7 +3222,6 @@ msgid "Compulsory Instance"
 msgstr "Collecteur obligatoire"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
@@ -3345,6 +3311,7 @@ msgid "Config information"
 msgstr "Informations sur la configuration"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Configuration"
@@ -3490,7 +3457,7 @@ msgstr "Nom du connecteur"
 msgid "Connector Status"
 msgstr "Statut du connecteur"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/menu_translation.php
 msgid "Connectors"
 msgstr "Connecteurs"
@@ -4346,7 +4313,6 @@ msgstr "Définissez votre point d'entrée"
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
@@ -4558,14 +4524,6 @@ msgstr "Déployer la configuration"
 msgid "Descending"
 msgstr "Décroissant"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Describe arguments"
-msgstr "Décrire les arguments"
-
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Describe macros"
-msgstr "Décrire les macros"
-
 #: centreon/www/include/Administration/parameters/ldap/form.php
 #: centreon/www/include/Administration/parameters/ldap/list.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
@@ -4664,7 +4622,6 @@ msgstr ""
 "SNMP"
 
 #: centreon/www/include/Administration/parameters/ldap/list.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
@@ -4758,8 +4715,6 @@ msgstr "Désactiver la vérification du pair"
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -4841,8 +4796,7 @@ msgid "Disconnect user"
 msgstr "Déconnecter l'utilisateur"
 
 #: centreon/www/include/configuration/configObject/command/commandType.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
-#: centreon/www/install/menu_translation.php
+#: centreon/www/install/front_translate.php
 msgid "Discovery"
 msgstr "Découverte"
 
@@ -5177,7 +5131,6 @@ msgstr ""
 #: centreon/www/include/Administration/performance/viewMetrics.php
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
@@ -5218,7 +5171,6 @@ msgstr "Confirmez-vous cette suppression ?"
 
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
@@ -5420,7 +5372,6 @@ msgstr "Dump"
 
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
@@ -5457,10 +5408,6 @@ msgstr "Dump"
 #: centreon/www/install/front_translate.php
 msgid "Duplicate"
 msgstr "Dupliquer"
-
-#: centreon/www/install/front_translate.php
-msgid "Duplicate connector configuration"
-msgstr "Dupliquer la configuration de connecteur"
 
 #: centreon/www/install/front_translate.php
 msgid "Duplicate dashboard"
@@ -5606,7 +5553,6 @@ msgid "Empty directory"
 msgstr "Répertoire vide"
 
 #: centreon/www/include/Administration/parameters/ldap/list.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/listHost.php
@@ -5772,9 +5718,9 @@ msgstr "Activer la rétention"
 msgid "Enable routing"
 msgstr "Active le routage des traps"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Enable shell"
-msgstr "Activer le shell"
+#: centreon/www/install/front_translate.php
+msgid "Enable shell syntax"
+msgstr "Activer la syntaxe shell"
 
 #: centreon/www/install/dashboard_widgets.php
 msgid "Enable ticket creation for hosts"
@@ -5896,8 +5842,6 @@ msgstr "Activer/désactiver la ressource"
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/connector/listConnector.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -6729,10 +6673,6 @@ msgstr "Erreur lors de la recherche de configurations additionnelles"
 #: centreon/src/Core/Command/Application/Exception/CommandException.php
 msgid "Error while searching for commands"
 msgstr "Erreur lors de la recherche de commandes"
-
-#: centreon/src/Core/Connector/Application/Exception/ConnectorException.php
-msgid "Error while searching for connectors"
-msgstr "Erreur lors de la recherche de connecteurs"
 
 #: centreon/src/Core/Contact/Application/Exception/ContactTemplateException.php
 msgid "Error while searching for contact templates"
@@ -8051,7 +7991,6 @@ msgstr "Graphique de performance par page"
 msgid "Graph style"
 msgstr "Style de graphe"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/install/smarty_translate.php
 msgid "Graph template"
 msgstr "Modèle de graphique"
@@ -8186,7 +8125,6 @@ msgstr "Hauteur"
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
 #: centreon/www/include/configuration/configGenerateTraps/formGenerateTraps.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/command/minHelpCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
@@ -8514,10 +8452,6 @@ msgstr "Modèle de l'hôte"
 msgid "Host Templates"
 msgstr "Modèles d'hôte"
 
-#: centreon/www/include/configuration/configObject/command/listCommand.php
-msgid "Host Uses"
-msgstr "Hôtes utilisés"
-
 #: centreon/www/include/Administration/parameters/ldap/form.php
 msgid "Host address"
 msgstr "Adresse du serveur"
@@ -8600,10 +8534,6 @@ msgstr "L'hôte est actuellement en période d'arrêt"
 #: centreon/www/widgets/host-monitoring/src/index.php
 msgid "Host is flapping"
 msgstr "L'hôte est en bagotement"
-
-#: centreon/www/include/configuration/configObject/command/listCommand.php
-msgid "Host links (host template links)"
-msgstr "Liés aux modèles d'hôtes"
 
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Host list"
@@ -8857,6 +8787,10 @@ msgstr "Résumé des statuts par groupes d'hôtes"
 msgid "Hosts"
 msgstr "Hôtes"
 
+#: centreon/www/install/front_translate.php
+msgid "Hosts (Host templates)"
+msgstr "Hôtes (Modèles d'hôtes)"
+
 #: centreon/www/include/monitoring/status/Hosts/host.php
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/include/monitoring/status/Services/serviceGrid.php
@@ -9100,6 +9034,16 @@ msgstr ""
 "Si vous souhaitez afficher le graphe avec les catégories d'hôtes et les "
 "hôtes, vous ne devez sélectionner qu'un seul groupe d'hôtes."
 
+#: centreon/www/install/front_translate.php
+msgid ""
+"If your command uses shell functions (pipes, redirects, wildcards, etc.), "
+"check this box. Note that commands requiring the shell slow down the "
+"monitoring server."
+msgstr ""
+"Si votre commande utilise des fonctions shell (pipes, redirections, "
+"caractères génériques, etc.), cochez cette case. Notez que les commandes "
+"nécessitant le shell ralentissent le serveur de supervision."
+
 #: centreon/www/include/Administration/parameters/knowledgeBase/formKnowledgeBase.php
 msgid "Ignore ssl certificate"
 msgstr "Ignorer le certificat SSL"
@@ -9278,7 +9222,6 @@ msgstr "Information"
 
 #: centreon/src/Core/Resources/Infrastructure/API/ExportResources/ExportResourcesPresenterCsv.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 #: centreon/www/include/configuration/configObject/host_dependency/formHostDependency.php
 #: centreon/www/include/configuration/configObject/hostgroup_dependency/formHostGroupDependency.php
@@ -9329,6 +9272,10 @@ msgstr "Entrées"
 msgid "Insecure TLS"
 msgstr "TLS non sécurisé"
 
+#: centreon/www/install/front_translate.php
+msgid "Insert"
+msgstr "Insérer"
+
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Insert in index data"
 msgstr "Insertion dans la table index_data"
@@ -9361,6 +9308,10 @@ msgstr "Installation terminée"
 #: centreon/www/install/front_translate.php
 msgid "Installed"
 msgstr "Installé"
+
+#: centreon/www/install/front_translate.php
+msgid "Installed plugins"
+msgstr "Plugins installés"
 
 #: centreon/www/install/centreon_broker_translation.php
 msgid "Instance timeout"
@@ -10231,6 +10182,7 @@ msgstr "Verrouiller les services"
 msgid "Locked"
 msgstr "Verrouillé"
 
+#: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Locked elements"
 msgstr "Eléments verrouillés"
@@ -10388,10 +10340,6 @@ msgstr "Widgets de rapports MBI"
 msgid "MIBs"
 msgstr "MIBs"
 
-#: centreon/www/include/configuration/configObject/command/formMacros.php
-msgid "Macro Descriptions"
-msgstr "Description des macros"
-
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 msgid "Macro name"
@@ -10407,17 +10355,12 @@ msgid "Macro value"
 msgstr "Valeur de la macro"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formMacros.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
 #: centreon/www/include/configuration/configObject/host_template_model/formHostTemplateModel.php
 #: centreon/www/include/configuration/configObject/service/formService.php
 #: centreon/www/include/configuration/configObject/service_template_model/formServiceTemplateModel.php
 msgid "Macros"
 msgstr "Macros"
-
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Macros Descriptions"
-msgstr "Description des macros"
 
 #: centreon/www/include/configuration/configNagios/formNagios.php
 msgid "Macros Filters Configuration"
@@ -10459,6 +10402,14 @@ msgstr "Gérer les jetons d’API"
 msgid "Manage access rights"
 msgstr "Gérer les droits d'accès"
 
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "Manage check commands"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "Manage discovery commands"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "Manage envelope size"
 msgstr "Gérer la taille de l'enveloppe"
@@ -10466,6 +10417,14 @@ msgstr "Gérer la taille de l'enveloppe"
 #: centreon/www/install/front_translate.php
 msgid "Manage filters"
 msgstr "Gérer les filtres"
+
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "Manage miscellaneous commands"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "Manage notification commands"
+msgstr ""
 
 #: centreon/www/install/menu_translation.php
 msgid "Manager"
@@ -10882,9 +10841,8 @@ msgstr "Divers"
 msgid "Misc Options"
 msgstr "Autres options"
 
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configServers/formServers.php
-#: centreon/www/install/menu_translation.php
+#: centreon/www/install/front_translate.php
 msgid "Miscellaneous"
 msgstr "Divers"
 
@@ -10961,7 +10919,6 @@ msgstr "Type de modification"
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -11041,10 +10998,6 @@ msgstr "Modifier une catégorie d'hôte"
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "Modify a Centreon-Broker Configuration"
 msgstr "Modifier une configuration Centreon-Broker"
-
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Modify a Command"
-msgstr "Modifier une commande"
 
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "Modify a Connector"
@@ -11134,6 +11087,10 @@ msgstr "Modifier un modèle utilisateur"
 #: centreon/www/include/views/virtualMetrics/formVirtualMetrics.php
 msgid "Modify a Virtual Metric"
 msgstr "Modifier une Métrique Virtuelle"
+
+#: centreon/www/install/front_translate.php
+msgid "Modify a command"
+msgstr "Modifier une commande"
 
 #: centreon/www/include/monitoring/recurrentDowntime/formDowntime.php
 msgid "Modify a downtime"
@@ -11489,7 +11446,6 @@ msgstr "N/A"
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configCentreonBroker/listCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/contactgroup/listContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/listEscalation.php
@@ -11558,7 +11514,6 @@ msgstr "Le nom ne peut pas être vide"
 
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/contactgroup/formContactGroup.php
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
@@ -11983,7 +11938,6 @@ msgstr "Notification"
 #: centreon/src/Core/Notification/Application/UseCase/FindNotification/FindNotification.php
 #: centreon/www/include/Administration/parameters/general/form.php
 #: centreon/www/include/configuration/configObject/command/commandType.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
 #: centreon/www/include/configuration/configObject/host/formHost.php
@@ -12535,7 +12489,7 @@ msgstr "Obsolète"
 #: centreon/www/install/front_translate.php
 #: centreon/www/install/smarty_translate.php
 msgid "Output"
-msgstr "Statut détaillé"
+msgstr "Sortie"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
 #: centreon/www/include/configuration/configObject/traps/listTraps.php
@@ -13074,7 +13028,6 @@ msgstr "Veuillez utiliser l'interface Web pour mettre à jour Centreon."
 msgid "Please, select a valid countdown"
 msgstr "Veuillez définir une valeur de compte à rebours valide"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/command/minHelpCommand.php
 msgid "Plugin Help"
 msgstr "Aide de la sonde"
@@ -13142,6 +13095,10 @@ msgstr "L'ID de la configuration Broker pour ce collecteur n'a pas été trouvé
 #: centreon/www/install/front_translate.php
 msgid "Poller configuration"
 msgstr "Configuration du collecteur"
+
+#: centreon/www/install/front_translate.php
+msgid "Poller global macros"
+msgstr "Macros globales du collecteur"
 
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configGenerate/formGenerateFiles.php
@@ -13830,7 +13787,6 @@ msgstr "Champ requis"
 #: centreon/www/include/Administration/myAccount/formMyAccount.php
 #: centreon/www/include/Administration/parameters/remote/formRemote.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -13886,7 +13842,6 @@ msgstr "Reprogrammer les services associés"
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -14359,9 +14314,6 @@ msgstr "Samedi"
 #: centreon/www/include/Administration/parameters/rrdtool/form.php
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
-#: centreon/www/include/configuration/configObject/command/formArguments.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-#: centreon/www/include/configuration/configObject/command/formMacros.php
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -14519,7 +14471,6 @@ msgstr "Défiler vers le haut"
 #: centreon/www/include/Administration/parameters/ldap/list.php
 #: centreon/www/include/Administration/performance/viewData.php
 #: centreon/www/include/configuration/configKnowledge/search.php
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/contact/ldapImportContact.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/listContactTemplateModel.php
@@ -14638,6 +14589,18 @@ msgstr "Voir la documentation"
 msgid "See Graphs of this host"
 msgstr "Voir les graphiques pour cet hôte"
 
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "See check commands"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "See discovery commands"
+msgstr ""
+
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "See miscellaneous commands"
+msgstr ""
+
 #: centreon/www/install/front_translate.php
 msgid "See more information in the geoview"
 msgstr "Voir plus d'informations dans la vue géographique"
@@ -14649,6 +14612,10 @@ msgstr "Voir plus dans la page Statut des ressources"
 #: centreon/www/install/front_translate.php
 msgid "See more on the {{ page }} page"
 msgstr "Plus d'informations à la page {{ page }}"
+
+#: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
+msgid "See notification commands"
+msgstr ""
 
 #: centreon/www/install/front_translate.php
 msgid "Seems that your Apache configuration is not up-to-date"
@@ -14683,10 +14650,6 @@ msgstr "Sélectionner un collecteur"
 msgid "Select a Remote Server"
 msgstr "Sélectionnez un serveur distant"
 
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "Select a connector..."
-msgstr "Sélectionner un connecteur..."
-
 #: centreon/www/install/front_translate.php
 msgid "Select a dataset to display the preview."
 msgstr "Sélectionnez un jeu de données pour afficher l'aperçu."
@@ -14711,6 +14674,10 @@ msgstr "Sélectionnez un type de widget pour activer l'aperçu."
 #: centreon/www/install/front_translate.php
 msgid "Select all"
 msgstr "Tout sélectionner"
+
+#: centreon/www/install/front_translate.php
+msgid "Select an optimization connector"
+msgstr "Sélectionner un connecteur d'optimisation"
 
 #: centreon/www/install/front_translate.php
 msgid "Select columns"
@@ -15118,10 +15085,6 @@ msgstr "L'id du service ne peut pas être nul"
 msgid "Service is currently on Downtime"
 msgstr "Le service est actuellement en période d'arrêt"
 
-#: centreon/www/include/configuration/configObject/command/listCommand.php
-msgid "Service links (service template links)"
-msgstr "Modèles de services liés"
-
 #: centreon/www/install/front_translate.php
 msgid "Service name"
 msgstr "Nom du service"
@@ -15257,6 +15220,10 @@ msgstr "Groupes de services / Hôtes"
 msgid "Services"
 msgstr "Services"
 
+#: centreon/www/install/front_translate.php
+msgid "Services (Service templates)"
+msgstr "Services (Modèles de services)"
+
 #: centreon/www/include/monitoring/status/Services/service.php
 #: centreon/www/include/monitoring/status/Services/serviceGrid.php
 #: centreon/www/include/monitoring/status/Services/serviceSummary.php
@@ -15348,10 +15315,6 @@ msgstr "État des services"
 #: centreon/www/include/configuration/configKnowledge/display-serviceTemplates.php
 msgid "Services Templates"
 msgstr "Modèles de services"
-
-#: centreon/www/include/configuration/configObject/command/listCommand.php
-msgid "Services Uses"
-msgstr "Services utilisés"
 
 #: centreon/www/include/configuration/configObject/escalation/formEscalation.php
 msgid "Services by Host"
@@ -15712,18 +15675,6 @@ msgstr ""
 msgid "Some examples:"
 msgstr "Quelques exemples :"
 
-#: centreon/www/include/configuration/configObject/command/formArguments.php
-msgid "Sorry, your command line does not contain any $ARGn$ macro."
-msgstr "Désolé, votre ligne de commande ne contient pas de macro $ARGn$."
-
-#: centreon/www/include/configuration/configObject/command/formMacros.php
-msgid ""
-"Sorry, your command line does not contain any $_SERVICE$ macro or $_HOST$ "
-"macro."
-msgstr ""
-"Désolé, votre ligne de commande ne contient pas de macro $_SERVICE$ ou "
-"$_HOST$."
-
 #: centreon/www/install/dashboard_widgets.php
 msgid "Sort by"
 msgstr "Trier par"
@@ -15881,6 +15832,10 @@ msgid "Standard"
 msgstr "Standard"
 
 #: centreon/www/install/front_translate.php
+msgid "Standard macros"
+msgstr "Macros standard"
+
+#: centreon/www/install/front_translate.php
 #: centreon/www/widgets/host-monitoring/src/action.php
 #: centreon/www/widgets/service-monitoring/src/action.php
 msgid "Start"
@@ -15909,7 +15864,6 @@ msgstr "Démarré"
 #: centreon/www/include/Administration/brokerPerformance/brokerPerformance.php
 #: centreon/www/include/reporting/dashboard/initReport.php
 #: centreon/www/install/front_translate.php
-#: centreon/www/install/smarty_translate.php
 msgid "State"
 msgstr "État"
 
@@ -15962,7 +15916,6 @@ msgstr "Activer les statistiques"
 #: centreon/www/include/configuration/configKnowledge/display-services.php
 #: centreon/www/include/configuration/configNagios/formNagios.php
 #: centreon/www/include/configuration/configNagios/listNagios.php
-#: centreon/www/include/configuration/configObject/command/formCommand.php
 #: centreon/www/include/configuration/configObject/contact/formContact.php
 #: centreon/www/include/configuration/configObject/contact/listContact.php
 #: centreon/www/include/configuration/configObject/contact_template_model/formContactTemplateModel.php
@@ -17639,7 +17592,6 @@ msgstr "Optimisation"
 msgid "Two columns"
 msgstr "Deux colonnes"
 
-#: centreon/www/include/configuration/configObject/command/listCommand.php
 #: centreon/www/include/configuration/configObject/host_categories/listHostCategories.php
 #: centreon/www/include/configuration/configObject/service_categories/listServiceCategories.php
 #: centreon/www/include/eventLogs/xml/data.php
@@ -18039,6 +17991,14 @@ msgstr "Utiliser le Remote Server comme proxy"
 msgid "Used by command"
 msgstr "Utilisé par la commande"
 
+#: centreon/www/install/front_translate.php
+msgid "Used by hosts"
+msgstr "Utilisée (hôtes)"
+
+#: centreon/www/install/front_translate.php
+msgid "Used by services"
+msgstr "Utilisée (services)"
+
 #: centreon/www/include/Administration/configChangelog/viewLogs.php
 #: centreon/www/install/front_translate.php
 msgid "User"
@@ -18318,10 +18278,6 @@ msgstr "Visualiser une catégorie d'hôte"
 #: centreon/www/include/configuration/configCentreonBroker/formCentreonBroker.php
 msgid "View a Centreon-Broker Configuration"
 msgstr "Voir une configuration Centreon-Broker"
-
-#: centreon/www/include/configuration/configObject/command/formCommand.php
-msgid "View a Command"
-msgstr "Visualiser une commande"
 
 #: centreon/www/include/configuration/configObject/connector/formConnector.php
 msgid "View a Connector"
@@ -18705,6 +18661,10 @@ msgid "Welcome to Centreon Setup"
 msgstr "Bienvenue dans le processus d'installation de Centreon"
 
 #: centreon/www/install/front_translate.php
+msgid "Welcome to the Commands page"
+msgstr "Bienvenue sur la page Commandes"
+
+#: centreon/www/install/front_translate.php
 msgid "Welcome to the Dashboards interface!"
 msgstr "Bienvenue dans l'interface des tableaux de bord !"
 
@@ -18953,10 +18913,6 @@ msgstr ""
 msgid "You are not allowed to access commands"
 msgstr "Vous n'avez pas la permission d'accéder aux commandes"
 
-#: centreon/src/Core/Connector/Application/Exception/ConnectorException.php
-msgid "You are not allowed to access connectors"
-msgstr "Vous n'avez pas la permission d'accéder aux connecteurs"
-
 #: centreon/src/Core/Contact/Application/Exception/ContactGroupException.php
 msgid "You are not allowed to access contact groups"
 msgstr "Vous n'avez pas la permission d'accéder aux groupes de contacts"
@@ -19115,6 +19071,10 @@ msgstr "Vous n'avez pas la permission d'ajouter des tokens"
 msgid "You are not allowed to add tokens linked to user ID %d"
 msgstr ""
 "Vous n'avez pas la permission d'ajouter des jetons liés à l'ID utilisateur %d"
+
+#: centreon/www/install/front_translate.php
+msgid "You are not allowed to choose this type."
+msgstr "Vous n'avez pas la permission de choisir ce type."
 
 #: centreon/src/Core/ServiceCategory/Application/Exception/ServiceCategoryException.php
 msgid "You are not allowed to create service categories"
@@ -20318,6 +20278,10 @@ msgid "ACL rules"
 msgstr "Règles d'accès"
 
 #: unknown
+msgid "ADD"
+msgstr "AJOUTER"
+
+#: unknown
 msgid "ALL"
 msgstr "Tous"
 
@@ -20360,6 +20324,10 @@ msgstr "Actif/Révoqué"
 #: unknown
 msgid "Add "
 msgstr "Ajouter "
+
+#: unknown
+msgid "Add a Command"
+msgstr "Ajouter une commande"
 
 #: unknown
 msgid "Add a Host Group"
@@ -20416,6 +20384,14 @@ msgstr "Ajouter un jeu de données de ressources"
 #: unknown
 msgid "Add viewer / viewer group"
 msgstr "Ajouter utilisateurs / groupes d'utilisateurs"
+
+#: unknown
+msgid "Additional configuration deleted"
+msgstr "Configuration additionnelle supprimée"
+
+#: unknown
+msgid "Additional configuration duplicated"
+msgstr "Configuration additionnelle dupliquée"
 
 #: unknown
 msgid "Additional configurations"
@@ -20561,6 +20537,18 @@ msgstr ""
 #: unknown
 msgid "Are you sure you want to uninstall this widget?"
 msgstr "Êtes-vous sûr de vouloir désinstaller ce widget ?"
+
+#: unknown
+msgid "Argument Descriptions"
+msgstr "Description des arguments"
+
+#: unknown
+msgid "Argument Example"
+msgstr "Exemple d'arguments"
+
+#: unknown
+msgid "Arguments"
+msgstr "Arguments"
 
 #: unknown
 msgid "Arrow color"
@@ -20971,6 +20959,10 @@ msgid "Circular reference detected with host children : %s"
 msgstr "Référence circulaire détectée avec les hôtes enfants : %s"
 
 #: unknown
+msgid "Clear arguments"
+msgstr "Effacer les arguments"
+
+#: unknown
 msgid "Client Secret"
 msgstr "Secret client"
 
@@ -20990,14 +20982,56 @@ msgstr ""
 "Couleur pour les hôtes non joignable (page de supervision des services)"
 
 #: unknown
+msgid "Command Name"
+msgstr "Nom de commande"
+
+#: unknown
+msgid "Command Type"
+msgstr "Type de commande"
+
+#: unknown
+msgid "Command created"
+msgstr "Commande créée"
+
+#: unknown
+msgid "Command deleted"
+msgstr "Commande supprimée"
+
+#: unknown
+msgid "Command disabled"
+msgstr "Commande désactivée"
+
+#: unknown
+msgid "Command duplicated"
+msgstr "Commande dupliquée"
+
+#: unknown
+msgid "Command enabled"
+msgstr "Commande activée"
+
+#: unknown
+msgid "Command updated"
+msgstr "Commande mise à jour"
+
+#: unknown
 msgid "Commands containing a request body are not allowed at the moment"
 msgstr ""
 "Les commandes contenant un corps de requête ne sont pas autorisées pour "
 "le moment"
 
 #: unknown
+msgid "Commands definitions can contain Macros but they have to be valid."
+msgstr ""
+"Les définitions de commandes peuvent contenir des macros mais ces "
+"dernières doivent être valides."
+
+#: unknown
 msgid "Communication port"
 msgstr "Port de communication"
+
+#: unknown
+msgid "Compulsory Command Line"
+msgstr "Ligne de commande obligatoire"
 
 #: unknown
 msgid "Compulsory Contact"
@@ -21223,6 +21257,10 @@ msgid "Delete all configuration for the chosen type of files"
 msgstr "Supprimer toute la configuration des types de fichiers choisis"
 
 #: unknown
+msgid "Delete command"
+msgstr "Supprimer la commande"
+
+#: unknown
 msgid "Delete host group"
 msgstr "Supprimer le groupe d'hôtes"
 
@@ -21233,6 +21271,14 @@ msgstr "Supprimer les groupes d'hôtes"
 #: unknown
 msgid "Dependencies Management"
 msgstr "Gestion des dépendances"
+
+#: unknown
+msgid "Describe arguments"
+msgstr "Décrire les arguments"
+
+#: unknown
+msgid "Describe macros"
+msgstr "Décrire les macros"
 
 #: unknown
 msgid ""
@@ -21359,6 +21405,14 @@ msgid "Drop possibility after parsing performance data"
 msgstr "Actions après traitement des données de performances"
 
 #: unknown
+msgid "Duplicate command"
+msgstr "Dupliquer la commande"
+
+#: unknown
+msgid "Duplicate connector configuration"
+msgstr "Dupliquer la configuration de connecteur"
+
+#: unknown
 msgid "Duplicate host group"
 msgstr "Dupliquer le groupe d'hôtes"
 
@@ -21422,6 +21476,10 @@ msgstr "Activer le traitement des données de performance"
 #: unknown
 msgid "Enable resources's insertion in index_data by Centreon"
 msgstr "Activer l'insertion de ressources dans index_data par Centreon"
+
+#: unknown
+msgid "Enable shell"
+msgstr "Activer le shell"
 
 #: unknown
 msgid "Enable strict mode for host parentship management"
@@ -21606,6 +21664,10 @@ msgstr "Erreur lors de la recherche de jetons d'authentification"
 msgid "Error while searching for available pollers for type '%s'"
 msgstr ""
 "Erreur lors de la recherche de collecteurs disponibles pour le type '%s'"
+
+#: unknown
+msgid "Error while searching for connectors"
+msgstr "Erreur lors de la recherche de connecteurs"
 
 #: unknown
 msgid "Error while searching for the dashboard shares"
@@ -21994,6 +22056,10 @@ msgid "Host UP Color"
 msgstr "Couleur d'hôte DISPONIBLE"
 
 #: unknown
+msgid "Host Uses"
+msgstr "Hôtes utilisés"
+
+#: unknown
 msgid "Host category not found"
 msgstr "Catégorie d'hôtes introuvable"
 
@@ -22048,6 +22114,10 @@ msgstr "Groupes d'hôtes dupliqués"
 #: unknown
 msgid "Host groups enabled"
 msgstr "Groupes d'hôtes activés"
+
+#: unknown
+msgid "Host links (host template links)"
+msgstr "Liés aux modèles d'hôtes"
 
 #: unknown
 msgid "Host of downtime not found"
@@ -22489,6 +22559,14 @@ msgid "MBI Reporting widgets"
 msgstr "Widgets de reporting MBI"
 
 #: unknown
+msgid "Macro Descriptions"
+msgstr "Description des macros"
+
+#: unknown
+msgid "Macros Descriptions"
+msgstr "Description des macros"
+
+#: unknown
 msgid "Main grid color"
 msgstr "Couleur principale de la grille"
 
@@ -22564,6 +22642,10 @@ msgstr "Propriété requise manquante : %s"
 #: unknown
 msgid "Mminutes"
 msgstr "Minutes"
+
+#: unknown
+msgid "Modify a Command"
+msgstr "Modifier une commande"
 
 #: unknown
 msgid "Modify a Host Group"
@@ -23391,6 +23473,10 @@ msgstr ""
 "installation est valide"
 
 #: unknown
+msgid "Select a connector..."
+msgstr "Sélectionner un connecteur..."
+
+#: unknown
 msgid "Select a downtime type"
 msgstr "Sélectionner un type de plage de maintenance"
 
@@ -23488,6 +23574,10 @@ msgid "Service comments"
 msgstr "Commentaires pour ce service"
 
 #: unknown
+msgid "Service links (service template links)"
+msgstr "Modèles de services liés"
+
+#: unknown
 msgid "Service list"
 msgstr "Liste des services"
 
@@ -23506,6 +23596,10 @@ msgstr "Services (simplifiés)"
 #: unknown
 msgid "Services Escalation"
 msgstr "Escalades des services"
+
+#: unknown
+msgid "Services Uses"
+msgstr "Services utilisés"
 
 #: unknown
 msgid "Services status colors"
@@ -23554,6 +23648,18 @@ msgid ""
 msgstr ""
 "Certains collecteurs ne mettent pas à jour la base de données. Contrôlez "
 "votre plateforme de supervision"
+
+#: unknown
+msgid "Sorry, your command line does not contain any $ARGn$ macro."
+msgstr "Désolé, votre ligne de commande ne contient pas de macro $ARGn$."
+
+#: unknown
+msgid ""
+"Sorry, your command line does not contain any $_SERVICE$ macro or $_HOST$ "
+"macro."
+msgstr ""
+"Désolé, votre ligne de commande ne contient pas de macro $_SERVICE$ ou "
+"$_HOST$."
 
 #: unknown
 msgid "Sort by Name"
@@ -24198,6 +24304,10 @@ msgid "Vault provider does not exist"
 msgstr "Le fournisseur de coffre-fort n'existe pas"
 
 #: unknown
+msgid "View a Command"
+msgstr "Visualiser une commande"
+
+#: unknown
 msgid "View a Host Group"
 msgstr "Visualiser un groupe d'hôtes"
 
@@ -24384,6 +24494,14 @@ msgstr ""
 
 #: unknown
 msgid ""
+"You are about to delete the <strong>{{ name }}</strong> command. This "
+"action cannot be undone. Do you want to delete it?"
+msgstr ""
+"Vous êtes sur le point de supprimer la commande <strong>{{ name }}</"
+"strong>. Cette action est irréversible. Voulez-vous la supprimer ?"
+
+#: unknown
+msgid ""
 "You are about to delete the <strong>{{ name }}</strong> host group. This "
 "action cannot be undone. Do you want to delete it?"
 msgstr ""
@@ -24410,6 +24528,12 @@ msgstr ""
 "strong>. Combien de duplications souhaitez-vous effectuer ?"
 
 #: unknown
+msgid "You are about to duplicate the <strong>{{ name }}</strong> command."
+msgstr ""
+"Vous êtes sur le point de dupliquer la commande <strong>{{ name }}</"
+"strong>."
+
+#: unknown
 msgid ""
 "You are about to duplicate the <strong>{{ name }}</strong> host group. "
 "How many duplications would you like to make?"
@@ -24424,6 +24548,10 @@ msgid ""
 msgstr ""
 "Vous êtes sur le point de supprimer <strong>{{name}}</strong> de la liste "
 "des utilisateurs. Cet utilisateur n'aura plus accès au tableau de bord."
+
+#: unknown
+msgid "You are not allowed to access connectors"
+msgstr "Vous n'avez pas la permission d'accéder aux connecteurs"
 
 #: unknown
 msgid "You are not allowed to access this host group"

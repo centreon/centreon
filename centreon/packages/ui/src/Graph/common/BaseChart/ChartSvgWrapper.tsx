@@ -52,6 +52,11 @@ const ChartSvgWrapper = ({
   title
 }: Props): ReactElement => {
   const isHorizontal = equals(orientation, 'horizontal');
+  const hasValidLeftScale = Boolean(leftScale);
+  const hasValidXScale = Boolean(xScale);
+  const canRenderAxes = hasValidLeftScale && hasValidXScale;
+  const canRenderGridRows = Boolean(isHorizontal ? leftScale : xScale);
+  const canRenderGridColumns = Boolean(isHorizontal ? xScale : leftScale);
 
   const marginTop = useMarginTop({ title, units: allUnits });
 
@@ -70,7 +75,7 @@ const ChartSvgWrapper = ({
         })}
         top={marginTop}
       >
-        {showGridLines && (
+        {showGridLines && (canRenderGridRows || canRenderGridColumns) && (
           <Grids
             gridLinesType={gridLinesType}
             height={graphHeight - margin.bottom}
@@ -79,21 +84,23 @@ const ChartSvgWrapper = ({
             xScale={isHorizontal ? xScale : leftScale}
           />
         )}
-        <Axes
-          allUnits={allUnits}
-          data={{
-            baseAxis: base,
-            lines: displayedLines,
-            timeSeries,
-            ...axis
-          }}
-          height={graphHeight}
-          leftScale={leftScale}
-          orientation={orientation}
-          rightScale={rightScale}
-          width={graphWidth}
-          xScale={xScale}
-        />
+        {canRenderAxes && (
+          <Axes
+            allUnits={allUnits}
+            data={{
+              baseAxis: base,
+              lines: displayedLines,
+              timeSeries,
+              ...axis
+            }}
+            height={graphHeight}
+            leftScale={leftScale}
+            orientation={orientation}
+            rightScale={rightScale}
+            width={graphWidth}
+            xScale={xScale}
+          />
+        )}
         {children}
       </Group.Group>
     </svg>
