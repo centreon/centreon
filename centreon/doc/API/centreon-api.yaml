@@ -2605,13 +2605,13 @@ paths:
       summary: 'List all acknowledgements'
       parameters:
         -
-          $ref: '#/components/parameters/Search'
+          $ref: '#/components/parameters/AcknowledgementServiceSearch'
         -
           $ref: '#/components/parameters/Limit'
         -
           $ref: '#/components/parameters/Page'
         -
-          $ref: '#/components/parameters/SortBy'
+          $ref: '#/components/parameters/AcknowledgementSortBy'
       responses:
         '200':
           description: OK
@@ -2675,13 +2675,13 @@ paths:
       summary: 'List all hosts acknowledgements'
       parameters:
         -
-          $ref: '#/components/parameters/Search'
+          $ref: '#/components/parameters/AcknowledgementHostSearch'
         -
           $ref: '#/components/parameters/Limit'
         -
           $ref: '#/components/parameters/Page'
         -
-          $ref: '#/components/parameters/SortBy'
+          $ref: '#/components/parameters/AcknowledgementSortBy'
       responses:
         '200':
           description: OK
@@ -2722,13 +2722,13 @@ paths:
       summary: 'List all services acknowledgements'
       parameters:
         -
-          $ref: '#/components/parameters/Search'
+          $ref: '#/components/parameters/AcknowledgementServiceSearch'
         -
           $ref: '#/components/parameters/Limit'
         -
           $ref: '#/components/parameters/Page'
         -
-          $ref: '#/components/parameters/SortBy'
+          $ref: '#/components/parameters/AcknowledgementSortBy'
       responses:
         '200':
           description: OK
@@ -2769,13 +2769,13 @@ paths:
       summary: 'List all acknowledgements of a host'
       parameters:
         -
-          $ref: '#/components/parameters/Search'
+          $ref: '#/components/parameters/AcknowledgementHostSearch'
         -
           $ref: '#/components/parameters/Limit'
         -
           $ref: '#/components/parameters/Page'
         -
-          $ref: '#/components/parameters/SortBy'
+          $ref: '#/components/parameters/AcknowledgementSortBy'
         -
           $ref: '#/components/parameters/HostId'
       responses:
@@ -2837,13 +2837,13 @@ paths:
       summary: 'List all acknowledgements of a service'
       parameters:
         -
-          $ref: '#/components/parameters/Search'
+          $ref: '#/components/parameters/AcknowledgementServiceSearch'
         -
           $ref: '#/components/parameters/Limit'
         -
           $ref: '#/components/parameters/Page'
         -
-          $ref: '#/components/parameters/SortBy'
+          $ref: '#/components/parameters/AcknowledgementSortBy'
         -
           $ref: '#/components/parameters/HostId'
         -
@@ -2912,13 +2912,13 @@ paths:
       summary: 'List all acknowledgements of a metaservice'
       parameters:
         -
-          $ref: '#/components/parameters/Search'
+          $ref: '#/components/parameters/AcknowledgementServiceSearch'
         -
           $ref: '#/components/parameters/Limit'
         -
           $ref: '#/components/parameters/Page'
         -
-          $ref: '#/components/parameters/SortBy'
+          $ref: '#/components/parameters/AcknowledgementSortBy'
         -
           $ref: '#/components/parameters/MetaId'
       responses:
@@ -4945,6 +4945,183 @@ components:
       schema:
         type: string
         example: '{"host.name":"ASC"}'
+    AcknowledgementHostSearch:
+      in: query
+      name: search
+      required: false
+      schema:
+        type: string
+      description: |
+        Retrieve only host acknowledgements matching the defined search value.
+        Simple search can be done like the following example: ``` search={"host_id":{"$eq":12}} ```
+        Complex search can be done with aggregators and operators.
+        Available search aggregators are:
+          * `$or`
+          * `$and`
+        Available search operators are:
+          * `$eq` → equal
+          * `$neq` → not equal
+          * `$lt` → less than
+          * `$le` → less or equal than
+          * `$gt` → greater than
+          * `$ge` → greater or equal than
+          * `$lk` → like
+          * `$nk` → not like
+          * `$in` → in
+          * `$ni` → not in
+        Available fields:
+          * `author_id` - ID of the author (contact)
+          * `comment` - comment text
+          * `entry_time` - date of acknowledgement creation (ISO8601)
+          * `deletion_time` - date of acknowledgement cancellation (ISO8601)
+          * `host_id` - ID of the acknowledged host
+          * `id` - ID of the acknowledgement
+          * `is_notify_contacts` - whether contacts are notified (boolean)
+          * `is_persistent_comment` - whether the comment is persistent (boolean)
+          * `is_sticky` - whether the acknowledgement is sticky (boolean)
+          * `poller_id` - ID of the poller
+          * `state` - host state at acknowledgement time
+          * `type` - acknowledgement type (0=host, 1=service)
+        Examples without nested aggregators:
+          ```
+          search={
+            "$or":[
+              {"host_id":{"$eq":1}},
+              {"host_id":{"$eq":2}}
+            ]
+          }
+          ```
+          ```
+          search={
+            "$and":[
+              {"is_sticky":{"$eq":true}},
+              {"state":{"$in":[1,2]}}
+            ]
+          }
+          ```
+        Example with nested aggregators:
+          ```
+          search={
+            "$or":[
+              {
+                "$and":[
+                  {"host_id":{"$eq":1}},
+                  {"is_sticky":{"$eq":true}}
+                ]
+              },
+              {
+                "$and":[
+                  {"host_id":{"$eq":2}},
+                  {"state":{"$gt":0}}
+                ]
+              }
+            ]
+          }
+          ```
+    AcknowledgementServiceSearch:
+      in: query
+      name: search
+      required: false
+      schema:
+        type: string
+      description: |
+        Retrieve only service acknowledgements matching the defined search value.
+        Simple search can be done like the following example: ``` search={"service_id":{"$eq":5}} ```
+        Complex search can be done with aggregators and operators.
+        Available search aggregators are:
+          * `$or`
+          * `$and`
+        Available search operators are:
+          * `$eq` → equal
+          * `$neq` → not equal
+          * `$lt` → less than
+          * `$le` → less or equal than
+          * `$gt` → greater than
+          * `$ge` → greater or equal than
+          * `$lk` → like
+          * `$nk` → not like
+          * `$in` → in
+          * `$ni` → not in
+        Available fields:
+          * `author_id` - ID of the author (contact)
+          * `comment` - comment text
+          * `entry_time` - date of acknowledgement creation (ISO8601)
+          * `deletion_time` - date of acknowledgement cancellation (ISO8601)
+          * `host_id` - ID of the host the service belongs to
+          * `id` - ID of the acknowledgement
+          * `is_notify_contacts` - whether contacts are notified (boolean)
+          * `is_persistent_comment` - whether the comment is persistent (boolean)
+          * `is_sticky` - whether the acknowledgement is sticky (boolean)
+          * `poller_id` - ID of the poller
+          * `state` - service state at acknowledgement time
+          * `type` - acknowledgement type (0=host, 1=service)
+          * `service_id` - ID of the acknowledged service
+          * `service.display_name` - display name of the service
+        Examples without nested aggregators:
+          ```
+          search={
+            "$or":[
+              {"service_id":{"$eq":1}},
+              {"service_id":{"$eq":2}}
+            ]
+          }
+          ```
+          ```
+          search={
+            "$and":[
+              {"service.display_name":{"$lk":"%CPU%"}},
+              {"state":{"$in":[1,2]}}
+            ]
+          }
+          ```
+        Example with nested aggregators:
+          ```
+          search={
+            "$or":[
+              {
+                "$and":[
+                  {"host_id":{"$eq":1}},
+                  {"service_id":{"$eq":5}}
+                ]
+              },
+              {
+                "$and":[
+                  {"is_sticky":{"$eq":false}},
+                  {"state":{"$gt":0}}
+                ]
+              }
+            ]
+          }
+          ```
+    AcknowledgementSortBy:
+      in: query
+      name: sort_by
+      required: false
+      schema:
+        type: string
+      description: |
+        Sort acknowledgements by their properties.
+        Provide the field name and sort direction (ASC or DESC).
+        Available sort fields:
+          * `author_id` - ID of the author
+          * `comment` - comment text
+          * `entry_time` - acknowledgement creation date
+          * `deletion_time` - acknowledgement cancellation date
+          * `host_id` - acknowledged host ID
+          * `id` - acknowledgement ID
+          * `is_notify_contacts` - notification flag
+          * `is_persistent_comment` - persistent comment flag
+          * `is_sticky` - sticky flag
+          * `poller_id` - poller ID
+          * `state` - resource state
+          * `type` - acknowledgement type
+        Service acknowledgement endpoints additionally support:
+          * `service_id` - acknowledged service ID
+          * `service.display_name` - service display name
+        Examples:
+          * Sort by most recent first: `sort_by={"entry_time":"DESC"}`
+          * Sort by host ID ascending: `sort_by={"host_id":"ASC"}`
+          * Sort by service name: `sort_by={"service.display_name":"ASC"}`
     MetricStartDate:
       in: path
       name: start
