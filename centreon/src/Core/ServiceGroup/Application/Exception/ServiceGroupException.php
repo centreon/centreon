@@ -101,7 +101,7 @@ class ServiceGroupException extends \Exception
         return new self(_('Error while retrieving service group'));
     }
 
-     /**
+    /**
      * @return self
      */
     public static function editNotAllowed(): self

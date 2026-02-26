@@ -34,5 +34,4 @@ final class UpdateServiceGroupRequest
     public string $comment = '';
 
     public bool $isActivated = true;
-
 }

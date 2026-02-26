@@ -26,15 +26,15 @@ namespace Tests\Core\ServiceGroup\Application\UseCase\GetServiceGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Domain\Common\GeoCoords;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\UseCase\GetServiceGroup\GetServiceGroup;
 use Core\ServiceGroup\Application\UseCase\GetServiceGroup\GetServiceGroupResponse;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Domain\Common\GeoCoords;
 
 beforeEach(function (): void {
     $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class);
@@ -52,7 +52,7 @@ beforeEach(function (): void {
         'sg-name',
         'sg-alias',
         GeoCoords::fromString('-2,100'),
-        "sg-comment",
+        'sg-comment',
         true,
     );
 });
@@ -93,7 +93,6 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(ServiceGroupException::accessNotAllowed()->getMessage());
 });
 
-
 it('should present a GetServiceGroupResponse with non-admin user', function (): void {
     $this->user
         ->expects($this->once())
@@ -128,7 +127,6 @@ it('should present a GetServiceGroupResponse with non-admin user', function (): 
         ->and($dto->comment)
         ->toBe($this->serviceGroup->getComment());
 });
-
 
 it('should present a GetServiceGroupResponse with admin user', function (): void {
     $this->user

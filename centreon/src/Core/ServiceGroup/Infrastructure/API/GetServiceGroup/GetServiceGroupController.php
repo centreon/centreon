@@ -29,7 +29,6 @@ use Core\ServiceGroup\Application\UseCase\GetServiceGroup\GetServiceGroup;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-
 final class GetServiceGroupController extends AbstractController
 {
     use LoggerTrait;
@@ -46,7 +45,7 @@ final class GetServiceGroupController extends AbstractController
     public function __invoke(
         GetServiceGroup $useCase,
         GetServiceGroupPresenter $presenter,
-         int $serviceGroupId,
+        int $serviceGroupId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

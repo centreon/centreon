@@ -200,26 +200,14 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
     }
 
     /**
-     * @param \PDOStatement $statement
-     * @param ServiceGroup|NewServiceGroup $newServiceGroup
-     */
-    private function bindValueOfServiceGroup(\PDOStatement $statement, ServiceGroup|NewServiceGroup $newServiceGroup): void
-    {
-        $statement->bindValue(':name', $newServiceGroup->getName());
-        $statement->bindValue(':alias', $this->emptyStringAsNull($newServiceGroup->getAlias()));
-        $statement->bindValue(':geo_coords', $newServiceGroup->getGeoCoords()?->__toString());
-        $statement->bindValue(':comment', $this->emptyStringAsNull($newServiceGroup->getComment()));
-        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($newServiceGroup->isActivated()));
-    }
-
-     /**
-     * @param ServiceGroup $ServiceGroup
+     * @param ServiceGroup $serviceGroup
      *
      * @throws \Throwable
      *
      * @return void
      */
-    public function update(ServiceGroup $serviceGroup): void {
+    public function update(ServiceGroup $serviceGroup): void
+    {
         $request = $this->translateDbName(
             <<<'SQL'
                 UPDATE `:db`.servicegroup
@@ -238,6 +226,18 @@ class DbWriteServiceGroupRepository extends AbstractRepositoryRDB implements Wri
         $statement->bindValue(':id', $serviceGroup->getId(), \PDO::PARAM_INT);
 
         $statement->execute();
+    }
 
+    /**
+     * @param \PDOStatement $statement
+     * @param ServiceGroup|NewServiceGroup $newServiceGroup
+     */
+    private function bindValueOfServiceGroup(\PDOStatement $statement, ServiceGroup|NewServiceGroup $newServiceGroup): void
+    {
+        $statement->bindValue(':name', $newServiceGroup->getName());
+        $statement->bindValue(':alias', $this->emptyStringAsNull($newServiceGroup->getAlias()));
+        $statement->bindValue(':geo_coords', $newServiceGroup->getGeoCoords()?->__toString());
+        $statement->bindValue(':comment', $this->emptyStringAsNull($newServiceGroup->getComment()));
+        $statement->bindValue(':activate', (new BoolToEnumNormalizer())->normalize($newServiceGroup->isActivated()));
     }
 }

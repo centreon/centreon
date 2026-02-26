@@ -79,14 +79,13 @@ final class UpdateServiceGroupController extends AbstractController
     }
 
     /**
-     * @var array{
+     * @param array{
      *     name: string,
      *     alias: string,
      *     geo_coords?: ?string,
      *     comment?: ?string,
      *     is_activated?: bool
      * } $data
-     *
      *
      * @return UpdateServiceGroupRequest
      */
@@ -95,8 +94,8 @@ final class UpdateServiceGroupController extends AbstractController
         $serviceGroupRequest = new UpdateServiceGroupRequest();
         $serviceGroupRequest->name = $data['name'];
         $serviceGroupRequest->alias = $data['alias'];
-         $serviceGroupRequest->comment = $data['comment'] ?? '';
-+        $serviceGroupRequest->geoCoords = $data['geo_coords'] ?? null;
+        $serviceGroupRequest->comment = $data['comment'] ?? '';
+        $serviceGroupRequest->geoCoords = $data['geo_coords'] ?? null;
         $serviceGroupRequest->isActivated = $data['is_activated'] ?? true;
 
         return $serviceGroupRequest;

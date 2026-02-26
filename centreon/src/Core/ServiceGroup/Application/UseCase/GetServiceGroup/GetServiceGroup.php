@@ -29,20 +29,20 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\ServiceGroup\Infrastructure\API\GetServiceGroup\GetServiceGroupPresenter;
 
 final class GetServiceGroup
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
+    /** @var AccessGroup[] */
     private array $accessGroups;
 
     public function __construct(
@@ -79,7 +79,7 @@ final class GetServiceGroup
                 $serviceGroup = $this->readServiceGroupRepository->findOne($serviceGroupId);
 
             } else {
-                
+
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $serviceGroup = $this->readServiceGroupRepository->findOneByAccessGroups(
                     $serviceGroupId,
@@ -88,7 +88,7 @@ final class GetServiceGroup
             }
 
             if (! $serviceGroup) {
-                 $this->error(
+                $this->error(
                     'ServiceGroup not found',
                     ['service_group_id' => $serviceGroupId]
                 );
@@ -96,7 +96,7 @@ final class GetServiceGroup
 
                 return;
             }
-        
+
             $presenter->present($this->createResponse($serviceGroup));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
@@ -114,13 +114,10 @@ final class GetServiceGroup
      *
      * @throws \Throwable
      *
-     *
      * @return GetServiceGroupResponse
      */
     private function createResponse(ServiceGroup $serviceGroup): GetServiceGroupResponse
     {
-        
-
         $response = new GetServiceGroupResponse();
         $response->id = $serviceGroup->getId();
         $response->name = $serviceGroup->getName();
@@ -128,7 +125,6 @@ final class GetServiceGroup
         $response->geoCoords = $serviceGroup->getGeoCoords() ? (string) $serviceGroup->getGeoCoords() : null;
         $response->comment = $serviceGroup->getComment();
         $response->isActivated = $serviceGroup->isActivated();
-       
 
         return $response;
     }

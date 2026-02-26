@@ -23,13 +23,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\ServiceGroup\Application\UseCase\UpdateServiceGroup;
 
-use Centreon\Domain\Common\Assertion\AssertionException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Domain\Common\GeoCoords;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -39,7 +38,6 @@ use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterfac
 use Core\ServiceGroup\Application\UseCase\UpdateServiceGroup\UpdateServiceGroup;
 use Core\ServiceGroup\Application\UseCase\UpdateServiceGroup\UpdateServiceGroupRequest;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
-use Core\Domain\Common\GeoCoords;
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter(
@@ -57,7 +55,7 @@ beforeEach(function (): void {
         'sg-name',
         'sg-alias',
         GeoCoords::fromString('-2,100'),
-        "sg-comment",
+        'sg-comment',
         true
     );
 
@@ -126,8 +124,6 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->expects($this->once())
         ->method('nameAlreadyExists')
         ->willReturn(true);
-        
-
 
     ($this->useCase)($this->request, $this->presenter, $this->serviceGroup->getId());
 
@@ -136,8 +132,6 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(ServiceGroupException::nameAlreadyExists($this->request->name)->getMessage());
 });
-
-
 
 it('should return void on success when admin user', function (): void {
     $this->user
@@ -189,7 +183,6 @@ it('should return void on success when no-admin user', function (): void {
         ->expects($this->once())
         ->method('nameAlreadyExists')
         ->willReturn(false);
-
 
     $this->writeServiceGroupRepository
         ->expects($this->once())

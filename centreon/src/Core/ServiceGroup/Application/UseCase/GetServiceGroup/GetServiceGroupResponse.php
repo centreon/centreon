@@ -23,10 +23,9 @@ declare(strict_types=1);
 
 namespace Core\ServiceGroup\Application\UseCase\GetServiceGroup;
 
-
 final class GetServiceGroupResponse
 {
-     public int $id = 0;
+    public int $id = 0;
 
     public string $name = '';
 

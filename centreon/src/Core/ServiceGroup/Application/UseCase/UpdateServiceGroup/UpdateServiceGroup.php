@@ -35,13 +35,13 @@ use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Domain\TrimmedString;
+use Core\Domain\Common\GeoCoords;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
-use Core\Domain\Common\GeoCoords;
 
 final class UpdateServiceGroup
 {
@@ -80,7 +80,7 @@ final class UpdateServiceGroup
 
             $serviceGroup = null;
 
-            if ($this->user->isAdmin()){
+            if ($this->user->isAdmin()) {
                 $serviceGroup = $this->readServiceGroupRepository->findOne($serviceGroupId);
             } else {
                 $serviceGroup = $this->readServiceGroupRepository->findOneByAccessGroups(
@@ -112,7 +112,6 @@ final class UpdateServiceGroup
                 $dto->comment,
                 $dto->isActivated,
             );
-            
 
             $this->writeServiceGroupRepository->update($serviceGroup);
 
