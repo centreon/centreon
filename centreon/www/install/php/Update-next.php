@@ -738,7 +738,7 @@ try {
 
     $createBrokerOutputEventScript();
     $insertEventScriptOutputForCMA();
-  
+
     // Command redesign updates
     $addNewCommandPage();
     $updateCommandsParentTopology();
