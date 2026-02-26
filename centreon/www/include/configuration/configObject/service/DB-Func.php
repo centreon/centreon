@@ -1203,10 +1203,7 @@ function updateService_MCForCloud($serviceId = null, $parameters = [])
     if (! empty($ret['command_command_id'])) {
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $ret['command_command_id']);
-        if ($command === null) {
-            throw new InvalidArgumentException('The command ID does not exist.');
-        }
-        if ($command->isCentreonMonitoringAgentCommand()) {
+        if ($command !== null && $command->isCentreonMonitoringAgentCommand()) {
             $ret['service_check_freshness']['service_check_freshness'] = '1';
             $ret['service_freshness_threshold'] = 120;
         }
@@ -2119,10 +2116,7 @@ function insertServiceForOnPremise($submittedValues = [], $onDemandMacro = null)
         /** @var ReadCommandRepositoryInterface $commandRepository */
         $commandRepository = $kernel->getContainer()->get(ReadCommandRepositoryInterface::class);
         $command = $commandRepository->findById((int) $submittedValues['command_command_id']);
-        if ($command === null) {
-            throw new InvalidArgumentException('The command ID does not exist.');
-        }
-        if ($command->isCentreonMonitoringAgentCommand()) {
+        if ($command !== null && $command->isCentreonMonitoringAgentCommand()) {
             $submittedValues['service_check_freshness']['service_check_freshness'] = '1';
             $submittedValues['service_freshness_threshold'] = 120;
         }
