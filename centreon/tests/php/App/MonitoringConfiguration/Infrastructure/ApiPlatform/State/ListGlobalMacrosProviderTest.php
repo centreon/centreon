@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tests\App\MonitoringConfiguration\Infrastructure\ApiPlatform\State;
 
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\GlobalMacroResource;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\App\Shared\ApiTestCase;
 
@@ -49,7 +50,11 @@ final class ListGlobalMacrosProviderTest extends ApiTestCase
 
     public function testItFindAllGlobalMacrosIsUnauthorizedForUserWithoutSufficientACL(): void
     {
-        $this->createApiUser($username = bin2hex(random_bytes(8)));
+        /** @var Connection $connection */
+        $connection = self::getContainer()->get('doctrine.dbal.default_connection');
+        $username = bin2hex(random_bytes(8));
+
+        $this->createApiUser($connection, $username, admin: false);
         $this->login($username);
 
         $this->request('GET', self::BASE_ENDPOINT);
