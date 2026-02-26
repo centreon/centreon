@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace App\Security\Infrastructure\Security;
 
-use App\Security\Domain\Exception\CredentialDoesNotExistException;
-use App\Security\Domain\Exception\TokenDoesNotExistException;
+use App\Security\Domain\Exception\CredentialNotFoundException;
+use App\Security\Domain\Exception\TokenNotFoundException;
 use App\Security\Domain\Repository\CredentialRepository;
 use App\Security\Domain\Repository\TokenRepository;
 use Psr\Log\LoggerInterface;
@@ -71,7 +71,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
     {
         try {
             $apiToken = $this->tokenRepository->get($request->headers->get('X-AUTH-TOKEN') ?? '');
-        } catch (TokenDoesNotExistException) {
+        } catch (TokenNotFoundException) {
             return null;
         }
 
@@ -103,7 +103,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
     {
         try {
             $credential = $this->credentialRepository->getByToken($token);
-        } catch (CredentialDoesNotExistException) {
+        } catch (CredentialNotFoundException) {
             throw new UserNotFoundException();
         }
 
@@ -120,7 +120,7 @@ final class TokenAuthenticator extends AbstractAuthenticator implements Authenti
     {
         try {
             $token = $this->tokenRepository->get($tokenString);
-        } catch (TokenDoesNotExistException) {
+        } catch (TokenNotFoundException) {
             return;
         }
 

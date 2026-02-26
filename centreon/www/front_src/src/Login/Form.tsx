@@ -75,6 +75,7 @@ const LoginForm = (): JSX.Element => {
     <form className={classes.form} onSubmit={handleSubmit}>
       <TextField
         ariaLabel={labelAlias}
+        autoComplete="on"
         dataTestId={labelAlias}
         error={aliasError}
         fullWidth
@@ -87,6 +88,7 @@ const LoginForm = (): JSX.Element => {
       />
       <TextField
         ariaLabel={labelPassword}
+        autoComplete="on"
         dataTestId={labelPassword}
         EndAdornment={passwordEndAdornment}
         error={passwordError}

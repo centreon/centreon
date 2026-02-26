@@ -26,5 +26,6 @@ namespace App\ActivityLogging\Domain\Aggregate;
 enum ActionEnum: string
 {
     case Add = 'Add';
-    case Remove = 'Remove';
+    case Update = 'Update';
+    case Delete = 'Delete';
 }
