@@ -161,12 +161,6 @@ parameters:
 			path: src/Core/Common/Infrastructure/Upload/ZipFileIterator.php
 
 		-
-			message: '#^Parameter \#2 \$values of method Utility\\SqlConcatenator\:\:storeBindValueMultiple\(\) expects list\<int\|string\>, non\-empty\-array\<int\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Core/Connector/Infrastructure/Repository/DbReadConnectorRepository.php
-
-		-
 			message: '#^PHPDoc tag @var with type array\<string, string\> is not subtype of native type non\-empty\-array\|false\.$#'
 			identifier: varTag.nativeType
 			count: 1
