@@ -31,7 +31,7 @@ final class UpdateServiceGroupRequest
 
     public ?string $geoCoords = null;
 
-    public string $comment = '';
+    public ?string $comment = null;
 
-    public bool $isActivated = true;
+    public ?bool $isActivated = null;
 }

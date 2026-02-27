@@ -109,8 +109,8 @@ final class UpdateServiceGroup
                     null, '' => null,
                     default => GeoCoords::fromString($dto->geoCoords),
                 },
-                $dto->comment,
-                $dto->isActivated,
+                $dto->comment ?? $serviceGroup->getComment(),
+                $dto->isActivated ?? $serviceGroup->isActivated(),
             );
 
             $this->writeServiceGroupRepository->update($serviceGroup);
@@ -143,16 +143,18 @@ final class UpdateServiceGroup
      */
     private function validateNameOrFail(string $name, ServiceGroup $serviceGroup): void
     {
+        $normalizedName = (new TrimmedString($name))->value;
+
         if (
-            $name !== $serviceGroup->getName()
-            && $this->readServiceGroupRepository->nameAlreadyExists((new TrimmedString($name))->value)
+            $normalizedName !== $serviceGroup->getName()
+            && $this->readServiceGroupRepository->nameAlreadyExists($normalizedName)
         ) {
             $this->error(
                 'Service group name already exists',
-                ['service_group_name' => $name]
+                ['service_group_name' => $normalizedName]
             );
 
-            throw ServiceGroupException::nameAlreadyExists($name);
+            throw ServiceGroupException::nameAlreadyExists($normalizedName);
         }
     }
 }

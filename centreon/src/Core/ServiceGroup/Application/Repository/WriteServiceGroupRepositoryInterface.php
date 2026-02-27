@@ -64,11 +64,11 @@ interface WriteServiceGroupRepositoryInterface
     public function unlink(array $serviceGroupRelations): void;
 
     /**
-     * @param ServiceGroup $ServiceGroup
+     * @param ServiceGroup $serviceGroup
      *
      * @throws \Throwable
      *
      * @return void
      */
-    public function update(ServiceGroup $ServiceGroup): void;
+    public function update(ServiceGroup $serviceGroup): void;
 }
