@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Domain\YesNoDefault;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -79,7 +80,7 @@ beforeEach(function (): void {
         note: 'note',
         noteUrl: 'note_url',
         actionUrl: 'action_url',
-        iconAlternativeText: 'icon_aternative_text',
+        iconAlternativeText: 'icon_alternative_text',
         graphTemplateId: 1,
         serviceTemplateParentId: 10,
         commandId: 1,
@@ -353,4 +354,24 @@ it('should present a GetServiceResponse with admin user', function (): void {
             ['id' => $this->categoryB->getId(), 'name' => $this->categoryB->getName()],
         ]
     );
+});
+
+it('should present a NotFoundResponse when the service does not exist', function (): void {
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+          ->expects($this->once())
+          ->method('isAdmin')
+          ->willReturn(true);
+    $this->readServiceRepository
+          ->expects($this->once())
+          ->method('findById')
+          ->willReturn(null);
+
+    ($this->usecase)($this->presenter, 1000);
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(NotFoundResponse::class);
 });
