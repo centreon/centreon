@@ -325,7 +325,7 @@ class Broker extends AbstractObjectJSON
                         ) {
                             continue;
                         }
-                        if ($subvalue['config_key'] === 'category') {
+                        if (in_array($subvalue['config_key'], ['category', 'event'])) {
                             $object[$key][$subvalue['config_group_id']]['filters'][$subvalue['config_key']][]
                                 = $subvalue['config_value'];
                         } elseif (in_array($subvalue['config_key'], ['rrd_cached_option', 'rrd_cached'])) {
