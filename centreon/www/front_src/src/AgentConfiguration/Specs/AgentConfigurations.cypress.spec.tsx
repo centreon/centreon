@@ -2,12 +2,12 @@ import { labelPortExpectedAtMost } from '../../VaultConfiguration/translatedLabe
 import {
   labelAction,
   labelAdd,
-  labelAddAgentConfiguration,
   labelAddAHost,
+  labelAddAgentConfiguration,
   labelAgentConfigurationCreated,
   labelAgentConfigurationUpdated,
-  labelAgentsConfigurations,
   labelAgentType,
+  labelAgentsConfigurations,
   labelByPoller,
   labelCACommonName,
   labelCaCertificate,
@@ -15,10 +15,10 @@ import {
   labelClear,
   labelConfigurationServer,
   labelConnectionInitiated,
+  labelDNSIP,
   labelDelete,
   labelDeleteAgent,
   labelDeletePoller,
-  labelDNSIP,
   labelEncryptionLevel,
   labelInsecure,
   labelInvalidExtension,
@@ -491,6 +491,9 @@ describe('Agent configurations modal', () => {
 
     cy.findByTestId('By agent selected').should('be.visible');
     cy.findByTestId('By poller selected').should('not.exist');
+
+    cy.findByTestId('modal-body').scrollTo('bottom');
+
     cy.contains(labelConnectionInitiated);
     cy.contains(labelOTLPReceiver).should('be.visible');
     cy.findByLabelText(labelPublicCertificate).should('have.value', '');
@@ -584,6 +587,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [],
           otel_ca_certificate: 'test.crt',
           otel_private_key: 'privateKey.key',
@@ -721,6 +725,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [
             {
               address: '127.0.0.2',
@@ -866,6 +871,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [
             {
               address: '127.0.0.2',
@@ -1017,6 +1023,7 @@ describe('Agent configurations modal', () => {
       expect(request.body).deep.equal({
         configuration: {
           agent_initiated: true,
+          create_host_auto: false,
           hosts: [
             {
               address: '127.0.0.2',

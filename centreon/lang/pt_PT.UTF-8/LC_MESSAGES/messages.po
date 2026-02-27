@@ -23691,3 +23691,7 @@ msgstr "período de tempo"
 #: unknown
 msgid "topology_name"
 msgstr "Nome da Topologia"
+
+#: unknown
+msgid "Create hosts automatically"
+msgstr ""

@@ -21366,3 +21366,7 @@ msgstr "Standard"
 #: unknown
 msgid "it's required"
 msgstr "es ist erforderlich"
+
+#: unknown
+msgid "Create hosts automatically"
+msgstr ""
