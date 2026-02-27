@@ -27,24 +27,23 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Domain\YesNoDefault;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Application\UseCase\GetService\GetService;
 use Core\Service\Application\UseCase\GetService\GetServiceResponse;
+use Core\Service\Domain\Model\NotificationType;
 use Core\Service\Domain\Model\Service;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Tests\Core\Service\Infrastructure\API\GetService\GetServicePresenterStub;
-use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
-use Core\Common\Domain\YesNoDefault;
-use Core\Service\Domain\Model\NotificationType;
-use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Macro\Domain\Model\Macro;
-use Core\ServiceGroup\Domain\Model\ServiceGroup;
-
 
 beforeEach(function (): void {
     $this->usecase = new GetService(
@@ -54,7 +53,6 @@ beforeEach(function (): void {
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
-
     );
     $this->presenter = new GetServicePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -118,7 +116,6 @@ beforeEach(function (): void {
         serviceId: $this->service->getId(),
         hostId: $this->service->getHostId(),
     );
-
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
@@ -191,12 +188,12 @@ it('should present a GetServiceResponse with non-admin user', function (): void 
         ->expects($this->once())
         ->method('findByServiceAndAccessGroups')
         ->willReturn($this->categories);
-    
+
     $this->readServiceGroupRepository
         ->expects($this->once())
         ->method('findByServiceAndAccessGroups')
         ->willReturn([
-            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup]
+            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup],
         ]);
 
     $this->readServiceMacroRepository
@@ -274,7 +271,7 @@ it('should present a GetServiceResponse with admin user', function (): void {
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    
+
     $this->readServiceRepository
         ->expects($this->once())
         ->method('findById')
@@ -284,12 +281,12 @@ it('should present a GetServiceResponse with admin user', function (): void {
         ->expects($this->once())
         ->method('findByService')
         ->willReturn($this->categories);
-    
+
     $this->readServiceGroupRepository
         ->expects($this->once())
         ->method('findByService')
         ->willReturn([
-            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup]
+            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup],
         ]);
 
     $this->readServiceMacroRepository
@@ -297,10 +294,7 @@ it('should present a GetServiceResponse with admin user', function (): void {
         ->method('findByServiceIds')
         ->willReturn($this->macros);
 
-    
-
     ($this->usecase)($this->presenter, $this->service->getId());
-
 
     $dto = $this->presenter->response;
     expect($dto)->toBeInstanceOf(GetServiceResponse::class);

@@ -23,22 +23,20 @@ declare(strict_types=1);
 
 namespace Core\Service\Infrastructure\API\GetService;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\Service\Application\UseCase\GetService\GetServicePresenterInterface;
 use Core\Service\Application\UseCase\GetService\GetServiceResponse;
-use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
 use Core\Service\Application\UseCase\GetService\MacroDto;
+use Core\Service\Infrastructure\Model\YesNoDefaultConverter;
 
 class GetServiceSaasPresenter extends AbstractPresenter implements GetServicePresenterInterface
 {
     use PresenterTrait;
 
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
@@ -83,7 +81,7 @@ class GetServiceSaasPresenter extends AbstractPresenter implements GetServicePre
                     'description' => $macro->description,
                 ], $response->macros),
             ];
-            
+
             $this->present($result);
         }
     }

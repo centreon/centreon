@@ -29,24 +29,25 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\Service\Application\Exception\ServiceException;
 use Core\Service\Application\Repository\ReadServiceRepositoryInterface;
 use Core\Service\Domain\Model\Service;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
-use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
-use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
-use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
-use Core\Macro\Domain\Model\Macro;
-use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 
 final class GetService
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
+    /** @var AccessGroup[] */
     private array $accessGroups;
 
     public function __construct(
@@ -92,30 +93,26 @@ final class GetService
                 $macros = $this->readServiceMacroRepository->findByServiceIds($serviceId);
 
             } else {
-                
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 if ($this->readServiceRepository->existsByAccessGroups($serviceId, $this->accessGroups)) {
                     $service = $this->readServiceRepository->findById($serviceId);
-                    
+
                     $serviceCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
-                            $serviceId,
-                            $this->accessGroups
+                        $serviceId,
+                        $this->accessGroups
                     );
-                    
-                    
+
                     $serviceGroups = $this->readServiceGroupRepository->findByServiceAndAccessGroups(
                         $serviceId,
                         $this->accessGroups
                     );
-                    
-                    
-                    $macros = $this->readServiceMacroRepository->findByServiceIds($serviceId); 
+
+                    $macros = $this->readServiceMacroRepository->findByServiceIds($serviceId);
                 }
-                    
             }
 
             if (! $service) {
-                 $this->error(
+                $this->error(
                     'Service not found',
                     ['service_id' => $serviceId]
                 );
@@ -123,7 +120,7 @@ final class GetService
 
                 return;
             }
-        
+
             $presenter->presentResponse($this->createResponse($service, $serviceCategories, $serviceGroups, $macros));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -144,13 +141,10 @@ final class GetService
      *
      * @throws \Throwable
      *
-     *
      * @return GetServiceResponse
      */
     private function createResponse(Service $service, array $serviceCategories, array $serviceGroups, array $macros): GetServiceResponse
     {
-        
-
         $response = new GetServiceResponse();
         $response->id = $service->getId();
         $response->name = $service->getName();
