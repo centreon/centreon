@@ -358,17 +358,17 @@ it('should present a GetServiceResponse with admin user', function (): void {
 
 it('should present a NotFoundResponse when the service does not exist', function (): void {
     $this->user
-        ->expects($this->exactly(2))
+        ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->user
-          ->expects($this->once())
-          ->method('isAdmin')
-          ->willReturn(true);
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
     $this->readServiceRepository
-          ->expects($this->once())
-          ->method('findById')
-          ->willReturn(null);
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(null);
 
     ($this->usecase)($this->presenter, 1000);
 
