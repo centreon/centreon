@@ -122,6 +122,14 @@ class IvantiProvider extends AbstractProvider
         }
 
         $curlResult = curl_exec($curl);
+
+        if ($curlResult === false) {
+            $curlErrNo = curl_errno($curl);
+            $curlError = curl_error($curl);
+            curl_close($curl);
+            throw new Exception("Ivanti transport error ({$curlErrNo}): {$curlError}", 11);
+        }
+
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
@@ -430,7 +438,6 @@ class IvantiProvider extends AbstractProvider
             . '<option value="' . self::ARG_SOURCE . '">' . _('Source') . '</option>'
             . '<option value="' . self::ARG_PROFILE_LINK . '">' . _('Profile link') . '</option>'
             . '<option value="' . self::ARG_ALTERNATE_CONTACT_LINK . '">' . _('Alternate contact link') . '</option>'
-            . '<option value="' . self::ARG_SOURCE . '">' . _('Source') . '</option>'
             . '<option value="' . self::ARG_SERVICE . '">' . _('Service') . '</option>'
             . '<option value="' . self::ARG_IVANTI_CUSTOM_FIELD . '">' . _('Ivanti Custom Field') . '</option>'
             . '</select>';
@@ -780,6 +787,14 @@ class IvantiProvider extends AbstractProvider
         }
 
         $curlResult = curl_exec($curl);
+
+        if ($curlResult === false) {
+            $curlErrNo = curl_errno($curl);
+            $curlError = curl_error($curl);
+            curl_close($curl);
+            throw new Exception("Ivanti transport error ({$curlErrNo}): {$curlError}", 11);
+        }
+
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
@@ -827,8 +842,7 @@ class IvantiProvider extends AbstractProvider
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/Employees';
         $info['method'] = 0;
-        // set headers
-        $info['headers'] = ['Authorization: ' . $this->getFormValue('apiKey'), 'Content-Type: application/json'];
+
         // try to get users from Ivanti
         try {
             // the variable is going to be used outside of this method.
@@ -851,8 +865,6 @@ class IvantiProvider extends AbstractProvider
         // add the api endpoint and method to our info array
         $info['query_endpoint'] = '/standarduserteams';
         $info['method'] = 0;
-        // set headers
-        $info['headers'] = ['Authorization: ' . $this->getFormValue('apiKey'), 'Content-Type: application/json'];
 
         // try to get teams from Ivanti
         try {
@@ -917,7 +929,7 @@ class IvantiProvider extends AbstractProvider
 
         foreach ($ticketArguments as $id => $value) {
             // $id is structure is "{$select._cf_customFieldName.value}" we keep "customFieldName"
-            if (preg_match('/.*\._cf_(.*)\.[id|value|placeholder].*/', $id, $match)) {
+            if (preg_match('/.*\._cf_(.*)\.(id|value|placeholder).*/', $id, $match)) {
                 $data[$match[1]] = $value;
             }
         }
@@ -925,10 +937,6 @@ class IvantiProvider extends AbstractProvider
         $info = [
             'query_endpoint' => $endpoint,
             'method' => 1, // POST
-            'headers' => [
-                'Authorization: rest_api_key=' . $this->getFormValue('apiKey'),
-                'Content-Type: application/json',
-            ],
             'postFields' => json_encode($data),
         ];
 
@@ -955,7 +963,7 @@ class IvantiProvider extends AbstractProvider
     */
     protected function closeTicketIvanti($ticketId)
     {
-        $endpoint = "/incidents({$ticketId})";
+        $endpoint = "/incidents(" . urlencode($ticketId) . ")";
 
         $data = [
             'Status' => 'Closed',
