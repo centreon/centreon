@@ -21,6 +21,9 @@
 
 require_once __DIR__ . '/CentreonCommon.php';
 
+use App\Kernel;
+use Centreon\Domain\Log\Logger;
+
 abstract class AbstractProvider
 {
     public const HOSTGROUP_TYPE = 0;
@@ -95,6 +98,9 @@ abstract class AbstractProvider
     /** @var string */
     protected $provider_name = '';
 
+    /** @var Logger $logger */
+    protected $logger;
+
     /**
      * constructor
      *
@@ -146,6 +152,8 @@ abstract class AbstractProvider
         $this->widget_id = null;
         $this->uniq_id = null;
         $this->provider_name = $provider_name;
+        $kernel = Kernel::createForWeb();
+        $this->logger = $kernel->getContainer()->get(Logger::class);
     }
 
     /**

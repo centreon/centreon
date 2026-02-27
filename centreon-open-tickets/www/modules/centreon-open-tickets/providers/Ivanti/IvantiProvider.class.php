@@ -772,7 +772,7 @@ class IvantiProvider extends AbstractProvider
             $optionsToLog['caCertPath'] = $caCertPath;
         }
 
-        $this->debug('Ivanti request options', [
+        $this->logger->debug('[open ticket][Ivanti]: request options', [
             'options' => $optionsToLog,
         ]);
 
@@ -794,6 +794,7 @@ class IvantiProvider extends AbstractProvider
             $curlErrNo = curl_errno($curl);
             $curlError = curl_error($curl);
             curl_close($curl);
+            $this->logger->error('[open ticket][Ivanti]: communication error', ['result' => $curlResult]);
             throw new Exception("Ivanti transport error ({$curlErrNo}): {$curlError}", 11);
         }
 
@@ -802,7 +803,7 @@ class IvantiProvider extends AbstractProvider
 
         if ($httpCode >= 400) {
             $errorMessage = "Ivanti API error (HTTP {$httpCode}) : {$curlResult}";
-            $this->error('Ivanti answer', ['answer' => $curlResult]);
+            $this->logger->error('[open ticket][Ivanti]: curl query result', ['result' => $curlResult]);
 
             throw new Exception($errorMessage, 11);
         }
