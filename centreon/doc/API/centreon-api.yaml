@@ -6278,11 +6278,6 @@ components:
           description: "IP address of the server"
           example: "127.0.0.1"
           nullable: true
-        description:
-          type: string
-          description: "Description of the server"
-          example: "Central server"
-          nullable: true
         isRunning:
           type: boolean
           description: "Indicates if the server is running or not"
