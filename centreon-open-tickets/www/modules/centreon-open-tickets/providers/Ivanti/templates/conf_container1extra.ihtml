@@ -72,6 +72,10 @@
 </script>
 {literal}
 <script>
+  jQuery('input[name="peer_verify"]').on("click", function() {
+    this.value = (this.value === 'no') ? 'yes' : 'no';
+  });
+
   // start the button on click event
   jQuery('#test-ivanti').on('click', function (e) {
     e.preventDefault();
@@ -117,6 +121,8 @@
         protocol: jQuery('input[name="protocol"]').val(),
         apiKey: jQuery('input[name="apiKey"]').val(),
         timeout: jQuery('input[name="timeout"]').val(),
+        peer_verify: jQuery('input[name="peer_verify"]').val(),
+        ca_cert_path: jQuery('input[name="ca_cert_path"]').val(),
         proxy_address: jQuery('input[name="proxy_address"]').val(),
         proxy_port: jQuery('input[name="proxy_port"]').val(),
         proxy_username: jQuery('input[name="proxy_username"]').val(),

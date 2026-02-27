@@ -96,23 +96,23 @@ class IvantiProvider extends AbstractProvider
         }
 
         $curl = curl_init();
-        $apiAddress = $info['address'] . '/HEAT/api/odata/businessobject/incidents?$top=1';
+        $apiAddress = $info['protocol'] . '://' . $info['address'] . '/HEAT/api/odata/businessobject/incidents?$top=1';
 
         $headers = [
             'Authorization: rest_api_key=' . $info['apiKey'],
             'Content-Type: application/json',
         ];
 
-        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $peerVerify = ($info['peer_verify'] ?? 'yes') === 'yes';
         $verifyHost = $peerVerify ? 2 : 0;
-        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+        $caCertPath = $info['ca_cert_path'] ?? '';
 
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
-        curl_setopt($curl, CURLOPT_TIMEOUT, (int) $this->getFormValue('timeout', false));
+        curl_setopt($curl, CURLOPT_TIMEOUT, (int) $info['timeout']);
 
         $optionsToLog = [
             'apiAddress' => $apiAddress,
