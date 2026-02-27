@@ -29,26 +29,26 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
+use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
-use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
-use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
-use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
-use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
-use Core\Macro\Domain\Model\Macro;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\ServiceGroup\Domain\Model\ServiceGroup;
 
 final class GetServiceTemplate
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
+    /** @var AccessGroup[] */
     private array $accessGroups;
 
     public function __construct(
@@ -95,27 +95,26 @@ final class GetServiceTemplate
                 $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplateId);
 
             } else {
-                
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $serviceTemplate = $this->readServiceTemplateRepository->findByIdAndAccessGroups($serviceTemplateId, $this->accessGroups);
                 if ($serviceTemplate) {
                     $serviceCategories = $this->readServiceCategoryRepository->findByServiceAndAccessGroups(
-                            $serviceTemplateId,
-                            $this->accessGroups
+                        $serviceTemplateId,
+                        $this->accessGroups
                     );
-                    
+
                     $serviceGroups = $this->readServiceGroupRepository->findByServiceAndAccessGroups(
                         $serviceTemplateId,
                         $this->accessGroups
                     );
-                    
-                    $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplateId); 
+
+                    $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplateId);
                 }
-                    
+
             }
 
             if (! $serviceTemplate) {
-                 $this->error(
+                $this->error(
                     'ServiceTemplate not found',
                     ['service_template_id' => $serviceTemplateId]
                 );
@@ -123,7 +122,7 @@ final class GetServiceTemplate
 
                 return;
             }
-        
+
             $presenter->presentResponse($this->createResponse($serviceTemplate, $serviceCategories, $serviceGroups, $macros));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
@@ -144,13 +143,10 @@ final class GetServiceTemplate
      *
      * @throws \Throwable
      *
-     *
      * @return GetServiceTemplateResponse
      */
     private function createResponse(ServiceTemplate $serviceTemplate, array $serviceCategories, array $serviceGroups, array $macros): GetServiceTemplateResponse
     {
-        
-
         $response = new GetServiceTemplateResponse();
         $response->id = $serviceTemplate->getId();
         $response->name = $serviceTemplate->getName();
@@ -214,6 +210,7 @@ final class GetServiceTemplate
         $response->groups = array_map(
             function (array $group) use ($hostTemplateNames): array {
                 $hostId = (int) $group['relation']->getHostId();
+
                 return [
                     'serviceGroupId' => $group['serviceGroup']->getId(),
                     'serviceGroupName' => $group['serviceGroup']->getName(),
@@ -223,7 +220,6 @@ final class GetServiceTemplate
             },
             $serviceGroups,
         );
-       
 
         return $response;
     }

@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Core\ServiceTemplate\Infrastructure\API\GetServiceTemplate;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -37,7 +36,6 @@ class GetServiceTemplateSaasPresenter extends AbstractPresenter implements GetSe
     use PresenterTrait;
 
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);

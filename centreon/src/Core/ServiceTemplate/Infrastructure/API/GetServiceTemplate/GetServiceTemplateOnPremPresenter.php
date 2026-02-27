@@ -23,23 +23,21 @@ declare(strict_types=1);
 
 namespace Core\ServiceTemplate\Infrastructure\API\GetServiceTemplate;
 
-use Centreon\Domain\RequestParameters\Interfaces\RequestParametersInterface;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Infrastructure\Common\Presenter\PresenterTrait;
 use Core\ServiceTemplate\Application\UseCase\GetServiceTemplate\GetServiceTemplatePresenterInterface;
 use Core\ServiceTemplate\Application\UseCase\GetServiceTemplate\GetServiceTemplateResponse;
+use Core\ServiceTemplate\Application\UseCase\GetServiceTemplate\MacroDto;
 use Core\ServiceTemplate\Infrastructure\Model\NotificationTypeConverter;
 use Core\ServiceTemplate\Infrastructure\Model\YesNoDefaultConverter;
-use Core\ServiceTemplate\Application\UseCase\GetServiceTemplate\MacroDto;
 
 class GetServiceTemplateOnPremPresenter extends AbstractPresenter implements GetServiceTemplatePresenterInterface
 {
     use PresenterTrait;
 
     public function __construct(
-        private readonly RequestParametersInterface $requestParameters,
         protected PresenterFormatterInterface $presenterFormatter,
     ) {
         parent::__construct($presenterFormatter);
@@ -109,7 +107,7 @@ class GetServiceTemplateOnPremPresenter extends AbstractPresenter implements Get
                     'host_template_name' => $group['hostTemplateName'],
                 ], $response->groups),
             ];
-            
+
             $this->present($result);
         }
     }

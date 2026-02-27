@@ -27,25 +27,24 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Domain\YesNoDefault;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
+use Core\ServiceCategory\Domain\Model\ServiceCategory;
+use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
+use Core\ServiceGroup\Domain\Model\ServiceGroup;
+use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 use Core\ServiceTemplate\Application\Exception\ServiceTemplateException;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Application\UseCase\GetServiceTemplate\GetServiceTemplate;
 use Core\ServiceTemplate\Application\UseCase\GetServiceTemplate\GetServiceTemplateResponse;
-use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
-use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
-use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
-use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
-use Tests\Core\ServiceTemplate\Infrastructure\API\GetServiceTemplate\GetServiceTemplatePresenterStub;
-use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
-use Core\Common\Domain\YesNoDefault;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\NotificationType;
-use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Macro\Domain\Model\Macro;
-use Core\ServiceGroup\Domain\Model\ServiceGroup;
-
+use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
+use Tests\Core\ServiceTemplate\Infrastructure\API\GetServiceTemplate\GetServiceTemplatePresenterStub;
 
 beforeEach(function (): void {
     $this->usecase = new GetServiceTemplate(
@@ -56,7 +55,6 @@ beforeEach(function (): void {
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
-
     );
     $this->presenter = new GetServiceTemplatePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -121,9 +119,6 @@ beforeEach(function (): void {
         serviceId: $this->serviceTemplate->getId(),
         hostId: 2,
     );
-
-   
-
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
@@ -188,17 +183,16 @@ it('should present a GetServiceTemplateResponse with non-admin user', function (
         ->method('findByIdAndAccessGroups')
         ->willReturn($this->serviceTemplate);
 
-
     $this->readServiceCategoryRepository
         ->expects($this->once())
         ->method('findByServiceAndAccessGroups')
         ->willReturn($this->categories);
-    
+
     $this->readServiceGroupRepository
         ->expects($this->once())
         ->method('findByServiceAndAccessGroups')
         ->willReturn([
-            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup]
+            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup],
         ]);
 
     $this->readServiceMacroRepository
@@ -281,7 +275,7 @@ it('should present a GetServiceTemplateResponse with admin user', function (): v
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    
+
     $this->readServiceTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -291,12 +285,12 @@ it('should present a GetServiceTemplateResponse with admin user', function (): v
         ->expects($this->once())
         ->method('findByService')
         ->willReturn($this->categories);
-    
+
     $this->readServiceGroupRepository
         ->expects($this->once())
         ->method('findByService')
         ->willReturn([
-            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup]
+            ['relation' => $this->serviceGroupRelation, 'serviceGroup' => $this->serviceGroup],
         ]);
 
     $this->readServiceMacroRepository
@@ -309,10 +303,7 @@ it('should present a GetServiceTemplateResponse with admin user', function (): v
         ->method('findNamesByIds')
         ->willReturn([2 => 'HostTemplateName']);
 
-    
-
     ($this->usecase)($this->presenter, $this->serviceTemplate->getId());
-
 
     $dto = $this->presenter->response;
     expect($dto)->toBeInstanceOf(GetServiceTemplateResponse::class);

@@ -28,7 +28,7 @@ use Core\ServiceTemplate\Domain\Model\NotificationType;
 
 final class GetServiceTemplateResponse
 {
-     public int $id = 0;
+    public int $id = 0;
 
     public string $name = '';
 
