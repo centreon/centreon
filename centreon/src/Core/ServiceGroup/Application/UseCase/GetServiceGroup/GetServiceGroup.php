@@ -36,7 +36,6 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceGroup\Application\Exception\ServiceGroupException;
 use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
-use Core\ServiceGroup\Infrastructure\API\GetServiceGroup\GetServiceGroupPresenter;
 
 final class GetServiceGroup
 {
@@ -53,7 +52,7 @@ final class GetServiceGroup
     }
 
     /**
-     * @param GetServiceGroupPresenter $presenter
+     * @param PresenterInterface $presenter
      * @param int $serviceGroupId
      */
     public function __invoke(PresenterInterface $presenter, int $serviceGroupId): void

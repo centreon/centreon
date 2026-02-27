@@ -12,7 +12,7 @@ properties:
   geo_coords:
     type: string
     nullable: true
-    description: "Geographical coordinates use by Centreon Map module to position element on map"
+    description: "Geographical coordinates used by Centreon Map module to position element on map"
     example: "48.51,2.20"
   comment:
     type: string

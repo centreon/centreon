@@ -94,9 +94,9 @@ final class UpdateServiceGroupController extends AbstractController
         $serviceGroupRequest = new UpdateServiceGroupRequest();
         $serviceGroupRequest->name = $data['name'];
         $serviceGroupRequest->alias = $data['alias'];
-        $serviceGroupRequest->comment = $data['comment'] ?? '';
+        $serviceGroupRequest->comment = $data['comment'] ?? null;
         $serviceGroupRequest->geoCoords = $data['geo_coords'] ?? null;
-        $serviceGroupRequest->isActivated = $data['is_activated'] ?? true;
+        $serviceGroupRequest->isActivated = $data['is_activated'] ?? null;
 
         return $serviceGroupRequest;
     }
