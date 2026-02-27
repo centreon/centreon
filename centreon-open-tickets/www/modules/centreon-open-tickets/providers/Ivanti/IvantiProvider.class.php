@@ -88,11 +88,11 @@ class IvantiProvider extends AbstractProvider
     public static function test($info)
     {
         if (! isset($info['address']) || ! isset($info['apiKey'])) {
-            throw new Exception('Paramètres manquants : address ou apiKey.');
+            throw new Exception('missing paramters : address or apiKey.');
         }
 
         if (! extension_loaded('curl')) {
-            throw new Exception("L'extension PHP curl est requise.");
+            throw new Exception("PHP curl extension is missing");
         }
 
         $curl = curl_init();
@@ -139,6 +139,7 @@ class IvantiProvider extends AbstractProvider
         if ($httpCode >= 400) {
             $this->error('Ivanti answer', ['answer' => $curlResult]);
             throw new Exception("Erreur lors de la connexion à l'API Ivanti : HTTP {$httpCode} - {$curlResult}", 11);
+            throw new Exception("Ivanti api connection error: HTTP {$httpCode} - {$curlResult}", 11);
         }
 
         return true;
@@ -714,7 +715,7 @@ class IvantiProvider extends AbstractProvider
     protected function curlQuery($info)
     {
         if (! extension_loaded('curl')) {
-            throw new Exception("L'extension PHP curl est requise.", 10);
+            throw new Exception("PHP curl extension is missing.", 10);
         }
 
         $curl = curl_init();
@@ -779,7 +780,7 @@ class IvantiProvider extends AbstractProvider
         curl_close($curl);
 
         if ($httpCode >= 400) {
-            $errorMessage = " Erreur API Ivanti (HTTP {$httpCode}) : {$curlResult}";
+            $errorMessage = "Ivanti API error (HTTP {$httpCode}) : {$curlResult}";
             $this->error('Ivanti answer', ['answer' => $curlResult]);
 
             throw new Exception($errorMessage, 11);
@@ -926,9 +927,9 @@ class IvantiProvider extends AbstractProvider
                 return $response['RecId'];
             }
 
-            throw new Exception("Reponse inattendue de l'API Ivanti : " . json_encode($response));
+            throw new Exception("Unknown Ivanti error: " . json_encode($response));
         } catch (Exception $e) {
-            throw new Exception('Erreur lors de la creation du ticket : ' . $e->getMessage(), $e->getCode(), $e);
+            throw new Exception('Error during ticket creation: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -965,7 +966,7 @@ class IvantiProvider extends AbstractProvider
 
             return true;
         } catch (Exception $e) {
-            throw new Exception('Erreur lors de la clôture du ticket : ' . $e->getMessage(), $e->getCode());
+            throw new Exception('Close ticket error: ' . $e->getMessage(), $e->getCode());
         }
     }
 }
