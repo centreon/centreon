@@ -108,13 +108,14 @@ class IvantiProvider extends AbstractProvider
         $peerVerify = ($info['peer_verify'] ?? 'yes') === 'yes';
         $verifyHost = $peerVerify ? 2 : 0;
         $caCertPath = $info['ca_cert_path'] ?? '';
+        $timeout = max(1, (int) ($info['timeout'] ?? 60));
 
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $peerVerify);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
-        curl_setopt($curl, CURLOPT_TIMEOUT, (int) $info['timeout']);
+        curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
 
         // Use custom CA only when verification is enabled
         if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
@@ -749,12 +750,13 @@ class IvantiProvider extends AbstractProvider
         $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
         $verifyHost = $peerVerify ? 2 : 0;
         $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+        $timeout = max(1, (int) $this->getFormValue('timeout', false));
 
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_TIMEOUT, (int) $this->getFormValue('timeout', false));
+        curl_setopt($curl, CURLOPT_TIMEOUT, $timeout);
 
         $optionsToLog = [
             'apiAddress' => $apiAddress,
