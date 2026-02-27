@@ -39,6 +39,10 @@ class IvantiProvider extends AbstractProvider
     public const ARG_EMPLOYEE = 7;
     public const ARG_TEAM = 8;
     public const ARG_STATUS = 9;
+    public const ARG_SOURCE = 10;
+    public const ARG_PROFILE_LINK = 11;
+    public const ARG_ALTERNATE_CONTACT_LINK = 12;
+    public const ARG_SERVICE = 13;
 
     protected $close_advanced = 1;
 
@@ -56,6 +60,10 @@ class IvantiProvider extends AbstractProvider
         self::ARG_EMPLOYEE => 'employee',
         self::ARG_TEAM => 'team',
         self::ARG_STATUS => 'status',
+        self::ARG_SOURCE => 'source',
+        self::ARG_PROFILE_LINK => 'profile_link',
+        self::ARG_ALTERNATE_CONTACT_LINK => 'alternate_contact_link',
+        self::ARG_SERVICE => 'service',
     ];
 
     /*
@@ -198,15 +206,31 @@ class IvantiProvider extends AbstractProvider
             ],
             [
                 'Arg' => self::ARG_IMPACT,
-                'Value' => '{$select.impact.placeholder}',
+                'Value' => '{$select.impact.value}',
             ],
             [
                 'Arg' => self::ARG_URGENCY,
-                'Value' => '{$select.urgency.placeholder}',
+                'Value' => '{$select.urgency.value}',
             ],
             [
                 'Arg' => self::ARG_STATUS,
                 'Value' => '{$select.status.value}',
+            ],
+            [
+                'Arg' => self::ARG_SOURCE,
+                'Value' => '{$select.source.value}',
+            ],
+            [
+                'Arg' => self::ARG_PROFILE_LINK,
+                'Value' => '{$select.profile_link.value}',
+            ],
+            [
+                'Arg' => self::ARG_ALTERNATE_CONTACT_LINK,
+                'Value' => '{$select.alternate_contact_link.value}',
+            ],
+            [
+                'Arg' => self::ARG_SERVICE,
+                'Value' => '{$select.service.value}',
             ],
         ];
     }
@@ -255,44 +279,85 @@ class IvantiProvider extends AbstractProvider
                 'Filter' => '',
                 'Mandatory' => '',
             ],
+            [
+                'Id' => 'source',
+                'Label' => _('Source'),
+                'Type' => self::CUSTOM_TYPE,
+                'Filter' => '',
+                'Mandatory' => '',
+            ],
+            [
+                'Id' => 'profile_link',
+                'Label' => _('Profile link'),
+                'Type' => self::CUSTOM_TYPE,
+                'Filter' => '',
+                'Mandatory' => 1,
+            ],
+            [
+                'Id' => 'alternate_contact_link',
+                'Label' => _('Alternate contact link'),
+                'Type' => self::CUSTOM_TYPE,
+                'Filter' => '',
+                'Mandatory' => '',
+            ],
+            [
+                'Id' => 'status',
+                'Label' => _('Status'),
+                'Type' => self::CUSTOM_TYPE,
+                'Filter' => '',
+                'Mandatory' => 1,
+            ],
+            [
+                'Id' => 'service',
+                'Label' => _('Service'),
+                'Type' => self::CUSTOM_TYPE,
+                'Filter' => '',
+                'Mandatory' => 1,
+            ],
         ];
 
         $this->default_data['clones']['customList'] = [
             [
                 'Id' => 'impact',
-                'Value' => '1',
+                'Value' => 'Low',
                 'Label' => 'Low',
                 'Default' => '',
             ],
             [
                 'Id' => 'impact',
-                'Value' => '2',
+                'Value' => 'Medium',
                 'Label' => 'Medium',
                 'Default' => '',
             ],
             [
                 'Id' => 'impact',
-                'Value' => '3',
+                'Value' => 'High',
                 'Label' => 'High',
                 'Default' => '',
             ],
             [
                 'Id' => 'urgency',
-                'Value' => '1',
+                'Value' => 'Low',
                 'Label' => 'Low',
                 'Default' => '',
             ],
             [
                 'Id' => 'urgency',
-                'Value' => '2',
+                'Value' => 'Medium',
                 'Label' => 'Medium',
                 'Default' => '',
             ],
             [
                 'Id' => 'urgency',
-                'Value' => '3',
+                'Value' => 'High',
                 'Label' => 'High',
                 'Default' => '',
+            ],
+            [
+                'Id' => 'status',
+                'Value' => 'Logged',
+                'Label' => 'Logged',
+                'Default' => 1,
             ],
         ];
     }
@@ -367,6 +432,11 @@ class IvantiProvider extends AbstractProvider
             . '<option value="' . self::ARG_IMPACT . '">' . _('Impact') . '</option>'
             . '<option value="' . self::ARG_URGENCY . '">' . _('Urgency') . '</option>'
             . '<option value="' . self::ARG_STATUS . '">' . _('Status') . '</option>'
+            . '<option value="' . self::ARG_SOURCE . '">' . _('Source') . '</option>'
+            . '<option value="' . self::ARG_PROFILE_LINK . '">' . _('Profile link') . '</option>'
+            . '<option value="' . self::ARG_ALTERNATE_CONTACT_LINK . '">' . _('Alternate contact link') . '</option>'
+            . '<option value="' . self::ARG_SOURCE . '">' . _('Source') . '</option>'
+            . '<option value="' . self::ARG_SERVICE . '">' . _('Service') . '</option>'
             . '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
@@ -668,11 +738,33 @@ class IvantiProvider extends AbstractProvider
             $headers = array_merge($headers, $info['headers']);
         }
 
+        $peerVerify = ($this->rule_data['peer_verify'] ?? 'yes') === 'yes';
+        $verifyHost = $peerVerify ? 2 : 0;
+        $caCertPath = $this->rule_data['ca_cert_path'] ?? '';
+
         curl_setopt($curl, CURLOPT_URL, $apiAddress);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_TIMEOUT, (int) $this->getFormValue('timeout', false));
+
+        $optionsToLog = [
+            'apiAddress' => $apiAddress,
+            'method' => $info['method'],
+            'peerVerify' => $peerVerify,
+            'verifyHost' => $verifyHost,
+            'caCertPath' => '',
+        ];
+
+        // Use custom CA only when verification is enabled
+        if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
+            curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
+            $optionsToLog['caCertPath'] = $caCertPath;
+        }
+
+        $this->debug('Ivanti request options', [
+            'options' => $optionsToLog,
+        ]);
 
         if ($info['method']) {
             curl_setopt($curl, CURLOPT_POST, true);
@@ -692,6 +784,7 @@ class IvantiProvider extends AbstractProvider
 
         if ($httpCode >= 400) {
             $errorMessage = " Erreur API Ivanti (HTTP {$httpCode}) : {$curlResult}";
+            $this->error('Ivanti answer', ['answer' => $curlResult]);
 
             throw new Exception($errorMessage, 11);
         }
@@ -779,28 +872,47 @@ class IvantiProvider extends AbstractProvider
     * @return {string} $ticketId ticket id
     *
     * throw \Exception if we can't open a ticket
-    * throw \Exception if we can't assign a user to the ticket
-    * throw \Exception if we can't assign a group to the ticket
-    * throw \Exception if we can't assign a supplier to the ticket
-    * throw \Exception if we can't assign a requester to the ticket
     */
     protected function createTicket($ticketArguments)
     {
         $endpoint = '/incidents';
-
         $data = [
-            'Service' => $ticketArguments['service'],
-            'Category' => $ticketArguments['category'] ?? 'Functionality Loss',
-            'Impact' => $ticketArguments['impact'] ?? 'Low',
-            'Urgency' => $ticketArguments['urgency'] ?? 'High',
-            'Source' => 'Supervision',
-            'Status' => 'Logged',
-            'OwnerTeam' => $ticketArguments['team'],
-            'Subject' => $ticketArguments['title'],
-            'Symptom' => $ticketArguments['symptom'],
-            'ProfileLink' => $ticketArguments['profile_link'] ?? '5ECF36C0AB57473C83DBB03470A28254',
-            'AlternateContactLink' => $ticketArguments['alternate_contact_link'] ?? '5ECF36C0AB57473C83DBB03470A28254',
+            'Symptom' => $ticketArguments[$this->internal_arg_name[self::ARG_SYMPTOM]],
+            'Subject' => $ticketArguments[$this->internal_arg_name[self::ARG_TITLE]],
+            'Status' =>$ticketArguments[$this->internal_arg_name[self::ARG_STATUS]],
         ];
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_SOURCE]]) && $ticketArguments[$this->internal_arg_name[self::ARG_SOURCE]] !== -1) {
+            $data['Source'] = $ticketArguments[$this->internal_arg_name[self::ARG_SOURCE]];
+        }
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_SERVICE]]) && $ticketArguments[$this->internal_arg_name[self::ARG_SERVICE]] !== -1) {
+            $data['Service'] = $ticketArguments[$this->internal_arg_name[self::ARG_SERVICE]];
+        }
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_CATEGORY]]) && $ticketArguments[$this->internal_arg_name[self::ARG_CATEGORY]] !== -1) {
+            $data['Category'] = $ticketArguments[$this->internal_arg_name[self::ARG_CATEGORY]];
+        }
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_IMPACT]]) && $ticketArguments[$this->internal_arg_name[self::ARG_IMPACT]] !== -1) {
+            $data['Impact'] = $ticketArguments[$this->internal_arg_name[self::ARG_IMPACT]];
+        }
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_URGENCY]]) && $ticketArguments[$this->internal_arg_name[self::ARG_URGENCY]] !== -1) {
+            $data['Urgency'] = $ticketArguments[$this->internal_arg_name[self::ARG_URGENCY]];
+        }
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_TEAM]]) && $ticketArguments[$this->internal_arg_name[self::ARG_TEAM]] !== -1) {
+            $data['OwnerTeam'] = $ticketArguments[$this->internal_arg_name[self::ARG_TEAM]];
+        }
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_PROFILE_LINK]]) && $ticketArguments[$this->internal_arg_name[self::ARG_PROFILE_LINK]] !== -1) {
+            $data['ProfileLink'] = $ticketArguments[$this->internal_arg_name[self::ARG_PROFILE_LINK]];
+        }
+
+        if (isset($ticketArguments[$this->internal_arg_name[self::ARG_ALTERNATE_CONTACT_LINK]]) && $ticketArguments[$this->internal_arg_name[self::ARG_ALTERNATE_CONTACT_LINK]] !== -1) {
+            $data['AlternateContactLink'] = $ticketArguments[$this->internal_arg_name[self::ARG_ALTERNATE_CONTACT_LINK]];
+        }
 
         $info = [
             'query_endpoint' => $endpoint,
