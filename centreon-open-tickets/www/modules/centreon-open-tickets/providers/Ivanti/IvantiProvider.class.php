@@ -39,6 +39,7 @@ class IvantiProvider extends AbstractProvider
     public const ARG_PROFILE_LINK = 11;
     public const ARG_ALTERNATE_CONTACT_LINK = 12;
     public const ARG_SERVICE = 13;
+    public const ARG_IVANTI_CUSTOM_FIELD = 14;
 
     protected $close_advanced = 1;
 
@@ -60,6 +61,7 @@ class IvantiProvider extends AbstractProvider
         self::ARG_PROFILE_LINK => 'profile_link',
         self::ARG_ALTERNATE_CONTACT_LINK => 'alternate_contact_link',
         self::ARG_SERVICE => 'service',
+        self::ARG_IVANTI_CUSTOM_FIELD => 'ivanti_custom_field',
     ];
 
     /*
@@ -228,6 +230,10 @@ class IvantiProvider extends AbstractProvider
                 'Arg' => self::ARG_SERVICE,
                 'Value' => '{$select.service.value}',
             ],
+            [
+                'Arg' => self::ARG_IVANTI_CUSTOM_FIELD,
+                'Value' => '{$select._cf_xxxxxxxxxx.value}',
+            ],
         ];
     }
 
@@ -308,7 +314,14 @@ class IvantiProvider extends AbstractProvider
                 'Label' => _('Service'),
                 'Type' => self::CUSTOM_TYPE,
                 'Filter' => '',
-                'Mandatory' => 1,
+                'Mandatory' => '',
+            ],
+            [
+                'Id' => '_cf_xxxxxxxxxx',
+                'Label' => _('Ivanti Custom Field'),
+                'Type' => self::CUSTOM_TYPE,
+                'Filter' => '',
+                'Mandatory' => '',
             ],
         ];
 
@@ -433,6 +446,7 @@ class IvantiProvider extends AbstractProvider
             . '<option value="' . self::ARG_ALTERNATE_CONTACT_LINK . '">' . _('Alternate contact link') . '</option>'
             . '<option value="' . self::ARG_SOURCE . '">' . _('Source') . '</option>'
             . '<option value="' . self::ARG_SERVICE . '">' . _('Service') . '</option>'
+            . '<option value="' . self::ARG_IVANTI_CUSTOM_FIELD . '">' . _('Ivanti Custom Field') . '</option>'
             . '</select>';
 
         // we asociate the label with the html code but for the arguments that we've been working on lately
@@ -680,7 +694,12 @@ class IvantiProvider extends AbstractProvider
                     $resultString = null;
                 }
 
-                $ticketArguments[$this->internal_arg_name[$value['Arg']]] = $resultString;
+                 // specific condition to handle custom field "dynamically"
+                if ($this->internal_arg_name[$value['Arg']] == $this->internal_arg_name[self::ARG_IVANTI_CUSTOM_FIELD]) {
+                    $ticketArguments[$value['Value']] = $resultString;
+                } else {
+                    $ticketArguments[$this->internal_arg_name[$value['Arg']]] = $resultString;
+                }
             }
         }
 
@@ -908,6 +927,13 @@ class IvantiProvider extends AbstractProvider
 
         if (isset($ticketArguments[$this->internal_arg_name[self::ARG_ALTERNATE_CONTACT_LINK]]) && $ticketArguments[$this->internal_arg_name[self::ARG_ALTERNATE_CONTACT_LINK]] !== -1) {
             $data['AlternateContactLink'] = $ticketArguments[$this->internal_arg_name[self::ARG_ALTERNATE_CONTACT_LINK]];
+        }
+
+        foreach ($ticketArguments as $id => $value) {
+            // $id is structure is "{$select._cf_customFieldName.value}" we keep "customFieldName"
+            if (preg_match('/.*\._cf_(.*)\.[id|value|placeholder].*/', $id, $match)) {
+                $data[$match[1]] = $value;
+            }
         }
 
         $info = [
