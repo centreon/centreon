@@ -24,10 +24,6 @@ use Centreon\Domain\Log\LoggerTrait;
 class IvantiProvider extends AbstractProvider
 {
     use LoggerTrait;
-    public const IVANTI_INCIDENT_TYPE = 10;
-    public const IVANTI_SERVICE_REQUEST_TYPE = 11;
-    public const IVANTI_PROBLEM_TYPE = 12;
-    public const IVANTI_CHANGE_TYPE = 13;
     public const IVANTI_EMPLOYEE_TYPE = 14;
     public const IVANTI_TEAM_TYPE = 15;
     public const IVANTI_CATEGORY_TYPE = 16;
