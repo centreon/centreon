@@ -138,7 +138,6 @@ class IvantiProvider extends AbstractProvider
 
         if ($httpCode >= 400) {
             $this->error('Ivanti answer', ['answer' => $curlResult]);
-            throw new Exception("Erreur lors de la connexion à l'API Ivanti : HTTP {$httpCode} - {$curlResult}", 11);
             throw new Exception("Ivanti api connection error: HTTP {$httpCode} - {$curlResult}", 11);
         }
 
