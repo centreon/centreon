@@ -90,7 +90,7 @@ class IvantiProvider extends AbstractProvider
     public static function test($info)
     {
         if (! isset($info['address']) || ! isset($info['apiKey'])) {
-            throw new Exception('missing paramters : address or apiKey.');
+            throw new Exception('missing parameters : address or apiKey.');
         }
 
         if (! extension_loaded('curl')) {
@@ -116,30 +116,16 @@ class IvantiProvider extends AbstractProvider
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, $verifyHost);
         curl_setopt($curl, CURLOPT_TIMEOUT, (int) $info['timeout']);
 
-        $optionsToLog = [
-            'apiAddress' => $apiAddress,
-            'method' => $info['method'],
-            'peerVerify' => $peerVerify,
-            'verifyHost' => $verifyHost,
-            'caCertPath' => '',
-        ];
-
         // Use custom CA only when verification is enabled
         if ($peerVerify && is_string($caCertPath) && $caCertPath !== '') {
             curl_setopt($curl, CURLOPT_CAINFO, $caCertPath);
-            $optionsToLog['caCertPath'] = $caCertPath;
         }
-
-        $this->debug('Ivanti request options', [
-            'options' => $optionsToLog,
-        ]);
 
         $curlResult = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
         if ($httpCode >= 400) {
-            $this->error('Ivanti answer', ['answer' => $curlResult]);
             throw new Exception("Ivanti api connection error: HTTP {$httpCode} - {$curlResult}", 11);
         }
 
