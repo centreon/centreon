@@ -72,8 +72,8 @@ final class UpdateServiceGroupController extends AbstractController
             return $presenter->show();
         }
 
-        $serviceSeverityRequest = $this->createRequestDto($data);
-        $useCase($serviceSeverityRequest, $presenter, $serviceGroupId);
+        $serviceGroupRequest = $this->createRequestDto($data);
+        $useCase($serviceGroupRequest, $presenter, $serviceGroupId);
 
         return $presenter->show();
     }
