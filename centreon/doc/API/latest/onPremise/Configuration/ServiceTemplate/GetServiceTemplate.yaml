@@ -19,6 +19,6 @@ get:
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '404':
-      $ref: '../../../Common/Response/NotFound.yaml'
+      $ref: '../../Common/Response/NotFound.yaml'
     '500':
       $ref: '../../Common/Response/InternalServerError.yaml'
