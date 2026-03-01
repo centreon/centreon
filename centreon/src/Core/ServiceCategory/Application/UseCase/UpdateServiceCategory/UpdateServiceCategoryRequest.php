@@ -30,5 +30,4 @@ final class UpdateServiceCategoryRequest
     public string $alias = '';
 
     public bool $isActivated = true;
-
 }

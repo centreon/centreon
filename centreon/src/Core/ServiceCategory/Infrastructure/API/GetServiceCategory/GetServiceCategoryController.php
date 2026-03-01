@@ -29,7 +29,6 @@ use Core\ServiceCategory\Application\UseCase\GetServiceCategory\GetServiceCatego
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-
 final class GetServiceCategoryController extends AbstractController
 {
     use LoggerTrait;
@@ -46,7 +45,7 @@ final class GetServiceCategoryController extends AbstractController
     public function __invoke(
         GetServiceCategory $useCase,
         GetServiceCategoryPresenter $presenter,
-         int $serviceCategoryId,
+        int $serviceCategoryId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

@@ -41,7 +41,6 @@ use Core\ServiceCategory\Application\Exception\ServiceCategoryException;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Domain\Common\GeoCoords;
 
 final class UpdateServiceCategory
 {
@@ -80,14 +79,13 @@ final class UpdateServiceCategory
 
             $serviceCategory = null;
 
-            if ($this->user->isAdmin()){
+            if ($this->user->isAdmin()) {
                 $serviceCategory = $this->readServiceCategoryRepository->findById($serviceCategoryId);
-            } else if($this->readServiceCategoryRepository->existsByAccessGroups(
-                    $serviceCategoryId,
-                    $this->readAccessGroupRepositoryInterface->findByContact($this->user)
-                )){
-                    $serviceCategory = $this->readServiceCategoryRepository->findById($serviceCategoryId);
-                
+            } elseif ($this->readServiceCategoryRepository->existsByAccessGroups(
+                $serviceCategoryId,
+                $this->readAccessGroupRepositoryInterface->findByContact($this->user)
+            )) {
+                $serviceCategory = $this->readServiceCategoryRepository->findById($serviceCategoryId);
             }
 
             if (! $serviceCategory) {
@@ -108,7 +106,6 @@ final class UpdateServiceCategory
                 $dto->alias,
             );
             $serviceCategory->setActivated($dto->isActivated);
-            
 
             $this->writeServiceCategoryRepository->update($serviceCategory);
 

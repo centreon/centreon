@@ -28,13 +28,12 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceCategory\Application\Exception\ServiceCategoryException;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Application\UseCase\GetServiceCategory\GetServiceCategory;
 use Core\ServiceCategory\Application\UseCase\GetServiceCategory\GetServiceCategoryResponse;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\Domain\Common\GeoCoords;
 
 beforeEach(function (): void {
     $this->readServiceCategoryRepository = $this->createMock(ReadServiceCategoryRepositoryInterface::class);
@@ -90,7 +89,6 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(ServiceCategoryException::accessNotAllowed()->getMessage());
 });
 
-
 it('should present a GetServiceCategoryResponse with non-admin user', function (): void {
     $this->user
         ->expects($this->once())
@@ -125,7 +123,6 @@ it('should present a GetServiceCategoryResponse with non-admin user', function (
         ->and($dto->isActivated)
         ->toBe($this->serviceCategory->isActivated());
 });
-
 
 it('should present a GetServiceCategoryResponse with admin user', function (): void {
     $this->user

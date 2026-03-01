@@ -37,7 +37,6 @@ use Core\ServiceCategory\Application\Repository\WriteServiceCategoryRepositoryIn
 use Core\ServiceCategory\Application\UseCase\UpdateServiceCategory\UpdateServiceCategory;
 use Core\ServiceCategory\Application\UseCase\UpdateServiceCategory\UpdateServiceCategoryRequest;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Domain\Common\GeoCoords;
 
 beforeEach(function (): void {
     $this->presenter = new DefaultPresenter(
@@ -119,8 +118,6 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(true);
-        
-
 
     ($this->useCase)($this->request, $this->presenter, $this->serviceCategory->getId());
 
@@ -129,8 +126,6 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->and($this->presenter->getResponseStatus()?->getMessage())
         ->toBe(ServiceCategoryException::nameAlreadyExists($this->request->name)->getMessage());
 });
-
-
 
 it('should return void on success when admin user', function (): void {
     $this->user
@@ -187,7 +182,6 @@ it('should return void on success when no-admin user', function (): void {
         ->expects($this->once())
         ->method('existsByName')
         ->willReturn(false);
-
 
     $this->writeServiceCategoryRepository
         ->expects($this->once())

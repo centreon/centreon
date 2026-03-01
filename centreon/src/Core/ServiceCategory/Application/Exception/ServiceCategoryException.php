@@ -25,7 +25,6 @@ namespace Core\ServiceCategory\Application\Exception;
 
 class ServiceCategoryException extends \Exception
 {
-
     public const CODE_CONFLICT = 1;
 
     /**
@@ -116,7 +115,7 @@ class ServiceCategoryException extends \Exception
         return new self(_('Error while retrieving service category'));
     }
 
-     /**
+    /**
      * @return self
      */
     public static function editNotAllowed(): self
@@ -132,7 +131,7 @@ class ServiceCategoryException extends \Exception
         return new self(_('Error while updating service category'));
     }
 
-      /**
+    /**
      * @param string $serviceCategoryName
      *
      * @return self

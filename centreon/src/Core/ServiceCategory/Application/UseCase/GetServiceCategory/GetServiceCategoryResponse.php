@@ -23,10 +23,9 @@ declare(strict_types=1);
 
 namespace Core\ServiceCategory\Application\UseCase\GetServiceCategory;
 
-
 final class GetServiceCategoryResponse
 {
-     public int $id = 0;
+    public int $id = 0;
 
     public string $name = '';
 

@@ -182,7 +182,8 @@ class DbWriteServiceCategoryRepository extends AbstractRepositoryRDB implements 
      *
      * @return void
      */
-    public function update(ServiceCategory $serviceCategory): void {
+    public function update(ServiceCategory $serviceCategory): void
+    {
         $request = $this->translateDbName(
             <<<'SQL'
                 UPDATE `:db`.service_categories

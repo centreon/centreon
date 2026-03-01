@@ -29,19 +29,19 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceCategory\Application\Exception\ServiceCategoryException;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
 use Core\ServiceCategory\Domain\Model\ServiceCategory;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Core\Application\Common\UseCase\PresenterInterface;
 
 final class GetServiceCategory
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
+    /** @var AccessGroup[] */
     private array $accessGroups;
 
     public function __construct(
@@ -78,9 +78,8 @@ final class GetServiceCategory
                 $serviceCategory = $this->readServiceCategoryRepository->findById($serviceCategoryId);
 
             } else {
-                
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                if($this->readServiceCategoryRepository->existsByAccessGroups(
+                if ($this->readServiceCategoryRepository->existsByAccessGroups(
                     $serviceCategoryId,
                     $this->accessGroups
                 )) {
@@ -89,15 +88,15 @@ final class GetServiceCategory
             }
 
             if (! $serviceCategory) {
-                 $this->error(
-                    'ServiceCategory not found',
+                $this->error(
+                    'Service category not found',
                     ['service_category_id' => $serviceCategoryId]
                 );
-                $presenter->setResponseStatus(new NotFoundResponse('ServiceCategory'));
+                $presenter->setResponseStatus(new NotFoundResponse('Service category'));
 
                 return;
             }
-        
+
             $presenter->present($this->createResponse($serviceCategory));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
@@ -115,19 +114,15 @@ final class GetServiceCategory
      *
      * @throws \Throwable
      *
-     *
      * @return GetServiceCategoryResponse
      */
     private function createResponse(ServiceCategory $serviceCategory): GetServiceCategoryResponse
     {
-        
-
         $response = new GetServiceCategoryResponse();
         $response->id = $serviceCategory->getId();
         $response->name = $serviceCategory->getName();
         $response->alias = $serviceCategory->getAlias();
         $response->isActivated = $serviceCategory->isActivated();
-       
 
         return $response;
     }

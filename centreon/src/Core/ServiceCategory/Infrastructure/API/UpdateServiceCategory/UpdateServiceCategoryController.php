@@ -83,7 +83,6 @@ final class UpdateServiceCategoryController extends AbstractController
      *     is_activated?: bool
      * } $data
      *
-     *
      * @return UpdateServiceCategoryRequest
      */
     private function createRequestDto(array $data): UpdateServiceCategoryRequest
@@ -92,7 +91,7 @@ final class UpdateServiceCategoryController extends AbstractController
         $serviceCategoryRequest->name = $data['name'];
         $serviceCategoryRequest->alias = $data['alias'];
         $serviceCategoryRequest->isActivated = $data['is_activated'] ?? true;
-        
+
         return $serviceCategoryRequest;
     }
 }
