@@ -29,20 +29,20 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Core\Application\Common\UseCase\PresenterInterface;
 use Core\ServiceSeverity\Infrastructure\API\GetServiceSeverity\GetServiceSeverityPresenter;
 
 final class GetServiceSeverity
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
+    /** @var AccessGroup[] */
     private array $accessGroups;
 
     public function __construct(
@@ -77,11 +77,9 @@ final class GetServiceSeverity
             $serviceSeverity = null;
             if ($this->user->isAdmin()) {
                 $serviceSeverity = $this->readServiceSeverityRepository->findById($serviceSeverityId);
-
             } else {
-                
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
-                if($this->readServiceSeverityRepository->existsByAccessGroups(
+                if ($this->readServiceSeverityRepository->existsByAccessGroups(
                     $serviceSeverityId,
                     $this->accessGroups
                 )) {
@@ -90,7 +88,7 @@ final class GetServiceSeverity
             }
 
             if (! $serviceSeverity) {
-                 $this->error(
+                $this->error(
                     'ServiceSeverity not found',
                     ['service_severity_id' => $serviceSeverityId]
                 );
@@ -98,7 +96,7 @@ final class GetServiceSeverity
 
                 return;
             }
-        
+
             $presenter->present($this->createResponse($serviceSeverity));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
@@ -116,13 +114,10 @@ final class GetServiceSeverity
      *
      * @throws \Throwable
      *
-     *
      * @return GetServiceSeverityResponse
      */
     private function createResponse(ServiceSeverity $serviceSeverity): GetServiceSeverityResponse
     {
-        
-
         $response = new GetServiceSeverityResponse();
         $response->id = $serviceSeverity->getId();
         $response->name = $serviceSeverity->getName();
@@ -130,7 +125,6 @@ final class GetServiceSeverity
         $response->level = $serviceSeverity->getLevel();
         $response->iconId = $serviceSeverity->getIconId();
         $response->isActivated = $serviceSeverity->isActivated();
-       
 
         return $response;
     }

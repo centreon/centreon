@@ -28,12 +28,12 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Application\UseCase\GetServiceSeverity\GetServiceSeverity;
 use Core\ServiceSeverity\Application\UseCase\GetServiceSeverity\GetServiceSeverityResponse;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->readServiceSeverityRepository = $this->createMock(ReadServiceSeverityRepositoryInterface::class);
@@ -91,7 +91,6 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(ServiceSeverityException::accessNotAllowed()->getMessage());
 });
 
-
 it('should present a GetServiceResponse with non-admin user', function (): void {
     $this->user
         ->expects($this->once())
@@ -130,7 +129,6 @@ it('should present a GetServiceResponse with non-admin user', function (): void 
         ->and($dto->iconId)
         ->toBe($this->serviceSeverity->getIconId());
 });
-
 
 it('should present a GetServiceResponse with admin user', function (): void {
     $this->user

@@ -128,7 +128,7 @@ class ServiceSeverityException extends \Exception
         );
     }
 
-     /**
+    /**
      * @return self
      */
     public static function errorWhileRetrieving(): self

@@ -29,7 +29,6 @@ use Core\ServiceSeverity\Application\UseCase\GetServiceSeverity\GetServiceSeveri
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-
 final class GetServiceSeverityController extends AbstractController
 {
     use LoggerTrait;
@@ -46,7 +45,7 @@ final class GetServiceSeverityController extends AbstractController
     public function __invoke(
         GetServiceSeverity $useCase,
         GetServiceSeverityPresenter $presenter,
-         int $serviceSeverityId,
+        int $serviceSeverityId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 

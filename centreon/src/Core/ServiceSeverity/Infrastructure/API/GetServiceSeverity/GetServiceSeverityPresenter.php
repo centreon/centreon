@@ -23,28 +23,25 @@ declare(strict_types=1);
 
 namespace Core\ServiceSeverity\Infrastructure\API\GetServiceSeverity;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\ServiceSeverity\Application\UseCase\GetServiceSeverity\GetServiceSeverityResponse;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 class GetServiceSeverityPresenter extends AbstractPresenter
 {
-    use LoggerTrait;
-
     /**
      * @inheritDoc
      */
     public function present(mixed $data): void
     {
         if ($data instanceof GetServiceSeverityResponse) {
-            $normalizer = new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter());
-            $serializer = new Serializer([$normalizer]);
-            $data = $serializer->normalize($data);
-
-            // NOT setting location as required route does not currently exist
+            $data = [
+                'id' => $data->id,
+                'name' => $data->name,
+                'alias' => $data->alias,
+                'level' => $data->level,
+                'icon_id' => $data->iconId,
+                'is_activated' => $data->isActivated,
+            ];
         }
         parent::present($data);
     }
