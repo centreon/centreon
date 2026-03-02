@@ -403,7 +403,7 @@ function duplicateServer(array $server, array $nbrDup): void
                 $paramKey = ':p' . $paramIndex++;
                 $params[$paramKey] = $columnValue;
             }
-            if (! empty($columns) && $serverName !== null && testExistence($serverName)) {
+            if ($columns !== [] && $serverName !== null && testExistence($serverName)) {
                 $placeholders = implode(', ', array_keys($params));
                 $columnList = implode(', ', $columns);
                 $insertStmt = $pearDB->prepare(
