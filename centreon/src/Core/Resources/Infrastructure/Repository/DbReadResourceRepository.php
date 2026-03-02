@@ -823,7 +823,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $nextHeaders();
             $headers .= <<<SQL
                 service_groups AS (
-                    SELECT rtags.resource_id
+                    SELECT DISTINCT rtags.resource_id
                     FROM `:dbstg`.resources_tags AS rtags
                     INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
@@ -845,7 +845,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             $nextHeaders();
             $headers .= <<<SQL
                 service_categories AS (
-                    SELECT rtags.resource_id
+                    SELECT DISTINCT rtags.resource_id
                     FROM `:dbstg`.resources_tags AS rtags
                     INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
