@@ -218,7 +218,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
          * Handle sort parameters.
          */
         $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
-            ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+            ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
 
         /**
          * Handle pagination.
@@ -670,7 +670,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
              * Handle sort parameters.
              */
             $query .= $this->sqlRequestTranslator->translateSortParameterToSql()
-                ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+                ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
         }
 
         /**
