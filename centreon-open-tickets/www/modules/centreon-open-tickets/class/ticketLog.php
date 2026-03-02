@@ -75,19 +75,19 @@ class Centreon_OpenTickets_Log
             . 'FROM mod_open_tickets_link motl, mod_open_tickets_data motd, mod_open_tickets mot WHERE ';
         if (! is_null($range_time['start'])) {
             $query .= 'mot.timestamp >= :rangeStart AND ';
-            $bindParams[':rangeStart'] = [\PDO::PARAM_INT, (int) $range_time['start']];
+            $bindParams[':rangeStart'] = [PDO::PARAM_INT, (int) $range_time['start']];
         }
         if (! is_null($range_time['end'])) {
             $query .= 'mot.timestamp <= :rangeEnd AND ';
-            $bindParams[':rangeEnd'] = [\PDO::PARAM_INT, (int) $range_time['end']];
+            $bindParams[':rangeEnd'] = [PDO::PARAM_INT, (int) $range_time['end']];
         }
         if (! is_null($params['ticket_id']) && $params['ticket_id'] != '') {
             $query .= 'mot.ticket_value LIKE :ticketId AND ';
-            $bindParams[':ticketId'] = [\PDO::PARAM_STR, '%' . $params['ticket_id'] . '%'];
+            $bindParams[':ticketId'] = [PDO::PARAM_STR, '%' . $params['ticket_id'] . '%'];
         }
         if (! is_null($params['subject']) && $params['subject'] != '') {
             $query .= 'motd.subject LIKE :subject AND ';
-            $bindParams[':subject'] = [\PDO::PARAM_STR, '%' . $params['subject'] . '%'];
+            $bindParams[':subject'] = [PDO::PARAM_STR, '%' . $params['subject'] . '%'];
         }
 
         $serviceConditions = [];
@@ -98,8 +98,8 @@ class Centreon_OpenTickets_Log
                 $hostParam = ':svcFilterHost' . $serviceParamIndex;
                 $svcParam = ':svcFilterSvc' . $serviceParamIndex;
                 $serviceConditions[] = '(motl.host_id = ' . $hostParam . ' AND motl.service_id = ' . $svcParam . ')';
-                $bindParams[$hostParam] = [\PDO::PARAM_INT, (int) $tmp[0]];
-                $bindParams[$svcParam] = [\PDO::PARAM_INT, (int) $tmp[1]];
+                $bindParams[$hostParam] = [PDO::PARAM_INT, (int) $tmp[0]];
+                $bindParams[$svcParam] = [PDO::PARAM_INT, (int) $tmp[1]];
                 $serviceParamIndex++;
             }
         }
@@ -109,7 +109,7 @@ class Centreon_OpenTickets_Log
             foreach ($params['host_filter'] as $idx => $hostId) {
                 $param = ':hostFilter' . $idx;
                 $hostPlaceholders[] = $param;
-                $bindParams[$param] = [\PDO::PARAM_INT, (int) $hostId];
+                $bindParams[$param] = [PDO::PARAM_INT, (int) $hostId];
             }
             if ($serviceConditions !== []) {
                 $query .= '(motl.host_id IN (' . implode(',', $hostPlaceholders) . ') '
@@ -140,8 +140,8 @@ class Centreon_OpenTickets_Log
 
         if ($all == false) {
             $query .= 'LIMIT :paginationOffset, :paginationLimit';
-            $bindParams[':paginationOffset'] = [\PDO::PARAM_INT, ($current_page - 1) * $pagination];
-            $bindParams[':paginationLimit'] = [\PDO::PARAM_INT, (int) $pagination];
+            $bindParams[':paginationOffset'] = [PDO::PARAM_INT, ($current_page - 1) * $pagination];
+            $bindParams[':paginationLimit'] = [PDO::PARAM_INT, (int) $pagination];
         }
 
         $stmt = $this->_dbStorage->prepare($query);

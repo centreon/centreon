@@ -1609,15 +1609,15 @@ Output: {$service.output|substr:0:1024}
             if (is_null($extra_args['ticket_value'])) {
                 $updateTicket = $db_storage->prepare('UPDATE mod_open_tickets SET `ticket_value` = :ticketValue WHERE `ticket_id` = :ticketId');
                 $updateTicket->bindValue(':ticketValue', $result['ticket_id']);
-                $updateTicket->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
+                $updateTicket->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
                 $updateTicket->execute();
             }
 
             $insertHostLink = $db_storage->prepare('INSERT INTO mod_open_tickets_link (`ticket_id`, `host_id`, `host_state`, `hostname`) VALUES (:ticketId, :hostId, :hostState, :hostname)');
             foreach ($extra_args['host_problems'] as $row) {
-                $insertHostLink->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
-                $insertHostLink->bindValue(':hostId', (int) $row['host_id'], \PDO::PARAM_INT);
-                $insertHostLink->bindValue(':hostState', (int) $row['host_state'], \PDO::PARAM_INT);
+                $insertHostLink->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostId', (int) $row['host_id'], PDO::PARAM_INT);
+                $insertHostLink->bindValue(':hostState', (int) $row['host_state'], PDO::PARAM_INT);
                 $insertHostLink->bindValue(':hostname', $row['name']);
                 $insertHostLink->execute();
             }
@@ -1626,21 +1626,21 @@ Output: {$service.output|substr:0:1024}
                  VALUES (:ticketId, :hostId, :hostState, :hostname, :serviceId, :serviceState, :serviceDescription)'
             );
             foreach ($extra_args['service_problems'] as $row) {
-                $insertSvcLink->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
-                $insertSvcLink->bindValue(':hostId', (int) $row['host_id'], \PDO::PARAM_INT);
-                $insertSvcLink->bindValue(':hostState', (int) $row['host_state'], \PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostId', (int) $row['host_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':hostState', (int) $row['host_state'], PDO::PARAM_INT);
                 $insertSvcLink->bindValue(':hostname', $row['host_name']);
-                $insertSvcLink->bindValue(':serviceId', (int) $row['service_id'], \PDO::PARAM_INT);
-                $insertSvcLink->bindValue(':serviceState', (int) $row['service_state'], \PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceId', (int) $row['service_id'], PDO::PARAM_INT);
+                $insertSvcLink->bindValue(':serviceState', (int) $row['service_state'], PDO::PARAM_INT);
                 $insertSvcLink->bindValue(':serviceDescription', $row['description']);
                 $insertSvcLink->execute();
             }
 
             if (! is_null($extra_args['data_type']) && ! is_null($extra_args['data'])) {
                 $insertData = $db_storage->prepare('INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`, `data_type`, `data`) VALUES (:ticketId, :subject, :dataType, :data)');
-                $insertData->bindValue(':ticketId', $result['ticket_id'], \PDO::PARAM_INT);
+                $insertData->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
                 $insertData->bindValue(':subject', $extra_args['subject']);
-                $insertData->bindValue(':dataType', (int) $extra_args['data_type'], \PDO::PARAM_INT);
+                $insertData->bindValue(':dataType', (int) $extra_args['data_type'], PDO::PARAM_INT);
                 $insertData->bindValue(':data', $extra_args['data']);
                 $insertData->execute();
             }
