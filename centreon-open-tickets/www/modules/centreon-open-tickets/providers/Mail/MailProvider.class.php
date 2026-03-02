@@ -133,7 +133,7 @@ class MailProvider extends AbstractProvider
 
         try {
             $insertStatement = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES (:timestamp, :user)');
-            $insertStatement->bindValue(':timestamp', $result['ticket_time']);
+            $insertStatement->bindValue(':timestamp', $result['ticket_time'], PDO::PARAM_INT);
             // FIXME $contact['name'] => Offset 'name' does not exist on string => $contact is a string or an array ??
             $insertStatement->bindValue(':user', $contact['name']); // @phpstan-ignore offsetAccess.notFound
             $insertStatement->execute();

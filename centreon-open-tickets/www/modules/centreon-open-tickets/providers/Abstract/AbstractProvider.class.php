@@ -1594,11 +1594,11 @@ Output: {$service.output|substr:0:1024}
             if ($extra_args['no_create_ticket_id'] == false) {
                 if (is_null($extra_args['ticket_value'])) {
                     $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES (:timestamp, :user)');
-                    $insertTicket->bindValue(':timestamp', $result['ticket_time']);
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time'], PDO::PARAM_INT);
                     $insertTicket->bindValue(':user', $extra_args['contact']['name']);
                 } else {
                     $insertTicket = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`, `ticket_value`) VALUES (:timestamp, :user, :ticketValue)');
-                    $insertTicket->bindValue(':timestamp', $result['ticket_time']);
+                    $insertTicket->bindValue(':timestamp', $result['ticket_time'], PDO::PARAM_INT);
                     $insertTicket->bindValue(':user', $extra_args['contact']['name']);
                     $insertTicket->bindValue(':ticketValue', $extra_args['ticket_value']);
                 }
@@ -1640,7 +1640,7 @@ Output: {$service.output|substr:0:1024}
                 $insertData = $db_storage->prepare('INSERT INTO mod_open_tickets_data (`ticket_id`, `subject`, `data_type`, `data`) VALUES (:ticketId, :subject, :dataType, :data)');
                 $insertData->bindValue(':ticketId', $result['ticket_id'], PDO::PARAM_INT);
                 $insertData->bindValue(':subject', $extra_args['subject']);
-                $insertData->bindValue(':dataType', (int) $extra_args['data_type'], PDO::PARAM_INT);
+                $insertData->bindValue(':dataType', (string) $extra_args['data_type']);
                 $insertData->bindValue(':data', $extra_args['data']);
                 $insertData->execute();
             }
