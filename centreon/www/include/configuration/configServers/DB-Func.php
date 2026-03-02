@@ -419,7 +419,10 @@ function duplicateServer(array $server, array $nbrDup): void
                 $paramKey = ':p' . $paramIndex++;
                 $params[$paramKey] = [$columnValue, in_array($columnName, $intColumns, true)];
             }
-            if ($columns !== [] && $serverName !== null && testExistence($serverName)) {
+            $decodedName = $serverName !== null
+                ? html_entity_decode($serverName, ENT_QUOTES, 'UTF-8')
+                : null;
+            if ($columns !== [] && $decodedName !== null && testExistence($decodedName)) {
                 $placeholders = implode(', ', array_keys($params));
                 $columnList = implode(', ', $columns);
                 $insertStmt = $pearDB->prepare(

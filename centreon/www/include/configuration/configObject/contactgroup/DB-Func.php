@@ -188,6 +188,8 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                 }
                 $fields['cg_contacts'] = trim($fields['cg_contacts'], ',');
 
+                $pearDB->commit();
+
                 $centreon->CentreonLogAction->insertLog(
                     'contactgroup',
                     $newCgId,
@@ -195,7 +197,6 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                     'a',
                     $fields
                 );
-                $pearDB->commit();
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();
