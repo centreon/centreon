@@ -50,8 +50,10 @@ const Graph = ({ row, endpoint }: GraphProps): ReactElement => {
   const end = dayjs().toISOString();
 
   const graphEndpoint = `${endpoint}?start=${start}&end=${end}`;
+  const shouldBypassApiPrefix = Boolean(endpoint?.includes('/api/latest/'));
 
   const { data } = useFetchQuery<LineChartData>({
+    baseEndpoint: shouldBypassApiPrefix ? '' : undefined,
     getEndpoint: () => graphEndpoint,
     getQueryKey: () => ['chartLineColumns', endpoint],
     queryOptions: {
