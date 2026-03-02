@@ -31,8 +31,9 @@ function testExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('graph_id');
     }
+    $normalizedName = $name !== null ? htmlentities($name, ENT_QUOTES, 'UTF-8') : null;
     $statement = $pearDB->prepare('SELECT graph_id FROM giv_graphs_template WHERE name = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':name', $normalizedName, $normalizedName === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
     $statement->execute();
     $graph = $statement->fetch();
     if ($graph === false) {

@@ -207,6 +207,9 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                 $insertStmt->execute();
 
                 $newId = (int) $pearDB->lastInsertId();
+                if ($newId <= 0) {
+                    continue;
+                }
                 duplicateGroups($key, $newId, $pearDB);
 
                 $fields = $row;

@@ -208,6 +208,9 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                 }
                 $insertStmt->execute();
                 $newNagiosId = (int) $pearDB->lastInsertId();
+                if ($newNagiosId <= 0) {
+                    continue;
+                }
 
                 foreach ($rowBks as $valBk) {
                     if ($valBk['broker_module']) {

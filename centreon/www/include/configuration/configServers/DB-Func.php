@@ -178,7 +178,10 @@ function enableServerInDB(int $id): void
     $selectStmt = $pearDB->prepare('SELECT name FROM `nagios_server` WHERE `id` = :id LIMIT 1');
     $selectStmt->bindValue(':id', $id, PDO::PARAM_INT);
     $selectStmt->execute();
-    $row = $selectStmt->fetch();
+    $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+    if ($row === false) {
+        return;
+    }
 
     $updateStmt = $pearDB->prepare('UPDATE `nagios_server` SET `ns_activate` = \'1\' WHERE id = :id');
     $updateStmt->bindValue(':id', $id, PDO::PARAM_INT);
@@ -223,7 +226,10 @@ function disableServerInDB(int $id): void
     $selectStmt = $pearDB->prepare('SELECT name FROM `nagios_server` WHERE `id` = :id LIMIT 1');
     $selectStmt->bindValue(':id', $id, PDO::PARAM_INT);
     $selectStmt->execute();
-    $row = $selectStmt->fetch();
+    $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+    if ($row === false) {
+        return;
+    }
 
     $updateStmt = $pearDB->prepare('UPDATE `nagios_server` SET `ns_activate` = \'0\' WHERE id = :id');
     $updateStmt->bindValue(':id', $id, PDO::PARAM_INT);

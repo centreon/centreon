@@ -222,6 +222,9 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     $statement->execute();
 
                     $lastId = (int) $pearDB->lastInsertId();
+                    if ($lastId <= 0) {
+                        continue;
+                    }
                     $relStmt = $pearDB->prepare(
                         'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
                         SELECT :newId, instance_id FROM cfg_resource_instance_relations WHERE resource_id = :oldId'
@@ -400,6 +403,9 @@ function insertResource($ret = [])
     $statement->execute();
 
     $resource_id = (int) $pearDB->lastInsertId();
+    if ($resource_id <= 0) {
+        return 0;
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
