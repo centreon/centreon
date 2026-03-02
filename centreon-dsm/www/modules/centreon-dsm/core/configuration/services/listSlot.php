@@ -34,11 +34,11 @@ while ($data = $dbResult->fetch()) {
 $dbResult->closeCursor();
 
 if (isset($search)) {
-    $dbResult = $pearDB->query(
-        "SELECT COUNT(*) FROM mod_dsm_pool WHERE (pool_name LIKE '%"
-        . htmlentities($search, ENT_QUOTES) . "%' OR pool_description LIKE '%"
-        . htmlentities($search, ENT_QUOTES) . "%')"
+    $dbResult = $pearDB->prepare(
+        'SELECT COUNT(*) FROM mod_dsm_pool WHERE (pool_name LIKE :search OR pool_description LIKE :search)'
     );
+    $dbResult->bindValue(':search', '%' . $search . '%');
+    $dbResult->execute();
 } else {
     $dbResult = $pearDB->query('SELECT COUNT(*) FROM mod_dsm_pool');
 }

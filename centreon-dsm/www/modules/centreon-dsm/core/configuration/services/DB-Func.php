@@ -818,15 +818,19 @@ function insertPool($ret = [])
         $pearDB->executePreparedQuery($statement, $parameters, true);
         $pearDB->closeQuery($statement);
 
-        $pool_id = ['MAX(pool_id)' => (int) $pearDB->lastInsertId()];
+        $pool_id = (int) $pearDB->lastInsertId();
 
-        if ($ret['pool_activate']['pool_activate'] == 1) {
-            enablePoolInDB($pool_id['MAX(pool_id)']);
-        } else {
-            disablePoolInDB($pool_id['MAX(pool_id)']);
+        if ($pool_id === 0) {
+            throw new \RuntimeException('Failed to retrieve last insert ID for pool');
         }
 
-        return $pool_id['MAX(pool_id)'];
+        if ($ret['pool_activate']['pool_activate'] == 1) {
+            enablePoolInDB($pool_id);
+        } else {
+            disablePoolInDB($pool_id);
+        }
+
+        return $pool_id;
     } catch (CentreonDbException $e) {
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
