@@ -572,23 +572,25 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
 
                 $service_id = (int) $pearDB->lastInsertId();
 
-                if ($service_id > 0) {
-                    $statementInsertHostRelation = $pearDB->prepareQuery(
-                        'INSERT INTO host_service_relation (service_service_id, host_host_id)
-                        VALUES (:service_id, :host_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertHostRelation, [
-                        ':service_id' => [$service_id, PDO::PARAM_INT],
-                        ':host_id' => [$host_id, PDO::PARAM_INT],
-                    ], true);
-                    $pearDB->closeQuery($statementInsertHostRelation);
-
-                    $statementInsertExtended = $pearDB->prepareQuery(
-                        'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
-                    $pearDB->closeQuery($statementInsertExtended);
+                if ($service_id === 0) {
+                    throw new RuntimeException('Failed to retrieve last insert ID for service');
                 }
+
+                $statementInsertHostRelation = $pearDB->prepareQuery(
+                    'INSERT INTO host_service_relation (service_service_id, host_host_id)
+                    VALUES (:service_id, :host_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertHostRelation, [
+                    ':service_id' => [$service_id, PDO::PARAM_INT],
+                    ':host_id' => [$host_id, PDO::PARAM_INT],
+                ], true);
+                $pearDB->closeQuery($statementInsertHostRelation);
+
+                $statementInsertExtended = $pearDB->prepareQuery(
+                    'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
+                $pearDB->closeQuery($statementInsertExtended);
             }
         } elseif ($currentNumber <= $number) {
             for ($i = 1; $data = $pearDB->fetch($statement); $i++) {
@@ -668,23 +670,25 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
 
                 $service_id = (int) $pearDB->lastInsertId();
 
-                if ($service_id > 0) {
-                    $statementInsertHostRelation = $pearDB->prepareQuery(
-                        'INSERT INTO host_service_relation (service_service_id, host_host_id)
-                        VALUES (:service_id, :host_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertHostRelation, [
-                        ':service_id' => [$service_id, PDO::PARAM_INT],
-                        ':host_id' => [$host_id, PDO::PARAM_INT],
-                    ], true);
-                    $pearDB->closeQuery($statementInsertHostRelation);
-
-                    $statementInsertExtended = $pearDB->prepareQuery(
-                        'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
-                    );
-                    $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
-                    $pearDB->closeQuery($statementInsertExtended);
+                if ($service_id === 0) {
+                    throw new RuntimeException('Failed to retrieve last insert ID for service');
                 }
+
+                $statementInsertHostRelation = $pearDB->prepareQuery(
+                    'INSERT INTO host_service_relation (service_service_id, host_host_id)
+                    VALUES (:service_id, :host_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertHostRelation, [
+                    ':service_id' => [$service_id, PDO::PARAM_INT],
+                    ':host_id' => [$host_id, PDO::PARAM_INT],
+                ], true);
+                $pearDB->closeQuery($statementInsertHostRelation);
+
+                $statementInsertExtended = $pearDB->prepareQuery(
+                    'INSERT INTO extended_service_information (service_service_id) VALUES (:service_id)'
+                );
+                $pearDB->executePreparedQuery($statementInsertExtended, [':service_id' => [$service_id, PDO::PARAM_INT]], true);
+                $pearDB->closeQuery($statementInsertExtended);
                 $i++;
             }
         } elseif ($currentNumber > $number) {
