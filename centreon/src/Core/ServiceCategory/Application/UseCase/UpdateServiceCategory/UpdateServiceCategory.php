@@ -137,16 +137,18 @@ final class UpdateServiceCategory
      */
     private function validateNameOrFail(string $name, ServiceCategory $serviceCategory): void
     {
+        $trimmedName = (string) (new TrimmedString($name));
+
         if (
-            $name !== $serviceCategory->getName()
-            && $this->readServiceCategoryRepository->existsByName((new TrimmedString($name)))
+            $trimmedName !== $serviceCategory->getName()
+            && $this->readServiceCategoryRepository->existsByName($trimmedName)
         ) {
             $this->error(
                 'Service category name already exists',
-                ['service_category_name' => $name]
+                ['service_category_name' => $trimmedName]
             );
 
-            throw ServiceCategoryException::nameAlreadyExists($name);
+            throw ServiceCategoryException::nameAlreadyExists($trimmedName);
         }
     }
 }

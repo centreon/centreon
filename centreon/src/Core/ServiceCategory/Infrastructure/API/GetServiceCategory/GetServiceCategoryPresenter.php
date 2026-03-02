@@ -23,28 +23,23 @@ declare(strict_types=1);
 
 namespace Core\ServiceCategory\Infrastructure\API\GetServiceCategory;
 
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\AbstractPresenter;
 use Core\ServiceCategory\Application\UseCase\GetServiceCategory\GetServiceCategoryResponse;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 
 class GetServiceCategoryPresenter extends AbstractPresenter
 {
-    use LoggerTrait;
-
     /**
      * @inheritDoc
      */
     public function present(mixed $data): void
     {
         if ($data instanceof GetServiceCategoryResponse) {
-            $normalizer = new ObjectNormalizer(null, new CamelCaseToSnakeCaseNameConverter());
-            $serializer = new Serializer([$normalizer]);
-            $data = $serializer->normalize($data);
-
-            // NOT setting location as required route does not currently exist
+            $data = [
+                'id' => $data->id,
+                'name' => $data->name,
+                'alias' => $data->alias,
+                'is_activated' => $data->isActivated,
+            ];
         }
         parent::present($data);
     }

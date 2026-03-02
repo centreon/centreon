@@ -157,7 +157,7 @@ it('should return void on success when admin user', function (): void {
     expect($this->presenter->getResponseStatus())->toBeInstanceOf(NoContentResponse::class);
 });
 
-it('should return void on success when no-admin user', function (): void {
+it('should return void on success when non-admin user', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -167,6 +167,11 @@ it('should return void on success when no-admin user', function (): void {
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
+
+    $this->readAccessGroupRepositoryInterface
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([]);
 
     $this->readServiceCategoryRepository
         ->expects($this->once())

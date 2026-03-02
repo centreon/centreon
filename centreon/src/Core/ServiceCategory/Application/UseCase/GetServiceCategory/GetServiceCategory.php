@@ -26,7 +26,6 @@ namespace Core\ServiceCategory\Application\UseCase\GetServiceCategory;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -63,7 +62,7 @@ final class GetServiceCategory
                 && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE)
             ) {
                 $this->error(
-                    "User doesn't have sufficient rights to see services categories",
+                    "User doesn't have sufficient rights to see service categories",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
@@ -98,9 +97,6 @@ final class GetServiceCategory
             }
 
             $presenter->present($this->createResponse($serviceCategory));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
                 new ErrorResponse(ServiceCategoryException::errorWhileRetrieving())
