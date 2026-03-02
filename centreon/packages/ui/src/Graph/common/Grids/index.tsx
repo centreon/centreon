@@ -8,9 +8,9 @@ import { ChartAxis } from '../../Chart/models';
 
 interface Props extends Pick<ChartAxis, 'gridLinesType'> {
   height: number;
-  leftScale: ScaleLinear<number, number>;
+  leftScale?: ScaleLinear<number, number>;
   width: number;
-  xScale: ScaleLinear<number, number>;
+  xScale?: ScaleLinear<number, number>;
 }
 
 const Grids = ({
@@ -31,10 +31,10 @@ const Grids = ({
 
   return (
     <g>
-      {displayRows && (
+      {displayRows && leftScale && (
         <Grid.GridRows height={height} scale={leftScale} width={width} />
       )}
-      {displayColumns && (
+      {displayColumns && xScale && (
         <Grid.GridColumns height={height} scale={xScale} width={width} />
       )}
     </g>

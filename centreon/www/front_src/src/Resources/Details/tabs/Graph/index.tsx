@@ -1,5 +1,5 @@
 import { equals } from 'ramda';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { type Parameters, TimePeriods } from '@centreon/ui';
 import type { TabProps } from '..';
@@ -32,9 +32,9 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
     equalsMetaService(type) ||
     equalsAnomalyDetection(type);
 
-  const getTimePeriodsParameters = (data: Parameters): void => {
+  const getTimePeriodsParameters = useCallback((data: Parameters): void => {
     setGraphTimeParameters(data);
-  };
+  }, []);
 
   return (
     <div className={classes.graphTabContainer}>
