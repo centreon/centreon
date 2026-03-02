@@ -158,7 +158,7 @@ class Export
         ];
         $query = 'SELECT `command_name` FROM `command` WHERE `command_type` = :commandType';
         $res = $this->db->prepare($query);
-        $res->bindValue(':commandType', $cmdTypeRelation[$type], \PDO::PARAM_INT);
+        $res->bindValue(':commandType', $cmdTypeRelation[$type], PDO::PARAM_INT);
         $res->execute();
 
         while ($row = $res->fetch()) {
