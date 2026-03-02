@@ -144,53 +144,65 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                 continue;
             }
 
-            $insertStmt->bindValue(':cgName', $cg_name, PDO::PARAM_STR);
-            $insertStmt->bindValue(':cgAlias', $row['cg_alias'], PDO::PARAM_STR);
-            $insertStmt->bindValue(':cgComment', $row['cg_comment'], PDO::PARAM_STR);
-            $insertStmt->bindValue(':cgActivate', $row['cg_activate'], PDO::PARAM_STR);
-            $insertStmt->execute();
+            $pearDB->beginTransaction();
+            try {
+                $insertStmt->bindValue(':cgName', $cg_name, PDO::PARAM_STR);
+                $insertStmt->bindValue(':cgAlias', $row['cg_alias'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':cgComment', $row['cg_comment'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':cgActivate', $row['cg_activate'], PDO::PARAM_STR);
+                $insertStmt->execute();
 
-            $newCgId = (int) $pearDB->lastInsertId();
-            if ($newCgId <= 0) {
-                continue;
-            }
+                $newCgId = (int) $pearDB->lastInsertId();
+                if ($newCgId <= 0) {
+                    $pearDB->rollBack();
 
-            $fields = [];
-            foreach ($row as $key2 => $value2) {
-                if ($key2 !== 'cg_id') {
-                    $fields[$key2] = $value2;
+                    continue;
                 }
-            }
-            $fields['cg_name'] = $cg_name;
 
-            $selectAclStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
-            $selectAclStmt->execute();
-            $fields['cg_aclRelation'] = '';
-            while ($cgAcl = $selectAclStmt->fetch(PDO::FETCH_ASSOC)) {
-                $insertAclStmt->bindValue(':newCgId', $newCgId, PDO::PARAM_INT);
-                $insertAclStmt->bindValue(':aclGroupId', (int) $cgAcl['acl_group_id'], PDO::PARAM_INT);
-                $insertAclStmt->execute();
-                $fields['cg_aclRelation'] .= $cgAcl['acl_group_id'] . ',';
-            }
+                $fields = [];
+                foreach ($row as $key2 => $value2) {
+                    if ($key2 !== 'cg_id') {
+                        $fields[$key2] = $value2;
+                    }
+                }
+                $fields['cg_name'] = $cg_name;
 
-            $selectContactsStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
-            $selectContactsStmt->execute();
-            $fields['cg_contacts'] = '';
-            while ($cct = $selectContactsStmt->fetch(PDO::FETCH_ASSOC)) {
-                $insertContactStmt->bindValue(':contactId', (int) $cct['contact_contact_id'], PDO::PARAM_INT);
-                $insertContactStmt->bindValue(':newCgId', $newCgId, PDO::PARAM_INT);
-                $insertContactStmt->execute();
-                $fields['cg_contacts'] .= $cct['contact_contact_id'] . ',';
-            }
-            $fields['cg_contacts'] = trim($fields['cg_contacts'], ',');
+                $selectAclStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+                $selectAclStmt->execute();
+                $fields['cg_aclRelation'] = '';
+                while ($cgAcl = $selectAclStmt->fetch(PDO::FETCH_ASSOC)) {
+                    $insertAclStmt->bindValue(':newCgId', $newCgId, PDO::PARAM_INT);
+                    $insertAclStmt->bindValue(':aclGroupId', (int) $cgAcl['acl_group_id'], PDO::PARAM_INT);
+                    $insertAclStmt->execute();
+                    $fields['cg_aclRelation'] .= $cgAcl['acl_group_id'] . ',';
+                }
 
-            $centreon->CentreonLogAction->insertLog(
-                'contactgroup',
-                $newCgId,
-                $cg_name,
-                'a',
-                $fields
-            );
+                $selectContactsStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+                $selectContactsStmt->execute();
+                $fields['cg_contacts'] = '';
+                while ($cct = $selectContactsStmt->fetch(PDO::FETCH_ASSOC)) {
+                    $insertContactStmt->bindValue(':contactId', (int) $cct['contact_contact_id'], PDO::PARAM_INT);
+                    $insertContactStmt->bindValue(':newCgId', $newCgId, PDO::PARAM_INT);
+                    $insertContactStmt->execute();
+                    $fields['cg_contacts'] .= $cct['contact_contact_id'] . ',';
+                }
+                $fields['cg_contacts'] = trim($fields['cg_contacts'], ',');
+
+                $centreon->CentreonLogAction->insertLog(
+                    'contactgroup',
+                    $newCgId,
+                    $cg_name,
+                    'a',
+                    $fields
+                );
+                $pearDB->commit();
+            } catch (\Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
+            }
         }
     }
 }

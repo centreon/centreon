@@ -107,8 +107,9 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
         $row['default_tpl1'] = '0';
         $originalName = html_entity_decode((string) $row['name'], ENT_QUOTES, 'UTF-8');
         for ($i = 1; $i <= $dupCount; $i++) {
-            $row['name'] = $originalName . '_' . $i;
-            if (testExistence($row['name'])) {
+            $decodedName = $originalName . '_' . $i;
+            $row['name'] = htmlentities($decodedName, ENT_QUOTES, 'UTF-8');
+            if (testExistence($decodedName)) {
                 foreach ($columns as $col) {
                     $value = $row[$col];
                     if ($value === null) {
