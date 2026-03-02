@@ -1689,7 +1689,7 @@ function updateContactContactGroup_MC(int $contactId): bool
                 );
             }
         }
-    } catch (PDOException | CentreonDbException $e) {
+    } catch (PDOException|CentreonDbException $e) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and contact groups by massive change',
