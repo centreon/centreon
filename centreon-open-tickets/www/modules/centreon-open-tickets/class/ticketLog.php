@@ -105,7 +105,7 @@ class Centreon_OpenTickets_Log
         }
 
         $hostPlaceholders = [];
-        if (isset($params['host_filter']) && count($params['host_filter']) > 0) {
+        if (isset($params['host_filter']) && is_array($params['host_filter']) && $params['host_filter'] !== []) {
             foreach ($params['host_filter'] as $idx => $hostId) {
                 $param = ':hostFilter' . $idx;
                 $hostPlaceholders[] = $param;

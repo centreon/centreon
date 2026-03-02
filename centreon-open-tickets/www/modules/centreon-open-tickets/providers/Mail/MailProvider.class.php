@@ -131,14 +131,11 @@ class MailProvider extends AbstractProvider
     {
         $result = ['ticket_id' => null, 'ticket_error_message' => null, 'ticket_is_ok' => 0, 'ticket_time' => time()];
 
-        /**
-         * @phpstan-ignore-next-line
-         * FIXME $contact['name'] => Offset 'name' does not exist on string => $contact is a string or an array ??
-         */
         try {
             $insertStatement = $db_storage->prepare('INSERT INTO mod_open_tickets (`timestamp`, `user`) VALUES (:timestamp, :user)');
             $insertStatement->bindValue(':timestamp', $result['ticket_time']);
-            $insertStatement->bindValue(':user', $contact['name']);
+            // FIXME $contact['name'] => Offset 'name' does not exist on string => $contact is a string or an array ??
+            $insertStatement->bindValue(':user', $contact['name']); // @phpstan-ignore offsetAccess.notFound
             $insertStatement->execute();
             $result['ticket_id'] = $db_storage->lastinsertId('mod_open_tickets');
         } catch (Exception $e) {
