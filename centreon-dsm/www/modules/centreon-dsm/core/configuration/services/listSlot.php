@@ -35,9 +35,10 @@ $dbResult->closeCursor();
 
 if (isset($search)) {
     $dbResult = $pearDB->prepare(
-        'SELECT COUNT(*) FROM mod_dsm_pool WHERE (pool_name LIKE :search OR pool_description LIKE :search)'
+        'SELECT COUNT(*) FROM mod_dsm_pool WHERE (pool_name LIKE :searchName OR pool_description LIKE :searchDesc)'
     );
-    $dbResult->bindValue(':search', '%' . $search . '%');
+    $dbResult->bindValue(':searchName', '%' . $search . '%');
+    $dbResult->bindValue(':searchDesc', '%' . $search . '%');
     $dbResult->execute();
 } else {
     $dbResult = $pearDB->query('SELECT COUNT(*) FROM mod_dsm_pool');
@@ -74,11 +75,12 @@ if ($search) {
             pool_activate
         FROM mod_dsm_pool
         WHERE (
-            pool_name LIKE :search
-        OR pool_description LIKE :search)
+            pool_name LIKE :searchName
+        OR pool_description LIKE :searchDesc)
         ORDER BY pool_name LIMIT :offset, :limit';
     $dbResult = $pearDB->prepare($rq);
-    $dbResult->bindValue(':search', '%' . $search . '%');
+    $dbResult->bindValue(':searchName', '%' . $search . '%');
+    $dbResult->bindValue(':searchDesc', '%' . $search . '%');
     $dbResult->bindValue(':offset', $num * $limit, PDO::PARAM_INT);
     $dbResult->bindValue(':limit', $limit, PDO::PARAM_INT);
     $dbResult->execute();
