@@ -438,7 +438,8 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                     'pool_service_template_id' => PDO::PARAM_INT,
                 ];
 
-                for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+                $dupCount = (int) ($nbrDup[$key] ?? 0);
+                for ($i = 1; $i <= $dupCount; $i++) {
                     $parameters = [];
                     $row['pool_name'] = isset($row['pool_name']) ? $row['pool_name'] . '_' . $i : null;
                     $row['pool_host_id'] = null;
@@ -569,21 +570,9 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
                 ], true);
                 $pearDB->closeQuery($statementInsert);
 
-                $statementMax = $pearDB->prepareQuery(
-                    <<<'SQL'
-                            SELECT MAX(service_id)
-                            FROM service
-                            WHERE service_description = :service_description
-                                AND service_activate = '1'
-                                AND service_register = '1'
-                        SQL
-                );
-                $pearDB->executePreparedQuery($statementMax, [':service_description' => [$prefix . $suffix, PDO::PARAM_STR]], true);
-                $service = $pearDB->fetch($statementMax);
-                $service_id = $service['MAX(service_id)'];
-                $pearDB->closeQuery($statementMax);
+                $service_id = (int) $pearDB->lastInsertId();
 
-                if ($service_id != 0) {
+                if ($service_id > 0) {
                     $statementInsertHostRelation = $pearDB->prepareQuery(
                         'INSERT INTO host_service_relation (service_service_id, host_host_id)
                         VALUES (:service_id, :host_id)'
@@ -677,20 +666,9 @@ function generateServices($prefix, $number, $host_id, $template, $cmd, $args, $o
                 ], true);
                 $pearDB->closeQuery($statementInsert);
 
-                $statementMax = $pearDB->prepareQuery(
-                    <<<'SQL'
-                            SELECT MAX(service_id) FROM service
-                            WHERE service_description = :service_description
-                                AND service_activate = '1'
-                                AND service_register = '1'
-                        SQL
-                );
-                $pearDB->executePreparedQuery($statementMax, [':service_description' => [$prefix . $suffix, PDO::PARAM_STR]], true);
-                $service = $pearDB->fetch($statementMax);
-                $service_id = $service['MAX(service_id)'];
-                $pearDB->closeQuery($statementMax);
+                $service_id = (int) $pearDB->lastInsertId();
 
-                if ($service_id != 0) {
+                if ($service_id > 0) {
                     $statementInsertHostRelation = $pearDB->prepareQuery(
                         'INSERT INTO host_service_relation (service_service_id, host_host_id)
                         VALUES (:service_id, :host_id)'
@@ -965,6 +943,8 @@ function updatePoolContactGroup($pool_id = null, $ret = [])
             return;
         }
 
+        $pearDB->beginTransaction();
+
         $statement = $pearDB->prepareQuery('DELETE FROM mod_dsm_cg_relation WHERE pool_id = :pool_id');
         $pearDB->executePreparedQuery($statement, [':pool_id' => [$pool_id, PDO::PARAM_INT]], true);
         $pearDB->closeQuery($statement);
@@ -981,7 +961,13 @@ function updatePoolContactGroup($pool_id = null, $ret = [])
             ], true);
             $pearDB->closeQuery($statement);
         }
+
+        $pearDB->commit();
     } catch (CentreonDbException $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
             message: 'Error updating contact groups for pool with ID: ' . ($pool_id ?? 'N/A'),
@@ -1011,6 +997,8 @@ function updatePoolContact($pool_id = null, $ret = [])
             return;
         }
 
+        $pearDB->beginTransaction();
+
         $statement = $pearDB->prepareQuery('DELETE FROM mod_dsm_cct_relation WHERE pool_id = :pool_id');
         $pearDB->executePreparedQuery($statement, [':pool_id' => [$pool_id, PDO::PARAM_INT]], true);
         $pearDB->closeQuery($statement);
@@ -1027,7 +1015,13 @@ function updatePoolContact($pool_id = null, $ret = [])
             ], true);
             $pearDB->closeQuery($statement);
         }
+
+        $pearDB->commit();
     } catch (CentreonDbException $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
             message: 'Error updating contacts for pool with ID: ' . ($pool_id ?? 'N/A'),
