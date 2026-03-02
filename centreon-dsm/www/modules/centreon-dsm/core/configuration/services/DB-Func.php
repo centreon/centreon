@@ -476,8 +476,6 @@ function multiplePoolInDB($pool = [], $nbrDup = [])
                         );
                         $pearDB->executePreparedQuery($statement, $parameters, true);
                         $pearDB->closeQuery($statement);
-
-                        $cmd_id = ['MAX(pool_id)' => (int) $pearDB->lastInsertId()];
                     }
                 }
             }
