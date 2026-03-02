@@ -59,15 +59,14 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): InstallationCommandResource
     {
         $rawPollerId = $uriVariables['pollerId'] ?? null;
-        $pollerId = new PollerId(is_int($rawPollerId) ? $rawPollerId : 0);
-
+        $pollerId = new PollerId(is_scalar($rawPollerId) ? (int) $rawPollerId : 0);
         $platformVersion = $this->informationRepository->getByName(new InformationName('version'));
         $poller = $this->pollerRepository->withCmaCertificates()->get($pollerId);
         $agentConfiguration = $this->agentConfigurationRepository->getByPollerId($poller->id());
         $portData = $agentConfiguration->configuration->getData()['port'] ?? null;
         $installationCommand = new InstallationCommandFactory(
             $poller,
-            is_int($portData) ? $portData : AgentConfiguration::DEFAULT_PORT,
+            is_scalar($portData) ? (int) $portData : AgentConfiguration::DEFAULT_PORT,
             $this->isCloudPlatform,
             $platformVersion->value->value,
             $this->organization,
