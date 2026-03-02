@@ -33,9 +33,14 @@ function getCentreonBrokerDirCfg($ns_id)
 	    	WHERE id = :ns_id');
     $statement->bindValue(':ns_id', (int) $ns_id, PDO::PARAM_INT);
     $statement->execute();
-    $row = $statement->fetch();
-    if (trim($row['centreonbroker_cfg_path']) != '') {
-        return trim($row['centreonbroker_cfg_path']);
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+    if ($row === false) {
+        return null;
+    }
+
+    $path = trim((string) $row['centreonbroker_cfg_path']);
+    if ($path !== '') {
+        return $path;
     }
 
     return null;

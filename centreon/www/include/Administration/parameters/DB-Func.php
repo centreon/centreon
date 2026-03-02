@@ -797,8 +797,9 @@ function updateODSConfigData()
     $statement->bindValue(':archiveRetention', (int) $ret['archive_retention'], PDO::PARAM_INT);
     $statement->bindValue(':reportingRetention', (int) $ret['reporting_retention'], PDO::PARAM_INT);
     $statement->bindValue(':auditLogOption', $ret['audit_log_option'], PDO::PARAM_STR);
-    $storageType = $ret['storage_type'] ?? null;
-    $statement->bindValue(':storageType', $storageType !== null ? (int) $storageType : null, $storageType !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
+    $rawStorageType = $ret['storage_type'] ?? null;
+    $storageType = ($rawStorageType === null || $rawStorageType === '') ? null : (int) $rawStorageType;
+    $statement->bindValue(':storageType', $storageType, $storageType === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
     $statement->bindValue(':lenDowntimes', (int) $ret['len_storage_downtimes'], PDO::PARAM_INT);
     $statement->bindValue(':auditLogRetention', (int) $ret['audit_log_retention'], PDO::PARAM_INT);
     $statement->bindValue(':lenComments', (int) $ret['len_storage_comments'], PDO::PARAM_INT);

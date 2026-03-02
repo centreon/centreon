@@ -89,9 +89,10 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
             $insertStmt->bindValue(':alias', $row['alias'], PDO::PARAM_STR);
             $insertStmt->bindValue(':description', $row['description'], PDO::PARAM_STR);
             $insertStmt->execute();
+            $newMnftrId = (int) $pearDB->lastInsertId();
             $oreon->CentreonLogAction->insertLog(
                 'manufacturer',
-                $key,
+                $newMnftrId,
                 $name,
                 'a',
                 $fields

@@ -133,7 +133,10 @@ foreach ($ids as $arId) {
             );
             $resServer->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
             $resServer->execute();
-            $serverRow = $resServer->fetchRow();
+            $serverRow = $resServer->fetch(PDO::FETCH_ASSOC);
+            if ($serverRow === false) {
+                continue;
+            }
 
             $buffer->writeElement('entries', $number_returned);
             for ($i = 0; $i < $number_returned; $i++) {

@@ -214,7 +214,9 @@ function deleteActionInDB($actions = [])
         $deleteRules->execute();
         $deleteRelations->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
         $deleteRelations->execute();
-        $centreon->CentreonLogAction->insertLog('action access', $sanitizedAclActionId, $row['acl_action_name'], 'd');
+        if ($row !== false) {
+            $centreon->CentreonLogAction->insertLog('action access', $sanitizedAclActionId, $row['acl_action_name'], 'd');
+        }
     }
     flagUpdatedAclForAuthentifiedUsers($aclGroupIds);
 }

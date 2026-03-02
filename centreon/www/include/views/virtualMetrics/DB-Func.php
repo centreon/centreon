@@ -161,7 +161,7 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         try {
             $selectStmt->execute();
         } catch (PDOException $e) {
-            echo 'DB Error : ' . $e->getMessage();
+            error_log('DB error in multipleVirtualMetricInDB SELECT: ' . $e->getMessage());
             continue;
         }
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
@@ -171,7 +171,8 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 
         $indexId = (int) $row['index_id'];
         $originalName = $row['vmetric_name'];
-        for ($newIndex = 1; $newIndex <= $nbrDup[$vmetricId]; $newIndex++) {
+        $copies = (int) ($nbrDup[$vmetricId] ?? 0);
+        for ($newIndex = 1; $newIndex <= $copies; $newIndex++) {
             $count = 1;
             $virtualMetricName = $originalName . '_' . $count;
             while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
@@ -186,7 +187,7 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
                 }
                 $insertStmt->execute();
             } catch (PDOException $e) {
-                echo 'DB Error : ' . $e->getMessage();
+                error_log('DB error in multipleVirtualMetricInDB INSERT: ' . $e->getMessage());
             }
         }
     }

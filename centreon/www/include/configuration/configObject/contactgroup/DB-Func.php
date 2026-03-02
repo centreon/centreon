@@ -57,8 +57,9 @@ function enableContactGroupInDB($cg_id = null)
     $stmt2->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
     $stmt2->execute();
     $row = $stmt2->fetch();
+    $cgName = is_array($row) ? $row['cg_name'] : (string) $cg_id;
 
-    $centreon->CentreonLogAction->insertLog('contactgroup', $cg_id, $row['cg_name'], 'enable');
+    $centreon->CentreonLogAction->insertLog('contactgroup', $cg_id, $cgName, 'enable');
 }
 
 function disableContactGroupInDB($cg_id = null)
@@ -76,8 +77,9 @@ function disableContactGroupInDB($cg_id = null)
     $stmt2->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
     $stmt2->execute();
     $row = $stmt2->fetch();
+    $cgName = is_array($row) ? $row['cg_name'] : (string) $cg_id;
 
-    $centreon->CentreonLogAction->insertLog('contactgroup', $cg_id, $row['cg_name'], 'disable');
+    $centreon->CentreonLogAction->insertLog('contactgroup', $cg_id, $cgName, 'disable');
 }
 
 function deleteContactGroupInDB($contactGroups = [])
@@ -91,10 +93,11 @@ function deleteContactGroupInDB($contactGroups = [])
         $selectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
+        $cgName = is_array($row) ? $row['cg_name'] : (string) $key;
 
         $deleteStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
         $deleteStmt->execute();
-        $centreon->CentreonLogAction->insertLog('contactgroup', $key, $row['cg_name'], 'd');
+        $centreon->CentreonLogAction->insertLog('contactgroup', $key, $cgName, 'd');
     }
 }
 
@@ -365,9 +368,9 @@ function getContactGroupIdByName($name)
     $stmt = $pearDB->prepare('SELECT cg_id FROM contactgroup WHERE cg_name = :cgName');
     $stmt->bindValue(':cgName', $name, PDO::PARAM_STR);
     $stmt->execute();
-    if ($stmt->rowCount()) {
-        $row = $stmt->fetch();
-        $id = $row['cg_id'];
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row !== false) {
+        $id = (int) $row['cg_id'];
     }
 
     return $id;

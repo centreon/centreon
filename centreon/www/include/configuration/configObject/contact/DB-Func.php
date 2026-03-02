@@ -1768,8 +1768,11 @@ function insertLdapContactInDB($tmpContacts = [])
         } catch (PDOException $e) {
             return false;
         }
-        $row = $dnStmt->fetch();
-        $contact_id = $row['contact_id'];
+        $row = $dnStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            continue;
+        }
+        $contact_id = (int) $row['contact_id'];
 
         if (! isset($ldapInstances[$arId])) {
             $ldap = new CentreonLDAP($pearDB, null, $arId);

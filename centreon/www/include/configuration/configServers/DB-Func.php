@@ -372,11 +372,14 @@ function duplicateServer(array $server, array $nbrDup): void
         $selectServerStmt->bindValue(':serverId', (int) $serverId, PDO::PARAM_INT);
         $selectServerStmt->execute();
         $rowServer = $selectServerStmt->fetch(PDO::FETCH_ASSOC);
+        $selectServerStmt->closeCursor();
+        if ($rowServer === false) {
+            continue;
+        }
         $rowServer['id'] = null;
         $rowServer['ns_activate'] = '0';
         $rowServer['is_default'] = '0';
         $rowServer['localhost'] = '0';
-        $selectServerStmt->closeCursor();
 
         if (! isset($rowServer['name'])) {
             continue;

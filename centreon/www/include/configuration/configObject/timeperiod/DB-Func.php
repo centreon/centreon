@@ -206,9 +206,9 @@ function getTimeperiodIdByName($name)
     $stmt = $pearDB->prepare('SELECT tp_id FROM timeperiod WHERE tp_name = :tpName');
     $stmt->bindValue(':tpName', $name, PDO::PARAM_STR);
     $stmt->execute();
-    if ($stmt->rowCount()) {
-        $row = $stmt->fetch();
-        $id = $row['tp_id'];
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row !== false) {
+        $id = (int) $row['tp_id'];
     }
 
     return $id;
