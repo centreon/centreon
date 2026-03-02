@@ -53,8 +53,8 @@ function deleteGraphTemplateInDB($graphs = []): void
 {
     global $pearDB;
 
-    foreach ($graphs as $key => $value) {
-        $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
+    $stmt = $pearDB->prepare('DELETE FROM giv_graphs_template WHERE graph_id = :graphTemplateId');
+    foreach (array_keys($graphs) as $key) {
         $stmt->bindValue(':graphTemplateId', $key, PDO::PARAM_INT);
         $stmt->execute();
     }
@@ -83,6 +83,7 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
         'lower_limit', 'upper_limit', 'size_to_max', 'default_tpl1',
         'scaled', 'stacked', 'comment', 'split_component',
     ];
+    $intColumns = ['width' => true, 'height' => true, 'base' => true, 'size_to_max' => true];
     $selectStmt = $pearDB->prepare(
         'SELECT ' . implode(', ', $columns) . ' FROM giv_graphs_template WHERE graph_id = :graphTemplateId LIMIT 1'
     );
@@ -109,7 +110,15 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
             $row['name'] = $originalName . '_' . $i;
             if (testExistence($row['name'])) {
                 foreach ($columns as $col) {
-                    $insertStmt->bindValue(':' . $col, $row[$col]);
+                    $value = $row[$col];
+                    if ($value === null) {
+                        $type = PDO::PARAM_NULL;
+                    } elseif (isset($intColumns[$col])) {
+                        $type = PDO::PARAM_INT;
+                    } else {
+                        $type = PDO::PARAM_STR;
+                    }
+                    $insertStmt->bindValue(':' . $col, $value, $type);
                 }
                 $insertStmt->execute();
             }

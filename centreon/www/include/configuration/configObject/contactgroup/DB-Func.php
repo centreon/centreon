@@ -151,6 +151,9 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
             $insertStmt->execute();
 
             $newCgId = (int) $pearDB->lastInsertId();
+            if ($newCgId <= 0) {
+                continue;
+            }
 
             $fields = [];
             foreach ($row as $key2 => $value2) {
@@ -232,6 +235,9 @@ function insertContactGroup($ret)
     $stmt->execute();
 
     $cgId = (int) $pearDB->lastInsertId();
+    if ($cgId <= 0) {
+        return 0;
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
