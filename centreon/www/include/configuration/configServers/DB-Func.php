@@ -771,7 +771,7 @@ function insertServer(array $data): int
      */
     $centreon->user->access->updatePollerACL();
 
-    return (int) $poller['last_id'];
+    return $pollerId;
 }
 
 /**

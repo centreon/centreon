@@ -115,7 +115,7 @@ function disableNagiosInDB($nagiosId = null)
     $statement->execute();
     $activate = $statement->fetch(PDO::FETCH_ASSOC);
 
-    if (! $activate['nagios_id']) {
+    if ($activate === false || ! $activate['nagios_id']) {
         $query = "UPDATE `nagios_server` SET `ns_activate` = '0' WHERE `id` = :id";
         $statement = $pearDB->prepare($query);
         $statement->bindValue(':id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
@@ -581,17 +581,18 @@ function insertNagios($data = [], $brokerTab = [])
 
     $statement->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(nagios_id) FROM cfg_nagios');
-    $nagios_id = $dbResult->fetch();
-    $dbResult->closeCursor();
+    $nagiosId = (int) $pearDB->lastInsertId();
+    if ($nagiosId <= 0) {
+        throw new \RuntimeException('Failed to retrieve last inserted nagios_id');
+    }
 
     if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {
-        insertLoggerV2Cfg($pearDB, $data, $nagios_id['MAX(nagios_id)']);
+        insertLoggerV2Cfg($pearDB, $data, $nagiosId);
     }
 
     if (isset($_REQUEST['in_broker'])) {
         $mainCfg = new CentreonConfigEngine($pearDB);
-        $mainCfg->insertBrokerDirectives($nagios_id['MAX(nagios_id)'], $_REQUEST['in_broker']);
+        $mainCfg->insertBrokerDirectives($nagiosId, $_REQUEST['in_broker']);
     }
 
     // Manage the case where you have to main.cfg on the same poller
@@ -601,7 +602,7 @@ function insertNagios($data = [], $brokerTab = [])
              WHERE nagios_id != :nagios_id
              AND nagios_server_id = :nagios_server_id"
         );
-        $statement->bindValue(':nagios_id', (int) $nagios_id['MAX(nagios_id)'], PDO::PARAM_INT);
+        $statement->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
         $statement->bindValue(':nagios_server_id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
         $statement->execute();
     }
@@ -610,13 +611,13 @@ function insertNagios($data = [], $brokerTab = [])
     $fields = CentreonLogAction::prepareChanges($data);
     $centreon->CentreonLogAction->insertLog(
         'engine',
-        $nagios_id['MAX(nagios_id)'],
+        $nagiosId,
         $data['nagios_name'],
         'a',
         $fields
     );
 
-    return $nagios_id['MAX(nagios_id)'];
+    return $nagiosId;
 }
 
 function updateNagios($nagiosId = null)
