@@ -21,25 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Information;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
-
-interface PollerRepository
+final readonly class Information
 {
-    /**
-     * @return Collection<Poller>
-     */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
-
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
+    public function __construct(
+        public InformationName $name,
+        public InformationValue $value,
+    ) {
+    }
 }

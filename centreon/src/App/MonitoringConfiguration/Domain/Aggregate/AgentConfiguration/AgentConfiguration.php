@@ -21,25 +21,24 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
+use App\Shared\Domain\Aggregate\AggregateRoot;
 
-interface PollerRepository
+/**
+ * @immutable
+ */
+class AgentConfiguration extends AggregateRoot
 {
-    /**
-     * @return Collection<Poller>
-     */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
+    public const DEFAULT_HOST = '0.0.0.0';
+    public const DEFAULT_PORT = 4317;
 
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
+    public function __construct(
+        public AgentConfigurationId $id,
+        public AgentConfigurationName $name,
+        public AgentConfigurationTypeEnum $type,
+        public ConnectionModeEnum $connectionMode,
+        public AbstractConfigurationParameters $configuration,
+    ) {
+    }
 }
