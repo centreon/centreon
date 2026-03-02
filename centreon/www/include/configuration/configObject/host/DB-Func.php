@@ -437,9 +437,9 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $insertHostStmt->bindValue(':' . $col, $row[$col]);
                 }
                 $insertHostStmt->execute();
-                $maxId = ['MAX(host_id)' => (int) $pearDB->lastInsertId()];
-                if (isset($maxId['MAX(host_id)'])) {
-                    $hostAcl[$maxId['MAX(host_id)']] = $key;
+                $maxId = (int) $pearDB->lastInsertId();
+                if ($maxId !== 0) {
+                    $hostAcl[$maxId] = $key;
 
                     $parentStatement = $pearDB->prepare('SELECT DISTINCT host_parent_hp_id FROM host_hostparent_relation WHERE host_host_id = :hostId');
                     $parentStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
@@ -452,7 +452,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     );
                     while ($host = $dbResult->fetch()) {
                         $statement->bindValue(':host_parent_hp_id', (int) $host['host_parent_hp_id'], PDO::PARAM_INT);
-                        $statement->bindValue(':host_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_parents'] .= $host['host_parent_hp_id'] . ',';
                     }
@@ -468,7 +468,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                          VALUES (:host_parent_hp_id, :host_host_id)'
                     );
                     while ($host = $res->fetch()) {
-                        $statement->bindValue(':host_parent_hp_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_parent_hp_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':host_host_id', (int) $host['host_host_id'], PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_childs'] .= $host['host_host_id'] . ',';
@@ -482,7 +482,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     } elseif (file_exists($path . '../service/DB-Func.php')) {
                         require_once $path . '../configObject/service/DB-Func.php';
                     }
-                    $hostInf = $maxId['MAX(host_id)'];
+                    $hostInf = $maxId;
                     $serviceArr = [];
                     $serviceNbr = [];
                     // Get all Services link to the Host
@@ -510,7 +510,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         $countStatement->execute();
                         $mulHostSv = $countStatement->fetch(PDO::FETCH_ASSOC);
                         if ($mulHostSv['COUNT(*)'] > 1) {
-                            $insertStatement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                            $insertStatement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                             $insertStatement->bindValue(
                                 ':service_service_id',
                                 (int) $service['service_service_id'],
@@ -536,7 +536,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                              VALUES (NULL, NULL, :host_id, NULL, :service_service_id)'
                         );
                         while ($svs = $dbResult->fetch()) {
-                            $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                            $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                             $statement->bindValue(
                                 ':service_service_id',
                                 (int) $svs['service_service_id'],
@@ -557,7 +557,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                          VALUES (:host_id, :contactgroup_cg_id)'
                     );
                     while ($cg = $dbResult->fetch()) {
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':contactgroup_cg_id', (int) $cg['contactgroup_cg_id'], PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_cgs'] .= $cg['contactgroup_cg_id'] . ',';
@@ -575,7 +575,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                          VALUES (:host_id, :contact_id)'
                     );
                     while ($c = $dbResult->fetch()) {
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':contact_id', (int) $c['contact_id'], PDO::PARAM_INT);
                         $statement->execute();
                         $fields['host_cs'] .= $c['contact_id'] . ',';
@@ -593,7 +593,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     );
                     while ($hg = $dbResult->fetch()) {
                         $statement->bindValue(':hostgroup_hg_id', (int) $hg['hostgroup_hg_id'], PDO::PARAM_INT);
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->execute();
                     }
 
@@ -602,7 +602,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     $ehiSelectStatement->bindValue(':hostId', (int) $key, PDO::PARAM_INT);
                     $ehiSelectStatement->execute();
                     while ($ehi = $ehiSelectStatement->fetch(PDO::FETCH_ASSOC)) {
-                        $ehi['host_host_id'] = $maxId['MAX(host_id)'];
+                        $ehi['host_host_id'] = $maxId;
                         $ehi['ehi_id'] = null;
                         $ehiColumns = array_keys($ehi);
                         $ehiPlaceholders = array_map(fn($col) => ':' . $col, $ehiColumns);
@@ -630,7 +630,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                     );
                     while ($hg = $dbResult->fetch()) {
                         $statement->bindValue(':nagios_server_id', (int) $hg['nagios_server_id'], PDO::PARAM_INT);
-                        $statement->bindValue(':host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->execute();
                         $fields['nagios_server_id'] .= $hg['nagios_server_id'] . ',';
                     }
@@ -646,8 +646,8 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                                VALUES (:host_host_id, :host_tpl_id, :order)';
                     $statement = $pearDB->prepare($mTpRq2);
                     while ($hst = $dbResult3->fetch()) {
-                        if ($hst['host_tpl_id'] != $maxId['MAX(host_id)']) {
-                            $statement->bindValue(':host_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        if ($hst['host_tpl_id'] != $maxId) {
+                            $statement->bindValue(':host_host_id', (int) $maxId, PDO::PARAM_INT);
                             $statement->bindValue(':host_tpl_id', (int) $hst['host_tpl_id'], PDO::PARAM_INT);
                             $statement->bindValue(':order', (int) $hst['order'], PDO::PARAM_INT);
                             $statement->execute();
@@ -675,7 +675,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         if (! isset($hst['is_password'])) {
                             $hst['is_password'] = '0';
                         }
-                        $statement->bindValue(':host_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int) $maxId, PDO::PARAM_INT);
                         $statement->bindValue(':host_macro_name', '$' . $macName . '$', PDO::PARAM_STR);
                         $statement->bindValue(':host_macro_value', $macVal, PDO::PARAM_STR);
                         $statement->bindValue(':is_password', (int) $hst['is_password'], PDO::PARAM_INT);
@@ -699,7 +699,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                                 FROM hostcategories_relation
                                 WHERE host_host_id = :host_id';
                     $statement = $pearDB->prepare($request);
-                    $statement->bindValue(':max_host_id', (int) $maxId['MAX(host_id)'], PDO::PARAM_INT);
+                    $statement->bindValue(':max_host_id', (int) $maxId, PDO::PARAM_INT);
                     $statement->bindValue(':host_id', (int) $key, PDO::PARAM_INT);
                     $statement->execute();
 
@@ -730,7 +730,7 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                                     $row['host_snmp_community'],
                                     $macroPasswords,
                                     $key,
-                                    (int) $maxId['MAX(host_id)']
+                                    (int) $maxId
                                 );
                             } catch (Throwable $ex) {
                                 error_log((string) $ex);
@@ -738,20 +738,20 @@ function multipleHostInDB($hosts = [], $nbrDup = [])
                         }
                     }
 
-                    signalConfigurationChange('host', (int) $maxId['MAX(host_id)']);
+                    signalConfigurationChange('host', (int) $maxId);
                     $centreon->CentreonLogAction->insertLog(
                         object_type: ActionLog::OBJECT_TYPE_HOST,
-                        object_id: $maxId['MAX(host_id)'],
+                        object_id: $maxId,
                         object_name: $hostName,
                         action_type: ActionLog::ACTION_TYPE_ADD
                     );
                 }
             }
             // if all duplication names are already used, next value is never set
-            if (isset($maxId['MAX(host_id)'])) {
+            if (isset($maxId)) {
                 $centreon->user->access->updateACL([
                     'type' => 'HOST',
-                    'id' => $maxId['MAX(host_id)'],
+                    'id' => $maxId,
                     'action' => 'DUP',
                     'duplicate_host' => (int) $key,
                 ]);
