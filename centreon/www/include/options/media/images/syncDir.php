@@ -34,17 +34,15 @@ $mediaLogInstance = CentreonLog::create();
 global $regCounter, $gdCounter, $fileRemoved, $dirCreated;
 
 $sid = session_id();
-if ($sid === false) {
+if ($sid === '' || $sid === false) {
     exit;
 }
 
-if (isset($sid)) {
-    $DBRESULT = $pearDB->prepare('SELECT 1 FROM session WHERE session_id = :sid LIMIT 1');
-    $DBRESULT->bindValue(':sid', $sid);
-    $DBRESULT->execute();
-    if ($DBRESULT->fetchColumn() === false) {
-        exit();
-    }
+$DBRESULT = $pearDB->prepare('SELECT 1 FROM session WHERE session_id = :sid LIMIT 1');
+$DBRESULT->bindValue(':sid', $sid);
+$DBRESULT->execute();
+if ($DBRESULT->fetchColumn() === false) {
+    exit();
 }
 
 $dir = './img/media/';

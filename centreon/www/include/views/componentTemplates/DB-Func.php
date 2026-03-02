@@ -197,6 +197,10 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
     $intColumns = ['host_id', 'service_id', 'ds_tickness', 'ds_order', 'default_tpl1'];
 
     foreach (array_keys($compos) as $key) {
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        if ($dupCount < 1) {
+            continue;
+        }
         $selectStmt->bindValue(':compo_id', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
@@ -206,7 +210,7 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
 
         $row['default_tpl1'] = '0';
         $originalName = $row['name'];
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+        for ($i = 1; $i <= $dupCount; $i++) {
             $row['name'] = $originalName . '_' . $i;
             if (NameHsrTestExistence($row['name'])) {
                 foreach ($columns as $col) {
