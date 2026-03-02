@@ -583,7 +583,7 @@ function insertNagios($data = [], $brokerTab = [])
 
     $nagiosId = (int) $pearDB->lastInsertId();
     if ($nagiosId <= 0) {
-        throw new \RuntimeException('Failed to retrieve last inserted nagios_id');
+        throw new RuntimeException('Failed to retrieve last inserted nagios_id');
     }
 
     if (isset($nagiosCfg['logger_version']) && $nagiosCfg['logger_version'] === 'log_v2_enabled') {

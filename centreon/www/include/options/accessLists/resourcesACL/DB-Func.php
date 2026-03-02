@@ -228,7 +228,7 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                         $fields
                     );
                     $pearDB->commit();
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     if ($pearDB->inTransaction()) {
                         $pearDB->rollBack();
                     }
