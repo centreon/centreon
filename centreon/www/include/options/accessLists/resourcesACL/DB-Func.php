@@ -192,9 +192,9 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                 $insertStmt->bindValue(':all_hosts', $row['all_hosts']);
                 $insertStmt->bindValue(':all_hostgroups', $row['all_hostgroups']);
                 $insertStmt->bindValue(':all_servicegroups', $row['all_servicegroups']);
-                $insertStmt->bindValue(':all_image_folders', $row['all_image_folders']);
+                $insertStmt->bindValue(':all_image_folders', (int) $row['all_image_folders'], PDO::PARAM_INT);
                 $insertStmt->bindValue(':acl_res_activate', $row['acl_res_activate']);
-                $insertStmt->bindValue(':changed', $row['changed']);
+                $insertStmt->bindValue(':changed', (int) $row['changed'], PDO::PARAM_INT);
                 $insertStmt->bindValue(':acl_res_comment', $row['acl_res_comment']);
                 $insertStmt->execute();
 

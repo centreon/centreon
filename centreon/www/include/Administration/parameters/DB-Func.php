@@ -791,7 +791,7 @@ function updateODSConfigData()
     $statement->bindValue(':rrdStatsPath', $ret['RRDdatabase_nagios_stats_path'], PDO::PARAM_STR);
     $statement->bindValue(':lenRrd', (int) $ret['len_storage_rrd'], PDO::PARAM_INT);
     $statement->bindValue(':lenMysql', (int) $ret['len_storage_mysql'], PDO::PARAM_INT);
-    $statement->bindValue(':autodeleteRrd', (int) $ret['autodelete_rrd_db'], PDO::PARAM_INT);
+    $statement->bindValue(':autodeleteRrd', $ret['autodelete_rrd_db'], PDO::PARAM_STR);
     $statement->bindValue(':purgeInterval', (int) $ret['purge_interval'], PDO::PARAM_INT);
     $statement->bindValue(':archiveLog', $ret['archive_log'], PDO::PARAM_STR);
     $statement->bindValue(':archiveRetention', (int) $ret['archive_retention'], PDO::PARAM_INT);

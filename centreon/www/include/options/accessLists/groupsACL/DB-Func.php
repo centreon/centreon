@@ -194,7 +194,7 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                 $insertStmt->bindValue(':name', $acl_group_name, PDO::PARAM_STR);
                 $insertStmt->bindValue(':alias', $row['acl_group_alias'], PDO::PARAM_STR);
                 $insertStmt->bindValue(':activate', $row['acl_group_activate'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':changed', $row['acl_group_changed'] ?? '0', PDO::PARAM_STR);
+                $insertStmt->bindValue(':changed', (int) ($row['acl_group_changed'] ?? 0), PDO::PARAM_INT);
                 $insertStmt->execute();
                 $maxId = (int) $pearDB->lastInsertId();
 
