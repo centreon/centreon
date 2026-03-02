@@ -772,7 +772,7 @@ paths:
   /configuration/services/categories:
     get:
       tags:
-        - ServiceCategory
+        - 'Service category'
       summary: 'List all service categories'
       description: |
         Return all service category configurations.
@@ -819,7 +819,7 @@ paths:
     post:
       operationId: _api_/configuration/services/categories_post
       tags:
-        - ServiceCategory
+        - 'Service category'
       responses:
         '409':
           description: 'ServiceCategory resource already exists'
