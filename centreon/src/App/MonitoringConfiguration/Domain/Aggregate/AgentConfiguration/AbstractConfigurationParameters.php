@@ -1,5 +1,24 @@
 <?php
 
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration;
@@ -10,6 +29,7 @@ abstract class AbstractConfigurationParameters
 {
     protected const MAX_LENGTH = 255;
     protected const CERTIFICATE_BASE_PATH = '/etc/pki/';
+
     /** @var array<string> */
     protected const FORBIDDEN_DIRECTORIES = [
         '/tmp', '/root', '/proc', '/mnt', '/run', '/snap', '/sys', '/boot',
@@ -37,7 +57,7 @@ abstract class AbstractConfigurationParameters
 
         $this->assertPathSecurity($path, $field);
         $normalizedPath = $this->prependPrefix($path);
-        Assert::maxLength($normalizedPath, static::MAX_LENGTH, $field);
+        Assert::maxLength($normalizedPath, self::MAX_LENGTH, $field);
 
         return $normalizedPath;
     }
@@ -48,11 +68,11 @@ abstract class AbstractConfigurationParameters
             return $path;
         }
 
-        return static::CERTIFICATE_BASE_PATH . ltrim($path, '/');
+        return self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
     }
 
     /**
-     * @throws AssertionException
+     * @throws \InvalidArgumentException
      */
     protected function assertPathSecurity(string $path, string $field): void
     {
@@ -84,7 +104,7 @@ abstract class AbstractConfigurationParameters
         // Reject /etc except /etc/pki
         if (str_starts_with($path, '/etc/')) {
             Assert::true(
-                str_starts_with($path, static::CERTIFICATE_BASE_PATH) || $path === static::CERTIFICATE_BASE_PATH,
+                str_starts_with($path, self::CERTIFICATE_BASE_PATH) || $path === self::CERTIFICATE_BASE_PATH,
                 sprintf('[%s] The path "%s" can only be in /etc/pki/ directory', $field, $path)
             );
         }

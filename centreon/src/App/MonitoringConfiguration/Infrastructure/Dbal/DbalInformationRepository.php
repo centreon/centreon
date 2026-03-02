@@ -34,8 +34,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @phpstan-type RowTypeAlias = array{
- *  information_name: string,
- *  information_value: string,
+ *  option_name: string,
+ *  option_value: string,
  * }
  */
 final readonly class DbalInformationRepository extends DbalRepository implements InformationRepository
@@ -54,7 +54,7 @@ final readonly class DbalInformationRepository extends DbalRepository implements
     ) {
     }
 
-    public function getByName(InformationName $name):Information
+    public function getByName(InformationName $name): Information
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('`key` AS option_name', '`value` AS option_value')

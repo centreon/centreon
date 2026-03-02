@@ -25,12 +25,12 @@ namespace App\MonitoringConfiguration\Domain\Repository;
 
 use App\MonitoringConfiguration\Domain\Aggregate\Information\Information;
 use App\MonitoringConfiguration\Domain\Aggregate\Information\InformationName;
-use App\MonitoringConfiguration\Domain\Exception\InformationDoesNotExistException;
+use App\MonitoringConfiguration\Domain\Exception\InformationNotFoundException;
 
 interface InformationRepository
 {
     /**
-     * @throws InformationDoesNotExistException
+     * @throws InformationNotFoundException
      */
     public function getByName(InformationName $name): Information;
 }

@@ -28,7 +28,7 @@ use Webmozart\Assert\Assert;
 final readonly class CMACertificateCN
 {
     public function __construct(
-        public string $value
+        public string $value,
     ) {
         Assert::lengthBetween($value, 1, 255);
 

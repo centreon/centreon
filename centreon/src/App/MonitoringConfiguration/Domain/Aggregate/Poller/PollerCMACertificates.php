@@ -27,7 +27,7 @@ final readonly class PollerCMACertificates
 {
     public function __construct(
         public ?CMACertificateSHA $certificateSha,
-        public ?CMACertificateCN $certificateCn
+        public ?CMACertificateCN $certificateCn,
     ) {
     }
 }

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,35 +31,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final readonly class DbalResourceAccessRepository implements ResourceAccessRepository
 {
-    /**
-     * @param TransformerInterface<RowTypeAlias, Connector> $transformer
-     */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
     ) {
-    }
-
-    private function getAccessibleAclResourcesQueryBuilder(): \Doctrine\DBAL\Query\QueryBuilder
-    {
-        $qb = $this->connection->createQueryBuilder();
-        $qb
-            ->select('DISTINCT ar.acl_res_id')
-            ->from('acl_resources', 'ar')
-            ->innerJoin('ar', 'acl_res_group_relations', 'argr', 'argr.acl_res_id = ar.acl_res_id')
-            ->innerJoin('argr', 'acl_groups', 'ag', 'ag.acl_group_id = argr.acl_group_id AND ag.acl_group_activate = \'1\'')
-            ->leftJoin('ag', 'acl_group_contacts_relations', 'agcr', 'agcr.acl_group_id = ag.acl_group_id AND agcr.contact_contact_id = :contactId')
-            ->leftJoin('ag', 'acl_group_contactgroups_relations', 'agcgr', 'agcgr.acl_group_id = ag.acl_group_id')
-            ->leftJoin('agcgr', 'contactgroup_contact_relation', 'cgcr', 'cgcr.contactgroup_cg_id = agcgr.cg_cg_id AND cgcr.contact_contact_id = :contactId')
-            ->where('ar.acl_res_activate = \'1\'')
-            ->andWhere(
-                $qb->expr()->or(
-                    'agcr.contact_contact_id IS NOT NULL',
-                    'cgcr.contact_contact_id IS NOT NULL'
-                )
-            );
-
-        return $qb;
     }
 
     public function hasAccessToAllPollers(UserId $userId): bool
@@ -74,6 +49,7 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             ->where('arpr.acl_res_id IS NULL')
             ->setParameter('contactId', $userId->value)
             ->setMaxResults(1);
+
         return ! (bool) $this->connection->fetchOne($qb->getSQL(), ['contactId' => $userId->value]);
     }
 
@@ -100,5 +76,27 @@ final readonly class DbalResourceAccessRepository implements ResourceAccessRepos
             'contactId' => $userId->value,
             'pollerId' => $pollerId->value,
         ]);
+    }
+
+    private function getAccessibleAclResourcesQueryBuilder(): \Doctrine\DBAL\Query\QueryBuilder
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb
+            ->select('DISTINCT ar.acl_res_id')
+            ->from('acl_resources', 'ar')
+            ->innerJoin('ar', 'acl_res_group_relations', 'argr', 'argr.acl_res_id = ar.acl_res_id')
+            ->innerJoin('argr', 'acl_groups', 'ag', "ag.acl_group_id = argr.acl_group_id AND ag.acl_group_activate = '1'")
+            ->leftJoin('ag', 'acl_group_contacts_relations', 'agcr', 'agcr.acl_group_id = ag.acl_group_id AND agcr.contact_contact_id = :contactId')
+            ->leftJoin('ag', 'acl_group_contactgroups_relations', 'agcgr', 'agcgr.acl_group_id = ag.acl_group_id')
+            ->leftJoin('agcgr', 'contactgroup_contact_relation', 'cgcr', 'cgcr.contactgroup_cg_id = agcgr.cg_cg_id AND cgcr.contact_contact_id = :contactId')
+            ->where("ar.acl_res_activate = '1'")
+            ->andWhere(
+                $qb->expr()->or(
+                    'agcr.contact_contact_id IS NOT NULL',
+                    'cgcr.contact_contact_id IS NOT NULL'
+                )
+            );
+
+        return $qb;
     }
 }

@@ -26,48 +26,54 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\AgentConf
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration\AgentConfiguration;
-use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
 use App\MonitoringConfiguration\Domain\Aggregate\Information\InformationName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\AgentConfigurationRepository;
 use App\MonitoringConfiguration\Domain\Repository\InformationRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\AgentConfiguration\InstallationCommandResource;
+use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final class GetInstallationCommandProvider implements ProviderInterface
+/**
+ * @template-implements ProviderInterface<InstallationCommandResource>
+ */
+final readonly class GetInstallationCommandProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly PollerRepository $pollerRepository,
-        private readonly InformationRepository $informationRepository,
-        private readonly AgentConfigurationRepository $agentConfigurationRepository,
+        private PollerRepository $pollerRepository,
+        private InformationRepository $informationRepository,
+        private AgentConfigurationRepository $agentConfigurationRepository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
-        private readonly bool $isCloudPlatform,
+        private bool $isCloudPlatform,
         #[Autowire(env: 'default::ORGANIZATION')]
-        private readonly ?string $organization,
+        private ?string $organization,
         #[Autowire(env: 'default::SITE')]
-        private readonly ?string $site,
+        private ?string $site,
     ) {
-        if ($this->isCloudPlatform && (null === $this->organization || null === $this->site)) {
+        if ($this->isCloudPlatform && ($this->organization === null || $this->site === null)) {
             throw new \RuntimeException('Organization and site must be provided in cloud platform mode.');
         }
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): InstallationCommandResource
     {
-        $pollerId = array_key_exists('pollerId', $uriVariables) ? (int) $uriVariables['pollerId'] : null;
-        $pollerId = new PollerId($pollerId);
+        $rawPollerId = $uriVariables['pollerId'] ?? null;
+        $pollerId = new PollerId(is_int($rawPollerId) ? $rawPollerId : 0);
+
         $platformVersion = $this->informationRepository->getByName(new InformationName('version'));
         $poller = $this->pollerRepository->withCmaCertificates()->get($pollerId);
         $agentConfiguration = $this->agentConfigurationRepository->getByPollerId($poller->id());
+        $portData = $agentConfiguration->configuration->getData()['port'] ?? null;
         $installationCommand = new InstallationCommandFactory(
             $poller,
-            $agentConfiguration->configuration->getData()['port'] ?? AgentConfiguration::DEFAULT_PORT,
+            is_int($portData) ? $portData : AgentConfiguration::DEFAULT_PORT,
             $this->isCloudPlatform,
             $platformVersion->value->value,
             $this->organization,
             $this->site,
         );
+
         return new InstallationCommandResource(
             windowsInstallationCommand: $installationCommand->generateCommandForWindows(),
             linuxInstallationCommand: $installationCommand->generateCommandForLinux()

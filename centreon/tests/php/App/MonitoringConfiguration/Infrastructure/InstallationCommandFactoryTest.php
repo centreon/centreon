@@ -104,8 +104,8 @@ final class InstallationCommandFactoryTest extends TestCase
 
     public function testGenerateLinuxCommandWithCNCertificate(): void
     {
-        $cn = 'centreon.example.com';
-        $poller = $this->createPoller(isCentral: false, cn: $cn);
+        $certificateCn = 'centreon.example.com';
+        $poller = $this->createPoller(isCentral: false, certificateCn: $certificateCn);
         $factory = new InstallationCommandFactory(
             poller: $poller,
             agentConfigurationPort: self::DEFAULT_PORT,
@@ -117,15 +117,15 @@ final class InstallationCommandFactoryTest extends TestCase
 
         $command = $factory->generateCommandForLinux();
 
-        self::assertStringContainsString('-N "' . $cn . '"', $command);
+        self::assertStringContainsString('-N "' . $certificateCn . '"', $command);
         self::assertStringNotContainsString('-f ', $command);
     }
 
     public function testGenerateLinuxCommandWithBothCertificates(): void
     {
         $sha = 'abc123sha256fingerprint';
-        $cn = 'centreon.example.com';
-        $poller = $this->createPoller(isCentral: false, sha: $sha, cn: $cn);
+        $certificateCn = 'centreon.example.com';
+        $poller = $this->createPoller(isCentral: false, sha: $sha, certificateCn: $certificateCn);
         $factory = new InstallationCommandFactory(
             poller: $poller,
             agentConfigurationPort: self::DEFAULT_PORT,
@@ -138,7 +138,7 @@ final class InstallationCommandFactoryTest extends TestCase
         $command = $factory->generateCommandForLinux();
 
         self::assertStringContainsString('-f "' . $sha . '"', $command);
-        self::assertStringContainsString('-N "' . $cn . '"', $command);
+        self::assertStringContainsString('-N "' . $certificateCn . '"', $command);
     }
 
     public function testGenerateWindowsCommandWithSHACertificate(): void
@@ -162,8 +162,8 @@ final class InstallationCommandFactoryTest extends TestCase
 
     public function testGenerateWindowsCommandWithCNCertificate(): void
     {
-        $cn = 'centreon.example.com';
-        $poller = $this->createPoller(isCentral: false, cn: $cn);
+        $certificateCn = 'centreon.example.com';
+        $poller = $this->createPoller(isCentral: false, certificateCn: $certificateCn);
         $factory = new InstallationCommandFactory(
             poller: $poller,
             agentConfigurationPort: self::DEFAULT_PORT,
@@ -175,15 +175,15 @@ final class InstallationCommandFactoryTest extends TestCase
 
         $command = $factory->generateCommandForWindows();
 
-        self::assertStringContainsString('-commonname "' . $cn . '"', $command);
+        self::assertStringContainsString('-commonname "' . $certificateCn . '"', $command);
         self::assertStringNotContainsString('-fingerprint ', $command);
     }
 
     public function testGenerateWindowsCommandWithBothCertificates(): void
     {
         $sha = 'abc123sha256fingerprint';
-        $cn = 'centreon.example.com';
-        $poller = $this->createPoller(isCentral: false, sha: $sha, cn: $cn);
+        $certificateCn = 'centreon.example.com';
+        $poller = $this->createPoller(isCentral: false, sha: $sha, certificateCn: $certificateCn);
         $factory = new InstallationCommandFactory(
             poller: $poller,
             agentConfigurationPort: self::DEFAULT_PORT,
@@ -196,7 +196,7 @@ final class InstallationCommandFactoryTest extends TestCase
         $command = $factory->generateCommandForWindows();
 
         self::assertStringContainsString('-fingerprint "' . $sha . '"', $command);
-        self::assertStringContainsString('-commonname "' . $cn . '"', $command);
+        self::assertStringContainsString('-commonname "' . $certificateCn . '"', $command);
     }
 
     public function testGenerateLinuxCommandCloudPlatformCentral(): void
@@ -395,13 +395,13 @@ final class InstallationCommandFactoryTest extends TestCase
         self::assertStringContainsString('.\\install_cma.ps1 -endpoint', $command);
     }
 
-    private function createPoller(bool $isCentral, ?string $sha = null, ?string $cn = null): Poller
+    private function createPoller(bool $isCentral, ?string $sha = null, ?string $certificateCn = null): Poller
     {
         $cmaCertificates = null;
-        if ($sha !== null || $cn !== null) {
+        if ($sha !== null || $certificateCn !== null) {
             $cmaCertificates = new PollerCMACertificates(
                 certificateSha: $sha !== null ? new CMACertificateSHA($sha) : null,
-                certificateCn: $cn !== null ? new CMACertificateCN($cn) : null,
+                certificateCn: $certificateCn !== null ? new CMACertificateCN($certificateCn) : null,
             );
         }
 

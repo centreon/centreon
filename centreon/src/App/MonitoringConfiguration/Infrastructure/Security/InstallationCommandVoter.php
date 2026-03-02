@@ -26,7 +26,6 @@ namespace App\MonitoringConfiguration\Infrastructure\Security;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\ResourceAccessRepository;
 use App\MonitoringConfiguration\Domain\Security\AgentConfigurationPermissionEnum;
-use App\MonitoringConfiguration\Domain\Security\InstallationCommandActionEnum;
 use App\Security\Domain\Aggregate\Permission;
 use App\Security\Infrastructure\Security\CredentialUser;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -34,13 +33,13 @@ use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 /**
- * @extends Voter<value-of<CommandPermissionEnum>, mixed>
+ * @extends Voter<value-of<AgentConfigurationPermissionEnum>, mixed>
  */
 final class InstallationCommandVoter extends Voter
 {
     public function __construct(
         private readonly ResourceAccessRepository $resourceAccessRepository,
-    ){
+    ) {
     }
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -58,11 +57,12 @@ final class InstallationCommandVoter extends Voter
         }
         if (! $user->credential->isPermissionGranted(new Permission($attribute))) {
             $vote?->addReason('The user does not have the required permission.');
+
             return false;
         }
         if (
             ! $this->resourceAccessRepository->hasAccessToAllPollers($user->credential->userId)
-            && $this->resourceAccessRepository->hasAccessToPoller(new PollerId((int) $subject), $user->credential->userId) === false
+            && $this->resourceAccessRepository->hasAccessToPoller(new PollerId(is_scalar($subject) ? (int) $subject : 0), $user->credential->userId) === false
         ) {
             $vote?->addReason('The user has no access to this monitoring server.');
 

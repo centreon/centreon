@@ -41,22 +41,22 @@ use App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\AgentConfigurat
             ]
         ),
     )],
-    security: "is_granted('" . AgentConfigurationPermissionEnum::CanReadAndWrite->value . "', request.get('pollerId'))",)
+    security: "is_granted('" . AgentConfigurationPermissionEnum::CanReadAndWrite->value . "', request.get('pollerId'))", )
 ]
 final class InstallationCommandResource
 {
     public function __construct(
-            #[ApiProperty(
-                description: 'Windows Installation Command',
-                openapiContext: ['example' => 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "[DNS]:[PORT]" -fingerprint "[certificate_sha]" -commonname "[certificate_cn]"']
-            )]
-            public string $windowsInstallationCommand,
+        #[ApiProperty(
+            description: 'Windows Installation Command',
+            openapiContext: ['example' => 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/install_cma.ps1 -o install_cma.ps1 ; .\install_cma.ps1 -endpoint "[DNS]:[PORT]" -fingerprint "[certificate_sha]" -commonname "[certificate_cn]"']
+        )]
+        public string $windowsInstallationCommand,
 
-            #[ApiProperty(
-                description: 'Linux Installation Command',
-                openapiContext: ['example' => 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "[poller IP/DNS]:[PORT]" -f "[centreon_storage.instances.cma_certificate_sha]" -N "[centreon_storage.cma_certificate_cn]"']
-            )]
-            public string $linuxInstallationCommand,
+        #[ApiProperty(
+            description: 'Linux Installation Command',
+            openapiContext: ['example' => 'curl -fsSL https://raw.githubusercontent.com/centreon/centreon-collect/refs/tags/[PF_VERSION]-latest/agent/installer/scripts_linux/install_cma.sh -o install_cma.sh && sudo chmod +x install_cma.sh && sudo ./install_cma.sh -e "[poller IP/DNS]:[PORT]" -f "[centreon_storage.instances.cma_certificate_sha]" -N "[centreon_storage.cma_certificate_cn]"']
+        )]
+        public string $linuxInstallationCommand,
     ) {
     }
 }

@@ -27,18 +27,18 @@ use Webmozart\Assert\Assert;
 
 final readonly class PollerAddress
 {
-    public function __construct(public string $value) {
+    public function __construct(public string $value)
+    {
         Assert::lengthBetween($value, 1, 255);
-        self::assertValidIpOrFqdn($value);
+        $this->assertValidIpOrFqdn($value);
     }
 
-    private static function assertValidIpOrFqdn(string $ipAddress): void
+    private function assertValidIpOrFqdn(string $ipAddress): void
     {
         Assert::true(
             filter_var($ipAddress, FILTER_VALIDATE_IP) !== false
             || filter_var($ipAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,
-            'The value "%s" is not a valid IPv4, IPv6 address or FQDN.',
-            $ipAddress
+            'The value "%s" is not a valid IPv4, IPv6 address or FQDN.'
         );
     }
 }

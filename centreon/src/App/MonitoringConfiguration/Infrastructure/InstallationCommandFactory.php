@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Copyright 2005 - 2026 Centreon (https://www.centreon.com/)
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ final readonly class InstallationCommandFactory
     private function buildLinuxCertificateFlags(): string
     {
         $sha = $this->poller->cmaCertificates?->certificateSha?->value;
-        $cn  = $this->poller->cmaCertificates?->certificateCn?->value;
+        $certificateCn = $this->poller->cmaCertificates?->certificateCn?->value;
 
         $flags = '';
 
@@ -90,8 +90,8 @@ final readonly class InstallationCommandFactory
             $flags .= sprintf(' -f "%s"', $sha);
         }
 
-        if ($cn !== null) {
-            $flags .= sprintf(' -N "%s"', $cn);
+        if ($certificateCn !== null) {
+            $flags .= sprintf(' -N "%s"', $certificateCn);
         }
 
         return $flags;
@@ -100,7 +100,7 @@ final readonly class InstallationCommandFactory
     private function buildWindowsCertificateFlags(): string
     {
         $sha = $this->poller->cmaCertificates?->certificateSha?->value;
-        $cn  = $this->poller->cmaCertificates?->certificateCn?->value;
+        $certificateCn = $this->poller->cmaCertificates?->certificateCn?->value;
 
         $flags = '';
 
@@ -108,8 +108,8 @@ final readonly class InstallationCommandFactory
             $flags .= sprintf(' -fingerprint "%s"', $sha);
         }
 
-        if ($cn !== null) {
-            $flags .= sprintf(' -commonname "%s"', $cn);
+        if ($certificateCn !== null) {
+            $flags .= sprintf(' -commonname "%s"', $certificateCn);
         }
 
         return $flags;

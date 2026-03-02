@@ -27,6 +27,7 @@ use App\Shared\Domain\Aggregate\AggregateRoot;
 
 /**
  * @immutable
+ * @extends AggregateRoot<AgentConfigurationId>
  */
 class AgentConfiguration extends AggregateRoot
 {
@@ -34,11 +35,12 @@ class AgentConfiguration extends AggregateRoot
     public const DEFAULT_PORT = 4317;
 
     public function __construct(
-        public AgentConfigurationId $id,
+        ?AgentConfigurationId $id,
         public AgentConfigurationName $name,
         public AgentConfigurationTypeEnum $type,
         public ConnectionModeEnum $connectionMode,
         public AbstractConfigurationParameters $configuration,
     ) {
+        parent::__construct($id);
     }
 }

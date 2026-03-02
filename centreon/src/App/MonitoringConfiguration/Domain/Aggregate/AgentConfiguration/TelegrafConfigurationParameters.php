@@ -1,5 +1,24 @@
 <?php
 
+/*
+ * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * For more information : contact@centreon.com
+ *
+ */
+
 declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration;
@@ -11,32 +30,34 @@ class TelegrafConfigurationParameters extends AbstractConfigurationParameters
     public const BROKER_DIRECTIVE = '/usr/lib64/centreon-engine/libopentelemetry.so /etc/centreon-engine/otl_server.json';
 
     /**
-     * @throws AssertionException
+     * @throws \InvalidArgumentException
      */
     public function __construct(array $parameters)
     {
         parent::__construct($parameters);
 
-        Assert::range($this->parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
+        /** @var mixed $confServerPort */
+        $confServerPort = $this->parameters['conf_server_port'];
+        Assert::range($confServerPort, 0, 65535, 'configuration.conf_server_port');
 
         $this->parameters['otel_public_certificate'] = $this->validateCertificatePath(
-            $this->parameters['otel_public_certificate'],
+            is_string($this->parameters['otel_public_certificate']) ? $this->parameters['otel_public_certificate'] : null,
             'configuration.otel_public_certificate'
         );
         $this->parameters['otel_private_key'] = $this->validateCertificatePath(
-            $this->parameters['otel_private_key'],
+            is_string($this->parameters['otel_private_key']) ? $this->parameters['otel_private_key'] : null,
             'configuration.otel_private_key'
         );
         $this->parameters['conf_certificate'] = $this->validateCertificatePath(
-            $this->parameters['conf_certificate'],
+            is_string($this->parameters['conf_certificate']) ? $this->parameters['conf_certificate'] : null,
             'configuration.conf_certificate'
         );
         $this->parameters['conf_private_key'] = $this->validateCertificatePath(
-            $this->parameters['conf_private_key'],
+            is_string($this->parameters['conf_private_key']) ? $this->parameters['conf_private_key'] : null,
             'configuration.conf_private_key'
         );
         $this->parameters['otel_ca_certificate'] = $this->validateCertificatePath(
-            $this->parameters['otel_ca_certificate'],
+            is_string($this->parameters['otel_ca_certificate']) ? $this->parameters['otel_ca_certificate'] : null,
             'configuration.otel_ca_certificate'
         );
     }

@@ -138,7 +138,6 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         /** @var array<RowTypeAlias> $rows */
         $rows = $qb->executeQuery()->fetchAllAssociative();
 
-
         if (empty($rows)) {
             throw new PollerNotFoundException(
                 ['poller_id' => $pollerId->value],
@@ -175,7 +174,6 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             "{$alias}.name AS poller_name",
             "{$alias}.localhost AS is_central",
             "{$alias}.ns_ip_address AS poller_address",
-
         ];
     }
 
@@ -187,11 +185,13 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
             ->where('i.instance_id = :poller_id')
             ->setParameter('poller_id', $poller->id()->value);
 
-        $row = $qb->executeQuery()->fetchAssociative();
+        $row = $qb->executeQuery()->fetchAssociative() ?: [];
+        $certSha = $row['certificate_sha'] ?? null;
+        $certCn = $row['certificate_cn'] ?? null;
         $poller->addPollerCMACertificates(
             new PollerCMACertificates(
-                certificateSha: ! empty($row['certificate_sha']) ? new CMACertificateSHA($row['certificate_sha']) : null,
-                certificateCn: ! empty($row['certificate_cn']) ? new CMACertificateCN($row['certificate_cn']) : null,
+                certificateSha: is_string($certSha) && $certSha !== '' ? new CMACertificateSHA($certSha) : null,
+                certificateCn: is_string($certCn) && $certCn !== '' ? new CMACertificateCN($certCn) : null,
             )
         );
     }
