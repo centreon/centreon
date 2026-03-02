@@ -59,7 +59,7 @@ const Axes = ({
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
 
-  const displayAxisRight = !isNil(secondUnit);
+  const displayAxisRight = !isNil(secondUnit) && !isNil(rightScale);
 
   const AxisBottom = isHorizontal ? Axis.AxisBottom : Axis.AxisLeft;
   const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;
