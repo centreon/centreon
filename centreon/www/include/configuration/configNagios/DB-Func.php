@@ -206,9 +206,15 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                 foreach ($columns as $col) {
                     $insertStmt->bindValue(':' . $col, $row[$col]);
                 }
-                $insertStmt->execute();
+                try {
+                    $insertStmt->execute();
+                } catch (PDOException $e) {
+                    error_log('Failed to duplicate cfg_nagios for nagios_id=' . (int) $originalNagiosId . ': ' . $e->getMessage());
+                    continue;
+                }
                 $newNagiosId = (int) $pearDB->lastInsertId();
                 if ($newNagiosId <= 0) {
+                    error_log('Invalid lastInsertId while duplicating nagios_id=' . (int) $originalNagiosId);
                     continue;
                 }
 
