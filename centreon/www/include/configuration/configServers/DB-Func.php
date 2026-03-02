@@ -400,6 +400,8 @@ function duplicateServer(array $server, array $nbrDup): void
             $nbrDup[$serverId]
         );
 
+        $intColumns = ['id', 'is_default', 'last_restart', 'ssh_port', 'gorgone_port', 'remote_id', 'is_encryption_ready'];
+
         foreach ($availableSuffix as $suffix) {
             $serverName = null;
             $columns = [];
@@ -412,7 +414,7 @@ function duplicateServer(array $server, array $nbrDup): void
                 }
                 $columns[] = '`' . $columnName . '`';
                 $paramKey = ':p' . $paramIndex++;
-                $params[$paramKey] = $columnValue;
+                $params[$paramKey] = [$columnValue, in_array($columnName, $intColumns, true)];
             }
             if ($columns !== [] && $serverName !== null && testExistence($serverName)) {
                 $placeholders = implode(', ', array_keys($params));
@@ -420,12 +422,15 @@ function duplicateServer(array $server, array $nbrDup): void
                 $insertStmt = $pearDB->prepare(
                     'INSERT INTO `nagios_server` (' . $columnList . ') VALUES (' . $placeholders . ')'
                 );
-                foreach ($params as $paramKey => $paramValue) {
-                    $insertStmt->bindValue(
-                        $paramKey,
-                        $paramValue,
-                        $paramValue === null ? PDO::PARAM_NULL : PDO::PARAM_STR
-                    );
+                foreach ($params as $paramKey => [$paramValue, $isInt]) {
+                    if ($paramValue === null) {
+                        $type = PDO::PARAM_NULL;
+                    } elseif ($isInt) {
+                        $type = PDO::PARAM_INT;
+                    } else {
+                        $type = PDO::PARAM_STR;
+                    }
+                    $insertStmt->bindValue($paramKey, $paramValue, $type);
                 }
                 $insertStmt->execute();
 
@@ -738,26 +743,24 @@ function insertServer(array $data): int
     }
     $stmt->execute();
 
-    $result = $pearDB->query('SELECT MAX(id) as last_id FROM `nagios_server`');
-    $poller = $result->fetch();
-    $result->closeCursor();
+    $pollerId = (int) $pearDB->lastInsertId();
 
     try {
-        insertServerIntoPlatformTopology($retValue, (int) $poller['last_id']);
+        insertServerIntoPlatformTopology($retValue, $pollerId);
     } catch (Exception $e) {
         // catch exception but don't return anything to avoid blank pages on form
     }
 
     if (isset($_REQUEST['pollercmd'])) {
         $instanceObj = new CentreonInstance($pearDB);
-        $instanceObj->setCommands($poller['last_id'], $_REQUEST['pollercmd']);
+        $instanceObj->setCommands($pollerId, $_REQUEST['pollercmd']);
     }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);
     $centreon->CentreonLogAction->insertLog(
         'poller',
-        $poller['last_id'] ?? null,
+        $pollerId,
         $data['name'],
         'a',
         $fields

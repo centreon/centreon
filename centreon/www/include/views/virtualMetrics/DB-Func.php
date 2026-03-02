@@ -148,6 +148,7 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         'unit_name', 'warn', 'crit', 'hidden', 'comment',
         'vmetric_activate', 'ck_state',
     ];
+    $intColumns = ['index_id' => true, 'warn' => true, 'crit' => true];
     $selectStmt = $pearDB->prepare(
         'SELECT ' . implode(', ', $columns) . ' FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
     );
@@ -182,7 +183,15 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 
             try {
                 foreach ($columns as $col) {
-                    $insertStmt->bindValue(':' . $col, $row[$col]);
+                    $value = $row[$col];
+                    if ($value === null) {
+                        $type = PDO::PARAM_NULL;
+                    } elseif (isset($intColumns[$col])) {
+                        $type = PDO::PARAM_INT;
+                    } else {
+                        $type = PDO::PARAM_STR;
+                    }
+                    $insertStmt->bindValue(':' . $col, $value, $type);
                 }
                 $insertStmt->execute();
             } catch (PDOException $e) {

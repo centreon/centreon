@@ -168,9 +168,10 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 {
     global $pearDB;
 
+    $selectStmt = $pearDB->prepare('SELECT * FROM cfg_resource WHERE resource_id = :resourceId LIMIT 1');
+
     foreach (array_keys($resourceIds) as $resourceId) {
         if (is_int($resourceId)) {
-            $selectStmt = $pearDB->prepare('SELECT * FROM cfg_resource WHERE resource_id = :resourceId LIMIT 1');
             $selectStmt->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
             $selectStmt->execute();
             /**
