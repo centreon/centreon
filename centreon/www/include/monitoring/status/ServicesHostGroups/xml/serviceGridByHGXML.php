@@ -68,7 +68,43 @@ $search = isset($_GET['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['se
 $sort_type = isset($_GET['sort_type']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'host_name';
 $order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 
-$grouplistStr = $obj->access->getAccessGroupsString();
+$grouplistStr = implode(',', $obj->access->getAccessGroups()->getIds());
+
+// Pre-fetch allowed host group IDs from config DB for non-admin users
+$hgFilter = '';
+if (! $obj->is_admin) {
+    if ($grouplistStr === '') {
+        $hgFilter = 'AND 1=0 ';
+    } else {
+        $allHostGroupsAllowed = false;
+        $stmt = $obj->DB->query(
+            'SELECT 1 FROM acl_resources ar
+            INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = ar.acl_res_id
+            WHERE argr.acl_group_id IN (' . $grouplistStr . ')
+            AND ar.all_hostgroups = \'1\'
+            LIMIT 1'
+        );
+        if ($stmt->fetch()) {
+            $allHostGroupsAllowed = true;
+        }
+
+        if (! $allHostGroupsAllowed) {
+            $allowedHgIds = [];
+            $stmt = $obj->DB->query(
+                'SELECT DISTINCT arhr.hg_hg_id
+                FROM acl_resources_hg_relations arhr
+                INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = arhr.acl_res_id
+                WHERE argr.acl_group_id IN (' . $grouplistStr . ')'
+            );
+            while ($row = $stmt->fetch()) {
+                $allowedHgIds[] = (int) $row['hg_hg_id'];
+            }
+            $hgFilter = empty($allowedHgIds)
+                ? 'AND 1=0 '
+                : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
+        }
+    }
+}
 
 $kernel = App\Kernel::createForWeb();
 $resourceController = $kernel->getContainer()->get(
@@ -96,7 +132,6 @@ if (! $obj->is_admin) {
         INNER JOIN centreon_acl
           ON centreon_acl.host_id = h.host_id
           AND centreon_acl.group_id IN ({$grouplistStr})
-          AND hg.name IN ({$obj->access->getHostGroupsString('NAME')})
         SQL;
 }
 $rq1 .= <<<SQL
@@ -104,6 +139,10 @@ $rq1 .= <<<SQL
     WHERE h.enabled = '1'
       AND h.name NOT LIKE '\_Module\_%'
     SQL;
+
+if (! $obj->is_admin) {
+    $rq1 .= $hgFilter;
+}
 
 if ($instance !== -1) {
     $rq1 .= ' AND h.instance_id = :instance ';

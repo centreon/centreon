@@ -74,7 +74,7 @@ $order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 // saving bound values
 $queryValues = [];
 
-$groupStr = $obj->access->getAccessGroupsString();
+$groupStr = implode(',', $obj->access->getAccessGroups()->getIds());
 
 // Backup poller selection
 $obj->setInstanceHistory($instance);
@@ -86,6 +86,42 @@ if ($search != '') {
     $queryValues['search'] = [
         PDO::PARAM_STR => '%' . $search . '%',
     ];
+}
+
+// Pre-fetch allowed host group IDs from config DB for non-admin users
+$hgFilter = '';
+if (! $obj->is_admin) {
+    if ($groupStr === '') {
+        $hgFilter = 'AND 1=0 ';
+    } else {
+        $allHostGroupsAllowed = false;
+        $stmt = $obj->DB->query(
+            'SELECT 1 FROM acl_resources ar
+            INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = ar.acl_res_id
+            WHERE argr.acl_group_id IN (' . $groupStr . ')
+            AND ar.all_hostgroups = \'1\'
+            LIMIT 1'
+        );
+        if ($stmt->fetch()) {
+            $allHostGroupsAllowed = true;
+        }
+
+        if (! $allHostGroupsAllowed) {
+            $allowedHgIds = [];
+            $stmt = $obj->DB->query(
+                'SELECT DISTINCT arhr.hg_hg_id
+                FROM acl_resources_hg_relations arhr
+                INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = arhr.acl_res_id
+                WHERE argr.acl_group_id IN (' . $groupStr . ')'
+            );
+            while ($row = $stmt->fetch()) {
+                $allowedHgIds[] = (int) $row['hg_hg_id'];
+            }
+            $hgFilter = empty($allowedHgIds)
+                ? 'AND 1=0 '
+                : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
+        }
+    }
 }
 
 // Host state
@@ -114,8 +150,7 @@ if ($obj->is_admin) {
             PDO::PARAM_INT => $instance,
         ];
     }
-    $rq1 .= $searchStr . $obj->access->queryBuilder('AND', 'hg.name', $obj->access->getHostGroupsString('NAME'))
-        . 'AND h.host_id = acl.host_id
+    $rq1 .= $searchStr . $hgFilter . 'AND h.host_id = acl.host_id
         AND acl.group_id in (' . $groupStr . ')
         GROUP BY hg.name, h.state ORDER BY hg.name ' . $order;
 }
@@ -161,8 +196,7 @@ if ($obj->is_admin) {
     if (isset($instance) && $instance > 0) {
         $rq2 .= 'AND h.instance_id = :instance';
     }
-    $rq2 .= $searchStr . $obj->access->queryBuilder('AND', 'hg.name', $obj->access->getHostGroupsString('NAME'))
-        . 'AND h.host_id = acl.host_id
+    $rq2 .= $searchStr . $hgFilter . 'AND h.host_id = acl.host_id
         AND s.service_id = acl.service_id
         AND acl.group_id IN (' . $groupStr . ')
         GROUP BY hg.name, s.state ORDER BY tri ASC';

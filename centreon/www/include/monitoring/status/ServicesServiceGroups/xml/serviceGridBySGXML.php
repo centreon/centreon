@@ -74,6 +74,44 @@ $resourceController = $kernel->getContainer()->get(
 $queryValues = [];
 $queryValues2 = [];
 
+$groupStr = implode(',', $obj->access->getAccessGroups()->getIds());
+
+// Pre-fetch allowed service group IDs from config DB for non-admin users
+$sgFilter = '';
+if (! $obj->is_admin) {
+    if ($groupStr === '') {
+        $sgFilter = 'AND 1=0 ';
+    } else {
+        $allServiceGroupsAllowed = false;
+        $stmt = $obj->DB->query(
+            'SELECT 1 FROM acl_resources ar
+            INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = ar.acl_res_id
+            WHERE argr.acl_group_id IN (' . $groupStr . ')
+            AND ar.all_servicegroups = \'1\'
+            LIMIT 1'
+        );
+        if ($stmt->fetch()) {
+            $allServiceGroupsAllowed = true;
+        }
+
+        if (! $allServiceGroupsAllowed) {
+            $allowedSgIds = [];
+            $stmt = $obj->DB->query(
+                'SELECT DISTINCT arsr.sg_id
+                FROM acl_resources_sg_relations arsr
+                INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = arsr.acl_res_id
+                WHERE argr.acl_group_id IN (' . $groupStr . ')'
+            );
+            while ($row = $stmt->fetch()) {
+                $allowedSgIds[] = (int) $row['sg_id'];
+            }
+            $sgFilter = empty($allowedSgIds)
+                ? 'AND 1=0 '
+                : 'AND sg.servicegroup_id IN (' . implode(',', $allowedSgIds) . ') ';
+        }
+    }
+}
+
 // Backup poller selection
 $obj->setInstanceHistory($instance);
 
@@ -101,7 +139,7 @@ if ($o == 'svcgridSG_ack_0' || $o == 'svcOVSG_ack_0') {
 $query = 'SELECT SQL_CALC_FOUND_ROWS DISTINCT 1 AS REALTIME, sg.servicegroup_id, h.host_id
     FROM servicegroups sg, services_servicegroups sgm, hosts h, services s ';
 
-if (! $obj->is_admin) {
+if (! $obj->is_admin && $groupStr !== '') {
     $query .= ', centreon_acl ';
 }
 
@@ -112,12 +150,13 @@ $query .= 'WHERE sgm.servicegroup_id = sg.servicegroup_id
 
 // filter elements with acl (host, service, servicegroup)
 if (! $obj->is_admin) {
-    $query .= $obj->access->queryBuilder('AND', 'h.host_id', 'centreon_acl.host_id')
-        . $obj->access->queryBuilder('AND', 'h.host_id', 'centreon_acl.host_id')
-        . $obj->access->queryBuilder('AND', 's.service_id', 'centreon_acl.service_id')
-        . $obj->access->queryBuilder('AND', 'group_id', $obj->access->getAccessGroupsString()) . ' '
-        . $obj->access->queryBuilder('AND', 'sg.servicegroup_id', $obj->access->getServiceGroupsString('ID')) . ' ';
+    if ($groupStr !== '') {
+        $query .= 'AND h.host_id = centreon_acl.host_id AND s.service_id = centreon_acl.service_id AND group_id IN (' . $groupStr . ') ';
+    } else {
+        $query .= 'AND 1=0 ';
+    }
 }
+$query .= $sgFilter;
 
 // Servicegroup search
 if ($sgSearch != '') {
@@ -212,7 +251,7 @@ if ($numRows > 0) {
         (CASE s.state WHEN 0 THEN 3 WHEN 2 THEN 0 WHEN 3 THEN 2 ELSE s.state END) AS tri
         FROM servicegroups sg, services_servicegroups sgm, services s, hosts h ';
 
-    if (! $obj->is_admin) {
+    if (! $obj->is_admin && $groupStr !== '') {
         $query2 .= ', centreon_acl ';
     }
 
@@ -223,13 +262,13 @@ if ($numRows > 0) {
 
     // filter elements with acl (host, service, servicegroup)
     if (! $obj->is_admin) {
-        $query2 .= $obj->access->queryBuilder('AND', 'h.host_id', 'centreon_acl.host_id')
-            . $obj->access->queryBuilder('AND', 'h.host_id', 'centreon_acl.host_id')
-            . $obj->access->queryBuilder('AND', 's.service_id', 'centreon_acl.service_id')
-            . $obj->access->queryBuilder('AND', 'group_id', $obj->access->getAccessGroupsString()) . ' '
-            . $obj->access->queryBuilder('AND', 'sg.servicegroup_id', $obj->access->getServiceGroupsString('ID')) . ' ';
+        if ($groupStr !== '') {
+            $query2 .= 'AND h.host_id = centreon_acl.host_id AND s.service_id = centreon_acl.service_id AND group_id IN (' . $groupStr . ') ';
+        } else {
+            $query2 .= 'AND 1=0 ';
+        }
     }
-    $query2 .= $sg_search . $h_search . $s_search . ' ORDER BY sg_name, tri ASC';
+    $query2 .= $sgFilter . $sg_search . $h_search . $s_search . ' ORDER BY sg_name, tri ASC';
 
     $dbResult = $obj->DBC->prepare($query2);
     foreach ($queryValues2 as $bindId => $bindData) {
