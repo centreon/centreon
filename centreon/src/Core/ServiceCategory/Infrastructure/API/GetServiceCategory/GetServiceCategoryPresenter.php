@@ -41,6 +41,7 @@ class GetServiceCategoryPresenter extends AbstractPresenter
                 'is_activated' => $data->isActivated,
             ];
         }
+
         parent::present($data);
     }
 }
