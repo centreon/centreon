@@ -230,20 +230,19 @@ function insertContactGroup($ret)
     $stmt->bindValue(':cgActivate', $cgActivate, PDO::PARAM_STR);
     $stmt->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(cg_id) FROM `contactgroup`');
-    $cgId = $dbResult->fetch();
+    $cgId = (int) $pearDB->lastInsertId();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(
         'contactgroup',
-        $cgId['MAX(cg_id)'],
+        $cgId,
         $cgName,
         'a',
         $fields
     );
 
-    return (int) $cgId['MAX(cg_id)'];
+    return $cgId;
 }
 
 function updateContactGroupInDB($cg_id = null, $params = [])

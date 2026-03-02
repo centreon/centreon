@@ -23,7 +23,7 @@
  * Get the configuration path for Centreon Broker
  *
  * @param int $ns_id The nagios server id
- * @return string
+ * @return string|null
  */
 function getCentreonBrokerDirCfg($ns_id)
 {
