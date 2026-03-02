@@ -18,12 +18,8 @@
  * For more information : contact@centreon.com
  *
  */
-
-use Centreon\Domain\Log\LoggerTrait;
-
 class IvantiProvider extends AbstractProvider
 {
-    use LoggerTrait;
     public const IVANTI_EMPLOYEE_TYPE = 14;
     public const IVANTI_TEAM_TYPE = 15;
     public const IVANTI_CATEGORY_TYPE = 16;
