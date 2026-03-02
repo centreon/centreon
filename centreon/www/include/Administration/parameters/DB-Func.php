@@ -814,7 +814,7 @@ function updateODSConfigData()
     updateOption(
         $pearDB,
         'centstorage_drop_file',
-        isset($ret['centstorage_drop_file']) ? $ret['centstorage_drop_file'] : ''
+        $ret['centstorage_drop_file'] ?? ''
     );
 }
 
