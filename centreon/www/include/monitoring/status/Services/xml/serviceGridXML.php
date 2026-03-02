@@ -101,7 +101,8 @@ if ($hostgroups) {
 }
 
 if (! $centreonXMLBGRequest->is_admin) {
-    $accessGroupIds = implode(',', $centreonXMLBGRequest->access->getAccessGroups()->getIds());
+    $ids = $centreonXMLBGRequest->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
     $request .= <<<SQL
 
             INNER JOIN centreon_acl

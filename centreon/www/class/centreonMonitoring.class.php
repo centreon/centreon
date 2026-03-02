@@ -110,6 +110,12 @@ class CentreonMonitoring
                 SQL;
         } else {
             $accessGroups = $centreonXMLBGRequest->access->getAccessGroups()->getIds();
+
+            // No access groups for non-admin user = 0 result
+            if ($accessGroups === []) {
+                return 0;
+            }
+
             [$bindValues, $subRequest] = $this->createMultipleBindQuery($accessGroups, ':grp_');
             $query = <<<SQL
                 SELECT count(distinct s.service_id) as count, 1 AS REALTIME

@@ -126,7 +126,8 @@ $rq1 = <<<'SQL_WRAP'
     SQL_WRAP;
 
 if (! $obj->is_admin) {
-    $accessGroupIds = implode(',', $obj->access->getAccessGroups()->getIds());
+    $ids = $obj->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
     $rq1 .= <<<SQL
 
         INNER JOIN centreon_acl

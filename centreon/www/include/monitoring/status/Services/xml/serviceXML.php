@@ -178,7 +178,8 @@ $request = <<<'SQL_WRAP'
     SQL_WRAP;
 
 if (! $obj->is_admin) {
-    $accessGroupsIds = implode(',', $obj->access->getAccessGroups()->getIds());
+    $ids = $centreonXMLBGRequest->access->getAccessGroups()->getIds();
+    $accessGroupIds = empty($ids) ? '0' : implode(',', $ids);
     $request .= <<<SQL
 
         INNER JOIN centreon_acl

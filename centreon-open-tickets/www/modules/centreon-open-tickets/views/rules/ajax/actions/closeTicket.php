@@ -102,12 +102,12 @@ $query = '(SELECT DISTINCT
     WHERE (' . $selected_str . ') AND services.host_id = hosts.host_id';
 if (! $centreon_bg->is_admin) {
     $query .= <<<SQL
-        AND EXISTS(
-            SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
-            AND hosts.host_id = centreon_acl.host_id
-            AND services.service_id = centreon_acl.service_id
-        )
-    SQL;
+            AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+                AND services.service_id = centreon_acl.service_id
+            )
+        SQL;
 }
 $query .= ' AND motl.host_id = hosts.host_id
             AND motl.service_id = services.service_id
@@ -123,11 +123,11 @@ $query .= ' AND motl.host_id = hosts.host_id
         WHERE hosts.host_id IN (' . $hosts_selected_str . ')';
 if (! $centreon_bg->is_admin) {
     $query .= <<<SQL
-        AND EXISTS(
-            SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
-            AND hosts.host_id = centreon_acl.host_id
-        )
-    SQL;
+            AND EXISTS(
+                SELECT * FROM centreon_acl WHERE centreon_acl.group_id IN ({$accessGroupIds})
+                AND hosts.host_id = centreon_acl.host_id
+            )
+        SQL;
 }
 $query .= ' AND motl.host_id = hosts.host_id
             AND motl.service_id IS NULL

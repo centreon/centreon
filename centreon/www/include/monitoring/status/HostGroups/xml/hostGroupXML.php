@@ -117,7 +117,7 @@ if (! $obj->is_admin) {
             while ($row = $stmt->fetch()) {
                 $allowedHgIds[] = (int) $row['hg_hg_id'];
             }
-            $hgFilter = empty($allowedHgIds)
+            $hgFilter = $allowedHgIds === []
                 ? 'AND 1=0 '
                 : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
         }

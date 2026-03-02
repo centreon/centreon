@@ -105,7 +105,7 @@ if (! $obj->is_admin) {
             while ($row = $stmt->fetch()) {
                 $allowedSgIds[] = (int) $row['sg_id'];
             }
-            $sgFilter = empty($allowedSgIds)
+            $sgFilter = $allowedSgIds === []
                 ? 'AND 1=0 '
                 : 'AND sg.servicegroup_id IN (' . implode(',', $allowedSgIds) . ') ';
         }

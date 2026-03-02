@@ -87,6 +87,7 @@ if (! $obj->is_admin) {
             'SELECT 1 FROM acl_resources ar
             INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = ar.acl_res_id
             WHERE argr.acl_group_id IN (' . $groupStr . ')
+            AND ar.acl_res_activate = \'1\'
             AND ar.all_servicegroups = \'1\'
             LIMIT 1'
         );
@@ -99,13 +100,17 @@ if (! $obj->is_admin) {
             $stmt = $obj->DB->query(
                 'SELECT DISTINCT arsr.sg_id
                 FROM acl_resources_sg_relations arsr
+                INNER JOIN acl_resources ar ON ar.acl_res_id = arsr.acl_res_id
                 INNER JOIN acl_res_group_relations argr ON argr.acl_res_id = arsr.acl_res_id
-                WHERE argr.acl_group_id IN (' . $groupStr . ')'
+                INNER JOIN servicegroup sg ON sg.sg_id = arsr.sg_id
+                WHERE argr.acl_group_id IN (' . $groupStr . ')
+                AND ar.acl_res_activate = \'1\'
+                AND sg.sg_activate = \'1\''
             );
             while ($row = $stmt->fetch()) {
                 $allowedSgIds[] = (int) $row['sg_id'];
             }
-            $sgFilter = empty($allowedSgIds)
+            $sgFilter = $allowedSgIds === []
                 ? 'AND 1=0 '
                 : 'AND sg.servicegroup_id IN (' . implode(',', $allowedSgIds) . ') ';
         }

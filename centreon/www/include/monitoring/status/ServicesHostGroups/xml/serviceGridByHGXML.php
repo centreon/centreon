@@ -68,7 +68,8 @@ $search = isset($_GET['search']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['se
 $sort_type = isset($_GET['sort_type']) ? HtmlAnalyzer::sanitizeAndRemoveTags($_GET['sort_type']) : 'host_name';
 $order = isset($_GET['order']) && $_GET['order'] === 'DESC' ? 'DESC' : 'ASC';
 
-$grouplistStr = implode(',', $obj->access->getAccessGroups()->getIds());
+$ids = $obj->access->getAccessGroups()->getIds();
+$grouplistStr = empty($ids) ? '0' : implode(',', $ids);
 
 // Pre-fetch allowed host group IDs from config DB for non-admin users
 $hgFilter = '';
@@ -99,7 +100,7 @@ if (! $obj->is_admin) {
             while ($row = $stmt->fetch()) {
                 $allowedHgIds[] = (int) $row['hg_hg_id'];
             }
-            $hgFilter = empty($allowedHgIds)
+            $hgFilter = $allowedHgIds === []
                 ? 'AND 1=0 '
                 : 'AND hg.hostgroup_id IN (' . implode(',', $allowedHgIds) . ') ';
         }
