@@ -156,6 +156,9 @@ class Export
             'm' => 3,
             'd' => 4,
         ];
+        if (! isset($cmdTypeRelation[$type])) {
+            return $cmdScript;
+        }
         $query = 'SELECT `command_name` FROM `command` WHERE `command_type` = :commandType';
         $res = $this->db->prepare($query);
         $res->bindValue(':commandType', $cmdTypeRelation[$type], PDO::PARAM_INT);
