@@ -51,9 +51,9 @@ class Centreon_OpenTickets_Rule
             return $result;
         }
 
-        $dbResult = $this->_db->query(
-            "SELECT alias, provider_id FROM mod_open_tickets_rule WHERE rule_id = '" . $rule_id . "' LIMIT 1"
-        );
+        $dbResult = $this->_db->prepare("SELECT alias, provider_id FROM mod_open_tickets_rule WHERE rule_id = :ruleId LIMIT 1");
+        $dbResult->bindValue(':ruleId', (int) $rule_id, PDO::PARAM_INT);
+        $dbResult->execute();
         if (($row = $dbResult->fetch())) {
             $result['alias'] = $row['alias'];
             $result['provider_id'] = $row['provider_id'];
