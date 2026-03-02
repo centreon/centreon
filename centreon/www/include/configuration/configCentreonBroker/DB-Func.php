@@ -163,6 +163,8 @@ function getCentreonBrokerInformation($id)
             'event_queue_max_size' => '',
             'pool_size' => null,
         ];
+
+        return $brokerConf;
     }
     $row = $res->fetch();
     if (! isset($brokerConf)) {

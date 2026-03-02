@@ -194,7 +194,9 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
         'INSERT INTO giv_components_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
     );
 
-    foreach ($compos as $key => $value) {
+    $intColumns = ['host_id', 'service_id', 'ds_tickness', 'ds_order', 'default_tpl1'];
+
+    foreach (array_keys($compos) as $key) {
         $selectStmt->bindValue(':compo_id', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
@@ -208,7 +210,8 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             $row['name'] = $originalName . '_' . $i;
             if (NameHsrTestExistence($row['name'])) {
                 foreach ($columns as $col) {
-                    $insertStmt->bindValue(':' . $col, $row[$col]);
+                    $type = in_array($col, $intColumns, true) ? PDO::PARAM_INT : PDO::PARAM_STR;
+                    $insertStmt->bindValue(':' . $col, $row[$col], $type);
                 }
                 $insertStmt->execute();
             }
@@ -260,11 +263,10 @@ function insertComponentTemplate()
         $stmt->bindValue($token, $value, $paramType);
     }
     $stmt->execute();
+    $compoId = $pearDB->lastInsertId();
     defaultOreonGraph();
-    $result = $pearDB->query('SELECT MAX(compo_id) FROM giv_components_template');
-    $compoId = $result->fetch();
 
-    return $compoId['MAX(compo_id)'];
+    return $compoId;
 }
 
 /**

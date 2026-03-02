@@ -87,7 +87,7 @@ function deleteContactGroupInDB($contactGroups = [])
     $selectStmt = $pearDB->prepare('SELECT cg_name FROM `contactgroup` WHERE `cg_id` = :cgId LIMIT 1');
     $deleteStmt = $pearDB->prepare('DELETE FROM `contactgroup` WHERE `cg_id` = :cgId');
 
-    foreach ($contactGroups as $key => $value) {
+    foreach (array_keys($contactGroups) as $key) {
         $selectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
@@ -114,17 +114,17 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         'SELECT DISTINCT `acl_group_id` FROM `acl_group_contactgroups_relations` WHERE `cg_cg_id` = :cgId'
     );
     $insertAclStmt = $pearDB->prepare(
-        'INSERT INTO `acl_group_contactgroups_relations` VALUES (:newCgId, :aclGroupId)'
+        'INSERT INTO `acl_group_contactgroups_relations` (`cg_cg_id`, `acl_group_id`) VALUES (:newCgId, :aclGroupId)'
     );
     $selectContactsStmt = $pearDB->prepare(
         'SELECT DISTINCT `contact_contact_id` FROM `contactgroup_contact_relation`
         WHERE `contactgroup_cg_id` = :cgId'
     );
     $insertContactStmt = $pearDB->prepare(
-        'INSERT INTO `contactgroup_contact_relation` VALUES (:contactId, :newCgId)'
+        'INSERT INTO `contactgroup_contact_relation` (`contact_contact_id`, `contactgroup_cg_id`) VALUES (:contactId, :newCgId)'
     );
 
-    foreach ($contactGroups as $key => $value) {
+    foreach (array_keys($contactGroups) as $key) {
         $selectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);

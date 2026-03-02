@@ -110,6 +110,9 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         }
 
         $row = $dbResult->fetch();
+        if ($row === false) {
+            continue;
+        }
         $row['tp_id'] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
             $val = [];

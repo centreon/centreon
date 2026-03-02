@@ -1276,6 +1276,9 @@ function updateContact_MC(int $contact_id): void
         $nameStmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
         $nameStmt->execute();
         $row = $nameStmt->fetch();
+        if ($row === false) {
+            $row = ['contact_name' => 'unknown'];
+        }
     } catch (PDOException $e) {
         throw new RepositoryException(
             message: 'Database error while updating contact by massive change for contact id ' . $contact_id,
@@ -1686,7 +1689,7 @@ function updateContactContactGroup_MC(int $contactId): bool
                 );
             }
         }
-    } catch (CentreonDbException $e) {
+    } catch (PDOException | CentreonDbException $e) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_BUSINESS_LOG,
             'Error while updating the relationship between contacts and contact groups by massive change',

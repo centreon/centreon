@@ -39,10 +39,10 @@ if ($sid === false) {
 }
 
 if (isset($sid)) {
-    $DBRESULT = $pearDB->prepare('SELECT * FROM session WHERE session_id = :sid');
+    $DBRESULT = $pearDB->prepare('SELECT 1 FROM session WHERE session_id = :sid LIMIT 1');
     $DBRESULT->bindValue(':sid', $sid);
     $DBRESULT->execute();
-    if ($DBRESULT->rowCount() === 0) {
+    if ($DBRESULT->fetchColumn() === false) {
         exit();
     }
 }

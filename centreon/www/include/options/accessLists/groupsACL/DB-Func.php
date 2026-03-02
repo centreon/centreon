@@ -179,7 +179,7 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
         . ' VALUES (:name, :alias, :activate, :changed)'
     );
 
-    foreach ($groups as $key => $value) {
+    foreach (array_keys($groups) as $key) {
         $selectStmt->bindValue(':aclGroupId', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);

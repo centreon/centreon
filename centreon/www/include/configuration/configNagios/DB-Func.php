@@ -54,6 +54,9 @@ function enableNagiosInDB($nagiosId = null)
     $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
     $statement->execute();
     $data = $statement->fetch();
+    if ($data === false) {
+        return;
+    }
 
     $statement = $pearDB->prepare(
         "UPDATE `cfg_nagios`
@@ -97,6 +100,9 @@ function disableNagiosInDB($nagiosId = null)
     $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
     $statement->execute();
     $data = $statement->fetch();
+    if ($data === false) {
+        return;
+    }
 
     $statement = $pearDB->prepare("UPDATE cfg_nagios SET nagios_activate = '0' WHERE `nagios_id` = :nagios_id");
     $statement->bindValue(':nagios_id', (int) $nagiosId, PDO::PARAM_INT);
@@ -168,7 +174,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
         VALUES (:nagiosId, :brokerModule)'
     );
 
-    foreach ($nagios as $originalNagiosId => $value) {
+    foreach (array_keys($nagios) as $originalNagiosId) {
         $selectStmt->bindValue(':nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);

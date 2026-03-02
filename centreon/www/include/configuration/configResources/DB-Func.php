@@ -184,6 +184,9 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
              * } $resourceConfiguration
              */
             $resourceConfiguration = $selectStmt->fetch();
+            if ($resourceConfiguration === false) {
+                continue;
+            }
 
             for ($newIndex = 1; $newIndex <= $nbrDup[$resourceId]; $newIndex++) {
                 $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
