@@ -3,7 +3,7 @@ import { isOnPublicPageAtom } from '@centreon/ui-context';
 
 import { useAtomValue } from 'jotai';
 import { equals, isEmpty, isNil, reject } from 'ramda';
-import { ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { NoResourcesFound } from '../../../NoResourcesFound';
@@ -36,7 +36,7 @@ const Chart = ({
   playlistHash,
   dashboardId,
   isInViewport,
-  widgetPrefixQuery
+  widgetPrefixQuery,
   stateList
 }: ChartType): ReactElement => {
   const { cx, classes } = useStyles();
