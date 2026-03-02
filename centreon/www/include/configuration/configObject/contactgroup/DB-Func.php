@@ -136,7 +136,8 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
             continue;
         }
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        for ($i = 1; $i <= $dupCount; $i++) {
             $cg_name = $row['cg_name'] . '_' . $i;
 
             if (! testContactGroupExistence($cg_name)) {

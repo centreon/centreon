@@ -193,9 +193,9 @@ function enableServerInDB(int $id): void
     );
     $engineStmt->bindValue(':id', $id, PDO::PARAM_INT);
     $engineStmt->execute();
-    $idEngine = $engineStmt->fetch();
+    $idEngine = $engineStmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($idEngine['idEngine']) {
+    if ($idEngine !== false && $idEngine['idEngine']) {
         $disableStmt = $pearDB->prepare(
             'UPDATE `cfg_nagios` SET `nagios_activate` = \'0\' WHERE `nagios_server_id` = :id'
         );
@@ -1087,7 +1087,7 @@ function updateServer(int $id, array $data): void
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($data);
-    $centreon->CentreonLogAction->insertLog('poller', $id, $data['name'], 'c', $fields);
+    $centreon->CentreonLogAction->insertLog('poller', $id, $data['name'] ?? '', 'c', $fields);
 }
 
 /**

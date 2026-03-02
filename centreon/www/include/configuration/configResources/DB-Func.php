@@ -355,7 +355,9 @@ function updateResource(int $resourceId, array $submitedValues): void
 function insertResourceInDB()
 {
     $resource_id = insertResource();
-    insertInstanceRelations($resource_id);
+    if ($resource_id > 0) {
+        insertInstanceRelations($resource_id);
+    }
 
     return $resource_id;
 }
