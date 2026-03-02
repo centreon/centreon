@@ -123,7 +123,7 @@ function deleteVirtualMetricInDB($vmetrics = [])
             $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
             $prepareStatement->execute();
         } catch (PDOException $e) {
-            echo 'DB Error : ' . $e->getMessage();
+            error_log('DB error in deleteVirtualMetricInDB: ' . $e->getMessage());
         }
     }
 }

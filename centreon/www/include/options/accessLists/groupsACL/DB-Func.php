@@ -197,6 +197,9 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                 $insertStmt->bindValue(':changed', (int) ($row['acl_group_changed'] ?? 0), PDO::PARAM_INT);
                 $insertStmt->execute();
                 $maxId = (int) $pearDB->lastInsertId();
+                if ($maxId <= 0) {
+                    continue;
+                }
 
                 // Duplicate Links
                 duplicateContacts($key, $maxId, $pearDB);
