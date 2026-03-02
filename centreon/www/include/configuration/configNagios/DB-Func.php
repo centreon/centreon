@@ -126,6 +126,9 @@ function disableNagiosInDB($nagiosId = null)
         $statement->bindValue(':id', (int) $data['nagios_server_id'], PDO::PARAM_INT);
         $statement->execute();
         $poller = $statement->fetch(PDO::FETCH_ASSOC);
+        if ($poller === false) {
+            return;
+        }
 
         $centreon->CentreonLogAction->insertLog('poller', $poller['id'], $poller['name'], 'disable');
     }

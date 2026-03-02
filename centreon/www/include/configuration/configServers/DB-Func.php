@@ -395,9 +395,12 @@ function duplicateServer(array $server, array $nbrDup): void
 
         $rowBks = $obj->getBrokerModules($serverId);
 
+        if (! isset($nbrDup[$serverId])) {
+            continue;
+        }
         $availableSuffix = getAvailableSuffixIds(
             $rowServer['name'],
-            $nbrDup[$serverId]
+            (int) $nbrDup[$serverId]
         );
 
         $intColumns = ['id', 'is_default', 'last_restart', 'ssh_port', 'gorgone_port', 'remote_id', 'is_encryption_ready'];
@@ -744,6 +747,9 @@ function insertServer(array $data): int
     $stmt->execute();
 
     $pollerId = (int) $pearDB->lastInsertId();
+    if ($pollerId <= 0) {
+        throw new RuntimeException('Failed to retrieve a valid poller id after insert');
+    }
 
     try {
         insertServerIntoPlatformTopology($retValue, $pollerId);
