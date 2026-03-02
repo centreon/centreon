@@ -366,10 +366,12 @@ function insertAction($ret)
         PDO::PARAM_STR
     );
     $statement->execute();
-    $dbResult = $pearDB->query('SELECT MAX(acl_action_id) FROM acl_actions');
-    $cg_id = $dbResult->fetch();
+    $aclActionId = (int) $pearDB->lastInsertId();
+    if ($aclActionId === 0) {
+        throw new RuntimeException('Failed to retrieve last insert ID for acl_actions');
+    }
 
-    return $cg_id['MAX(acl_action_id)'];
+    return $aclActionId;
 }
 
 /**
