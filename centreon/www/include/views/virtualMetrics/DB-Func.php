@@ -115,9 +115,15 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
 function deleteVirtualMetricInDB($vmetrics = [])
 {
     global $pearDB;
-    $prepareStatement = $pearDB->prepare(
-        'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
-    );
+    try {
+        $prepareStatement = $pearDB->prepare(
+            'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
+        );
+    } catch (PDOException $e) {
+        error_log('DB error in deleteVirtualMetricInDB PREPARE: ' . $e->getMessage());
+
+        return;
+    }
     foreach (array_keys($vmetrics) as $vmetricId) {
         try {
             $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
@@ -149,13 +155,19 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         'vmetric_activate', 'ck_state',
     ];
     $intColumns = ['index_id' => true, 'warn' => true, 'crit' => true];
-    $selectStmt = $pearDB->prepare(
-        'SELECT ' . implode(', ', $columns) . ' FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
-    );
     $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
-    );
+    try {
+        $selectStmt = $pearDB->prepare(
+            'SELECT ' . implode(', ', $columns) . ' FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
+        );
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+    } catch (PDOException $e) {
+        error_log('DB error in multipleVirtualMetricInDB PREPARE: ' . $e->getMessage());
+
+        return;
+    }
 
     foreach (array_keys($vmetrics) as $vmetricId) {
         $selectStmt->bindValue(':vmetric_id', (int) $vmetricId, PDO::PARAM_INT);
@@ -301,9 +313,15 @@ function insertVirtualMetric()
 
     $insertStatement->execute();
 
-    $vmetricId = (int) $pearDB->lastInsertId();
-    if ($vmetricId <= 0) {
+    $lastInsertId = $pearDB->lastInsertId();
+    if ($lastInsertId === false) {
         error_log('Failed to retrieve last insert ID for virtual metric');
+
+        return 0;
+    }
+    $vmetricId = (int) $lastInsertId;
+    if ($vmetricId <= 0) {
+        error_log('Invalid last insert ID for virtual metric: ' . $lastInsertId);
     }
 
     return $vmetricId;

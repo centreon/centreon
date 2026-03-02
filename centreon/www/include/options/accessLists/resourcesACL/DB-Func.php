@@ -196,32 +196,45 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
             $acl_name = $originalName . '_' . $i;
 
             if (testExistence($acl_name)) {
-                $insertStmt->bindValue(':acl_res_name', $acl_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':acl_res_alias', $row['acl_res_alias'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':all_hosts', $row['all_hosts']);
-                $insertStmt->bindValue(':all_hostgroups', $row['all_hostgroups']);
-                $insertStmt->bindValue(':all_servicegroups', $row['all_servicegroups']);
-                $insertStmt->bindValue(':all_image_folders', (int) $row['all_image_folders'], PDO::PARAM_INT);
-                $insertStmt->bindValue(':acl_res_activate', $row['acl_res_activate']);
-                $insertStmt->bindValue(':changed', (int) $row['changed'], PDO::PARAM_INT);
-                $insertStmt->bindValue(':acl_res_comment', $row['acl_res_comment']);
-                $insertStmt->execute();
+                $pearDB->beginTransaction();
+                try {
+                    $insertStmt->bindValue(':acl_res_name', $acl_name, PDO::PARAM_STR);
+                    $insertStmt->bindValue(':acl_res_alias', $row['acl_res_alias'], PDO::PARAM_STR);
+                    $insertStmt->bindValue(':all_hosts', $row['all_hosts']);
+                    $insertStmt->bindValue(':all_hostgroups', $row['all_hostgroups']);
+                    $insertStmt->bindValue(':all_servicegroups', $row['all_servicegroups']);
+                    $insertStmt->bindValue(':all_image_folders', (int) $row['all_image_folders'], PDO::PARAM_INT);
+                    $insertStmt->bindValue(':acl_res_activate', $row['acl_res_activate']);
+                    $insertStmt->bindValue(':changed', (int) $row['changed'], PDO::PARAM_INT);
+                    $insertStmt->bindValue(':acl_res_comment', $row['acl_res_comment']);
+                    $insertStmt->execute();
 
-                $newId = (int) $pearDB->lastInsertId();
-                if ($newId <= 0) {
-                    continue;
+                    $newId = (int) $pearDB->lastInsertId();
+                    if ($newId <= 0) {
+                        $pearDB->rollBack();
+
+                        continue;
+                    }
+
+                    duplicateGroups($key, $newId, $pearDB);
+
+                    $fields = $row;
+                    $fields['acl_res_name'] = $acl_name;
+                    $centreon->CentreonLogAction->insertLog(
+                        'resource access',
+                        $newId,
+                        $acl_name,
+                        'a',
+                        $fields
+                    );
+                    $pearDB->commit();
+                } catch (\Throwable $e) {
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
+
+                    throw $e;
                 }
-                duplicateGroups($key, $newId, $pearDB);
-
-                $fields = $row;
-                $fields['acl_res_name'] = $acl_name;
-                $centreon->CentreonLogAction->insertLog(
-                    'resource access',
-                    $newId,
-                    $acl_name,
-                    'a',
-                    $fields
-                );
             }
         }
     }
