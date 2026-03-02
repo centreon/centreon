@@ -1253,7 +1253,7 @@ function updateServerIntoPlatformTopology(array $pollerInformations, int $server
     $statement->bindValue(':address', $pollerIp, PDO::PARAM_STR);
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
     $statement->bindValue(':type', $type, PDO::PARAM_STR);
-    $statement->bindValue(':parent', $parentId, PDO::PARAM_INT);
+    $statement->bindValue(':parent', $parentId, $parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
     $statement->bindValue(':serverId', $serverId, PDO::PARAM_INT);
     $statement->execute();
 }
