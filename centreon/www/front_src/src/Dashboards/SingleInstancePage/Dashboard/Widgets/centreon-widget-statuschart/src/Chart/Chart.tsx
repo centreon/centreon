@@ -37,6 +37,7 @@ const Chart = ({
   dashboardId,
   isInViewport,
   widgetPrefixQuery
+  stateList
 }: ChartType): ReactElement => {
   const { cx, classes } = useStyles();
   const { t } = useTranslation();
@@ -56,6 +57,7 @@ const Chart = ({
     refreshIntervalToUse,
     resources,
     resourceType,
+    stateList,
     widgetPrefixQuery
   });
 

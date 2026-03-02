@@ -28,7 +28,7 @@ use App\ActivityLogging\Domain\Aggregate\ActivityLogId;
 
 interface ActivityLogRepository
 {
-    public function add(ActivityLog $activityLog): void;
+    public function add(ActivityLog ...$activityLogs): void;
 
     public function count(): int;
 

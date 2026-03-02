@@ -2,12 +2,11 @@ import { TableRow, type TableRowProps, useTheme } from '@mui/material';
 
 import type { ListingVariant } from '@centreon/ui-context';
 
-import { equals, gte, lt, not, pluck } from 'ramda';
+import { equals, lt, not, pluck } from 'ramda';
 import { memo, useCallback, useEffect, useRef } from 'react';
 
-import LoadingSkeleton from '../../LoadingSkeleton';
 import { useViewportIntersection } from '../../utils/useViewportIntersection';
-import { performanceRowsLimit } from '../index';
+
 import type { Column, ColumnConfiguration, RowColorCondition } from '../models';
 
 type Props = {
@@ -39,33 +38,8 @@ const Row = memo<RowProps>(
     tabIndex,
     onMouseOver,
     onFocus,
-    onClick,
-    isInViewport,
-    visibleColumns,
-    checkable,
-    limit
+    onClick
   }: RowProps): JSX.Element => {
-    if (not(isInViewport) && gte(limit, performanceRowsLimit)) {
-      return (
-        <div className="contents">
-          {checkable && (
-            <div className="p-1">
-              <div>
-                <LoadingSkeleton className="w-full" />
-              </div>
-            </div>
-          )}
-          {visibleColumns.map(({ id }) => (
-            <div className="p-1" key={`loading_${id}`}>
-              <div>
-                <LoadingSkeleton className="w-full" />
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
     return (
       <TableRow
         className="cursor-pointer contents w-full"
@@ -83,7 +57,6 @@ const Row = memo<RowProps>(
     const {
       row: previousRow,
       rowColorConditions: previousRowColorConditions,
-      isInViewport: prevIsInViewport,
       visibleColumns: previousVisibleColumns,
       isShiftKeyDown: prevIsShiftKeyDown,
       shiftKeyDownRowPivot: prevShiftKeyDownRowPivot,
@@ -114,18 +87,6 @@ const Row = memo<RowProps>(
     }
 
     if (not(equals(prevProps.isHovered, nextProps.isHovered))) {
-      return false;
-    }
-
-    const isNoLongerInViewport = not(prevIsInViewport) && not(nextIsInViewport);
-
-    if (isNoLongerInViewport && gte(nextLimit, performanceRowsLimit)) {
-      return true;
-    }
-
-    const isBackInViewport = not(prevIsInViewport) && nextIsInViewport;
-
-    if (isBackInViewport && gte(nextLimit, performanceRowsLimit)) {
       return false;
     }
 

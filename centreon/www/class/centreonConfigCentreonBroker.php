@@ -432,20 +432,23 @@ class CentreonConfigCentreonBroker
             }
 
             // If get information for read-only in database
+            $roValue = false;
             if (! is_null($field['value']) && $field['value'] !== false) {
-                $elementType = null;
                 $roValue = $this->getInfoDb($field['value']);
-                $field['value'] = $roValue;
-                if (is_array($roValue)) {
-                    $qf->addElement('select', $elementName, $displayName, $roValue);
-                } else {
-                    $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                if ($elementType !== 'advmultiselect') {
+                    $elementType = null;
+                    $field['value'] = $roValue;
+                    if (is_array($roValue)) {
+                        $qf->addElement('select', $elementName, $displayName, $roValue);
+                    } else {
+                        $qf->addElement('text', $elementName, $displayName, $this->attrText);
+                    }
+                    $qf->freeze($elementName);
                 }
-                $qf->freeze($elementName);
             }
 
             // Add required informations
-            if ($field['required'] && is_null($field['value']) && $elementType != 'select') {
+            if ($field['required'] && is_null($field['value']) && ! in_array($elementType, ['select', 'advmultiselect'])) {
                 $elementAttr = array_merge($elementAttr, ['id' => $elementName, 'class' => 'v_required']);
             }
 
@@ -478,6 +481,10 @@ class CentreonConfigCentreonBroker
                     $el->setButtonAttributes('add', ['value' => _('Add'), 'class' => 'btc bt_success']);
                     $el->setButtonAttributes('remove', ['value' => _('Remove'), 'class' => 'btc bt_danger']);
                     $el->setElementTemplate($this->advMultiTemplate);
+                    if ($roValue !== false) {
+                        $field['value'] = $roValue;
+                        $qf->freeze($elementName);
+                    }
                 } else {
                     $el = $qf->addElement($elementType, $elementName, $displayName, $elementAttr, $elementAttrSelect);
                 }

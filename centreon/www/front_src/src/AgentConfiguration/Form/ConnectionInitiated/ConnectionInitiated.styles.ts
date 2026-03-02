@@ -40,11 +40,6 @@ export const useStyles = makeStyles()((theme) => ({
 }));
 
 export const useAgentInitiatedStyles = makeStyles()((theme) => ({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: theme.spacing(3)
-  },
   input: {
     backgroundColor: theme.palette.background.default
   },
