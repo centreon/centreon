@@ -821,7 +821,7 @@ function insertPool($ret = [])
         $pool_id = (int) $pearDB->lastInsertId();
 
         if ($pool_id === 0) {
-            throw new \RuntimeException('Failed to retrieve last insert ID for pool');
+            throw new RuntimeException('Failed to retrieve last insert ID for pool');
         }
 
         if ($ret['pool_activate']['pool_activate'] == 1) {
