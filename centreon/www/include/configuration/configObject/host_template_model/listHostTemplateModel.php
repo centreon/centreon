@@ -84,8 +84,8 @@ $DBRESULT = $pearDB->prepare($rq);
 foreach ($bindParams as $param => $value) {
     $DBRESULT->bindValue($param, $value);
 }
-$DBRESULT->bindValue(':paginationOffset', (int) ($num * $limit), \PDO::PARAM_INT);
-$DBRESULT->bindValue(':paginationLimit', (int) $limit, \PDO::PARAM_INT);
+$DBRESULT->bindValue(':paginationOffset', (int) ($num * $limit), PDO::PARAM_INT);
+$DBRESULT->bindValue(':paginationLimit', (int) $limit, PDO::PARAM_INT);
 $DBRESULT->execute();
 $rows = $pearDB->query('SELECT FOUND_ROWS()')->fetchColumn();
 

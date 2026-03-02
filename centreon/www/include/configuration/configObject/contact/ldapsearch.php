@@ -156,7 +156,7 @@ foreach ($ids as $arId) {
                     $resServer = $pearDB->prepare(
                         'SELECT `ar_id`, `ar_name` FROM auth_ressource WHERE ar_id = :arId'
                     );
-                    $resServer->bindValue(':arId', (int) $arId, \PDO::PARAM_INT);
+                    $resServer->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
                     $resServer->execute();
                     $row = $resServer->fetchRow();
                     $buffer->writeAttribute('server', $row['ar_name']);
