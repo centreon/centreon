@@ -26,7 +26,6 @@ namespace Core\ServiceSeverity\Application\UseCase\GetServiceSeverity;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
