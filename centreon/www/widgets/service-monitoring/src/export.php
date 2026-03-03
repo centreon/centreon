@@ -82,37 +82,41 @@ foreach ($resources as $resource) {
 
 }
 $mainQueryParameters = [];
-$hostQuery = '';
-$serviceQuery = '';
+$pairQuery = '';
 // Prepare the query concatenation and the bind values
 $firstResult = true;
 
 $mainQueryParameters = [];
 
-foreach ($exportList as $key => $Id) {
-    if (
-        ! isset($exportList[$key][1])
-        || (int) $exportList[$key][0] === 0
-        || (int) $exportList[$key][1] === 0
-    ) {
+foreach ($exportList as $key => $ids) {
+    $hostId = (int) ($ids[0] ?? 0);
+    $serviceId = (int) ($ids[1] ?? 0);
+
+    if ($hostId <= 0 || $serviceId <= 0) {
         // skip missing serviceId in combinations or non consistent data
         continue;
     }
-    if ($firstResult === false) {
-        $hostQuery .= ', ';
-        $serviceQuery .= ', ';
-    }
-    $hostQuery .= ':' . $key . 'hId' . $exportList[$key][0];
+    $hostPlaceholder = 'hId_' . $key;
     $mainQueryParameters[] = QueryParameter::int(
-        $key . 'hId' . $exportList[$key][0],
-        (int) $exportList[$key][0]
+        $hostPlaceholder,
+        $hostId
     );
 
-    $serviceQuery .= ':' . $key . 'sId' . $exportList[$key][1];
+    $servicePlaceholder = 'sId_' . $key;
 
     $mainQueryParameters[] = QueryParameter::int(
-        $key . 'sId' . $exportList[$key][1],
-        (int) $exportList[$key][1]
+        $servicePlaceholder,
+        $serviceId
+    );
+
+    if ($firstResult === false) {
+        $pairQuery .= ' OR ';
+    }
+
+    $pairQuery .= sprintf(
+        '(h.host_id = :%s AND s.service_id = :%s)',
+        $hostPlaceholder,
+        $servicePlaceholder
     );
     $firstResult = false;
 }
@@ -184,7 +188,7 @@ $query = <<<'SQL'
         LEFT JOIN customvariables cv2
             ON cv2.service_id = s.service_id
             AND cv2.host_id = s.host_id
-            AND cv2.name = 'CRITICALITY_ID';
+            AND cv2.name = 'CRITICALITY_ID'
     SQL;
 
 if (! $centreon->user->admin) {
@@ -207,6 +211,11 @@ if (! $centreon->user->admin) {
     $mainQueryParameters = [...$accessGroupParameters, ...$mainQueryParameters];
 }
 
+if ($firstResult === true) {
+    // Do not fallback to a full export when the selection contains no valid host/service pairs.
+    exit();
+}
+
 $query .= <<<'SQL'
         WHERE h.name NOT LIKE '_Module_%'
           AND s.enabled = 1
@@ -214,7 +223,7 @@ $query .= <<<'SQL'
     SQL;
 
 if ($firstResult === false) {
-    $query .= " AND h.host_id IN ({$hostQuery}) AND s.service_id IN ({$serviceQuery}) ";
+    $query .= " AND ({$pairQuery}) ";
 }
 
 if (isset($preferences['host_name_search']) && $preferences['host_name_search'] != '') {
