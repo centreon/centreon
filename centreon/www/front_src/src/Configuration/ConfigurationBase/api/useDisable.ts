@@ -2,6 +2,7 @@ import { Method, ResponseError, useMutationQuery } from '@centreon/ui';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { useAtomValue } from 'jotai';
+import { equals } from 'ramda';
 
 import { configurationAtom } from '../atoms';
 
@@ -13,19 +14,27 @@ interface UseDisableProps {
 const useDisable = (): UseDisableProps => {
   const configuration = useAtomValue(configurationAtom);
 
-  const endpoint = configuration?.api?.endpoints?.disable as string;
+  const getEndpoint = configuration?.api?.endpoints?.disable;
+  const method = configuration?.api?.methods?.disable as Method;
 
   const queryClient = useQueryClient();
 
   const { isMutating, mutateAsync } = useMutationQuery({
-    getEndpoint: () => endpoint,
-    method: Method.POST,
+    getEndpoint,
+    method: method || Method.POST,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listResources'] });
     }
   });
 
   const disableMutation = ({ ids }: { ids: Array<number> }) => {
+    if (equals(method, Method.PATCH)) {
+      return mutateAsync({
+        _meta: { id: ids[0] },
+        payload: { is_activated: false }
+      });
+    }
+
     return mutateAsync({
       payload: { ids }
     });

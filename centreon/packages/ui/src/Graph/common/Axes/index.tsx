@@ -58,7 +58,7 @@ const Axes = ({
   const formatAxisTick = (tick): string =>
     format({ date: new Date(tick), formatString: tickFormat });
 
-  const displayAxisRight = !isNil(secondUnit);
+  const displayAxisRight = !isNil(secondUnit) && !isNil(rightScale);
 
   const AxisBottom = isHorizontal ? Axis.AxisBottom : Axis.AxisLeft;
   const AxisLeft = isHorizontal ? Axis.AxisLeft : Axis.AxisTop;
@@ -73,7 +73,7 @@ const Axes = ({
         tickFormat={formatAxisTick}
         tickLabelProps={() => ({
           ...axisLeft.tickLabelProps(),
-          dx: isHorizontal ? 16 : -4
+          dx: data?.axisX?.dx ?? (isHorizontal ? 16 : -4)
         })}
         top={isHorizontal ? height - margin.bottom : 0}
       />

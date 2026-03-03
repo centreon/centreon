@@ -11,7 +11,7 @@ centreon/check-centreon-gpg-key.sh:generic-api-key:17
 .github/docker/.env:generic-api-key:13
 centreon-ha/ocf-scripts/mariadb-centreon-common.sh:generic-api-key:55
 centreon-ha/ocf-scripts/mariadb-centreon-common.sh:generic-api-key:46
-centreon/www/install/insertBaseConf.sql:generic-api-key:581
+centreon/www/install/insertBaseConf.sql:generic-api-key:586
 centreon/tests/php/Security/EncryptionTest.php:generic-api-key:49
 centreon/tests/php/Security/EncryptionTest.php:generic-api-key:48
 centreon/tests/php/Security/EncryptionTest.php:generic-api-key:47

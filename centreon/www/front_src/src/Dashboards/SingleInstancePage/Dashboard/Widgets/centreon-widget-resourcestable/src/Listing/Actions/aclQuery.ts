@@ -1,5 +1,3 @@
-import { aclAtom } from '@centreon/ui-context';
-
 import { useAtomValue } from 'jotai';
 import {
   always,
@@ -19,6 +17,7 @@ import {
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
+import { aclLocalAtom } from '../../atom';
 import { Resource, ResourceCategory } from '../models';
 import { labelHostsDenied, labelServicesDenied } from '../translatedLabels';
 
@@ -36,7 +35,7 @@ interface AclQuery {
 
 const useAclQuery = (): AclQuery => {
   const { t } = useTranslation();
-  const acl = useAtomValue(aclAtom);
+  const acl = useAtomValue(aclLocalAtom);
 
   const toType = ({ type }): string => ResourceCategory[type];
 

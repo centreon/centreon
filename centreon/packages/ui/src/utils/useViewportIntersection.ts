@@ -19,6 +19,14 @@ export const useViewportIntersection = (
 
   const observer = useRef<IntersectionObserver | null>(null);
 
+  const sanitizedOptions = {
+    ...options,
+    root:
+      options?.root instanceof HTMLElement
+        ? `${options.root.tagName}_${options.root.className}`
+        : null
+  };
+
   useEffect(() => {
     if (observer.current) {
       observer.current.disconnect();
@@ -36,7 +44,7 @@ export const useViewportIntersection = (
     return (): void => {
       observer.current?.disconnect();
     };
-  }, [element, options]);
+  }, [element, JSON.stringify(sanitizedOptions)]);
 
   return {
     isInViewport: entry?.isIntersecting ?? true,
