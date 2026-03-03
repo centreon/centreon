@@ -541,7 +541,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
         $query .= <<<SQL
-            SELECT :sql_query_find
+            SELECT
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
