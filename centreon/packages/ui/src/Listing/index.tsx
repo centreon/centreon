@@ -10,7 +10,6 @@ import {
   filter,
   findIndex,
   gt,
-  gte,
   identity,
   includes,
   isNil,
@@ -46,6 +45,8 @@ import DataCell from './Cell/DataCell';
 import Checkbox from './Checkbox';
 import { EmptyResult } from './EmptyResult/EmptyResult';
 import { ListingHeader } from './Header';
+import ListingRow from './Row/Row';
+import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import type {
   Column,
   ColumnConfiguration,
@@ -54,8 +55,6 @@ import type {
   RowId,
   SortOrder
 } from './models';
-import ListingRow from './Row/Row';
-import { SkeletonLoader } from './Row/SkeletonLoaderRows';
 import { subItemsPivotsAtom } from './tableAtoms';
 import { labelNoResultFound as defaultLabelNoResultFound } from './translatedLabels';
 import useStyleTable, { useColumnStyle } from './useStyleTable';
@@ -142,8 +141,6 @@ export interface Props<TRow> {
 const defaultColumnConfiguration = {
   sortable: false
 };
-
-export const performanceRowsLimit = 60;
 
 const Listing = <
   TRow extends {
@@ -617,11 +614,7 @@ const Listing = <
                           isHovered={isRowHovered}
                           isSelected={isRowSelected}
                           isShiftKeyDown={isShiftKeyDown}
-                          key={
-                            gte(limit, performanceRowsLimit)
-                              ? `row_${index}`
-                              : getRowId(row)
-                          }
+                          key={getRowId(row)}
                           lastSelectionIndex={lastSelectionIndex}
                           limit={limit}
                           listingVariant={listingVariant}
