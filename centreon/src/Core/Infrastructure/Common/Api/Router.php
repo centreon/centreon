@@ -169,21 +169,6 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
     }
 
     /**
-     * Create a href to a legacy page.
-     *
-     * @param int $topologyPage
-     * @param array<string, mixed> $options
-     *
-     * @return string
-     */
-    public function generateLegacyHref(int $topologyPage, array $options = []): string
-    {
-        return $options === []
-            ? $this->getBaseUrl() . '/main.php?p=' . $topologyPage
-            : $this->getBaseUrl() . '/main.php?p=' . $topologyPage . '&' . http_build_query($options);
-    }
-
-    /**
      * Generate a URL for internal API calls using localhost.
      * This avoids issues with proxies, load balancers, and HTTPS termination.
      *
