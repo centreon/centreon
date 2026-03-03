@@ -124,7 +124,7 @@ jobs:
       - name: Get changed files
         if: github.event_name == 'pull_request' || inputs.base_sha != ''
         id: get_changed_files
-        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
+        uses: tj-actions/changed-files@7dee1b0c1557f278e5c7dc244927139d78c0e22a # v47.0.4
         with:
           base_sha: ${{ github.event_name == 'pull_request' && ' ' || inputs.base_sha }}
           files_yaml: |
