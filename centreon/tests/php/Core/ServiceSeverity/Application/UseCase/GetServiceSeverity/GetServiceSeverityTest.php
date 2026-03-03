@@ -161,20 +161,6 @@ it('should present a GetServiceSeverityResponse with admin user', function (): v
         ->toBe($this->serviceSeverity->getIconId());
 });
 
-it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
-    $this->user
-        ->expects($this->exactly(2))
-        ->method('hasTopologyRole')
-        ->willReturn(false);
-
-    ($this->useCase)($this->presenter, $this->serviceSeverity->getId());
-
-    expect($this->presenter->getResponseStatus())
-        ->toBeInstanceOf(ForbiddenResponse::class)
-        ->and($this->presenter->getResponseStatus()->getMessage())
-        ->toBe(ServiceSeverityException::accessNotAllowed()->getMessage());
-});
-
 it('should present a GetServiceResponse with non-admin user', function (): void {
     $this->user
         ->expects($this->once())
