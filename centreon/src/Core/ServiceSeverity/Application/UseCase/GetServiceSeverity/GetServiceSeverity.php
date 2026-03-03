@@ -31,6 +31,7 @@ use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Contact\Domain\AdminResolver;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
@@ -48,6 +49,7 @@ final class GetServiceSeverity
         private readonly ReadServiceSeverityRepositoryInterface $readServiceSeverityRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -74,7 +76,7 @@ final class GetServiceSeverity
             }
 
             $serviceSeverity = null;
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 if ($this->readServiceSeverityRepository->exists($serviceSeverityId)) {
                     $serviceSeverity = $this->readServiceSeverityRepository->findById($serviceSeverityId);
                 }
