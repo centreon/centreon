@@ -56,14 +56,29 @@ class CentreonWorker implements CentreonClapiServiceInterface
 
     /**
      * Process task queue for import/export.
+     * @params ?string $params format: <task_id>;<timeout>
      */
-    public function processQueue(): void
+    public function processQueue(?string $params): void
     {
+        if (isset($params)) {
+            $taskParams = explode(";", $params);
+            $taskId = (int) $taskParams[0];
+            $taskTimeout = (int) $taskParams[1];
+        }
+
         // check export tasks in database and execute these
-        $this->processExportTasks();
+        if (isset($taskId)) {
+            $this->processSingleExportTask($taskId, $taskTimeout);    
+        } else {
+            $this->processExportTasks();
+        }
 
         // check import tasks in database and execute these
-        $this->processImportTasks();
+        if (isset($taskId)) {
+            $this->processSingleImportTask($taskId, $taskTimeout);    
+        } else {
+            $this->processImportTasks();
+        }
     }
 
     /**
@@ -174,6 +189,62 @@ class CentreonWorker implements CentreonClapiServiceInterface
     }
 
     /**
+     * Execute export tasks which are store in task table.
+     */
+    private function processSingleExportTask(int $taskId, int $taskTimeout): void
+    {
+        // some task could be in a running state for too long, we "stop" them (the real stop comes from gorgone that kills the process))
+        $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+            ->getRepository(TaskRepository::class)
+            ->removeRunningExportTask($taskTimeout);
+
+        $tasks = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+            ->getRepository(TaskRepository::class)
+            ->findExportTaskById($taskId) ?? [];
+
+        foreach (array_values($tasks) as $task) {
+            echo date('Y-m-d H:i:s') . ' - INFO - Processing task #' . $task->getId() . "...\n";
+
+            // mark task as being worked on
+            $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_PROGRESS);
+            $serializedParams = htmlspecialchars($task->getParams(), ENT_NOQUOTES);
+            if (empty($serializedParams)) {
+                throw new \Exception('Invalid Parameters');
+            }
+            $taskParams = unserialize($serializedParams);
+            if (! array_key_exists('params', $taskParams)) {
+                throw new \Exception('Missing parameters: params');
+            }
+            $params = $taskParams['params'];
+            $commitment = new ExportCommitment($params['server'], $params['pollers']);
+
+            try {
+                $this->getDi()['centreon_remote.export']->export($commitment);
+
+                $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_COMPLETED);
+
+                /**
+                 * move export file.
+                 */
+                $cmd = new Command();
+                $compositeKey = $params['server'] . ':' . $task->getId();
+                $cmd->setCommandLine(Command::COMMAND_TRANSFER_EXPORT_FILES . $compositeKey);
+                $cmdService = new CentcoreCommandService();
+                $cmdWritten = $cmdService->sendCommand($cmd);
+
+                echo date('Y-m-d H:i:s') . ' - INFO - Task #' . $task->getId() . " completed.\n";
+            } catch (\Exception $e) {
+                echo date('Y-m-d H:i:s') . ' - ERROR - Task #' . $task->getId() . " failed.\n";
+                echo date('Y-m-d H:i:s') . ' - ERROR - Error message: ' . $e->getMessage() . "\n";
+                $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_FAILED);
+            }
+        }
+
+        echo date('Y-m-d H:i:s') . " - INFO - Worker cycle completed.\n";
+    }
+
+
+    /**
      * Execute import tasks which are store in task table.
      */
     private function processImportTasks(): void
@@ -203,6 +274,70 @@ class CentreonWorker implements CentreonClapiServiceInterface
                 $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_FAILED);
             }
         }
+
+        echo date('Y-m-d H:i:s') . " - INFO - Worker cycle completed.\n";
+    }
+
+    /**
+     * Execute import tasks which are store in task table.
+     */
+    private function processSingleImportTask(int $taskId, int $taskTimeout): void
+    {
+        /*
+        isThereAnyLegitimateRunningTask function doest the follwing thing
+            - wait for other running import task to end
+            - "stop" them if they are running for too long
+        */
+        while ($this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+            ->getRepository(TaskRepository::class)
+            ->isThereAnyLegitimateRunningImportTask($taskTimeout))
+        {
+            sleep(1);
+        }
+
+        /*
+            the import task purpose is to load .infile files in the db.
+            it makes no sense to run a task if there are more recent one to run (usually happen if someone made multiple conf export at the same time)
+            set a new flag outdated to the current task and end the import job for this task
+        */
+        if ($this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+            ->getRepository(TaskRepository::class)
+            ->isThereAnyMoreRecentTaskThatIsPending($taskId))
+        {
+            $this->getDi()['centreon.taskservice']->updateStatus($taskId, Task::STATE_OUTDATED);
+        } else {
+            $tasks = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+                ->getRepository(TaskRepository::class)
+                ->findImportTaskById($taskId) ?? [];
+    
+            echo date('Y-m-d H:i:s') . ' - INFO - Checking for pending import tasks: '
+                . count($tasks) . " task(s) found.\n";
+    
+            foreach ($tasks as $x => $task) {
+                echo date('Y-m-d H:i:s') . ' - INFO - Processing task #'
+                    . $task->getId() . ' (parent ID #' . $task->getParentId() . ")...\n";
+    
+                // mark task as being worked on
+                $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_PROGRESS);
+
+                // don't know where to put this, but just to be sure if we are running the most recent task, make sure that any pending one that is older goes to an outdated state
+                $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
+                    ->getRepository(TaskRepository::class)
+                    ->removeOlderPendingImportTask($taskId);
+    
+                try {
+                    $this->getDi()['centreon_remote.export']->import();
+    
+                    $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_COMPLETED);
+                    echo date('Y-m-d H:i:s') . ' - INFO - Task #' . $task->getId() . " completed.\n";
+                } catch (\Exception $e) {
+                    echo date('Y-m-d H:i:s') . ' - ERROR - Task #' . $task->getId() . " failed.\n";
+                    echo date('Y-m-d H:i:s') . ' - ERROR - Error message: ' . $e->getMessage() . "\n";
+                    $this->getDi()['centreon.taskservice']->updateStatus($task->getId(), Task::STATE_FAILED);
+                }
+            }
+        }
+
 
         echo date('Y-m-d H:i:s') . " - INFO - Worker cycle completed.\n";
     }
