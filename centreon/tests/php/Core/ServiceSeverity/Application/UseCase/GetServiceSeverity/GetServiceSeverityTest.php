@@ -91,7 +91,7 @@ it('should present a ForbiddenResponse when a user has insufficient rights', fun
         ->toBe(ServiceSeverityException::accessNotAllowed()->getMessage());
 });
 
-it('should present a GetServiceResponse with non-admin user', function (): void {
+it('should present a GetServiceSeverityResponse with non-admin user', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -130,7 +130,7 @@ it('should present a GetServiceResponse with non-admin user', function (): void 
         ->toBe($this->serviceSeverity->getIconId());
 });
 
-it('should present a GetServiceResponse with admin user', function (): void {
+it('should present a GetServiceSeverityResponse with admin user', function (): void {
     $this->user
         ->expects($this->once())
         ->method('hasTopologyRole')
@@ -138,6 +138,59 @@ it('should present a GetServiceResponse with admin user', function (): void {
     $this->user
         ->expects($this->once())
         ->method('isAdmin')
+        ->willReturn(true);
+    $this->readServiceSeverityRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->serviceSeverity);
+
+    ($this->useCase)($this->presenter, $this->serviceSeverity->getId());
+
+    $dto = $this->presenter->getPresentedData();
+    expect($dto)
+        ->toBeInstanceOf(GetServiceSeverityResponse::class)
+        ->and($dto->name)
+        ->toBe($this->serviceSeverity->getName())
+        ->and($dto->alias)
+        ->toBe($this->serviceSeverity->getAlias())
+        ->and($dto->isActivated)
+        ->toBe($this->serviceSeverity->isActivated())
+        ->and($dto->level)
+        ->toBe($this->serviceSeverity->getLevel())
+        ->and($dto->iconId)
+        ->toBe($this->serviceSeverity->getIconId());
+});
+
+it('should present a ForbiddenResponse when a user has insufficient rights', function (): void {
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('hasTopologyRole')
+        ->willReturn(false);
+
+    ($this->useCase)($this->presenter, $this->serviceSeverity->getId());
+
+    expect($this->presenter->getResponseStatus())
+        ->toBeInstanceOf(ForbiddenResponse::class)
+        ->and($this->presenter->getResponseStatus()->getMessage())
+        ->toBe(ServiceSeverityException::accessNotAllowed()->getMessage());
+});
+
+it('should present a GetServiceResponse with non-admin user', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([]);
+    $this->readServiceSeverityRepository
+        ->expects($this->once())
+        ->method('existsByAccessGroups')
         ->willReturn(true);
     $this->readServiceSeverityRepository
         ->expects($this->once())

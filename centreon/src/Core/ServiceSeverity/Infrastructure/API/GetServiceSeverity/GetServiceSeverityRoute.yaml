@@ -4,4 +4,4 @@ GetServiceSeverity:
   requirements:
     serviceSeverityId: '\d+'
   controller: 'Core\ServiceSeverity\Infrastructure\API\GetServiceSeverity\GetServiceSeverityController'
-  condition: "request.attributes.get('version') >= '25.10'"
+  condition: "request.attributes.get('version') >= 25.10"

@@ -36,7 +36,6 @@ use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 use Core\ServiceSeverity\Application\Exception\ServiceSeverityException;
 use Core\ServiceSeverity\Application\Repository\ReadServiceSeverityRepositoryInterface;
 use Core\ServiceSeverity\Domain\Model\ServiceSeverity;
-use Core\ServiceSeverity\Infrastructure\API\GetServiceSeverity\GetServiceSeverityPresenter;
 
 final class GetServiceSeverity
 {
@@ -53,7 +52,7 @@ final class GetServiceSeverity
     }
 
     /**
-     * @param GetServiceSeverityPresenter $presenter
+     * @param PresenterInterface $presenter
      * @param int $serviceSeverityId
      */
     public function __invoke(PresenterInterface $presenter, int $serviceSeverityId): void
@@ -64,7 +63,7 @@ final class GetServiceSeverity
                 && ! $this->user->hasTopologyRole(Contact::ROLE_CONFIGURATION_SERVICES_CATEGORIES_READ_WRITE)
             ) {
                 $this->error(
-                    "User doesn't have sufficient rights to see services severities",
+                    "User doesn't have sufficient rights to see service severities",
                     ['user_id' => $this->user->getId()]
                 );
                 $presenter->setResponseStatus(
@@ -76,7 +75,9 @@ final class GetServiceSeverity
 
             $serviceSeverity = null;
             if ($this->user->isAdmin()) {
-                $serviceSeverity = $this->readServiceSeverityRepository->findById($serviceSeverityId);
+                if ($this->readServiceSeverityRepository->exists($serviceSeverityId)) {
+                    $serviceSeverity = $this->readServiceSeverityRepository->findById($serviceSeverityId);
+                }
             } else {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 if ($this->readServiceSeverityRepository->existsByAccessGroups(
@@ -89,18 +90,15 @@ final class GetServiceSeverity
 
             if (! $serviceSeverity) {
                 $this->error(
-                    'ServiceSeverity not found',
+                    'Service Severity not found',
                     ['service_severity_id' => $serviceSeverityId]
                 );
-                $presenter->setResponseStatus(new NotFoundResponse('ServiceSeverity'));
+                $presenter->setResponseStatus(new NotFoundResponse('Service Severity'));
 
                 return;
             }
 
             $presenter->present($this->createResponse($serviceSeverity));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->setResponseStatus(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->setResponseStatus(
                 new ErrorResponse(ServiceSeverityException::errorWhileRetrieving())

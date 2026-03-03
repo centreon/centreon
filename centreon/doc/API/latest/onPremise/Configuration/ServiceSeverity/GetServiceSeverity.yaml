@@ -15,8 +15,8 @@ get:
           schema:
             $ref: 'Schema/SeverityResponse.yaml'
     '403':
-      $ref: '../../../Common/Response/Forbidden.yaml'
+      $ref: '../../Common/Response/Forbidden.yaml'
     '404':
-      $ref: '../../../Common/Response/NotFound.yaml'
+      $ref: '../../Common/Response/NotFound.yaml'
     '500':
-      $ref: '../../../Common/Response/InternalServerError.yaml'
+      $ref: '../../Common/Response/InternalServerError.yaml'
