@@ -1,15 +1,27 @@
+import { equals, keys, values } from 'ramda';
+
 import toRawQueryParameters from '../../queryParameters';
-import type { QueryParameter } from '../../queryParameters/models';
+import { QueryParameter } from '../../queryParameters/models';
 import { getSearchQueryParameterValue } from './getSearchQueryParameterValue';
-import type { BuildListingEndpointParameters, Parameters } from './models';
+import { BuildListingEndpointParameters, Parameters } from './models';
 
 const getQueryParameters = ({
   sort,
   page,
   limit,
   search,
-  customQueryParameters = []
+  customQueryParameters = [],
+  apiFormat
 }: Parameters): Array<QueryParameter> => {
+  if (equals(apiFormat, 'JSON-LD')) {
+    return [
+      { name: 'page', value: page },
+      { name: 'itemsPerPage', value: limit },
+      { name: `sort[${keys(sort || {})[0]}]`, value: values(sort || {})[0] },
+      ...customQueryParameters
+    ];
+  }
+
   return [
     { name: 'page', value: page },
     { name: 'limit', value: limit },
@@ -22,33 +34,25 @@ const getQueryParameters = ({
   ];
 };
 
-const buildEndpoint = ({ baseEndpoint, queryParameters }): string => {
-  return `${baseEndpoint}?${toRawQueryParameters(queryParameters)}`;
-};
-
-const buildCustomEndpoint = ({ baseEndpoint, queryParameters }): string => {
-  return `${baseEndpoint}&${toRawQueryParameters(queryParameters)}`;
+const buildEndpoint = ({
+  baseEndpoint,
+  queryParameters,
+  apiFormat
+}): string => {
+  return `${baseEndpoint}?${toRawQueryParameters({ apiFormat, queryParameters })}`;
 };
 
 const buildListingEndpoint = ({
   baseEndpoint,
   parameters,
   customQueryParameters,
-  isCustomEndpoint = false
+  apiFormat = 'Standard'
 }: BuildListingEndpointParameters): string => {
-  if (isCustomEndpoint) {
-    return buildCustomEndpoint({
-      baseEndpoint,
-      queryParameters: [
-        ...getQueryParameters({ ...parameters, customQueryParameters })
-      ]
-    });
-  }
-
   return buildEndpoint({
+    apiFormat,
     baseEndpoint,
     queryParameters: [
-      ...getQueryParameters({ ...parameters, customQueryParameters })
+      ...getQueryParameters({ ...parameters, apiFormat, customQueryParameters })
     ]
   });
 };

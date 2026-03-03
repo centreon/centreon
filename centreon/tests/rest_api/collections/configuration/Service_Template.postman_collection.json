@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "18eba073-49f6-48f1-a7ec-29b3f50092ac",
+		"_postman_id": "8e8e4fe8-1a4a-4ac2-8500-046defa4e312",
 		"name": "Service_Template",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16182525"
+		"_exporter_id": "28117716",
+		"_collection_link": "https://centreon-api-testing.postman.co/workspace/develop-OSS~7c78046c-a719-4dae-bbf9-70e6e2c5b9bd/collection/28117716-8e8e4fe8-1a4a-4ac2-8500-046defa4e312?action=share&source=collection_link&creator=28117716"
 	},
 	"item": [
 		{
@@ -2688,17 +2689,17 @@
 					"response": []
 				},
 				{
-					"name": "Add a new command (successful)",
+					"name": "POST /commands - Valid request - HTTP 201",
 					"event": [
 						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"pm.collectionVariables.set(\"Command1Name\", \"check-host-alive\");\r",
 									""
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						},
 						{
@@ -2706,26 +2707,26 @@
 							"script": {
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"Command1Name\") + \"'.\", function () {\r",
-									"    pm.response.to.have.status(201);\r",
 									"\r",
-									"    // Creation of a variable with the ID of the new command \r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"The command has been successfully created, with name '\" + pm.collectionVariables.get(\"CommandName\") + \"'.\", function () {\r",
 									"    pm.collectionVariables.set(\"CommandId\", responseJson.id);\r",
 									"\r",
 									"    pm.expect(responseJson).to.include({\r",
 									"        \"id\": pm.collectionVariables.get(\"CommandId\"),\r",
-									"        \"name\": pm.collectionVariables.get(\"Command1Name\"),\r",
-									"        \"type\": 2,\r",
-									"        \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\",\r",
-									"        \"is_shell\": false,\r",
+									"        \"name\": pm.collectionVariables.get(\"CommandName\"),\r",
+									"        \"type\": pm.collectionVariables.get(\"CommandType\"),\r",
+									"        \"command_line\": pm.collectionVariables.get(\"CommandLine\"),\r",
+									"        \"is_shell_enabled\": false,\r",
 									"        \"is_activated\": true,\r",
-									"        \"is_locked\": false,\r",
-									"        \"argument_example\": null,\r",
-									"        \"connector\": null,\r",
-									"        \"grap_template\": null\r",
+									"        \"is_from_monitoring_connector\": false\r",
 									"    });\r",
-									"    pm.expect(responseJson.arguments).to.be.an('Array').that.is.empty;\r",
-									"    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
+									"\r",
+									"    pm.expect(responseJson).to.have.property(\"connector\");\r",
+									"    pm.expect(responseJson.connector).to.have.property(\"@id\", pm.collectionVariables.get(\"CommandConnector\"));\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Schema validation for the command response\", function () {\r",
@@ -2734,12 +2735,11 @@
 									"        \"properties\": {\r",
 									"            \"id\": { \"type\": \"integer\" },\r",
 									"            \"name\": { \"type\": \"string\" },\r",
-									"            \"type\": { \"type\": \"integer\" },\r",
+									"            \"type\": { \"type\": \"string\" },\r",
 									"            \"command_line\": { \"type\": \"string\" },\r",
-									"            \"is_shell\": { \"type\": \"boolean\" },\r",
+									"            \"is_shell_enabled\": { \"type\": \"boolean\" },\r",
 									"            \"is_activated\": { \"type\": \"boolean\" },\r",
-									"            \"is_locked\": { \"type\": \"boolean\" },\r",
-									"            \"argument_example\": { \"type\": [\"string\", \"null\"], },\r",
+									"            \"is_from_monitoring_connector\": { \"type\": \"boolean\" },\r",
 									"            \"arguments\": {\r",
 									"                \"type\": \"array\",\r",
 									"                \"items\": {\r",
@@ -2751,44 +2751,28 @@
 									"                    \"required\": [\"name\", \"description\"]\r",
 									"                }\r",
 									"            },\r",
-									"            \"macros\": {\r",
-									"                \"type\": \"array\",\r",
-									"                \"items\": {\r",
-									"                    \"type\": \"object\",\r",
-									"                    \"properties\": {\r",
-									"                        \"name\": { \"type\": \"string\" },\r",
-									"                        \"type\": { \"type\": \"string\" },\r",
-									"                        \"description\": { \"type\": \"string\" }\r",
-									"                    },\r",
-									"                    \"required\": [\"name\", \"type\", \"description\"]\r",
-									"                }\r",
-									"            },\r",
 									"            \"connector\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
+									"                \"type\": \"object\",\r",
 									"                \"properties\": {\r",
 									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
+									"                    \"name\": { \"type\": \"string\" },\r",
+									"                    \"command_line\": { \"type\": \"string\" },\r",
+									"                    \"description\": { \"type\": \"string\" },\r",
+									"                    \"is_activated\": { \"type\": \"boolean\" }\r",
 									"                },\r",
 									"                \"required\": [\"id\", \"name\"]\r",
 									"            },\r",
-									"            \"grap_template\": {\r",
-									"                \"type\": [\"object\", \"null\"],\r",
-									"                \"properties\": {\r",
-									"                    \"id\": { \"type\": \"integer\" },\r",
-									"                    \"name\": { \"type\": \"string\" }\r",
-									"                },\r",
-									"                \"required\": [\"id\", \"name\"]\r",
-									"            }\r",
-									"                        \r",
+									"            \"comment\": { \"type\": \"string\"}          \r",
 									"        },\r",
-									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell\", \"is_activated\", \"is_locked\", \"argument_example\", \"arguments\", \"macros\", \"connector\", \"grap_template\"]\r",
+									"        \"required\": [\"id\", \"name\", \"type\", \"command_line\", \"is_shell_enabled\", \"is_activated\", \"is_from_monitoring_connector\", \"connector\"]\r",
 									"    };\r",
 									"    \r",
 									"    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {}
+								"packages": {},
+								"requests": {}
 							}
 						}
 					],
@@ -2803,7 +2787,12 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"name\": \"{{Command1Name}}\",\r\n    \"type\": 2,\r\n    \"command_line\": \"$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\"\r\n}\r\n"
+							"raw": "{\r\n    \"name\": \"{{CommandName}}\",\r\n    \"type\": \"{{CommandType}}\",\r\n    \"command_line\": \"{{CommandLine}}\",\r\n    \"is_shell_enabled\": false,\r\n    \"connector\": \"{{CommandConnector}}\",\r\n    \"comment\": \"test comment {{CommandName}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
 							"raw": "{{baseUrl}}/configuration/commands",
@@ -8402,6 +8391,7 @@
 			"listen": "prerequest",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					"if (!pm.request.headers.has('Content-Type')) {",
 					"    pm.request.headers.add({ key: 'Content-Type', value: 'application/json' });",
@@ -8410,22 +8400,203 @@
 			}
 		},
 		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
 			"listen": "test",
 			"script": {
 				"type": "text/javascript",
+				"requests": {},
 				"exec": [
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "CommandLine",
+			"value": "$USER1$/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1"
+		},
+		{
+			"key": "CommandName",
+			"value": "command_by_generic_test"
+		},
+		{
+			"key": "CommandConnector",
+			"value": "/centreon/api/latest/configuration/connectors/1"
+		},
+		{
+			"key": "CommandId",
+			"value": "1"
+		},
+		{
+			"key": "api_login_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_RW_filters",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory0Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory0Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory0Id",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Read_filters",
+			"value": ""
+		},
+		{
+			"key": "api_login_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "api_password_user_Nothing",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceCategory1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceGroup2Id",
+			"value": ""
+		},
+		{
+			"key": "Command1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate2Name",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate2Alias",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate2Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate0Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate0Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate0Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate2Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate2Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate2Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate4Name",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate4Alias",
+			"value": ""
+		},
+		{
+			"key": "ServiceSeverity1Id",
+			"value": ""
+		},
+		{
+			"key": "HostTemplate1Id",
+			"value": ""
+		},
+		{
+			"key": "ServiceTemplate4Id",
+			"value": ""
+		},
+		{
+			"value": ""
+		},
+		{
+			"key": "CommandType",
+			"value": "Check"
 		}
 	]
 }

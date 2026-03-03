@@ -14,6 +14,7 @@ const useDuplicate = (): UseDuplicateProps => {
   const configuration = useAtomValue(configurationAtom);
 
   const endpoint = configuration?.api?.endpoints?.duplicate as string;
+  const isSingleDuplicate = configuration?.api?.isSingleDuplicate;
 
   const queryClient = useQueryClient();
 
@@ -30,10 +31,12 @@ const useDuplicate = (): UseDuplicateProps => {
     nbDuplicates
   }: {
     ids: Array<number>;
-    nbDuplicates: number;
+    nbDuplicates?: number;
   }) => {
     return mutateAsync({
-      payload: { ids, nb_duplicates: nbDuplicates }
+      payload: isSingleDuplicate
+        ? { ids }
+        : { ids, nb_duplicates: nbDuplicates }
     });
   };
 
