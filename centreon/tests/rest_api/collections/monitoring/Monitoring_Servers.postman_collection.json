@@ -72,9 +72,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"name\": \"Central\",\r",
-									"        \"address\": null,\r",
+									"        \"address\": \"127.0.0.1\",\r",
 									"        \"is_running\": true,\r",
-									"        \"description\": null\r",
 									"    });\r",
 									"});"
 								],
@@ -853,9 +852,8 @@
 									"    pm.expect(responseJson.result.length).to.eql(1);\r",
 									"    pm.expect(responseJson.result[0]).to.include({\r",
 									"        \"name\": \"Central\",\r",
-									"        \"address\": null,\r",
+									"        \"address\": \"127.0.0.1\",\r",
 									"        \"is_running\": true,\r",
-									"        \"description\": null\r",
 									"    });\r",
 									"});"
 								],
