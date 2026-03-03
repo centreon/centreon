@@ -34,6 +34,7 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Application\Type\NoValue;
 use Core\Common\Domain\TrimmedString;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -105,7 +106,11 @@ final class UpdateServiceCategory
                 $dto->name,
                 $dto->alias,
             );
-            $serviceCategory->setActivated($dto->isActivated);
+            if (! $dto->isActivated instanceof NoValue) {
+                $serviceCategory->setActivated($dto->isActivated);
+            } else {
+                $serviceCategory->setActivated($serviceCategory->isActivated());
+            }
 
             $this->writeServiceCategoryRepository->update($serviceCategory);
 

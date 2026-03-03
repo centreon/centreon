@@ -1,7 +1,7 @@
 put:
   tags:
     - Service category
-  summary: "Update a service category"
+  summary: 'Update a service category'
   description: |
     Update a service category configuration
   parameters:
@@ -14,7 +14,7 @@ put:
           $ref: 'Schema/ServiceCategoryRequest.yaml'
   responses:
     '204':
-      description: "OK"
+      description: 'No Content'
     '400':
       $ref: '../../Common/Response/BadRequest.yaml'
     '403':

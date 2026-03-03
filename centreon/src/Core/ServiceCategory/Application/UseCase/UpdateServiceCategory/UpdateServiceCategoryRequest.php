@@ -23,11 +23,19 @@ declare(strict_types=1);
 
 namespace Core\ServiceCategory\Application\UseCase\UpdateServiceCategory;
 
+use Core\Common\Application\Type\NoValue;
+
 final class UpdateServiceCategoryRequest
 {
-    public string $name = '';
-
-    public string $alias = '';
-
-    public bool $isActivated = true;
+    /**
+     * @param string $name
+     * @param string $alias
+     * @param bool $isActivated
+     */
+    public function __construct(
+        public string $name = '',
+        public string $alias = '',
+        public NoValue|bool $isActivated = new NoValue(),
+    ) {
+    }
 }

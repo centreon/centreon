@@ -90,7 +90,9 @@ final class UpdateServiceCategoryController extends AbstractController
         $serviceCategoryRequest = new UpdateServiceCategoryRequest();
         $serviceCategoryRequest->name = $data['name'];
         $serviceCategoryRequest->alias = $data['alias'];
-        $serviceCategoryRequest->isActivated = $data['is_activated'] ?? true;
+        if (array_key_exists('is_activated', $data)) {
+            $serviceCategoryRequest->isActivated = $data['is_activated'];
+        }
 
         return $serviceCategoryRequest;
     }
