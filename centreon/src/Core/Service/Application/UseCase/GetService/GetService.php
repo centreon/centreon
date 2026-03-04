@@ -30,6 +30,7 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -57,6 +58,7 @@ final class GetService
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ContactInterface $user,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -86,7 +88,7 @@ final class GetService
             $serviceCategories = [];
             $serviceGroups = [];
             $macros = [];
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $service = $this->readServiceRepository->findById($serviceId);
                 $serviceCategories = $this->readServiceCategoryRepository->findByService($serviceId);
                 $serviceGroups = $this->readServiceGroupRepository->findByService($serviceId);
