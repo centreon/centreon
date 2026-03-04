@@ -28,6 +28,7 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -55,7 +56,8 @@ beforeEach(function (): void {
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
-        $this->adminResolver = $this->createMock(AdminResolver::class)
+        $this->adminResolver = $this->createMock(AdminResolver::class),
+        $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
     $this->presenter = new GetServicePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -126,9 +128,10 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(true);
 
     $this->readServiceRepository
@@ -168,9 +171,10 @@ it('should present a GetServiceResponse with non-admin user', function (): void 
                 [Contact::ROLE_CONFIGURATION_SERVICES_WRITE, true],
             ]
         );
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(false);
 
     $this->readAccessGroupRepository
@@ -248,6 +252,7 @@ it('should present a GetServiceResponse with non-admin user', function (): void 
     expect($dto->iconAlternativeText)->toBe($this->service->getIconAlternativeText());
     expect($dto->severityId)->toBe($this->service->getSeverityId());
     expect($dto->isActivated)->toBe($this->service->isActivated());
+    expect($dto->macros)->toHaveCount(count($this->macros));
     foreach ($dto->macros as $index => $expectedMacro) {
         expect($expectedMacro->name)->toBe($this->macros[$index]->getName())
             ->and($expectedMacro->value)->toBe($this->macros[$index]->getValue())
@@ -270,9 +275,10 @@ it('should present a GetServiceResponse with admin user', function (): void {
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(true);
 
     $this->readServiceRepository
@@ -341,6 +347,7 @@ it('should present a GetServiceResponse with admin user', function (): void {
     expect($dto->iconAlternativeText)->toBe($this->service->getIconAlternativeText());
     expect($dto->severityId)->toBe($this->service->getSeverityId());
     expect($dto->isActivated)->toBe($this->service->isActivated());
+    expect($dto->macros)->toHaveCount(count($this->macros));
     foreach ($dto->macros as $index => $expectedMacro) {
         expect($expectedMacro->name)->toBe($this->macros[$index]->getName())
             ->and($expectedMacro->value)->toBe($this->macros[$index]->getValue())
@@ -363,9 +370,10 @@ it('should present a NotFoundResponse when the service does not exist', function
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
+        ->with($this->user)
         ->willReturn(true);
     $this->readServiceRepository
         ->expects($this->once())
