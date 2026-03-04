@@ -37,8 +37,8 @@ const useTimePeriod = ({
   useEffect(() => {
     if (customTimePeriod) {
       getParameters?.({
-        start: customTimePeriod.start.toISOString(),
         end: customTimePeriod.end.toISOString(),
+        start: customTimePeriod.start.toISOString(),
         timelineEventsLimit: customTimePeriod.timelineEventsLimit
       });
       return;
