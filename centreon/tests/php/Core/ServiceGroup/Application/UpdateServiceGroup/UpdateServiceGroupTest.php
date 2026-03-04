@@ -28,6 +28,7 @@ use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -47,7 +48,8 @@ beforeEach(function (): void {
         $this->writeServiceGroupRepository = $this->createMock(WriteServiceGroupRepositoryInterface::class),
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->readAccessGroupRepositoryInterface = $this->createMock(ReadAccessGroupRepositoryInterface::class),
-        $this->user = $this->createMock(ContactInterface::class)
+        $this->user = $this->createMock(ContactInterface::class),
+        $this->adminResolver = $this->createMock(AdminResolver::class)
     );
 
     $this->serviceGroup = new ServiceGroup(
@@ -72,7 +74,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -110,7 +112,7 @@ it('should present a ConflictResponse when name is already used', function (): v
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -139,7 +141,7 @@ it('should return void on success when admin user', function (): void {
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -169,7 +171,7 @@ it('should return void on success when no-admin user', function (): void {
         ->method('hasTopologyRole')
         ->willReturn(true);
 
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);

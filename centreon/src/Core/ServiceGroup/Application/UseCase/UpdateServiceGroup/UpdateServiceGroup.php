@@ -30,11 +30,11 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Common\Application\Type\NoValue;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Common\Application\Type\NoValue;
 use Core\Common\Domain\TrimmedString;
 use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
@@ -116,7 +116,7 @@ final class UpdateServiceGroup
                     },
                 $dto->comment instanceof NoValue
                     ? $serviceGroup->getComment()
-                    : $dto->comment,
+                    : ($dto->comment ?? ''),
                 $dto->isActivated instanceof NoValue
                     ? $serviceGroup->isActivated()
                     : $dto->isActivated,

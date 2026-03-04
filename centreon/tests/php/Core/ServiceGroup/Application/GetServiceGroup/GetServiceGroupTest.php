@@ -26,6 +26,7 @@ namespace Tests\Core\ServiceGroup\Application\UseCase\GetServiceGroup;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -42,10 +43,12 @@ beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
     $this->useCase = new GetServiceGroup(
         $this->readServiceGroupRepository,
         $this->readAccessGroupRepository,
-        $this->user
+        $this->user,
+        $this->adminResolver,
     );
     $this->serviceGroup = new ServiceGroup(
         1,
@@ -62,7 +65,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -98,7 +101,7 @@ it('should present a GetServiceGroupResponse with non-admin user', function (): 
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -133,7 +136,7 @@ it('should present a GetServiceGroupResponse with admin user', function (): void
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
