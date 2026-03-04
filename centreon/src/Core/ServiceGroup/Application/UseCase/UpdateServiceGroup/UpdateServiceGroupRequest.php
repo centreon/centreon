@@ -23,15 +23,24 @@ declare(strict_types=1);
 
 namespace Core\ServiceGroup\Application\UseCase\UpdateServiceGroup;
 
+use Core\Common\Application\Type\NoValue;
+
 final class UpdateServiceGroupRequest
 {
     public string $name = '';
 
     public string $alias = '';
 
-    public ?string $geoCoords = null;
+    public NoValue|string|null $geoCoords;
 
-    public ?string $comment = null;
+    public NoValue|string|null $comment;
 
-    public ?bool $isActivated = null;
+    public NoValue|bool $isActivated;
+
+    public function __construct()
+    {
+        $this->geoCoords = new NoValue();
+        $this->comment = new NoValue();
+        $this->isActivated = new NoValue();
+    }
 }

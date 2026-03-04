@@ -30,11 +30,13 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ConflictResponse;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Application\Type\NoValue;
 use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Domain\TrimmedString;
+use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -52,6 +54,7 @@ final class UpdateServiceGroup
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -80,7 +83,7 @@ final class UpdateServiceGroup
 
             $serviceGroup = null;
 
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $serviceGroup = $this->readServiceGroupRepository->findOne($serviceGroupId);
             } else {
                 $serviceGroup = $this->readServiceGroupRepository->findOneByAccessGroups(
@@ -105,12 +108,18 @@ final class UpdateServiceGroup
                 $serviceGroup->getId(),
                 $dto->name,
                 $dto->alias,
-                match ($dto->geoCoords) {
-                    null, '' => null,
-                    default => GeoCoords::fromString($dto->geoCoords),
-                },
-                $dto->comment ?? $serviceGroup->getComment(),
-                $dto->isActivated ?? $serviceGroup->isActivated(),
+                $dto->geoCoords instanceof NoValue
+                    ? $serviceGroup->getGeoCoords()
+                    : match ($dto->geoCoords) {
+                        null, '' => null,
+                        default => GeoCoords::fromString($dto->geoCoords),
+                    },
+                $dto->comment instanceof NoValue
+                    ? $serviceGroup->getComment()
+                    : $dto->comment,
+                $dto->isActivated instanceof NoValue
+                    ? $serviceGroup->isActivated()
+                    : $dto->isActivated,
             );
 
             $this->writeServiceGroupRepository->update($serviceGroup);
