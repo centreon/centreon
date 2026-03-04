@@ -35,6 +35,7 @@ const GraphTabContent = ({ details }: TabProps): JSX.Element => {
   const getTimePeriodsParameters = (data: Parameters): void => {
     setGraphTimeParameters(data);
   };
+  console.log(graphTimeParameters)
 
   return (
     <div className={classes.graphTabContainer}>
