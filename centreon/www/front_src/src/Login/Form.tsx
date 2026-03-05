@@ -85,6 +85,14 @@ const LoginForm = (): JSX.Element => {
         onBlur={handleBlur(aliasFieldName)}
         onChange={handleChange(aliasFieldName)}
         dataTestId={labelAlias}
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelAlias) as string,
+              autoComplete: 'username'
+            }
+          }
+        }}
       />
       <TextField
         fullWidth
