@@ -16,7 +16,7 @@ const useTimePeriod = ({
   adjustTimePeriodData
 }: Omit<WrapperTimePeriodProps, 'extraTimePeriods' | 'disabled'>): void => {
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
-  const _customTimePeriod = useAtomValue(customTimePeriodAtom);
+  const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const getCurrentEndStartInterval = useAtomValue(getDatesDerivedAtom);
   const errorTimePeriod = useAtomValue(errorTimePeriodAtom);
   const adjustTimeTimePeriod = useSetAtom(adjustTimePeriodDerivedAtom);
@@ -35,11 +35,19 @@ const useTimePeriod = ({
   ]);
 
   useEffect(() => {
+    if (customTimePeriod) {
+      getParameters?.({
+        end: customTimePeriod.end.toISOString(),
+        start: customTimePeriod.start.toISOString(),
+        timelineEventsLimit: customTimePeriod.timelineEventsLimit
+      });
+      return;
+    }
     const [start, end, timelineEventsLimit] =
       getCurrentEndStartInterval(selectedTimePeriod);
 
     getParameters?.({ end, start, timelineEventsLimit });
-  }, [selectedTimePeriod, getCurrentEndStartInterval, getParameters]);
+  }, [selectedTimePeriod, customTimePeriod]);
 
   useEffect(() => {
     if (!errorTimePeriod) {
