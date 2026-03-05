@@ -52,17 +52,11 @@ final class FindRules
     public function __invoke(FindRulesPresenterInterface $presenter): void
     {
         try {
-            if ($this->canUserListAllRules()) {
-                $rules = $this->repository->findAllByRequestParameters($this->requestParameters);
-            } else {
-                $rules = $this->repository->findAllByRequestParametersAndUserId(
-                    $this->requestParameters,
-                    $this->user->getId()
-                );
-            }
-            $presenter->presentResponse(
-                $this->createResponse($rules)
-            );
+            $presenter->presentResponse($this->createResponse(
+                $this->canUserListAllRules()
+                    ? $this->repository->findAllByRequestParameters($this->requestParameters)
+                    : $this->repository->findAllByRequestParametersAndUserId($this->requestParameters, $this->user->getId())
+            ));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
