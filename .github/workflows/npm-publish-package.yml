@@ -6,9 +6,6 @@ on:
       package_directory:
         required: true
         type: string
-    secrets:
-      npm_token:
-        required: true
 
 permissions:
   id-token: write
@@ -97,7 +94,6 @@ jobs:
           access: public
           package: ${{ inputs.package_directory }}/package.json
           tag: ${{ env.tag }}
-          token: ${{ secrets.npm_token }}
 
   set-skip-label:
     needs: [get-environment, publish-package]

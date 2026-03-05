@@ -30,5 +30,3 @@ jobs:
     uses: ./.github/workflows/npm-publish-package.yml
     with:
       package_directory: "centreon/packages/js-config"
-    secrets:
-      npm_token: ${{ secrets.NPM_TOKEN }}
