@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/centreon/centreon-frontend.git"
+    "url": "git+https://github.com/centreon/centreon.git"
   },
   "keywords": [
     "centreon",
@@ -13,9 +13,9 @@
   "author": "centreon@centreon.com",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/centreon/centreon-frontend/issues"
+    "url": "https://github.com/centreon/centreon/issues"
   },
-  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "homepage": "https://github.com/centreon/centreon#readme",
   "peerDependencies": {
     "eslint": "^8.53.0",
     "prettier": "^3.0.0"
