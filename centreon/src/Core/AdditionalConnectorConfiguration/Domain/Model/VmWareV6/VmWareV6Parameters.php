@@ -133,27 +133,14 @@ class VmWareV6Parameters implements AccParametersInterface
                 $newVcenters[] = $vcenter;
                 continue;
             }
-<<<<<<< HEAD
-
-            // Update vcenter
-            $updatedVcenter = $requestedVcenters[$vcenter['name']];
-            $updatedVcenter['username'] ??= $vcenter['username'];
-            $updatedVcenter['password'] ??= $vcenter['password'];
-
-            $parameters['vcenters'][$index] = $updatedVcenter;
-            unset($requestedVcenters[$vcenter['name']]);
-        }
-        // Add new vcenter
-        if ($requestedVcenters !== []) {
-            foreach ($requestedVcenters as $newVcenter) {
-                $parameters['vcenters'][] = $newVcenter;
-=======
             if (! array_key_exists($vcenter['id'], $existingById)) {
                 throw new AssertionException("parameters.vcenters[].id : {$vcenter['id']}, must belong to this ACC");
->>>>>>> 68c33e6b9f (fix(additional configuration): replace json column by new tables (#9337))
+            }
+            // If password or username are empty, reuse old values
+            if (empty($vcenter['username'])) {
+                $vcenter['username'] = $existingById[$vcenter['id']]['username'];
             }
             if (empty($vcenter['password'])) {
-                // If password is empty, reuse old password
                 $vcenter['password'] = $existingById[$vcenter['id']]['password'];
             }
             $newVcenters[] = $vcenter;

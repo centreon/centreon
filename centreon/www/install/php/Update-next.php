@@ -33,8 +33,6 @@ $errorMessage = '';
  * @var ConnectionInterface $pearDBO
  */
 
-// TODO add your functions here
-
 /** -------------------------------------- ACC -------------------------------------- */
 $createAccTables = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to create Additional Connector Configuration tables';
@@ -72,7 +70,6 @@ $createAccTables = function () use ($pearDB, &$errorMessage, $version): void {
                 `created_at` INT NOT NULL COMMENT 'Creation timestamp',
                 `updated_at` INT NOT NULL COMMENT 'Last update timestamp',
                 PRIMARY KEY (`id`),
-                KEY `idx_acc_id` (`acc_id`),
                 UNIQUE KEY `acc_item_unique` (`acc_id`, `id`),
                 FOREIGN KEY (`acc_id`) REFERENCES `additional_connector_configuration`(`id`) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -290,13 +287,9 @@ try {
         $pearDB->startTransaction();
     }
 
-<<<<<<< HEAD
-    // TODO add your function calls to update the configuration database data here
-=======
     $rewordingResourceToGlobalMacro();
     $fixDuplicateHostGroupTopology();
     $migrateAccJsonToTables();
->>>>>>> 68c33e6b9f (fix(additional configuration): replace json column by new tables (#9337))
 
     if ($pearDB->isTransactionActive()) {
         $pearDB->commitTransaction();
