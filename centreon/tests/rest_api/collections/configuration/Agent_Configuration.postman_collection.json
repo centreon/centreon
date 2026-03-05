@@ -1,16 +1,17 @@
 {
   "info": {
-    "_postman_id": "06b93baa-ecbd-4939-ac03-9de6c9673d41",
-    "name": "Agent_Configuration",
+    "_postman_id": "2fddd4d8-3e5a-4560-ad4f-f2b01f56bb09",
+    "name": "Agent_Configuration - Only super Admin",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "29556865"
+    "_exporter_id": "28117716",
+    "_collection_link": "https://go.postman.co/collection/28117716-2fddd4d8-3e5a-4560-ad4f-f2b01f56bb09?source=collection_link"
   },
   "item": [
     {
-      "name": "By Admin",
+      "name": "By Super Admin",
       "item": [
         {
-          "name": "Login with admin user",
+          "name": "POST /login - admin authentication - HTTP 200",
           "event": [
             {
               "listen": "test",
@@ -59,61 +60,7 @@
           "response": []
         },
         {
-          "name": "Create a CMA token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"The token has been successfully created.\", function () {\r",
-                  "  pm.response.to.have.status(201);\r",
-                  "});\r",
-                  "\r",
-                  "const responseJson = pm.response.json();\r",
-                  "pm.collectionVariables.set(\"Token-1-name\", responseJson.name);\r",
-                  "pm.collectionVariables.set(\"Token-1-creator-id\", responseJson.creator.id);"
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          },
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\" : \"CMA-token-name\",\r\n    \"type\": \"cma\",\r\n    \"expiration_date\": \"9999-12-02T00:00:00+01:00\",\r\n    \"user_id\": 1\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/administration/tokens",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "administration",
-                "tokens"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create a fake poller-1",
+          "name": "CLAPI - Create a fake poller-1",
           "event": [
             {
               "listen": "test",
@@ -159,7 +106,7 @@
           "response": []
         },
         {
-          "name": "Create a fake poller-2",
+          "name": "CLAPI - Create a fake poller-2",
           "event": [
             {
               "listen": "test",
@@ -205,7 +152,7 @@
           "response": []
         },
         {
-          "name": "Create a fake poller-3",
+          "name": "CLAPI - Create a fake poller-3",
           "event": [
             {
               "listen": "test",
@@ -251,7 +198,54 @@
           "response": []
         },
         {
-          "name": "Create a engine conf for Poller-1",
+          "name": "CLAPI - Create a fake poller-4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"The poller has been successfully created.\", function () {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"INSTANCE\",\r\n  \"values\": \"Poller-4;10.30.2.88;22;ZMQ;5556\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUriCentreonCLAPI}}",
+              "host": [
+                "{{baseUriCentreonCLAPI}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CLAPI - Create a engine conf for Poller-1",
           "event": [
             {
               "listen": "test",
@@ -297,7 +291,7 @@
           "response": []
         },
         {
-          "name": "Create a engine conf for Poller-2",
+          "name": "CLAPI - Create a engine conf for Poller-2",
           "event": [
             {
               "listen": "test",
@@ -343,7 +337,7 @@
           "response": []
         },
         {
-          "name": "Create a engine conf for Poller-3",
+          "name": "CLAPI - Create a engine conf for Poller-3",
           "event": [
             {
               "listen": "test",
@@ -389,7 +383,54 @@
           "response": []
         },
         {
-          "name": "Retrieve poller IDs",
+          "name": "CLAPI - Create a engine conf for Poller-4",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"The engine configuration for the poller has been successfully created.\", function () {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableCookies": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"action\": \"add\",\r\n  \"object\": \"ENGINECFG\",\r\n  \"values\": \"Centreon Engine cfg for poller-4;Poller-4;Just a small comment\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUriCentreonCLAPI}}",
+              "host": [
+                "{{baseUriCentreonCLAPI}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CLAPI - Retrieve poller IDs",
           "event": [
             {
               "listen": "test",
@@ -412,11 +453,15 @@
                   "        if(responseJson.result[i].name === \"Poller-3\"){\r",
                   "            pm.collectionVariables.set(\"poller3_Id\", responseJson.result[i].id);\r",
                   "        }\r",
+                  "        if(responseJson.result[i].name === \"Poller-4\"){\r",
+                  "            pm.collectionVariables.set(\"poller4_Id\", responseJson.result[i].id);\r",
+                  "        }\r",
                   "    }\r",
                   "});"
                 ],
                 "type": "text/javascript",
-                "packages": {}
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -451,1661 +496,36 @@
           "response": []
         },
         {
-          "name": "Add a new host",
+          "name": "POST /agent-configurations - Add a Telegraph configuration - HTTP 201",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.collectionVariables.set(\"Host1Name\", \"host_001\");\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The host has been successfully created, with name '\" + pm.collectionVariables.get(\"Host1Name\") + \"'.\", function () {\r",
+                  "pm.test(\"The AC has been successfully created, with name '\" + pm.collectionVariables.get(\"Agent_Telegraph_Name\") + \"'.\", function () {\r",
                   "    pm.response.to.have.status(201);\r",
                   "\r",
-                  "    // Creation of a variable with the ID of the new host \r",
-                  "    pm.collectionVariables.set(\"Host1Id\", responseJson.id);\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.include({\r",
-                  "        \"id\": pm.collectionVariables.get(\"Host1Id\"),\r",
-                  "        \"name\": pm.collectionVariables.get(\"Host1Name\"),\r",
-                  "        \"alias\": null,\r",
-                  "        \"address\": \"127.0.0.1\",\r",
-                  "        \"monitoring_server_id\": 1,\r",
-                  "        \"snmp_version\": null,\r",
-                  "        \"timezone_id\": null,\r",
-                  "        \"severity_id\": null,\r",
-                  "        \"check_command_id\": null,\r",
-                  "        \"check_timeperiod_id\": null,\r",
-                  "        \"note_url\": null,\r",
-                  "        \"note\": null,\r",
-                  "        \"action_url\": null,\r",
-                  "        \"max_check_attempts\": null,\r",
-                  "        \"normal_check_interval\": null,\r",
-                  "        \"retry_check_interval\": null,\r",
-                  "        \"active_check_enabled\": 2,\r",
-                  "        \"passive_check_enabled\": 2,\r",
-                  "        \"notification_enabled\": 2,\r",
-                  "        \"notification_options\": null,\r",
-                  "        \"notification_interval\": null,\r",
-                  "        \"notification_timeperiod_id\": null,\r",
-                  "        \"add_inherited_contact_group\": false,\r",
-                  "        \"add_inherited_contact\": false,\r",
-                  "        \"first_notification_delay\": null,\r",
-                  "        \"recovery_notification_delay\": null,\r",
-                  "        \"acknowledgement_timeout\": null,\r",
-                  "        \"freshness_checked\": 2,\r",
-                  "        \"freshness_threshold\": null,\r",
-                  "        \"flap_detection_enabled\": 2,\r",
-                  "        \"low_flap_threshold\": null,\r",
-                  "        \"high_flap_threshold\": null,\r",
-                  "        \"event_handler_enabled\": 2,\r",
-                  "        \"event_handler_command_id\": null,\r",
-                  "        \"icon_id\": null,\r",
-                  "        \"icon_alternative\": null,\r",
-                  "        \"comment\": null,\r",
-                  "        \"geo_coords\": null,\r",
-                  "        \"is_activated\": true\r",
-                  "    });\r",
-                  "    pm.expect(responseJson.check_command_args).to.be.an('Array').that.is.empty;\r",
-                  "    pm.expect(responseJson.event_handler_command_args).to.be.an('Array').that.is.empty;\r",
-                  "    pm.expect(responseJson.templates).to.be.an('Array').that.is.empty;\r",
-                  "    pm.expect(responseJson.groups).to.be.an('Array').that.is.empty;\r",
-                  "    pm.expect(responseJson.macros).to.be.an('Array').that.is.empty;\r",
-                  "    pm.expect(responseJson.categories).to.be.an('Array').that.is.empty;\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation for the host creation response\", function () {\r",
-                  "    const schema = {\r",
-                  "        type: \"object\",\r",
-                  "        properties: {\r",
-                  "            id: { type: \"integer\" },\r",
-                  "            name: { type: \"string\" },\r",
-                  "            alias: { type: [\"string\", \"null\"] },\r",
-                  "            address: { type: \"string\" },\r",
-                  "            monitoring_server_id: { type: \"integer\" },\r",
-                  "            snmp_version: { type: [\"string\", \"null\"] },\r",
-                  "            timezone_id: { type: [\"integer\", \"null\"] },\r",
-                  "            severity_id: { type: [\"integer\", \"null\"] },\r",
-                  "            check_command_id: { type: [\"integer\", \"null\"] },\r",
-                  "            check_timeperiod_id: { type: [\"integer\", \"null\"] },\r",
-                  "            note_url: { type: [\"string\", \"null\"] },\r",
-                  "            note: { type: [\"string\", \"null\"] },\r",
-                  "            action_url: { type: [\"string\", \"null\"] },\r",
-                  "            max_check_attempts: { type: [\"integer\", \"null\"] },\r",
-                  "            normal_check_interval: { type: [\"integer\", \"null\"] },\r",
-                  "            retry_check_interval: { type: [\"integer\", \"null\"] },\r",
-                  "            active_check_enabled: { type: \"integer\" },\r",
-                  "            passive_check_enabled: { type: \"integer\" },\r",
-                  "            notification_enabled: { type: \"integer\" },\r",
-                  "            notification_options: { type: [\"integer\", \"null\"] },\r",
-                  "            notification_interval: { type: [\"integer\", \"null\"] },\r",
-                  "            notification_timeperiod_id: { type: [\"integer\", \"null\"] },\r",
-                  "            add_inherited_contact_group: { type: \"boolean\" },\r",
-                  "            add_inherited_contact: { type: \"boolean\" },\r",
-                  "            first_notification_delay: { type: [\"integer\", \"null\"] },\r",
-                  "            recovery_notification_delay: { type: [\"integer\", \"null\"] },\r",
-                  "            acknowledgement_timeout: { type: [\"integer\", \"null\"] },\r",
-                  "            freshness_checked: { type: \"integer\" },\r",
-                  "            freshness_threshold: { type: [\"integer\", \"null\"] },\r",
-                  "            flap_detection_enabled: { type: \"integer\" },\r",
-                  "            low_flap_threshold: { type: [\"integer\", \"null\"] },\r",
-                  "            high_flap_threshold: { type: [\"integer\", \"null\"] },\r",
-                  "            event_handler_enabled: { type: \"integer\" },\r",
-                  "            event_handler_command_id: { type: [\"integer\", \"null\"] },\r",
-                  "            icon_id: { type: [\"integer\", \"null\"] },\r",
-                  "            icon_alternative: { type: [\"string\", \"null\"] },\r",
-                  "            comment: { type: [\"string\", \"null\"] },\r",
-                  "            geo_coords: { type: [\"string\", \"null\"] },\r",
-                  "            is_activated: { type: \"boolean\" },\r",
-                  "            check_command_args: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"string\"\r",
-                  "                }\r",
-                  "            },\r",
-                  "            event_handler_command_args: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"string\"\r",
-                  "                }\r",
-                  "            },\r",
-                  "            categories: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"object\",\r",
-                  "                    properties: {\r",
-                  "                        id: { type: \"integer\" },\r",
-                  "                        name: { type: \"string\" }\r",
-                  "                    }\r",
-                  "                }\r",
-                  "            },\r",
-                  "            templates: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"object\",\r",
-                  "                    properties: {\r",
-                  "                        id: { type: \"integer\" },\r",
-                  "                        name: { type: \"string\" }\r",
-                  "                    }\r",
-                  "                }\r",
-                  "            },\r",
-                  "            groups: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"object\",\r",
-                  "                    properties: {\r",
-                  "                        id: { type: \"integer\" },\r",
-                  "                        name: { type: \"string\" }\r",
-                  "                    }\r",
-                  "                }\r",
-                  "            },\r",
-                  "            macros: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"object\",\r",
-                  "                    properties: {\r",
-                  "                        id: { type: \"integer\" },\r",
-                  "                        name: { type: \"string\" }\r",
-                  "                    }\r",
-                  "                }\r",
-                  "            }\r",
-                  "        },\r",
-                  "        required: [\"id\", \"monitoring_server_id\", \"name\", \"address\", \"alias\", \"snmp_version\", \"geo_coords\", \"note_url\", \"note\", \"action_url\", \"icon_alternative\", \"comment\", \"timezone_id\", \"severity_id\", \"check_command_id\", \"check_timeperiod_id\", \"notification_timeperiod_id\", \"event_handler_command_id\", \"icon_id\", \"max_check_attempts\", \"normal_check_interval\", \"retry_check_interval\", \"notification_options\", \"notification_interval\", \"first_notification_delay\", \"recovery_notification_delay\", \"acknowledgement_timeout\", \"freshness_threshold\", \"low_flap_threshold\", \"high_flap_threshold\", \"freshness_checked\", \"active_check_enabled\", \"passive_check_enabled\", \"notification_enabled\", \"flap_detection_enabled\", \"event_handler_enabled\", \"check_command_args\", \"event_handler_command_args\", \"categories\", \"groups\", \"templates\", \"macros\", \"add_inherited_contact_group\", \"add_inherited_contact\", \"is_activated\"]\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n\"name\": \"{{Host1Name}}\",\r\n\"address\": \"127.0.0.1\",\r\n\"monitoring_server_id\": 1\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/hosts",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "hosts"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a telegraf configuration",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.collectionVariables.set(\"AC1Name\", \"telegraf-001\");\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"The AC has been successfully created, with name '\" + pm.collectionVariables.get(\"AC1Name\") + \"'.\", function () {\r",
-                  "    pm.response.to.have.status(201);\r",
-                  "\r",
-                  "    pm.collectionVariables.set(\"AC1Id\", responseJson.id);\r",
-                  "\r",
-                  "    pm.expect(responseJson.id).to.eql(parseInt(pm.collectionVariables.get(\"AC1Id\")));\r",
-                  "    pm.expect(responseJson.name).to.eql(pm.collectionVariables.get(\"AC1Name\"));\r",
-                  "    pm.expect(responseJson.type).to.eql(\"telegraf\");\r",
-                  "    pm.expect(responseJson.connection_mode).to.eql(\"secure\");\r",
-                  "\r",
-                  "    // configuration\r",
-                  "    pm.expect(responseJson.configuration.otel_public_certificate)\r",
-                  "        .to.eql(\"/etc/pki/my-otel-certificate-name.crt\");\r",
-                  "    pm.expect(responseJson.configuration.otel_ca_certificate)\r",
-                  "        .to.eql(null);\r",
-                  "    pm.expect(responseJson.configuration.otel_private_key)\r",
-                  "        .to.eql(\"/etc/pki/my-otel-private-key-name.key\");\r",
-                  "    pm.expect(responseJson.configuration.conf_server_port)\r",
-                  "        .to.eql(1443);\r",
-                  "    pm.expect(responseJson.configuration.conf_certificate)\r",
-                  "        .to.eql(\"/etc/pki/my-certificate-name.crt\");\r",
-                  "    pm.expect(responseJson.configuration.conf_private_key)\r",
-                  "        .to.eql(\"/etc/pki/my-private-key-name.key\");\r",
-                  "\r",
-                  "    const pollerIds = responseJson.pollers.map(p => p.id);\r",
-                  "\r",
-                  "    pm.expect(pollerIds.length).to.eql(1);\r",
-                  "    pm.expect(pollerIds).to.include(parseInt(pm.collectionVariables.get(\"poller1_Id\")));\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"{{AC1Name}}\",\r\n    \"poller_ids\": [{{poller1_Id}}],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List agent configurations #1",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"AC telegraf exists and is valid\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "\r",
-                  "    const ac = responseJson.result.find(a => a.type === \"telegraf\" && a.name === pm.collectionVariables.get(\"AC1Name\"));\r",
-                  "\r",
-                  "    pm.expect(ac, \"AC telegraf not found\").to.exist;\r",
-                  "\r",
-                  "    pm.expect(ac.id).to.be.a(\"number\");\r",
-                  "    pm.expect(ac.pollers).to.be.an(\"array\").that.is.not.empty;\r",
-                  "\r",
-                  "    const poller = ac.pollers.find(p => p.id === parseInt(pm.collectionVariables.get(\"poller1_Id\")));\r",
-                  "    pm.expect(poller, \"Poller-1 not linked to AC\").to.exist;\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a centreon-agent configuration",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.collectionVariables.set(\"AC2Name\", \"centreon-agent-001\");\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Récupère la réponse JSON\r",
-                  "const responseJson = pm.response.json();\r",
-                  "\r",
-                  "// Test status code\r",
-                  "pm.test(`The AC has been successfully created, with name '${pm.collectionVariables.get(\"AC2Name\")}'.`, function () {\r",
-                  "    pm.response.to.have.status(201);\r",
-                  "\r",
-                  "    // Stocke l'ID de l'AC dans une variable Postman\r",
-                  "    pm.collectionVariables.set(\"AC2Id\", responseJson.id);\r",
-                  "\r",
-                  "    // Vérifications principales\r",
-                  "    pm.expect(responseJson.id).to.eql(parseInt(pm.collectionVariables.get(\"AC2Id\")));\r",
-                  "    pm.expect(responseJson.name).to.eql(pm.collectionVariables.get(\"AC2Name\"));\r",
-                  "    pm.expect(responseJson.type).to.eql(\"centreon-agent\");\r",
-                  "    pm.expect(responseJson.connection_mode).to.eql(\"secure\");\r",
-                  "\r",
-                  "    // Vérification configuration\r",
-                  "    const config = responseJson.configuration;\r",
-                  "    pm.expect(config.agent_initiated).to.be.true;\r",
-                  "    pm.expect(config.poller_initiated).to.be.true;\r",
-                  "    pm.expect(config.otel_public_certificate).to.eql(\"/etc/pki/my-otel-certificate-name-ac2.crt\");\r",
-                  "    pm.expect(config.otel_ca_certificate).to.be.null;\r",
-                  "    pm.expect(config.otel_private_key).to.eql(\"/etc/pki/my-otel-private-key-name-ac2.key\");\r",
-                  "    pm.expect(config.port).to.eql(4317);\r",
-                  "\r",
-                  "    // Vérifie les tokens dynamiquement\r",
-                  "    pm.expect(config.tokens.length).to.be.at.least(1);\r",
-                  "    config.tokens.forEach(token => {\r",
-                  "        pm.expect(token.name).to.be.a(\"string\");\r",
-                  "        pm.expect(token.creator_id).to.be.a(\"number\");\r",
-                  "    });\r",
-                  "\r",
-                  "    // Vérifie les hosts\r",
-                  "    pm.expect(config.hosts.length).to.be.at.least(1);\r",
-                  "    config.hosts.forEach(host => {\r",
-                  "        pm.expect(host.address).to.be.a(\"string\");\r",
-                  "        pm.expect(host.port).to.be.a(\"number\");\r",
-                  "        pm.expect(host.name).to.be.a(\"string\");\r",
-                  "        pm.expect(host.id).to.be.a(\"number\");\r",
-                  "        // Vérifie le token attaché au host si présent\r",
-                  "        if (host.token) {\r",
-                  "            pm.expect(host.token.name).to.be.a(\"string\");\r",
-                  "            pm.expect(host.token.creator_id).to.be.a(\"number\");\r",
-                  "        }\r",
-                  "    });\r",
-                  "\r",
-                  "    // Vérification des pollers dynamiques\r",
-                  "    pm.expect(responseJson.pollers.length).to.be.at.least(1);\r",
-                  "    responseJson.pollers.forEach(poller => {\r",
-                  "        pm.expect(poller.id).to.be.a(\"number\");\r",
-                  "        pm.expect(poller.name).to.be.a(\"string\");\r",
-                  "    });\r",
-                  "\r",
-                  "    // Exemple : stocker le premier poller pour usage futur\r",
-                  "    pm.collectionVariables.set(\"AC2PollerId\", responseJson.pollers[0].id);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"{{AC2Name}}\",\r\n    \"poller_ids\": [ {{poller2_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"agent_initiated\": true,\r\n        \"poller_initiated\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [{\"name\": \"{{Token-1-name}}\", \"creator_id\": {{Token-1-creator-id}} }],\r\n        \"port\": 4317,\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"id\": {{Host1Id}},\r\n            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null,\r\n            \"token\": {\"name\": \"{{Token-1-name}}\", \"creator_id\": {{Token-1-creator-id}} }\r\n        }]\r\n    }\r\n}\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Remove a poller from AC (error)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The poller has not been removed from the AC.\", function () {\r",
-                  "    pm.response.to.have.status(500);\r",
-                  "    \r",
-                  "\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations/{{AC2Id}}/pollers/{{poller1_Id}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations",
-                "{{AC2Id}}",
-                "pollers",
-                "{{poller1_Id}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List agent configurations #2",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"All ACs retrieved correctly\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "    pm.expect(responseJson.result.length).to.eql(3);\r",
-                  "\r",
-                  "    // AC 1 - Central\r",
-                  "    const ac1 = responseJson.result.find(ac => ac.id === parseInt(pm.collectionVariables.get(\"AC1Id\")));\r",
-                  "    pm.expect(ac1).to.not.be.undefined;\r",
-                  "    pm.expect(ac1.type).to.eql(\"telegraf\");  // Correct\r",
-                  "    pm.expect(ac1.pollers[0].name).to.eql(\"Poller-1\");\r",
-                  "\r",
-                  "    // AC 2 - Telegraf\r",
-                  "    const ac2 = responseJson.result.find(ac => ac.id === parseInt(pm.collectionVariables.get(\"AC2Id\")));\r",
-                  "    pm.expect(ac2).to.not.be.undefined;\r",
-                  "    pm.expect(ac2.type).to.eql(\"centreon-agent\");        // <-- ATTENTION ici, c’est bien telegraf\r",
-                  "    pm.expect(ac2.pollers[0].name).to.eql(\"Poller-2\");\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a telegraf configuration without name",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the name is mandatory.\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"[name] The property name is required\\n\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"poller_ids\": [{{poller2_Id}}],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a telegraf configuration with empty name",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the name cannot be empty.\", function () {\r",
-                  "    pm.response.to.have.status(500);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"\",\r\n    \"poller_ids\": [{{poller2_Id}}],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a telegraf configuration without poller",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the poller_ids is mandatory.\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"[poller_ids] The property poller_ids is required\\n\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a configuration without type",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the type is mandatory.\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"[type] The property type is required\\n\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [{{poller2_Id}}],\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a configuration with wrong type",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the type is not one of the authorized type.\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"[type] Does not have a value in the enumeration [\\\"telegraf\\\",\\\"centreon-agent\\\"]\\n\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [{{poller2_Id}}],\r\n    \"type\": \"vmware_v6\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a telegraf configuration without parameters in configuration",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the configuration parameters are mandatory.\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"[configuration.otel_public_certificate] The property otel_public_certificate is required\\n[configuration.otel_ca_certificate] The property otel_ca_certificate is required\\n[configuration.otel_private_key] The property otel_private_key is required\\n[configuration.conf_server_port] The property conf_server_port is required\\n[configuration.conf_certificate] The property conf_certificate is required\\n[configuration.conf_private_key] The property conf_private_key is required\\n\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [{{poller2_Id}}],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {}\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a configuration with wrong values",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the values are not correct.\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"[type] Boolean value found, but a string is required\\n[type] Does not have a value in the enumeration [\\\"telegraf\\\",\\\"centreon-agent\\\"]\\n[name] Integer value found, but a string is required\\n[poller_ids[0]] Boolean value found, but an integer is required\\n\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": 1,\r\n    \"poller_ids\": [true],\r\n    \"type\": false,\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": 3,\r\n        \"otel_ca_certificate\": 0,\r\n        \"otel_private_key\": false,\r\n        \"conf_server_port\": \"1443\",\r\n        \"conf_certificate\": true,\r\n        \"conf_private_key\": 123\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a telegraf configuration with wrong configuration values",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the configuration values are not correct.\", function () {\r",
-                  "    pm.response.to.have.status(400);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"[configuration.otel_public_certificate] Integer value found, but a null or a string is required\\n[configuration.otel_ca_certificate] Integer value found, but a string or a null is required\\n[configuration.otel_private_key] Boolean value found, but a null or a string is required\\n[configuration.conf_server_port] String value found, but an integer is required\\n[configuration.conf_certificate] Boolean value found, but a null or a string is required\\n[configuration.conf_private_key] Integer value found, but a null or a string is required\\n\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"bac-ac\",\r\n    \"poller_ids\": [{{poller2_Id}}],\r\n    \"type\": \"telegraf\",\r\n  \"connection_mode\": \"secure\",\r\n  \"configuration\": {\r\n        \"otel_public_certificate\": 3,\r\n        \"otel_ca_certificate\": 0,\r\n        \"otel_private_key\": false,\r\n        \"conf_server_port\": \"1443\",\r\n        \"conf_certificate\": true,\r\n        \"conf_private_key\": 123\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Add a centreon-agent configuration with an already used poller",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created, because the poller is already used.\", function () {\r",
-                  "    pm.response.to.have.status(500);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"A poller/agent configuration is already associated with poller ID(s) '\" + pm.collectionVariables.get(\"poller1_Id\") + \"'\");\r",
-                  "\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"bad-ac\",\r\n    \"poller_ids\": [ {{poller1_Id}} ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"agent_initiated\": true,\r\n        \"poller_initiated\": true,\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-ac2.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name-ac2.key\",\r\n        \"tokens\": [],\r\n        \"port\": 4317,\r\n        \"hosts\": [{\r\n            \"address\": \"127.0.0.1\",\r\n            \"port\": 4317,\r\n            \"id\": {{Host1Id}},            \"poller_ca_certificate\": null,\r\n            \"poller_ca_name\": null,\r\n            \"token\": null\r\n        }]\r\n    }\r\n}\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Change the type of the agent",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been updated because the type cannot be changed.\", function () {\r",
-                  "    pm.response.to.have.status(500);\r",
-                  "\r",
-                  "    pm.expect(responseJson.message).to.eql(\"Changing the type of an existing poller/agent configuration is not allowed\");\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        \"type\": 'object',\r",
-                  "        \"properties\": {\r",
-                  "            \"code\": { \"type\": 'integer' },\r",
-                  "            \"message\": { \"type\": 'string' }\r",
-                  "        },\r",
-                  "        \"required\": ['code', 'message']\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"{{AC2Name}}\",\r\n    \"poller_ids\": [{{poller3_Id}}],\r\n    \"type\": \"telegraf\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-123.crt\",\r\n        \"otel_ca_certificate\": \"ca-file-123.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-123.key\",\r\n        \"conf_server_port\": 1444,\r\n        \"conf_certificate\": \"my-certificate-name-123.crt\",\r\n        \"conf_private_key\": \"my-private-key-name-123.key\"\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations/{{AC2Id}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations",
-                "{{AC2Id}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List agent configurations #3",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"All ACs retrieved correctly\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "    pm.expect(responseJson.result.length).to.eql(3);\r",
-                  "\r",
-                  "    // AC-Central\r",
-                  "    const acCentral = responseJson.result.find(ac => ac.id === 1);\r",
-                  "    pm.expect(acCentral).to.not.be.undefined;\r",
-                  "    pm.expect(acCentral.name).to.include(\"AC-Central\");\r",
-                  "    pm.expect(acCentral.type).to.eql(\"centreon-agent\");\r",
-                  "    pm.expect(acCentral.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acCentral.pollers[0].id).to.eql(1);\r",
-                  "    pm.expect(acCentral.pollers[0].name).to.eql(\"Central\");\r",
-                  "    pm.expect(acCentral.pollers[0].is_central).to.eql(true);\r",
-                  "\r",
-                  "    // Telegraf AC\r",
-                  "    const acTelegraf = responseJson.result.find(ac => ac.id === 2);\r",
-                  "    pm.expect(acTelegraf).to.not.be.undefined;\r",
-                  "    pm.expect(acTelegraf.name).to.eql(\"telegraf-001\");\r",
-                  "    pm.expect(acTelegraf.type).to.eql(\"telegraf\");\r",
-                  "    pm.expect(acTelegraf.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acTelegraf.pollers[0].id).to.eql(2);\r",
-                  "    pm.expect(acTelegraf.pollers[0].name).to.eql(\"Poller-1\");\r",
-                  "    pm.expect(acTelegraf.pollers[0].is_central).to.eql(false);\r",
-                  "\r",
-                  "    // Centreon-agent-001\r",
-                  "    const acCA1 = responseJson.result.find(ac => ac.id === 3);\r",
-                  "    pm.expect(acCA1).to.not.be.undefined;\r",
-                  "    pm.expect(acCA1.name).to.eql(\"centreon-agent-001\");\r",
-                  "    pm.expect(acCA1.type).to.eql(\"centreon-agent\");\r",
-                  "    pm.expect(acCA1.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acCA1.pollers[0].id).to.eql(3);\r",
-                  "    pm.expect(acCA1.pollers[0].name).to.eql(\"Poller-2\");\r",
-                  "    pm.expect(acCA1.pollers[0].is_central).to.eql(false);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        type: \"object\",\r",
-                  "        properties: {\r",
-                  "            result: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"object\",\r",
-                  "                    properties: {\r",
-                  "                        id: { type: \"integer\" },\r",
-                  "                        name: { type: \"string\" },\r",
-                  "                        type: { type: \"string\", enum: [\"telegraf\", \"centreon-agent\"] },\r",
-                  "                        pollers: {\r",
-                  "                            type: \"array\",\r",
-                  "                            items: {\r",
-                  "                                type: \"object\",\r",
-                  "                                properties: {\r",
-                  "                                    id: { type: \"integer\" },\r",
-                  "                                    name: { type: \"string\" },\r",
-                  "                                    is_central: { type: \"boolean\" }\r",
-                  "                                },\r",
-                  "                                required: [\"id\", \"name\", \"is_central\"]\r",
-                  "                            }\r",
-                  "                        }\r",
-                  "                    },\r",
-                  "                    required: [\"id\", \"name\", \"type\", \"pollers\"]\r",
-                  "                }\r",
-                  "            },\r",
-                  "            meta: {\r",
-                  "                type: \"object\",\r",
-                  "                properties: {\r",
-                  "                    page: { type: \"integer\" },\r",
-                  "                    limit: { type: \"integer\" },\r",
-                  "                    search: { type: \"object\" },\r",
-                  "                    sort_by: { type: \"object\" },\r",
-                  "                    total: { type: \"integer\" }\r",
-                  "                },\r",
-                  "                required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
-                  "            }\r",
-                  "        },\r",
-                  "        required: [\"result\", \"meta\"]\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update a telegraf configuration",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "pm.collectionVariables.set(\"AC1Name\", \"telegraf-001-updated\");\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"The AC has been successfully updated, with name '\" + pm.collectionVariables.get(\"AC1Name\") + \"'.\", function () {\r",
-                  "    pm.response.to.have.status(204);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"{{AC1Name}}\",\r\n    \"poller_ids\": [{{poller3_Id}}],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n   \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-123.crt\",\r\n        \"otel_ca_certificate\": \"ca-file-123.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-123.key\",\r\n        \"conf_server_port\": 1444,\r\n        \"conf_certificate\": \"my-certificate-name-123.crt\",\r\n        \"conf_private_key\": \"my-private-key-name-123.key\"\r\n    }\r\n}\r\n"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations/{{AC1Id}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations",
-                "{{AC1Id}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List agent configurations #4",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"All ACs retrieved correctly\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "    pm.expect(responseJson.result.length).to.eql(3);\r",
-                  "\r",
-                  "    // AC-Central\r",
-                  "    const acCentral = responseJson.result.find(ac => ac.id === 1);\r",
-                  "    pm.expect(acCentral).to.not.be.undefined;\r",
-                  "    pm.expect(acCentral.name).to.include(\"AC-Central\");\r",
-                  "    pm.expect(acCentral.type).to.eql(\"centreon-agent\");\r",
-                  "    pm.expect(acCentral.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acCentral.pollers[0].id).to.eql(1);\r",
-                  "    pm.expect(acCentral.pollers[0].name).to.eql(\"Central\");\r",
-                  "    pm.expect(acCentral.pollers[0].is_central).to.eql(true);\r",
-                  "\r",
-                  "    // Telegraf-001-updated\r",
-                  "    const acTelegraf = responseJson.result.find(ac => ac.id === 2);\r",
-                  "    pm.expect(acTelegraf).to.not.be.undefined;\r",
-                  "    pm.expect(acTelegraf.name).to.eql(\"telegraf-001-updated\");\r",
-                  "    pm.expect(acTelegraf.type).to.eql(\"telegraf\");\r",
-                  "    pm.expect(acTelegraf.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acTelegraf.pollers[0].id).to.eql(4);\r",
-                  "    pm.expect(acTelegraf.pollers[0].name).to.eql(\"Poller-3\");\r",
-                  "    pm.expect(acTelegraf.pollers[0].is_central).to.eql(false);\r",
-                  "\r",
-                  "    // Centreon-agent-001\r",
-                  "    const acCA1 = responseJson.result.find(ac => ac.id === 3);\r",
-                  "    pm.expect(acCA1).to.not.be.undefined;\r",
-                  "    pm.expect(acCA1.name).to.eql(\"centreon-agent-001\");\r",
-                  "    pm.expect(acCA1.type).to.eql(\"centreon-agent\");\r",
-                  "    pm.expect(acCA1.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acCA1.pollers[0].id).to.eql(3);\r",
-                  "    pm.expect(acCA1.pollers[0].name).to.eql(\"Poller-2\");\r",
-                  "    pm.expect(acCA1.pollers[0].is_central).to.eql(false);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        type: \"object\",\r",
-                  "        properties: {\r",
-                  "            result: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"object\",\r",
-                  "                    properties: {\r",
-                  "                        id: { type: \"integer\" },\r",
-                  "                        name: { type: \"string\" },\r",
-                  "                        type: { type: \"string\", enum: [\"telegraf\", \"centreon-agent\"] },\r",
-                  "                        pollers: {\r",
-                  "                            type: \"array\",\r",
-                  "                            items: {\r",
-                  "                                type: \"object\",\r",
-                  "                                properties: {\r",
-                  "                                    id: { type: \"integer\" },\r",
-                  "                                    name: { type: \"string\" },\r",
-                  "                                    is_central: { type: \"boolean\" }\r",
-                  "                                },\r",
-                  "                                required: [\"id\", \"name\", \"is_central\"]\r",
-                  "                            }\r",
-                  "                        }\r",
-                  "                    },\r",
-                  "                    required: [\"id\", \"name\", \"type\", \"pollers\"]\r",
-                  "                }\r",
-                  "            },\r",
-                  "            meta: {\r",
-                  "                type: \"object\",\r",
-                  "                properties: {\r",
-                  "                    page: { type: \"integer\" },\r",
-                  "                    limit: { type: \"integer\" },\r",
-                  "                    search: { type: \"object\" },\r",
-                  "                    sort_by: { type: \"object\" },\r",
-                  "                    total: { type: \"integer\" }\r",
-                  "                },\r",
-                  "                required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
-                  "            }\r",
-                  "        },\r",
-                  "        required: [\"result\", \"meta\"]\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List first telegraf configurations",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has been successfully retrieved'.\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
+                  "    // Creation of a variable with the ID of the new AC \r",
+                  "    pm.collectionVariables.set(\"Agent_Telegraph_Id\", responseJson.id);\r",
                   "\r",
                   "    pm.expect(responseJson).to.eql({\r",
-                  "        \"id\": pm.collectionVariables.get(\"AC1Id\"),\r",
-                  "        \"name\": pm.collectionVariables.get(\"AC1Name\"),\r",
+                  "        \"id\": pm.collectionVariables.get(\"Agent_Telegraph_Id\"),\r",
+                  "        \"name\": pm.collectionVariables.get(\"Agent_Telegraph_Name\"),\r",
                   "        \"type\": \"telegraf\",\r",
                   "        \"configuration\": {\r",
-                  "            \"otel_public_certificate\": \"/etc/pki/my-otel-certificate-name-123.crt\",\r",
-                  "            \"otel_ca_certificate\": \"/etc/pki/ca-file-123.crt\",\r",
-                  "            \"otel_private_key\": \"/etc/pki/my-otel-private-key-name-123.key\",\r",
-                  "            \"conf_server_port\": 1444,\r",
-                  "            \"conf_certificate\": \"/etc/pki/my-certificate-name-123.crt\",\r",
-                  "            \"conf_private_key\": \"/etc/pki/my-private-key-name-123.key\"\r",
+                  "            \"otel_public_certificate\": \"/etc/pki/my-otel-certificate-name.crt\",\r",
+                  "            \"otel_ca_certificate\": null,\r",
+                  "            \"otel_private_key\": \"/etc/pki/my-otel-private-key-name.key\",\r",
+                  "            \"conf_server_port\": 1443,\r",
+                  "            \"conf_certificate\": \"/etc/pki/my-certificate-name.crt\",\r",
+                  "            \"conf_private_key\": \"/etc/pki/my-private-key-name.key\"\r",
                   "        },\r",
                   "        \"connection_mode\": \"secure\",\r",
                   "        \"pollers\": [\r",
                   "            {\r",
-                  "                \"id\": parseInt(pm.collectionVariables.get(\"poller3_Id\")),\r",
-                  "                \"name\": \"Poller-3\"\r",
+                  "                \"id\": parseInt(pm.collectionVariables.get(\"poller1_Id\")),\r",
+                  "                \"name\": \"Poller-1\"\r",
                   "            }\r",
                   "        ]\r",
                   "    });\r",
@@ -2142,17 +562,330 @@
                   "                    },\r",
                   "                    \"required\": [\"id\", \"name\"]\r",
                   "                }\r",
-                  "            }\r",
+                  "            },\r",
                   "        },\r",
-                  "        \"required\": [\"id\", \"name\", \"type\", \"configuration\", \"pollers\"]\r",
-                  "    }\r",
-                  "\r",
+                  "        \"required\": [\"id\", \"name\", \"type\", \"configuration\", \"connection_mode\", \"pollers\"]\r",
+                  "    };\r",
+                  "    \r",
                   "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"Agent_Telegraph_Name\", \"telegraf-001\");;\r",
                   ""
                 ],
                 "type": "text/javascript",
-                "packages": {}
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{Agent_Telegraph_Name}}\",\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"poller_ids\": [\r\n        {{poller1_Id}}\r\n    ],\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Add a configuration allready exist - HTTP 500",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The configuration allready exists\", function () {\r",
+                  "    pm.response.to.have.status(500);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"AC1Name\", \"telegraf-001\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{AC1Name}}\",\r\n    \"poller_ids\": [\r\n        {{Central_Id}}\r\n    ],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /agent-configurations - Poller is allready associated - HTTP 500",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "pm.test(\"The poller configuration allready associated\", function () {",
+                  "    pm.response.to.have.status(500);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"{{Agent_Telegraph_Name}}\",\n    \"type\": \"telegraf\",\n    \"connection_mode\": \"secure\",\n    \"poller_ids\": [\n        {{poller1_Id}},\n        {{poller4_Id}},\n        {{Central_Id}}\n    ],\n    \"configuration\": {\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\n        \"otel_ca_certificate\": null,\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\n        \"conf_server_port\": 1443,\n        \"conf_certificate\": \"my-certificate-name.crt\",\n        \"conf_private_key\": \"my-private-key-name.key\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations",
+                "{{Agent_Telegraph_Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /agent-configurations - Add Poller 3 to Telegraph - HTTP 204",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Agent Configuration Updated with adding a poller\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"{{Agent_Telegraph_Name}}\",\n    \"type\": \"telegraf\",\n    \"connection_mode\": \"secure\",\n    \"poller_ids\": [\n        {{poller1_Id}},\n        {{poller3_Id}}\n    ],\n    \"configuration\": {\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\n        \"otel_ca_certificate\": null,\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\n        \"conf_server_port\": 1443,\n        \"conf_certificate\": \"my-certificate-name.crt\",\n        \"conf_private_key\": \"my-private-key-name.key\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations",
+                "{{Agent_Telegraph_Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /agent-configurations - Configuration with new poller added - HTTP 200",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "",
+                  "pm.test(\"The AC has been successfully retrieved'.\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    // Response is a root object (not { result, meta })",
+                  "    pm.expect(responseJson).to.be.an(\"object\");",
+                  "    pm.expect(responseJson).to.include.keys([",
+                  "        \"id\",",
+                  "        \"name\",",
+                  "        \"type\",",
+                  "        \"pollers\"",
+                  "    ]);",
+                  "",
+                  "    // Type is one of the supported values",
+                  "    pm.expect(responseJson.type).to.be.oneOf([\"telegraf\", \"centreon-agent\"]);",
+                  "",
+                  "    // Pollers array structure",
+                  "    pm.expect(responseJson.pollers).to.be.an(\"array\");",
+                  "    responseJson.pollers.forEach((poller, index) => {",
+                  "        pm.expect(poller, `Poller at index ${index} should be an object`).to.be.an(\"object\");",
+                  "        pm.expect(poller, `Poller at index ${index} should have id and name`).to.include.keys([\"id\", \"name\"]);",
+                  "        pm.expect(poller.id, `Poller id at index ${index} should be a number`).to.be.a(\"number\");",
+                  "        pm.expect(poller.name, `Poller name at index ${index} should be a string`).to.be.a(\"string\");",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Schema validation for the Agent configuration response\", function () {",
+                  "    // Root object schema for GET /configuration/agent-configurations/:id",
+                  "    const schema = {",
+                  "        type: \"object\",",
+                  "        required: [\"id\", \"name\", \"type\", \"pollers\"],",
+                  "        properties: {",
+                  "            id: { type: \"integer\" },",
+                  "            name: { type: \"string\" },",
+                  "            type: { type: \"string\", enum: [\"telegraf\", \"centreon-agent\"] },",
+                  "            connection_mode: { type: \"string\" },",
+                  "            configuration: {",
+                  "                type: \"object\",",
+                  "                // configuration fields can vary by type, so keep it flexible",
+                  "                additionalProperties: true",
+                  "            },",
+                  "            pollers: {",
+                  "                type: \"array\",",
+                  "                items: {",
+                  "                    type: \"object\",",
+                  "                    required: [\"id\", \"name\"],",
+                  "                    properties: {",
+                  "                        id: { type: \"integer\" },",
+                  "                        name: { type: \"string\" },",
+                  "                        is_central: { type: \"boolean\" }",
+                  "                    },",
+                  "                    additionalProperties: true",
+                  "                }",
+                  "            }",
+                  "        },",
+                  "        additionalProperties: true",
+                  "    };",
+                  "",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -2173,14 +906,1332 @@
               "raw": ""
             },
             "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations/{{AC1Id}}",
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_Id}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "configuration",
                 "agent-configurations",
-                "{{AC1Id}}"
+                "{{Agent_Telegraph_Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Add a 2nd Telegraph configuration - HTTP 201",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The AC has been successfully created, with name '\" + pm.collectionVariables.get(\"Agent_Telegraph_To_Update_Name\") + \"'.\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "\r",
+                  "    // Creation of a variable with the ID of the new AC \r",
+                  "    pm.collectionVariables.set(\"Agent_Telegraph_To_Upate_Id\", responseJson.id);\r",
+                  "\r",
+                  "    pm.expect(responseJson).to.eql({\r",
+                  "        \"id\": pm.collectionVariables.get(\"Agent_Telegraph_To_Upate_Id\"),\r",
+                  "        \"name\": pm.collectionVariables.get(\"Agent_Telegraph_To_Update_Name\"),\r",
+                  "        \"type\": \"telegraf\",\r",
+                  "        \"configuration\": {\r",
+                  "            \"otel_public_certificate\": \"/etc/pki/my-otel-certificate-name.crt\",\r",
+                  "            \"otel_ca_certificate\": null,\r",
+                  "            \"otel_private_key\": \"/etc/pki/my-otel-private-key-name.key\",\r",
+                  "            \"conf_server_port\": 1443,\r",
+                  "            \"conf_certificate\": \"/etc/pki/my-certificate-name.crt\",\r",
+                  "            \"conf_private_key\": \"/etc/pki/my-private-key-name.key\"\r",
+                  "        },\r",
+                  "        \"connection_mode\": \"secure\",\r",
+                  "        \"pollers\": [\r",
+                  "            {\r",
+                  "                \"id\": parseInt(pm.collectionVariables.get(\"poller4_Id\")),\r",
+                  "                \"name\": \"Poller-4\"\r",
+                  "            }\r",
+                  "        ]\r",
+                  "    });\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": \"object\",\r",
+                  "        \"properties\": {\r",
+                  "            \"id\": { \"type\": \"integer\" },\r",
+                  "            \"name\": { \"type\": \"string\" },\r",
+                  "            \"type\": { \"type\": \"string\", \"enum\": [\"telegraf\", \"centreon-agent\"] },\r",
+                  "            \"configuration\": {\r",
+                  "                \"type\": \"object\",\r",
+                  "                \"properties\": {\r",
+                  "                    \"otel_public_certificate\": { \"type\": \"string\" },\r",
+                  "                    \"otel_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
+                  "                    \"otel_private_key\": { \"type\": \"string\" },\r",
+                  "                    \"conf_server_port\": { \"type\": \"integer\" },\r",
+                  "                    \"conf_certificate\": { \"type\": \"string\" },\r",
+                  "                    \"conf_private_key\": { \"type\": \"string\" }\r",
+                  "                },\r",
+                  "                \"required\": [\"otel_public_certificate\", \"otel_ca_certificate\", \"otel_private_key\", \"conf_server_port\", \"conf_certificate\", \"conf_private_key\"]\r",
+                  "            },\r",
+                  "            \"connection_mode\": { \"type\": \"string\" },\r",
+                  "            \"pollers\": {\r",
+                  "                \"type\": \"array\",\r",
+                  "                \"items\": {\r",
+                  "                    \"type\": \"object\",\r",
+                  "                    \"properties\": {\r",
+                  "                        \"id\": { \"type\": \"integer\" },\r",
+                  "                        \"name\": { \"type\": \"string\" }\r",
+                  "                    },\r",
+                  "                    \"required\": [\"id\", \"name\"]\r",
+                  "                }\r",
+                  "            },\r",
+                  "        },\r",
+                  "        \"required\": [\"id\", \"name\", \"type\", \"configuration\", \"connection_mode\", \"pollers\"]\r",
+                  "    };\r",
+                  "    \r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"Agent_Telegraph_Name\", \"telegraf-001\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{Agent_Telegraph_To_Update_Name}}\",\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"poller_ids\": [\r\n        {{poller4_Id}}\r\n    ],\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /agent-configurations - List available configuration - HTTP 200",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "",
+                  "pm.test(\"List agent configurations - status and basic shape\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "",
+                  "    pm.expect(responseJson).to.be.an(\"object\");",
+                  "    pm.expect(responseJson).to.have.property(\"result\");",
+                  "    pm.expect(responseJson.result).to.be.an(\"array\");",
+                  "    pm.expect(responseJson.result.length).to.gte(2);",
+                  "});",
+                  "",
+                  "pm.test(\"List agent configurations - validate returned configurations\", function () {",
+                  "    const result = responseJson.result;",
+                  "",
+                  "    // Find telegraf configuration by id/name (collection variables) with fallback to type",
+                  "    const ac1Id = pm.collectionVariables.get(\"AC1Id\");",
+                  "    const ac1Name = pm.collectionVariables.get(\"AC1Name\");",
+                  "    const poller1Id = parseInt(pm.collectionVariables.get(\"poller1_Id\"), 10);",
+                  "",
+                  "    const telegrafByVars = result.find((ac) => {",
+                  "        const idMatches = ac1Id != null && String(ac.id) === String(ac1Id);",
+                  "        const nameMatches = ac1Name != null && ac.name === ac1Name;",
+                  "        return (idMatches || nameMatches) && ac.type === \"telegraf\";",
+                  "    });",
+                  "",
+                  "    const telegraf = telegrafByVars || result.find((ac) => ac.type === \"telegraf\");",
+                  "",
+                  "    pm.expect(telegraf, \"A telegraf configuration must be present\").to.exist;",
+                  "    pm.expect(telegraf).to.include.keys([\"id\", \"name\", \"type\", \"pollers\"]);",
+                  "    pm.expect(telegraf.type).to.eql(\"telegraf\");",
+                  "",
+                  "    if (ac1Id != null) {",
+                  "        pm.expect(String(telegraf.id)).to.eql(String(ac1Id));",
+                  "    }",
+                  "    if (ac1Name != null) {",
+                  "        pm.expect(telegraf.name).to.eql(ac1Name);",
+                  "    }",
+                  "",
+                  "    pm.expect(telegraf.pollers).to.be.an(\"array\").that.is.not.empty;",
+                  "    const telegrafPoller = telegraf.pollers[0];",
+                  "    pm.expect(telegrafPoller).to.include.keys([\"id\", \"name\"]);",
+                  "    pm.expect(telegrafPoller.id).to.be.a(\"number\");",
+                  "    pm.expect(telegrafPoller.name).to.be.a(\"string\");",
+                  "",
+                  "    if (!Number.isNaN(poller1Id)) {",
+                  "        pm.expect(telegrafPoller.id).to.eql(poller1Id);",
+                  "    }",
+                  "    pm.expect(telegrafPoller.name).to.eql(\"Poller-1\");",
+                  "",
+                  "    // optional boolean",
+                  "    if (Object.prototype.hasOwnProperty.call(telegrafPoller, \"is_central\")) {",
+                  "        pm.expect(telegrafPoller.is_central).to.be.a(\"boolean\");",
+                  "    }",
+                  "",
+                  "    // Validate the other configuration is centreon-agent",
+                  "    const centreonAgent = result.find((ac) => ac.type === \"centreon-agent\");",
+                  "    pm.expect(centreonAgent, \"A centreon-agent configuration must be present\").to.exist;",
+                  "    pm.expect(centreonAgent).to.include.keys([\"id\", \"name\", \"type\", \"pollers\"]);",
+                  "    pm.expect(centreonAgent.type).to.eql(\"centreon-agent\");",
+                  "",
+                  "    pm.expect(centreonAgent.pollers).to.be.an(\"array\").that.is.not.empty;",
+                  "    const caPoller = centreonAgent.pollers[0];",
+                  "    pm.expect(caPoller).to.include.keys([\"id\", \"name\"]);",
+                  "    pm.expect(caPoller.id).to.be.a(\"number\");",
+                  "    pm.expect(caPoller.name).to.be.a(\"string\");",
+                  "    if (Object.prototype.hasOwnProperty.call(caPoller, \"is_central\")) {",
+                  "        pm.expect(caPoller.is_central).to.be.a(\"boolean\");",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Schema validation for the Agent configuration response\", function () {",
+                  "    const schema = {",
+                  "        \"type\": \"object\",",
+                  "        \"properties\": {",
+                  "            \"result\": {",
+                  "                \"type\": \"array\",",
+                  "                \"items\": {",
+                  "                    \"type\": \"object\",",
+                  "                    \"properties\": {",
+                  "                        \"id\": { \"type\": \"integer\" },",
+                  "                        \"name\": { \"type\": \"string\" },",
+                  "                        \"type\": { \"type\": \"string\", \"enum\": [\"telegraf\", \"centreon-agent\"] },",
+                  "                        \"pollers\": {",
+                  "                            \"type\": \"array\",",
+                  "                            \"items\": {",
+                  "                                \"type\": \"object\",",
+                  "                                \"properties\": {",
+                  "                                    \"id\": { \"type\": \"integer\" },",
+                  "                                    \"name\": { \"type\": \"string\" },",
+                  "                                    \"is_central\": { \"type\": \"boolean\" }",
+                  "                                },",
+                  "                                \"required\": [\"id\", \"name\"],",
+                  "                                \"additionalProperties\": true",
+                  "                            }",
+                  "                        }",
+                  "                    },",
+                  "                    \"required\": [\"id\", \"name\", \"type\", \"pollers\"],",
+                  "                    \"additionalProperties\": true",
+                  "                }",
+                  "            },",
+                  "            \"meta\": {",
+                  "                \"type\": \"object\",",
+                  "                \"properties\": {",
+                  "                    \"page\": { \"type\": \"integer\" },",
+                  "                    \"limit\": { \"type\": \"integer\" },",
+                  "                    \"search\": { \"type\": \"object\" },",
+                  "                    \"sort_by\": { \"type\": \"object\" },",
+                  "                    \"total\": { \"type\": \"integer\" }",
+                  "                },",
+                  "                \"required\": [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"],",
+                  "                \"additionalProperties\": true",
+                  "            }",
+                  "        },",
+                  "        \"required\": [\"result\", \"meta\"],",
+                  "        \"additionalProperties\": true",
+                  "    };",
+                  "",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PUT /agent-configurations - Update a telegraf configuration - HTTP 204",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"AC1Name\", \"telegraf-001-updated\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Telegrah agent configuration is correctly updated\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{Agent_Telegraph_To_Update_Name}}\",\r\n    \"poller_ids\": [\r\n        {{poller4_Id}}\r\n    ],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-123.crt\",\r\n        \"otel_ca_certificate\": \"ca-file-123.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-123.key\",\r\n        \"conf_server_port\": 1444,\r\n        \"conf_certificate\": \"my-certificate-name-123.crt\",\r\n        \"conf_private_key\": \"my-private-key-name-123.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_To_Upate_Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations",
+                "{{Agent_Telegraph_To_Upate_Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Change the type of the agent not allowed - HTTP 500",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"Change type of agent is not allowed\", function () {\r",
+                  "    pm.response.to.have.status(500);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{Agent_Telegraph_To_Upate_Id}}\",\r\n    \"poller_ids\": [\r\n        {{poller4_Id}}\r\n],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"create_host_auto\": false,\r\n        \"port\": 4317,\r\n        \"hosts\": [],\r\n        \"agent_initiated\": true,\r\n        \"otel_private_key\": null,\r\n        \"poller_initiated\": false,\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_public_certificate\": null,\r\n        \"tokens\": [\r\n            {\r\n                \"name\": \"test-update-telegraph-to-agent\",\r\n                \"creator_id\": 1\r\n            }\r\n        ]\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_To_Upate_Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations",
+                "{{Agent_Telegraph_To_Upate_Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /agent-configurations - Delete Poller 3 to Telegraph - HTTP 204",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"The poller has been successfully removed from the AC.\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_Id}}/pollers/{{poller3_Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations",
+                "{{Agent_Telegraph_Id}}",
+                "pollers",
+                "{{poller3_Id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /agent-configurations - List available configuration with removed poller - HTTP 200",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();",
+                  "",
+                  "pm.test(\"Agent Telegraph no longer contains the Poller named poller-3\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "",
+                  "  const ac1IdRaw = pm.collectionVariables.get(\"Agent_Telegraph_Id\");",
+                  "  pm.expect(ac1IdRaw, \"AC1Id (collection variable) doit être défini\").to.exist;",
+                  "",
+                  "  const ac1Id = Number(ac1IdRaw);",
+                  "  pm.expect(ac1Id, \"AC1Id doit être un nombre\").to.be.a(\"number\");",
+                  "  pm.expect(Number.isNaN(ac1Id), \"AC1Id ne doit pas être NaN\").to.equal(false);",
+                  "",
+                  "  pm.expect(responseJson).to.be.an(\"object\");",
+                  "  pm.expect(responseJson).to.have.property(\"result\").that.is.an(\"array\");",
+                  "",
+                  "  const ac1 = responseJson.result.find((ac) => ac && ac.id === ac1Id);",
+                  "  pm.expect(ac1, `AC1 (id=${ac1Id}) doit exister dans result`).to.exist;",
+                  "",
+                  "  pm.expect(ac1).to.have.property(\"pollers\").that.is.an(\"array\");",
+                  "",
+                  "  const pollerIds = ac1.pollers.map((p) => p && p.id).filter((id) => id !== undefined && id !== null);",
+                  "  pm.expect(pollerIds, `Poller 3 ne doit pas être présent pour AC1 (id=${ac1Id}). Actuels: ${JSON.stringify(pollerIds)}`)",
+                  "    .to.not.include(3);",
+                  "});",
+                  "",
+                  "pm.test(\"Schema validation for the Agent configuration response\", function () {",
+                  "    const schema = {",
+                  "        type: \"object\",",
+                  "        additionalProperties: true,",
+                  "        properties: {",
+                  "            result: {",
+                  "                type: \"array\",",
+                  "                items: {",
+                  "                    type: \"object\",",
+                  "                    additionalProperties: true,",
+                  "                    properties: {",
+                  "                        id: { type: \"integer\" },",
+                  "                        name: { type: \"string\" },",
+                  "                        type: { type: \"string\", enum: [\"telegraf\", \"centreon-agent\"] },",
+                  "                        pollers: {",
+                  "                            type: \"array\",",
+                  "                            items: {",
+                  "                                type: \"object\",",
+                  "                                additionalProperties: true,",
+                  "                                properties: {",
+                  "                                    id: { type: \"integer\" },",
+                  "                                    name: { type: \"string\" },",
+                  "                                    is_central: { type: \"boolean\" }",
+                  "                                },",
+                  "                                required: [\"id\", \"name\"]",
+                  "                            }",
+                  "                        }",
+                  "                    },",
+                  "                    required: [\"id\", \"name\", \"type\", \"pollers\"]",
+                  "                }",
+                  "            },",
+                  "            meta: {",
+                  "                type: \"object\",",
+                  "                additionalProperties: true,",
+                  "                properties: {",
+                  "                    page: { type: \"integer\" },",
+                  "                    limit: { type: \"integer\" },",
+                  "                    search: { type: \"object\" },",
+                  "                    sort_by: { type: \"object\" },",
+                  "                    total: { type: \"integer\" }",
+                  "                },",
+                  "                required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]",
+                  "            }",
+                  "        },",
+                  "        required: [\"result\", \"meta\"]",
+                  "    };",
+                  "",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Missing required field \"name\" - HTTP 400",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The Agent Configuration has not been created, because missing property\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "\r",
+                  "    pm.expect(responseJson.message).to.contains(\"name is required\");\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": 'object',\r",
+                  "        \"properties\": {\r",
+                  "            \"code\": { \"type\": 'integer' },\r",
+                  "            \"message\": { \"type\": 'string' }\r",
+                  "        },\r",
+                  "        \"required\": ['code', 'message']\r",
+                  "    };\r",
+                  "\r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"poller_ids\": [\r\n        {{poller2_Id}}\r\n    ],\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Missing required field \"pollers\" - HTTP 400",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The Agent Configuration has not been created, because missing property\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "\r",
+                  "    pm.expect(responseJson.message).to.contains(\"poller_ids is required\");\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": 'object',\r",
+                  "        \"properties\": {\r",
+                  "            \"code\": { \"type\": 'integer' },\r",
+                  "            \"message\": { \"type\": 'string' }\r",
+                  "        },\r",
+                  "        \"required\": ['code', 'message']\r",
+                  "    };\r",
+                  "\r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Agent Configuration with missing property\",\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Missing required field \"type\" - HTTP 400",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The Agent Configuration has not been created, because missing property\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "\r",
+                  "    pm.expect(responseJson.message).to.contains(\"type is required\");\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": 'object',\r",
+                  "        \"properties\": {\r",
+                  "            \"code\": { \"type\": 'integer' },\r",
+                  "            \"message\": { \"type\": 'string' }\r",
+                  "        },\r",
+                  "        \"required\": ['code', 'message']\r",
+                  "    };\r",
+                  "\r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Agent Configuration with missing property\",\r\n    \"connection_mode\": \"secure\",\r\n    \"poller_ids\": [\r\n        {{poller2_Id}}\r\n    ],\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Wrong field \"type\" - HTTP 400",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The Agent Configuration has not been created, because wrong value for a required property\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "\r",
+                  "    pm.expect(responseJson.message).to.contains(\"not have a value in\");\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": 'object',\r",
+                  "        \"properties\": {\r",
+                  "            \"code\": { \"type\": 'integer' },\r",
+                  "            \"message\": { \"type\": 'string' }\r",
+                  "        },\r",
+                  "        \"required\": ['code', 'message']\r",
+                  "    };\r",
+                  "\r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Agent Configuration with missing property\",\r\n    \"type\": \"vmware_v6\",\r\n    \"connection_mode\": \"secure\",\r\n    \"poller_ids\": [\r\n        {{poller2_Id}}\r\n    ],\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Missing required field \"configuration\" - HTTP 400",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The Agent Configuration has not been created, because missing property\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "\r",
+                  "    pm.expect(responseJson.message).to.contains(\"configuration is required\");\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": 'object',\r",
+                  "        \"properties\": {\r",
+                  "            \"code\": { \"type\": 'integer' },\r",
+                  "            \"message\": { \"type\": 'string' }\r",
+                  "        },\r",
+                  "        \"required\": ['code', 'message']\r",
+                  "    };\r",
+                  "\r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Agent Configuration with missing property\",\r\n    \"connection_mode\": \"secure\",\r\n    \"type\": \"telegraf\",\r\n    \"poller_ids\": [\r\n        {{poller2_Id}}\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Wrong field value \"configuration\" - HTTP 400",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The Agent Configuration has not been created, because missing property\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "\r",
+                  "    pm.expect(responseJson.message).to.contains(\"is required\");\r",
+                  "\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation test for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": 'object',\r",
+                  "        \"properties\": {\r",
+                  "            \"code\": { \"type\": 'integer' },\r",
+                  "            \"message\": { \"type\": 'string' }\r",
+                  "        },\r",
+                  "        \"required\": ['code', 'message']\r",
+                  "    };\r",
+                  "\r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Agent Configuration with missing property\",\r\n    \"connection_mode\": \"secure\",\r\n    \"type\": \"telegraf\",\r\n    \"poller_ids\": [\r\n        {{poller2_Id}}\r\n    ],\r\n    \"configuration\": {}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /agent-configurations - Get default Agent token configuration - HTTP 200",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"Ac_name_special_characters\", \"centréon-àgent-002!\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "let responseJson;\r",
+                  "\r",
+                  "pm.test(\"Status 200\", function () {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response is valid JSON\", function () {\r",
+                  "  pm.expect(() => pm.response.json()).to.not.throw();\r",
+                  "  responseJson = pm.response.json();\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"configuration.tokens exists and is a non-empty array\", function () {\r",
+                  "  pm.expect(responseJson).to.be.an(\"object\");\r",
+                  "  pm.expect(responseJson).to.have.property(\"configuration\");\r",
+                  "  pm.expect(responseJson.configuration).to.be.an(\"object\");\r",
+                  "\r",
+                  "  pm.expect(responseJson.configuration).to.have.property(\"tokens\");\r",
+                  "  pm.expect(responseJson.configuration.tokens).to.be.an(\"array\");\r",
+                  "  pm.expect(responseJson.configuration.tokens.length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"tokens[0].name exists and is a non-empty string\", function () {\r",
+                  "  const token0 = responseJson.configuration.tokens[0];\r",
+                  "  pm.expect(token0).to.be.an(\"object\");\r",
+                  "  pm.expect(token0).to.have.property(\"name\");\r",
+                  "  pm.expect(token0.name).to.be.a(\"string\");\r",
+                  "\r",
+                  "  const trimmed = token0.name.trim();\r",
+                  "  pm.expect(trimmed.length, \"tokens[0].name should not be empty\").to.be.greaterThan(0);\r",
+                  "\r",
+                  "  // Store in collection variables\r",
+                  "  pm.collectionVariables.set(\"DefaultTokenAgentConfigurationName\", trimmed);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"DefaultTokenAgentConfigurationName was stored (collection var)\", function () {\r",
+                  "  const v = pm.collectionVariables.get(\"DefaultTokenAgentConfigurationName\");\r",
+                  "  pm.expect(v, \"collection var should be set\").to.be.a(\"string\");\r",
+                  "  pm.expect(v.trim().length).to.be.greaterThan(0);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /agent-configurations - Add a Agent Centreon configuration - HTTP 201",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"Ac_name_special_characters\", \"centréon-àgent-002!\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseJson = pm.response.json();\r",
+                  "pm.test(\"The AC has been successfully created, with name '\" + pm.collectionVariables.get(\"Ac_name_special_characters\") + \"'.\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "\r",
+                  "    pm.collectionVariables.set(\"Agent_Monitoring_Special_Character_Created_Id\", responseJson.id);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Schema validation for the Agent configuration response\", function () {\r",
+                  "    const schema = {\r",
+                  "        \"type\": \"object\",\r",
+                  "        \"properties\": {\r",
+                  "            \"id\": { \"type\": \"integer\" },\r",
+                  "            \"name\": { \"type\": \"string\" },\r",
+                  "            \"type\": { \"type\": \"string\", \"enum\": [\"telegraf\", \"centreon-agent\"] },\r",
+                  "            \"configuration\": {\r",
+                  "                \"type\": \"object\",\r",
+                  "                \"properties\": {\r",
+                  "                    \"otel_public_certificate\": { \"type\": \"string\" },\r",
+                  "                    \"otel_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
+                  "                    \"otel_private_key\": { \"type\": \"string\" },\r",
+                  "                    \"hosts\": {\r",
+                  "                        \"type\": \"array\",\r",
+                  "                        \"items\": {\r",
+                  "                            \"type\": \"object\",\r",
+                  "                            \"properties\": {\r",
+                  "                                \"address\": { \"type\": \"string\" },\r",
+                  "                                \"port\": { \"type\": \"integer\" },\r",
+                  "                                \"poller_ca_certificate\": { \"type\": [\"string\", \"null\"] },\r",
+                  "                                \"poller_ca_name\": { \"type\": [\"string\", \"null\"] }\r",
+                  "                            },\r",
+                  "                            \"required\": [\"address\", \"port\", \"poller_ca_certificate\", \"poller_ca_name\"]\r",
+                  "                        },\r",
+                  "                    },\r",
+                  "                },\r",
+                  "                \"required\": [\"otel_public_certificate\", \"otel_ca_certificate\", \"otel_private_key\", \"hosts\"]\r",
+                  "            },\r",
+                  "            \"pollers\": {\r",
+                  "                \"type\": \"array\",\r",
+                  "                \"items\": {\r",
+                  "                    \"type\": \"object\",\r",
+                  "                    \"properties\": {\r",
+                  "                        \"id\": { \"type\": \"integer\" },\r",
+                  "                        \"name\": { \"type\": \"string\" }\r",
+                  "                    },\r",
+                  "                    \"required\": [\"id\", \"name\"]\r",
+                  "                }\r",
+                  "            },\r",
+                  "        },\r",
+                  "        \"required\": [\"id\", \"name\", \"type\", \"configuration\", \"pollers\"]\r",
+                  "    };\r",
+                  "    \r",
+                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"{{Ac_name_special_characters}}\",\r\n    \"poller_ids\": [\r\n        {{poller2_Id}}\r\n    ],\r\n    \"type\": \"centreon-agent\",\r\n    \"connection_mode\": \"insecure\",\r\n    \"configuration\": {\r\n        \"port\": 1234,\r\n        \"create_host_auto\": false,\r\n        \"poller_initiated\": false,\r\n        \"agent_initiated\": true,\r\n        \"otel_public_certificate\": \"my-otél-certificate-name-ac2!.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otél_private-key-name-ac2.key\",\r\n        \"tokens\": [\r\n            {\r\n                \"name\": \"{{DefaultTokenAgentConfigurationName}}\",\r\n                \"creator_id\": 1\r\n            }\r\n        ],\r\n        \"hosts\": [\r\n            {\r\n                \"id\": 1,\r\n                \"address\": \"127.0.0.1\",\r\n                \"port\": 4317,\r\n                \"poller_ca_certificate\": \"ca-filé.crt\",\r\n                \"poller_ca_name\": null,\r\n                \"token\": null\r\n            }\r\n        ]\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DELETE /agent-configurations - Delete Centreon Agent with special characters - HTTP 204",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"The AC has been successfully deleted, with id '\" + pm.collectionVariables.get(\"Agent_Monitoring_Special_Character_Created_Id\") + \"'.\", function () {\r",
+                  "    pm.response.to.have.status(204);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "centreon-auth-token",
+                "value": "{{token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Monitoring_Special_Character_Created_Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "configuration",
+                "agent-configurations",
+                "{{Agent_Monitoring_Special_Character_Created_Id}}"
               ]
             }
           },
@@ -2692,7 +2743,7 @@
       "name": "By User non-admin without Topology rights",
       "item": [
         {
-          "name": "Login with non-admin user",
+          "name": "POST /login - non-admin authentication - HTTP 200",
           "event": [
             {
               "listen": "test",
@@ -2741,24 +2792,14 @@
           "response": []
         },
         {
-          "name": "Add a telegraf configuration",
+          "name": "POST /agent-configurations - Add a Telegraph configuration - HTTP 403",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            },
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created.\", function () {\r",
+                  "pm.test(\"Adding agent not allowed\", function () {\r",
                   "    pm.response.to.have.status(403);\r",
                   "    \r",
                   "    pm.expect(responseJson.message).to.eql(\"You are not allowed to access poller/agent configurations\");\r",
@@ -2779,7 +2820,20 @@
                   ""
                 ],
                 "type": "text/javascript",
-                "packages": {}
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"Agent_Telegraph_Name\", \"telegraf-001\");\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -2794,7 +2848,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"{{AC1Name}}\",\r\n    \"poller_ids\": [{{Central_Id}}, {{poller1_Id}}],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n   \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}\r\n"
+              "raw": "{\r\n    \"name\": \"{{Agent_Telegraph_Name}}\",\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"poller_ids\": [\r\n        {{poller1_Id}}\r\n    ],\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name.crt\",\r\n        \"otel_ca_certificate\": null,\r\n        \"otel_private_key\": \"my-otel-private-key-name.key\",\r\n        \"conf_server_port\": 1443,\r\n        \"conf_certificate\": \"my-certificate-name.crt\",\r\n        \"conf_private_key\": \"my-private-key-name.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/configuration/agent-configurations",
@@ -2810,7 +2869,7 @@
           "response": []
         },
         {
-          "name": "List agent configurations #6",
+          "name": "GET /agent-configurations - List available configuration - HTTP 403",
           "event": [
             {
               "listen": "prerequest",
@@ -2882,7 +2941,7 @@
           "response": []
         },
         {
-          "name": "Update a telegraf configuration",
+          "name": "PUT /agent-configurations - Update a telegraf configuration - HTTP 403",
           "event": [
             {
               "listen": "prerequest",
@@ -2892,7 +2951,8 @@
                   ""
                 ],
                 "type": "text/javascript",
-                "packages": {}
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -2921,7 +2981,8 @@
                   ""
                 ],
                 "type": "text/javascript",
-                "packages": {}
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -2936,24 +2997,29 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"{{AC1Name}}\",\r\n    \"poller_ids\": [{{poller3_Id}}],\r\n    \"type\": \"telegraf\",\r\n   \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-123.crt\",\r\n        \"otel_ca_certificate\": \"ca-file-123.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-123.key\",\r\n        \"conf_server_port\": 1444,\r\n        \"conf_certificate\": \"my-certificate-name-123.crt\",\r\n        \"conf_private_key\": \"my-private-key-name-123.key\"\r\n    }\r\n}\r\n"
+              "raw": "{\r\n    \"name\": \"{{AC1Name}}\",\r\n    \"poller_ids\": [\r\n        {{poller3_Id}}\r\n    ],\r\n    \"type\": \"telegraf\",\r\n    \"connection_mode\": \"secure\",\r\n    \"configuration\": {\r\n        \"otel_public_certificate\": \"my-otel-certificate-name-123.crt\",\r\n        \"otel_ca_certificate\": \"ca-file-123.crt\",\r\n        \"otel_private_key\": \"my-otel-private-key-name-123.key\",\r\n        \"conf_server_port\": 1444,\r\n        \"conf_certificate\": \"my-certificate-name-123.crt\",\r\n        \"conf_private_key\": \"my-private-key-name-123.key\"\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations/{{AC1Id}}",
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_Id}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "configuration",
                 "agent-configurations",
-                "{{AC1Id}}"
+                "{{Agent_Telegraph_Id}}"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Delete agent configurations",
+          "name": "DELETE /agent-configurations - Delete a telegraph - HTTP 403",
           "event": [
             {
               "listen": "prerequest",
@@ -2962,7 +3028,8 @@
                   ""
                 ],
                 "type": "text/javascript",
-                "packages": {}
+                "packages": {},
+                "requests": {}
               }
             },
             {
@@ -2970,7 +3037,7 @@
               "script": {
                 "exec": [
                   "const responseJson = pm.response.json();\r",
-                  "pm.test(\"The AC has not been created.\", function () {\r",
+                  "pm.test(\"The AC has not been deleted\", function () {\r",
                   "    pm.response.to.have.status(403);\r",
                   "    \r",
                   "    pm.expect(responseJson.message).to.eql(\"You are not allowed to access poller/agent configurations\");\r",
@@ -2991,7 +3058,8 @@
                   ""
                 ],
                 "type": "text/javascript",
-                "packages": {}
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -3009,573 +3077,21 @@
               "raw": ""
             },
             "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations/{{AC1Id}}",
+              "raw": "{{baseUrl}}/configuration/agent-configurations/{{Agent_Telegraph_Id}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "configuration",
                 "agent-configurations",
-                "{{AC1Id}}"
+                "{{Agent_Telegraph_Id}}"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Logout from non-admin user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-                  "    pm.environment.unset(\"token\");\r",
-                  "    pm.environment.unset(\"currentUserName\");\r",
-                  "    pm.environment.unset(\"currentUserID\");\r",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "apikey",
-              "apikey": [
-                {
-                  "key": "value",
-                  "value": "{{token}}",
-                  "type": "string"
-                },
-                {
-                  "key": "key",
-                  "value": "X-AUTH-TOKEN",
-                  "type": "string"
-                },
-                {
-                  "key": "in",
-                  "value": "header",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "logout"
-              ],
-              "variable": [
-                {
-                  "key": "protocol",
-                  "value": "{{protocol}}",
-                  "description": "HTTP schema (This can only be one of http,https)"
-                },
-                {
-                  "key": "server",
-                  "value": "{{server}}",
-                  "description": "IP address or hostname of Centreon server"
-                },
-                {
-                  "key": "port",
-                  "value": "{{port}}",
-                  "description": "Port used by HTTP server"
-                },
-                {
-                  "key": "version",
-                  "value": "{{version}}",
-                  "description": "Version of the API"
-                }
-              ]
-            },
-            "description": "Entry point to delete an existing authentication token."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "By User non-admin with Topology rights",
-      "item": [
-        {
-          "name": "Login with admin user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"Login successful. The account displayed in response matches with credentials and has admin rights.\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "    pm.expect(responseJson.contact.alias).to.eql(pm.environment.get('api_login'));\r",
-                  "    pm.expect(responseJson.contact.is_admin).to.eql(true);\r",
-                  "    pm.environment.set(\"token\", responseJson.security.token);\r",
-                  "    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-                  "    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          },
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login}}\",\r\n      \"password\": \"{{api_password}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Grant RW right",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"The Read/Write rights has been successfully added.\", function () {\r",
-                  "  pm.response.to.have.status(200);\r",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Configuration\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": [
-                "{{baseUriCentreonCLAPI}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Grant token right",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript"
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"The Authentication tokens rights has been successfully added.\", function () {\r",
-                  "  pm.response.to.have.status(200);\r",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"action\": \"grantrw\",\r\n  \"object\": \"ACLMENU\",\r\n  \"values\": \"RW;1;Administration;Authentication Tokens\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUriCentreonCLAPI}}",
-              "host": [
-                "{{baseUriCentreonCLAPI}}"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Logout from admin user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"Logout successful. The displayed message is the one that is expected ('Successful logout').\", function() {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "    pm.expect(responseJson.message).to.eql(\"Successful logout\");\r",
-                  "    pm.environment.unset(\"token\");\r",
-                  "    pm.environment.unset(\"currentUserName\");\r",
-                  "    pm.environment.unset(\"currentUserID\");\r",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "apikey",
-              "apikey": [
-                {
-                  "key": "value",
-                  "value": "{{token}}",
-                  "type": "string"
-                },
-                {
-                  "key": "key",
-                  "value": "X-AUTH-TOKEN",
-                  "type": "string"
-                },
-                {
-                  "key": "in",
-                  "value": "header",
-                  "type": "string"
-                }
-              ]
-            },
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "logout"
-              ],
-              "variable": [
-                {
-                  "key": "protocol",
-                  "value": "{{protocol}}",
-                  "description": "HTTP schema (This can only be one of http,https)"
-                },
-                {
-                  "key": "server",
-                  "value": "{{server}}",
-                  "description": "IP address or hostname of Centreon server"
-                },
-                {
-                  "key": "port",
-                  "value": "{{port}}",
-                  "description": "Port used by HTTP server"
-                },
-                {
-                  "key": "version",
-                  "value": "{{version}}",
-                  "description": "Version of the API"
-                }
-              ]
-            },
-            "description": "Entry point to delete an existing authentication token."
-          },
-          "response": []
-        },
-        {
-          "name": "Login with non-admin user",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "pm.test(\"Login successful. The account displayed in response matches with credentials and doesn't have admin rights.\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "    pm.expect(responseJson.contact.alias).to.eql(pm.collectionVariables.get('api_login_user'));\r",
-                  "    pm.expect(responseJson.contact.is_admin).to.eql(false);\r",
-                  "    pm.environment.set(\"token\", responseJson.security.token);\r",
-                  "    pm.environment.set(\"currentUserName\", responseJson.contact.alias);\r",
-                  "    pm.environment.set(\"currentUserID\", responseJson.contact.id);\r",
-                  "});"
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          },
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"security\": {\r\n    \"credentials\": {\r\n      \"login\": \"{{api_login_user}}\",\r\n      \"password\": \"{{api_password_user}}\"\r\n    }\r\n  }\r\n}\r\n\r\n",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "login"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create a CMA token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"The token has been successfully created.\", function () {\r",
-                  "  pm.response.to.have.status(201);\r",
-                  "});\r",
-                  "\r",
-                  "const responseJson = pm.response.json();\r",
-                  "pm.collectionVariables.set(\"Token-2-name\", responseJson.name);\r",
-                  "pm.collectionVariables.set(\"Token-2-creator-id\", responseJson.creator.id);"
-                ],
-                "type": "text/javascript",
-                "packages": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableCookies": true
-          },
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\" : \"CMA-token-name-2\",\r\n    \"type\": \"cma\",\r\n    \"expiration_date\": \"9999-12-02T00:00:00+01:00\",\r\n    \"user_id\": {{currentUserID}} \r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/administration/tokens",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "administration",
-                "tokens"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "List agent configurations #7",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const responseJson = pm.response.json();\r",
-                  "\r",
-                  "pm.test(\"The ACs have been successfully retrieved\", function () {\r",
-                  "    pm.response.to.have.status(200);\r",
-                  "\r",
-                  "    pm.expect(responseJson.result.length).to.eql(3);\r",
-                  "\r",
-                  "    // AC-Central\r",
-                  "    const acCentral = responseJson.result.find(ac => ac.id === 1);\r",
-                  "    pm.expect(acCentral).to.not.be.undefined;\r",
-                  "    pm.expect(acCentral.name).to.include(\"AC-Central\");\r",
-                  "    pm.expect(acCentral.type).to.eql(\"centreon-agent\");\r",
-                  "    pm.expect(acCentral.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acCentral.pollers[0].id).to.eql(1);\r",
-                  "    pm.expect(acCentral.pollers[0].name).to.eql(\"Central\");\r",
-                  "    pm.expect(acCentral.pollers[0].is_central).to.eql(true);\r",
-                  "\r",
-                  "    // Telegraf-001-updated\r",
-                  "    const acTelegraf = responseJson.result.find(ac => ac.id === 2);\r",
-                  "    pm.expect(acTelegraf).to.not.be.undefined;\r",
-                  "    pm.expect(acTelegraf.name).to.eql(\"telegraf-001-updated\");\r",
-                  "    pm.expect(acTelegraf.type).to.eql(\"telegraf\");\r",
-                  "    pm.expect(acTelegraf.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acTelegraf.pollers[0].id).to.eql(4);\r",
-                  "    pm.expect(acTelegraf.pollers[0].name).to.eql(\"Poller-3\");\r",
-                  "    pm.expect(acTelegraf.pollers[0].is_central).to.eql(false);\r",
-                  "\r",
-                  "    // Centreon-agent-001\r",
-                  "    const acCA1 = responseJson.result.find(ac => ac.id === 3);\r",
-                  "    pm.expect(acCA1).to.not.be.undefined;\r",
-                  "    pm.expect(acCA1.name).to.eql(\"centreon-agent-001\");\r",
-                  "    pm.expect(acCA1.type).to.eql(\"centreon-agent\");\r",
-                  "    pm.expect(acCA1.pollers).to.have.lengthOf(1);\r",
-                  "    pm.expect(acCA1.pollers[0].id).to.eql(3);\r",
-                  "    pm.expect(acCA1.pollers[0].name).to.eql(\"Poller-2\");\r",
-                  "    pm.expect(acCA1.pollers[0].is_central).to.eql(false);\r",
-                  "});\r",
-                  "\r",
-                  "pm.test(\"Schema validation for the Agent configuration response\", function () {\r",
-                  "    const schema = {\r",
-                  "        type: \"object\",\r",
-                  "        properties: {\r",
-                  "            result: {\r",
-                  "                type: \"array\",\r",
-                  "                items: {\r",
-                  "                    type: \"object\",\r",
-                  "                    properties: {\r",
-                  "                        id: { type: \"integer\" },\r",
-                  "                        name: { type: \"string\" },\r",
-                  "                        type: { type: \"string\", enum: [\"telegraf\", \"centreon-agent\"] },\r",
-                  "                        pollers: {\r",
-                  "                            type: \"array\",\r",
-                  "                            items: {\r",
-                  "                                type: \"object\",\r",
-                  "                                properties: {\r",
-                  "                                    id: { type: \"integer\" },\r",
-                  "                                    name: { type: \"string\" },\r",
-                  "                                    is_central: { type: \"boolean\" }\r",
-                  "                                },\r",
-                  "                                required: [\"id\", \"name\", \"is_central\"]\r",
-                  "                            }\r",
-                  "                        }\r",
-                  "                    },\r",
-                  "                    required: [\"id\", \"name\", \"type\", \"pollers\"]\r",
-                  "                }\r",
-                  "            },\r",
-                  "            meta: {\r",
-                  "                type: \"object\",\r",
-                  "                properties: {\r",
-                  "                    page: { type: \"integer\" },\r",
-                  "                    limit: { type: \"integer\" },\r",
-                  "                    search: { type: \"object\" },\r",
-                  "                    sort_by: { type: \"object\" },\r",
-                  "                    total: { type: \"integer\" }\r",
-                  "                },\r",
-                  "                required: [\"page\", \"limit\", \"search\", \"sort_by\", \"total\"]\r",
-                  "            }\r",
-                  "        },\r",
-                  "        required: [\"result\", \"meta\"]\r",
-                  "    };\r",
-                  "\r",
-                  "    pm.expect(responseJson).to.have.jsonSchema(schema);\r",
-                  "});\r",
-                  ""
-                ],
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {}
-              }
-            }
-          ],
-          "protocolProfileBehavior": {
-            "disableBodyPruning": true
-          },
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "centreon-auth-token",
-                "value": "{{token}}",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/configuration/agent-configurations",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "configuration",
-                "agent-configurations"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Logout from non-admin user",
+          "name": "GET /logout - Logout non-admin user - HTTP 200",
           "event": [
             {
               "listen": "test",
@@ -3676,6 +3192,7 @@
       "script": {
         "type": "text/javascript",
         "packages": {},
+        "requests": {},
         "exec": [
           ""
         ]
@@ -3686,6 +3203,7 @@
       "script": {
         "type": "text/javascript",
         "packages": {},
+        "requests": {},
         "exec": [
           ""
         ]
@@ -3693,14 +3211,6 @@
     }
   ],
   "variable": [
-    {
-      "key": "Token-1-name",
-      "value": ""
-    },
-    {
-      "key": "Token-1-creator-id",
-      "value": ""
-    },
     {
       "key": "Central_Id",
       "value": ""
@@ -3718,79 +3228,63 @@
       "value": ""
     },
     {
+      "key": "poller4_Id",
+      "value": ""
+    },
+    {
       "key": "AC1Name",
+      "value": "telegraf-001-updated"
+    },
+    {
+      "key": "Agent_Telegraph_Id",
       "value": ""
     },
     {
-      "key": "AC1Id",
+      "key": "Agent_Telegraph_Name",
+      "value": "telegraf-001"
+    },
+    {
+      "key": "AC2Name",
+      "value": "centreon-agent-001"
+    },
+    {
+      "key": "Ac_name_special_characters",
+      "value": "centréon-àgent-002!"
+    },
+    {
+      "key": "Agent_Telegraph_To_Update_Name",
+      "value": "telegraf-to-update-002"
+    },
+    {
+      "key": "Agent_Telegraph_To_Upate_Id",
       "value": ""
     },
     {
-      "key": "host1_Id",
-      "value": ""
-    },
-    {
-      "key": "host2_Id",
-      "value": ""
-    },
-    {
-      "key": "host1_id",
-      "value": ""
-    },
-    {
-      "key": "host2_id",
+      "key": "Agent_Monitoring_Special_Character_Created_Id",
       "value": ""
     },
     {
       "key": "api_login_user",
-      "value": ""
+      "value": "user-non-admin"
     },
     {
       "key": "api_password_user",
+      "value": "Centreon!123"
+    },
+    {
+      "key": "Agent_Configuration_Non_Admin_User_Name",
+      "value": "centreon-agent-non-admin"
+    },
+    {
+      "key": "Agent_Configuration_Non_Admin_User_Id",
       "value": ""
     },
     {
-      "key": "AC4Name",
-      "value": ""
-    },
-    {
-      "key": "AC4Id",
-      "value": ""
-    },
-    {
-      "key": "Host1Name",
-      "value": ""
-    },
-    {
-      "key": "Host1Id",
-      "value": ""
-    },
-    {
-      "key": "Token-2-name",
-      "value": ""
-    },
-    {
-      "key": "Token-2-creator-id",
-      "value": ""
-    },
-    {
-      "key": "AC2Name",
-      "value": ""
-    },
-    {
-      "key": "AC2Id",
-      "value": ""
-    },
-    {
-      "key": "AC2PollerId",
+      "key": "DefaultTokenAgentConfigurationName",
       "value": ""
     },
     {
       "key": "AC3Name",
-      "value": ""
-    },
-    {
-      "key": "AC5Name",
       "value": ""
     }
   ]
