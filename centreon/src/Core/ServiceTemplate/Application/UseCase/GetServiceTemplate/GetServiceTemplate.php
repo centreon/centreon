@@ -218,10 +218,12 @@ final class GetServiceTemplate
             $serviceCategories
         );
 
-        $hostTemplateNames = $this->readHostTemplateRepository->findNamesByIds(array_map(
-            fn (array $group): int => (int) $group['relation']->getHostId(),
-            $serviceGroups
-        ));
+        $hostTemplateNames = $serviceGroups === []
+            ? []
+            : $this->readHostTemplateRepository->findNamesByIds(array_map(
+                fn (array $group): int => (int) $group['relation']->getHostId(),
+                $serviceGroups
+            ));
         $response->groups = array_map(
             function (array $group) use ($hostTemplateNames): array {
                 $hostId = (int) $group['relation']->getHostId();

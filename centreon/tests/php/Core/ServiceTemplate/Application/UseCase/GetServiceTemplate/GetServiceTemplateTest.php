@@ -170,6 +170,7 @@ it('should present a NotFoundResponse when the service template is not found', f
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
+
     $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
@@ -294,6 +295,47 @@ it('should present a GetServiceTemplateResponse with non-admin user', function (
             'hostTemplateName' => 'HostTemplateName',
         ]]
     );
+});
+
+it('should return empty groups and skip host template lookup when no groups exist', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->serviceTemplate);
+
+    $this->readServiceCategoryRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn($this->categories);
+
+    $this->readServiceGroupRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn([]);
+
+    $this->readServiceMacroRepository
+        ->expects($this->once())
+        ->method('findByServiceIds')
+        ->willReturn($this->macros);
+
+    $this->readHostTemplateRepository
+        ->expects($this->never())
+        ->method('findNamesByIds');
+
+    ($this->usecase)($this->presenter, $this->serviceTemplate->getId());
+
+    $dto = $this->presenter->response;
+    expect($dto)->toBeInstanceOf(GetServiceTemplateResponse::class);
+    expect($dto->groups)->toBe([]);
 });
 
 it('should present a GetServiceTemplateResponse with admin user', function (): void {
