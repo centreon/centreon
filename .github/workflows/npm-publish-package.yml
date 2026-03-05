@@ -18,7 +18,7 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       github.repository == 'centreon/centreon'
     needs: [get-environment]
-    
+
     runs-on: ubuntu-24.04
 
     env:
