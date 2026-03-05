@@ -27,7 +27,9 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
@@ -47,6 +49,8 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Tests\Core\ServiceTemplate\Infrastructure\API\GetServiceTemplate\GetServiceTemplatePresenterStub;
 
 beforeEach(function (): void {
+    $this->adminResolver = $this->createMock(AdminResolver::class);
+    $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
     $this->usecase = new GetServiceTemplate(
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
@@ -55,6 +59,8 @@ beforeEach(function (): void {
         $this->readServiceGroupRepository = $this->createMock(ReadServiceGroupRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
+        $this->adminResolver,
+        $this->readVaultRepository,
     );
     $this->presenter = new GetServiceTemplatePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -126,7 +132,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -168,7 +174,7 @@ it('should present a GetServiceTemplateResponse with non-admin user', function (
                 [Contact::ROLE_CONFIGURATION_SERVICES_TEMPLATES_READ_WRITE, true],
             ]
         );
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -271,7 +277,7 @@ it('should present a GetServiceTemplateResponse with admin user', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);

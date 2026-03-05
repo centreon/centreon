@@ -30,6 +30,10 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
+use Core\Common\Application\UseCase\VaultTrait;
+use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
+use Core\Contact\Domain\AdminResolver;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
@@ -47,6 +51,7 @@ use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 final class GetServiceTemplate
 {
     use LoggerTrait;
+    use VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups;
@@ -59,7 +64,10 @@ final class GetServiceTemplate
         private readonly ReadServiceGroupRepositoryInterface $readServiceGroupRepository,
         private readonly ContactInterface $user,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
+        private readonly AdminResolver $adminResolver,
+        private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
+        $this->readVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     /**
@@ -88,7 +96,7 @@ final class GetServiceTemplate
             $serviceCategories = [];
             $serviceGroups = [];
             $macros = [];
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $serviceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplateId);
                 $serviceCategories = $this->readServiceCategoryRepository->findByService($serviceTemplateId);
                 $serviceGroups = $this->readServiceGroupRepository->findByService($serviceTemplateId);
@@ -189,12 +197,22 @@ final class GetServiceTemplate
         $response->firstNotificationDelay = $serviceTemplate->getFirstNotificationDelay();
         $response->acknowledgementTimeout = $serviceTemplate->getAcknowledgementTimeout();
         $response->macros = array_map(
-            fn (Macro $macro): MacroDto => new MacroDto(
-                $macro->getName(),
-                $macro->getValue(),
-                $macro->isPassword(),
-                $macro->getDescription()
-            ),
+            function (Macro $macro): MacroDto {
+                $value = $macro->getValue();
+                $isPassword = $macro->isPassword();
+
+                if ($this->isAVaultPath($value)) {
+                    $value = null;
+                    $isPassword = true;
+                }
+
+                return new MacroDto(
+                    $macro->getName(),
+                    $isPassword ? null : $value,
+                    $isPassword,
+                    $macro->getDescription()
+                );
+            },
             $macros
         );
 
