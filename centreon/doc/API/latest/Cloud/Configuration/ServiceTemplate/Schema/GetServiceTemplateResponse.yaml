@@ -117,24 +117,24 @@ properties:
     items:
       $ref: 'macro.yaml'
   groups:
-     type: array
-     description: "Service groups associated with this service template"
-     items:
-       type: object
-       properties:
-         id:
-           type: integer
-           description: "Define a service group ID that is associated with this service template"
-           example: 1
-         name:
-           type: string
-           description: "Define a service group name that is associated with this service template"
-           example: 'service-group-name'
-         host_template_id:
-           type: integer
-           description: "Define a host template ID that is associated with this service group for this service template"
-           example: 1
-         host_template_name:
-           type: string
-           description: "Define a host template name that is associated with this service group for this service template"
-           example: 'host-template-name'
+    type: array
+    description: "Service groups associated with this service template"
+    items:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: "Define a service group ID that is associated with this service template"
+          example: 1
+        name:
+          type: string
+          description: "Define a service group name that is associated with this service template"
+          example: 'service-group-name'
+        host_template_id:
+          type: integer
+          description: "Define a host template ID that is associated with this service group for this service template"
+          example: 1
+        host_template_name:
+          type: string
+          description: "Define a host template name that is associated with this service group for this service template"
+          example: 'host-template-name'

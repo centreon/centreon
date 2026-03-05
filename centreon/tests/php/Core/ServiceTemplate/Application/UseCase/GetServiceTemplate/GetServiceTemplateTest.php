@@ -27,6 +27,7 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\Contact\Domain\AdminResolver;
@@ -162,6 +163,29 @@ it('should present a ForbiddenResponse when user has insufficient rights', funct
         ->toBeInstanceOf(ForbiddenResponse::class)
         ->and($this->presenter->response->getMessage())
         ->toBe(ServiceTemplateException::accessNotAllowed()->getMessage());
+});
+
+it('should present a NotFoundResponse when the service template is not found', function (): void {
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn(null);
+
+    ($this->usecase)($this->presenter, $this->serviceTemplate->getId());
+
+    expect($this->presenter->response)
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($this->presenter->response->getMessage())
+        ->toBe((new NotFoundResponse('ServiceTemplate'))->getMessage());
 });
 
 it('should present a GetServiceTemplateResponse with non-admin user', function (): void {

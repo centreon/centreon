@@ -26,7 +26,6 @@ namespace Core\ServiceTemplate\Application\UseCase\GetServiceTemplate;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -98,10 +97,11 @@ final class GetServiceTemplate
             $macros = [];
             if ($this->adminResolver->isAdmin($this->user)) {
                 $serviceTemplate = $this->readServiceTemplateRepository->findById($serviceTemplateId);
-                $serviceCategories = $this->readServiceCategoryRepository->findByService($serviceTemplateId);
-                $serviceGroups = $this->readServiceGroupRepository->findByService($serviceTemplateId);
-                $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplateId);
-
+                if ($serviceTemplate) {
+                    $serviceCategories = $this->readServiceCategoryRepository->findByService($serviceTemplateId);
+                    $serviceGroups = $this->readServiceGroupRepository->findByService($serviceTemplateId);
+                    $macros = $this->readServiceMacroRepository->findByServiceIds($serviceTemplateId);
+                }
             } else {
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 $serviceTemplate = $this->readServiceTemplateRepository->findByIdAndAccessGroups($serviceTemplateId, $this->accessGroups);
@@ -132,9 +132,6 @@ final class GetServiceTemplate
             }
 
             $presenter->presentResponse($this->createResponse($serviceTemplate, $serviceCategories, $serviceGroups, $macros));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
                 new ErrorResponse(ServiceTemplateException::errorWhileSearching($ex))
