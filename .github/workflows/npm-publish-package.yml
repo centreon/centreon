@@ -90,7 +90,7 @@ jobs:
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
         run: npm publish --access=public --tag=${{ env.tag }}
-        working-directory: ${{ inputs.package_directory }}/package.json
+        working-directory: ${{ inputs.package_directory }}
 
   set-skip-label:
     needs: [get-environment, publish-package]
