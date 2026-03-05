@@ -1,3 +1,5 @@
+<?php
+
 /*
  * Copyright 2005 - 2025 Centreon (https://www.centreon.com/)
  *
@@ -16,25 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-jQuery(function () {
-    if (nbRows > itemsPerPage) {
-        jQuery("#pagination").pagination(
-            nbRows, {
-                items_per_page: itemsPerPage,
-                current_page: pageNumber,
-                num_edge_entries: _num_edge_entries,
-                num_display_entries: _num_display_entries,
-                callback: paginationCallback
-            }
-        ).append("<br/>");
-    }
-
-    function paginationCallback(page_index, jq) {
-        if (page_index != pageNumber) {
-            pageNumber = page_index;
-            clickedCb = new Array();
-            loadPage();
-        }
-    }
-});
