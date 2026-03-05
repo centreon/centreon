@@ -7,10 +7,6 @@ on:
         required: true
         type: string
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   get-environment:
     uses: ./.github/workflows/get-environment.yml
@@ -22,6 +18,8 @@ jobs:
       needs.get-environment.outputs.skip_workflow == 'false' &&
       github.repository == 'centreon/centreon'
     needs: [get-environment]
+    permissions:
+      id-token: write
     runs-on: ubuntu-24.04
 
     env:
@@ -82,11 +80,13 @@ jobs:
             } catch (error) {
               core.setFailed(error.message);
             }
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
+        with:
+          node-version: 20
 
       - name: Write NPM package version
         run: npm version ${{ steps.get-next-package-version.outputs.package_version }} --no-commit-hooks --no-git-tag-version --no-workspaces-update
         working-directory: ${{ inputs.package_directory }}
-        shell: bash
 
       - name: Publish npm package ${{ steps.get-package-info.outputs.package_name }}@${{ steps.get-next-package-version.outputs.package_version }} (${{ env.tag }})
         run: npm publish --access=public --tag=${{ env.tag }}
