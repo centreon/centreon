@@ -26,6 +26,7 @@ jobs:
 
   publish-package:
     permissions:
+      contents: read  # Required by actions/checkout in called workflow
       id-token: write  # Required for OIDC
     needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
