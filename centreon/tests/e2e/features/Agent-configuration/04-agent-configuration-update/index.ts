@@ -10,6 +10,9 @@ before(() => {
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-1.json'
   );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
+  );
 });
 
 beforeEach(() => {
@@ -62,7 +65,7 @@ Given('an already existing agent configuration', () => {
 });
 
 When('the user clicks on the line of the agent configuration', () => {
-  cy.get('*[role="row"]').eq(1).click({ force: true });
+  cy.get('*[role="row"]').eq(2).click({ force: true });
   cy.wait('@getAgentsDetails');
 });
 
@@ -79,7 +82,7 @@ Then('a pop up is displayed with all of the agent information', () => {
   );
   cy.get('[class^="MuiChip-label MuiChip-labelMedium"]').should(
     'have.text',
-    'Central'
+    'Poller-5'
   );
   cy.getByLabel({
     label: 'Public certificate (.crt, .cert, .cer)',
