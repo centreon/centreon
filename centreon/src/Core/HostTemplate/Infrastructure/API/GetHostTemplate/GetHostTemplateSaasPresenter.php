@@ -47,6 +47,7 @@ class GetHostTemplateSaasPresenter extends AbstractPresenter implements GetHostT
                 'name' => $response->name,
                 'alias' => $response->alias,
                 'snmp_version' => $response->snmpVersion,
+                'snmp_community' => $response->snmpCommunity,
                 'timezone_id' => $response->timezoneId,
                 'severity_id' => $response->severityId,
                 'check_command_id' => $response->checkCommandId,

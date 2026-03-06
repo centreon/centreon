@@ -116,12 +116,12 @@ properties:
     type: boolean
     description: |
       Only used when notification inheritance for hosts and services is set to vertical inheritance only.
-      When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
+      When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
   add_inherited_contact:
     type: boolean
     description: |
       Only used when notification inheritance for hosts and services is set to vertical inheritance only.
-      When enabled, the contactgroup definition will not override the definitions on template levels, it will be appended instead.
+      When enabled, the contact definition will not override the definitions on template levels, it will be appended instead.
   first_notification_delay:
     type: integer
     nullable: true
@@ -250,6 +250,7 @@ properties:
       properties:
         id:
           type: integer
+          nullable: true
           description: "Macro ID"
           example: 1
         name:

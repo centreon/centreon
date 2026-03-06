@@ -26,7 +26,6 @@ namespace Core\HostTemplate\Application\UseCase\GetHostTemplate;
 use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Log\LoggerTrait;
-use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
@@ -121,9 +120,6 @@ final class GetHostTemplate
             $parentTemplates = $this->findParentTemplates($hostTemplateId);
 
             $presenter->presentResponse($this->createResponse($hostTemplate, $hostCategories, $parentTemplates, $macros));
-        } catch (RequestParametersTranslatorException $ex) {
-            $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
-            $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         } catch (\Throwable $ex) {
             $presenter->presentResponse(
                 new ErrorResponse(HostTemplateException::errorWhileRetrievingObject())
@@ -200,7 +196,7 @@ final class GetHostTemplate
             static fn (Macro $macro): array => [
                 'id' => $macro->getId(),
                 'name' => $macro->getName(),
-                'value' => $macro->getValue(),
+                'value' => $macro->isPassword() ? null : $macro->getValue(),
                 'isPassword' => $macro->isPassword(),
                 'description' => $macro->getDescription(),
             ],
