@@ -507,7 +507,7 @@ final class PartialUpdateHost
         if ($droppedIds !== []) {
             $this->warning(
                 'PartialUpdateHost: submitted group IDs not found, they will be ignored',
-                ['dropped_category_ids' => $droppedIds, 'host_id' => $host->getId()]
+                ['dropped_group_ids' => $droppedIds, 'host_id' => $host->getId()]
             );
         }
         $groupIds = array_values(array_intersect($groupIds, $accessibleGroupIds));
