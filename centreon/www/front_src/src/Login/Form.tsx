@@ -84,7 +84,6 @@ const LoginForm = (): JSX.Element => {
         onChange={handleChange(aliasFieldName)}
         required
         StartAdornment={PersonIcon}
-        value={aliasValue || ''}
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -93,6 +92,7 @@ const LoginForm = (): JSX.Element => {
             }
           }
         }}
+        value={aliasValue || ''}
       />
       <TextField
         ariaLabel={labelPassword}
