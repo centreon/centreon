@@ -36,7 +36,7 @@ use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Common\Application\Type\NoValue;
 use Core\Common\Domain\TrimmedString;
-use Core\Infrastructure\Common\Api\DefaultPresenter;
+use Core\Contact\Domain\AdminResolver;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\ServiceCategory\Application\Exception\ServiceCategoryException;
 use Core\ServiceCategory\Application\Repository\ReadServiceCategoryRepositoryInterface;
@@ -52,12 +52,13 @@ final class UpdateServiceCategory
         private readonly ReadServiceCategoryRepositoryInterface $readServiceCategoryRepository,
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepositoryInterface,
         private readonly ContactInterface $user,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
     /**
      * @param UpdateServiceCategoryRequest $dto
-     * @param DefaultPresenter $presenter
+     * @param PresenterInterface $presenter
      * @param int $serviceCategoryId
      */
     public function __invoke(
@@ -80,7 +81,7 @@ final class UpdateServiceCategory
 
             $serviceCategory = null;
 
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $serviceCategory = $this->readServiceCategoryRepository->findById($serviceCategoryId);
             } elseif ($this->readServiceCategoryRepository->existsByAccessGroups(
                 $serviceCategoryId,

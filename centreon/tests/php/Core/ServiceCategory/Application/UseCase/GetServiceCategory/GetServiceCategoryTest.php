@@ -26,6 +26,7 @@ namespace Tests\Core\ServiceCategory\Application\UseCase\GetServiceCategory;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
+use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
@@ -41,10 +42,12 @@ beforeEach(function (): void {
     $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class);
     $this->user = $this->createMock(ContactInterface::class);
     $this->presenter = new DefaultPresenter($this->presenterFormatter);
+    $this->adminResolver = $this->createMock(AdminResolver::class);
     $this->useCase = new GetServiceCategory(
         $this->readServiceCategoryRepository,
         $this->readAccessGroupRepository,
-        $this->user
+        $this->user,
+        $this->adminResolver
     );
     $this->serviceCategory = new ServiceCategory(
         1,
@@ -58,7 +61,7 @@ it('should present an ErrorResponse when a generic exception is thrown', functio
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -94,7 +97,7 @@ it('should present a GetServiceCategoryResponse with non-admin user', function (
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -129,7 +132,7 @@ it('should present a GetServiceCategoryResponse with admin user', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
