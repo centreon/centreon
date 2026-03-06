@@ -24,20 +24,18 @@ declare(strict_types=1);
 namespace Core\Host\Infrastructure\API\GetHost;
 
 use Centreon\Application\Controller\AbstractController;
-use Centreon\Domain\Log\LoggerTrait;
 use Core\Host\Application\UseCase\GetHost\GetHost;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 final class GetHostController extends AbstractController
 {
-    use LoggerTrait;
-
     /**
      * @param GetHost $useCase
      * @param GetHostSaasPresenter $saasPresenter
      * @param GetHostOnPremPresenter $onPremPresenter
      * @param bool $isCloudPlatform
+     * @param int $hostId
      *
      * @throws AccessDeniedException
      *
@@ -48,7 +46,7 @@ final class GetHostController extends AbstractController
         GetHostSaasPresenter $saasPresenter,
         GetHostOnPremPresenter $onPremPresenter,
         bool $isCloudPlatform,
-        int $hostId
+        int $hostId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
@@ -57,5 +55,4 @@ final class GetHostController extends AbstractController
 
         return $presenter->show();
     }
-
 }

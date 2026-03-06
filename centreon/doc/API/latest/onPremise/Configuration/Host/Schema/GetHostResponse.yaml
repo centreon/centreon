@@ -29,6 +29,12 @@ properties:
       Version of the SNMP agent.
       The value can be `1`, `2c` or `3`
     example: "2c"
+  snmp_community:
+    type: string
+    nullable: true
+    maxLength: 255
+    description: "SNMP community string of the host"
+    example: "public"
   geo_coords:
     type: string
     description: "Geographic coordinates of the host"

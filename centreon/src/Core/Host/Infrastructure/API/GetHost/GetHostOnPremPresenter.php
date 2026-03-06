@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace Core\Host\Infrastructure\API\GetHost;
 
 use Core\Application\Common\UseCase\AbstractPresenter;
-use Core\Application\Common\UseCase\GetResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
 use Core\Host\Application\UseCase\GetHost\GetHostPresenterInterface;
 use Core\Host\Application\UseCase\GetHost\GetHostResponse;
@@ -117,10 +116,9 @@ class GetHostOnPremPresenter extends AbstractPresenter implements GetHostPresent
                 'add_inherited_contact' => $response->addInheritedContact,
                 'is_activated' => $response->isActivated,
             ];
-            
+
             $this->present($result);
 
         }
-
     }
 }

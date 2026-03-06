@@ -29,31 +29,31 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Contact\Domain\AdminResolver;
+use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Domain\Model\Host;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostGroup\Application\Repository\ReadHostGroupRepositoryInterface;
+use Core\HostGroup\Domain\Model\HostGroup;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\HostCategory\Domain\Model\HostCategory;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
-use Core\Common\Application\Converter\YesNoDefaultConverter;
-use Core\Host\Application\Converter\HostEventConverter;
-use Core\HostGroup\Domain\Model\HostGroup;
 
 final class GetHost
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
+    /** @var AccessGroup[] */
     private array $accessGroups;
 
     /**
-     * Summary of __construct
      * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
      * @param ReadHostRepositoryInterface $readHostRepository
      * @param ReadHostTemplateRepositoryInterface $readHostTemplateRepository
@@ -61,6 +61,7 @@ final class GetHost
      * @param ReadHostGroupRepositoryInterface $readHostGroupRepository
      * @param ContactInterface $user
      * @param ReadHostMacroRepositoryInterface $readHostMacroRepository
+     * @param AdminResolver $adminResolver
      */
     public function __construct(
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
@@ -70,6 +71,7 @@ final class GetHost
         private readonly ReadHostGroupRepositoryInterface $readHostGroupRepository,
         private readonly ContactInterface $user,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -100,7 +102,7 @@ final class GetHost
             $hostGroups = [];
             $macros = [];
             $parentTemplates = [];
-            if ($this->user->isAdmin()) {
+            if ($this->adminResolver->isAdmin($this->user)) {
                 $host = $this->readHostRepository->findById($hostId);
                 $hostCategories = $this->readHostCategoryRepository->findByHost($hostId);
                 $hostGroups = $this->readHostGroupRepository->findByHost($hostId);
@@ -108,14 +110,13 @@ final class GetHost
                 $parentTemplates = $this->findParentTemplates($hostId);
 
             } else {
-
                 $this->accessGroups = $this->readAccessGroupRepository->findByContact($this->user);
                 if ($this->readHostRepository->existsByAccessGroups($hostId, $this->accessGroups)) {
                     $host = $this->readHostRepository->findById($hostId);
 
                     $hostCategories = $this->readHostCategoryRepository->findByHostAndAccessGroups(
-                            $hostId,
-                            $this->accessGroups
+                        $hostId,
+                        $this->accessGroups
                     );
 
                     $hostGroups = $this->readHostGroupRepository->findByHostAndAccessGroups(
@@ -126,11 +127,10 @@ final class GetHost
                     $macros = $this->readHostMacroRepository->findByHostId($hostId);
                     $parentTemplates = $this->findParentTemplates($hostId);
                 }
-
             }
 
             if (! $host) {
-                 $this->info(
+                $this->info(
                     'Host not found',
                     ['host_id' => $hostId]
                 );
@@ -139,7 +139,7 @@ final class GetHost
                 return;
             }
 
-            $presenter->presentResponse($this->createResponse($host, $hostCategories, $hostGroups, $parentTemplates,  $macros));
+            $presenter->presentResponse($this->createResponse($host, $hostCategories, $hostGroups, $parentTemplates, $macros));
         } catch (RequestParametersTranslatorException $ex) {
             $presenter->presentResponse(new ErrorResponse($ex->getMessage()));
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
@@ -160,13 +160,10 @@ final class GetHost
      *
      * @throws \Throwable
      *
-     *
      * @return GetHostResponse
      */
     private function createResponse(Host $host, array $hostCategories, array $hostGroups, array $parentTemplates, array $macros): GetHostResponse
     {
-
-
         $response = new GetHostResponse();
 
         $response->id = $host->getId();
@@ -223,7 +220,7 @@ final class GetHost
         );
 
         $response->templates = array_map(
-            fn ($template) => ['id' => $template['id'], 'name' => $template['name']],
+            fn (array $template) => ['id' => $template['id'], 'name' => $template['name']],
             $parentTemplates
         );
 
@@ -238,28 +235,25 @@ final class GetHost
             $macros
         );
 
-
         return $response;
     }
 
-
-     /**
-     * `@param` int $hostId
+    /**
+     * @param int $hostId
      *
-     * `@throws` HostException
-     * `@throws` \Throwable
+     * @throws HostException
+     * @throws \Throwable
      *
-     * `@return` array<array{id:int,name:string}>
+     * @return array<array{id:int,name:string}>
      */
-    private function findParentTemplates($hostId): array
+    private function findParentTemplates(int $hostId): array
     {
-
         $templateIds = $this->readHostTemplateRepository->findByHostId($hostId);
         $templateNames = $this->readHostTemplateRepository->findNamesByIds($templateIds);
 
         $parentTemplates = [];
         foreach ($templateIds as $templateId) {
-            if (!isset($templateNames[$templateId])) {
+            if (! isset($templateNames[$templateId])) {
                 continue;
             }
             $parentTemplates[] = [
