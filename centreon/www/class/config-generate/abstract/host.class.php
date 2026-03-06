@@ -307,7 +307,7 @@ abstract class AbstractHost extends AbstractObject
         foreach ($hostMacros as $hostMacro) {
             if ($hostMacro->getOwnerId() === $host['host_id']) {
                 if ($hostMacro->shouldBeEncrypted()) {
-                    if ($hostMacro->isPassword()) {
+                    if ($hostMacro->isPassword() && $hostMacro->getValue() !== '') {
                         $host['macros']['_' . $hostMacro->getName()] = 'encrypt::'
                             . $this->engineContextEncryption->crypt($hostMacro->getValue());
                     } else {

@@ -177,7 +177,7 @@ abstract class AbstractService extends AbstractObject
         }
         foreach ($serviceMacros as $serviceMacro) {
             if ($serviceMacro->getOwnerId() === $service['service_id']) {
-                if ($serviceMacro->shouldBeEncrypted()) {
+                if ($serviceMacro->shouldBeEncrypted()  && $serviceMacro->getValue() !== '') {
                     if ($serviceMacro->isPassword()) {
                         $service['macros']['_' . $serviceMacro->getName()] = 'encrypt::'
                             . $this->engineContextEncryption->crypt($serviceMacro->getValue());
