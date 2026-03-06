@@ -29,25 +29,25 @@ use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorException;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
-use Core\HostTemplate\Application\Exception\HostTemplateException;
-use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\Macro\Domain\Model\Macro;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\HostCategory\Domain\Model\HostCategory;
-use Core\Security\AccessGroup\Domain\Model\AccessGroup;
-use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
+use Core\HostTemplate\Application\Exception\HostTemplateException;
+use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
+use Core\HostTemplate\Domain\Model\HostTemplate;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 final class GetHostTemplate
 {
     use LoggerTrait;
 
-     /** @var AccessGroup[] */
+    /** @var AccessGroup[] */
     private array $accessGroups;
 
     /**
@@ -65,7 +65,7 @@ final class GetHostTemplate
         private readonly ReadHostCategoryRepositoryInterface $readHostCategoryRepository,
         private readonly ContactInterface $user,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
-        private readonly AdminResolver $adminResolver
+        private readonly AdminResolver $adminResolver,
     ) {
     }
 
@@ -140,13 +140,10 @@ final class GetHostTemplate
      *
      * @throws \Throwable
      *
-     *
      * @return GetHostTemplateResponse
      */
     private function createResponse(HostTemplate $hostTemplate, array $hostCategories, array $parentTemplates, array $macros): GetHostTemplateResponse
     {
-
-
         $response = new GetHostTemplateResponse();
 
         $response->id = $hostTemplate->getId();
@@ -210,12 +207,10 @@ final class GetHostTemplate
             $macros
         );
 
-
         return $response;
     }
 
-
-     /**
+    /**
      * @param int $hostTemplateId
      *
      * @throws HostTemplateException
@@ -225,13 +220,12 @@ final class GetHostTemplate
      */
     private function findParentTemplates(int $hostTemplateId): array
     {
-
         $templateIds = $this->readHostTemplateRepository->findByHostId($hostTemplateId);
         $templateNames = $this->readHostTemplateRepository->findNamesByIds($templateIds);
 
         $parentTemplates = [];
         foreach ($templateIds as $templateId) {
-            if (isset($templateNames[$templateId])) { 
+            if (isset($templateNames[$templateId])) {
                 $parentTemplates[] = [
                     'id' => $templateId,
                     'name' => $templateNames[$templateId],

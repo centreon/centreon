@@ -49,7 +49,7 @@ final class GetHostTemplateController extends AbstractController
         GetHostTemplateSaasPresenter $saasPresenter,
         GetHostTemplateOnPremPresenter $onPremPresenter,
         bool $isCloudPlatform,
-        int $hostTemplateId
+        int $hostTemplateId,
     ): Response {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
@@ -58,5 +58,4 @@ final class GetHostTemplateController extends AbstractController
 
         return $presenter->show();
     }
-
 }

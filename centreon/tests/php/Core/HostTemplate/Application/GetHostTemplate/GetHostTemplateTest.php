@@ -27,23 +27,23 @@ use Centreon\Domain\Contact\Contact;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
-use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Common\Application\Converter\YesNoDefaultConverter;
+use Core\Contact\Domain\AdminResolver;
+use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Domain\Model\HostEvent;
+use Core\Host\Domain\Model\SnmpVersion;
+use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
+use Core\HostCategory\Domain\Model\HostCategory;
 use Core\HostTemplate\Application\Exception\HostTemplateException;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
 use Core\HostTemplate\Application\UseCase\GetHostTemplate\GetHostTemplate;
 use Core\HostTemplate\Application\UseCase\GetHostTemplate\GetHostTemplateResponse;
-use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
-use Tests\Core\HostTemplate\Infrastructure\API\GetHostTemplate\GetHostTemplatePresenterStub;
-use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
-use Core\HostCategory\Domain\Model\HostCategory;
-use Core\Macro\Domain\Model\Macro;
-use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\HostTemplate\Domain\Model\HostTemplate;
-use Core\Host\Domain\Model\SnmpVersion;
-use Core\Host\Application\Converter\HostEventConverter;
-use Core\Host\Domain\Model\HostEvent;
-
+use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
+use Core\Macro\Application\Repository\ReadHostMacroRepositoryInterface;
+use Core\Macro\Domain\Model\Macro;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Tests\Core\HostTemplate\Infrastructure\API\GetHostTemplate\GetHostTemplatePresenterStub;
 
 beforeEach(function (): void {
     $this->usecase = new GetHostTemplate(
@@ -52,7 +52,7 @@ beforeEach(function (): void {
         $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         $this->user = $this->createMock(ContactInterface::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
-
+        $this->adminResolver = $this->createMock(AdminResolver::class)
     );
     $this->presenter = new GetHostTemplatePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
@@ -119,7 +119,6 @@ beforeEach(function (): void {
         ['id' => 4, 'name' => 'template-A'],
         ['id' => 8, 'name' => 'template-B'],
     ];
-
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
@@ -127,7 +126,7 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
@@ -169,7 +168,7 @@ it('should present a GetHostTemplateResponse with non-admin user', function (): 
                 [Contact::ROLE_CONFIGURATION_HOSTS_TEMPLATES_READ_WRITE, true],
             ]
         );
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(false);
@@ -187,21 +186,21 @@ it('should present a GetHostTemplateResponse with non-admin user', function (): 
         ->expects($this->once())
         ->method('findByHostAndAccessGroups')
         ->willReturn($this->categories);
-    
-    $this->readHostTemplateRepository
-    ->expects($this->once())
-    ->method('findByHostId')
-    ->willReturn($this->parentTemplateIds);
 
     $this->readHostTemplateRepository
-    ->expects($this->once())
-    ->method('findNamesByIds')
-    ->willReturn(
-        array_combine(
+        ->expects($this->once())
+        ->method('findByHostId')
+        ->willReturn($this->parentTemplateIds);
+
+    $this->readHostTemplateRepository
+        ->expects($this->once())
+        ->method('findNamesByIds')
+        ->willReturn(
+            array_combine(
                 array_map((fn ($row) => $row['id']), $this->parentTemplates),
                 array_map((fn ($row) => $row['name']), $this->parentTemplates)
-        )
-    );
+            )
+        );
 
     $this->readHostMacroRepository
         ->expects($this->once())
@@ -304,7 +303,6 @@ it('should present a GetHostTemplateResponse with non-admin user', function (): 
             ]),
             $this->macros
         ));
-    
 });
 
 it('should present a GetHostTemplateResponse with admin user', function (): void {
@@ -312,11 +310,11 @@ it('should present a GetHostTemplateResponse with admin user', function (): void
         ->expects($this->once())
         ->method('hasTopologyRole')
         ->willReturn(true);
-    $this->user
+    $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
         ->willReturn(true);
-    
+
     $this->readHostTemplateRepository
         ->expects($this->once())
         ->method('findById')
@@ -327,31 +325,27 @@ it('should present a GetHostTemplateResponse with admin user', function (): void
         ->method('findByHost')
         ->willReturn($this->categories);
 
-    
     $this->readHostTemplateRepository
-    ->expects($this->once())
-    ->method('findByHostId')
-    ->willReturn($this->parentTemplateIds);
+        ->expects($this->once())
+        ->method('findByHostId')
+        ->willReturn($this->parentTemplateIds);
 
     $this->readHostTemplateRepository
-    ->expects($this->once())
-    ->method('findNamesByIds')
-    ->willReturn(
-        array_combine(
+        ->expects($this->once())
+        ->method('findNamesByIds')
+        ->willReturn(
+            array_combine(
                 array_map((fn ($row) => $row['id']), $this->parentTemplates),
                 array_map((fn ($row) => $row['name']), $this->parentTemplates)
-        )
-    );
+            )
+        );
 
     $this->readHostMacroRepository
         ->expects($this->once())
         ->method('findByHostId')
         ->willReturn($this->macros);
 
-    
-
     ($this->usecase)($this->presenter, $this->hostTemplate->getId());
-
 
     $response = $this->presenter->response;
 
@@ -448,5 +442,4 @@ it('should present a GetHostTemplateResponse with admin user', function (): void
             ]),
             $this->macros
         ));
-   
 });

@@ -95,9 +95,6 @@ class GetHostTemplateOnPremPresenter extends AbstractPresenter implements GetHos
             ];
 
             $this->present($result);
-
-            // NOT setting location as required route does not currently exist
         }
-
     }
 }

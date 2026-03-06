@@ -25,7 +25,7 @@ namespace Core\HostTemplate\Application\UseCase\GetHostTemplate;
 
 final class GetHostTemplateResponse
 {
-     public int $id = 0;
+    public int $id = 0;
 
     public string $name = '';
 
