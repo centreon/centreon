@@ -42,6 +42,9 @@ class Automatic
     /** @var string */
     protected $uniqId;
 
+    /** @var string */
+    protected $fullMacroName = '';
+
     /** @var array<string, int> */
     protected $registerProviders;
 
@@ -73,32 +76,176 @@ class Automatic
     }
 
     /**
+     * Open a service ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function openService($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $contact = $this->getContactInformation($params);
+        $service = $this->getServiceInformation($params);
+
+        $rv = $this->submitTicket($params, $ruleInfo, $contact, [], [$service]);
+        $this->doChainRules($rv['chainRuleList'], $params, $contact, [], [$service]);
+
+        $providerClass = $this->getProviderClass($ruleInfo);
+        try {
+            $macroName = $providerClass->getMacroTicketId();
+            $this->setFullMacroName($macroName, 'service');
+            $macroId = $this->getTicketMacroId('service', $service['service_id']);
+            if (! is_null($macroId)) {
+                $this->updateServiceMacro($rv['ticket_id'], $service['service_id']);
+            } elseif ($this->isServiceUnique($service['service_id'])) {
+                $this->insertTicketInConfigDB('service', $rv['ticket_id'], $service['service_id']);
+            }
+        } catch (Exception $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Failed to persist ticket macro in config DB for service ticket opening: ' . $e->getMessage(),
+                exception: $e
+            );
+        }
+
+        $this->externalServiceCommands($rv['providerClass'], $rv['ticket_id'], $contact, $service);
+
+        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
+    }
+
+    /**
+     * Open a host ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function openHost($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $contact = $this->getContactInformation($params);
+        $host = $this->getHostInformation($params);
+
+        $rv = $this->submitTicket($params, $ruleInfo, $contact, [$host], []);
+        $this->doChainRules($rv['chainRuleList'], $params, $contact, [$host], []);
+
+        $providerClass = $this->getProviderClass($ruleInfo);
+        try {
+            $macroName = $providerClass->getMacroTicketId();
+            $this->setFullMacroName($macroName, 'host');
+            $macroId = $this->getTicketMacroId('host', $host['host_id']);
+
+            if (! is_null($macroId)) {
+                $this->updateHostMacro($rv['ticket_id'], $host['host_id']);
+            } else {
+                $this->insertTicketInConfigDB('host', $rv['ticket_id'], $host['host_id']);
+            }
+        } catch (Exception $e) {
+            CentreonLog::create()->error(
+                CentreonLog::TYPE_BUSINESS_LOG,
+                'Failed to persist ticket macro in config DB for host ticket opening: ' . $e->getMessage(),
+                exception: $e
+            );
+        }
+
+        $this->externalHostCommands($rv['providerClass'], $rv['ticket_id'], $contact, $host);
+
+        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
+    }
+
+    /**
+     * Close a host ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function closeHost($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $host = $this->getHostInformation($params);
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+        $this->setFullMacroName($macroName, 'host');
+
+        $ticketId = $this->getHostTicket($params, $macroName);
+
+        $rv = ['code' => 0, 'message' => 'no ticket found for host: ' . $host['name']];
+
+        if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => [],
+            ];
+
+            try {
+                $providerClass->closeTicket($closeTicketData);
+                $this->changeMacroHost($macroName, $host);
+                $this->updateHostMacro('', $host['host_id']);
+                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
+            } catch (Exception $e) {
+                $rv = ['code' => -1, 'message' => $e->getMessage()];
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
+     * Close a service ticket
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function closeService($params)
+    {
+        $ruleInfo = $this->getRuleInfo($params['rule_name']);
+        $service = $this->getServiceInformation($params);
+        $providerClass = $this->getProviderClass($ruleInfo);
+        $macroName = $providerClass->getMacroTicketId();
+        $this->setFullMacroName($macroName, 'service');
+
+        $ticketId = $this->getServiceTicket($params, $macroName);
+
+        $rv = ['code' => 0, 'message' => 'no ticket found for service: '
+            . $service['host_name'] . ' ' . $service['description']];
+
+        if ($ticketId) {
+            $closeTicketData = [
+                $ticketId => [],
+            ];
+
+            try {
+                $providerClass->closeTicket($closeTicketData);
+                $this->changeMacroService($macroName, $service);
+                $this->updateServiceMacro('', $service['service_id']);
+                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
+            } catch (Exception $e) {
+                $rv = ['code' => -1, 'message' => $e->getMessage()];
+            }
+        }
+
+        return $rv;
+    }
+
+    /**
      * setFullMacroName: set the full ticket_id macro name ($_HOSTXXXXXXX$ or $_SERVICEXXXXXX$)
-     * 
+     *
      * @param string $macroName the name of the macro (TICKET_ID)
      * @param string $type the type of object (service or host)
      * @return void
      */
     protected function setFullMacroName(string $macroName, string $type): void
     {
-        if ($type === 'host') {
-                $this->fullMacroName = '$_HOST' . $macroName . '$';
-        } else {
-            $this->fullMacroName = '$_SERVICE' . $macroName . '$';
-        }
+        $this->fullMacroName = $type === 'host' ? '$_HOST' . $macroName . '$' : '$_SERVICE' . $macroName . '$';
     }
-
 
     /**
      * updateServiceMacro: set the value of the service ticketing macro in the config database
-     * 
+     *
      * @param string $ticketId the ticket id
      * @param int $serviceId the id of the service
      * @return void
      */
     protected function updateServiceMacro(string $ticketId, int $serviceId): void
     {
-
         // check if service has the macro set up
         $query = <<<'SQL'
                 SELECT svc_macro_id
@@ -129,8 +276,8 @@ class Automatic
 
     /**
      * updateHostMacro: set the value of the service ticketing macro in the config database
-     * 
-     * @param string $ticketId tbe ticket id
+     *
+     * @param string $ticketId the ticket id
      * @param int $hostId the host id
      * @return void
      */
@@ -160,15 +307,14 @@ class Automatic
             $stmt->bindParam(':macro_value', $ticketId, PDO::PARAM_STR);
             $stmt->execute();
         }
-
     }
 
     /**
      * insertTicketInConfigDB: add a new macro entry for the ticket macro in the config db (with the ticket id value)
-     * 
+     *
      * @param string $type the object type (host or service)
      * @param string $ticketId the ticket id
-     * @param int objectId the id of the object (service id or host id)
+     * @param int $objectId the id of the object (service id or host id)
      * @return void
      */
     protected function insertTicketInConfigDB(string $type, string $ticketId, int $objectId): void
@@ -186,7 +332,6 @@ class Automatic
                     VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
                 SQL;
         }
-
 
         $stmt = $this->dbCentreon->prepare($query);
         $stmt->bindParam(':ticket_id', $ticketId, PDO::PARAM_STR);
@@ -233,246 +378,77 @@ class Automatic
         return null;
     }
 
-/**
- * getMaxOrder gets the order number for the next custom macro
- *
- * @param string $type the type of object (must be host or service)
- * @param int $objectId the id of the service or the host
- * @return int the next available order number
- */
-function getMaxOrder(string $type, int $objectId): int
-{
-    if ($type === 'host') {
-        $query = <<<'SQL'
-                SELECT MAX(macro_order) AS max
-                FROM on_demand_macro_host
-                WHERE host_host_id = :object_id
-            SQL;
-    } else {
-        $query = <<<'SQL'
-                SELECT MAX(macro_order) AS max
-                FROM on_demand_macro_service
-                WHERE svc_svc_id = :object_id
-            SQL;
-    }
-
-    $stmt = $this->dbCentreon->prepare($query);
-    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-    $stmt->execute();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($row) {
-        return is_null($row['max']) ? 0 : (int) $row['max'] + 1;
-    }
-
-    return 0;
-}
-
-/**
- * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
- *
- * @param int $serviceId the id of the service
- * @throws CollectionException|ConnectionException|ValueObjectException
- * @return bool
- */
-function isServiceUnique(int $serviceId): bool
-{
-    global $db;
-    $query = <<<'SQL'
-            SELECT count(*) AS duplicated_service
-            FROM (
-                (
-                    SELECT 1
-                    FROM host_service_relation
-                    WHERE service_service_id = :service_id
-                        AND hostgroup_hg_id IS NOT NULL
-                ) UNION (
-                    SELECT 1
-                    FROM host_service_relation
-                    WHERE service_service_id = :service_id
-                        AND host_host_id IS NOT NULL
-                    GROUP BY service_service_id HAVING COUNT(service_service_id) > 1
-                )
-            ) AS relation
-        SQL;
-
-    $stmt = $this->dbCentreon->prepare($query);
-    $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
-    $stmt->execute();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($row) {
-        return (int) $row['duplicated_service'] === 0;
-    }
-
-    return true;
-}
-
-/**
- * insertNewMacroValue add a new macro on the object (service/host)
- *
- * @param string $type the type of object (must be host or service)
- * @param string $ticketId the ticket id
- * @param int $objectId the id of the service or the host
- * @return void
- */
-function insertNewMacroValue(string $type, string $ticketId, int $objectId): void
-{
-    $macroOrder = $this->getMaxOrder($type, $objectId);
-
-    if ($type === 'host') {
-        $query = <<<'SQL'
-                INSERT INTO on_demand_macro_host (host_macro_name, host_macro_value, is_password, description, host_host_id, macro_order)
-                VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
-            SQL;
-    } else {
-        $query = <<<'SQL'
-                INSERT INTO on_demand_macro_service (svc_macro_name, svc_macro_value, is_password, description, svc_svc_id, macro_order)
-                VALUES (:macro_name, :ticket_id, NULL, '', :object_id, :macro_order)
-            SQL;
-    }
-
-    $stmt = $this->dbCentreon->prepare($query);
-    $stmt->bindParam(':ticket_id', $ticketId, PDO::PARAM_STR);
-    $stmt->bindParam(':macro_name', $this->fullMacroName, PDO::PARAM_STR);
-    $stmt->bindParam(':macro_order', $macroOrder, PDO::PARAM_INT);
-    $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
-
-    $stmt->execute();
-}
-
     /**
-     * Open a service ticket
+     * getMaxOrder gets the order number for the next custom macro
      *
-     * @param mixed $params
-     * @return array
+     * @param string $type the type of object (must be host or service)
+     * @param int $objectId the id of the service or the host
+     * @return int the next available order number
      */
-    public function openService($params)
+    protected function getMaxOrder(string $type, int $objectId): int
     {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $contact = $this->getContactInformation($params);
-        $service = $this->getServiceInformation($params);
-
-        $rv = $this->submitTicket($params, $ruleInfo, $contact, [], [$service]);
-        $this->doChainRules($rv['chainRuleList'], $params, $contact, [], [$service]);
-
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-        $this->setFullMacroName($macroName, 'service');
-        $macroId = $this->getTicketMacroId('service', $service['service_id']);
-        if (! is_null($macroId)) {
-            $this->updateServiceMacro($rv['ticket_id'], $service['service_id']);
-        } elseif ($this->isServiceUnique($service['service_id'])) {
-            $this->insertTicketInConfigDB('service', $rv['ticket_id'], $service['service_id']);
-        }
-
-        $this->externalServiceCommands($rv['providerClass'], $rv['ticket_id'], $contact, $service);
-
-        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
-    }
-
-    /**
-     * Open a host ticket
-     *
-     * @param mixed $params
-     * @return array
-     */
-    public function openHost($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $contact = $this->getContactInformation($params);
-        $host = $this->getHostInformation($params);
-
-        $rv = $this->submitTicket($params, $ruleInfo, $contact, [$host], []);
-        $this->doChainRules($rv['chainRuleList'], $params, $contact, [$host], []);
-
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-        $this->setFullMacroName($macroName, 'host');
-        $macroId = $this->getTicketMacroId('host', $host['host_id']);
-        
-        if (! is_null($macroId)) {
-            $this->updateHostMacro($rv['ticket_id'], $host['host_id']);
+        if ($type === 'host') {
+            $query = <<<'SQL'
+                    SELECT MAX(macro_order) AS max
+                    FROM on_demand_macro_host
+                    WHERE host_host_id = :object_id
+                SQL;
         } else {
-            $this->insertTicketInConfigDB('host', $rv['ticket_id'], $host['host_id']);
+            $query = <<<'SQL'
+                    SELECT MAX(macro_order) AS max
+                    FROM on_demand_macro_service
+                    WHERE svc_svc_id = :object_id
+                SQL;
         }
 
-        $this->externalHostCommands($rv['providerClass'], $rv['ticket_id'], $contact, $host);
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':object_id', $objectId, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return ['code' => 0, 'message' => 'Open ticket ' . $rv['ticket_id']];
+        if ($row) {
+            return is_null($row['max']) ? 0 : (int) $row['max'] + 1;
+        }
+
+        return 0;
     }
 
     /**
-     * Close a host ticket
+     * isServiceUnique checks if the service is linked to a single host (not to multiple hosts or to a hostgroup)
      *
-     * @param mixed $params
-     * @return array
+     * @param int $serviceId the id of the service
+     * @return bool
      */
-    public function closeHost($params)
+    protected function isServiceUnique(int $serviceId): bool
     {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $host = $this->getHostInformation($params);
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-        $this->setFullMacroName($macroName, 'host');
+        $query = <<<'SQL'
+                SELECT count(*) AS duplicated_service
+                FROM (
+                    (
+                        SELECT 1
+                        FROM host_service_relation
+                        WHERE service_service_id = :service_id
+                            AND hostgroup_hg_id IS NOT NULL
+                    ) UNION (
+                        SELECT 1
+                        FROM host_service_relation
+                        WHERE service_service_id = :service_id
+                            AND host_host_id IS NOT NULL
+                        GROUP BY service_service_id HAVING COUNT(service_service_id) > 1
+                    )
+                ) AS relation
+            SQL;
 
-        $ticketId = $this->getHostTicket($params, $macroName);
+        $stmt = $this->dbCentreon->prepare($query);
+        $stmt->bindParam(':service_id', $serviceId, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $rv = ['code' => 0, 'message' => 'no ticket found for host: ' . $host['name']];
-
-        if ($ticketId) {
-            $closeTicketData = [
-                $ticketId => [],
-            ];
-
-            try {
-                $providerClass->closeTicket($closeTicketData);
-                $this->changeMacroHost($macroName, $host);
-                $this->updateHostMacro("", $host['host_id']);
-                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
-            } catch (Exception $e) {
-                $rv = ['code' => -1, 'message' => $e->getMessage()];
-            }
+        if ($row) {
+            return (int) $row['duplicated_service'] === 0;
         }
 
-        return $rv;
-    }
-
-    /**
-     * Close a service ticket
-     *
-     * @param mixed $params
-     * @return array
-     */
-    public function closeService($params)
-    {
-        $ruleInfo = $this->getRuleInfo($params['rule_name']);
-        $service = $this->getServiceInformation($params);
-        $providerClass = $this->getProviderClass($ruleInfo);
-        $macroName = $providerClass->getMacroTicketId();
-        $this->setFullMacroName($macroName, 'service');
-
-        $ticketId = $this->getServiceTicket($params, $macroName);
-
-        $rv = ['code' => 0, 'message' => 'no ticket found for service: '
-            . $service['host_name'] . ' ' . $service['description']];
-
-        if ($ticketId) {
-            $closeTicketData = [
-                $ticketId => [],
-            ];
-
-            try {
-                $providerClass->closeTicket($closeTicketData);
-                $this->changeMacroService($macroName, $service);
-                $this->updateServiceMacro("", $service['service_id']);
-                $rv = ['code' => 0, 'message' => 'ticket ' . $ticketId . ' has been closed'];
-            } catch (Exception $e) {
-                $rv = ['code' => -1, 'message' => $e->getMessage()];
-            }
-        }
-
-        return $rv;
+        return true;
     }
 
     /**
