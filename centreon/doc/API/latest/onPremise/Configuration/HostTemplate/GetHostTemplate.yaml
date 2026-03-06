@@ -14,7 +14,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: 'Schema/GetHostResponse.yaml'
+            $ref: 'Schema/GetHostTemplateResponse.yaml'
     '403':
       $ref: '../../../Common/Response/Forbidden.yaml'
     '404':
