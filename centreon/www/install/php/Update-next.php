@@ -492,7 +492,7 @@ try {
     if (! $pearDB->isTransactionActive()) {
         $pearDB->startTransaction();
     }
-  
+
     $createBrokerOutputEventScript();
     $insertEventScriptOutputForCMA();
 
