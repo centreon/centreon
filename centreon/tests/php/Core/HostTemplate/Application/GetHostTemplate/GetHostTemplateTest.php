@@ -169,7 +169,7 @@ it('should present a GetHostTemplateResponse with non-admin user', function (): 
             ]
         );
     $this->adminResolver
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(false);
 
@@ -311,7 +311,7 @@ it('should present a GetHostTemplateResponse with admin user', function (): void
         ->method('hasTopologyRole')
         ->willReturn(true);
     $this->adminResolver
-        ->expects($this->once())
+        ->expects($this->exactly(2))
         ->method('isAdmin')
         ->willReturn(true);
 
