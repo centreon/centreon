@@ -24,9 +24,10 @@ jobs:
   dependency-scan:
     uses: centreon/security-tools/.github/workflows/dependency-analysis.yml@main
 
-  publish-package: 
-    needs: [dependency-scan]
+  publish-package:
+  publish-package:
     permissions:
+      contents: read  # Required by actions/checkout in called workflow
       id-token: write  # Required for OIDC
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/npm-publish-package.yml

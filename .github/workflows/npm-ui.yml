@@ -27,6 +27,7 @@ jobs:
   publish-package:
     permissions:
       id-token: write  # Required for OIDC
+      contents: read
     needs: [dependency-scan]
     if: github.repository == 'centreon/centreon'
     uses: ./.github/workflows/npm-publish-package.yml
