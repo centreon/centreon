@@ -30,9 +30,6 @@ use Centreon\Infrastructure\RequestParameters\RequestParametersTranslatorExcepti
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
-use Core\Common\Application\UseCase\VaultTrait;
-use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Contact\Domain\AdminResolver;
 use Core\Macro\Application\Repository\ReadServiceMacroRepositoryInterface;
 use Core\Macro\Domain\Model\Macro;
@@ -50,7 +47,6 @@ use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
 final class GetService
 {
     use LoggerTrait;
-    use VaultTrait;
 
     /** @var AccessGroup[] */
     private array $accessGroups;
@@ -63,9 +59,7 @@ final class GetService
         private readonly ContactInterface $user,
         private readonly ReadServiceMacroRepositoryInterface $readServiceMacroRepository,
         private readonly AdminResolver $adminResolver,
-        private readonly ReadVaultRepositoryInterface $readVaultRepository,
     ) {
-        $this->readVaultRepository->setCustomPath(AbstractVaultRepository::SERVICE_VAULT_PATH);
     }
 
     /**
@@ -194,10 +188,6 @@ final class GetService
         $response->acknowledgementTimeout = $service->getAcknowledgementTimeout();
         $response->geoCoords = $service->getGeoCoords()?->__toString();
 
-        if ($this->readVaultRepository->isVaultConfigured()) {
-            $macros = $this->retrieveMacrosVaultValues($macros);
-        }
-
         $response->macros = array_map(
             fn (Macro $macro): MacroDto => new MacroDto(
                 $macro->getName(),
@@ -222,39 +212,5 @@ final class GetService
         );
 
         return $response;
-    }
-
-    /**
-     * @param Macro[] $macros
-     *
-     * @throws \Throwable
-     *
-     * @return Macro[]
-     */
-    private function retrieveMacrosVaultValues(array $macros): array
-    {
-        $updatedMacros = [];
-        foreach ($macros as $key => $macro) {
-            if ($macro->isPassword() === false) {
-                $updatedMacros[$key] = $macro;
-
-                continue;
-            }
-
-            $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
-            $vaultKey = '_SERVICE' . $macro->getName();
-            if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
-                $inVaultMacro->setDescription($macro->getDescription());
-                $inVaultMacro->setIsPassword($macro->isPassword());
-                $inVaultMacro->setOrder($macro->getOrder());
-
-                $updatedMacros[$key] = $inVaultMacro;
-            } else {
-                $updatedMacros[$key] = $macro;
-            }
-        }
-
-        return $updatedMacros;
     }
 }

@@ -28,7 +28,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\Contact\Domain\AdminResolver;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
@@ -57,7 +56,6 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
         $this->adminResolver = $this->createMock(AdminResolver::class),
-        $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class),
     );
     $this->presenter = new GetServicePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
