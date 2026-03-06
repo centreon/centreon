@@ -17,7 +17,7 @@ Feature: Check permissions on Agent Configuration
   Scenario: Update an agent configuration with an admin user
     Given an admin user is in the Agents Configuration page
     And an agent configuration is already created
-    When the user clicks on the line of the Agents Configuration
+    When the user clicks on the already created agent
     Then a pop up is displayed with all of the agent information
     When the user modifies the configuration
     And the user clicks on Save
