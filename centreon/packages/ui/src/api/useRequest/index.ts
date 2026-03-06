@@ -13,6 +13,7 @@ export interface RequestParams<TResult> {
   getErrorMessage?: (error) => string;
   httpCodesBypassErrorSnackbar?: Array<number>;
   request: (token) => (params?) => Promise<TResult>;
+  silent?: boolean;
 }
 
 export interface RequestResult<TResult> {
@@ -25,7 +26,8 @@ const useRequest = <TResult>({
   decoder,
   getErrorMessage,
   defaultFailureMessage = 'Oops, something went wrong',
-  httpCodesBypassErrorSnackbar = []
+  httpCodesBypassErrorSnackbar = [],
+  silent = false
 }: RequestParams<TResult>): RequestResult<TResult> => {
   const { token, cancel } = useCancelTokenSource();
   const { showErrorMessage } = useSnackbar();
@@ -74,7 +76,7 @@ const useRequest = <TResult>({
           httpCodesBypassErrorSnackbar
         );
 
-        if (hasACorrespondingHttpCode) {
+        if (silent || hasACorrespondingHttpCode) {
           throw error;
         }
 
