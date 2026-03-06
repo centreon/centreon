@@ -28,7 +28,6 @@ use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
 use Core\Contact\Domain\AdminResolver;
 use Core\HostTemplate\Application\Repository\ReadHostTemplateRepositoryInterface;
@@ -51,7 +50,6 @@ use Tests\Core\ServiceTemplate\Infrastructure\API\GetServiceTemplate\GetServiceT
 
 beforeEach(function (): void {
     $this->adminResolver = $this->createMock(AdminResolver::class);
-    $this->readVaultRepository = $this->createMock(ReadVaultRepositoryInterface::class);
     $this->usecase = new GetServiceTemplate(
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
         $this->readAccessGroupRepository = $this->createMock(ReadAccessGroupRepositoryInterface::class),
@@ -61,7 +59,6 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
         $this->readServiceMacroRepository = $this->createMock(ReadServiceMacroRepositoryInterface::class),
         $this->adminResolver,
-        $this->readVaultRepository,
     );
     $this->presenter = new GetServiceTemplatePresenterStub(
         $this->presenterFormatter = $this->createMock(PresenterFormatterInterface::class)
