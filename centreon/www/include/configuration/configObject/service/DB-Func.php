@@ -31,13 +31,13 @@ use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
 use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
@@ -4422,21 +4422,7 @@ function deleteServiceTemplateByApi(array $serviceTemplates = []): void
  */
 function callApi(string $url, string $httpMethod, array $payload): array
 {
-    $client = new CurlHttpClient();
-    $response = $client->request(
-        $httpMethod,
-        $url,
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Cookie' => CentreonSession::resolveSessionCookie(),
-            ],
-            'body' => json_encode($payload),
-        ]
-    );
+    $client = new InternalApiClient();
 
-    $status = $response->getStatusCode();
-    $content = json_decode($response->getContent(false), true);
-
-    return ['status_code' => $status, 'content' => $content];
+    return $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 }
