@@ -22,7 +22,6 @@
 use App\Kernel;
 use Centreon\Domain\Log\Logger;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
-use Core\Common\Application\UseCase\VaultTrait;
 use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\FeatureFlags;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
