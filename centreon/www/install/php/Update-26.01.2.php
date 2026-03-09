@@ -18,26 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-declare(strict_types=1);
-
-namespace Core\ResourceAccess\Infrastructure\API\FindRules;
-
-use Centreon\Application\Controller\AbstractController;
-use Core\ResourceAccess\Application\UseCase\FindRules\FindRules;
-use Core\ResourceAccess\Application\UseCase\FindRules\FindRulesPresenterInterface;
-use Symfony\Component\HttpFoundation\Response;
-
-final class FindRulesController extends AbstractController
-{
-    public function __invoke(
-        FindRules $useCase,
-        FindRulesPresenterInterface $presenter,
-    ): Response {
-        $this->denyAccessUnlessGrantedForApiConfiguration();
-
-        $useCase($presenter);
-
-        return $presenter->show();
-    }
-}
