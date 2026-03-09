@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Information\Information;
-use App\MonitoringConfiguration\Domain\Aggregate\Information\InformationName;
-use App\MonitoringConfiguration\Domain\Exception\InformationNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\InformationRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadata;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
+use App\MonitoringConfiguration\Domain\Exception\PlatformMetadataNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\PlatformMetadataRepository;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
 use App\Shared\Infrastructure\TransformerInterface;
 use Doctrine\DBAL\Connection;
@@ -38,23 +38,23 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *  option_value: string,
  * }
  */
-final readonly class DbalInformationRepository extends DbalRepository implements InformationRepository
+final readonly class DbalPlatformMetadataRepository extends DbalRepository implements PlatformMetadataRepository
 {
     private const TABLE_NAME = 'informations';
 
     /**
-     * @param TransformerInterface<RowTypeAlias, Information> $transformer
+     * @param TransformerInterface<RowTypeAlias, PlatformMetadata> $transformer
      */
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
-        #[Autowire(service: DbalInformationTransformer::class)]
+        #[Autowire(service: DbalPlatformMetadataTransformer::class)]
         private TransformerInterface $transformer,
     ) {
     }
 
-    public function getByName(InformationName $name): Information
+    public function getByName(PlatformMetadataName $name): PlatformMetadata
     {
         $qb = $this->connection->createQueryBuilder();
         $qb->select('`key` AS option_name', '`value` AS option_value')
@@ -65,7 +65,7 @@ final readonly class DbalInformationRepository extends DbalRepository implements
         /** @var RowTypeAlias|false $row */
         $row = $qb->executeQuery()->fetchAssociative();
         if ($row === false) {
-            throw new InformationNotFoundException(['option_name' => $name->value]);
+            throw new PlatformMetadataNotFoundException(['option_name' => $name->value]);
         }
 
         return $this->transformer->transform($row);

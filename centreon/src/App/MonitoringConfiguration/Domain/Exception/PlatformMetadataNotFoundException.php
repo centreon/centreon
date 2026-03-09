@@ -21,15 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Information;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use Webmozart\Assert\Assert;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-final readonly class InformationValue
+final class PlatformMetadataNotFoundException extends AggregateNotFoundException
 {
-    public function __construct(
-        public string $value,
-    ) {
-        Assert::lengthBetween($value, 1, 255);
-    }
 }

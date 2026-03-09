@@ -21,10 +21,16 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Exception;
+namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\Shared\Domain\Exception\AggregateNotFoundException;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadata;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
+use App\MonitoringConfiguration\Domain\Exception\PlatformMetadataNotFoundException;
 
-final class InformationNotFoundException extends AggregateNotFoundException
+interface PlatformMetadataRepository
 {
+    /**
+     * @throws PlatformMetadataNotFoundException
+     */
+    public function getByName(PlatformMetadataName $name): PlatformMetadata;
 }

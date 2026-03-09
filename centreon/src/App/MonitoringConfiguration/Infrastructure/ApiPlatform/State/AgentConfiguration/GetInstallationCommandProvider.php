@@ -26,10 +26,10 @@ namespace App\MonitoringConfiguration\Infrastructure\ApiPlatform\State\AgentConf
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration\AgentConfiguration;
-use App\MonitoringConfiguration\Domain\Aggregate\Information\InformationName;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
 use App\MonitoringConfiguration\Domain\Repository\AgentConfigurationRepository;
-use App\MonitoringConfiguration\Domain\Repository\InformationRepository;
+use App\MonitoringConfiguration\Domain\Repository\PlatformMetadataRepository;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\AgentConfiguration\InstallationCommandResource;
 use App\MonitoringConfiguration\Infrastructure\InstallationCommandFactory;
@@ -42,7 +42,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
 {
     public function __construct(
         private PollerRepository $pollerRepository,
-        private InformationRepository $informationRepository,
+        private PlatformMetadataRepository $informationRepository,
         private AgentConfigurationRepository $agentConfigurationRepository,
         #[Autowire(env: 'bool:default::IS_CLOUD_PLATFORM')]
         private bool $isCloudPlatform,
@@ -60,7 +60,7 @@ final readonly class GetInstallationCommandProvider implements ProviderInterface
     {
         $rawPollerId = $uriVariables['pollerId'] ?? null;
         $pollerId = new PollerId(is_scalar($rawPollerId) ? (int) $rawPollerId : 0);
-        $platformVersion = $this->informationRepository->getByName(new InformationName('version'));
+        $platformVersion = $this->informationRepository->getByName(new PlatformMetadataName('version'));
         $poller = $this->pollerRepository->withCmaCertificates()->get($pollerId);
         $agentConfiguration = $this->agentConfigurationRepository->getByPollerId($poller->id());
         $portData = $agentConfiguration->configuration->getData()['port'] ?? null;

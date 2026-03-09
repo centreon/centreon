@@ -21,16 +21,15 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Information\Information;
-use App\MonitoringConfiguration\Domain\Aggregate\Information\InformationName;
-use App\MonitoringConfiguration\Domain\Exception\InformationNotFoundException;
+use Webmozart\Assert\Assert;
 
-interface InformationRepository
+final readonly class PlatformMetadataName
 {
-    /**
-     * @throws InformationNotFoundException
-     */
-    public function getByName(InformationName $name): Information;
+    public function __construct(
+        public string $value,
+    ) {
+        Assert::lengthBetween($value, 1, 255);
+    }
 }

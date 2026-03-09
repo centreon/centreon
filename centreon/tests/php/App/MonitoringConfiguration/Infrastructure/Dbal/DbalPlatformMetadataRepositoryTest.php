@@ -23,34 +23,34 @@ declare(strict_types=1);
 
 namespace Tests\App\MonitoringConfiguration\Infrastructure\Dbal;
 
-use App\MonitoringConfiguration\Domain\Aggregate\Information\InformationName;
-use App\MonitoringConfiguration\Domain\Exception\InformationNotFoundException;
-use App\MonitoringConfiguration\Domain\Repository\InformationRepository;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
+use App\MonitoringConfiguration\Domain\Exception\PlatformMetadataNotFoundException;
+use App\MonitoringConfiguration\Domain\Repository\PlatformMetadataRepository;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-final class DbalInformationRepositoryTest extends KernelTestCase
+final class DbalPlatformMetadataRepositoryTest extends KernelTestCase
 {
-    private InformationRepository $repository;
+    private PlatformMetadataRepository $repository;
 
     protected function setUp(): void
     {
-        /** @var InformationRepository $repository */
-        $repository = self::getContainer()->get(InformationRepository::class);
+        /** @var PlatformMetadataRepository $repository */
+        $repository = self::getContainer()->get(PlatformMetadataRepository::class);
 
         $this->repository = $repository;
     }
 
     public function testItGetsByName(): void
     {
-        $information = $this->repository->getByName(new InformationName('version'));
+        $platformMetadata = $this->repository->getByName(new PlatformMetadataName('version'));
 
-        self::assertSame('version', $information->name->value);
+        self::assertSame('version', $platformMetadata->name->value);
     }
 
     public function testItThrowsExceptionWhenNotFound(): void
     {
-        $this->expectException(InformationNotFoundException::class);
+        $this->expectException(PlatformMetadataNotFoundException::class);
 
-        $this->repository->getByName(new InformationName('nonexistent_key'));
+        $this->repository->getByName(new PlatformMetadataName('nonexistent_key'));
     }
 }

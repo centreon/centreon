@@ -21,15 +21,13 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Aggregate\Information;
+namespace App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata;
 
-use Webmozart\Assert\Assert;
-
-final readonly class InformationName
+final readonly class PlatformMetadata
 {
     public function __construct(
-        public string $value,
+        public PlatformMetadataName $name,
+        public PlatformMetadataValue $value,
     ) {
-        Assert::lengthBetween($value, 1, 255);
     }
 }
