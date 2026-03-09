@@ -35,11 +35,11 @@ use Pimple\Container;
 class CentreonWorker implements CentreonClapiServiceInterface
 {
     /** @var Container */
-    private $di;
+    private $container;
 
-    public function __construct(Container $di)
+    public function __construct(Container $container)
     {
-        $this->di = $di;
+        $this->container = $container;
     }
 
     /**
@@ -117,7 +117,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
 
     public function getDi(): Container
     {
-        return $this->di;
+        return $this->container;
     }
 
     /**
