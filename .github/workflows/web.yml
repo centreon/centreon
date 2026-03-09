@@ -904,6 +904,17 @@ jobs:
           echo "package_extension=$PACKAGE_EXTENSION" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Compute image tag
+        id: image_tag
+        run: |
+          REF="${{ github.head_ref || github.ref_name }}"
+          if [[ "$REF" == "develop" ]]; then
+            echo "tag=develop-${{ needs.get-environment.outputs.major_version }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$REF" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
+
       - name: Login to registry
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
@@ -916,9 +927,9 @@ jobs:
         run: |
           FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
           FROM_IMAGE="centreon-web-dependencies-collect-${{ matrix.operating_system }}"
-          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.head_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
+          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ steps.image_tag.outputs.tag }} >/dev/null 2>&1 && echo yes || echo no)
           if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-            FROM_IMAGE_VERSION="${{ github.head_ref || github.ref_name }}"
+            FROM_IMAGE_VERSION="${{ steps.image_tag.outputs.tag }}"
             echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
           else
             IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${{ github.base_ref || github.ref_name }} >/dev/null 2>&1 && echo yes || echo no)
@@ -969,14 +980,14 @@ jobs:
           push: true
           load: true
           tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
+            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
 
       - name: Store slim image in local archive
         run: |
-          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker tag ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }} ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
           mkdir -p docker-image
-          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ github.head_ref || github.ref_name }}
+          docker save --output ./docker-image/${{ env.project }}-slim-${{ matrix.operating_system }}.tar ${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Clear previous docker image from cache
@@ -985,14 +996,14 @@ jobs:
             -X DELETE \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
+            https://api.github.com/repos/centreon/centreon/actions/caches?key=docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.tag }}
         shell: bash
 
       - name: Store slim image in cache
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ./docker-image
-          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ github.head_ref || github.ref_name }}
+          key: docker-image-${{ env.project }}-slim-${{ matrix.operating_system }}-${{ steps.image_tag.outputs.tag }}
 
   create-xray-test-plan-and-test-execution:
     needs: [get-environment, changes, dockerize]
