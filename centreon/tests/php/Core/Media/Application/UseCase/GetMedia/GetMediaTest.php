@@ -23,20 +23,16 @@ declare(strict_types=1);
 
 namespace Tests\Core\Media\Application\UseCase\GetMedia;
 
-
-
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Media\Application\UseCase\GetMedia\GetMedia;
-use Core\Media\Domain\Model\Media;
-use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Application\Common\UseCase\ErrorResponse;
-use Core\Media\Application\Exception\MediaException;
 use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Contact\Domain\AdminResolver;
+use Core\Media\Application\Exception\MediaException;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Media\Application\UseCase\GetMedia\GetMedia;
 use Core\Media\Application\UseCase\GetMedia\GetMediaResponse;
-
-
+use Core\Media\Domain\Model\Media;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 beforeEach(function (): void {
     $this->useCase = new GetMedia(
@@ -46,20 +42,16 @@ beforeEach(function (): void {
         $this->adminResolver = $this->createMock(AdminResolver::class),
     );
 
-
-
     $this->media = new Media(
-      id: 1,
-      filename: "test.jpg",
-      directory: "test",
-      comment: "A test image",
-      data: null,
+        id: 1,
+        filename: 'test.jpg',
+        directory: 'test',
+        comment: 'A test image',
+        data: null,
     );
-
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
-
     $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
@@ -79,7 +71,6 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 });
 
 it('should present an NotFoundResponse; when media is not found', function (): void {
-
     $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
@@ -95,11 +86,10 @@ it('should present an NotFoundResponse; when media is not found', function (): v
     expect($response)
         ->toBeInstanceOf(NotFoundResponse::class)
         ->and($response->getMessage())
-        ->toBe("Media not found");
+        ->toBe('Media not found');
 });
 
 it('should present a GetMediaResponse as admin', function (): void {
-
     $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
@@ -127,7 +117,6 @@ it('should present a GetMediaResponse as admin', function (): void {
 });
 
 it('should present a GetMediaResponse as non-admin user', function (): void {
-
     $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
@@ -162,5 +151,4 @@ it('should present a GetMediaResponse as non-admin user', function (): void {
         ->toEqual($this->media->getDirectory())
         ->and($response->md5)
         ->toEqual($this->media->getEqualityHash());
-
 });

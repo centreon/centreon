@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\Media\Application\UseCase\GetMedia;
 
-use Core\Media\Domain\Model\Media;
 use Core\Application\Common\UseCase\StandardResponseInterface;
+use Core\Media\Domain\Model\Media;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 final class GetMediaResponse implements StandardResponseInterface
@@ -51,7 +51,7 @@ final class GetMediaResponse implements StandardResponseInterface
         Media $media,
     ) {
         $this->id = $media->getId();
-        $this->comment = $media->getComment();
+        $this->comment = $media->getComment() ?? '';
         $this->directory = $media->getDirectory();
         $this->filename = $media->getFilename();
         $this->md5 = $media->getEqualityHash();

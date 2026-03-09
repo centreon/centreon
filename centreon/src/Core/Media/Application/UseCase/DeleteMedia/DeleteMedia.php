@@ -24,14 +24,14 @@ declare(strict_types=1);
 namespace Core\Media\Application\UseCase\DeleteMedia;
 
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
+use Core\Application\Common\UseCase\PresenterInterface;
 use Core\Media\Application\Exception\MediaException;
 use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
 use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
-use Core\Application\Common\UseCase\PresenterInterface;
-use Centreon\Domain\Log\LoggerTrait;
-use Core\Application\Common\UseCase\NoContentResponse;
-use Core\Application\Common\UseCase\NotFoundResponse;
 
 final class DeleteMedia
 {
@@ -57,9 +57,7 @@ final class DeleteMedia
     public function __invoke(int $mediaId, PresenterInterface $presenter): void
     {
         try {
-
-           $media = $this->readMediaRepository->findById($mediaId);
-
+            $media = $this->readMediaRepository->findById($mediaId);
 
             if ($media === null) {
                 $this->error('Media not found', ['media_id' => $mediaId]);
@@ -67,7 +65,6 @@ final class DeleteMedia
 
                 return;
             }
-
 
             $this->info(message: "Delete media #{$mediaId}");
             $this->writeMediaRepository->delete($media);
@@ -85,5 +82,4 @@ final class DeleteMedia
             $this->error($ex->getMessage(), ['trace' => $ex->getTraceAsString()]);
         }
     }
-
 }

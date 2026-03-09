@@ -424,31 +424,12 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
     }
 
     /**
-     * @param array<string, int|string> $data
-     *
-     * @throws AssertionFailedException
-     *
-     * @return Media
-     */
-    private function createMedia(array $data): Media
-    {
-        return new Media(
-            (int) $data['img_id'],
-            (string) $data['img_path'],
-            (string) $data['dir_name'],
-            (string) $data['img_comment'],
-            null
-        );
-    }
-
-    /**
      * @inheritDoc
      */
     public function existsByAccessGroups(
         int $mediaId,
         array $accessGroups,
     ): bool {
-
         if ($accessGroups === []) {
             $this->logger->debug('Access groups array empty');
 
@@ -485,12 +466,29 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
         $statement->bindValue(':mediaId', $mediaId, \PDO::PARAM_INT);
         foreach ($bindValues as $bindKey => $bindValue) {
-                $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
-            }
-
+            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_INT);
+        }
 
         $statement->execute();
 
         return (bool) $statement->fetchColumn();
+    }
+
+    /**
+     * @param array<string, int|string> $data
+     *
+     * @throws AssertionFailedException
+     *
+     * @return Media
+     */
+    private function createMedia(array $data): Media
+    {
+        return new Media(
+            (int) $data['img_id'],
+            (string) $data['img_path'],
+            (string) $data['dir_name'],
+            (string) $data['img_comment'],
+            null
+        );
     }
 }

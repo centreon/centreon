@@ -125,6 +125,14 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function existsByAccessGroups(int $mediaId, array $accessGroups): bool
+    {
+        return $this->dbReadMediaRepository->existsByAccessGroups($mediaId, $accessGroups);
+    }
+
+    /**
      * @param \Traversable<int, Media> $medias
      *
      * @return \Traversable<int, Media>
@@ -160,13 +168,5 @@ class FileProxyReadMediaRepository implements ReadMediaRepositoryInterface
                 }
             }
         };
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function existsByAccessGroups(int $mediaId, array $accessGroups): bool
-    {
-        return $this->dbReadMediaRepository->existsByAccessGroups($mediaId, $accessGroups);
     }
 }

@@ -28,10 +28,10 @@ use Centreon\Domain\Log\LoggerTrait;
 use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
-use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 use Core\Contact\Domain\AdminResolver;
 use Core\Media\Application\Exception\MediaException;
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
 
 final class GetMedia
 {

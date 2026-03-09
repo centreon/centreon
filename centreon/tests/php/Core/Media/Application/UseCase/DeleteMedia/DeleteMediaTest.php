@@ -23,21 +23,17 @@ declare(strict_types=1);
 
 namespace Tests\Core\Media\Application\UseCase\DeleteMedia;
 
-
-
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
-use Core\Media\Application\UseCase\DeleteMedia\DeleteMedia;
-use Core\Media\Domain\Model\Media;
-use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Application\Common\UseCase\ErrorResponse;
+use Core\Application\Common\UseCase\NoContentResponse;
+use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Infrastructure\Common\Api\DefaultPresenter;
 use Core\Infrastructure\Common\Presenter\PresenterFormatterInterface;
-use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
-use Core\Application\Common\UseCase\ErrorResponse;
 use Core\Media\Application\Exception\MediaException;
-use Core\Application\Common\UseCase\NotFoundResponse;
-use Core\Application\Common\UseCase\NoContentResponse;
-
-
+use Core\Media\Application\Repository\ReadMediaRepositoryInterface;
+use Core\Media\Application\Repository\WriteMediaRepositoryInterface;
+use Core\Media\Application\UseCase\DeleteMedia\DeleteMedia;
+use Core\Media\Domain\Model\Media;
 
 beforeEach(function (): void {
     $this->useCase = new DeleteMedia(
@@ -46,22 +42,18 @@ beforeEach(function (): void {
         $this->user = $this->createMock(ContactInterface::class),
     );
 
-
-
     $this->presenter = new DefaultPresenter($this->createMock(PresenterFormatterInterface::class));
 
     $this->media = new Media(
-      id: 1,
-      filename: "test.jpg",
-      directory: "test",
-      comment: "A test image",
-      data: null,
+        id: 1,
+        filename: 'test.jpg',
+        directory: 'test',
+        comment: 'A test image',
+        data: null,
     );
-
 });
 
 it('should present an ErrorResponse when an exception is thrown', function (): void {
-
     $this->writeMediaRepository
         ->expects($this->once())
         ->method('delete')
@@ -81,7 +73,6 @@ it('should present an ErrorResponse when an exception is thrown', function (): v
 });
 
 it('should present an NotFoundResponse; when media is not found', function (): void {
-
     $this->readMediaRepository
         ->expects($this->once())
         ->method('findById')
@@ -92,12 +83,11 @@ it('should present an NotFoundResponse; when media is not found', function (): v
     expect($this->presenter->getResponseStatus())
         ->toBeInstanceOf(NotFoundResponse::class)
         ->and($this->presenter->getResponseStatus()?->getMessage())
-        ->toBe("Media not found");
+        ->toBe('Media not found');
 });
 
 it('should present an NotContentResponse; when media is successfully deleted', function (): void {
-
-     $this->writeMediaRepository
+    $this->writeMediaRepository
         ->expects($this->once())
         ->method('delete');
 

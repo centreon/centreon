@@ -25,13 +25,10 @@ namespace Core\Media\Infrastructure\API\GetMedia;
 
 use Centreon\Application\Controller\AbstractController;
 use Core\Application\Common\UseCase\ResponseStatusInterface;
-use Core\Media\Application\UseCase\GetMedia\GetMedia;
 use Core\Infrastructure\Common\Api\StandardPresenter;
+use Core\Media\Application\UseCase\GetMedia\GetMedia;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Core\Media\Application\UseCase\GetMedia\GetMediaResponse;
-
-
 
 final class GetMediaController extends AbstractController
 {

@@ -89,12 +89,12 @@ interface ReadMediaRepositoryInterface
 
     /**
      * Return true if media is found the the provided access groups
-     * 
+     *
      * @param int $mediaId
-     * @param array $accessGroups
-     * 
+     * @param AccessGroup[] $accessGroups
+     *
      * @throws \Throwable
-     * 
+     *
      * @return bool
      */
     public function existsByAccessGroups(int $mediaId, array $accessGroups): bool;

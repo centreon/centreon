@@ -102,7 +102,7 @@ class MediaException extends \Exception
         return new self(_('Error while deleting a media'));
     }
 
-     /**
+    /**
      * @return self
      */
     public static function errorWhileRetrieving(): self
