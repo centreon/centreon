@@ -859,6 +859,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
     public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
         RequestParametersInterface $requestParameters,
         array $aclGroupIds,
+        array $contactGroupIds = [],
     ): array {
         $sqlTranslator = new SqlRequestParametersTranslator($requestParameters);
         $sqlTranslator->getRequestParameters()->setConcordanceStrictMode(
@@ -868,18 +869,30 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             'name' => 'c.contact_name',
         ]);
 
-        $bind = [];
-        foreach ($aclGroupIds as $key => $aclGroupId) {
-            $bind[':acl_group_' . $key] = $aclGroupId;
-        }
+        [$aclGroupBindValues, $aclGroupsBindQuery] = $this->createMultipleBindQuery($aclGroupIds, ':acl_group_');
+        [$contactGroupBindValues, $contactGroupsBindQuery] = $this->createMultipleBindQuery(
+            $contactGroupIds,
+            ':contact_group_'
+        );
 
-        if ($bind === []) {
+        if ($aclGroupBindValues === [] && $contactGroupBindValues === []) {
             return [];
         }
 
-        $bindTokenAsString = implode(', ', array_keys($bind));
+        $sharingScopeConditions = [];
+        if ($aclGroupsBindQuery !== '') {
+            $sharingScopeConditions[] = <<<SQL
+                (
+                    gcr.acl_group_id IN ({$aclGroupsBindQuery})
+                    OR gcgr.acl_group_id IN ({$aclGroupsBindQuery})
+                )
+                SQL;
+        }
+        if ($contactGroupsBindQuery !== '') {
+            $sharingScopeConditions[] = "cgcr.contactgroup_cg_id IN ({$contactGroupsBindQuery})";
+        }
+        $sharingScopeClause = implode(' OR ', $sharingScopeConditions);
 
-        // Build base query parts
         $baseQuery = <<<'SQL'
             FROM `:db`.contact c
                 LEFT JOIN `:db`.contactgroup_contact_relation cgcr
@@ -907,38 +920,43 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
         $whereClause .= <<<SQL
             parent.topology_name = 'Dashboards'
                 AND topology.topology_name IN ('Viewer','Administrator','Creator')
-                AND (gcr.acl_group_id IN ({$bindTokenAsString}) OR gcgr.acl_group_id IN ({$bindTokenAsString}))
+                AND ({$sharingScopeClause})
                 AND acltr.access_right IS NOT NULL
                 AND c.contact_oreon = '1'
             SQL;
 
-        // Execute COUNT query for total
         $countQuery = 'SELECT COUNT(DISTINCT c.contact_id) ' . $baseQuery . $whereClause;
         $countStatement = $this->db->prepare($this->translateDbName($countQuery));
-        foreach ($bind as $token => $aclGroupId) {
-            $countStatement->bindValue($token, $aclGroupId, \PDO::PARAM_INT);
+        foreach (array_merge($aclGroupBindValues, $contactGroupBindValues) as $token => $value) {
+            /** @var int $value */
+            $countStatement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /** @var int $type */
             $type = key($data);
             $value = $data[$type];
             $countStatement->bindValue($key, $value, $type);
         }
         $countStatement->execute();
-        $total = (int) $countStatement->fetchColumn();
-        $sqlTranslator->getRequestParameters()->setTotal($total);
+        $sqlTranslator->getRequestParameters()->setTotal((int) $countStatement->fetchColumn());
 
-        // Execute main query for data
-        $query = 'SELECT GROUP_CONCAT(topology.topology_name) as topologies, c.contact_name, c.contact_id, c.contact_email '
-            . $baseQuery . $whereClause . ' GROUP BY c.contact_id';
+        $query = <<<'SQL'
+            SELECT
+                GROUP_CONCAT(topology.topology_name) as topologies,
+                c.contact_name,
+                c.contact_id,
+                c.contact_email
+            SQL;
+        $query .= $baseQuery . $whereClause . ' GROUP BY c.contact_id, c.contact_name';
+        $query .= $sqlTranslator->translatePaginationToSql();
 
         $statement = $this->db->prepare($this->translateDbName($query));
-        foreach ($bind as $token => $aclGroupId) {
-            $statement->bindValue($token, $aclGroupId, \PDO::PARAM_INT);
+        foreach (array_merge($aclGroupBindValues, $contactGroupBindValues) as $token => $value) {
+            /** @var int $value */
+            $statement->bindValue($token, $value, \PDO::PARAM_INT);
         }
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {
-            /**
-             * @var int
-             */
+            /** @var int $type */
             $type = key($data);
             $value = $data[$type];
             $statement->bindValue($key, $value, $type);
@@ -1079,6 +1097,7 @@ class DbReadDashboardShareRepository extends AbstractRepositoryDRB implements Re
             $countStatement->bindValue($token, $aclGroupId, \PDO::PARAM_INT);
         }
         foreach ($sqlTranslator->getSearchValues() as $key => $data) {
+            /** @var int $type */
             $type = key($data);
             $value = $data[$type];
             $countStatement->bindValue($key, $value, $type);

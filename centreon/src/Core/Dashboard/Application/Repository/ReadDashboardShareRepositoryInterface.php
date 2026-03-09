@@ -162,10 +162,11 @@ interface ReadDashboardShareRepositoryInterface
     public function findContactsWithAccessRightByContactIds(array $contactIds): array;
 
     /**
-     * Find users with Topology ACLs on dashboards by current user ACLs.
+     * Find users with Topology ACLs on dashboards by current user ACLs or contact groups.
      *
      * @param RequestParametersInterface $requestParameters
      * @param int[] $aclGroupIds
+     * @param int[] $contactGroupIds
      *
      * @throws \Throwable|\UnexpectedValueException
      *
@@ -174,6 +175,7 @@ interface ReadDashboardShareRepositoryInterface
     public function findContactsWithAccessRightByACLGroupsAndRequestParameters(
         RequestParametersInterface $requestParameters,
         array $aclGroupIds,
+        array $contactGroupIds = [],
     ): array;
 
     /**
