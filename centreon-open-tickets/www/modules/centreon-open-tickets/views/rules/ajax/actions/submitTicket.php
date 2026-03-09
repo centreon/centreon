@@ -52,6 +52,8 @@ function get_contact_information()
             'Error while fetching contact information: ' . $e->getMessage(),
             exception: $e
         );
+
+        throw $e;
     }
 
     return $result;
@@ -372,6 +374,7 @@ $sticky = ! empty($centreon->optGen['monitoring_ack_sticky']) ? 2 : 1;
 $notify = ! empty($centreon->optGen['monitoring_ack_notify']) ? 1 : 0;
 
 $persistent = ! empty($centreon->optGen['monitoring_ack_persistent']) ? 1 : 0;
+$ownTransaction = false;
 
 try {
     $contact_infos = get_contact_information();
@@ -458,12 +461,14 @@ try {
         foreach ($selected['service_selected'] as $value) {
             $fullMacroName = '$_SERVICE' . $macroName . '$';
             $macroId = getTicketMacroId('service', $fullMacroName, $value['service_id']);
+            $isUniqueService = isServiceUnique($value['service_id']);
 
-            if (! is_null($macroId)) {
-                updateMacroValue('service', $resultat['result']['ticket_id'], $macroId);
-                // need to avoid creating macros on services linked to multiple hosts or to hg otherwise we can create many open ticket bugs
-            } elseif (isServiceUnique($value['service_id'])) {
-                insertNewMacroValue('service', $fullMacroName, $resultat['result']['ticket_id'], $value['service_id']);
+            if ($isUniqueService) {
+                if (! is_null($macroId)) {
+                    updateMacroValue('service', $resultat['result']['ticket_id'], $macroId);
+                } else {
+                    insertNewMacroValue('service', $fullMacroName, $resultat['result']['ticket_id'], $value['service_id']);
+                }
             }
 
             $command = 'CHANGE_CUSTOM_SVC_VAR;%s;%s;%s;%s';

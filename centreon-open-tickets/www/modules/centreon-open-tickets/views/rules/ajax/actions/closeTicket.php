@@ -230,6 +230,8 @@ foreach ($dbResult as $row) {
     $hosts_done[$row['host_name'] . ';' . $row['description']] = 1;
 }
 
+$ownTransaction = false;
+
 try {
     $centreon_provider->closeTicket($tickets);
     require_once $centreon_path . 'www/class/centreonExternalCommand.class.php';
