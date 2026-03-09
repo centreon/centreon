@@ -78,6 +78,7 @@ final class PartialUpdateHostTemplate
 
     public function __construct(
         private readonly ReadHostTemplateRepositoryInterface $readHostTemplateRepository,
+        private readonly InheritanceManager $inheritanceManager,
         private readonly ReadHostMacroRepositoryInterface $readHostMacroRepository,
         private readonly ReadCommandMacroRepositoryInterface $readCommandMacroRepository,
         private readonly WriteHostMacroRepositoryInterface $writeHostMacroRepository,
@@ -485,9 +486,11 @@ final class PartialUpdateHostTemplate
 
         /** @var array<string,CommandMacro> */
         $commandMacros = [];
-        if ($hostTemplate->getCheckCommandId() !== null) {
+        $effectiveCommandId = $hostTemplate->getCheckCommandId()
+            ?? $this->inheritanceManager->findInheritedCheckCommandId($inheritanceLine);
+        if ($effectiveCommandId !== null) {
             $existingCommandMacros = $this->readCommandMacroRepository->findByCommandIdAndType(
-                $hostTemplate->getCheckCommandId(),
+                $effectiveCommandId,
                 CommandMacroType::Host
             );
 

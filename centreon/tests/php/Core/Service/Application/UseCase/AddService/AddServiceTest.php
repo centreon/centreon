@@ -33,6 +33,8 @@ use Core\Application\Common\UseCase\ForbiddenResponse;
 use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\Command;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
+use Core\CommandMacro\Domain\Model\CommandMacro;
+use Core\CommandMacro\Domain\Model\CommandMacroType;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Common\Domain\YesNoDefault;
@@ -64,6 +66,8 @@ use Core\ServiceGroup\Application\Repository\ReadServiceGroupRepositoryInterface
 use Core\ServiceGroup\Application\Repository\WriteServiceGroupRepositoryInterface;
 use Core\ServiceGroup\Domain\Model\ServiceGroup;
 use Core\ServiceGroup\Domain\Model\ServiceGroupRelation;
+use Core\ServiceTemplate\Application\Repository\ReadServiceTemplateRepositoryInterface;
+use Core\ServiceTemplate\Domain\Model\ServiceTemplate;
 use Core\ServiceTemplate\Domain\Model\ServiceTemplateInheritance;
 use Tests\Core\Service\Infrastructure\API\AddService\AddServicePresenterStub;
 
@@ -95,6 +99,7 @@ beforeEach(function (): void {
         $this->readCommandRepository = $this->createMock(ReadCommandRepositoryInterface::class),
         $this->writeAccessGroupRepository = $this->createMock(WriteAccessGroupRepositoryInterface::class),
         $this->adminResolver = $this->createMock(AdminResolver::class),
+        $this->readServiceTemplateRepository = $this->createMock(ReadServiceTemplateRepositoryInterface::class),
     );
 
     $this->request = new AddServiceRequest();
@@ -788,4 +793,99 @@ it('should present an AddServiceResponse when everything has gone well', functio
             ['id' => $categoryB->getId(), 'name' => $categoryB->getName()],
         ]
     );
+});
+
+it('should load command macros from an inherited template command when the service defines none', function (): void {
+    $request = new AddServiceRequest();
+    $request->name = 'fake_name';
+    $request->hostId = 1;
+    $request->serviceTemplateParentId = 10;
+    $request->commandId = null;
+    $request->serviceCategories = [];
+    $request->serviceGroups = [];
+
+    $newServiceId = 99;
+    $inheritedCommandId = 42;
+    $serviceTemplateInheritances = [
+        new ServiceTemplateInheritance(9, $newServiceId),
+        new ServiceTemplateInheritance(8, 9),
+        new ServiceTemplateInheritance(1, 8),
+    ];
+
+    $serviceFound = new Service(id: $newServiceId, name: $request->name, hostId: $request->hostId);
+    $commandMacro = new CommandMacro(1, CommandMacroType::Service, 'MACRO_FROM_TPL');
+    $templateWithCommand = new ServiceTemplate(9, 'tpl-9', 'tpl-9-alias', commandId: $inheritedCommandId);
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->exactly(2))
+        ->method('isAdmin')
+        ->willReturn(true);
+
+    $this->validation->expects($this->once())->method('assertIsValidServiceTemplate');
+    $this->validation->expects($this->once())->method('assertIsValidCommandForOnPremPlatform');
+    $this->validation->expects($this->once())->method('assertIsValidHost');
+    $this->validation->expects($this->once())->method('assertServiceName');
+    $this->validation->expects($this->once())->method('assertIsValidServiceCategories');
+    $this->validation->expects($this->once())->method('assertIsValidServiceGroups');
+
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn(['inheritance_mode' => $this->inheritanceModeOption]);
+
+    $this->writeServiceRepository
+        ->expects($this->once())
+        ->method('add')
+        ->willReturn($newServiceId);
+
+    $this->readServiceRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn($serviceTemplateInheritances);
+    $this->readServiceMacroRepository
+        ->expects($this->exactly(2))
+        ->method('findByServiceIds')
+        ->willReturnMap([
+            [9, 8, 1, []],
+            [$newServiceId, []],
+        ]);
+
+    $this->readServiceTemplateRepository
+        ->expects($this->once())
+        ->method('findByIds')
+        ->willReturn([$templateWithCommand]);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Service)
+        ->willReturn([$commandMacro->getName() => $commandMacro]);
+
+    $this->readMonitoringServerRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn(new MonitoringServer(1, 'ms-name'));
+    $this->writeMonitoringServerRepository
+        ->expects($this->once())
+        ->method('notifyConfigurationChange');
+
+    $this->readServiceRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($serviceFound);
+    $this->readServiceCategoryRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn([]);
+    $this->readServiceGroupRepository
+        ->expects($this->once())
+        ->method('findByService')
+        ->willReturn([]);
+
+    ($this->addUseCase)($request, $this->useCasePresenter);
+
+    expect($this->useCasePresenter->response)->toBeInstanceOf(AddServiceResponse::class);
 });

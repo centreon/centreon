@@ -42,6 +42,7 @@ use Core\Common\Application\Converter\YesNoDefaultConverter;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Host\Application\Converter\HostEventConverter;
+use Core\Host\Application\InheritanceManager;
 use Core\Host\Domain\Model\HostEvent;
 use Core\Host\Domain\Model\SnmpVersion;
 use Core\HostCategory\Application\Repository\ReadHostCategoryRepositoryInterface;
@@ -74,6 +75,7 @@ beforeEach(function (): void {
 
     $this->useCase = new PartialUpdateHostTemplate(
         $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
+        $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         $this->readHostMacroRepository = $this->createMock(ReadHostMacroRepositoryInterface::class),
         $this->readCommandMacroRepository = $this->createMock(ReadCommandMacroRepositoryInterface::class),
         $this->writeHostMacroRepository = $this->createMock(WriteHostMacroRepositoryInterface::class),

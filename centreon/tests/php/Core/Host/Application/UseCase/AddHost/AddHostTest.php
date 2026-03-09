@@ -44,6 +44,7 @@ use Core\Contact\Domain\AdminResolver;
 use Core\Domain\Common\GeoCoords;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
+use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteRealTimeHostRepositoryInterface;
@@ -80,6 +81,7 @@ beforeEach(function (): void {
         readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
         writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
         readHostTemplateRepository: $this->readHostTemplateRepository = $this->createMock(ReadHostTemplateRepositoryInterface::class),
+        inheritanceManager: $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         readHostCategoryRepository: $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         readHostGroupRepository: $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
         writeHostCategoryRepository: $this->writeHostCategoryRepository = $this->createMock(WriteHostCategoryRepositoryInterface::class),

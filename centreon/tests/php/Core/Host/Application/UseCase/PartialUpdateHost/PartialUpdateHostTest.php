@@ -43,6 +43,7 @@ use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
 use Core\Contact\Domain\AdminResolver;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Host\Application\Exception\HostException;
+use Core\Host\Application\InheritanceManager;
 use Core\Host\Application\Repository\ReadHostRepositoryInterface;
 use Core\Host\Application\Repository\WriteHostRepositoryInterface;
 use Core\Host\Application\UseCase\PartialUpdateHost\PartialUpdateHost;
@@ -74,6 +75,7 @@ beforeEach(function (): void {
     $this->useCase = new PartialUpdateHost(
         writeHostRepository: $this->writeHostRepository = $this->createMock(WriteHostRepositoryInterface::class),
         readHostRepository: $this->readHostRepository = $this->createMock(ReadHostRepositoryInterface::class),
+        inheritanceManager: $this->inheritanceManager = $this->createMock(InheritanceManager::class),
         writeMonitoringServerRepository: $this->writeMonitoringServerRepository = $this->createMock(WriteMonitoringServerRepositoryInterface::class),
         readHostCategoryRepository: $this->readHostCategoryRepository = $this->createMock(ReadHostCategoryRepositoryInterface::class),
         readHostGroupRepository: $this->readHostGroupRepository = $this->createMock(ReadHostGroupRepositoryInterface::class),
@@ -906,6 +908,89 @@ it('should present a NoContentResponse on success', function (): void {
     $this->writeHostMacroRepository
         ->expects($this->once())
         ->method('update');
+
+    ($this->useCase)($this->request, $this->presenter, $this->hostId);
+
+    expect($this->presenter->response)->toBeInstanceOf(NoContentResponse::class);
+});
+
+it('should load command macros from an inherited check command when the host defines none', function (): void {
+    $this->request->checkCommandId = null;
+
+    $this->user
+        ->expects($this->once())
+        ->method('hasTopologyRole')
+        ->willReturn(true);
+    $this->user
+        ->expects($this->exactly(4))
+        ->method('isAdmin')
+        ->willReturn(true);
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('findById')
+        ->willReturn($this->originalHost);
+
+    $this->optionService
+        ->expects($this->once())
+        ->method('findSelectedOptions')
+        ->willReturn([$this->inheritanceModeOption]);
+
+    $this->validation->expects($this->once())->method('assertIsValidName');
+    $this->validation->expects($this->once())->method('assertIsValidSeverity');
+    $this->validation->expects($this->once())->method('assertIsValidTimezone');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidTimePeriod');
+    $this->validation->expects($this->exactly(2))->method('assertIsValidCommand');
+    $this->validation->expects($this->once())->method('assertIsValidIcon');
+
+    $this->writeHostRepository
+        ->expects($this->once())
+        ->method('update');
+
+    // Categories
+    $this->validation->expects($this->once())->method('assertAreValidCategories');
+    $this->readHostCategoryRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn([$this->categoryA]);
+    $this->writeHostCategoryRepository->expects($this->once())->method('linkToHost');
+    $this->writeHostCategoryRepository->expects($this->once())->method('unlinkFromHost');
+
+    // Groups
+    $this->validation->expects($this->once())->method('assertAreValidGroups');
+    $this->readHostGroupRepository
+        ->expects($this->once())
+        ->method('findByHost')
+        ->willReturn([$this->groupA]);
+    $this->writeHostGroupRepository->expects($this->once())->method('linkToHost');
+    $this->writeHostGroupRepository->expects($this->once())->method('unlinkFromHost');
+
+    // Parent templates
+    $this->validation->expects($this->once())->method('assertAreValidTemplates');
+    $this->writeHostRepository->expects($this->once())->method('deleteParents');
+    $this->writeHostRepository->expects($this->exactly(2))->method('addParent');
+
+    // Macros: host has no checkCommandId; InheritanceManager resolves it from a parent template
+    $inheritedCommandId = 42;
+    $this->readHostRepository
+        ->expects($this->once())
+        ->method('findParents')
+        ->willReturn($this->inheritanceLineIds);
+    $this->readHostMacroRepository
+        ->expects($this->once())
+        ->method('findByHostIds')
+        ->willReturn($this->hostMacros);
+    $this->inheritanceManager
+        ->expects($this->once())
+        ->method('findInheritedCheckCommandId')
+        ->willReturn($inheritedCommandId);
+    $this->readCommandMacroRepository
+        ->expects($this->once())
+        ->method('findByCommandIdAndType')
+        ->with($inheritedCommandId, CommandMacroType::Host)
+        ->willReturn($this->commandMacros);
+    $this->writeHostMacroRepository->expects($this->once())->method('delete');
+    $this->writeHostMacroRepository->expects($this->once())->method('add');
+    $this->writeHostMacroRepository->expects($this->once())->method('update');
 
     ($this->useCase)($this->request, $this->presenter, $this->hostId);
 
