@@ -37,12 +37,12 @@ final class GetMedia
 {
     use LoggerTrait;
 
-    /*
-        * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
-        * @param ReadMediaRepositoryInterface $readMediaRepository
-        * @param ContactInterface $user
-        * @param AdminResolver $adminResolver
-        */
+    /**
+     * @param ReadAccessGroupRepositoryInterface $readAccessGroupRepository
+     * @param ReadMediaRepositoryInterface $readMediaRepository
+     * @param ContactInterface $user
+     * @param AdminResolver $adminResolver
+     */
     public function __construct(
         private readonly ReadAccessGroupRepositoryInterface $readAccessGroupRepository,
         private readonly ReadMediaRepositoryInterface $readMediaRepository,
@@ -54,7 +54,6 @@ final class GetMedia
     public function __invoke(int $mediaId): GetMediaResponse|ResponseStatusInterface
     {
         try {
-
             $media = null;
 
             if ($this->adminResolver->isAdmin($this->user)) {

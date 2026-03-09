@@ -33,6 +33,7 @@ use Core\Media\Application\UseCase\GetMedia\GetMedia;
 use Core\Media\Application\UseCase\GetMedia\GetMediaResponse;
 use Core\Media\Domain\Model\Media;
 use Core\Security\AccessGroup\Application\Repository\ReadAccessGroupRepositoryInterface;
+use Core\Security\AccessGroup\Domain\Model\AccessGroup;
 
 beforeEach(function (): void {
     $this->useCase = new GetMedia(
@@ -117,6 +118,8 @@ it('should present a GetMediaResponse as admin', function (): void {
 });
 
 it('should present a GetMediaResponse as non-admin user', function (): void {
+    $accessGroup = new AccessGroup(1, 'group1', 'group1_alias');
+
     $this->adminResolver
         ->expects($this->once())
         ->method('isAdmin')
@@ -125,7 +128,7 @@ it('should present a GetMediaResponse as non-admin user', function (): void {
     $this->readAccessGroupRepository
         ->expects($this->once())
         ->method('findByContact')
-        ->willReturn([]);
+        ->willReturn([$accessGroup]);
 
     $this->readMediaRepository
         ->expects($this->once())
@@ -151,4 +154,33 @@ it('should present a GetMediaResponse as non-admin user', function (): void {
         ->toEqual($this->media->getDirectory())
         ->and($response->md5)
         ->toEqual($this->media->getEqualityHash());
+});
+
+it('should present a NotFoundResponse as non-admin user when media is not accessible via access groups', function (): void {
+    $accessGroup = new AccessGroup(1, 'group1', 'group1_alias');
+    $this->adminResolver
+        ->expects($this->once())
+        ->method('isAdmin')
+        ->willReturn(false);
+
+    $this->readAccessGroupRepository
+        ->expects($this->once())
+        ->method('findByContact')
+        ->willReturn([$accessGroup]);
+
+    $this->readMediaRepository
+        ->expects($this->once())
+        ->method('existsByAccessGroups')
+        ->willReturn(false);
+
+    $this->readMediaRepository
+        ->expects($this->never())
+        ->method('findById');
+
+    $response = ($this->useCase)($this->media->getId());
+
+    expect($response)
+        ->toBeInstanceOf(NotFoundResponse::class)
+        ->and($response->getMessage())
+        ->toBe('Media not found');
 });

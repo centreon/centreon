@@ -88,7 +88,7 @@ interface ReadMediaRepositoryInterface
     public function findByIds(array $mediaIds): array;
 
     /**
-     * Return true if media is found the the provided access groups
+     * Return true if media is found the provided access groups
      *
      * @param int $mediaId
      * @param AccessGroup[] $accessGroups

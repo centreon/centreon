@@ -86,7 +86,7 @@ it('should present an NotFoundResponse; when media is not found', function (): v
         ->toBe('Media not found');
 });
 
-it('should present an NotContentResponse; when media is successfully deleted', function (): void {
+it('should present an NoContentResponse; when media is successfully deleted', function (): void {
     $this->writeMediaRepository
         ->expects($this->once())
         ->method('delete');

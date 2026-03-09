@@ -41,7 +41,6 @@ final class DeleteMedia
      * @param ReadMediaRepositoryInterface $readMediaRepository
      * @param WriteMediaRepositoryInterface $writeMediaRepository
      * @param ContactInterface $user
-     * @param AdminResolver $adminResolver
      */
     public function __construct(
         private readonly ReadMediaRepositoryInterface $readMediaRepository,

@@ -445,11 +445,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
 
         $statement = $this->db->prepare($this->translateDbName(
             <<<SQL
-                SELECT
-                    `img`.img_id,
-                    `img`.img_path,
-                    `img`.img_comment,
-                    `dir`.dir_name
+                SELECT 1
                 FROM `:db`.`view_img` img
                 INNER JOIN `:db`.`view_img_dir_relation` rel
                     ON rel.img_img_id = img.img_id
@@ -461,6 +457,7 @@ class DbReadMediaRepository extends AbstractRepositoryRDB implements ReadMediaRe
                     ON argr.acl_res_id = amdr.acl_res_id
                     AND argr.acl_group_id IN ({$bindQuery})
                 WHERE `img`.img_id = :mediaId
+                LIMIT 1
                 SQL
         ));
 
