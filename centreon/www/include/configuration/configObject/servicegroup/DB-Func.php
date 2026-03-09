@@ -281,6 +281,11 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
 
     $ruleIds = $submittedValues['resource_access_rules'];
 
+    /**
+     * Before linking a service group to ACL resources, we must remove all previous relationships.
+     * @see linkServiceGroupToDataset
+     */
+    deleteServiceGroupToDataset($serviceGroupId);
     foreach ($ruleIds as $ruleId) {
         $datasets = findDatasetsByRuleId($ruleId);
 
@@ -320,11 +325,19 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
             try {
                 linkServiceGroupToDataset(datasetId: $serviceGroupDatasetFilters[0]['dataset_id'], serviceGroupId: $serviceGroupId);
                 // Expend the existing hostgroup dataset_filter
-                $expendedResourceIds = $serviceGroupDatasetFilters[0]['dataset_filter_resources'] . ', ' . $serviceGroupId;
+                $existingResourceIds = explode(',', $serviceGroupDatasetFilters[0]['dataset_filter_resources']);
+                /**
+                 * Removes duplicates that the code may have introduced before correction.
+                 * This way, the dataset_filters.resource_ids column no longer has duplicates.
+                 */
+                $existingResourceIds = array_unique($existingResourceIds);
+                if (! in_array($serviceGroupId, $existingResourceIds)) {
+                    $existingResourceIds[] = $serviceGroupId;
+                }
 
                 updateDatasetFiltersResourceIds(
                     datasetFilterId: $serviceGroupDatasetFilters[0]['dataset_filter_id'],
-                    resourceIds: $expendedResourceIds
+                    resourceIds: implode(',', $existingResourceIds)
                 );
                 $pearDB->commit();
             } catch (Throwable $exception) {
@@ -351,6 +364,20 @@ function updateDatasetFiltersResourceIds(int $datasetFilterId, string $resourceI
     $statement = $pearDB->prepare($request);
     $statement->bindValue(':datasetFilterId', $datasetFilterId, PDO::PARAM_INT);
     $statement->bindValue(':resourceIds', $resourceIds, PDO::PARAM_STR);
+    $statement->execute();
+}
+
+/**
+ * @param int $serviceGroupId
+ *
+ * @return void
+ */
+function deleteServiceGroupToDataset(int $serviceGroupId): void
+{
+    global $pearDB;
+    $request = 'DELETE FROM acl_resources_sg_relations WHERE sg_id = :serviceGroupId';
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':serviceGroupId', $serviceGroupId, PDO::PARAM_INT);
     $statement->execute();
 }
 
