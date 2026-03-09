@@ -35,11 +35,11 @@ use Pimple\Container;
 class CentreonWorker implements CentreonClapiServiceInterface
 {
     /** @var Container */
-    private $di;
+    private $container;
 
     public function __construct(Container $di)
     {
-        $this->di = $di;
+        $this->container = $di;
     }
 
     /**
@@ -62,7 +62,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
      */
     public function processQueue(): void
     {
-        $commandTimeout = $this->di['worker.commandTimeout'] ?? null;
+        $commandTimeout = $this->container['worker.commandTimeout'] ?? null;
 
         if ($commandTimeout !== null) {
             $deleted = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]
@@ -131,7 +131,7 @@ class CentreonWorker implements CentreonClapiServiceInterface
 
     public function getDi(): Container
     {
-        return $this->di;
+        return $this->container;
     }
 
     /**
