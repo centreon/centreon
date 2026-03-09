@@ -16,14 +16,6 @@ on:
         required: false
         type: string
     outputs:
-      test_plan_key_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma8 }}
-      test_plan_id_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_id_alma8 }}
-      test_execution_key_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_key_alma8 }}
-      test_execution_id_alma8:
-        value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_execution_id_alma8 }}
       test_plan_key_alma9:
         value: ${{ jobs.create-xray-test-plan-and-test-execution.outputs.test_plan_key_alma9 }}
       test_plan_id_alma9:
@@ -63,10 +55,6 @@ jobs:
   create-xray-test-plan-and-test-execution:
     runs-on: ubuntu-24.04
     outputs:
-      test_plan_key_alma8: ${{ steps.get_test_plan_key.outputs.test_plan_key_alma8 }}
-      test_plan_id_alma8: ${{ steps.get_test_plan_id.outputs.test_plan_id_alma8 }}
-      test_execution_key_alma8: ${{ steps.get_test_execution_key.outputs.test_execution_key_alma8 }}
-      test_execution_id_alma8: ${{ steps.get_test_execution_id.outputs.test_execution_id_alma8 }}
       test_plan_key_alma9: ${{ steps.get_test_plan_key.outputs.test_plan_key_alma9 }}
       test_plan_id_alma9: ${{ steps.get_test_plan_id.outputs.test_plan_id_alma9 }}
       test_execution_key_alma9: ${{ steps.get_test_execution_key.outputs.test_execution_key_alma9 }}
@@ -220,10 +208,6 @@ jobs:
 
           linux_distribution=''
           case "${{ inputs.os }}" in
-            alma8)
-              linux_distribution="ALMA8"
-              mariadb_version="MARIADB_10_5"
-              ;;
             alma9)
               linux_distribution="ALMA9"
               mariadb_version="MARIADB_10_5"
