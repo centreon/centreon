@@ -37,9 +37,9 @@ class CentreonWorker implements CentreonClapiServiceInterface
     /** @var Container */
     private $container;
 
-    public function __construct(Container $di)
+    public function __construct(Container $container)
     {
-        $this->container = $di;
+        $this->container = $container;
     }
 
     /**

@@ -84,6 +84,14 @@ const LoginForm = (): JSX.Element => {
         onChange={handleChange(aliasFieldName)}
         required
         StartAdornment={PersonIcon}
+        textFieldSlotsAndSlotProps={{
+          slotProps: {
+            htmlInput: {
+              'aria-label': t(labelAlias) as string,
+              autoComplete: 'username'
+            }
+          }
+        }}
         value={aliasValue || ''}
       />
       <TextField

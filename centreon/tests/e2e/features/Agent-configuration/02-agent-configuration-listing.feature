@@ -8,7 +8,7 @@ Feature: Access an Agent Configuration
   Scenario: Access to Agents Configuration page
     Given a non-admin user is logged in
     When the user clicks on the Agents Configuration page
-    Then the user sees the Agents Configuration page
+    Then A CMA agent configuration is present by default
 
   @TEST_MON-151996
   Scenario: List all information of an agent configuration
