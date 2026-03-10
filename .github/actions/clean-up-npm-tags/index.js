@@ -10,8 +10,9 @@ const getOidcToken = async () => {
   const response = await fetch(tokenUrl, {
     headers: { Authorization: `bearer ${requestToken}` }
   });
-  const { token } = await response.json();
-  return token;
+  const body = await response.json();
+  core.debug(`OIDC response: ${JSON.stringify(body)}`);
+  return body.value;
 }
 
 const getNpmToken = async (oidcToken) => {
@@ -20,11 +21,9 @@ const getNpmToken = async (oidcToken) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token: oidcToken })
   });
-  if (response.status !== 200) {
-    console.log(response.json());
-  }
-  const { token: npmToken } = await response.json();
-  return npmToken;
+  const body = await response.json();
+  core.debug(`NPMToken response: ${JSON.stringify(body)}`);
+  return body.token;
 };
 
 const getPackageInformation = async (dependency) => {
