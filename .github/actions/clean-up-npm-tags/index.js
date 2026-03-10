@@ -11,7 +11,7 @@ const getOidcToken = async () => {
     headers: { Authorization: `bearer ${requestToken}` }
   });
   const body = await response.json();
-  core.debug(`OIDC response: ${JSON.stringify(body)}`);
+  core.info(`OIDC response: ${JSON.stringify(body)}`);
   return body.value;
 }
 
@@ -22,7 +22,7 @@ const getNpmToken = async (oidcToken) => {
     body: JSON.stringify({ token: oidcToken })
   });
   const body = await response.json();
-  core.debug(`NPMToken response: ${JSON.stringify(body)}`);
+  core.info(`NPMToken response: ${JSON.stringify(body)}`);
   return body.token;
 };
 
