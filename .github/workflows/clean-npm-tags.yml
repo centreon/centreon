@@ -30,5 +30,3 @@ jobs:
         shell: bash
 
       - uses: ./.github/actions/clean-up-npm-tags
-        with:
-          npm_token: ${{ secrets.NPM_TOKEN }}
