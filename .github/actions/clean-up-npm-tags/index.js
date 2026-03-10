@@ -3,7 +3,28 @@ import core from '@actions/core';
 
 const packages = ['js-config', 'ui-context', 'ui'];
 
-const getPackageInformations = async (dependency) => {
+const getOidcToken = async () => {
+  const tokenUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL + '&audience=npm';
+  const requestToken = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+
+  const response = await fetch(tokenUrl, {
+    headers: { Authorization: `bearer ${requestToken}` }
+  });
+  const { token } = await response.json();
+  return token;
+}
+
+const getNpmToken = async (oidcToken) => {
+  const response = await fetch('https://registry.npmjs.org/-/v1/login/oidc', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: oidcToken })
+  });
+  const { token: npmToken } = await response.json();
+  return npmToken;
+};
+
+const getPackageInformation = async (dependency) => {
   const response = await fetch(
     `https://registry.npmjs.org/@centreon/${dependency}`
   );
@@ -29,15 +50,13 @@ const checkAndCleanUpTag = async ({ dependency, branch }) => {
 };
 
 const run = async () => {
-  core.info('Logging in to NPM registry...');
-  execSync(
-    `npm config set "//registry.npmjs.org/:_authToken" "${core.getInput('npm_token')}"`
-  );
-  core.info('Logged in');
+  const oidcToken = await getOidcToken();
+  const npmToken = await (getNpmToken(oidcToken));
+  execSync(`npm config set "//registry.npmjs.org/:_authToken" "${npmToken}"`);
 
   await Promise.all(
     packages.map(async (dependency) => {
-      const packageInformations = await getPackageInformations(dependency);
+      const packageInformations = await getPackageInformation(dependency);
       core.debug(`Processing tags for ${dependency}...`);
 
       const distTags = packageInformations['dist-tags'];
