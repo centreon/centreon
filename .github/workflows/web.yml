@@ -928,8 +928,8 @@ jobs:
         id: from_image_version
         uses: ./.github/actions/get-docker-from-image-version
         with:
-          from_image:    centreon-web-dependencies-collect-${{ matrix.operating_system }}
-          current_tag:   ${{ steps.image_tag.outputs.tag }}
+          from_image: centreon-web-dependencies-collect-${{ matrix.operating_system }}
+          current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
