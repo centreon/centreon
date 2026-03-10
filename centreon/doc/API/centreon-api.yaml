@@ -630,7 +630,7 @@ paths:
           explode: false
           example: 10
   '/configuration/hosts/{host_id}':
-    $ref: ./latest/onPremise/Configuration/Host/DeleteAndPartialUpdateHost.yaml
+    $ref: ./latest/onPremise/Configuration/Host/GetAndDeleteAndPartialUpdateHost.yaml
   /configuration/hosts/templates:
     $ref: ./latest/onPremise/Configuration/HostTemplate/AddAndFindHostTemplates.yaml
   '/configuration/hosts/templates/{host_template_id}':

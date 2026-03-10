@@ -63,4 +63,14 @@ interface WriteServiceRepositoryInterface
      * @throws \Throwable
      */
     public function update(Service $service): void;
+
+    /**
+     * Delete deployed services on a host that are based on a given service template.
+     *
+     * @param int $hostId
+     * @param int $serviceTemplateId
+     *
+     * @throws \Throwable
+     */
+    public function deleteByHostIdAndServiceTemplateId(int $hostId, int $serviceTemplateId): void;
 }
