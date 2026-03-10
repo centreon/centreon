@@ -50,6 +50,7 @@ export interface CMAConfiguration {
   otelPrivateKey: string | null;
   hosts: Array<HostConfiguration>;
   tokens?: Array<{ name: string; creatorId: number }>;
+  createHostAuto?: boolean;
 }
 
 export interface TelegrafConfigurationAPI {
@@ -77,7 +78,8 @@ export interface CMAConfigurationAPI {
   otel_private_key: string | null;
   hosts: Array<HostConfigurationToAPI>;
   connection_mode: string;
-  tokens?: Array<{ name: string; creatorId: number }>; // optional for now
+  tokens?: Array<{ name: string; creatorId: number }>;
+  create_host_auto?: boolean;
 }
 
 export interface AgentConfiguration

@@ -200,11 +200,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el9, bookworm]
         include:
-          - package_extension: rpm
-            image: packaging-nfpm-alma8
-            distrib: el8
           - package_extension: rpm
             image: packaging-nfpm-alma9
             distrib: el9
@@ -300,7 +297,7 @@ jobs:
 
     strategy:
       matrix:
-        distrib: [el8, el9]
+        distrib: [el9]
 
     steps:
       - name: Checkout sources
@@ -365,7 +362,7 @@ jobs:
     runs-on: centreon-common
     strategy:
       matrix:
-        distrib: [el8, el9, bookworm]
+        distrib: [el9, bookworm]
 
     steps:
       - name: Checkout sources

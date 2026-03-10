@@ -770,12 +770,56 @@ paths:
   '/configuration/hosts/{host_id}/services/deploy':
     $ref: ./latest/onPremise/Configuration/Service/DeployServices.yaml
   /configuration/services/categories:
-    summary: "Service categories"
-    description: 'Endpoints to manage service categories'
+    get:
+      tags:
+        - 'Service category'
+      summary: 'List all service categories'
+      description: |
+        Return all service category configurations.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * alias
+        * is_activated
+        * host.id
+        * host.name
+        * hostgroup.id
+        * hostgroup.name
+        * hostcategory.id
+        * hostcategory.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceCategory'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
     post:
       operationId: _api_/configuration/services/categories_post
       tags:
-        - ServiceCategory
+        - 'Service category'
       responses:
         '409':
           description: 'ServiceCategory resource already exists'
@@ -840,7 +884,7 @@ paths:
     delete:
       operationId: DeleteServiceCategory
       tags:
-        - 'Host category'
+        - 'Service category'
       summary: 'Delete a service category'
       description: |
         Delete a service category configuration
@@ -874,6 +918,7 @@ paths:
       summary: 'List all real-time service categories'
       description: |
         List of all service categories in real-time context
+
         The available parameters to **search** / **sort_by** are:
 
         * id
@@ -886,6 +931,15 @@ paths:
         * host_category.name
         * service_group.id
         * service_group.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1079,6 +1133,11 @@ paths:
         * hostcategory.name
         * servicecategory.id
         * servicecategory.name
+      parameters:
+        - $ref: '#/components/parameters/Search'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -1133,7 +1192,7 @@ paths:
       operationId: DeleteServiceGroup
       tags:
         - 'Service group'
-      summary: 'Delete a host group'
+      summary: 'Delete a service group'
       description: |
         `internal`
 
@@ -2373,10 +2432,27 @@ paths:
         - 'Host group'
       summary: 'List all host groups by host id'
       description: |
-        List all the host groups in real-time monitoring by host id
+        List all the host groups in real-time monitoring for a specific host.
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * name
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.display_name
+        * host.state
+        * poller.id
+        * service.display_name
+        * host_category.id
+        * host_category.name
       parameters:
         -
           $ref: '#/components/parameters/HostId'
+        -
+          $ref: '#/components/parameters/Search'
         -
           $ref: '#/components/parameters/Limit'
         -
@@ -2411,6 +2487,15 @@ paths:
         * name
         * host_group.id
         * host_group.name
+      parameters:
+        -
+          $ref: '#/components/parameters/Search'
+        -
+          $ref: '#/components/parameters/Limit'
+        -
+          $ref: '#/components/parameters/Page'
+        -
+          $ref: '#/components/parameters/SortBy'
       responses:
         '200':
           description: OK
@@ -2445,7 +2530,6 @@ paths:
         * host.state
         * poller.id
         * service.display_name
-        * host_group.id
         * host_category.id
         * host_category.name
       parameters:
@@ -2499,8 +2583,8 @@ paths:
         * service.display_name
         * host_group.id
         * host_group.name
-        * host_categories.id
-        * host_categories.name
+        * host_category.id
+        * host_category.name
       parameters:
         -
           $ref: '#/components/parameters/ShowService'
@@ -2603,6 +2687,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements'
+      description: |
+        List all acknowledgements (host and service).
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2631,6 +2735,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Massively disacknowledge resources'
+      description: |
+        Remove/cancel acknowledgements on multiple resources (hosts and/or services) at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2651,7 +2759,12 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Display one acknowledgement'
-      description: 'Display one acknowledgement.'
+      description: |
+        Display one acknowledgement by its ID.
+
+        **Minimum API version:** 21.10
+
+        Returns either a host or service acknowledgement depending on the resource type.
       parameters:
         -
           $ref: '#/components/parameters/AcknowledgementId'
@@ -2673,6 +2786,24 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all hosts acknowledgements'
+      description: |
+        List all host acknowledgements.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2700,6 +2831,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on multiple hosts'
+      description: |
+        Add an acknowledgement on multiple hosts at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2720,6 +2855,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all services acknowledgements'
+      description: |
+        List all service acknowledgements.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2747,6 +2902,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on multiple services'
+      description: |
+        Add an acknowledgement on multiple services at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -2767,6 +2926,24 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements of a host'
+      description: |
+        List all acknowledgements for a specific host.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2796,6 +2973,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on chosen host'
+      description: |
+        Add an acknowledgement on a specific host.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2818,6 +2999,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Cancel an acknowledgement on a host'
+      description: |
+        Remove/cancel the current acknowledgement on a host.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2835,6 +3020,26 @@ paths:
       tags:
         - Acknowledgement
       summary: 'List all acknowledgements of a service'
+      description: |
+        List all acknowledgements for a specific service.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2866,6 +3071,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Add an acknowledgement on chosen service'
+      description: |
+        Add an acknowledgement on a specific service.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2890,6 +3099,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Cancel an acknowledgement on a service'
+      description: |
+        Remove/cancel the current acknowledgement on a service.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/HostId'
@@ -2910,6 +3123,26 @@ paths:
         - Acknowledgement
         - 'Meta service'
       summary: 'List all acknowledgements of a metaservice'
+      description: |
+        List all acknowledgements for a specific metaservice.
+
+        **Minimum API version:** 21.10
+
+        The available parameters to **search** / **sort_by** are:
+        * id
+        * author_id
+        * comment
+        * entry_time
+        * deletion_time
+        * host_id
+        * service_id
+        * service.display_name
+        * is_notify_contacts
+        * is_persistent_comment
+        * is_sticky
+        * poller_id
+        * state
+        * type
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -2938,7 +3171,12 @@ paths:
     post:
       tags:
         - Acknowledgement
+        - 'Meta service'
       summary: 'Add an acknowledgement on chosen metaservice'
+      description: |
+        Add an acknowledgement on a specific metaservice.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/MetaId'
@@ -2960,7 +3198,12 @@ paths:
     delete:
       tags:
         - Acknowledgement
+        - 'Meta service'
       summary: 'Cancel an acknowledgement on a metaservice'
+      description: |
+        Remove/cancel the current acknowledgement on a metaservice.
+
+        **Minimum API version:** 21.10
       parameters:
         -
           $ref: '#/components/parameters/MetaId'
@@ -3010,6 +3253,8 @@ paths:
           * poller.id
           * contact.id
           * contact.name
+          * service.id
+          * service.display_name
       responses:
         '200':
           description: OK
@@ -3075,24 +3320,17 @@ paths:
 
         The available parameters to **search** / **sort_by** are:
 
-          * id
-          * entry_time
-          * is_cancelled
-          * comment
-          * deletion_time
-          * duration
-          * end_time
-          * is_fixed
-          * start_time
-          * host.id
-          * host.name
-          * host.alias
-          * host.address
-          * host.display_name
-          * host.state
-          * poller.id
-          * contact.id
-          * contact.name
+        * id
+        * entry_time
+        * is_cancelled
+        * comment
+        * deletion_time
+        * duration
+        * end_time
+        * is_fixed
+        * start_time
+        * contact.id
+        * contact.name
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -3119,7 +3357,7 @@ paths:
     post:
       tags:
         - Downtime
-      summary: 'Add an downtime on multiple hosts'
+      summary: 'Add a downtime on multiple hosts'
       requestBody:
         required: true
         content:
@@ -3140,6 +3378,29 @@ paths:
       tags:
         - Downtime
       summary: 'List all services downtimes'
+      description: |
+        List all downtimes of services
+
+        The available parameters to **search** / **sort_by** are:
+
+        * id
+        * entry_time
+        * is_cancelled
+        * comment
+        * deletion_time
+        * duration
+        * end_time
+        * is_fixed
+        * start_time
+        * host.id
+        * host.name
+        * host.alias
+        * host.address
+        * host.display_name
+        * host.state
+        * poller.id
+        * contact.id
+        * contact.name
       parameters:
         -
           $ref: '#/components/parameters/Search'
@@ -3149,29 +3410,6 @@ paths:
           $ref: '#/components/parameters/Page'
         -
           $ref: '#/components/parameters/SortBy'
-      description: |
-        List all downtimes of services
-
-        The available parameters to **search** / **sort_by** are:
-
-          * id
-          * entry_time
-          * is_cancelled
-          * comment
-          * deletion_time
-          * duration
-          * end_time
-          * is_fixed
-          * start_time
-          * host.id
-          * host.name
-          * host.alias
-          * host.address
-          * host.display_name
-          * host.state
-          * poller.id
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3189,7 +3427,7 @@ paths:
     post:
       tags:
         - Downtime
-      summary: 'Add an downtime on multiple services'
+      summary: 'Add a downtime on multiple services'
       requestBody:
         required: true
         content:
@@ -3308,8 +3546,6 @@ paths:
           * end_time
           * is_fixed
           * start_time
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3367,7 +3603,7 @@ paths:
         -
           $ref: '#/components/parameters/MetaId'
       description: |
-        List all downtimes of a service.
+        List all downtimes of a metaservice.
 
         The available parameters to **search** / **sort_by** are:
 
@@ -3380,8 +3616,6 @@ paths:
           * end_time
           * is_fixed
           * start_time
-          * contact.id
-          * contact.name
       responses:
         '200':
           description: OK
@@ -3399,6 +3633,7 @@ paths:
     post:
       tags:
         - Downtime
+        - 'Meta service'
       summary: 'Add a downtime on a metaservice'
       description: 'Add a downtime on a metaservice.'
       parameters:
@@ -3981,6 +4216,10 @@ paths:
       tags:
         - Acknowledgement
       summary: 'Acknowledge multiple resources'
+      description: |
+        Add acknowledgements on multiple resources (hosts and/or services) at once.
+
+        **Minimum API version:** 21.10
       requestBody:
         required: true
         content:
@@ -6608,11 +6847,6 @@ components:
           type: string
           description: 'IP address of the server'
           example: 127.0.0.1
-          nullable: true
-        description:
-          type: string
-          description: 'Description of the server'
-          example: 'Central server'
           nullable: true
         isRunning:
           type: boolean

@@ -114,3 +114,4 @@ export const labelCopyCommand = 'Copy command';
 export const labelCommandCopied = 'Command copied!';
 export const labelFailedToCopyTheCommand = 'Failed to copy the command!';
 export const labelCommand = 'Command';
+export const labelCreateHostAutomatically = 'Create hosts automatically';

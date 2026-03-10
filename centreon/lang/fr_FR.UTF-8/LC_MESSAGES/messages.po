@@ -3730,6 +3730,10 @@ msgid "Create dashboard"
 msgstr "Créer un tableau de bord"
 
 #: centreon/www/install/front_translate.php
+msgid "Create hosts automatically"
+msgstr "Créer les hôtes automatiquement"
+
+#: centreon/www/install/front_translate.php
 msgid "Create new CMA token"
 msgstr "Créer un nouveau jeton CMA"
 
@@ -6637,6 +6641,10 @@ msgstr ""
 msgid "Error while retrieving remote server information"
 msgstr ""
 
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "Error while retrieving service group"
+msgstr ""
+
 #: centreon/src/Core/Service/Application/Exception/ServiceException.php
 msgid "Error while retrieving service statuses distribution"
 msgstr "Erreur lors de la récupération du statut des services"
@@ -6847,6 +6855,10 @@ msgstr "Erreur lors de la mise à jour de la configuration collecteur/agent"
 msgid "Error while updating a service"
 msgstr "Erreur lors de la mise à jour d'un service"
 
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "Error while updating a service group"
+msgstr ""
+
 #: centreon/src/Core/ServiceTemplate/Application/Exception/ServiceTemplateException.php
 msgid "Error while updating a service template"
 msgstr "Erreur lors de la modification d'un modèle de services"
@@ -6914,6 +6926,7 @@ msgid "Escalations"
 msgstr "Escalades"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
+#: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Event"
 msgstr "Évènement"
@@ -10425,6 +10438,10 @@ msgstr ""
 #: centreon/www/include/options/accessLists/actionsACL/formActionsAccess.php
 msgid "Manage notification commands"
 msgstr ""
+
+#: centreon/www/install/centreon_broker_translation.php
+msgid "Managed event TTL"
+msgstr "Temps de vie de l'événement géré"
 
 #: centreon/www/install/menu_translation.php
 msgid "Manager"
@@ -14463,6 +14480,10 @@ msgstr "Options d'ordonnancement"
 msgid "Scopes"
 msgstr "Portées"
 
+#: centreon/www/install/centreon_broker_translation.php
+msgid "Script path"
+msgstr "Chemin du script"
+
 #: centreon/www/install/front_translate.php
 msgid "Scroll to top"
 msgstr "Défiler vers le haut"
@@ -17337,6 +17358,7 @@ msgid "Timeline"
 msgstr "Historique"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
+#: centreon/www/install/centreon_broker_translation.php
 msgid "Timeout"
 msgstr "Temps d'exécution maximum"
 
@@ -19258,6 +19280,10 @@ msgstr "Vous n'avez pas la permission de mettre à jour un modèle de service"
 #: centreon/src/Core/Media/Application/Exception/MediaException.php
 msgid "You are not allowed to update media"
 msgstr "Vous n'avez pas la permission de mettre à jour des médias"
+
+#: centreon/src/Core/ServiceGroup/Application/Exception/ServiceGroupException.php
+msgid "You are not allowed to update service groups"
+msgstr ""
 
 #: centreon/src/Core/Notification/Application/Exception/NotificationException.php
 msgid "You are not allowed to update the notification configuration"
@@ -21247,6 +21273,12 @@ msgid ""
 msgstr ""
 "Définir la relation entre la valeur d'autorisation et le groupe d'accès : "
 "Vous pouvez lier une valeur d'autorisation à un groupe d'accès."
+
+#: unknown
+msgid ""
+"Delay before the script is called again for the same event (in seconds)"
+msgstr ""
+"Délai avant nouvel appel du script pour un même évènement (en secondes)"
 
 #: unknown
 msgid "Delete a widget"
@@ -23452,6 +23484,10 @@ msgstr "File d'attente"
 #: unknown
 msgid "Scope"
 msgstr "Portée"
+
+#: unknown
+msgid "Script response time before timeout (in seconds)"
+msgstr "Délai de réponse du script avant abandon (en secondes)"
 
 #: unknown
 msgid "Search contact groups"
