@@ -113,7 +113,7 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
-        $row['tp_id'] = null;
+        unset($row['tp_id']);
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {

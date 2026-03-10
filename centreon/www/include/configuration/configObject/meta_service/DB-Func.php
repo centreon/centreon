@@ -378,7 +378,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
         if (! $row) {
             continue;
         }
-        $row['meta_id'] = null;
+        unset($row['meta_id']);
         for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
             $metaName = $row['meta_name'] . '_' . $i;
             $row['meta_name'] = $metaName;
@@ -566,7 +566,7 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
         if (! $row) {
             continue;
         }
-        $row['msr_id'] = null;
+        unset($row['msr_id']);
         for ($i = 1; $i <= $nbrDup[$msrId]; $i++) {
             $columns = array_keys($row);
             $qbInsert = $pearDB->createQueryBuilder();

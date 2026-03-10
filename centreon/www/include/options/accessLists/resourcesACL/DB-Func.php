@@ -184,7 +184,7 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
-        $row['acl_res_id'] = null;
+        unset($row['acl_res_id']);
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
         $insertStmt = $pearDB->prepare(

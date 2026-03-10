@@ -74,7 +74,7 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
-        $row['id'] = null;
+        unset($row['id']);
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
         $insertStmt = $pearDB->prepare(

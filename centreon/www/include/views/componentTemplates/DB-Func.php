@@ -192,7 +192,7 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             continue;
         }
 
-        $row['compo_id'] = null;
+        unset($row['compo_id']);
         $row['default_tpl1'] = '0';
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));

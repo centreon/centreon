@@ -130,7 +130,7 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         if (! $row) {
             continue;
         }
-        $row['cg_id'] = null;
+        unset($row['cg_id']);
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
         $insertStmt = $pearDB->prepare(

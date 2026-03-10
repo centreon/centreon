@@ -256,7 +256,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
-        $row['acl_action_id'] = null;
+        unset($row['acl_action_id']);
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
         $insertStmt = $pearDB->prepare(

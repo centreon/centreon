@@ -94,7 +94,7 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
             continue;
         }
 
-        $row['graph_id'] = null;
+        unset($row['graph_id']);
         $row['default_tpl1'] = '0';
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));

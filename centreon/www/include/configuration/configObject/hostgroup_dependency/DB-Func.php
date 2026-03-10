@@ -155,7 +155,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
             if (! $row) {
                 continue;
             }
-            $row['dep_id'] = null;
+            unset($row['dep_id']);
             for ($i = 1; $i <= $nbrDup[$key]; $i++) {
                 $val = null;
                 foreach ($row as $key2 => $value2) {

@@ -154,7 +154,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
         $statement->execute();
         $row = $statement->fetch();
 
-        $row['sg_id'] = null;
+        unset($row['sg_id']);
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;

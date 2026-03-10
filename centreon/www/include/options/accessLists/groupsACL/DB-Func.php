@@ -181,7 +181,7 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
-        $row['acl_group_id'] = null;
+        unset($row['acl_group_id']);
         $columns = array_keys($row);
         $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
         $insertStmt = $pearDB->prepare(
