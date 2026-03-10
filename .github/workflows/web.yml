@@ -926,36 +926,11 @@ jobs:
 
       - name: Get FROM image tag
         id: from_image_version
-        run: |
-          FROM_IMAGE_VERSION="develop"
-          FROM_IMAGE="centreon-web-dependencies-collect-${{ matrix.operating_system }}"
-          CURRENT_TAG="${{ steps.image_tag.outputs.tag }}"
-
-          IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${CURRENT_TAG} >/dev/null 2>&1 && echo yes || echo no)
-          if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-            FROM_IMAGE_VERSION="${CURRENT_TAG}"
-            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-          elif [[ "${{ github.ref_name }}" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
-            # For dev-XX.YY.x branches: fall back to major_version (original behavior)
-            FROM_IMAGE_VERSION="${{ needs.get-environment.outputs.major_version }}"
-            echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-          elif [[ "${{ github.ref_name }}" != "develop" ]]; then
-            # For feature branches: try develop-<major_version> before falling back to develop
-            DEVELOP_VERSION_TAG="develop-${{ needs.get-environment.outputs.major_version }}"
-            IMAGE_TAG_EXISTS=$(docker manifest inspect ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${FROM_IMAGE}:${DEVELOP_VERSION_TAG} >/dev/null 2>&1 && echo yes || echo no)
-            if [[ "$IMAGE_TAG_EXISTS" == "yes" ]]; then
-              FROM_IMAGE_VERSION="${DEVELOP_VERSION_TAG}"
-              echo "::notice::FROM image $FROM_IMAGE:$FROM_IMAGE_VERSION will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-            else
-              echo "::notice::FROM image $FROM_IMAGE:develop will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-            fi
-          else
-            # For develop branch: fall back to develop
-            echo "::notice::FROM image $FROM_IMAGE:develop will be used to build docker image ${{ env.project }}-${{ matrix.operating_system }}."
-          fi
-
-          echo "from_image_version=$FROM_IMAGE_VERSION" >> $GITHUB_OUTPUT
-        shell: bash
+        uses: ./.github/actions/get-from-image-version
+        with:
+          from_image:    centreon-web-dependencies-collect-${{ matrix.operating_system }}
+          current_tag:   ${{ steps.image_tag.outputs.tag }}
+          major_version: ${{ needs.get-environment.outputs.major_version }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
