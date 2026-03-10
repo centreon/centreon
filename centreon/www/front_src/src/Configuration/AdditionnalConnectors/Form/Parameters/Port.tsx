@@ -1,14 +1,12 @@
-import { ReactElement } from 'react';
+import { NumberField } from '@centreon/ui';
 
 import { useFormikContext } from 'formik';
 import { path } from 'ramda';
+import { ReactElement } from 'react';
 import { useTranslation } from 'react-i18next';
-
-import { NumberField } from '@centreon/ui';
 
 import { AdditionalConnectorConfiguration } from '../../models';
 import { labelPort } from '../../translatedLabels';
-
 import { useParameterStyles } from './useParametersStyles';
 
 const Port = (): ReactElement => {
@@ -33,11 +31,14 @@ const Port = (): ReactElement => {
   return (
     <div className={classes.parameterItem}>
       <NumberField
-        fullWidth
-        required
         dataTestId={`${labelPort}_value`}
         error={error as string}
+        fullWidth
         label={t(labelPort)}
+        name="port"
+        onBlur={handleBlur('parameters.port')}
+        onChange={changePortValue}
+        required
         textFieldSlotsAndSlotProps={{
           slotProps: {
             htmlInput: {
@@ -45,10 +46,7 @@ const Port = (): ReactElement => {
             }
           }
         }}
-        name="port"
         value={value?.toString()}
-        onBlur={handleBlur('parameters.port')}
-        onChange={changePortValue}
       />
     </div>
   );

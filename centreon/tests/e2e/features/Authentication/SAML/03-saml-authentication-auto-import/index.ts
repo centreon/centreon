@@ -138,8 +138,8 @@ Then(
         }),
       {
         errorMsg: 'Logout did not complete successfully',
-        timeout: 30000,
-        interval: 2000
+        interval: 2000,
+        timeout: 30000
       }
     );
 

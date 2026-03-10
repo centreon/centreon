@@ -1,13 +1,11 @@
-import { ReactElement } from 'react';
-
-import { useFormikContext } from 'formik';
-import { useTranslation } from 'react-i18next';
-
 import { SelectField } from '@centreon/ui';
 
-import { labelSelectType, labelType } from '../../translatedLabels';
+import { useFormikContext } from 'formik';
+import { ReactElement } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { AdditionalConnectorConfiguration } from '../../models';
+import { labelSelectType, labelType } from '../../translatedLabels';
 import { useConnectorTypeStyles } from './ConnectorTypeStyles';
 
 const ConnectorType = (): ReactElement => {
@@ -26,16 +24,16 @@ const ConnectorType = (): ReactElement => {
   return (
     <div className={classes.typeContainer}>
       <SelectField
-        fullWidth
-        required
         dataTestId={labelType}
         error={error as string}
+        fullWidth
         label={t(labelSelectType)}
         name="type"
-        options={[{ id: 1, name: 'VMWare 6/7' }]}
-        selectedOptionId={values.type}
         onBlur={handleBlur('parameters.port')}
         onChange={changeTypeValue}
+        options={[{ id: 1, name: 'VMWare 6/7' }]}
+        required
+        selectedOptionId={values.type}
       />
     </div>
   );

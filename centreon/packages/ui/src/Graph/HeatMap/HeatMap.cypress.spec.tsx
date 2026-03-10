@@ -1,12 +1,11 @@
-import { pluck } from 'ramda';
-
 import { Box, Typography } from '@mui/material';
 
-import EllipsisTypography from '../../Typography/EllipsisTypography';
+import { pluck } from 'ramda';
 
+import EllipsisTypography from '../../Typography/EllipsisTypography';
 import HeatMap from './HeatMap';
 import heatMapData from './HeatMapData.json';
-import { HeatMapProps } from './model';
+import type { HeatMapProps } from './model';
 
 const dataIds = pluck('id', heatMapData);
 

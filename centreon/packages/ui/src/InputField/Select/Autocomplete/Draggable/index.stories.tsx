@@ -1,17 +1,14 @@
-import { useState } from 'react';
-
-import { isNil, not } from 'ramda';
-
 import { Tooltip, Typography } from '@mui/material';
 
-import { SelectEntry } from '../..';
-import { buildListingEndpoint } from '../../../..';
-import { Listing } from '../../../../api/models';
+import { isNil, not } from 'ramda';
+import { useState } from 'react';
 
+import { buildListingEndpoint } from '../../../..';
+import type { Listing } from '../../../../api/models';
+import type { SelectEntry } from '../..';
+import type { ItemActionProps } from '.';
 import MultiDraggableAutocompleteField from './Multi';
 import MultiDraggableConnectedAutocompleteField from './MultiConnected';
-
-import { ItemActionProps } from '.';
 
 export default {
   title: 'InputField/Autocomplete/Draggable'
@@ -125,10 +122,10 @@ export const draggableWithError = (): JSX.Element => <MultiDraggableError />;
 
 const MultiDraggableRequired = (): JSX.Element => (
   <MultiDraggableAutocompleteField
-    required
     label="Draggable Autocomplete"
     options={options}
     placeholder="Type here..."
+    required
   />
 );
 
@@ -156,10 +153,10 @@ const MultiDraggableClickAndHoverItem = (): JSX.Element => {
   return (
     <div>
       <Tooltip
+        open={not(isNil(hoveredItem?.anchorElement))}
         PopperProps={{
           anchorEl: hoveredItem?.anchorElement
         }}
-        open={not(isNil(hoveredItem?.anchorElement))}
         title={hoveredItem?.item.name || ''}
       >
         <MultiDraggableAutocompleteField

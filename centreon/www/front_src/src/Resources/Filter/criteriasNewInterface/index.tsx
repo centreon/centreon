@@ -1,20 +1,16 @@
-import { useMemo, useState } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
-
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { Divider, Typography } from '@mui/material';
 
 import { Button } from '@centreon/ui/components';
 
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+
 import { labelState, labelType } from '../../translatedLabels';
 import type { Criteria, CriteriaDisplayProps } from '../Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../filterAtoms';
-
-import MemoizedCheckBox from './MemoizedCheckBox';
-import MemoizedPoller from './MemoizedPoller';
 import BasicFilter from './basicFilter';
 import {
   displayActionsAtom,
@@ -23,6 +19,8 @@ import {
 import SectionWrapper from './basicFilter/sections';
 import { useStyles } from './criterias.style';
 import ExtendedFilter from './extendedFilter';
+import MemoizedCheckBox from './MemoizedCheckBox';
+import MemoizedPoller from './MemoizedPoller';
 import {
   BasicCriteria,
   type BuildDataByCategoryFilter,
@@ -122,8 +120,8 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         : Object.values(ExtendedCriteria);
 
     return buildDataByCategoryFilter({
-      CriteriaType: criteriaType,
       builtCriteria,
+      CriteriaType: criteriaType,
       selectableCriteria
     });
   };
@@ -150,9 +148,9 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
         <Button
           icon={open ? <KeyboardArrowLeftIcon /> : <KeyboardArrowRightIcon />}
           iconVariant="end"
+          onClick={controlFilterInterface}
           size="small"
           variant="ghost"
-          onClick={controlFilterInterface}
         >
           <Typography variant="body1">
             {t(open ? labelShowFewerFilters : labelShowMoreFilters)}
@@ -193,8 +191,8 @@ const CriteriasNewInterface = ({ data, actions }: Criterias): JSX.Element => {
           <>
             <div className={classes.containerDivider}>
               <Divider
-                flexItem
                 className={classes.bridge}
+                flexItem
                 orientation="vertical"
                 variant="middle"
               />

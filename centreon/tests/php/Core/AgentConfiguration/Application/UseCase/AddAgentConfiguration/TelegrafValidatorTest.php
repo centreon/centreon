@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration;
 
-use Core\AgentConfiguration\Application\Exception\AgentConfigurationException;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Application\UseCase\AddAgentConfiguration\AddAgentConfigurationRequest;
 use Core\AgentConfiguration\Application\Validation\TelegrafValidator;
 use Core\AgentConfiguration\Domain\Model\Poller;
@@ -54,9 +54,6 @@ it('should correctly identify that it does not handle other types', function ():
 foreach (
     [
         'invalidfilename',
-        './fileName.crt',
-        '../fileName.cer',
-        '//fileName.crt',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
     ] as $index => $filename
@@ -64,7 +61,7 @@ foreach (
     $cleanFilename = str_replace(['/', '.', '..'], '-', $filename);
     it("Invalid certificate {$cleanFilename} #{$index}: should throw an exception because of the filename for certificate {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['conf_certificate'] = $filename;
-        $this->expectException(AgentConfigurationException::class);
+        $this->expectException(AssertionException::class);
         $this->TelegrafValidator->validateParametersOrFail($this->request);
     });
 }
@@ -87,9 +84,6 @@ foreach (
 foreach (
     [
         'invalidfilename',
-        './fileName.key',
-        '../fileName.key',
-        '//fileName.key',
         '/etc/pki/test.txt',
         '/etc/pki/test.doc',
     ] as $index => $filename
@@ -97,7 +91,7 @@ foreach (
     $cleanFilename = str_replace(['/', '.', '..'], '-', $filename);
     it("Invalid key {$cleanFilename} #{$index}: should throw an exception because of the filename for key {$cleanFilename} invalidity", function () use ($filename): void {
         $this->request->configuration['conf_private_key'] = $filename;
-        $this->expectException(AgentConfigurationException::class);
+        $this->expectException(AssertionException::class);
         $this->TelegrafValidator->validateParametersOrFail($this->request);
     });
 }

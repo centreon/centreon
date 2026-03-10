@@ -1,12 +1,12 @@
-import { ReactElement, ReactNode, useMemo } from 'react';
-
 import {
   Button as MuiButton,
-  ButtonProps as MuiButtonProps
+  type ButtonProps as MuiButtonProps
 } from '@mui/material';
 
-import { AriaLabelingAttributes } from '../../@types/aria-attributes';
-import { DataTestAttributes } from '../../@types/data-attributes';
+import { type ReactElement, type ReactNode, useMemo } from 'react';
+
+import type { AriaLabelingAttributes } from '../../@types/aria-attributes';
+import type { DataTestAttributes } from '../../@types/data-attributes';
 import { button } from './Button.module.css';
 
 const muiVariantMap: Record<
@@ -64,10 +64,10 @@ const Button = ({
       data-size={size}
       data-variant={variant}
       disabled={disabled}
+      onClick={(e) => onClick?.(e)}
       size={size}
       type={type}
       variant={muiVariantMap[variant]}
-      onClick={(e) => onClick?.(e)}
       {...MuiOverrideProps}
       {...attr}
     >

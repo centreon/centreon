@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 const checkHostsProperties = (hostName) => {
   cy.getIframeBody().contains(hostName).click();
@@ -59,11 +60,7 @@ Given('several hosts have been created with mandatory properties', () => {
 });
 
 When('the user has applied "Mass Change" operation on several hosts', () => {
-  cy.navigateTo({
-    page: 'Hosts',
-    rootItemNumber: 3,
-    subMenu: 'Hosts'
-  });
+  cy.visit(PAGES.configuration.hostsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(0).click();
   cy.getIframeBody().find('select[name="o1"]').select('Mass Change');

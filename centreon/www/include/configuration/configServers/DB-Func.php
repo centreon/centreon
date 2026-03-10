@@ -19,7 +19,10 @@
  *
  */
 
+use App\Kernel;
 use Centreon\Domain\PlatformTopology\Model\PlatformRegistered;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPoller;
+use Core\AgentConfiguration\Application\UseCase\DeployDefaultAgentConfigurationForPoller\DeployDefaultAgentConfigurationForPollerRequest;
 use Core\MonitoringServer\Model\MonitoringServer;
 
 if (! isset($centreon)) {
@@ -466,21 +469,37 @@ function additionnalRemoteServersByPollerId(int $id, ?array $remotes = null): vo
  */
 function insertServerInDB(array $data): int
 {
+    global $centreon;
     $srvObj = new CentreonMainCfg();
 
     $sName = '';
     $id = insertServer($data);
-
     if (isset($data['name'])) {
         $sName = $data['name'];
     }
     $iIdNagios = $srvObj->insertServerInCfgNagios(-1, $id, $sName);
 
-    additionnalRemoteServersByPollerId($id, $data['remote_additional_id']);
+    additionnalRemoteServersByPollerId($id, $data['remote_additional_id'] ?? null);
 
     if (! empty($iIdNagios)) {
         $srvObj->insertBrokerDefaultDirectives($iIdNagios, 'ui');
         $srvObj->insertDefaultCfgNagiosLogger($iIdNagios);
+    }
+    $kernel = Kernel::createForWeb();
+    $deployAgentConfiguration = $kernel->getContainer()
+        ->get(DeployDefaultAgentConfigurationForPoller::class);
+    if (! $deployAgentConfiguration instanceof DeployDefaultAgentConfigurationForPoller) {
+        CentreonLog::create()->warning(
+            CentreonLog::TYPE_BUSINESS_LOG,
+            'DeployDefaultAgentConfigurationForPoller service not found, skipping default agent configuration deployment'
+        );
+    } else {
+        $request = new DeployDefaultAgentConfigurationForPollerRequest(
+            pollerId: $id,
+            creatorId: $centreon->user->user_id,
+            creatorName: $centreon->user->alias,
+        );
+        $deployAgentConfiguration($request);
     }
     addUserRessource($id);
 

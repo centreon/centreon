@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
-
 import { ResponseError, useSnackbar } from '@centreon/ui';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useDisable as useDisableRequest } from '../../api';
@@ -39,7 +39,7 @@ const useDisable = (): UseDeleteState => {
   const { disableMutation, isMutating } = useDisableRequest();
 
   const confirm = (): void => {
-    disableMutation({ userId, name }).then((response) => {
+    disableMutation({ name, userId }).then((response) => {
       const { isError } = response as ResponseError;
 
       if (isError) {
@@ -53,8 +53,8 @@ const useDisable = (): UseDeleteState => {
   };
 
   return {
-    confirm,
     close: resetSelections,
+    confirm,
     isMutating,
     isOpened,
     name

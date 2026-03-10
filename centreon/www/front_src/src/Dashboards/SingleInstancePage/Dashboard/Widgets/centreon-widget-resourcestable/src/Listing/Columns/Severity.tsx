@@ -1,13 +1,11 @@
-import { ReactNode } from 'react';
-
-import { isNil } from 'ramda';
-
 import Tooltip, { TooltipProps } from '@mui/material/Tooltip';
 
 import type { ComponentColumnProps } from '@centreon/ui';
 
-import { Severity } from '../models';
+import { isNil } from 'ramda';
+import { ReactNode } from 'react';
 
+import { Severity } from '../models';
 import { useSeverityStyles } from './Columns.styles';
 
 interface Props {

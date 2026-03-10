@@ -8,10 +8,10 @@ export const defaultSelectedColumnIds = [
 ];
 
 export const filtersInitialValues = {
-  name: '',
   alias: '',
+  disabled: false,
   enabled: false,
-  disabled: false
+  name: ''
 };
 
 export const filtersAtomKey = 'filters_hostgroups';

@@ -1,19 +1,17 @@
-import { ReactElement, useMemo } from 'react';
-
-import { useAtomValue } from 'jotai';
-import { equals, isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import { generatePath, useNavigate } from 'react-router';
-
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Box, Typography } from '@mui/material';
 
-import { userAtom } from '@centreon/ui-context';
 import { DataTable, Tooltip } from '@centreon/ui/components';
+import { userAtom } from '@centreon/ui-context';
+
+import { useAtomValue } from 'jotai';
+import { equals, isNil } from 'ramda';
+import { ReactElement, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { generatePath, useNavigate } from 'react-router';
 
 import thumbnailFallbackDark from '../../../../assets/thumbnail-fallback-dark.svg';
 import thumbnailFallbackLight from '../../../../assets/thumbnail-fallback-light.svg';
-
 import routeMap from '../../../../reactRoutes/routeMap';
 import { Dashboard } from '../../../api/models';
 import { DashboardLayout } from '../../../models';
@@ -26,11 +24,10 @@ import {
 import DashboardCardActions from '../DashboardCardActions/DashboardCardActions';
 import { useDashboardConfig } from '../DashboardConfig/useDashboardConfig';
 import { DashboardListing } from '../DashboardListing';
+import { onlyFavoriteDashboardsAtom } from '../DashboardListing/Actions/favoriteFilter/atoms';
 import { searchAtom, viewModeAtom } from '../DashboardListing/atom';
 import { ViewMode } from '../DashboardListing/models';
 import { useDashboardUserPermissions } from '../DashboardUserPermissions/useDashboardUserPermissions';
-
-import { onlyFavoriteDashboardsAtom } from '../DashboardListing/Actions/favoriteFilter/atoms';
 import { useStyles } from './DashboardsOverview.styles';
 import { DashboardsOverviewSkeleton } from './DashboardsOverviewSkeleton';
 import { useDashboardsOverview } from './useDashboardsOverview';
@@ -81,7 +78,7 @@ const DashboardsOverview = (): ReactElement => {
   };
 
   const getThumbnailSrc = (dashboard): string =>
-    `img/media/${dashboard.thumbnail?.directory}/${dashboard.thumbnail?.name}?${new Date().getTime()}`;
+    `img/media/${dashboard.thumbnail?.directory}/${dashboard.thumbnail?.name}?${Date.now()}`;
 
   if (isCardsView && isLoading && isNil(data)) {
     return <DashboardsOverviewSkeleton />;
@@ -99,23 +96,23 @@ const DashboardsOverview = (): ReactElement => {
         {dashboards.map((dashboard) => (
           <div className={classes.dashboardItemContainer} key={dashboard.id}>
             <DataTable.Item
-              hasCardAction
               Actions={
                 <DashboardCardActions
                   dashboard={dashboard}
-                  refetch={refetch}
                   isFetchingListing={isLoading}
+                  refetch={refetch}
                 />
               }
               description={dashboard.description ?? undefined}
               hasActions={hasEditPermission(dashboard)}
+              hasCardAction
+              onClick={navigateToDashboard(dashboard)}
               thumbnail={
                 dashboard.thumbnail
                   ? getThumbnailSrc(dashboard)
                   : fallbackThumbnail
               }
               title={dashboard.name}
-              onClick={navigateToDashboard(dashboard)}
             />
             {!dashboard.thumbnail && (
               <Box className={classes.thumbnailFallbackIcon}>
@@ -144,8 +141,8 @@ const DashboardsOverview = (): ReactElement => {
       <DataTable isEmpty={isEmptyList} variant="grid">
         <DataTable.EmptyState
           aria-label="create"
-          canCreate={canCreateOrManageDashboards}
           buttonCreateTestId="create-dashboard"
+          canCreate={canCreateOrManageDashboards}
           labels={emptyStateLabels}
           onCreate={createDashboard}
         />

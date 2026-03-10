@@ -1,6 +1,6 @@
-import { FormikErrors, FormikHelpers, FormikValues } from 'formik';
+import type { DialogProps } from '@mui/material';
 
-import { DialogProps } from '@mui/material';
+import type { FormikErrors, FormikHelpers, FormikValues } from 'formik';
 
 export interface StepComponentProps {
   disableNextOnSendingRequests: (sendingRequests: Array<boolean>) => void;

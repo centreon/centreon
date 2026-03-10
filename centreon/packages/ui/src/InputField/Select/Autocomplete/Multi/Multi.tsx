@@ -1,12 +1,12 @@
+import { Chip, type ChipProps, Tooltip } from '@mui/material';
+import type { UseAutocompleteProps } from '@mui/material/useAutocomplete';
+
 import { compose, includes, map, prop, reject, sortBy, toLower } from 'ramda';
-import { JSX } from 'react';
+import type { JSX } from 'react';
 
-import { Chip, ChipProps, Tooltip } from '@mui/material';
-import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
-
-import Autocomplete, { Props as AutocompleteProps } from '..';
-import { SelectEntry } from '../..';
+import type { SelectEntry } from '../..';
 import Option from '../../Option';
+import Autocomplete, { type Props as AutocompleteProps } from '..';
 import ListboxComponent from './Listbox';
 import { useStyles } from './Multi.styles';
 
@@ -91,8 +91,16 @@ const MultiAutocompleteField = ({
     <Autocomplete
       disableCloseOnSelect
       displayOptionThumbnail
-      multiple
       getLimitTagsText={getLimitTagsText}
+      ListboxComponent={ListboxComponent({
+        disableSelectAll,
+        isOptionSelected,
+        onChange,
+        options,
+        total
+      })}
+      multiple
+      onChange={onChange}
       options={autocompleteOptions}
       renderOption={(renderProps, option, { selected }): JSX.Element => (
         <li
@@ -102,20 +110,12 @@ const MultiAutocompleteField = ({
           <Option checkboxSelected={selected}>{getOptionLabel(option)}</Option>
         </li>
       )}
-      value={values}
       renderTags={(renderedValue, getTagProps): React.ReactNode =>
         customRenderTags
           ? customRenderTags(renderTags(renderedValue, getTagProps))
           : renderTags(renderedValue, getTagProps)
       }
-      ListboxComponent={ListboxComponent({
-        total,
-        onChange,
-        isOptionSelected,
-        disableSelectAll,
-        options
-      })}
-      onChange={onChange}
+      value={values}
       {...props}
     />
   );

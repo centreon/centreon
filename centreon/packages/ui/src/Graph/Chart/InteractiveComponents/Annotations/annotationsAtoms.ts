@@ -1,8 +1,8 @@
-import { ScaleTime } from 'd3-scale';
+import { alpha } from '@mui/material';
+
+import type { ScaleTime } from 'd3-scale';
 import { atom } from 'jotai';
 import {
-  Pred,
-  T,
   __,
   always,
   both,
@@ -17,12 +17,12 @@ import {
   lte,
   not,
   or,
-  pipe
+  type Pred,
+  pipe,
+  T
 } from 'ramda';
 
-import { alpha } from '@mui/material';
-
-import { TimelineEvent } from './models';
+import type { TimelineEvent } from './models';
 
 interface ChangeAnnotationHoveredProps {
   annotationHoveredId: number;

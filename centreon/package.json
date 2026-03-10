@@ -24,12 +24,11 @@
     "cypress:run:coverage": "TZ=Etc/UTC cypress run --component --browser=chromium --env codeCoverageTasksRegistered=true",
     "cypress:cli": "./cypress/scripts/cypress-cli.sh",
     "cypress:install": "cypress install",
-    "generate:lockfile:analysis": "npm shrinkwrap && mv ./npm-shrinkwrap.json ./package-lock.json",
     "preview:api:doc": "pnpm --package=@redocly/cli dlx openapi preview-docs ./doc/API/centreon-api.yaml",
     "install:arm:binaries": "pnpm i -D @swc/core-linux-arm64-gnu@1.13.3 @rspack/binding-linux-arm64-gnu@1.1.6 -w && pnpm remove @swc/core-linux-arm64-gnu @rspack/binding-linux-arm64-gnu"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.3.9",
     "@centreon/js-config": "workspace:*",
     "@cypress/code-coverage": "3.14.4",
     "@cypress/react": "^9.0.1",
@@ -115,7 +114,7 @@
     "@visx/shape": "^3.12.0",
     "@visx/threshold": "^3.12.0",
     "@visx/visx": "3.12.0",
-    "axios": "^1.8.1",
+    "axios": "1.12.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
     "d3-array": "3.2.4",

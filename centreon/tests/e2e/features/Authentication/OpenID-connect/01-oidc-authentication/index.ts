@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import { configureProviderAcls } from '../../../../commons';
 import {
@@ -44,10 +45,7 @@ Given('an administrator is logged on the platform', () => {
 When(
   'the administrator sets valid settings in the OpenID Connect configuration form and saves the form',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    cy.visit(PAGES.configuration.authentication)
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
@@ -68,10 +66,7 @@ Then('the configuration is saved and secrets are not visible', () => {
 });
 
 When('the administrator configures the authentication mode', () => {
-  cy.navigateTo({
-    page: 'Authentication',
-    rootItemNumber: 4
-  })
+  cy.visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 });
@@ -101,10 +96,7 @@ Then(
 
 Given('an administrator is relogged on the platform', () => {
   cy.loginByTypeOfUser({ jsonName: 'admin', loginViaApi: true })
-    .navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    .visit(PAGES.configuration.authentication)
     .get('div[role="tablist"] button:nth-child(2)')
     .click();
 
@@ -114,10 +106,7 @@ Given('an administrator is relogged on the platform', () => {
 When(
   'the administrator activates OpenID Connect authentication on the platform',
   () => {
-    cy.navigateTo({
-      page: 'Authentication',
-      rootItemNumber: 4
-    })
+    cy.visit(PAGES.configuration.authentication)
       .get('div[role="tablist"] button:nth-child(2)')
       .click();
 
@@ -126,12 +115,12 @@ When(
         label: 'Enable OpenID Connect authentication',
         tag: 'input'
       })
-      .then(($input) => {
-        if ($input.is(':checked')) {
+      .then((input) => {
+        if (input.is(':checked')) {
           return;
         }
 
-        cy.wrap($input).check();
+        cy.wrap(input).check();
 
         saveOpenIdFormIfEnabled();
       });

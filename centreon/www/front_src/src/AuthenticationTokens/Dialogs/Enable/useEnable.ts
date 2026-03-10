@@ -1,12 +1,11 @@
-import { useMemo } from 'react';
-
 import { ResponseError, useSnackbar } from '@centreon/ui';
+
 import { useAtom, useSetAtom } from 'jotai';
 import { isEmpty } from 'ramda';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useEnable as useEnableRequest } from '../../api';
-
 import { isRevokingDialogCanceledAtom, tokensToEnableAtom } from '../../atoms';
 import { labelTokenEnabled } from '../../translatedLabels';
 
@@ -39,7 +38,7 @@ const useEnable = (): UseDeleteState => {
   const { enableMutation, isMutating } = useEnableRequest();
 
   const confirm = (): void => {
-    enableMutation({ userId, name }).then((response) => {
+    enableMutation({ name, userId }).then((response) => {
       const { isError } = response as ResponseError;
 
       if (isError) {
@@ -53,8 +52,8 @@ const useEnable = (): UseDeleteState => {
   };
 
   return {
-    confirm,
     close: resetSelections,
+    confirm,
     isMutating,
     isOpened,
     name

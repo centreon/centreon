@@ -1,7 +1,6 @@
-import { useMemo } from 'react';
-
 import { useAtomValue } from 'jotai';
 import { equals, map, pick } from 'ramda';
+import { useMemo } from 'react';
 
 import { dashboardAtom } from '../atoms';
 import { Panel } from '../models';

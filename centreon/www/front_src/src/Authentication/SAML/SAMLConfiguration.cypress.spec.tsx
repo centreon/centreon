@@ -1,31 +1,31 @@
-import { replace } from 'ramda';
-
 import { Method, TestQueryProvider } from '@centreon/ui';
 
-import { labelSave } from '../Local/translatedLabels';
+import { replace } from 'ramda';
+
 import {
   accessGroupsEndpoint,
   authenticationProvidersEndpoint,
   contactGroupsEndpoint
 } from '../api/endpoints';
+import { labelSave } from '../Local/translatedLabels';
 import { Provider } from '../models';
 import {
   labelAclAccessGroup,
   labelApplyOnlyFirtsRole,
-  labelConditionValue,
   labelConditionsAttributePath,
+  labelConditionValue,
   labelContactGroup,
   labelContactTemplate,
   labelDeleteRelation,
   labelEnableAutoImport,
   labelEnableAutomaticManagement,
   labelEnableConditionsOnIdentityProvider,
-  labelGroupValue,
   labelGroupsAttributePath,
+  labelGroupValue,
   labelMixed,
-  labelRoleValue,
   labelRolesAttributePath,
-  labelRolesMapping
+  labelRolesMapping,
+  labelRoleValue
 } from '../shared/translatedLabels';
 import {
   labelAuthenticationConditions,
@@ -33,7 +33,7 @@ import {
   labelGroupsMapping,
   labelIdentityProvider
 } from '../translatedLabels';
-
+import SAMLConfigurationForm from '.';
 import { retrievedSAMLConfiguration } from './defaults';
 import {
   labelBothIdentityProviderAndCentreonUI,
@@ -51,8 +51,6 @@ import {
   labelSAMLOnly,
   labelUserIdAttribute
 } from './translatedLabels';
-
-import SAMLConfigurationForm from '.';
 
 const getRetrievedEntities = (label: string): object => ({
   meta: {
@@ -128,7 +126,7 @@ describe('SAMLConfiguration', () => {
 
     cy.contains(labelIdentityProvider).click();
 
-    cy.findByTestId("Identity provider-header").click();
+    cy.findByTestId('Identity provider-header').click();
 
     cy.findByLabelText(labelRemoteLoginUrl).should(
       'have.value',
@@ -146,8 +144,11 @@ describe('SAMLConfiguration', () => {
       'have.value',
       retrievedSAMLConfiguration.user_id_attribute
     );
-    cy.findByTestId("saml_requestAuthnContext").click();
-    cy.findByTestId(labelRequestedAuthnContextComparison).should('have.value', 'exact');
+    cy.findByTestId('saml_requestAuthnContext').click();
+    cy.findByTestId(labelRequestedAuthnContextComparison).should(
+      'have.value',
+      'exact'
+    );
     cy.findByLabelText(labelCentreonUIOnly).should('not.be.checked');
     cy.findByLabelText(labelBothIdentityProviderAndCentreonUI).should(
       'be.checked'

@@ -3,16 +3,15 @@ import { DisplayType, PanelOptions } from '../models';
 
 export const resources: Array<Resource> = [
   {
-    resourceType: 'host',
     resources: [
       {
         id: 1,
         name: 'Host'
       }
-    ]
+    ],
+    resourceType: 'host'
   },
   {
-    resourceType: 'host-group',
     resources: [
       {
         id: 1,
@@ -22,7 +21,8 @@ export const resources: Array<Resource> = [
         id: 2,
         name: 'HG2'
       }
-    ]
+    ],
+    resourceType: 'host-group'
   }
 ];
 

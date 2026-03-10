@@ -1,16 +1,17 @@
-import { IconButton } from '@centreon/ui/components';
 import DeleteOutline from '@mui/icons-material/DeleteOutline';
 import { Box, Divider } from '@mui/material';
+
+import { IconButton } from '@centreon/ui/components';
+
 import { equals } from 'ramda';
 import { Fragment } from 'react';
+
+import { labelMonitoredHosts } from '../../../translatedLabels';
+import Title from '../../ConnectionInitiated/Title';
 import AddButton from './AddButton';
 import HostConfiguration from './HostConfiguration';
 import { useHostConfigurationsStyle } from './HostConfigurationsStyle';
 import { useHostConfigurations } from './useHostConfigurations';
-
-import Title from '../../ConnectionInitiated/Title';
-
-import { labelMonitoredHosts } from '../../../translatedLabels';
 
 const HostConfigurations = () => {
   const { classes } = useHostConfigurationsStyle();
@@ -31,21 +32,21 @@ const HostConfigurations = () => {
               width: 'calc(100% - 15px)'
             }}
           >
-            <HostConfiguration index={index} host={host} />
+            <HostConfiguration host={host} index={index} />
             <Box className={classes.deleteContainer}>
               <IconButton
-                color="default"
-                size="small"
-                icon={
-                  <DeleteOutline
-                    fontSize="small"
-                    className={classes.deleteIcon}
-                  />
-                }
                 className={classes.deleteButton}
-                onClick={deleteHostConfiguration(index)}
+                color="default"
                 data-testid={`delete-host-configuration-${index}`}
                 disabled={equals(1, hosts.length)}
+                icon={
+                  <DeleteOutline
+                    className={classes.deleteIcon}
+                    fontSize="small"
+                  />
+                }
+                onClick={deleteHostConfiguration(index)}
+                size="small"
               />
             </Box>
           </Box>

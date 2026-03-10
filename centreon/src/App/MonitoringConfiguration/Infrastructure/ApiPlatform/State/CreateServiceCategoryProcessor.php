@@ -29,9 +29,10 @@ use App\MonitoringConfiguration\Application\Command\CreateServiceCategoryCommand
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategory;
 use App\MonitoringConfiguration\Domain\Aggregate\ServiceCategory\ServiceCategoryName;
 use App\MonitoringConfiguration\Infrastructure\ApiPlatform\Resource\ServiceCategoryResource;
+use App\Security\Infrastructure\Security\CredentialUser;
 use App\Shared\Application\Command\CommandBus;
-use App\Shared\Infrastructure\Legacy\LegacySecurity;
 use App\Shared\Infrastructure\TransformerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Webmozart\Assert\Assert;
 
@@ -47,7 +48,7 @@ final readonly class CreateServiceCategoryProcessor implements ProcessorInterfac
         private CommandBus $commandBus,
         #[Autowire(service: ResourceServiceCategoryTransformer::class)]
         private TransformerInterface $transformer,
-        private LegacySecurity $legacySecurity,
+        private Security $security,
     ) {
     }
 
@@ -56,11 +57,14 @@ final readonly class CreateServiceCategoryProcessor implements ProcessorInterfac
         Assert::notNull($data->name);
         Assert::notNull($data->alias);
 
+        $credentialUser = $this->security->getUser();
+        Assert::isInstanceOf($credentialUser, CredentialUser::class);
+
         $command = new CreateServiceCategoryCommand(
             name: new ServiceCategoryName($data->name),
             alias: new ServiceCategoryName($data->alias),
             activated: $data->isActivated,
-            creatorId: $this->legacySecurity->getUserId(),
+            creatorId: $credentialUser->credential->userId->value,
         );
 
         $model = $this->commandBus->execute($command);

@@ -36,6 +36,8 @@ use Core\Application\Common\UseCase\InvalidArgumentResponse;
 use Core\Application\Common\UseCase\NoContentResponse;
 use Core\Application\Common\UseCase\NotFoundResponse;
 use Core\Application\Common\UseCase\PresenterInterface;
+use Core\Command\Application\Exception\CommandException;
+use Core\Command\Application\Repository\ReadCommandRepositoryInterface;
 use Core\Command\Domain\Model\CommandType;
 use Core\CommandMacro\Application\Repository\ReadCommandMacroRepositoryInterface;
 use Core\CommandMacro\Domain\Model\CommandMacro;
@@ -98,6 +100,7 @@ final class PartialUpdateHost
         private readonly PartialUpdateHostValidation $validation,
         private readonly WriteVaultRepositoryInterface $writeVaultRepository,
         private readonly ReadVaultRepositoryInterface $readVaultRepository,
+        private readonly ReadCommandRepositoryInterface $readCommandRepository,
     ) {
         $this->writeVaultRepository->setCustomPath(AbstractVaultRepository::HOST_VAULT_PATH);
     }
@@ -274,9 +277,27 @@ final class PartialUpdateHost
             $host->setSeverityId($dto->severityId);
         }
 
+        if (! $dto->freshnessThreshold instanceof NoValue) {
+            $host->setFreshnessThreshold($dto->freshnessThreshold);
+        }
+
+        if (! $dto->freshnessChecked instanceof NoValue) {
+            $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar($dto->freshnessChecked));
+        }
+
         if (! $dto->checkCommandId instanceof NoValue) {
             $this->validation->assertIsValidCommand($dto->checkCommandId, CommandType::Check, 'checkCommandId');
             $host->setCheckCommandId($dto->checkCommandId);
+            if ($dto->checkCommandId !== null) {
+                $command = $this->readCommandRepository->findById($dto->checkCommandId);
+                if ($command === null) {
+                    throw CommandException::errorWhileRetrieving();
+                }
+                if ($command->isCentreonMonitoringAgentCommand()) {
+                    $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar(1));
+                    $host->setFreshnessThreshold(120);
+                }
+            }
         }
 
         if (! $dto->checkTimeperiodId instanceof NoValue) {
@@ -322,10 +343,6 @@ final class PartialUpdateHost
             $host->setAcknowledgementTimeout($dto->acknowledgementTimeout);
         }
 
-        if (! $dto->freshnessThreshold instanceof NoValue) {
-            $host->setFreshnessThreshold($dto->freshnessThreshold);
-        }
-
         if (! $dto->lowFlapThreshold instanceof NoValue) {
             $host->setLowFlapThreshold($dto->lowFlapThreshold);
         }
@@ -348,10 +365,6 @@ final class PartialUpdateHost
 
         if (! $dto->notificationEnabled instanceof NoValue) {
             $host->setNotificationEnabled(YesNoDefaultConverter::fromScalar($dto->notificationEnabled));
-        }
-
-        if (! $dto->freshnessChecked instanceof NoValue) {
-            $host->setFreshnessChecked(YesNoDefaultConverter::fromScalar($dto->freshnessChecked));
         }
 
         if (! $dto->flapDetectionEnabled instanceof NoValue) {
@@ -533,13 +546,13 @@ final class PartialUpdateHost
      */
     private function updateMacros(PartialUpdateHostRequest $dto, Host $host): void
     {
-        $this->info(
+        $this->debug(
             'PartialUpdateHost: update macros',
             ['host_id' => $host->getId(), 'macros' => $dto->macros]
         );
 
         if ($dto->macros instanceof NoValue) {
-            $this->info('Macros not provided, nothing to update');
+            $this->debug('Macros not provided, nothing to update');
 
             return;
         }
@@ -650,7 +663,6 @@ final class PartialUpdateHost
                     $macro->isPassword() === true
                     && null !== ($this->uuid = $this->getUuidFromPath($macro->getValue()))
                 ) {
-
                     break;
                 }
             }
@@ -684,7 +696,7 @@ final class PartialUpdateHost
 
             $this->uuid ??= $this->getUuidFromPath($vaultPaths[$macroPrefixedName]);
 
-            $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
+            $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultPaths[$macroPrefixedName]);
             $inVaultMacro->setDescription($macro->getDescription());
             $inVaultMacro->setIsPassword($macro->isPassword());
             $inVaultMacro->setOrder($macro->getOrder());
@@ -714,7 +726,7 @@ final class PartialUpdateHost
             $vaultData = $this->readVaultRepository->findFromPath($macro->getValue());
             $vaultKey = '_HOST' . $macro->getName();
             if (isset($vaultData[$vaultKey])) {
-                $inVaultMacro = new Macro($macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
+                $inVaultMacro = new Macro($macro->getId(), $macro->getOwnerId(), $macro->getName(), $vaultData[$vaultKey]);
                 $inVaultMacro->setDescription($macro->getDescription());
                 $inVaultMacro->setIsPassword($macro->isPassword());
                 $inVaultMacro->setOrder($macro->getOrder());

@@ -1,9 +1,9 @@
 /* eslint-disable typescript-sort-keys/interface */
 
+import { buildListingDecoder } from '@centreon/ui';
+
 import { omit } from 'ramda';
 import { JsonDecoder } from 'ts.data.json';
-
-import { buildListingDecoder } from '@centreon/ui';
 
 import { Thumbnail } from '../SingleInstancePage/Dashboard/models';
 import {
@@ -82,6 +82,7 @@ export const dashboardEntityDecoder = {
     JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Created By')
   ),
   description: JsonDecoder.nullable(JsonDecoder.string),
+  isFavorite: JsonDecoder.optional(JsonDecoder.boolean),
   ownRole: JsonDecoder.enumeration<DashboardRole>(
     DashboardRole,
     'Dashboard role'
@@ -102,9 +103,9 @@ export const dashboardEntityDecoder = {
   thumbnail: JsonDecoder.optional(
     JsonDecoder.object<Thumbnail>(
       {
+        directory: JsonDecoder.string,
         id: JsonDecoder.number,
-        name: JsonDecoder.string,
-        directory: JsonDecoder.string
+        name: JsonDecoder.string
       },
       'thumbnail'
     )
@@ -112,8 +113,7 @@ export const dashboardEntityDecoder = {
   updatedAt: JsonDecoder.string,
   updatedBy: JsonDecoder.nullable(
     JsonDecoder.object<NamedEntity>(namedEntityDecoder, 'Updated By')
-  ),
-  isFavorite: JsonDecoder.optional(JsonDecoder.boolean)
+  )
 };
 
 export const dashboardDecoder = JsonDecoder.object<Dashboard>(
@@ -134,10 +134,10 @@ export const dashboardDecoder = JsonDecoder.object<Dashboard>(
   {
     createdAt: 'created_at',
     createdBy: 'created_by',
+    isFavorite: 'is_favorite',
     ownRole: 'own_role',
     updatedAt: 'updated_at',
-    updatedBy: 'updated_by',
-    isFavorite: 'is_favorite'
+    updatedBy: 'updated_by'
   }
 );
 
@@ -174,10 +174,10 @@ export const dashboardListDecoder = buildListingDecoder({
     {
       createdAt: 'created_at',
       createdBy: 'created_by',
+      isFavorite: 'is_favorite',
       ownRole: 'own_role',
       updatedAt: 'updated_at',
-      updatedBy: 'updated_by',
-      isFavorite: 'is_favorite'
+      updatedBy: 'updated_by'
     }
   ),
   entityDecoderName: 'Dashboard List',

@@ -1,13 +1,12 @@
-import React, { ReactElement } from 'react';
-
-import { equals } from 'ramda';
-
 import { Close as CloseIcon } from '@mui/icons-material';
 import { Dialog as MuiDialog, Slide } from '@mui/material';
 
-import { AriaLabelingAttributes } from '../../@types/aria-attributes';
-import { IconButton } from '../Button';
+import { equals } from 'ramda';
+import type React from 'react';
+import type { ReactElement } from 'react';
 
+import type { AriaLabelingAttributes } from '../../@types/aria-attributes';
+import { IconButton } from '../Button';
 import { useStyles } from './Modal.styles';
 
 export type ModalProps = {
@@ -50,24 +49,24 @@ const Modal = ({
 
   return (
     <MuiDialog
+      className={`${classes.modal} gap-6`}
+      data-size={size}
+      onClose={onClose}
+      open={open}
       TransitionComponent={isFullscreen ? Slide : undefined}
       TransitionProps={{
         direction: 'up'
       }}
-      className={`${classes.modal} gap-6`}
-      data-size={size}
-      open={open}
-      onClose={onClose}
       {...attr}
     >
       {hasCloseButton && (
-        <div className={classes.modalCloseButton}>
+        <div className="absolute top-2 right-3 opacity-60">
           <IconButton
             aria-label="close"
             icon={<CloseIcon />}
+            onClick={(e) => onClose?.(e, 'closeButton')}
             size="small"
             variant="ghost"
-            onClick={(e) => onClose?.(e, 'closeButton')}
           />
         </div>
       )}

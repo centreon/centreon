@@ -1,7 +1,7 @@
-import { useSetAtom } from 'jotai';
-
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+
+import { useSetAtom } from 'jotai';
 
 import { IconButton } from '../../..';
 import { removeAccessRightDerivedAtom } from '../atoms';
@@ -29,8 +29,8 @@ const RemoveAccessRight = ({ index, isRemoved, name }: Props): JSX.Element => {
       data-removed={isRemoved}
       data-testid={`remove-${name}`}
       icon={icon}
-      size="small"
       onClick={isRemoved ? recover : remove}
+      size="small"
     />
   );
 };

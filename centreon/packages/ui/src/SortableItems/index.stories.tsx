@@ -1,19 +1,22 @@
-import { DraggableSyntheticListeners, rectIntersection } from '@dnd-kit/core';
-import {
-  SortingStrategy,
-  horizontalListSortingStrategy,
-  rectSortingStrategy,
-  verticalListSortingStrategy
-} from '@dnd-kit/sortable';
-import { ComponentMeta, ComponentStory } from '@storybook/react';
-import { not } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Grid, IconButton, Paper, Typography } from '@mui/material';
 
-import { RefObject } from 'react';
-import SortableItems, { RootComponentProps } from '.';
+import {
+  type DraggableSyntheticListeners,
+  rectIntersection
+} from '@dnd-kit/core';
+import {
+  horizontalListSortingStrategy,
+  rectSortingStrategy,
+  type SortingStrategy,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+import type { ComponentMeta, ComponentStory } from '@storybook/react';
+import { not } from 'ramda';
+import type { RefObject } from 'react';
+import { makeStyles } from 'tss-react/mui';
+
+import SortableItems, { type RootComponentProps } from '.';
 
 export default {
   component: SortableItems,
@@ -230,7 +233,7 @@ const ContentWithGrid = ({
   const { classes } = useContentStyles({ isDragging });
 
   return (
-    <Grid item style={style} size={xs} {...listeners} {...attributes}>
+    <Grid item size={xs} style={style} {...listeners} {...attributes}>
       <Paper className={classes.content} ref={itemRef}>
         <Typography>{name as string}</Typography>
       </Paper>
@@ -259,10 +262,10 @@ const StoryWithRootComponent = (): JSX.Element => {
     <div className={classes.verticalContainer}>
       <SortableItems
         Content={ContentWithGrid}
-        RootComponent={RootComponent}
         collisionDetection={rectIntersection}
         itemProps={['name', 'xs']}
         items={items}
+        RootComponent={RootComponent}
         sortingStrategy={rectSortingStrategy}
       />
     </div>
@@ -275,8 +278,8 @@ export const gridWithRootComponent = (): JSX.Element => (
 
 export const gridWithHandlers = (): JSX.Element => (
   <Story
-    handler
     direction="gridContainer"
+    handler
     sortingStrategy={rectSortingStrategy}
   />
 );

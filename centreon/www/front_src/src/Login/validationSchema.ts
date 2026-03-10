@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { object, string } from 'yup';
 import type { Schema } from 'yup';
+import { object, string } from 'yup';
 
 import { LoginFormValues } from './models';
 import { labelRequired } from './translatedLabels';

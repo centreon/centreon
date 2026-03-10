@@ -1,7 +1,3 @@
-import { ReactNode, useEffect, useState } from 'react';
-
-import { equals } from 'ramda';
-
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import IconArrowDown from '@mui/icons-material/KeyboardArrowDownOutlined';
 import { ClickAwayListener } from '@mui/material';
@@ -9,8 +5,11 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 
 import { IconButton } from '@centreon/ui';
 
-import IconArrow from './IconArrow';
+import { equals } from 'ramda';
+import { ReactNode, useEffect, useState } from 'react';
+
 import { useStyles } from './check.styles';
+import IconArrow from './IconArrow';
 import { Arguments, ClickList, Params } from './models';
 
 interface Props {

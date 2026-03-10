@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { ResponseError, useFetchQuery, useSnackbar } from '@centreon/ui';
 
 import { FormikHelpers, FormikValues } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
@@ -12,19 +12,17 @@ import {
   propEq,
   reject
 } from 'ramda';
+import { useCallback, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router';
 
-import { ResponseError, useFetchQuery, useSnackbar } from '@centreon/ui';
-
+import { PlatformInstallationStatus } from '../api/models';
 import { platformInstallationStatusAtom } from '../Main/atoms/platformInstallationStatusAtom';
 import useInitializeTranslation from '../Main/useInitializeTranslation';
 import useUser from '../Main/useUser';
 import { passwordResetInformationsAtom } from '../ResetPassword/passwordResetInformationsAtom';
-import { PlatformInstallationStatus } from '../api/models';
 import routeMap from '../reactRoutes/routeMap';
-
 import { providersConfigurationDecoder } from './api/decoder';
 import { providersConfigurationEndpoint } from './api/endpoint';
 import {

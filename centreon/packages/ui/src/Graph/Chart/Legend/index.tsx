@@ -1,26 +1,25 @@
-import {
-  Dispatch,
-  KeyboardEvent,
-  MouseEvent,
-  ReactElement,
-  ReactNode,
-  SetStateAction,
-  useMemo
-} from 'react';
-
-import { equals, prop, slice, sortBy } from 'ramda';
-
 import { alpha, useTheme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
 
+import { equals, prop, slice, sortBy } from 'ramda';
+import {
+  type Dispatch,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactElement,
+  type ReactNode,
+  type SetStateAction,
+  useMemo
+} from 'react';
+
 import { formatMetricValue } from '../../common/timeSeries';
-import { Line } from '../../common/timeSeries/models';
-import { LegendModel } from '../models';
+import type { Line } from '../../common/timeSeries/models';
+import type { LegendModel } from '../models';
 import { labelAvg, labelMax, labelMin } from '../translatedLabels';
 import LegendContent from './LegendContent';
 import LegendHeader from './LegendHeader';
-import { GetMetricValueProps, LegendDisplayMode } from './models';
+import { type GetMetricValueProps, LegendDisplayMode } from './models';
 import useLegend from './useLegend';
 
 interface Props
@@ -52,9 +51,9 @@ const MainLegend = ({
   placement,
   mode,
   showCalculations = {
-    min: true,
+    avg: true,
     max: true,
-    avg: true
+    min: true
   },
   secondaryClick,
   graphHeight
@@ -81,17 +80,17 @@ const MainLegend = ({
 
   const contextMenuClick =
     (metricId: number) =>
-      (event: MouseEvent): void => {
-        if (!secondaryClick) {
-          return;
-        }
-        event.preventDefault();
-        secondaryClick({
-          element: event.target,
-          metricId,
-          position: [event.pageX, event.pageY]
-        });
-      };
+    (event: MouseEvent): void => {
+      if (!secondaryClick) {
+        return;
+      }
+      event.preventDefault();
+      secondaryClick({
+        element: event.target,
+        metricId,
+        position: [event.pageX, event.pageY]
+      });
+    };
 
   const selectMetric = ({
     event,
@@ -125,12 +124,12 @@ const MainLegend = ({
     >
       <ul
         className={`list-none flex gap-3 w-full overflow-y-auto ${!isListMode && equals(placement, 'bottom') && 'flex-wrap'} ${isListMode || !equals(placement, 'bottom') ? 'flex-col h-full w-fit' : ''} ${equals(placement, 'bottom') ? 'max-h-17' : 'max-h-fit'} ${!equals(placement, 'bottom') ? 'overflow-x-hidden' : ''}`}
+        data-as-list={isListMode || !equals(placement, 'bottom')}
+        data-legend
+        data-mode={itemMode}
         style={{
           height: equals(placement, 'bottom') ? 'auto' : `${graphHeight}px`
         }}
-        data-as-list={isListMode || !equals(placement, 'bottom')}
-        data-mode={itemMode}
-        data-legend
       >
         {displayedLines.map((line) => {
           const { color, display, metric_id, unit } = line;
@@ -159,17 +158,17 @@ const MainLegend = ({
               className={`${!display ? 'text-text-disabled' : 'text-text-primary'} flex gap-1 ${toggable && 'cursor-pointer'} ${!equals(placement, 'bottom') ? 'w-fit' : ''}`}
               key={metric_id}
               onClick={(event): void => selectMetric({ event, metric_id })}
+              onContextMenu={contextMenuClick(metric_id)}
               onKeyUp={(event) =>
                 event.key === 'Enter' && selectMetric({ event, metric_id })
               }
               onMouseEnter={(): void => highlightLine(metric_id)}
               onMouseLeave={(): void => clearHighlight()}
-              onContextMenu={contextMenuClick(metric_id)}
             >
               <div
                 className="h-full rounded-sm w-1 min-h-5"
-                style={{ backgroundColor: markerColor }}
                 data-icon
+                style={{ backgroundColor: markerColor }}
               />
               <div>
                 <LegendHeader

@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import { T, always, cond, gte } from 'ramda';
+import { always, cond, gte, T } from 'ramda';
 
 import { getTimePeriodFromNow } from './helpers';
-import { TimePeriod } from './models';
+import type { TimePeriod } from './models';
 
 const useSortTimePeriods = (
   timePeriods: Array<TimePeriod>

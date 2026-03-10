@@ -16,7 +16,7 @@
   "devDependencies": {
     "@badeball/cypress-cucumber-preprocessor": "^20.0.2",
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.3",
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.3.10",
     "@centreon/js-config": "24.12.1",
     "@cypress/webpack-preprocessor": "^6.0.2",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",

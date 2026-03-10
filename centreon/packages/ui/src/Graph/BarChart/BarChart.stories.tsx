@@ -1,15 +1,16 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import dayjs from 'dayjs';
 import '../../ThemeProvider/tailwindcss.css';
 
-import { LineChartData } from '../common/models';
+import { ClickAwayListener } from '@mui/material';
+
+import { useState } from 'react';
+
+import type { LineChartData } from '../common/models';
 import dataPingService from '../mockedData/pingService.json';
 import dataPingServiceMixedStacked from '../mockedData/pingServiceMixedStacked.json';
 import dataPingServiceStacked from '../mockedData/pingServiceStacked.json';
 import dataPingServiceStackeKey from '../mockedData/pingServiceWithStackedKeys.json';
-
-import { ClickAwayListener } from '@mui/material';
-import { useState } from 'react';
 import BarChart from './BarChart';
 
 const meta: Meta<typeof BarChart> = {
@@ -48,9 +49,9 @@ export const withCenteredZero: Story = {
       isCenteredZero: true
     },
     legend: {
-      showCalculations: { avg: true, max: false, min: false },
       mode: 'grid',
-      placement: 'bottom'
+      placement: 'bottom',
+      showCalculations: { avg: true, max: false, min: false }
     }
   },
   render: Template
@@ -122,7 +123,6 @@ export const stackedVerticalCenteredZero: Story = {
 export const thresholds: Story = {
   args: {
     ...defaultArgs,
-    thresholdUnit: 'ms',
     thresholds: {
       critical: [
         {
@@ -137,7 +137,8 @@ export const thresholds: Story = {
           value: 0.05
         }
       ]
-    }
+    },
+    thresholdUnit: 'ms'
   },
   render: Template
 };
@@ -149,7 +150,6 @@ export const thresholdsVertical: Story = {
       isCenteredZero: true
     },
     orientation: 'vertical',
-    thresholdUnit: 'ms',
     thresholds: {
       critical: [
         {
@@ -164,7 +164,8 @@ export const thresholdsVertical: Story = {
           value: 0.05
         }
       ]
-    }
+    },
+    thresholdUnit: 'ms'
   },
   render: Template
 };
@@ -173,7 +174,6 @@ export const thresholdStacked: Story = {
   args: {
     ...defaultArgs,
     data: dataPingServiceStacked,
-    thresholdUnit: 'ms',
     thresholds: {
       critical: [
         {
@@ -188,7 +188,8 @@ export const thresholdStacked: Story = {
           value: 0.05
         }
       ]
-    }
+    },
+    thresholdUnit: 'ms'
   },
   render: Template
 };
@@ -209,14 +210,14 @@ export const customBarStyleForABar: Story = {
     ...defaultArgs,
     barStyle: [
       {
+        metricId: 10,
         opacity: 0.5,
-        radius: 0.5,
-        metricId: 10
+        radius: 0.5
       },
       {
+        metricId: 1,
         opacity: 0.2,
-        radius: 0.3,
-        metricId: 1
+        radius: 0.3
       }
     ]
   },
@@ -226,19 +227,19 @@ export const customBarStyleForABar: Story = {
 export const customBarStyleForABarStacked: Story = {
   args: {
     ...defaultArgs,
-    data: dataPingServiceStacked,
     barStyle: [
       {
+        metricId: 10,
         opacity: 0.5,
-        radius: 0.5,
-        metricId: 10
+        radius: 0.5
       },
       {
+        metricId: 1,
         opacity: 0.2,
-        radius: 0.3,
-        metricId: 1
+        radius: 0.3
       }
-    ]
+    ],
+    data: dataPingServiceStacked
   },
   render: Template
 };
@@ -264,8 +265,8 @@ export const mixedStackedMinMax: Story = {
   args: {
     ...defaultArgs,
     data: dataPingServiceMixedStacked,
-    min: 10,
-    max: 20
+    max: 20,
+    min: 10
   },
   render: Template
 };
@@ -287,9 +288,9 @@ const LegendSecondaryClick = (args) => {
         <ClickAwayListener onClickAway={() => setPosition(null)}>
           <div
             className="absolute py-1 px-2 rounded-sm bg-background-widget shadow-md"
-            style={{ left: position?.[0], top: position?.[1] }}
-            open={Boolean(position)}
             onClose={() => setPosition(null)}
+            open={Boolean(position)}
+            style={{ left: position?.[0], top: position?.[1] }}
           >
             menu
           </div>
@@ -321,9 +322,9 @@ export const withControlledCalculations: Story = {
   args: {
     ...defaultArgs,
     legend: {
-      showCalculations: { avg: true, max: false, min: false },
       mode: 'grid',
-      placement: 'bottom'
+      placement: 'bottom',
+      showCalculations: { avg: true, max: false, min: false }
     }
   },
   render: Template

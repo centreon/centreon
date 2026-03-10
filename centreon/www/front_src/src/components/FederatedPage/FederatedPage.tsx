@@ -1,12 +1,12 @@
+import { PageSkeleton } from '@centreon/ui';
+import { federatedModulesAtom, isOnPublicPageAtom } from '@centreon/ui-context';
+
 import { useAtomValue } from 'jotai';
 import { equals, isNil, reject, type } from 'ramda';
 
-import { federatedModulesAtom, isOnPublicPageAtom } from '@centreon/ui-context';
-
-import { PageSkeleton } from '@centreon/ui';
+import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 import { Remote } from '../../federatedModules/Load';
 import FederatedPageFallback from '../../federatedModules/Load/FederatedPageFallback';
-import { childrenComponentsMapping } from '../../federatedModules/childrenComponentsMapping';
 import { FederatedModule, PageComponent } from '../../federatedModules/models';
 
 interface Props {

@@ -1,6 +1,3 @@
-import { pipe } from 'ramda';
-import { useTranslation } from 'react-i18next';
-
 import {
   Delete as DeleteIcon,
   ContentCopy as DuplicateIcon,
@@ -10,9 +7,11 @@ import { Menu } from '@mui/material';
 
 import { ActionsList, ActionsListActionDivider } from '@centreon/ui';
 
+import { pipe } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
 import { labelDelete, labelDuplicate } from '../../../../../translatedLabels';
 import { labelEditProperties } from '../../translatedLabels';
-
 import useActions from './useActions';
 
 interface Props {
@@ -28,7 +27,7 @@ const MoreActions = ({ close, anchor, row }: Props): JSX.Element => {
     useActions(row);
 
   return (
-    <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
+    <Menu anchorEl={anchor} onClose={close} open={Boolean(anchor)}>
       <ActionsList
         actions={[
           {

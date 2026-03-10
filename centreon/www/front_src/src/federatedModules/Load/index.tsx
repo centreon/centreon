@@ -1,13 +1,11 @@
-import { ReactNode, Suspense, lazy, useMemo } from 'react';
+import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
 
 import { importRemote } from '@module-federation/utilities';
 import { isEmpty, isNil } from 'ramda';
-
-import { MenuSkeleton, PageSkeleton } from '@centreon/ui';
+import { lazy, ReactNode, Suspense, useMemo } from 'react';
 
 import { store } from '../../Main/Provider';
 import { StyleMenuSkeleton } from '../models';
-
 import ErrorBoundary from './ErrorBoundary';
 import FederatedComponentFallback from './FederatedComponentFallback';
 import FederatedPageFallback from './FederatedPageFallback';

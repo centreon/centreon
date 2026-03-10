@@ -78,7 +78,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?: array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?: array<array{id?:int|null,name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name?: string,
@@ -262,7 +262,7 @@ final class PartialUpdateHostTemplateController extends AbstractController
     {
         /**
          * @var array{
-         *      macros?:array<array{name:string,value:string|null,is_password:bool,description:string|null}>,
+         *      macros?:array<array{id?:int|null,name:string,value:string|null,is_password:bool,description:string|null}>,
          *      categories?: int[],
          *      templates?: int[],
          *      name: string,

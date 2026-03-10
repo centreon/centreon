@@ -1,10 +1,8 @@
 import { Typography } from '@mui/material';
 
-import { Trans, useTranslation } from 'react-i18next';
-
 import { Modal } from '@centreon/ui/components';
 
-import useDisable from './useDisable';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   labelCancel,
@@ -12,6 +10,7 @@ import {
   labelDisableToken,
   labelMsgConfirmationDisableToken
 } from '../../translatedLabels';
+import useDisable from './useDisable';
 
 const DisableDialog = (): JSX.Element => {
   const { t } = useTranslation();
@@ -19,20 +18,20 @@ const DisableDialog = (): JSX.Element => {
   const { close, confirm, isMutating, isOpened, name } = useDisable();
 
   return (
-    <Modal open={isOpened} size="large" onClose={close}>
+    <Modal onClose={close} open={isOpened} size="large">
       <Modal.Header>{t(labelDisableToken)}</Modal.Header>
       <Modal.Body>
         <Typography>
           <Trans
+            components={{ bold: <strong /> }}
             defaults={labelMsgConfirmationDisableToken}
             values={{ tokenName: name }}
-            components={{ bold: <strong /> }}
           />
         </Typography>
       </Modal.Body>
       <Modal.Actions
-        isDanger
         disabled={isMutating}
+        isDanger
         labels={{
           cancel: t(labelCancel),
           confirm: t(labelDisable)

@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import {
   checkMetricsAreMonitored,
@@ -172,7 +173,7 @@ Given('a saved critical service filter', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);
@@ -190,8 +191,8 @@ When('I select the critical service filter', () => {
 });
 
 Then('only the critical services are displayed in the result', () => {
-  cy.get('div[class*="statusColumn"]').each(($statusCell) => {
-    cy.wrap($statusCell).should('contain.text', 'Critical');
+  cy.get('div[class*="statusColumn"]').each((statusCell) => {
+    cy.wrap(statusCell).should('contain.text', 'Critical');
   });
 });
 
@@ -200,7 +201,7 @@ Given('a saved pending host filter', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);
@@ -218,8 +219,8 @@ When('I select the pending host filter', () => {
 });
 
 Then('only the pending hosts are displayed in the result', () => {
-  cy.get('div[class*="statusColumn"]').each(($statusCell) => {
-    cy.wrap($statusCell).should('contain.text', 'Pending');
+  cy.get('div[class*="statusColumn"]').each((statusCell) => {
+    cy.wrap(statusCell).should('contain.text', 'Pending');
   });
 });
 
@@ -228,7 +229,7 @@ Given('a saved up host filter', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);
@@ -246,8 +247,8 @@ When('I select the up host filter', () => {
 });
 
 Then('only the up hosts are displayed in the result', () => {
-  cy.get('div[class*="statusColumn"]').each(($statusCell) => {
-    cy.wrap($statusCell).should('contain.text', 'Up');
+  cy.get('div[class*="statusColumn"]').each((statusCell) => {
+    cy.wrap(statusCell).should('contain.text', 'Up');
   });
 });
 
@@ -258,7 +259,7 @@ Given(
       setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -288,11 +289,11 @@ Then(
           });
       }
     );
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
 
-      expect(cellText).to.match(/^(Pending|OK|Unknown)$/);
+      expect(cellText).to.match(/^(Pending|Ok|Unknown)$/);
     });
   }
 );
@@ -304,7 +305,7 @@ Given(
       setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -327,13 +328,13 @@ Then('only services with OK and Up statuses are shown in the result', () => {
     cy.get('div[class*="statusColumn"]:first')
       .invoke('text')
       .then((text) => {
-        expect(text.trim()).to.match(/^(Up|OK)$/);
+        expect(text.trim()).to.match(/^(Up|Ok)$/);
       });
   });
-  cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-    const cellText = $statusCell.text().trim();
+  cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+    const cellText = statusCell.text().trim();
     cy.log(`Cell ${index}: ${cellText}`);
-    expect(['OK', 'Up']).to.include(
+    expect(['Ok', 'Up']).to.include(
       cellText,
       `Cell ${index} has unexpected text: ${cellText}`
     );
@@ -345,7 +346,7 @@ Given('a saved filter that includes Up hosts and Critical services', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);
@@ -368,8 +369,8 @@ Then(
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
       cy.get('div[class*="statusColumn"]:last').should('contain.text', 'Up');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical', 'Up']).to.include(
         cellText,
@@ -386,7 +387,7 @@ Given(
       setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -409,13 +410,13 @@ Then(
   () => {
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:first').then(
       () => {
-        cy.get('div[class*="statusColumn"]:first').should('contain.text', 'OK');
+        cy.get('div[class*="statusColumn"]:first').should('contain.text', 'Ok');
       }
     );
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
-      expect(['OK']).to.include(
+      expect(['Ok']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
       );
@@ -428,7 +429,7 @@ Given('a saved filter that includes a monitoring server with OK status', () => {
     setUserFilter(filters)
   );
 
-  cy.visit('centreon/monitoring/resources').wait([
+  cy.visit(PAGES.monitoring.resourcesStatus).wait([
     '@getFilters',
     '@monitoringEndpoint'
   ]);
@@ -450,13 +451,13 @@ Then(
   () => {
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:first').then(
       () => {
-        cy.get('div[class*="statusColumn"]:first').should('contain.text', 'OK');
+        cy.get('div[class*="statusColumn"]:first').should('contain.text', 'Ok');
       }
     );
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
-      expect(['OK']).to.include(
+      expect(['Ok']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
       );
@@ -471,7 +472,7 @@ Given(
       setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -493,12 +494,12 @@ Then(
   'only services with OK and Critical statuses are shown in the result',
   () => {
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
-      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
+      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'Ok');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
-      expect(['Critical', 'OK']).to.include(
+      expect(['Critical', 'Ok']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
       );
@@ -513,7 +514,7 @@ Given(
       setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -543,8 +544,8 @@ Then(
         'Critical'
       );
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
       expect(['Critical']).to.include(
         cellText,
@@ -561,7 +562,7 @@ Given(
       (filters) => setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -586,12 +587,12 @@ Then(
   'only services with status OK and belonging to the ping category are displayed in the results',
   () => {
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
-      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
+      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'Ok');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
-      expect(['OK']).to.include(
+      expect(['Ok']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
       );
@@ -606,7 +607,7 @@ Given(
       setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -631,12 +632,12 @@ Then(
   'only services with statuses OK and Critical and with status types Hard and Soft are displayed in the results',
   () => {
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
-      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
+      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'Ok');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
-      expect(['OK', 'Critical']).to.include(
+      expect(['Ok', 'Critical']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
       );
@@ -651,7 +652,7 @@ Given(
       setUserFilter(filters)
     );
 
-    cy.visit('centreon/monitoring/resources').wait([
+    cy.visit(PAGES.monitoring.resourcesStatus).wait([
       '@getFilters',
       '@monitoringEndpoint'
     ]);
@@ -676,12 +677,12 @@ Then(
   'only services matching the selected host service and service category are displayed in the results',
   () => {
     cy.waitForElementToBeVisible('div[class*="statusColumn"]:last').then(() => {
-      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'OK');
+      cy.get('div[class*="statusColumn"]:last').should('contain.text', 'Ok');
     });
-    cy.get('div[class*="statusColumn"]').each(($statusCell, index) => {
-      const cellText = $statusCell.text().trim();
+    cy.get('div[class*="statusColumn"]').each((statusCell, index) => {
+      const cellText = statusCell.text().trim();
       cy.log(`Cell ${index}: ${cellText}`);
-      expect(['OK']).to.include(
+      expect(['Ok']).to.include(
         cellText,
         `Cell ${index} has unexpected text: ${cellText}`
       );

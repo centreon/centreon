@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace Core\AgentConfiguration\Domain\Model\ConfigurationParameters;
 
-use Assert\AssertionFailedException;
 use Centreon\Domain\Common\Assertion\Assertion;
+use Centreon\Domain\Common\Assertion\AssertionException;
 use Core\AgentConfiguration\Domain\Model\ConfigurationParametersInterface;
 
 /**
@@ -44,32 +44,40 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     public const MAX_LENGTH = 255;
     public const CERTIFICATE_BASE_PATH = '/etc/pki/';
 
-    /** @var _TelegrafParameters */
-    private array $parameters;
+    /** @var array<string> */
+    private const FORBIDDEN_DIRECTORIES = [
+        '/tmp', '/root', '/proc', '/mnt', '/run', '/snap', '/sys', '/boot',
+    ];
 
     /**
      * @param array<string,mixed> $parameters
      *
-     * @throws AssertionFailedException
+     * @throws AssertionException
      */
-    public function __construct(array $parameters)
+    public function __construct(private array $parameters)
     {
-        /** @var _TelegrafParameters $parameters */
-        $parameters = $this->normalizeCertificatePaths($parameters);
+        Assertion::range($this->parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
 
-        Assertion::range($parameters['conf_server_port'], 0, 65535, 'configuration.conf_server_port');
-
-        $this->validateOptionalCertificate(
-            $parameters['otel_public_certificate'],
+        $this->parameters['otel_public_certificate'] = $this->validateCertificatePath(
+            $this->parameters['otel_public_certificate'],
             'configuration.otel_public_certificate'
         );
-        $this->validateOptionalCertificate($parameters['otel_private_key'], 'configuration.otel_private_key');
-        $this->validateOptionalCertificate($parameters['conf_certificate'], 'configuration.conf_certificate');
-        $this->validateOptionalCertificate($parameters['conf_private_key'], 'configuration.conf_private_key');
-        $this->validateOptionalCertificate($parameters['otel_ca_certificate'], 'configuration.otel_ca_certificate');
-
-        /** @var _TelegrafParameters $parameters */
-        $this->parameters = $parameters;
+        $this->parameters['otel_private_key'] = $this->validateCertificatePath(
+            $this->parameters['otel_private_key'],
+            'configuration.otel_private_key'
+        );
+        $this->parameters['conf_certificate'] = $this->validateCertificatePath(
+            $this->parameters['conf_certificate'],
+            'configuration.conf_certificate'
+        );
+        $this->parameters['conf_private_key'] = $this->validateCertificatePath(
+            $this->parameters['conf_private_key'],
+            'configuration.conf_private_key'
+        );
+        $this->parameters['otel_ca_certificate'] = $this->validateCertificatePath(
+            $this->parameters['otel_ca_certificate'],
+            'configuration.otel_ca_certificate'
+        );
     }
 
     /**
@@ -79,6 +87,7 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
      */
     public function getData(): array
     {
+        /** @var _TelegrafParameters */
         return $this->parameters;
     }
 
@@ -88,59 +97,80 @@ class TelegrafConfigurationParameters implements ConfigurationParametersInterfac
     }
 
     /**
-     * Normalizes the certificate paths in the given parameters array.
+     * Prepends a prefix to a certificate path if it's a relative path.
      *
-     * @param array<string,mixed> $parameters
+     * @param string $path
      *
-     * @return array<string, mixed>
+     * @return string
      */
-    private function normalizeCertificatePaths(array $parameters): array
+    private function prependPrefix(string $path): string
     {
-        foreach ($parameters as $key => $value) {
-            if (
-                (
-                    str_ends_with($key, '_certificate')
-                    || str_ends_with($key, '_key')
-                )
-                && (is_string($value) || is_null($value))
-            ) {
-                $parameters[$key] = $this->prependPrefix($value);
-            }
-        }
-
-        return $parameters;
-    }
-
-    /**
-     * Prepends a prefix to a certificate path.
-     *
-     * @param ?string $path
-     *
-     * @return ?string
-     */
-    private function prependPrefix(?string $path): ?string
-    {
-        if ($path === null || $path === '') {
+        if (str_starts_with($path, '/')) {
             return $path;
         }
 
-        return str_starts_with($path, self::CERTIFICATE_BASE_PATH)
-            ? $path
-            : self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
+        return self::CERTIFICATE_BASE_PATH . ltrim($path, '/');
+    }
+
+    private function validateCertificatePath(?string $path, string $field): ?string
+    {
+        if ($path === null || $path === '') {
+            return null;
+        }
+
+        $this->assertPathSecurity($path, $field);
+        $normalizedPath = $this->prependPrefix($path);
+        Assertion::maxLength($normalizedPath, self::MAX_LENGTH, $field);
+
+        return $normalizedPath;
     }
 
     /**
-     * Validates an optional certificate.
+     * Validates that a certificate path is safe and not in a forbidden directory.
      *
-     * @param ?string $certificate
-     * @param string $field
+     * @param string $path
+     * @param string $field Used for error reporting
      *
-     * @throws AssertionFailedException
+     * @throws AssertionException
      */
-    private function validateOptionalCertificate(?string $certificate, string $field): void
+    private function assertPathSecurity(string $path, string $field): void
     {
-        if ($certificate !== null && $certificate !== '') {
-            Assertion::maxLength($certificate, self::MAX_LENGTH, $field);
+        // Reject relative path patterns
+        if (
+            str_contains($path, '../')
+            || str_contains($path, '//')
+            || str_contains($path, './')
+            || $path === '.'
+            || $path === '..'
+        ) {
+            throw new AssertionException(
+                sprintf('[%s] The path "%s" contains invalid relative path patterns', $field, $path),
+            );
+        }
+
+        // Reject hidden directories
+        if (preg_match('#/\\.#', $path) || (str_starts_with($path, '.') && ! str_starts_with($path, './'))) {
+            throw new AssertionException(
+                sprintf('[%s] The path "%s" cannot be in a hidden directory', $field, $path),
+            );
+        }
+
+        // Reject forbidden directories
+        foreach (self::FORBIDDEN_DIRECTORIES as $forbiddenDirectory) {
+            if (str_starts_with($path, $forbiddenDirectory . '/') || $path === $forbiddenDirectory) {
+                throw new AssertionException(
+                    sprintf('[%s] The path "%s" cannot be in directory %s', $field, $path, $forbiddenDirectory),
+                );
+            }
+        }
+
+        // Reject forbidden directories : /etc but not /etc/pki
+        if (str_starts_with($path, '/etc/')) {
+            if (! str_starts_with($path, self::CERTIFICATE_BASE_PATH) && $path !== '/etc/pki') {
+                throw new AssertionException(
+                    sprintf('[%s] The path "%s" can only be in /etc/pki/ directory', $field, $path),
+                );
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
-import { ScaleTime } from 'd3-scale';
+import type { ScaleTime } from 'd3-scale';
+import type { RefObject } from 'react';
 
-import { RefObject } from 'react';
-import { InteractedZone } from '../../models';
+import type { InteractedZone } from '../../models';
 
 export interface ZoomPreviewData extends InteractedZone {
   graphHeight: number;

@@ -1,20 +1,18 @@
-import { useMemo } from 'react';
-
-import { useAtomValue, useSetAtom } from 'jotai';
-import { isNil } from 'ramda';
-import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'react-i18next';
-import type { NavigateFunction } from 'react-router';
-import { useNavigate } from 'react-router';
-
-import type { JsonDecoder } from 'ts.data.json';
-
 import { useFetchQuery } from '@centreon/ui';
 import {
   statisticsRefreshIntervalAtom,
   userAtom,
   userPermissionsAtom
 } from '@centreon/ui-context';
+
+import { useAtomValue, useSetAtom } from 'jotai';
+import { isNil } from 'ramda';
+import { useMemo } from 'react';
+import type { TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import type { NavigateFunction } from 'react-router';
+import { useNavigate } from 'react-router';
+import type { JsonDecoder } from 'ts.data.json';
 
 import { applyFilterDerivedAtom } from '../../Resources/Filter/filterAtoms';
 import type { Filter } from '../../Resources/Filter/models';
@@ -72,8 +70,8 @@ const useResourceCounters: UseRessourceCounters = ({
     getQueryKey: () => [endPoint, queryName],
     httpCodesBypassErrorSnackbar: [401],
     queryOptions: {
-      refetchInterval: refetchInterval * 1000,
       enabled: isAllowed,
+      refetchInterval: refetchInterval * 1000,
       refetchOnMount: false,
       suspense: false
     }

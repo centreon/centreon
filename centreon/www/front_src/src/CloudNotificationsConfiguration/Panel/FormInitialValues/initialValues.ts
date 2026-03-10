@@ -22,8 +22,8 @@ const formatBV = ({ isBamModuleInstalled, resources }: FormatBV): object => {
 
   return {
     businessviews: formatResource({
-      resourceType: ResourcesTypeEnum.BV,
-      resources
+      resources,
+      resourceType: ResourcesTypeEnum.BV
     })
   };
 };
@@ -44,21 +44,21 @@ export const getInitialValues = ({
 }): object => ({
   contactgroups,
   hostGroups: formatResource({
-    resourceType: ResourcesTypeEnum.HG,
     resources,
+    resourceType: ResourcesTypeEnum.HG,
     t
   }),
   isActivated,
-  messages: formatMessages({ messageType: ChannelsEnum.Email, messages }),
+  messages: formatMessages({ messages, messageType: ChannelsEnum.Email }),
   name,
   serviceGroups: formatResource({
-    resourceType: ResourcesTypeEnum.SG,
-    resources
+    resources,
+    resourceType: ResourcesTypeEnum.SG
   }),
   slack: {
     channel: {
-      Icon: SlackIcon,
       checked: false,
+      Icon: SlackIcon,
       label: ChannelsEnum.Slack
     },
     message: defaultEmailBody,
@@ -66,8 +66,8 @@ export const getInitialValues = ({
   },
   sms: {
     channel: {
-      Icon: SmsIcon,
       checked: false,
+      Icon: SmsIcon,
       label: ChannelsEnum.Sms
     },
     message: defaultEmailBody,
@@ -114,7 +114,7 @@ export const getEmptyInitialValues = ({
   },
   isActivated: true,
   messages: {
-    channel: { Icon: EmailIcon, checked: true, label: ChannelsEnum.Email },
+    channel: { checked: true, Icon: EmailIcon, label: ChannelsEnum.Email },
     message: defaultEmailBody,
     subject: defaultEmailSubject
   },
@@ -126,8 +126,8 @@ export const getEmptyInitialValues = ({
   },
   slack: {
     channel: {
-      Icon: SlackIcon,
       checked: false,
+      Icon: SlackIcon,
       label: ChannelsEnum.Slack
     },
     message: defaultEmailBody,
@@ -135,8 +135,8 @@ export const getEmptyInitialValues = ({
   },
   sms: {
     channel: {
-      Icon: SmsIcon,
       checked: false,
+      Icon: SmsIcon,
       label: ChannelsEnum.Sms
     },
     message: defaultEmailBody,

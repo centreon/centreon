@@ -11,10 +11,10 @@ export const bulkDuplicateHostGroupEndpoint =
 export const bulkDeleteHostGroupEndpoint =
   '/configuration/hosts/groups/_delete';
 
-export const bulkEnableHostGroupEndpoint =
+export const bulkEnableHostGroupEndpoint = () =>
   '/configuration/hosts/groups/_enable';
 
-export const bulkDisableHostGroupEndpoint =
+export const bulkDisableHostGroupEndpoint = () =>
   '/configuration/hosts/groups/_disable';
 
 export const hostListEndpoint = '/configuration/hosts';

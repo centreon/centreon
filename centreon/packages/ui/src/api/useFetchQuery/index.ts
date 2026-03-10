@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useRef } from 'react';
-
 import {
-  QueryKey,
-  QueryObserverBaseResult,
-  UseQueryOptions,
+  type QueryKey,
+  type QueryObserverBaseResult,
+  type UseQueryOptions,
   useQuery,
   useQueryClient
 } from '@tanstack/react-query';
 import { equals, has, includes, isNil, not, omit } from 'ramda';
-import { JsonDecoder } from 'ts.data.json';
+import { useEffect, useMemo, useRef } from 'react';
+import type { JsonDecoder } from 'ts.data.json';
 
 import useSnackbar from '../../Snackbar/useSnackbar';
 import { useDeepCompare } from '../../utils';
-import { CatchErrorProps, ResponseError, customFetch } from '../customFetch';
+import {
+  type CatchErrorProps,
+  customFetch,
+  type ResponseError
+} from '../customFetch';
 import { errorLog } from '../logger';
 
 export interface UseFetchQueryProps<T> {
@@ -182,7 +185,7 @@ const useFetchQuery = <T extends object>({
 
       queryClient.cancelQueries({ queryKey: getQueryKey() });
     };
-  }, []);
+  }, [doNotCancelCallsOnUnmount]);
 
   useEffect(
     () => {

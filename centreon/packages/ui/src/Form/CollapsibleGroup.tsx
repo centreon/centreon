@@ -1,10 +1,4 @@
-import { useCallback, useState } from 'react';
-
-import { useTranslation } from 'react-i18next';
-import { makeStyles } from 'tss-react/mui';
-
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
-
 import {
   Box,
   Collapse,
@@ -14,7 +8,11 @@ import {
   Typography
 } from '@mui/material';
 
-import { Group } from './Inputs/models';
+import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
+import type { Group } from './Inputs/models';
 
 interface Props {
   children: React.ReactNode;
@@ -35,10 +33,10 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'row'
   },
+  title: {},
   tooltip: {
     maxWidth: theme.spacing(60)
-  },
-  title: {}
+  }
 }));
 
 const CollapsibleGroup = ({
@@ -67,11 +65,11 @@ const CollapsibleGroup = ({
     }: Pick<Props, 'children'>): JSX.Element =>
       isCollapsible ? (
         <ListItemButton
+          aria-label={group?.name}
+          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
           dense
           disableGutters
           disableRipple
-          aria-label={group?.name}
-          className={`${cx(classes.groupTitleContainer, containerClassName)} bg-background-listing-header`}
           onClick={toggle}
         >
           {containerComponentChildren}
@@ -81,7 +79,14 @@ const CollapsibleGroup = ({
           {containerComponentChildren}
         </Box>
       ),
-    [isCollapsible]
+    [
+      isCollapsible,
+      classes.groupTitleContainer,
+      containerClassName,
+      cx,
+      group?.name,
+      toggle
+    ]
   );
 
   return (
@@ -89,10 +94,10 @@ const CollapsibleGroup = ({
       {hasGroupTitle && (
         <ContainerComponent>
           <div
-            data-testid={`${group?.name}-header`}
             className={
               'snap-y flex flex-row justify-between w-full pl-3 pr-1 text-white items-center'
             }
+            data-testid={`${group?.name}-header`}
           >
             <Typography
               className="groupText scroll-m-12 snap-start"

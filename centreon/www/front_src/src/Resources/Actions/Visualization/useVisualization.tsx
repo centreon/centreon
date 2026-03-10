@@ -1,7 +1,7 @@
+import { platformVersionsAtom } from '@centreon/ui-context';
+
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { cond, equals, has } from 'ramda';
-
-import { platformVersionsAtom } from '@centreon/ui-context';
 
 import { CriteriaNames } from '../../Filter/Criterias/models';
 import { setCriteriaAndNewFilterDerivedAtom } from '../../Filter/filterAtoms';

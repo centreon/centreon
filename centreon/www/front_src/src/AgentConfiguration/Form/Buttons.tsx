@@ -1,11 +1,14 @@
+import { Box, CircularProgress } from '@mui/material';
+
 import { UnsavedChangesDialog } from '@centreon/ui';
 import { Button } from '@centreon/ui/components';
-import { Box, CircularProgress } from '@mui/material';
+
 import { useFormikContext } from 'formik';
 import { useAtom, useSetAtom } from 'jotai';
 import { isNotEmpty } from 'ramda';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import {
   agentTypeFormAtom,
   askBeforeCloseFormModalAtom,
@@ -72,22 +75,22 @@ const Buttons = (): React.ReactElement => {
           {t(labelCancel)}
         </Button>
         <Button
+          data-testid="submit"
           disabled={isSubmitDisabled}
           onClick={submitForm}
           size="medium"
           type="submit"
-          data-testid="submit"
         >
           {t(labelSave)}
         </Button>
       </Box>
       <UnsavedChangesDialog
+        closeDialog={closeAskBeforeCloseModal}
+        dialogOpened={askBeforeCloseForm && dirty}
+        discardChanges={discard}
         isSubmitting={isSubmitting}
         isValidForm={isValid}
         saveChanges={submitAndClose}
-        closeDialog={closeAskBeforeCloseModal}
-        discardChanges={discard}
-        dialogOpened={askBeforeCloseForm && dirty}
       />
     </>
   );

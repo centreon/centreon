@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import data from '../../../fixtures/acls/acl-data.json';
 
@@ -65,11 +66,7 @@ Given('one contact group exists including two non admin contacts', () => {
 });
 
 When('the access group is saved with its properties', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
 
@@ -148,17 +145,13 @@ Given('a new access group with a linked contact group', () => {
 Then(
   'the contact group has the access group displayed in Relations information',
   () => {
-    cy.navigateTo({
-      page: 'Contact Groups',
-      rootItemNumber: 3,
-      subMenu: 'Users'
-    });
+    cy.visit(PAGES.configuration.contactGroupsLegacy);
 
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.executeActionOnIframe(
         data.contactGroups.contactGroup1.name,
-        ($body) => {
-          cy.wrap($body)
+        (body) => {
+          cy.wrap(body)
             .contains(data.contactGroups.contactGroup1.name)
             .eq(0)
             .click();
@@ -171,8 +164,8 @@ Then(
     cy.wait(['@getTimeZone', '@pendoRequest']).then(() => {
       cy.executeActionOnIframe(
         originalAclGroup.name,
-        ($body) => {
-          cy.wrap($body)
+        (body) => {
+          cy.wrap(body)
             .find('select[name="cg_acl_groups[]"]')
             .contains(originalAclGroup.name);
         },
@@ -188,11 +181,7 @@ Given('one existing ACL access group', () => {
 });
 
 When('I modify its properties', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains(originalAclGroup.name).click();
@@ -217,11 +206,7 @@ Then('all modified properties are updated', () => {
 });
 
 When('I duplicate the access group', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -276,11 +261,7 @@ Then('a new access group with identical properties is created', () => {
 });
 
 When('I delete the access group', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody()
@@ -315,11 +296,7 @@ Given('one existing enabled ACL access group', () => {
 });
 
 When('I disable it', () => {
-  cy.navigateTo({
-    page: 'Access Groups',
-    rootItemNumber: 4,
-    subMenu: 'ACL'
-  });
+  cy.visit(PAGES.configuration.aclAccessGroupsLegacy);
   cy.wait('@getTimeZone');
 
   cy.getIframeBody().contains(originalAclGroup.name).click();

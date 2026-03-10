@@ -1,10 +1,9 @@
+import type { SkeletonProps } from '@mui/material';
+
 import { makeStyles } from 'tss-react/mui';
 
-import { SkeletonProps } from '@mui/material';
-
 import LoadingSkeleton from '../LoadingSkeleton';
-
-import { PageSkeletonProps } from '.';
+import type { PageSkeletonProps } from '.';
 
 export const useSkeletonStyles = makeStyles()((theme) => ({
   skeletonLayout: {

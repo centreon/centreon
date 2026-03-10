@@ -7,6 +7,10 @@ on:
       nightly_manual_trigger:
         required: false
         type: boolean
+      labels:
+        required: false
+        type: string
+        default: ""
     outputs:
       latest_major_version:
         description: "latest major version"
@@ -107,6 +111,11 @@ jobs:
               } catch (e) {
                 core.warning(`failed to list labels: ${e}`);
               }
+            } else if ('${{ github.event_name }}' === 'workflow_dispatch' && '${{ inputs.labels }}'.length > 0) {
+              labels = '${{ inputs.labels }}'
+                .split(',')
+                .map(label => label.trim())
+                .filter(label => label.length > 0);
             }
 
             core.setOutput('labels', labels);
@@ -114,13 +123,13 @@ jobs:
             return hasSkipLabel;
 
       - name: Checkout sources (current branch)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: ${{ steps.has_skip_label.outputs.result == 'true' && 100 || 1 }}
 
       # get latest major version to detect cloud / on-prem versions
       - name: Checkout sources (develop branch)
-        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           ref: develop
           path: centreon-develop
@@ -181,7 +190,7 @@ jobs:
       - if: ${{ steps.has_skip_label.outputs.result == 'true' }}
         name: Get push changes
         id: get_push_changes
-        uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47.0.0
+        uses: tj-actions/changed-files@e0021407031f5be11a464abee9a0776171c79891 # v47.0.1
         with:
           since_last_remote_commit: true
           json: true
@@ -679,8 +688,8 @@ jobs:
               "database": "mariadb:10.11",
               "test_tags": "not @ignore"
             };
-            const alma8_mysql_8_0 = {
-              "operating_system": "alma8",
+            const alma9_mysql_8_0 = {
+              "operating_system": "alma9",
               "database": "mysql:8.0",
               "test_tags": "not @ignore"
             };
@@ -720,9 +729,9 @@ jobs:
               return configs[configIndex];
             };
 
-            const configs = [alma9_mariadb_10_11, alma8_mysql_8_0, bookworm_mysql_8_4];
+            const configs = [alma9_mariadb_10_11, alma9_mysql_8_0, bookworm_mysql_8_4];
 
-            const cloud = alma8_mysql_8_0;
+            const cloud = alma9_mysql_8_0;
 
             let main = alma9_mariadb_10_11;
             if ('${{ steps.detect_cloud_version.outputs.isCloud }}' == 'true') {

@@ -11,12 +11,9 @@ export const useTopBottomStyles = makeStyles<Params>()(
       gap: theme.spacing(2),
       gridTemplateColumns: 'minmax(50px, 1fr) minmax(100px, 1fr)'
     },
-    tooltipContainer: {
+    labelContainer: {
       display: 'flex',
-      alignItems: 'end',
-      height: theme.spacing(6.25),
-      marginRight: theme.spacing(3),
-      marginTop: theme.spacing(1)
+      flexDirection: 'column'
     },
     linkToResourcesStatus: {
       '&:hover': {
@@ -29,6 +26,11 @@ export const useTopBottomStyles = makeStyles<Params>()(
       display: 'flex',
       flexDirection: 'column',
       gap: theme.spacing(2)
+    },
+    metricTopContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      width: singleBarCurrentWidth
     },
     resourceLabel: {
       cursor: 'pointer',
@@ -50,19 +52,17 @@ export const useTopBottomStyles = makeStyles<Params>()(
       height: theme.spacing(6.25),
       marginTop: theme.spacing(1)
     },
-    labelContainer: {
+    tooltipContainer: {
+      alignItems: 'end',
       display: 'flex',
-      flexDirection: 'column'
-    },
-    metricTopContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      width: singleBarCurrentWidth
+      height: theme.spacing(6.25),
+      marginRight: theme.spacing(3),
+      marginTop: theme.spacing(1)
     },
     topBottomContainer: {
+      containerType: 'inline-size',
       display: 'flex',
       flexDirection: 'row',
-      containerType: 'inline-size',
       overflow: 'hidden'
     }
   })

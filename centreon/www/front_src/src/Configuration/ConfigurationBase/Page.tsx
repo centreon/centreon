@@ -1,31 +1,28 @@
-import { isNil, isNotEmpty, or } from 'ramda';
-import { JSX, useLayoutEffect } from 'react';
+import { LoadingSkeleton } from '@centreon/ui';
+import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
 
 import { useAtom, useSetAtom } from 'jotai';
-
-import { DataTable, PageHeader, PageLayout } from '@centreon/ui/components';
-import { Listing } from './Listing';
-import { Modal } from './Modal';
-
+import { isNil, isNotEmpty, or } from 'ramda';
+import { JSX, useLayoutEffect } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { ConfigurationBase } from '../models';
-
+import { modalStateAtom } from './atoms';
 import { DeleteDialog, DuplicateDialog } from './Dialogs';
 import useCoutChangedFilters from './Filters/AdvancedFilters/useCoutChangedFilters';
+import { Listing } from './Listing';
 import useLoadData from './Listing/useLoadData';
-import { modalStateAtom } from './atoms';
-
-import { LoadingSkeleton } from '@centreon/ui';
+import { Modal } from './Modal';
+import Navbar from './NavBar';
 
 const WelcomePage = ({
-  hasWriteAccess,
   labels,
   dataTestId,
   onCreate,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  hasWriteAccess
 }) => {
   const { isLoading, data } = useLoadData({ filtersAtom, filtersAtomKey });
 
@@ -45,10 +42,10 @@ const WelcomePage = ({
   return (
     <DataTable.EmptyState
       aria-label="create"
+      canCreate={hasWriteAccess}
       data-testid={dataTestId}
       labels={labels}
       onCreate={onCreate}
-      canCreate={hasWriteAccess}
     />
   );
 };
@@ -62,7 +59,8 @@ const Page = <TFilters,>({
   selectedColumnIdsAtom,
   filtersAtom,
   filtersAtomKey,
-  isWelcomePageDisplayedAtom
+  isWelcomePageDisplayedAtom,
+  navbar
 }: Pick<
   ConfigurationBase<TFilters>,
   | 'columns'
@@ -74,6 +72,7 @@ const Page = <TFilters,>({
   | 'filtersAtom'
   | 'filtersAtomKey'
   | 'isWelcomePageDisplayedAtom'
+  | 'navbar'
 >): JSX.Element => {
   const [, setSearchParams] = useSearchParams();
 
@@ -99,6 +98,11 @@ const Page = <TFilters,>({
           <PageHeader.Main>
             <PageHeader.Title title={labels.title} />
           </PageHeader.Main>
+          {!!navbar && (
+            <PageHeader.Actions>
+              <Navbar navbar={navbar} />
+            </PageHeader.Actions>
+          )}
         </PageHeader>
       </PageLayout.Header>
       <PageLayout.Body>
@@ -109,23 +113,23 @@ const Page = <TFilters,>({
           {isWelcomePageDisplayed ? (
             <WelcomePage
               dataTestId={`create-${resourceType}`}
-              labels={labels.welcomePage}
-              onCreate={openCreatetModal}
               filtersAtom={filtersAtom}
               filtersAtomKey={filtersAtomKey}
-              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
               hasWriteAccess={!!actions?.edit}
+              isWelcomePageDisplayedAtom={isWelcomePageDisplayedAtom}
+              labels={labels.welcomePage}
+              onCreate={openCreatetModal}
             />
           ) : (
             <Listing<TFilters>
-              selectedColumnIdsAtom={selectedColumnIdsAtom}
-              columns={columns}
-              hasWriteAccess={!!actions?.edit}
               actions={actions}
-              isLoading={isLoading}
+              columns={columns}
               data={data}
-              filtersAtomKey={filtersAtomKey}
               filtersAtom={filtersAtom}
+              filtersAtomKey={filtersAtomKey}
+              hasWriteAccess={!!actions?.edit}
+              isLoading={isLoading}
+              selectedColumnIdsAtom={selectedColumnIdsAtom}
             />
           )}
         </DataTable>

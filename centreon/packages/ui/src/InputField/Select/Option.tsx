@@ -1,11 +1,10 @@
-import { ReactElement, RefObject, forwardRef } from 'react';
-
-import { equals, isNil } from 'ramda';
-import { makeStyles } from 'tss-react/mui';
-
 import { Checkbox, Stack, Typography } from '@mui/material';
 
 import { ThemeMode } from '@centreon/ui-context';
+
+import { equals, isNil } from 'ramda';
+import { forwardRef, type ReactElement, type RefObject } from 'react';
+import { makeStyles } from 'tss-react/mui';
 
 const useStyles = makeStyles()((theme) => ({
   checkbox: {

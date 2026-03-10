@@ -1,6 +1,6 @@
-import { makeStyles } from 'tss-react/mui';
-
 import { Typography } from '@mui/material';
+
+import { makeStyles } from 'tss-react/mui';
 
 import Card from '../Card';
 
@@ -39,7 +39,7 @@ const DetailsCard = ({
   return (
     <Card className={classes.container}>
       <div className={classes.title}>
-        <Typography gutterBottom color="textSecondary" variant="body1">
+        <Typography color="textSecondary" gutterBottom variant="body1">
           {title}
         </Typography>
       </div>

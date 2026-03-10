@@ -1,13 +1,10 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import vms from '../../../fixtures/services/virtual-metric.json';
 
 const checkFirstVmFromListing = () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().find('div.md-checkbox.md-checkbox-inline').eq(1).click();
   cy.getIframeBody()
@@ -50,18 +47,14 @@ Given('an admin user is logged in a Centreon server', () => {
 });
 
 When('the user adds a virtual metric', () => {
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
   cy.wait('@getTimeZone');
   cy.getIframeBody().contains('a', 'Add').click();
   cy.addOrUpdateVirtualMetric(
     {
       ...vms.default,
-      warningThreshold: vms.default.warning_threshold,
-      criticalThreshold: vms.default.critical_threshold
+      criticalThreshold: vms.default.critical_threshold,
+      warningThreshold: vms.default.warning_threshold
     },
     false
   );
@@ -73,8 +66,8 @@ Then('all properties are saved', () => {
   cy.wait('@getTimeZone');
   cy.checkFieldsOfVm({
     ...vms.default,
-    warningThreshold: vms.default.warning_threshold,
-    criticalThreshold: vms.default.critical_threshold
+    criticalThreshold: vms.default.critical_threshold,
+    warningThreshold: vms.default.warning_threshold
   });
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')
@@ -83,11 +76,7 @@ Then('all properties are saved', () => {
 
 Given('an existing virtual metric', () => {
   cy.visit('/').url().should('include', '/monitoring/resources');
-  cy.navigateTo({
-    page: 'Virtual Metrics',
-    rootItemNumber: 1,
-    subMenu: 'Performances'
-  });
+  cy.visit(PAGES.monitoring.virtualMetricsLegacy);
 });
 
 When('the user changes the properties of the configured virtual metric', () => {
@@ -95,8 +84,8 @@ When('the user changes the properties of the configured virtual metric', () => {
   cy.addOrUpdateVirtualMetric(
     {
       ...vms.vmForUpdate,
-      warningThreshold: vms.default.warning_threshold,
-      criticalThreshold: vms.default.critical_threshold
+      criticalThreshold: vms.default.critical_threshold,
+      warningThreshold: vms.default.warning_threshold
     },
     false
   );
@@ -107,8 +96,8 @@ Then('these properties are updated', () => {
   cy.getIframeBody().contains(vms.vmForUpdate.name).click();
   cy.checkFieldsOfVm({
     ...vms.vmForUpdate,
-    warningThreshold: vms.default.warning_threshold,
-    criticalThreshold: vms.default.critical_threshold
+    criticalThreshold: vms.default.critical_threshold,
+    warningThreshold: vms.default.warning_threshold
   });
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')
@@ -127,8 +116,8 @@ Then('a new virtual metric is created with identical fields', () => {
   cy.getIframeBody().contains(vms.vmForDuplication.name).click();
   cy.checkFieldsOfVm({
     ...vms.vmForDuplication,
-    warningThreshold: vms.default.warning_threshold,
-    criticalThreshold: vms.default.critical_threshold
+    criticalThreshold: vms.default.critical_threshold,
+    warningThreshold: vms.default.warning_threshold
   });
   cy.getIframeBody()
     .find('.md-checkbox input[name="vhidden"]')

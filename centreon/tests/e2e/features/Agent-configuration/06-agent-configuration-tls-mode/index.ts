@@ -1,4 +1,5 @@
 import { Given, Then, When } from '@badeball/cypress-cucumber-preprocessor';
+import { PAGES } from 'fixtures/shared/constants/pages';
 
 import agentsConfiguration from '../../../fixtures/agents-configuration/agent-config.json';
 
@@ -23,6 +24,9 @@ before(() => {
   );
   cy.setUserTokenApiV1().executeCommandsViaClapi(
     'resources/clapi/pollers/poller-4.json'
+  );
+  cy.setUserTokenApiV1().executeCommandsViaClapi(
+    'resources/clapi/pollers/poller-5.json'
   );
 });
 
@@ -58,7 +62,7 @@ Given('a non-admin user is on the Agents Configuration page', () => {
     jsonName: 'user-non-admin-for-AC',
     loginViaApi: false
   });
-  cy.visit('/centreon/configuration/pollers/agent-configurations');
+  cy.visit(PAGES.configuration.agentConfigurations);
   cy.wait('@getAgentsPage');
 });
 
@@ -102,7 +106,7 @@ Then('no certificate fields are shown', () => {
 
 When('the user enables connection initiated by the poller', () => {
   // Disable the "By agent" mode first
-  cy.getByTestId({ testId: 'enable_agent', tag: 'span' }).click();
+  cy.getByTestId({ tag: 'span', testId: 'enable_agent' }).click();
   // Then enable the "By poller" mode
   cy.contains('div', 'By poller').click();
   cy.get('input[type="checkbox"]').click();
@@ -164,7 +168,7 @@ When('the user fills in the mandatory Telegraf fields', () => {
     agentsConfiguration.telegraf1.name
   );
   cy.getByLabel({ label: 'Pollers', tag: 'input' }).click();
-  cy.contains('Central').click();
+  cy.contains('Poller-5').click();
   // Click outside to close the pollers dropdown list
   cy.contains('h6', 'Pollers').click();
   cy.getByLabel({ label: 'Port', tag: 'input' }).clear().type('1447');
@@ -224,7 +228,7 @@ Then('a pop-up with the Telegraf agent details is displayed', () => {
   cy.get('#Name').should('contain.value', agentsConfiguration.telegraf1.name);
   cy.get('#Agenttype').should('have.value', telegrafTypeName);
   cy.get('#Encryptionlevel').should('have.value', 'No TLS');
-  cy.contains('Central').should('be.visible');
+  cy.contains('Poller-5').should('be.visible');
   cy.get('#Port').should('have.value', '1447');
 });
 

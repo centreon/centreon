@@ -1,26 +1,20 @@
-import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
-import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
-import widgetSingleMetricProperties from './Widgets/centreon-widget-singlemetric/properties.json';
-import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
-import widgetWebpageProperties from './Widgets/centreon-widget-webpage/properties.json';
-
-import i18next from 'i18next';
-import { Provider, createStore } from 'jotai';
-import { initReactI18next } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
-
 import { Method, SnackbarProvider, TestQueryProvider } from '@centreon/ui';
 import {
-  DashboardGlobalRole,
-  ListingVariant,
   additionalResourcesAtom,
+  DashboardGlobalRole,
   federatedWidgetsAtom,
+  ListingVariant,
   platformVersionsAtom,
   refreshIntervalAtom,
   userAtom
 } from '@centreon/ui-context';
 
+import i18next from 'i18next';
+import { createStore, Provider } from 'jotai';
 import { equals } from 'ramda';
+import { initReactI18next } from 'react-i18next';
+import { BrowserRouter } from 'react-router';
+
 import { federatedWidgets } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgets';
 import { federatedWidgetsProperties } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/federatedWidgetsProperties';
 import { version } from '../../../../../../cypress/fixtures/Dashboards/Dashboard/ExpandReduce/version';
@@ -49,9 +43,12 @@ import {
   labelSharesSaved,
   labelUpdate
 } from '../../translatedLabels';
+import {
+  dashboardAtom,
+  isEditingAtom,
+  isRedirectionBlockedAtom
+} from './atoms';
 import Dashboard from './Dashboard';
-import { internalWidgetComponents } from './Widgets/widgets';
-import { dashboardAtom, isRedirectionBlockedAtom } from './atoms';
 import { routerParams } from './hooks/useDashboardDetails';
 import { saveBlockerHooks } from './hooks/useDashboardSaveBlocker';
 import {
@@ -75,6 +72,12 @@ import {
   labelYourDashboardHasBeenSaved,
   labelYourRightsOnlyAllowToView
 } from './translatedLabels';
+import widgetGenericTextProperties from './Widgets/centreon-widget-generictext/properties.json';
+import widgetInputProperties from './Widgets/centreon-widget-input/properties.json';
+import widgetSingleMetricProperties from './Widgets/centreon-widget-singlemetric/properties.json';
+import widgetTextProperties from './Widgets/centreon-widget-text/properties.json';
+import widgetWebpageProperties from './Widgets/centreon-widget-webpage/properties.json';
+import { internalWidgetComponents } from './Widgets/widgets';
 
 const widgetProperties = [
   widgetTextProperties,
@@ -282,6 +285,7 @@ const initializeAndMount = ({
       resourceType: 'business-activity'
     }
   ]);
+  store.set(isEditingAtom, false);
 
   i18next.use(initReactI18next).init({
     lng: 'en',
@@ -291,20 +295,20 @@ const initializeAndMount = ({
   cy.viewport('macbook-13');
 
   interceptDetailsDashboard({
+    own_role: ownRole,
     path:
       customDetailsPath ??
-      `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`,
-    own_role: ownRole
+      `Dashboards/Dashboard/${detailsWithData ? 'detailsWithData' : 'details'}.json`
   });
 
   cy.interceptAPIRequest({
     alias: 'updateDashboard',
     method: Method.POST,
     path: getDashboardEndpoint('1'),
-    statusCode: 201,
     response: {
       id: 1
-    }
+    },
+    statusCode: 201
   });
 
   cy.fixture('Dashboards/dashboards.json').then((dashboards) => {
@@ -543,10 +547,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/graph.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
-            response: data,
+            alias: 'centreon-widget-graph',
             method: Method.GET,
-            alias: 'centreon-widget-graph'
+            path: './api/latest/monitoring/dashboard/metrics/performances/data?**',
+            response: data
           });
         }
       );
@@ -554,10 +558,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/topbottom.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/dashboard/metrics/top?**',
-            response: data,
+            alias: 'centreon-widget-topbottom',
             method: Method.GET,
-            alias: 'centreon-widget-topbottom'
+            path: './api/latest/monitoring/dashboard/metrics/top?**',
+            response: data
           });
         }
       );
@@ -565,10 +569,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/resourcestable.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/resources?**',
-            response: data,
+            alias: 'centreon-widget-resourcestable',
             method: Method.GET,
-            alias: 'centreon-widget-resourcestable'
+            path: './api/latest/monitoring/resources?**',
+            response: data
           });
         }
       );
@@ -577,10 +581,10 @@ describe('Dashboard', () => {
         'Dashboards/Dashboard/ExpandReduce/statuschartServices.json'
       ).then((data) => {
         cy.interceptAPIRequest({
-          path: './api/latest/monitoring/services/status?**',
-          response: data,
+          alias: 'centreon-widget-statuschartServices',
           method: Method.GET,
-          alias: 'centreon-widget-statuschartServices'
+          path: './api/latest/monitoring/services/status?**',
+          response: data
         });
       });
 
@@ -588,20 +592,20 @@ describe('Dashboard', () => {
         'Dashboards/Dashboard/ExpandReduce/statuschartHosts.json'
       ).then((data) => {
         cy.interceptAPIRequest({
-          path: './api/latest/monitoring/hosts/status?**',
-          response: data,
+          alias: 'centreon-widget-statuschartHosts',
           method: Method.GET,
-          alias: 'centreon-widget-statuschartHosts'
+          path: './api/latest/monitoring/hosts/status?**',
+          response: data
         });
       });
 
       cy.fixture('Dashboards/Dashboard/ExpandReduce/statusgrid.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/resources?**',
-            response: data,
+            alias: 'centreon-widget-statusgrid',
             method: Method.GET,
-            alias: 'centreon-widget-statusgrid'
+            path: './api/latest/monitoring/resources?**',
+            response: data
           });
         }
       );
@@ -609,10 +613,10 @@ describe('Dashboard', () => {
       cy.fixture('Dashboards/Dashboard/ExpandReduce/groupmonitoring.json').then(
         (data) => {
           cy.interceptAPIRequest({
-            path: './api/latest/monitoring/hostgroups?**',
-            response: data,
+            alias: 'centreon-widget-groupmonitoring',
             method: Method.GET,
-            alias: 'centreon-widget-groupmonitoring'
+            path: './api/latest/monitoring/hostgroups?**',
+            response: data
           });
         }
       );
@@ -636,7 +640,7 @@ describe('Dashboard', () => {
           .last()
           .as('header')
           .scrollIntoView();
-        waitWidgetData({ widgetName, isExpanded: false });
+        waitWidgetData({ isExpanded: false, widgetName });
         cy.get('@header').findByLabelText(labelMoreActions).click();
 
         takeSnapshot({
@@ -648,14 +652,14 @@ describe('Dashboard', () => {
         cy.findByRole('dialog').as('modal');
         cy.get('@modal').should('be.visible');
 
-        waitWidgetData({ widgetName, isExpanded: true });
+        waitWidgetData({ isExpanded: true, widgetName });
         takeSnapshot({
           titleSnapshot: `${widgetName} in mode expanded`,
           widgetName: widgetName
         });
 
         cy.get('@modal').findByLabelText(labelReduce).click();
-        waitWidgetData({ widgetName, isExpanded: false });
+        waitWidgetData({ isExpanded: false, widgetName });
       });
     });
   });
@@ -678,9 +682,10 @@ describe('Dashboard', () => {
         .type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
-      cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
 
       cy.contains('Text for the new widget').should('be.visible');
+
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
 
     it('adds a widget according to its custom default size when a widget type is selected and the submission button is clicked', () => {
@@ -688,6 +693,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findByLabelText(labelAddAWidget).click();
 
       cy.findByLabelText(labelWidgetType).click();
@@ -700,14 +706,14 @@ describe('Dashboard', () => {
         .type('Text for the new widget');
 
       cy.findAllByLabelText(labelSave).eq(1).click();
-      cy.findAllByLabelText(labelSave).eq(1).should('be.disabled');
 
       cy.get('.react-grid-item')
         .eq(3)
         .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 12, 240)');
-      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '593px');
+      cy.get('.react-grid-item').eq(3).should('have.css', 'width', '598px');
 
       cy.get('.react-grid-item').eq(3).should('have.css', 'height', '444px');
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
   });
 
@@ -717,6 +723,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelEditWidget).click();
 
@@ -742,12 +749,16 @@ describe('Dashboard', () => {
         });
 
       cy.makeSnapshot();
+
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
 
     it('resizes the widget to its minimum size when the handle is dragged', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelEditDashboard).click();
 
       cy.get('[data-can-move="true"]')
         .eq(0)
@@ -766,6 +777,24 @@ describe('Dashboard', () => {
         .eq(0)
         .parent()
         .should('have.css', 'height');
+
+      cy.findAllByLabelText(labelSave).eq(0).click();
+    });
+  });
+
+  describe('Duplicate', () => {
+    it('duplicates the widget when the corresponding button is clicked', () => {
+      initializeAndMount(editorRoles);
+
+      cy.waitForRequest('@getDashboardDetails');
+
+      cy.findByLabelText(labelEditDashboard).click();
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+      cy.findByLabelText(labelDuplicate).click();
+
+      cy.findAllByText('Widget text').should('have.length', 2);
+      cy.get('body').click();
+      cy.findAllByLabelText(labelSave).eq(0).click();
     });
   });
 
@@ -775,6 +804,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findAllByLabelText(labelMoreActions).eq(0).click();
       cy.contains(labelDeleteWidget).click();
 
@@ -787,6 +817,8 @@ describe('Dashboard', () => {
       cy.contains(labelAddAWidget).should('be.visible');
 
       cy.makeSnapshot();
+
+      cy.findByTestId('save_dashboard').click({ force: true });
     });
 
     it('does not display the name of the widget when the corresponding button is clicked', () => {
@@ -794,6 +826,7 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@getDashboardDetails');
 
+      cy.findByLabelText(labelEditDashboard).click();
       cy.findAllByLabelText(labelMoreActions).eq(2).click();
       cy.contains(labelDeleteWidget).click();
 
@@ -802,55 +835,13 @@ describe('Dashboard', () => {
       );
 
       cy.makeSnapshot();
-    });
-  });
 
-  describe('View mode', () => {
-    it('displays the widget form in editor mode when the user has editor role and the user is not editing the dashboard', () => {
-      initializeAndMount(editorRoles);
-
-      cy.contains(labelCancel).click();
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.findByLabelText(labelEditWidget).click();
-
-      cy.findByLabelText(labelWidgetType).should('be.enabled');
-
-      cy.findByLabelText('close').click();
-
-      cy.findByLabelText(labelWidgetType).should('exist');
-
-      cy.makeSnapshot();
-    });
-
-    it('displays the widget form in view mode when the user has viewer role', () => {
-      initializeAndMount(viewerRoles);
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-
-      cy.findByLabelText(labelViewProperties).click();
-
-      cy.findByLabelText(labelWidgetType).should('be.disabled');
-      cy.findByLabelText(labelCancel).should('not.exist');
-      cy.findByLabelText(labelSave).should('not.exist');
-      cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
-      cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
-
-      cy.makeSnapshot();
-    });
-  });
-
-  describe('Duplicate', () => {
-    it('duplicates the widget when the corresponding button is clicked', () => {
-      initializeAndMount(editorRoles);
-
-      cy.waitForRequest('@getDashboardDetails');
-
-      cy.findAllByLabelText(labelMoreActions).eq(0).click();
-      cy.findByLabelText(labelDuplicate).click();
-
-      cy.findAllByText('Widget text').should('have.length', 2);
+      cy.findByTestId('cancel').click();
+      cy.contains('The widget will be permanently deleted.').should(
+        'not.exist'
+      );
+      cy.get('body').click();
+      cy.findByTestId('cancel_dashboard').click();
     });
   });
 
@@ -859,8 +850,6 @@ describe('Dashboard', () => {
       initializeAndMount(editorRoles);
 
       cy.waitForRequest('@getDashboardDetails');
-
-      cy.findByLabelText(labelCancel).click();
 
       cy.findByLabelText('edit').click();
 
@@ -888,10 +877,10 @@ describe('Dashboard', () => {
 
       cy.waitForRequest('@updateDashboard').then(({ request }) => {
         expect(request.body).to.deep.equal({
-          name: 'My Dashboard',
           description: 'my description',
-          'refresh[type]': 'manual',
-          'refresh[interval]': '1515'
+          name: 'My Dashboard',
+          'refresh[interval]': '1515',
+          'refresh[type]': 'manual'
         });
       });
 
@@ -1246,7 +1235,43 @@ describe('Dashboard with complex layout', () => {
     cy.findAllByLabelText(labelSave).eq(1).click();
 
     cy.get('.react-grid-item')
-      .eq(4)
-      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 317, 12)');
+      .eq(3)
+      .should('have.css', 'transform', 'matrix(1, 0, 0, 1, 12, 240)');
+  });
+
+  describe('View mode', () => {
+    it('displays the widget form in editor mode when the user has editor role and the user is not editing the dashboard', () => {
+      initializeAndMount(editorRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelEditWidget).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.enabled');
+
+      cy.findByLabelText('close').click();
+
+      cy.findByLabelText(labelWidgetType).should('exist');
+
+      cy.makeSnapshot();
+    });
+
+    it('displays the widget form in view mode when the user has viewer role', () => {
+      initializeAndMount(viewerRoles);
+
+      cy.findAllByLabelText(labelMoreActions).eq(0).click();
+
+      cy.findByLabelText(labelViewProperties).click();
+
+      cy.findByLabelText(labelWidgetType).should('be.disabled');
+      cy.findByLabelText(labelCancel).should('not.exist');
+      cy.findByLabelText(labelSave).should('not.exist');
+      cy.contains(labelYourRightsOnlyAllowToView).should('be.visible');
+      cy.contains(labelPleaseContactYourAdministrator).should('be.visible');
+
+      cy.makeSnapshot();
+
+      cy.findByLabelText('close').click();
+    });
   });
 });
