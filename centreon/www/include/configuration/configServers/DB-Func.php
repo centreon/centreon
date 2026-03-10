@@ -331,14 +331,12 @@ function deleteServerInDB(array $serverIds): void
         $updateInstanceStmt->execute();
         deleteCentreonBrokerByPollerId($serverId);
 
-        if ($row !== false) {
-            $centreon->CentreonLogAction->insertLog(
-                'poller',
-                $serverId,
-                $row['name'],
-                'd'
-            );
-        }
+        $centreon->CentreonLogAction->insertLog(
+            'poller',
+            $serverId,
+            $row !== false ? $row['name'] : "id:{$serverId}",
+            'd'
+        );
     }
 }
 
