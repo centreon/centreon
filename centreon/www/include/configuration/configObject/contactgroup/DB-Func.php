@@ -106,12 +106,7 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
     global $pearDB, $centreon;
 
     $selectStmt = $pearDB->prepare(
-        'SELECT cg_name, cg_alias, cg_comment, cg_activate
-        FROM `contactgroup` WHERE `cg_id` = :cgId LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO `contactgroup` (`cg_name`, `cg_alias`, `cg_comment`, `cg_activate`)
-        VALUES (:cgName, :cgAlias, :cgComment, :cgActivate)'
+        'SELECT * FROM `contactgroup` WHERE `cg_id` = :cgId LIMIT 1'
     );
     $selectAclStmt = $pearDB->prepare(
         'SELECT DISTINCT `acl_group_id` FROM `acl_group_contactgroups_relations` WHERE `cg_cg_id` = :cgId'
@@ -135,6 +130,12 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         if (! $row) {
             continue;
         }
+        $row['cg_id'] = null;
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO `contactgroup` (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
@@ -147,10 +148,11 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
 
             $pearDB->beginTransaction();
             try {
-                $insertStmt->bindValue(':cgName', $cg_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':cgAlias', $row['cg_alias'], $row['cg_alias'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $insertStmt->bindValue(':cgComment', $row['cg_comment'], $row['cg_comment'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $insertStmt->bindValue(':cgActivate', $row['cg_activate'], $row['cg_activate'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $row['cg_name'] = $cg_name;
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
                 $insertStmt->execute();
 
                 $newCgId = (int) $pearDB->lastInsertId();

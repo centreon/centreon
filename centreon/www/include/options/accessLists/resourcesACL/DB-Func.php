@@ -171,15 +171,7 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
     global $pearDB, $centreon;
 
     $selectStmt = $pearDB->prepare(
-        'SELECT acl_res_name, acl_res_alias, all_hosts, all_hostgroups, all_servicegroups, '
-        . 'all_image_folders, acl_res_activate, changed, acl_res_comment '
-        . 'FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO acl_resources (acl_res_name, acl_res_alias, all_hosts, all_hostgroups, '
-        . 'all_servicegroups, all_image_folders, acl_res_activate, changed, acl_res_comment) '
-        . 'VALUES (:acl_res_name, :acl_res_alias, :all_hosts, :all_hostgroups, '
-        . ':all_servicegroups, :all_image_folders, :acl_res_activate, :changed, :acl_res_comment)'
+        'SELECT * FROM `acl_resources` WHERE acl_res_id = :acl_res_id LIMIT 1'
     );
 
     foreach (array_keys($lcas) as $key) {
@@ -189,6 +181,12 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
+        $row['acl_res_id'] = null;
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_resources (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
         $originalName = $row['acl_res_name'];
         $dupCount = (int) ($nbrDup[$key] ?? 0);
@@ -204,15 +202,11 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                     continue;
                 }
 
-                $insertStmt->bindValue(':acl_res_name', $acl_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':acl_res_alias', $row['acl_res_alias'], $row['acl_res_alias'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $insertStmt->bindValue(':all_hosts', $row['all_hosts'], $row['all_hosts'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $insertStmt->bindValue(':all_hostgroups', $row['all_hostgroups'], $row['all_hostgroups'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $insertStmt->bindValue(':all_servicegroups', $row['all_servicegroups'], $row['all_servicegroups'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $insertStmt->bindValue(':all_image_folders', $row['all_image_folders'], $row['all_image_folders'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-                $insertStmt->bindValue(':acl_res_activate', $row['acl_res_activate'], $row['acl_res_activate'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $insertStmt->bindValue(':changed', $row['changed'], $row['changed'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-                $insertStmt->bindValue(':acl_res_comment', $row['acl_res_comment'], $row['acl_res_comment'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $row['acl_res_name'] = $acl_name;
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
                 $insertStmt->execute();
 
                 $newId = (int) $pearDB->lastInsertId();

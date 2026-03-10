@@ -78,18 +78,8 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
         return;
     }
 
-    $columns = [
-        'name', 'vertical_label', 'width', 'height', 'base',
-        'lower_limit', 'upper_limit', 'size_to_max', 'default_tpl1',
-        'scaled', 'stacked', 'comment', 'split_component',
-    ];
-    $intColumns = ['width' => true, 'height' => true, 'base' => true, 'size_to_max' => true];
     $selectStmt = $pearDB->prepare(
-        'SELECT ' . implode(', ', $columns) . ' FROM giv_graphs_template WHERE graph_id = :graphTemplateId LIMIT 1'
-    );
-    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO giv_graphs_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        'SELECT * FROM giv_graphs_template WHERE graph_id = :graphTemplateId LIMIT 1'
     );
 
     foreach (array_keys($graphs) as $key) {
@@ -104,7 +94,14 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
             continue;
         }
 
+        $row['graph_id'] = null;
         $row['default_tpl1'] = '0';
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO giv_graphs_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
         $originalName = html_entity_decode((string) $row['name'], ENT_QUOTES, 'UTF-8');
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -115,14 +112,7 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
             }
             foreach ($columns as $col) {
                 $value = $row[$col];
-                if ($value === null) {
-                    $type = PDO::PARAM_NULL;
-                } elseif (isset($intColumns[$col])) {
-                    $type = PDO::PARAM_INT;
-                } else {
-                    $type = PDO::PARAM_STR;
-                }
-                $insertStmt->bindValue(':' . $col, $value, $type);
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
             $insertStmt->execute();
             $i++;

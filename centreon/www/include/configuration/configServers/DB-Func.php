@@ -403,8 +403,6 @@ function duplicateServer(array $server, array $nbrDup): void
             (int) $nbrDup[$serverId]
         );
 
-        $intColumns = ['id', 'is_default', 'last_restart', 'ssh_port', 'gorgone_port', 'remote_id', 'is_encryption_ready'];
-
         foreach ($availableSuffix as $suffix) {
             $serverName = null;
             $columns = [];
@@ -417,7 +415,7 @@ function duplicateServer(array $server, array $nbrDup): void
                 }
                 $columns[] = '`' . $columnName . '`';
                 $paramKey = ':p' . $paramIndex++;
-                $params[$paramKey] = [$columnValue, in_array($columnName, $intColumns, true)];
+                $params[$paramKey] = $columnValue;
             }
             $decodedName = $serverName !== null
                 ? html_entity_decode($serverName, ENT_QUOTES, 'UTF-8')
@@ -428,15 +426,8 @@ function duplicateServer(array $server, array $nbrDup): void
                 $insertStmt = $pearDB->prepare(
                     'INSERT INTO `nagios_server` (' . $columnList . ') VALUES (' . $placeholders . ')'
                 );
-                foreach ($params as $paramKey => [$paramValue, $isInt]) {
-                    if ($paramValue === null) {
-                        $type = PDO::PARAM_NULL;
-                    } elseif ($isInt) {
-                        $type = PDO::PARAM_INT;
-                    } else {
-                        $type = PDO::PARAM_STR;
-                    }
-                    $insertStmt->bindValue($paramKey, $paramValue, $type);
+                foreach ($params as $paramKey => $paramValue) {
+                    $insertStmt->bindValue($paramKey, $paramValue, $paramValue === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 }
                 $insertStmt->execute();
 

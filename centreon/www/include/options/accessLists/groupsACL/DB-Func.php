@@ -171,12 +171,7 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
     global $pearDB, $centreon;
 
     $selectStmt = $pearDB->prepare(
-        'SELECT acl_group_name, acl_group_alias, acl_group_activate, acl_group_changed
-        FROM acl_groups WHERE acl_group_id = :aclGroupId LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO acl_groups (acl_group_name, acl_group_alias, acl_group_activate, acl_group_changed)'
-        . ' VALUES (:name, :alias, :activate, :changed)'
+        'SELECT * FROM acl_groups WHERE acl_group_id = :aclGroupId LIMIT 1'
     );
 
     foreach (array_keys($groups) as $key) {
@@ -186,6 +181,12 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
+        $row['acl_group_id'] = null;
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_groups (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
@@ -197,14 +198,12 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
             }
             $pearDB->beginTransaction();
             try {
-                $insertStmt->bindValue(':name', $acl_group_name, PDO::PARAM_STR);
-                $alias = $row['acl_group_alias'];
-                $insertStmt->bindValue(':alias', $alias, $alias === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $activate = $row['acl_group_activate'];
-                $insertStmt->bindValue(':activate', $activate, $activate === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $changed = $row['acl_group_changed'];
-                $insertStmt->bindValue(':changed', $changed, $changed === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-                    $insertStmt->execute();
+                $row['acl_group_name'] = $acl_group_name;
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
 
                     $lastInsertId = $pearDB->lastInsertId();
                     if ($lastInsertId === false) {

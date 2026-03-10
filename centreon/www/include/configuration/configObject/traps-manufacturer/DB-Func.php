@@ -62,11 +62,7 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
     global $pearDB, $oreon;
 
     $selectStmt = $pearDB->prepare(
-        'SELECT name, alias, description FROM traps_vendor WHERE id = :id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO traps_vendor (name, alias, description)
-        VALUES (:name, :alias, :description)'
+        'SELECT * FROM traps_vendor WHERE id = :id LIMIT 1'
     );
 
     foreach (array_keys($mnftr) as $key) {
@@ -76,6 +72,12 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
+        $row['id'] = null;
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO traps_vendor (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -83,13 +85,12 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
             if (! testMnftrExistence($name)) {
                 continue;
             }
-            $fields = [];
-            foreach ($row as $key2 => $value2) {
-                $fields[$key2] = $key2 === 'name' ? $name : $value2;
+            $row['name'] = $name;
+            $fields = $row;
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
-            $insertStmt->bindValue(':name', $name, PDO::PARAM_STR);
-            $insertStmt->bindValue(':alias', $row['alias'], $row['alias'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            $insertStmt->bindValue(':description', $row['description'], $row['description'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $insertStmt->execute();
             $newMnftrId = (int) $pearDB->lastInsertId();
             $oreon->CentreonLogAction->insertLog(

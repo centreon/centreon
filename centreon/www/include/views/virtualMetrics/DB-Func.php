@@ -129,18 +129,8 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         return;
     }
 
-    $columns = [
-        'index_id', 'vmetric_name', 'def_type', 'rpn_function',
-        'unit_name', 'warn', 'crit', 'hidden', 'comment',
-        'vmetric_activate', 'ck_state',
-    ];
-    $intColumns = ['index_id' => true, 'warn' => true, 'crit' => true];
-    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
     $selectStmt = $pearDB->prepare(
-        'SELECT ' . implode(', ', $columns) . ' FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
     );
 
     foreach (array_keys($vmetrics) as $vmetricId) {
@@ -150,6 +140,13 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
+
+        $row['vmetric_id'] = null;
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
         $indexId = (int) $row['index_id'];
         $originalName = $row['vmetric_name'];
@@ -164,14 +161,7 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 
             foreach ($columns as $col) {
                 $value = $row[$col];
-                if ($value === null) {
-                    $type = PDO::PARAM_NULL;
-                } elseif (isset($intColumns[$col])) {
-                    $type = PDO::PARAM_INT;
-                } else {
-                    $type = PDO::PARAM_STR;
-                }
-                $insertStmt->bindValue(':' . $col, $value, $type);
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
             $insertStmt->execute();
         }

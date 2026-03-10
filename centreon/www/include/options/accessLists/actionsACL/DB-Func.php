@@ -234,12 +234,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
     global $pearDB, $centreon;
 
     $selectStmt = $pearDB->prepare(
-        'SELECT acl_action_name, acl_action_description, acl_action_activate
-        FROM acl_actions WHERE acl_action_id = :id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO acl_actions (acl_action_name, acl_action_description, acl_action_activate)
-        VALUES (:aclActionName, :aclActionDescription, :aclActionActivate)'
+        'SELECT * FROM acl_actions WHERE acl_action_id = :id LIMIT 1'
     );
     $selectGroupStmt = $pearDB->prepare(
         'SELECT DISTINCT acl_group_id FROM acl_group_actions_relations WHERE acl_action_id = :id'
@@ -261,6 +256,12 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
+        $row['acl_action_id'] = null;
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_actions (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
@@ -269,17 +270,11 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             if (! testActionExistence($aclActionName)) {
                 continue;
             }
-            $insertStmt->bindValue(':aclActionName', $aclActionName, PDO::PARAM_STR);
-            $insertStmt->bindValue(
-                ':aclActionDescription',
-                $row['acl_action_description'],
-                $row['acl_action_description'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR
-            );
-            $insertStmt->bindValue(
-                ':aclActionActivate',
-                $row['acl_action_activate'],
-                $row['acl_action_activate'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR
-            );
+            $row['acl_action_name'] = $aclActionName;
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
             $i++;

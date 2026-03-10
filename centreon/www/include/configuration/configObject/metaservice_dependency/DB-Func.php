@@ -79,16 +79,7 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
 {
     global $pearDB;
     $selectStmt = $pearDB->prepare(
-        'SELECT dep_name, dep_description, inherits_parent, execution_failure_criteria,
-                notification_failure_criteria, dep_comment
-        FROM dependency WHERE dep_id = :dep_id LIMIT 1'
-    );
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO dependency
-        (dep_name, dep_description, inherits_parent, execution_failure_criteria,
-         notification_failure_criteria, dep_comment)
-        VALUES (:dep_name, :dep_description, :inherits_parent, :execution_failure_criteria,
-         :notification_failure_criteria, :dep_comment)'
+        'SELECT * FROM dependency WHERE dep_id = :dep_id LIMIT 1'
     );
     $selectParentStmt = $pearDB->prepare(
         'SELECT DISTINCT meta_service_meta_id FROM dependency_metaserviceParent_relation '
@@ -110,10 +101,16 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
     foreach (array_keys($dependencies) as $key) {
         $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
-        $row = $selectStmt->fetch();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
             continue;
         }
+        $row['dep_id'] = null;
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -121,12 +118,11 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
             if (! testExistence($dep_name)) {
                 continue;
             }
-            $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
-            $insertStmt->bindValue(':dep_description', $row['dep_description'], $row['dep_description'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], $row['inherits_parent'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], $row['execution_failure_criteria'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], $row['notification_failure_criteria'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            $insertStmt->bindValue(':dep_comment', $row['dep_comment'], $row['dep_comment'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $row['dep_name'] = $dep_name;
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
             $i++;

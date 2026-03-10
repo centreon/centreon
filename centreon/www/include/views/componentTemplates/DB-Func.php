@@ -176,25 +176,9 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
         return;
     }
 
-    $columns = [
-        'name', 'ds_name', 'ds_color_line', 'ds_color_line_mode',
-        'ds_color_area', 'ds_color_area_warn', 'ds_color_area_crit',
-        'ds_filled', 'ds_max', 'ds_min', 'ds_minmax_int',
-        'ds_average', 'ds_last', 'ds_total', 'ds_tickness',
-        'ds_transparency', 'ds_invert', 'ds_legend', 'ds_jumpline',
-        'ds_stack', 'ds_hidecurve', 'ds_order', 'ds_color_forecast',
-        'ds_color_forecast_warn', 'ds_color_forecast_crit',
-        'host_id', 'service_id', 'default_tpl1', 'comment',
-    ];
     $selectStmt = $pearDB->prepare(
-        'SELECT ' . implode(', ', $columns) . ' FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1'
+        'SELECT * FROM giv_components_template WHERE compo_id = :compo_id LIMIT 1'
     );
-    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO giv_components_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
-    );
-
-    $intColumns = ['host_id', 'service_id', 'ds_tickness', 'ds_order', 'default_tpl1'];
 
     foreach (array_keys($compos) as $key) {
         $dupCount = (int) ($nbrDup[$key] ?? 0);
@@ -208,7 +192,14 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             continue;
         }
 
+        $row['compo_id'] = null;
         $row['default_tpl1'] = '0';
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO giv_components_template (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
+
         $originalName = $row['name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -218,14 +209,7 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             }
             foreach ($columns as $col) {
                 $value = $row[$col];
-                if ($value === null) {
-                    $type = PDO::PARAM_NULL;
-                } elseif (in_array($col, $intColumns, true)) {
-                    $type = PDO::PARAM_INT;
-                } else {
-                    $type = PDO::PARAM_STR;
-                }
-                $insertStmt->bindValue(':' . $col, $value, $type);
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
             $insertStmt->execute();
             $i++;
