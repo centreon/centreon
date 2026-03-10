@@ -23,23 +23,14 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadata;
+use App\MonitoringConfiguration\Domain\Aggregate\PlatformMetadata\PlatformMetadataName;
+use App\MonitoringConfiguration\Domain\Exception\PlatformMetadataNotFoundException;
 
-interface PollerRepository
+interface PlatformMetadataRepository
 {
     /**
-     * @return Collection<Poller>
+     * @throws PlatformMetadataNotFoundException
      */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
-
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
+    public function getByName(PlatformMetadataName $name): PlatformMetadata;
 }

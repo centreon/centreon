@@ -21,25 +21,10 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Exception;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
+use App\Shared\Domain\Exception\AggregateNotFoundException;
 
-interface PollerRepository
+final class PlatformMetadataNotFoundException extends AggregateNotFoundException
 {
-    /**
-     * @return Collection<Poller>
-     */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
-
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
 }

@@ -24,7 +24,12 @@ declare(strict_types=1);
 namespace App\MonitoringConfiguration\Infrastructure\Dbal;
 
 use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateCN;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\CMACertificateSHA;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerCMACertificates;
+use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
+use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
 use App\MonitoringConfiguration\Domain\Repository\PollerRepository;
 use App\Shared\Domain\Collection;
 use App\Shared\Infrastructure\Dbal\DbalRepository;
@@ -38,10 +43,14 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * @phpstan-type RowTypeAlias = array{
  *   poller_id: int,
  *   poller_name: string,
+ *   poller_address: string,
+ *   is_central: '0'|'1',
  * }
  * @phpstan-type JoinRowTypeAlias = array{
  *   poller_id: int,
  *   poller_name: string,
+ *   poller_address: string,
+ *   is_central: '0'|'1',
  *   gm_resource_id: int,
  *   gm_resource_name: string,
  *   gm_resource_line: string,
@@ -63,11 +72,16 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         #[Autowire(service: 'doctrine.dbal.default_connection')]
         private Connection $connection,
 
+        #[Autowire(service: 'doctrine.dbal.realtime_connection')]
+        private Connection $realTimeConnection,
+
         #[Autowire(service: DbalPollerTransformer::class)]
         private TransformerInterface $pollerTransformer,
 
         #[Autowire(service: DbalGlobalMacroTransformer::class)]
         private TransformerInterface $globalMacroTransformer,
+
+        private bool $withCmaCertificates = false,
     ) {
     }
 
@@ -113,6 +127,43 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return $this->createPollers($pollerRows, $globalMacroRows);
     }
 
+    public function get(PollerId $pollerId): Poller
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $qb->select(...self::getSelectColumns())
+            ->from(self::TABLE_NAME, 'p')
+            ->where('p.id = :poller_id')
+            ->setParameter('poller_id', $pollerId->value);
+
+        /** @var array<RowTypeAlias> $rows */
+        $rows = $qb->executeQuery()->fetchAllAssociative();
+
+        if (empty($rows)) {
+            throw new PollerNotFoundException(
+                ['poller_id' => $pollerId->value],
+                sprintf('Poller #%d not found', $pollerId->value)
+            );
+        }
+
+        $poller = $this->createPoller($rows[0]);
+        if ($this->withCmaCertificates) {
+            $this->loadCmaCertificates($poller);
+        }
+
+        return $poller;
+    }
+
+    public function withCmaCertificates(): self
+    {
+        return new self(
+            connection: $this->connection,
+            realTimeConnection: $this->realTimeConnection,
+            pollerTransformer: $this->pollerTransformer,
+            globalMacroTransformer: $this->globalMacroTransformer,
+            withCmaCertificates: true,
+        );
+    }
+
     /**
      * @return array<string>
      */
@@ -121,7 +172,28 @@ final readonly class DbalPollerRepository extends DbalRepository implements Poll
         return [
             "{$alias}.id AS poller_id",
             "{$alias}.name AS poller_name",
+            "{$alias}.localhost AS is_central",
+            "{$alias}.ns_ip_address AS poller_address",
         ];
+    }
+
+    private function loadCmaCertificates(Poller $poller): void
+    {
+        $qb = $this->realTimeConnection->createQueryBuilder();
+        $qb->select('i.cma_certificate_sha AS certificate_sha', 'i.cma_certificate_cn  AS certificate_cn')
+            ->from('instances', 'i')
+            ->where('i.instance_id = :poller_id')
+            ->setParameter('poller_id', $poller->id()->value);
+
+        $row = $qb->executeQuery()->fetchAssociative() ?: [];
+        $certSha = $row['certificate_sha'] ?? null;
+        $certCn = $row['certificate_cn'] ?? null;
+        $poller->addPollerCMACertificates(
+            new PollerCMACertificates(
+                certificateSha: is_string($certSha) && $certSha !== '' ? new CMACertificateSHA($certSha) : null,
+                certificateCn: is_string($certCn) && $certCn !== '' ? new CMACertificateCN($certCn) : null,
+            )
+        );
     }
 
     /**

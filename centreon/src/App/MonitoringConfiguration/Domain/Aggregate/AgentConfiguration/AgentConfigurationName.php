@@ -21,25 +21,19 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
-interface PollerRepository
+final class AgentConfigurationName
 {
-    /**
-     * @return Collection<Poller>
-     */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
+    private const MAX_NAME_LENGTH = 255;
 
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
+    public function __construct(
+        public string $value,
+    ) {
+        $this->value = trim($this->value);
+        Assert::maxLength($this->value, self::MAX_NAME_LENGTH);
+        Assert::stringNotEmpty($this->value);
+    }
 }

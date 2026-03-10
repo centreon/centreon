@@ -23,23 +23,12 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
+use App\Security\Domain\Aggregate\UserId;
 
-interface PollerRepository
+interface ResourceAccessRepository
 {
-    /**
-     * @return Collection<Poller>
-     */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
+    public function hasAccessToAllPollers(UserId $userId): bool;
 
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
+    public function hasAccessToPoller(PollerId $pollerId, UserId $userId): bool;
 }

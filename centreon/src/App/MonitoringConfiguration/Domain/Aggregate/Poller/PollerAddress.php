@@ -21,25 +21,24 @@
 
 declare(strict_types=1);
 
-namespace App\MonitoringConfiguration\Domain\Repository;
+namespace App\MonitoringConfiguration\Domain\Aggregate\Poller;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
+use Webmozart\Assert\Assert;
 
-interface PollerRepository
+final readonly class PollerAddress
 {
-    /**
-     * @return Collection<Poller>
-     */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
+    public function __construct(public string $value)
+    {
+        Assert::lengthBetween($value, 1, 255);
+        $this->assertValidIpOrFqdn($value);
+    }
 
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
+    private function assertValidIpOrFqdn(string $ipAddress): void
+    {
+        Assert::true(
+            filter_var($ipAddress, FILTER_VALIDATE_IP) !== false
+            || filter_var($ipAddress, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false,
+            'The value "%s" is not a valid IPv4, IPv6 address or FQDN.'
+        );
+    }
 }

@@ -23,23 +23,14 @@ declare(strict_types=1);
 
 namespace App\MonitoringConfiguration\Domain\Repository;
 
-use App\MonitoringConfiguration\Domain\Aggregate\GlobalMacro\GlobalMacro;
-use App\MonitoringConfiguration\Domain\Aggregate\Poller\Poller;
+use App\MonitoringConfiguration\Domain\Aggregate\AgentConfiguration\AgentConfiguration;
 use App\MonitoringConfiguration\Domain\Aggregate\Poller\PollerId;
-use App\MonitoringConfiguration\Domain\Exception\PollerNotFoundException;
-use App\Shared\Domain\Collection;
+use App\MonitoringConfiguration\Domain\Exception\AgentConfigurationNotFoundException;
 
-interface PollerRepository
+interface AgentConfigurationRepository
 {
     /**
-     * @return Collection<Poller>
+     * @throws AgentConfigurationNotFoundException
      */
-    public function findAllByGlobalMacro(GlobalMacro $globalMacro): Collection;
-
-    /**
-     * @throws PollerNotFoundException
-     */
-    public function get(PollerId $pollerId): Poller;
-
-    public function withCmaCertificates(): self;
+    public function getByPollerId(PollerId $pollerId): AgentConfiguration;
 }
