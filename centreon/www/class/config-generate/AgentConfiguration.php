@@ -128,6 +128,7 @@ class AgentConfiguration extends AbstractObjectJSON
             'centreon_agent' => [
                 'check_interval' => CmaConfigurationParameters::DEFAULT_CHECK_INTERVAL,
                 'export_period' => CmaConfigurationParameters::DEFAULT_EXPORT_PERIOD,
+                'create_host_auto' => $data['create_host_auto'] ?? false,
             ],
         ];
 

@@ -71,6 +71,7 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
       )
     ),
     agentInitiated: JsonDecoder.boolean,
+    createHostAuto: JsonDecoder.optional(JsonDecoder.boolean),
     pollerInitiated: JsonDecoder.boolean,
     otelPublicCertificate: JsonDecoder.nullable(JsonDecoder.string),
     otelCaCertificate: JsonDecoder.nullable(JsonDecoder.string),
@@ -107,6 +108,7 @@ const cmaConfigurationDecoder = JsonDecoder.object<CMAConfiguration>(
   'CMA configuration',
   {
     agentInitiated: 'agent_initiated',
+    createHostAuto: 'create_host_auto',
     pollerInitiated: 'poller_initiated',
     otelPrivateKey: 'otel_private_key',
     otelPublicCertificate: 'otel_public_certificate',
