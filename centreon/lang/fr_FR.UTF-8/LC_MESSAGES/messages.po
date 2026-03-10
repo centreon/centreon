@@ -3759,6 +3759,10 @@ msgid "Create dashboard"
 msgstr "Créer un tableau de bord"
 
 #: centreon/www/install/front_translate.php
+msgid "Create hosts automatically"
+msgstr "Créer les hôtes automatiquement"
+
+#: centreon/www/install/front_translate.php
 msgid "Create new CMA token"
 msgstr "Créer un nouveau jeton CMA"
 
@@ -6961,6 +6965,7 @@ msgid "Escalations"
 msgstr "Escalades"
 
 #: centreon/www/include/reporting/dashboard/initReport.php
+#: centreon/www/install/centreon_broker_translation.php
 #: centreon/www/install/front_translate.php
 msgid "Event"
 msgstr "Évènement"
@@ -10455,6 +10460,10 @@ msgstr "Gérer la taille de l'enveloppe"
 #: centreon/www/install/front_translate.php
 msgid "Manage filters"
 msgstr "Gérer les filtres"
+
+#: centreon/www/install/centreon_broker_translation.php
+msgid "Managed event TTL"
+msgstr "Temps de vie de l'événement géré"
 
 #: centreon/www/install/menu_translation.php
 msgid "Manager"
@@ -14497,6 +14506,10 @@ msgstr "Options d'ordonnancement"
 msgid "Scopes"
 msgstr "Portées"
 
+#: centreon/www/install/centreon_broker_translation.php
+msgid "Script path"
+msgstr "Chemin du script"
+
 #: centreon/www/install/front_translate.php
 msgid "Scroll to top"
 msgstr "Défiler vers le haut"
@@ -17365,6 +17378,7 @@ msgid "Timeline"
 msgstr "Historique"
 
 #: centreon/www/include/configuration/configObject/traps/formTraps.php
+#: centreon/www/install/centreon_broker_translation.php
 msgid "Timeout"
 msgstr "Temps d'exécution maximum"
 
@@ -21199,6 +21213,12 @@ msgstr ""
 "Vous pouvez lier une valeur d'autorisation à un groupe d'accès."
 
 #: unknown
+msgid ""
+"Delay before the script is called again for the same event (in seconds)"
+msgstr ""
+"Délai avant nouvel appel du script pour un même évènement (en secondes)"
+
+#: unknown
 msgid "Delete a widget"
 msgstr "Supprimer un widget"
 
@@ -23354,6 +23374,10 @@ msgstr "File d'attente"
 #: unknown
 msgid "Scope"
 msgstr "Portée"
+
+#: unknown
+msgid "Script response time before timeout (in seconds)"
+msgstr "Délai de réponse du script avant abandon (en secondes)"
 
 #: unknown
 msgid "Search contact groups"
