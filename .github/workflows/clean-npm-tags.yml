@@ -12,7 +12,9 @@ jobs:
   clean-npm-tags:
     needs: [dependency-scan]
     runs-on: ubuntu-22.04
-
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
