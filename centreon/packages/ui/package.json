@@ -28,8 +28,8 @@
     "url": "git+https://github.com/centreon/centreon.git"
   },
   "keywords": [
-    "centreon",
-    "react"
+    "react",
+    "centreon"
   ],
   "author": {
     "name": "centreon@centreon.com"
