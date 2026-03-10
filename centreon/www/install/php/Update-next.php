@@ -287,8 +287,6 @@ try {
         $pearDB->startTransaction();
     }
 
-    $rewordingResourceToGlobalMacro();
-    $fixDuplicateHostGroupTopology();
     $migrateAccJsonToTables();
 
     if ($pearDB->isTransactionActive()) {
