@@ -205,47 +205,47 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                 }
                 $insertStmt->execute();
 
-                    $lastInsertId = $pearDB->lastInsertId();
-                    if ($lastInsertId === false) {
-                        $pearDB->rollBack();
+                $lastInsertId = $pearDB->lastInsertId();
+                if ($lastInsertId === false) {
+                    $pearDB->rollBack();
 
-                        continue;
-                    }
-                    $maxId = (int) $lastInsertId;
-                    if ($maxId <= 0) {
-                        $pearDB->rollBack();
-
-                        continue;
-                    }
-
-                    // Duplicate Links
-                    duplicateContacts($key, $maxId, $pearDB);
-                    duplicateContactGroups($key, $maxId, $pearDB);
-                    duplicateResources($key, $maxId, $pearDB);
-                    duplicateActions($key, $maxId, $pearDB);
-                    duplicateMenus($key, $maxId, $pearDB);
-
-                    $fields = [
-                        'acl_group_name' => $acl_group_name,
-                        'acl_group_alias' => $row['acl_group_alias'],
-                        'acl_group_activate' => $row['acl_group_activate'],
-                    ];
-                    $centreon->CentreonLogAction->insertLog(
-                        'access group',
-                        $maxId,
-                        $acl_group_name,
-                        'a',
-                        $fields
-                    );
-                    $pearDB->commit();
-                    $i++;
-                } catch (Throwable $e) {
-                    if ($pearDB->inTransaction()) {
-                        $pearDB->rollBack();
-                    }
-
-                    throw $e;
+                    continue;
                 }
+                $maxId = (int) $lastInsertId;
+                if ($maxId <= 0) {
+                    $pearDB->rollBack();
+
+                    continue;
+                }
+
+                // Duplicate Links
+                duplicateContacts($key, $maxId, $pearDB);
+                duplicateContactGroups($key, $maxId, $pearDB);
+                duplicateResources($key, $maxId, $pearDB);
+                duplicateActions($key, $maxId, $pearDB);
+                duplicateMenus($key, $maxId, $pearDB);
+
+                $fields = [
+                    'acl_group_name' => $acl_group_name,
+                    'acl_group_alias' => $row['acl_group_alias'],
+                    'acl_group_activate' => $row['acl_group_activate'],
+                ];
+                $centreon->CentreonLogAction->insertLog(
+                    'access group',
+                    $maxId,
+                    $acl_group_name,
+                    'a',
+                    $fields
+                );
+                $pearDB->commit();
+                $i++;
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
+            }
         }
     }
 }
