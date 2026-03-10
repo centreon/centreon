@@ -20,6 +20,9 @@ const getNpmToken = async (oidcToken) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token: oidcToken })
   });
+  if (response.status !== 200) {
+    console.log(response.json());
+  }
   const { token: npmToken } = await response.json();
   return npmToken;
 };
