@@ -51,7 +51,9 @@ const checkAndCleanUpTag = async ({ dependency, branch }) => {
 
 const run = async () => {
   const oidcToken = await getOidcToken();
+  core.setSecret(oidcToken);
   const npmToken = await (getNpmToken(oidcToken));
+  core.setSecret(npmToken);
   execSync(`npm config set "//registry.npmjs.org/:_authToken" "${npmToken}"`);
 
   await Promise.all(
