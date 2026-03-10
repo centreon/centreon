@@ -72,15 +72,20 @@ jobs:
         id: image_tag
         run: |
           REF="${{ github.head_ref || github.ref_name }}"
+          MAJOR_VERSION="${{ needs.get-environment.outputs.major_version }}"
           if [[ "$REF" == "develop" ]]; then
-            echo "tag=develop-${{ needs.get-environment.outputs.major_version }}" >> $GITHUB_OUTPUT
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=develop" >> $GITHUB_OUTPUT
+            # Keep major_version tag so dev-XX.YY.x E2E tests can still resolve their FROM image
+            echo "major_version_tag=${MAJOR_VERSION}" >> $GITHUB_OUTPUT
           elif [[ "$REF" =~ ^dev-[0-9]+\.[0-9]+\.x$ ]]; then
-            echo "tag=${{ needs.get-environment.outputs.major_version }}" >> $GITHUB_OUTPUT
+            echo "tag=${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
+            echo "major_version_tag=" >> $GITHUB_OUTPUT
           else
             echo "tag=$REF" >> $GITHUB_OUTPUT
             echo "additional_tag=" >> $GITHUB_OUTPUT
+            echo "major_version_tag=" >> $GITHUB_OUTPUT
           fi
         shell: bash
 
@@ -108,6 +113,7 @@ jobs:
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ steps.image_tag.outputs.tag }}
             ${{ steps.image_tag.outputs.additional_tag != '' && format('{0}/centreon-web-dependencies-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.additional_tag) || '' }}
+            ${{ steps.image_tag.outputs.major_version_tag != '' && format('{0}/centreon-web-dependencies-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.major_version_tag) || '' }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
@@ -134,6 +140,7 @@ jobs:
           tags: |
             ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ steps.image_tag.outputs.tag }}
             ${{ steps.image_tag.outputs.additional_tag != '' && format('{0}/centreon-web-dependencies-collect-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.additional_tag) || '' }}
+            ${{ steps.image_tag.outputs.major_version_tag != '' && format('{0}/centreon-web-dependencies-collect-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.major_version_tag) || '' }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
