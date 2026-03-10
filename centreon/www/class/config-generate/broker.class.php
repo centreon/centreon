@@ -468,7 +468,7 @@ class Broker extends AbstractObjectJSON
                     if ($dbSslCa !== null) {
                         $output['db_ssl_ca'] = $dbSslCa;
                     }
-                    if (array_key_exists('db_password',$output)) {
+                    if (array_key_exists('db_password', $output)) {
                         $output['db_password'] = $shouldBeEncrypted
                             ? 'encrypt::' . $this->engineContextEncryption->crypt($output['db_password'])
                             : $output['db_password'];
