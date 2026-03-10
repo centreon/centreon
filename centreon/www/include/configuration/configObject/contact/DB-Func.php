@@ -678,6 +678,7 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
             if (! testContactExistence($contactName, true) || ! testAliasExistence($contactAlias, true)) {
                 continue;
             }
+            $i++;
 
             $insertData['contact_name'] = $contactName;
             $insertData['contact_alias'] = $contactAlias;
@@ -885,7 +886,6 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                 'a',
                 $fields
             );
-            $i++;
         }
     }
 

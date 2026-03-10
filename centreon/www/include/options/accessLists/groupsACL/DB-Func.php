@@ -196,6 +196,8 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
             if (! testGroupExistence($acl_group_name)) {
                 continue;
             }
+            $i++;
+
             $pearDB->beginTransaction();
             try {
                 $row['acl_group_name'] = $acl_group_name;
@@ -238,7 +240,6 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                     $fields
                 );
                 $pearDB->commit();
-                $i++;
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();

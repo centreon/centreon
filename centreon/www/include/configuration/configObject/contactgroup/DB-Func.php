@@ -145,6 +145,7 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
             if (! testContactGroupExistence($cg_name)) {
                 continue;
             }
+            $i++;
 
             $pearDB->beginTransaction();
             try {
@@ -200,7 +201,6 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                     'a',
                     $fields
                 );
-                $i++;
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();

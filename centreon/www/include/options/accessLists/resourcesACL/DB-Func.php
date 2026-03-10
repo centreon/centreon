@@ -194,14 +194,13 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
         for ($i = 0; $i < $dupCount; $suffix++) {
             $acl_name = $originalName . '_' . $suffix;
 
+            if (! testExistence($acl_name)) {
+                continue;
+            }
+            $i++;
+
             $pearDB->beginTransaction();
             try {
-                if (! testExistence($acl_name)) {
-                    $pearDB->rollBack();
-
-                    continue;
-                }
-
                 $row['acl_res_name'] = $acl_name;
                 foreach ($columns as $col) {
                     $value = $row[$col];
@@ -229,7 +228,6 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                     'a',
                     $fields
                 );
-                $i++;
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();

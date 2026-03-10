@@ -204,6 +204,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
             if (! testServiceGroupExistence($sgName)) {
                 continue;
             }
+            $i++;
             if (! empty($bindParams)) {
                 $statement = $pearDB->prepare('
                     INSERT INTO servicegroup
@@ -217,7 +218,6 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 $statement->execute();
             }
             $newSgId = (int) $pearDB->lastInsertId();
-            $i++;
             if ($newSgId > 0) {
                 $sgAcl[$newSgId] = $sgId;
                 $statement = $pearDB->prepare('

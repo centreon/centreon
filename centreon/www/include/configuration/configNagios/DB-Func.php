@@ -210,6 +210,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
             if (! testExistence($nagios_name)) {
                 continue;
             }
+            $i++;
             foreach ($columns as $col) {
                 $value = $row[$col];
                 $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
@@ -234,7 +235,6 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                 }
                 duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $newNagiosId);
                 $pearDB->commit();
-                $i++;
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();

@@ -136,6 +136,7 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
             if (! isset($tp_name) || ! testTPExistence($tp_name)) {
                 continue;
             }
+            $i++;
             $params = [
                 'values' => $val,
                 'timeperiod_id' => $key,
@@ -148,7 +149,6 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
                 action_type: ActionLog::ACTION_TYPE_ADD,
                 fields: $fields
             );
-            $i++;
         }
     }
 }

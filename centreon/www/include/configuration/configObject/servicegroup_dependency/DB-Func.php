@@ -124,13 +124,14 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
             $dep_name = $row['dep_name'] . '_' . $suffix;
-            $fields = [];
-            foreach ($row as $key2 => $value2) {
-                $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
-            }
             if (! testServiceGroupDependencyExistence($dep_name)) {
                 continue;
             }
+            $i++;
+            $fields = [];
+            foreach ($row as $key2 => $value2) {
+                $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
+            };
             $row['dep_name'] = $dep_name;
             foreach ($columns as $col) {
                 $value = $row[$col];
@@ -138,7 +139,6 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
             }
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
-            $i++;
             if ($lastId > 0) {
                 $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
                 $selectParentStmt->execute();

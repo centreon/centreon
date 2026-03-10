@@ -118,6 +118,7 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
             if (! testExistence($dep_name)) {
                 continue;
             }
+            $i++;
             $row['dep_name'] = $dep_name;
             foreach ($columns as $col) {
                 $value = $row[$col];
@@ -125,7 +126,6 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
             }
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
-            $i++;
             if ($lastId > 0) {
                 $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
                 $selectParentStmt->execute();

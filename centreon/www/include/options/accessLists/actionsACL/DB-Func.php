@@ -270,6 +270,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             if (! testActionExistence($aclActionName)) {
                 continue;
             }
+            $i++;
             $row['acl_action_name'] = $aclActionName;
             foreach ($columns as $col) {
                 $value = $row[$col];
@@ -277,7 +278,6 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             }
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
-            $i++;
             if ($lastId > 0) {
                 $selectGroupStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
                 $selectGroupStmt->execute();

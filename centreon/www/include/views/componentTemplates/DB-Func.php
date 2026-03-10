@@ -207,12 +207,12 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             if (! NameHsrTestExistence($row['name'])) {
                 continue;
             }
+            $i++;
             foreach ($columns as $col) {
                 $value = $row[$col];
                 $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             }
             $insertStmt->execute();
-            $i++;
         }
     }
 }

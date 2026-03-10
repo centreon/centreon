@@ -85,6 +85,7 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
             if (! testMnftrExistence($name)) {
                 continue;
             }
+            $i++;
             $row['name'] = $name;
             $fields = $row;
             foreach ($columns as $col) {
@@ -100,7 +101,6 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
                 'a',
                 $fields
             );
-            $i++;
         }
     }
 }

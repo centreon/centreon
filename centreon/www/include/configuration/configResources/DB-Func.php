@@ -207,6 +207,7 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                 if (! testExistence($name) || is_null($value)) {
                     continue;
                 }
+                $newIndex++;
                 if ((bool) $resourceConfiguration['is_password'] === true) {
                     $vaultPath = saveInVault($name, $value);
                 }
@@ -229,7 +230,6 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                 $statement->execute();
 
                 $lastId = (int) $pearDB->lastInsertId();
-                $newIndex++;
                 if ($lastId <= 0) {
                     continue;
                 }
