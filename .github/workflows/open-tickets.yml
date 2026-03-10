@@ -447,7 +447,7 @@ jobs:
 
       - name: Get FROM image tag
         id: from_image_version
-        uses: ./.github/actions/get-from-image-version
+        uses: ./.github/actions/get-docker-from-image-version
         with:
           from_image:    centreon-web-${{ matrix.operating_system }}
           current_tag:   ${{ steps.image_tag.outputs.tag }}

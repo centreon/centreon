@@ -1,4 +1,4 @@
-name: get-from-image-version
+name: get-docker-from-image-version
 description: |
   Resolves the Docker image tag to use as FROM in a dockerize job.
   Resolution order:
