@@ -114,11 +114,13 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
             continue;
         }
         $row['tp_id'] = null;
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
             $val = [];
             foreach ($row as $key2 => $value2) {
                 if ($key2 == 'tp_name') {
-                    $value2 .= '_' . $i;
+                    $value2 .= '_' . $suffix;
                 }
                 if ($key2 == 'tp_name') {
                     $tp_name = $value2;
@@ -131,20 +133,22 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
                     $fields['tp_name'] = $tp_name;
                 }
             }
-            if (isset($tp_name) && testTPExistence($tp_name)) {
-                $params = [
-                    'values' => $val,
-                    'timeperiod_id' => $key,
-                ];
-                $tpId = duplicateTimePeriod($params);
-                $centreon->CentreonLogAction->insertLog(
-                    object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
-                    object_id: $tpId,
-                    object_name: $tp_name,
-                    action_type: ActionLog::ACTION_TYPE_ADD,
-                    fields: $fields
-                );
+            if (! isset($tp_name) || ! testTPExistence($tp_name)) {
+                continue;
             }
+            $params = [
+                'values' => $val,
+                'timeperiod_id' => $key,
+            ];
+            $tpId = duplicateTimePeriod($params);
+            $centreon->CentreonLogAction->insertLog(
+                object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
+                object_id: $tpId,
+                object_name: $tp_name,
+                action_type: ActionLog::ACTION_TYPE_ADD,
+                fields: $fields
+            );
+            $i++;
         }
     }
 }

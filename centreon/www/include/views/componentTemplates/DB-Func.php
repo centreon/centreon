@@ -210,15 +210,25 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
 
         $row['default_tpl1'] = '0';
         $originalName = $row['name'];
-        for ($i = 1; $i <= $dupCount; $i++) {
-            $row['name'] = $originalName . '_' . $i;
-            if (NameHsrTestExistence($row['name'])) {
-                foreach ($columns as $col) {
-                    $type = in_array($col, $intColumns, true) ? PDO::PARAM_INT : PDO::PARAM_STR;
-                    $insertStmt->bindValue(':' . $col, $row[$col], $type);
-                }
-                $insertStmt->execute();
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $row['name'] = $originalName . '_' . $suffix;
+            if (! NameHsrTestExistence($row['name'])) {
+                continue;
             }
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                if ($value === null) {
+                    $type = PDO::PARAM_NULL;
+                } elseif (in_array($col, $intColumns, true)) {
+                    $type = PDO::PARAM_INT;
+                } else {
+                    $type = PDO::PARAM_STR;
+                }
+                $insertStmt->bindValue(':' . $col, $value, $type);
+            }
+            $insertStmt->execute();
+            $i++;
         }
     }
 }

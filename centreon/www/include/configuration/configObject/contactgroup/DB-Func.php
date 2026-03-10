@@ -137,8 +137,9 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         }
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
-        for ($i = 1; $i <= $dupCount; $i++) {
-            $cg_name = $row['cg_name'] . '_' . $i;
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $cg_name = $row['cg_name'] . '_' . $suffix;
 
             if (! testContactGroupExistence($cg_name)) {
                 continue;
@@ -147,9 +148,9 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
             $pearDB->beginTransaction();
             try {
                 $insertStmt->bindValue(':cgName', $cg_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':cgAlias', $row['cg_alias'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':cgComment', $row['cg_comment'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':cgActivate', $row['cg_activate'], PDO::PARAM_STR);
+                $insertStmt->bindValue(':cgAlias', $row['cg_alias'], $row['cg_alias'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $insertStmt->bindValue(':cgComment', $row['cg_comment'], $row['cg_comment'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $insertStmt->bindValue(':cgActivate', $row['cg_activate'], $row['cg_activate'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 $insertStmt->execute();
 
                 $newCgId = (int) $pearDB->lastInsertId();
@@ -197,6 +198,7 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                     'a',
                     $fields
                 );
+                $i++;
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();

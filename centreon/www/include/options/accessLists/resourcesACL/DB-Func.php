@@ -192,8 +192,9 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
 
         $originalName = $row['acl_res_name'];
         $dupCount = (int) ($nbrDup[$key] ?? 0);
-        for ($i = 1; $i <= $dupCount; $i++) {
-            $acl_name = $originalName . '_' . $i;
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $acl_name = $originalName . '_' . $suffix;
 
             $pearDB->beginTransaction();
             try {
@@ -204,14 +205,14 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                 }
 
                 $insertStmt->bindValue(':acl_res_name', $acl_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':acl_res_alias', $row['acl_res_alias'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':all_hosts', $row['all_hosts']);
-                $insertStmt->bindValue(':all_hostgroups', $row['all_hostgroups']);
-                $insertStmt->bindValue(':all_servicegroups', $row['all_servicegroups']);
-                $insertStmt->bindValue(':all_image_folders', (int) $row['all_image_folders'], PDO::PARAM_INT);
-                $insertStmt->bindValue(':acl_res_activate', $row['acl_res_activate']);
-                $insertStmt->bindValue(':changed', (int) $row['changed'], PDO::PARAM_INT);
-                $insertStmt->bindValue(':acl_res_comment', $row['acl_res_comment']);
+                $insertStmt->bindValue(':acl_res_alias', $row['acl_res_alias'], $row['acl_res_alias'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $insertStmt->bindValue(':all_hosts', $row['all_hosts'], $row['all_hosts'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $insertStmt->bindValue(':all_hostgroups', $row['all_hostgroups'], $row['all_hostgroups'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $insertStmt->bindValue(':all_servicegroups', $row['all_servicegroups'], $row['all_servicegroups'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $insertStmt->bindValue(':all_image_folders', $row['all_image_folders'], $row['all_image_folders'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+                $insertStmt->bindValue(':acl_res_activate', $row['acl_res_activate'], $row['acl_res_activate'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $insertStmt->bindValue(':changed', $row['changed'], $row['changed'] === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+                $insertStmt->bindValue(':acl_res_comment', $row['acl_res_comment'], $row['acl_res_comment'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 $insertStmt->execute();
 
                 $newId = (int) $pearDB->lastInsertId();
@@ -234,6 +235,7 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                     'a',
                     $fields
                 );
+                $i++;
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();

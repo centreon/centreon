@@ -106,23 +106,26 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
 
         $row['default_tpl1'] = '0';
         $originalName = html_entity_decode((string) $row['name'], ENT_QUOTES, 'UTF-8');
-        for ($i = 1; $i <= $dupCount; $i++) {
-            $decodedName = $originalName . '_' . $i;
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $decodedName = $originalName . '_' . $suffix;
             $row['name'] = htmlentities($decodedName, ENT_QUOTES, 'UTF-8');
-            if (testExistence($decodedName)) {
-                foreach ($columns as $col) {
-                    $value = $row[$col];
-                    if ($value === null) {
-                        $type = PDO::PARAM_NULL;
-                    } elseif (isset($intColumns[$col])) {
-                        $type = PDO::PARAM_INT;
-                    } else {
-                        $type = PDO::PARAM_STR;
-                    }
-                    $insertStmt->bindValue(':' . $col, $value, $type);
-                }
-                $insertStmt->execute();
+            if (! testExistence($decodedName)) {
+                continue;
             }
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                if ($value === null) {
+                    $type = PDO::PARAM_NULL;
+                } elseif (isset($intColumns[$col])) {
+                    $type = PDO::PARAM_INT;
+                } else {
+                    $type = PDO::PARAM_STR;
+                }
+                $insertStmt->bindValue(':' . $col, $value, $type);
+            }
+            $insertStmt->execute();
+            $i++;
         }
     }
 }

@@ -123,52 +123,56 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $dep_name = $row['dep_name'] . '_' . $i;
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $dep_name = $row['dep_name'] . '_' . $suffix;
             $fields = [];
             foreach ($row as $key2 => $value2) {
                 $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
             }
-            if (testServiceGroupDependencyExistence($dep_name)) {
-                $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
-                $insertStmt->execute();
-                $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId > 0) {
-                    $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectParentStmt->execute();
-                    $fields['dep_sgParents'] = '';
-                    while ($sg = $selectParentStmt->fetch()) {
-                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                        $insertParentStmt->execute();
-                        $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
-                    }
-                    $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
-                    $selectParentStmt->closeCursor();
-                    $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectChildStmt->execute();
-                    $fields['dep_sgChilds'] = '';
-                    while ($sg = $selectChildStmt->fetch()) {
-                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                        $insertChildStmt->execute();
-                        $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
-                    }
-                    $selectChildStmt->closeCursor();
-                    $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
-                    $oreon->CentreonLogAction->insertLog(
-                        'servicegroup dependency',
-                        $lastId,
-                        $dep_name,
-                        'a',
-                        $fields
-                    );
+            if (! testServiceGroupDependencyExistence($dep_name)) {
+                continue;
+            }
+            $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
+            $insertStmt->bindValue(':dep_description', $row['dep_description'], $row['dep_description'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], $row['inherits_parent'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], $row['execution_failure_criteria'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], $row['notification_failure_criteria'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':dep_comment', $row['dep_comment'], $row['dep_comment'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->execute();
+            $lastId = (int) $pearDB->lastInsertId();
+            $i++;
+            if ($lastId > 0) {
+                $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                $selectParentStmt->execute();
+                $fields['dep_sgParents'] = '';
+                while ($sg = $selectParentStmt->fetch()) {
+                    $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                    $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                    $insertParentStmt->execute();
+                    $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
                 }
+                $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
+                $selectParentStmt->closeCursor();
+                $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                $selectChildStmt->execute();
+                $fields['dep_sgChilds'] = '';
+                while ($sg = $selectChildStmt->fetch()) {
+                    $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                    $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                    $insertChildStmt->execute();
+                    $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
+                }
+                $selectChildStmt->closeCursor();
+                $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
+                $oreon->CentreonLogAction->insertLog(
+                    'servicegroup dependency',
+                    $lastId,
+                    $dep_name,
+                    'a',
+                    $fields
+                );
             }
         }
     }

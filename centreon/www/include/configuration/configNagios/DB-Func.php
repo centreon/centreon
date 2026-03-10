@@ -201,41 +201,46 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
         );
 
         $originalName = $row['nagios_name'];
-        for ($i = 1; $i <= $nbrDup[$originalNagiosId]; $i++) {
-            $nagios_name = $originalName . '_' . $i;
+        $dupCount = (int) ($nbrDup[$originalNagiosId] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $nagios_name = $originalName . '_' . $suffix;
             $row['nagios_name'] = $nagios_name;
 
-            if (testExistence($nagios_name)) {
-                foreach ($columns as $col) {
-                    $insertStmt->bindValue(':' . $col, $row[$col]);
-                }
-                $pearDB->beginTransaction();
-                try {
-                    $insertStmt->execute();
+            if (! testExistence($nagios_name)) {
+                continue;
+            }
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
+            $pearDB->beginTransaction();
+            try {
+                $insertStmt->execute();
 
-                    $newNagiosId = (int) $pearDB->lastInsertId();
-                    if ($newNagiosId <= 0) {
-                        $pearDB->rollBack();
-                        error_log('Invalid lastInsertId while duplicating nagios_id=' . (int) $originalNagiosId);
-                        continue;
-                    }
-
-                    foreach ($rowBks as $valBk) {
-                        if ($valBk['broker_module']) {
-                            $insertBrokerStmt->bindValue(':nagiosId', $newNagiosId, PDO::PARAM_INT);
-                            $insertBrokerStmt->bindValue(':brokerModule', $valBk['broker_module'], PDO::PARAM_STR);
-                            $insertBrokerStmt->execute();
-                        }
-                    }
-                    duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $newNagiosId);
-                    $pearDB->commit();
-                } catch (Throwable $e) {
-                    if ($pearDB->inTransaction()) {
-                        $pearDB->rollBack();
-                    }
-                    error_log('Failed to duplicate cfg_nagios for nagios_id=' . (int) $originalNagiosId . ': ' . $e->getMessage());
+                $newNagiosId = (int) $pearDB->lastInsertId();
+                if ($newNagiosId <= 0) {
+                    $pearDB->rollBack();
+                    error_log('Invalid lastInsertId while duplicating nagios_id=' . (int) $originalNagiosId);
                     continue;
                 }
+
+                foreach ($rowBks as $valBk) {
+                    if ($valBk['broker_module']) {
+                        $insertBrokerStmt->bindValue(':nagiosId', $newNagiosId, PDO::PARAM_INT);
+                        $insertBrokerStmt->bindValue(':brokerModule', $valBk['broker_module'], PDO::PARAM_STR);
+                        $insertBrokerStmt->execute();
+                    }
+                }
+                duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $newNagiosId);
+                $pearDB->commit();
+                $i++;
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                error_log('Failed to duplicate cfg_nagios for nagios_id=' . (int) $originalNagiosId . ': ' . $e->getMessage());
+                continue;
             }
         }
     }

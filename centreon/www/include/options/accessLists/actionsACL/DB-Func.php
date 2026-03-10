@@ -214,9 +214,12 @@ function deleteActionInDB($actions = [])
         $deleteRules->execute();
         $deleteRelations->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
         $deleteRelations->execute();
-        if ($row !== false) {
-            $centreon->CentreonLogAction->insertLog('action access', $sanitizedAclActionId, $row['acl_action_name'], 'd');
-        }
+        $centreon->CentreonLogAction->insertLog(
+            'action access',
+            $sanitizedAclActionId,
+            $row !== false ? $row['acl_action_name'] : "id:{$sanitizedAclActionId}",
+            'd'
+        );
     }
     flagUpdatedAclForAuthentifiedUsers($aclGroupIds);
 }
@@ -233,6 +236,10 @@ function multipleActionInDB($actions = [], $nbrDup = [])
     $selectStmt = $pearDB->prepare(
         'SELECT acl_action_name, acl_action_description, acl_action_activate
         FROM acl_actions WHERE acl_action_id = :id LIMIT 1'
+    );
+    $insertStmt = $pearDB->prepare(
+        'INSERT INTO acl_actions (acl_action_name, acl_action_description, acl_action_activate)
+        VALUES (:aclActionName, :aclActionDescription, :aclActionActivate)'
     );
     $selectGroupStmt = $pearDB->prepare(
         'SELECT DISTINCT acl_group_id FROM acl_group_actions_relations WHERE acl_action_id = :id'
@@ -255,57 +262,56 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             continue;
         }
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $aclActionName = $row['acl_action_name'] . '_' . $i;
-            if (testActionExistence($aclActionName)) {
-                $pearDB->executeStatement(
-                    <<<'SQL'
-                        INSERT INTO acl_actions (acl_action_name, acl_action_description, acl_action_activate)
-                        VALUES (:aclActionName, :aclActionDescription, :aclActionActivate)
-                        SQL,
-                    QueryParameters::create([
-                        QueryParameter::string('aclActionName', $aclActionName),
-                        QueryParameter::string(
-                            'aclActionDescription',
-                            $row['acl_action_description']
-                        ),
-                        QueryParameter::string(
-                            'aclActionActivate',
-                            $row['acl_action_activate']
-                        ),
-                    ])
-                );
-                $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId > 0) {
-                    $selectGroupStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
-                    $selectGroupStmt->execute();
-                    while ($cct = $selectGroupStmt->fetch()) {
-                        $insertGroupStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
-                        $insertGroupStmt->bindValue(':acl_group_id', (int) $cct['acl_group_id'], PDO::PARAM_INT);
-                        $insertGroupStmt->execute();
-                    }
-
-                    // Duplicate Actions
-                    $selectRulesStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
-                    $selectRulesStmt->execute();
-                    while ($acl = $selectRulesStmt->fetch()) {
-                        $insertRuleStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
-                        $insertRuleStmt->bindValue(':acl_action_name', $acl['acl_action_name'], PDO::PARAM_STR);
-                        $insertRuleStmt->execute();
-                    }
-
-                    $centreon->CentreonLogAction->insertLog(
-                        'action access',
-                        $lastId,
-                        $aclActionName,
-                        'a',
-                        [
-                            'acl_action_name' => $aclActionName,
-                            'acl_action_description' => $row['acl_action_description'],
-                            'acl_action_activate' => $row['acl_action_activate'],
-                        ]
-                    );
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $aclActionName = $row['acl_action_name'] . '_' . $suffix;
+            if (! testActionExistence($aclActionName)) {
+                continue;
+            }
+            $insertStmt->bindValue(':aclActionName', $aclActionName, PDO::PARAM_STR);
+            $insertStmt->bindValue(
+                ':aclActionDescription',
+                $row['acl_action_description'],
+                $row['acl_action_description'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+            );
+            $insertStmt->bindValue(
+                ':aclActionActivate',
+                $row['acl_action_activate'],
+                $row['acl_action_activate'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR
+            );
+            $insertStmt->execute();
+            $lastId = (int) $pearDB->lastInsertId();
+            $i++;
+            if ($lastId > 0) {
+                $selectGroupStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+                $selectGroupStmt->execute();
+                while ($cct = $selectGroupStmt->fetch()) {
+                    $insertGroupStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
+                    $insertGroupStmt->bindValue(':acl_group_id', (int) $cct['acl_group_id'], PDO::PARAM_INT);
+                    $insertGroupStmt->execute();
                 }
+
+                // Duplicate Actions
+                $selectRulesStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+                $selectRulesStmt->execute();
+                while ($acl = $selectRulesStmt->fetch()) {
+                    $insertRuleStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
+                    $insertRuleStmt->bindValue(':acl_action_name', $acl['acl_action_name'], PDO::PARAM_STR);
+                    $insertRuleStmt->execute();
+                }
+
+                $centreon->CentreonLogAction->insertLog(
+                    'action access',
+                    $lastId,
+                    $aclActionName,
+                    'a',
+                    [
+                        'acl_action_name' => $aclActionName,
+                        'acl_action_description' => $row['acl_action_description'],
+                        'acl_action_activate' => $row['acl_action_activate'],
+                    ]
+                );
             }
         }
     }

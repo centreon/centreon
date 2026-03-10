@@ -189,10 +189,12 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                 continue;
             }
 
-            for ($newIndex = 1; $newIndex <= $nbrDup[$resourceId]; $newIndex++) {
+            $dupCount = (int) ($nbrDup[$resourceId] ?? 0);
+            $suffix = 1;
+            for ($newIndex = 0; $newIndex < $dupCount; $suffix++) {
                 $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
-                    ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $newIndex . '$'
-                    : $resourceConfiguration['resource_name'] . '_' . $newIndex;
+                    ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $suffix . '$'
+                    : $resourceConfiguration['resource_name'] . '_' . $suffix;
                 $value = $resourceConfiguration['resource_line'];
                 if (
                     (bool) $resourceConfiguration['is_password'] === true
@@ -202,38 +204,42 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     $value = $resourcesFromVault[$resourceConfiguration['resource_name']];
                 }
 
-                if (testExistence($name) && ! is_null($value)) {
-                    if ((bool) $resourceConfiguration['is_password'] === true) {
-                        $vaultPath = saveInVault($name, $value);
-                    }
-                    $value = $vaultPath ?? $value;
-
-                    $statement = $pearDB->prepare(
-                        <<<'SQL'
-                            INSERT INTO cfg_resource
-                            (resource_id, resource_name, resource_line, resource_comment, resource_activate, is_password)
-                            VALUES (NULL, :name, :value, :comment, :is_active, :is_password)
-                            SQL
-                    );
-                    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-                    $statement->bindValue(':value', $value, PDO::PARAM_STR);
-                    $statement->bindValue(':comment', $resourceConfiguration['resource_comment'], PDO::PARAM_STR);
-                    $statement->bindValue(':is_active', $resourceConfiguration['resource_activate'], PDO::PARAM_STR);
-                    $statement->bindValue(':is_password', $resourceConfiguration['is_password'], PDO::PARAM_INT);
-                    $statement->execute();
-
-                    $lastId = (int) $pearDB->lastInsertId();
-                    if ($lastId <= 0) {
-                        continue;
-                    }
-                    $relStmt = $pearDB->prepare(
-                        'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
-                        SELECT :newId, instance_id FROM cfg_resource_instance_relations WHERE resource_id = :oldId'
-                    );
-                    $relStmt->bindValue(':newId', $lastId, PDO::PARAM_INT);
-                    $relStmt->bindValue(':oldId', $resourceId, PDO::PARAM_INT);
-                    $relStmt->execute();
+                if (! testExistence($name) || is_null($value)) {
+                    continue;
                 }
+                if ((bool) $resourceConfiguration['is_password'] === true) {
+                    $vaultPath = saveInVault($name, $value);
+                }
+                $value = $vaultPath ?? $value;
+
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                        INSERT INTO cfg_resource
+                        (resource_id, resource_name, resource_line, resource_comment, resource_activate, is_password)
+                        VALUES (NULL, :name, :value, :comment, :is_active, :is_password)
+                        SQL
+                );
+                $statement->bindValue(':name', $name, PDO::PARAM_STR);
+                $statement->bindValue(':value', $value, PDO::PARAM_STR);
+                $comment = $resourceConfiguration['resource_comment'];
+                $statement->bindValue(':comment', $comment, $comment === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $isActive = $resourceConfiguration['resource_activate'];
+                $statement->bindValue(':is_active', $isActive, $isActive === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $statement->bindValue(':is_password', $resourceConfiguration['is_password'], PDO::PARAM_INT);
+                $statement->execute();
+
+                $lastId = (int) $pearDB->lastInsertId();
+                $newIndex++;
+                if ($lastId <= 0) {
+                    continue;
+                }
+                $relStmt = $pearDB->prepare(
+                    'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                    SELECT :newId, instance_id FROM cfg_resource_instance_relations WHERE resource_id = :oldId'
+                );
+                $relStmt->bindValue(':newId', $lastId, PDO::PARAM_INT);
+                $relStmt->bindValue(':oldId', $resourceId, PDO::PARAM_INT);
+                $relStmt->execute();
             }
         }
     }

@@ -114,35 +114,39 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
         if ($row === false) {
             continue;
         }
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $dep_name = $row['dep_name'] . '_' . $i;
-            if (testExistence($dep_name)) {
-                $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_description', $row['dep_description'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], PDO::PARAM_STR);
-                $insertStmt->bindValue(':dep_comment', $row['dep_comment'], PDO::PARAM_STR);
-                $insertStmt->execute();
-                $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId > 0) {
-                    $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectParentStmt->execute();
-                    while ($ms = $selectParentStmt->fetch()) {
-                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $insertParentStmt->execute();
-                    }
-                    $selectParentStmt->closeCursor();
-                    $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectChildStmt->execute();
-                    while ($ms = $selectChildStmt->fetch()) {
-                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $insertChildStmt->execute();
-                    }
-                    $selectChildStmt->closeCursor();
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $dep_name = $row['dep_name'] . '_' . $suffix;
+            if (! testExistence($dep_name)) {
+                continue;
+            }
+            $insertStmt->bindValue(':dep_name', $dep_name, PDO::PARAM_STR);
+            $insertStmt->bindValue(':dep_description', $row['dep_description'], $row['dep_description'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':inherits_parent', $row['inherits_parent'], $row['inherits_parent'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':execution_failure_criteria', $row['execution_failure_criteria'], $row['execution_failure_criteria'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':notification_failure_criteria', $row['notification_failure_criteria'], $row['notification_failure_criteria'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->bindValue(':dep_comment', $row['dep_comment'], $row['dep_comment'] === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $insertStmt->execute();
+            $lastId = (int) $pearDB->lastInsertId();
+            $i++;
+            if ($lastId > 0) {
+                $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                $selectParentStmt->execute();
+                while ($ms = $selectParentStmt->fetch()) {
+                    $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                    $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                    $insertParentStmt->execute();
                 }
+                $selectParentStmt->closeCursor();
+                $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                $selectChildStmt->execute();
+                while ($ms = $selectChildStmt->fetch()) {
+                    $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                    $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                    $insertChildStmt->execute();
+                }
+                $selectChildStmt->closeCursor();
             }
         }
     }

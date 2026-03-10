@@ -187,16 +187,23 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
             continue;
         }
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
-            $acl_group_name = $row['acl_group_name'] . '_' . $i;
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $acl_group_name = $row['acl_group_name'] . '_' . $suffix;
 
-            if (testGroupExistence($acl_group_name)) {
-                $pearDB->beginTransaction();
-                try {
-                    $insertStmt->bindValue(':name', $acl_group_name, PDO::PARAM_STR);
-                    $insertStmt->bindValue(':alias', $row['acl_group_alias'], PDO::PARAM_STR);
-                    $insertStmt->bindValue(':activate', $row['acl_group_activate'], PDO::PARAM_STR);
-                    $insertStmt->bindValue(':changed', (int) ($row['acl_group_changed'] ?? 0), PDO::PARAM_INT);
+            if (! testGroupExistence($acl_group_name)) {
+                continue;
+            }
+            $pearDB->beginTransaction();
+            try {
+                $insertStmt->bindValue(':name', $acl_group_name, PDO::PARAM_STR);
+                $alias = $row['acl_group_alias'];
+                $insertStmt->bindValue(':alias', $alias, $alias === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $activate = $row['acl_group_activate'];
+                $insertStmt->bindValue(':activate', $activate, $activate === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                $changed = $row['acl_group_changed'];
+                $insertStmt->bindValue(':changed', $changed, $changed === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
                     $insertStmt->execute();
 
                     $lastInsertId = $pearDB->lastInsertId();
@@ -232,6 +239,7 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                         $fields
                     );
                     $pearDB->commit();
+                    $i++;
                 } catch (Throwable $e) {
                     if ($pearDB->inTransaction()) {
                         $pearDB->rollBack();
@@ -239,7 +247,6 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
 
                     throw $e;
                 }
-            }
         }
     }
 }

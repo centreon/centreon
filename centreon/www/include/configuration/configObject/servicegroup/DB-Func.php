@@ -156,14 +156,16 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
 
         $row['sg_id'] = null;
 
-        for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
             $bindParams = [];
             foreach ($row as $key2 => $value2) {
                 switch ($key2) {
                     case 'sg_name':
                         $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sgName = $value2 . '_' . $i;
-                        $value2 = $value2 . '_' . $i;
+                        $sgName = $value2 . '_' . $suffix;
+                        $value2 = $value2 . '_' . $suffix;
                         $bindParams[':sg_name'] = [PDO::PARAM_STR => $value2];
                         break;
                     case 'sg_alias':
@@ -199,78 +201,80 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                     $fields['sg_name'] = $sgName;
                 }
             }
-            if (testServiceGroupExistence($sgName)) {
-                if (! empty($bindParams)) {
-                    $statement = $pearDB->prepare('
-                        INSERT INTO servicegroup
-                        VALUES (NULL, :sg_name, :sg_alias, :sg_comment, :geo_coords, :sg_activate)
+            if (! testServiceGroupExistence($sgName)) {
+                continue;
+            }
+            if (! empty($bindParams)) {
+                $statement = $pearDB->prepare('
+                    INSERT INTO servicegroup
+                    VALUES (NULL, :sg_name, :sg_alias, :sg_comment, :geo_coords, :sg_activate)
+                ');
+                foreach ($bindParams as $token => $bindValues) {
+                    foreach ($bindValues as $paramType => $value) {
+                        $statement->bindValue($token, $value, $paramType);
+                    }
+                }
+                $statement->execute();
+            }
+            $newSgId = (int) $pearDB->lastInsertId();
+            $i++;
+            if ($newSgId > 0) {
+                $sgAcl[$newSgId] = $sgId;
+                $statement = $pearDB->prepare('
+                    SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id
+                    FROM servicegroup_relation sgr WHERE sgr.servicegroup_sg_id = :sg_id
+                ');
+                $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
+                $statement->execute();
+                $fields['sg_hgServices'] = '';
+                while ($service = $statement->fetch()) {
+                    $bindParams = [];
+                    foreach ($service as $key2 => $value2) {
+                        switch ($key2) {
+                            case 'host_host_id':
+                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                                $value2
+                                    ? $bindParams[':host_host_id'] = [PDO::PARAM_INT => $value2]
+                                    : $bindParams[':host_host_id'] = [PDO::PARAM_NULL => null];
+                                break;
+                            case 'hostgroup_hg_id':
+                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                                $value2
+                                    ? $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_INT => $value2]
+                                    : $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_NULL => null];
+                                break;
+                            case 'service_service_id':
+                                $value2 = filter_var($value2, FILTER_VALIDATE_INT);
+                                $value2
+                                    ? $bindParams[':service_service_id'] = [PDO::PARAM_INT => $value2]
+                                    : $bindParams[':service_service_id'] = [PDO::PARAM_NULL => null];
+                                break;
+                        }
+                        $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $newSgId];
+                    }
+                    $statement2 = $pearDB->prepare('
+                        INSERT INTO servicegroup_relation
+                        (host_host_id, hostgroup_hg_id, service_service_id, servicegroup_sg_id)
+                        VALUES (:host_host_id, :hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
                     ');
                     foreach ($bindParams as $token => $bindValues) {
                         foreach ($bindValues as $paramType => $value) {
-                            $statement->bindValue($token, $value, $paramType);
+                            $statement2->bindValue($token, $value, $paramType);
                         }
                     }
-                    $statement->execute();
+                    $statement2->execute();
+                    $fields['sg_hgServices'] .= $service['service_service_id'] . ',';
                 }
-                $newSgId = (int) $pearDB->lastInsertId();
-                if ($newSgId > 0) {
-                    $sgAcl[$newSgId] = $sgId;
-                    $statement = $pearDB->prepare('
-                        SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id
-                        FROM servicegroup_relation sgr WHERE sgr.servicegroup_sg_id = :sg_id
-                    ');
-                    $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
-                    $statement->execute();
-                    $fields['sg_hgServices'] = '';
-                    while ($service = $statement->fetch()) {
-                        $bindParams = [];
-                        foreach ($service as $key2 => $value2) {
-                            switch ($key2) {
-                                case 'host_host_id':
-                                    $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                    $value2
-                                        ? $bindParams[':host_host_id'] = [PDO::PARAM_INT => $value2]
-                                        : $bindParams[':host_host_id'] = [PDO::PARAM_NULL => null];
-                                    break;
-                                case 'hostgroup_hg_id':
-                                    $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                    $value2
-                                        ? $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_INT => $value2]
-                                        : $bindParams[':hostgroup_hg_id'] = [PDO::PARAM_NULL => null];
-                                    break;
-                                case 'service_service_id':
-                                    $value2 = filter_var($value2, FILTER_VALIDATE_INT);
-                                    $value2
-                                        ? $bindParams[':service_service_id'] = [PDO::PARAM_INT => $value2]
-                                        : $bindParams[':service_service_id'] = [PDO::PARAM_NULL => null];
-                                    break;
-                            }
-                            $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $newSgId];
-                        }
-                        $statement2 = $pearDB->prepare('
-                            INSERT INTO servicegroup_relation
-                            (host_host_id, hostgroup_hg_id, service_service_id, servicegroup_sg_id)
-                            VALUES (:host_host_id, :hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
-                        ');
-                        foreach ($bindParams as $token => $bindValues) {
-                            foreach ($bindValues as $paramType => $value) {
-                                $statement2->bindValue($token, $value, $paramType);
-                            }
-                        }
-                        $statement2->execute();
-                        $fields['sg_hgServices'] .= $service['service_service_id'] . ',';
-                    }
-                    $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
+                $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
 
-                    signalConfigurationChange('servicegroup', $newSgId);
-                    $centreon->CentreonLogAction->insertLog(
-                        'servicegroup',
-                        $newSgId,
-                        $sgName,
-                        'a',
-                        $fields
-                    );
-                }
+                signalConfigurationChange('servicegroup', $newSgId);
+                $centreon->CentreonLogAction->insertLog(
+                    'servicegroup',
+                    $newSgId,
+                    $sgName,
+                    'a',
+                    $fields
+                );
             }
         }
     }

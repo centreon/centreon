@@ -663,12 +663,13 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
             continue;
         }
 
-        for ($i = 1; $i <= $dupCount; $i++) {
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
             $insertData = $baseInsertData;
 
             // Prepare duplicated values
-            $contactName = isset($insertData['contact_name']) ? ((string) $insertData['contact_name'] . '_' . $i) : null;
-            $contactAlias = isset($insertData['contact_alias']) ? ((string) $insertData['contact_alias'] . '_' . $i) : null;
+            $contactName = isset($insertData['contact_name']) ? ((string) $insertData['contact_name'] . '_' . $suffix) : null;
+            $contactAlias = isset($insertData['contact_alias']) ? ((string) $insertData['contact_alias'] . '_' . $suffix) : null;
 
             if ($contactName !== null) {
                 $contactName = $centreon->checkIllegalChar($contactName);
@@ -884,6 +885,7 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                 'a',
                 $fields
             );
+            $i++;
         }
     }
 

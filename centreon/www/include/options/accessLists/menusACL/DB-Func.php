@@ -284,7 +284,7 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
                     'INSERT INTO acl_topology (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')'
                 );
                 foreach ($insertData as $col => $val) {
-                    $insertStmt->bindValue(':' . $col, $val);
+                    $insertStmt->bindValue(':' . $col, $val, $val === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 }
                 $insertStmt->execute();
                 $newTopologyId = (int) $pearDB->lastInsertId();
