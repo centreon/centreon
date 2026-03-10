@@ -169,8 +169,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 AND parent_resource.type = {$resourceTypeHost}
             LEFT JOIN `:dbstg`.`severities`
                 ON `severities`.severity_id = `resources`.severity_id
-            LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                ON `rtags`.resource_id = `resources`.resource_id
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
             WHERE resources.name NOT LIKE '\_Module\_%'
@@ -192,7 +190,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          * Handle sort parameters.
          */
         $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
-            ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+            ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
 
         /**
          * Handle pagination.
@@ -379,7 +377,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
 
         $request .= <<<SQL
-            SELECT SQL_CALC_FOUND_ROWS DISTINCT
+            SELECT SQL_CALC_FOUND_ROWS
                 1 AS REALTIME,
                 resources.resource_id,
                 resources.name,
@@ -431,8 +429,6 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
                 AND parent_resource.type = {$resourceType}
             LEFT JOIN `:dbstg`.`severities`
                 ON `severities`.severity_id = `resources`.severity_id
-            LEFT JOIN `:dbstg`.`resources_tags` AS rtags
-                ON `rtags`.resource_id = `resources`.resource_id
             SQL;
 
         /**
@@ -504,7 +500,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
          * Handle sort parameters.
          */
         $request .= $this->sqlRequestTranslator->translateSortParameterToSql()
-            ?: ' ORDER BY resources.status_ordered DESC, resources.name ASC';
+            ?: ' ORDER BY resources.status_ordered DESC, resources.last_status_change DESC';
 
         /**
          * Handle pagination.
@@ -643,7 +639,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $nextHeaders();
             $headers .= <<<SQL
                 service_groups AS (
-                    SELECT rtags.resource_id
+                    SELECT DISTINCT rtags.resource_id
                     FROM `:dbstg`.resources_tags AS rtags
                     INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
@@ -665,7 +661,7 @@ class DbReadResourceRepository extends AbstractRepositoryDRB implements ReadReso
             $nextHeaders();
             $headers .= <<<SQL
                 service_categories AS (
-                    SELECT rtags.resource_id
+                    SELECT DISTINCT rtags.resource_id
                     FROM `:dbstg`.resources_tags AS rtags
                     INNER JOIN `:dbstg`.tags
                         ON tags.tag_id = rtags.tag_id
