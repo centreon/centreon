@@ -243,11 +243,7 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                 duplicateActions($key, $maxId, $pearDB);
                 duplicateMenus($key, $maxId, $pearDB);
 
-                $fields = [
-                    'acl_group_name' => $acl_group_name,
-                    'acl_group_alias' => $row['acl_group_alias'],
-                    'acl_group_activate' => $row['acl_group_activate'],
-                ];
+                $fields = $row;
                 $centreon->CentreonLogAction->insertLog(
                     'access group',
                     $maxId,
