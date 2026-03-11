@@ -129,6 +129,19 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
         $insertStmt = $pearDB->prepare(
             'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
+        // Fetch relationships once before duplication loop
+        $selectHostChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectHostChildStmt->execute();
+        $hostChildren = $selectHostChildStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectServiceParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectServiceParentStmt->execute();
+        $serviceParents = $selectServiceParentStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectServiceChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectServiceChildStmt->execute();
+        $serviceChildren = $selectServiceChildStmt->fetchAll(PDO::FETCH_ASSOC);
+
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -153,10 +166,8 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 $insertStmt->execute();
                 $lastId = (int) $pearDB->lastInsertId();
                 if ($lastId > 0) {
-                    $selectHostChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectHostChildStmt->execute();
                     $fields['dep_hostPar'] = '';
-                    while ($host = $selectHostChildStmt->fetch()) {
+                    foreach ($hostChildren as $host) {
                         $insertHostChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
                         $insertHostChildStmt->bindValue(':hostId', (int) $host['host_host_id'], PDO::PARAM_INT);
                         $insertHostChildStmt->execute();
@@ -164,10 +175,8 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                     }
                     $fields['dep_hostPar'] = trim($fields['dep_hostPar'], ',');
 
-                    $selectServiceParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectServiceParentStmt->execute();
                     $fields['dep_hSvPar'] = '';
-                    while ($service = $selectServiceParentStmt->fetch()) {
+                    foreach ($serviceParents as $service) {
                         $insertServiceParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
                         $insertServiceParentStmt->bindValue(
                             ':serviceId',
@@ -180,10 +189,8 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                     }
                     $fields['dep_hSvPar'] = trim($fields['dep_hSvPar'], ',');
 
-                    $selectServiceChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                    $selectServiceChildStmt->execute();
                     $fields['dep_hSvChi'] = '';
-                    while ($service = $selectServiceChildStmt->fetch()) {
+                    foreach ($serviceChildren as $service) {
                         $insertServiceChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
                         $insertServiceChildStmt->bindValue(
                             ':serviceId',

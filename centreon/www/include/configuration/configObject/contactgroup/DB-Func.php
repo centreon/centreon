@@ -137,6 +137,15 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
             'INSERT INTO `contactgroup` (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
 
+        // Fetch relationships once before duplication loop
+        $selectAclStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+        $selectAclStmt->execute();
+        $aclRelations = $selectAclStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectContactsStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+        $selectContactsStmt->execute();
+        $contactRelations = $selectContactsStmt->fetchAll(PDO::FETCH_ASSOC);
+
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -171,20 +180,16 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                 }
                 $fields['cg_name'] = $cg_name;
 
-                $selectAclStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
-                $selectAclStmt->execute();
                 $fields['cg_aclRelation'] = '';
-                while ($cgAcl = $selectAclStmt->fetch(PDO::FETCH_ASSOC)) {
+                foreach ($aclRelations as $cgAcl) {
                     $insertAclStmt->bindValue(':newCgId', $newCgId, PDO::PARAM_INT);
                     $insertAclStmt->bindValue(':aclGroupId', (int) $cgAcl['acl_group_id'], PDO::PARAM_INT);
                     $insertAclStmt->execute();
                     $fields['cg_aclRelation'] .= $cgAcl['acl_group_id'] . ',';
                 }
 
-                $selectContactsStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
-                $selectContactsStmt->execute();
                 $fields['cg_contacts'] = '';
-                while ($cct = $selectContactsStmt->fetch(PDO::FETCH_ASSOC)) {
+                foreach ($contactRelations as $cct) {
                     $insertContactStmt->bindValue(':contactId', (int) $cct['contact_contact_id'], PDO::PARAM_INT);
                     $insertContactStmt->bindValue(':newCgId', $newCgId, PDO::PARAM_INT);
                     $insertContactStmt->execute();

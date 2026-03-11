@@ -263,6 +263,15 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             'INSERT INTO acl_actions (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
 
+        // Fetch relationships once before duplication loop
+        $selectGroupStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $selectGroupStmt->execute();
+        $groupRelations = $selectGroupStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectRulesStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $selectRulesStmt->execute();
+        $actionRules = $selectRulesStmt->fetchAll(PDO::FETCH_ASSOC);
+
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -279,18 +288,14 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
             if ($lastId > 0) {
-                $selectGroupStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
-                $selectGroupStmt->execute();
-                while ($cct = $selectGroupStmt->fetch()) {
+                foreach ($groupRelations as $cct) {
                     $insertGroupStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
                     $insertGroupStmt->bindValue(':acl_group_id', (int) $cct['acl_group_id'], PDO::PARAM_INT);
                     $insertGroupStmt->execute();
                 }
 
                 // Duplicate Actions
-                $selectRulesStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
-                $selectRulesStmt->execute();
-                while ($acl = $selectRulesStmt->fetch()) {
+                foreach ($actionRules as $acl) {
                     $insertRuleStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
                     $insertRuleStmt->bindValue(':acl_action_name', $acl['acl_action_name'], PDO::PARAM_STR);
                     $insertRuleStmt->execute();

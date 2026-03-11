@@ -122,6 +122,15 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         $insertStmt = $pearDB->prepare(
             'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
+        // Fetch relationships once before duplication loop
+        $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectParentStmt->execute();
+        $parents = $selectParentStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectChildStmt->execute();
+        $children = $selectChildStmt->fetchAll(PDO::FETCH_ASSOC);
+
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
@@ -142,27 +151,22 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
             if ($lastId > 0) {
-                $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                $selectParentStmt->execute();
                 $fields['dep_sgParents'] = '';
-                while ($sg = $selectParentStmt->fetch()) {
+                foreach ($parents as $sg) {
                     $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
                     $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
                     $insertParentStmt->execute();
                     $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
                 }
                 $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
-                $selectParentStmt->closeCursor();
-                $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                $selectChildStmt->execute();
+
                 $fields['dep_sgChilds'] = '';
-                while ($sg = $selectChildStmt->fetch()) {
+                foreach ($children as $sg) {
                     $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
                     $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
                     $insertChildStmt->execute();
                     $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
                 }
-                $selectChildStmt->closeCursor();
                 $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
                 $oreon->CentreonLogAction->insertLog(
                     'servicegroup dependency',
