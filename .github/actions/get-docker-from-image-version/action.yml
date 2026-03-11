@@ -19,8 +19,7 @@ inputs:
     required: true
   registry_url:
     description: "Docker registry URL (e.g. harbor.example.com)"
-    required: false
-    default: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+    required: true
 
 outputs:
   from_image_version:
