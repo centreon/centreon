@@ -595,7 +595,11 @@ $form->registerRule('isValidHeartbeat', 'callback', 'isValidHeartbeat');
 function validMacroName($value)
 {
     // Get the list of invalid characters
-    $invalidCharacters = str_split($_REQUEST['illegal_macro_output_chars']);
+    $illegalChars = $_REQUEST['illegal_macro_output_chars'] ?? '`~$^&"|\'<>';
+    $invalidCharacters = $illegalChars !== '' ? str_split($illegalChars) : [];
+    // Always reject newlines and null bytes to prevent config file injection
+    $invalidCharacters = array_unique(array_merge($invalidCharacters, ["\r", "\n", "\0"]));
+
     foreach ($_REQUEST['macros_filter'] as $name) {
         $parsed = str_replace($invalidCharacters, '', $name);
         // Contains one of invalid characters
