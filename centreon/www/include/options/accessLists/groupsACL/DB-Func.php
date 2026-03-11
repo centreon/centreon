@@ -305,9 +305,9 @@ function insertGroupInDB($ret = [])
         throw $e;
     }
 
-    $ret = $form->getSubmitValues();
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $ret['acl_group_name'], 'a', $fields);
+    $submitValues = $form->getSubmitValues();
+    $fields = CentreonLogAction::prepareChanges($submitValues);
+    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $submitValues['acl_group_name'], 'a', $fields);
 
     return $acl_group_id;
 }
@@ -391,9 +391,9 @@ function updateGroupInDB($acl_group_id = null)
         throw $e;
     }
 
-    $ret = $form->getSubmitValues();
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $ret['acl_group_name'], 'c', $fields);
+    $submitValues = $form->getSubmitValues();
+    $fields = CentreonLogAction::prepareChanges($submitValues);
+    $centreon->CentreonLogAction->insertLog('access group', $acl_group_id, $submitValues['acl_group_name'], 'c', $fields);
 }
 
 /**

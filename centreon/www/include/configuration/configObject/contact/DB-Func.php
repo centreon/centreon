@@ -411,9 +411,9 @@ function deleteContactInDB(array $contacts = []): void
     }
 
     try {
-        $ownTransaction = ! $pearDB->isTransactionActive();
+        $ownTransaction = ! $pearDB->inTransaction();
         if ($ownTransaction) {
-            $pearDB->startTransaction();
+            $pearDB->beginTransaction();
         }
 
         foreach (array_keys($contacts) as $contactId) {
@@ -480,12 +480,12 @@ function deleteContactInDB(array $contacts = []): void
         }
 
         if ($ownTransaction) {
-            $pearDB->commitTransaction();
+            $pearDB->commit();
         }
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         try {
-            if (($ownTransaction ?? false) && $pearDB->isTransactionActive()) {
-                $pearDB->rollBackTransaction();
+            if (($ownTransaction ?? false) && $pearDB->inTransaction()) {
+                $pearDB->rollBack();
             }
         } catch (ConnectionException $rollbackException) {
             throw new RepositoryException(
@@ -906,7 +906,7 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
 
     $contact_id = (int) $contact_id;
 
-    if (! $contact_id > 0) {
+    if ($contact_id <= 0) {
         throw new RepositoryException(
             message: 'Invalid contact ID provided to update contact from contact page',
             context: ['contact_id' => $contact_id]
@@ -1139,7 +1139,7 @@ function updateContact(int $contactId): void
 {
     global $form, $pearDB, $centreon;
 
-    if (! $contactId > 0) {
+    if ($contactId <= 0) {
         throw new RepositoryException(
             message: 'Invalid contact ID provided to update contact from contact page for contact id ' . $contactId,
             context: ['contact_id' => $contactId]
@@ -1202,7 +1202,7 @@ function updateContact(int $contactId): void
 
     $userIdConnected = (int) $centreon->user->get_id();
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new RepositoryException(
             message: 'Fetching connected user ID failed during contact update from contact page for contact id ' . $contactId,
             context: ['contact_id' => $contactId],
@@ -1261,7 +1261,7 @@ function updateContact_MC(int $contact_id): void
 {
     global $form, $pearDB, $centreon;
 
-    if (! $contact_id > 0) {
+    if ($contact_id <= 0) {
         throw new RepositoryException(
             message: 'Invalid contact ID provided to update contact by massive change for contact id ' . $contact_id,
             context: ['contact_id' => $contact_id]
@@ -2261,12 +2261,12 @@ function validatePasswordModification(array $fields): array|true
     $currentPassword = $fields['current_password'];
 
     $contactId = (int) $fields['contact_id'];
-    if (! $contactId > 0) {
+    if ($contactId <= 0) {
         throw new InvalidArgumentException('Invalid contact ID provided for password modification validation');
     }
 
     $userIdConnected = (int) $centreon->user->get_id();
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new InvalidArgumentException('Invalid connected user ID provided for password modification validation');
     }
 
@@ -2358,7 +2358,7 @@ function validateAutologin(array $fields): array|true
 
         $userIdConnected = (int) $centreon->user->get_id();
 
-        if (! $userIdConnected > 0) {
+        if ($userIdConnected <= 0) {
             throw new InvalidArgumentException('Invalid connected user ID provided for autologin validation');
         }
 
