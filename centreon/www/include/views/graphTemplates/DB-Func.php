@@ -139,8 +139,8 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
 function defaultOreonGraph()
 {
     global $pearDB;
-    $res = $pearDB->query("SELECT DISTINCT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1'");
-    if (! $res->rowCount()) {
+    $res = $pearDB->query("SELECT DISTINCT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
+    if ($res->fetch() === false) {
         $pearDB->query(
             "UPDATE giv_graphs_template SET default_tpl1 = '1'"
             . ' WHERE graph_id = (SELECT MIN(graph_id) FROM giv_graphs_template)'

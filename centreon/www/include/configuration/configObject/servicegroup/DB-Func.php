@@ -708,7 +708,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
                 $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
                 $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
                 $statement->execute();
-                if (! $statement->rowCount()) {
+                if ($statement->fetch() === false) {
                     $statement2->bindValue(':host_host_id', $hostHostId, PDO::PARAM_INT);
                     $statement2->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
                     $statement2->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);
@@ -741,7 +741,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
             $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
             $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
             $statement->execute();
-            if (! $statement->rowCount()) {
+            if ($statement->fetch() === false) {
                 $statement2->bindValue(':host_host_id', $hostHostId, PDO::PARAM_INT);
                 $statement2->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
                 $statement2->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);
@@ -772,7 +772,7 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
         $statement->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);
         $statement->execute();
-        if (! $statement->rowCount()) {
+        if ($statement->fetch() === false) {
             $statement2->bindValue(':hostgroup_hg_id', $hostGroupId, PDO::PARAM_INT);
             $statement2->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
             $statement2->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);

@@ -233,7 +233,7 @@ function checkPicture(
         ]
     );
 
-    if (! $statement->rowCount()) {
+    if ($statement->fetch() === false) {
         $pearDB->beginTransaction();
         try {
             $pearDB->executePreparedQuery(

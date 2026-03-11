@@ -56,16 +56,16 @@ class CentreonMeta
                 . 'AND host_register = "2" '
                 . 'LIMIT 1 ';
             $res = $this->db->query($queryHost);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
+            $row = $res->fetchRow();
+            if ($row !== false) {
                 $hostId = $row['host_id'];
             } else {
                 $query = 'INSERT INTO host (host_name, host_register) '
                     . 'VALUES ("_Module_Meta", "2") ';
                 $this->db->query($query);
                 $res = $this->db->query($queryHost);
-                if ($res->rowCount()) {
-                    $row = $res->fetchRow();
+                $row = $res->fetchRow();
+                if ($row !== false) {
                     $hostId = $row['host_id'];
                 } else {
                     $hostId = 0;
@@ -96,10 +96,8 @@ class CentreonMeta
             . 'WHERE s.service_description = "meta_' . $metaId . '" ';
 
         $res = $this->db->query($sql);
-        if ($res->rowCount()) {
-            while ($row = $res->fetchRow()) {
-                $services[$metaId] = $row['service_id'];
-            }
+        while ($row = $res->fetchRow()) {
+            $services[$metaId] = $row['service_id'];
         }
 
         return $services[$metaId] ?? 0;
@@ -120,11 +118,9 @@ class CentreonMeta
             . 'FROM service '
             . 'WHERE display_name = "' . $serviceDisplayName . '" ';
         $res = $this->db->query($query);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
-            if (preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
-                $metaId = $matches[1];
-            }
+        $row = $res->fetchRow();
+        if ($row !== false && preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
+            $metaId = $matches[1];
         }
 
         return $metaId;
@@ -267,9 +263,9 @@ class CentreonMeta
             . 'WHERE meta_id = ' . $this->db->escape($id) . ' ';
 
         $res = $this->db->query($query);
-
-        if ($res->rowCount()) {
-            $values = $res->fetchRow();
+        $row = $res->fetchRow();
+        if ($row !== false) {
+            $values = $row;
         }
 
         return $values;

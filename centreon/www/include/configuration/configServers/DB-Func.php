@@ -300,7 +300,7 @@ function deleteServerInDB(array $serverIds): void
         $statement->bindValue(':id', $serverId, PDO::PARAM_INT);
         $statement->execute();
 
-        if ($statement->rowCount() > 0) {
+        if ($statement->fetch() !== false) {
             // Delete entry from remote_servers
             $statement = $pearDB->prepare(
                 'DELETE FROM remote_servers WHERE server_id = :id'
@@ -436,8 +436,8 @@ function duplicateServer(array $server, array $nbrDup): void
                     $statement = $pearDB->prepare($queryGetId);
                     $statement->bindValue(':name', $serverName, PDO::PARAM_STR);
                     $statement->execute();
-                    if ($statement->rowCount() > 0) {
-                        $row = $statement->fetch(PDO::FETCH_ASSOC);
+                    $row = $statement->fetch(PDO::FETCH_ASSOC);
+                    if ($row !== false) {
                         $iId = $obj->insertServerInCfgNagios($serverId, $row['id'], $serverName);
                         $obj->insertCfgNagiosLogger($iId, $serverId);
 

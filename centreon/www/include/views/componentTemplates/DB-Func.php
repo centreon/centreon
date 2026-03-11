@@ -142,8 +142,8 @@ function deleteComponentTemplateInDB($compos = [])
 function defaultOreonGraph()
 {
     global $pearDB;
-    $dbResult = $pearDB->query("SELECT DISTINCT compo_id FROM giv_components_template WHERE default_tpl1 = '1'");
-    if (! $dbResult->rowCount()) {
+    $dbResult = $pearDB->query("SELECT DISTINCT compo_id FROM giv_components_template WHERE default_tpl1 = '1' LIMIT 1");
+    if ($dbResult->fetch() === false) {
         $dbResult2 = $pearDB->query("UPDATE giv_components_template SET default_tpl1 = '1' LIMIT 1");
     }
 }

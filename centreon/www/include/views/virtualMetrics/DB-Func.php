@@ -72,7 +72,6 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
 
     $prepareVirtualM->execute();
     $vmetric = $prepareVirtualM->fetch();
-    $numberOfVirtualMetric = $prepareVirtualM->rowCount();
     $prepareVirtualM->closeCursor();
 
     $prepareMetric = $pearDBO->prepare(
@@ -85,13 +84,12 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
 
     $prepareMetric->execute();
     $metric = $prepareMetric->fetch();
-    $numberOfVirtualMetric += $prepareMetric->rowCount();
     $prepareMetric->closeCursor();
 
     return ! (
-        ($numberOfVirtualMetric >= 1
+        ($vmetric !== false
         && $vmetric['vmetric_id'] != $gsvs['vmetric_id'])
-        || isset($metric['metric_id'])
+        || ($metric !== false && isset($metric['metric_id']))
     );
 
 }
@@ -472,9 +470,9 @@ function &disableVirtualMetric($v_id = null, $force = 0)
     );
     $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
     $statement->execute();
-    if ($statement->rowCount() == 1) {
-        $vmetric = $statement->fetch(PDO::FETCH_ASSOC);
-        $statement->closeCursor();
+    $vmetric = $statement->fetch(PDO::FETCH_ASSOC);
+    $statement->closeCursor();
+    if ($vmetric !== false) {
         $query = "SELECT vmetric_id FROM `virtual_metrics` WHERE `index_id`= :index_id AND `vmetric_activate` = '1' "
             . 'AND `rpn_function` REGEXP :rpn_function';
         $statement = $pearDB->prepare($query);
@@ -551,8 +549,8 @@ function enableVirtualMetric($v_id, $v_name = null, $index_id = null)
         $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
     }
     $statement->execute();
-    if ($statement->rowCount() == 1) {
-        $p_vmetric = $statement->fetch(PDO::FETCH_ASSOC);
+    $p_vmetric = $statement->fetch(PDO::FETCH_ASSOC);
+    if ($p_vmetric !== false) {
         $l_mlist = preg_split("/\,/", $p_vmetric['rpn_function']);
         foreach ($l_mlist as $l_mnane) {
             $lv_ena = enableVirtualMetric(null, $l_mnane, $p_vmetric['index_id']);
@@ -582,7 +580,8 @@ function checkRRDGraphData($v_id = null, $force = 0)
     $statement = $pearDB->prepare($query);
     $statement->bindValue(':vmetric_id', (int) $v_id, PDO::PARAM_INT);
     $statement->execute();
-    if ($statement->rowCount() == 1) {
+    $row = $statement->fetch(PDO::FETCH_ASSOC);
+    if ($row !== false) {
         /**
          * Create XML Request Objects
          */

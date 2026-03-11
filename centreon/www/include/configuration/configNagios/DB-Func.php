@@ -154,16 +154,19 @@ function deleteNagiosInDB($nagios = [])
         $deleteBroker->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
         $deleteBroker->execute();
     }
-    $stmt = $pearDB->prepare("SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1'");
+    $stmt = $pearDB->prepare("SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1' LIMIT 1");
     $stmt->execute();
-    if (! $stmt->rowCount()) {
+    if ($stmt->fetch() === false) {
         $stmt2 = $pearDB->prepare('SELECT MAX(nagios_id) FROM cfg_nagios');
         $stmt2->execute();
-        $nagios_id = $stmt2->fetch();
+        $row = $stmt2->fetch();
+        if ($row === false || $row['MAX(nagios_id)'] === null) {
+            return;
+        }
         $stmt3 = $pearDB->prepare(
             "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id"
         );
-        $stmt3->bindValue(':nagios_id', (int) $nagios_id['MAX(nagios_id)'], PDO::PARAM_INT);
+        $stmt3->bindValue(':nagios_id', (int) $row['MAX(nagios_id)'], PDO::PARAM_INT);
         $stmt3->execute();
     }
 }
