@@ -596,6 +596,9 @@ function validMacroName($value)
 {
     // Get the list of invalid characters
     $illegalChars = $_REQUEST['illegal_macro_output_chars'] ?? '`~$^&"|\'<>';
+    if (! is_string($illegalChars)) {
+        return false;
+    }
     $invalidCharacters = $illegalChars !== '' ? str_split($illegalChars) : [];
     // Always reject newlines and null bytes to prevent config file injection
     $invalidCharacters = array_unique(array_merge($invalidCharacters, ["\r", "\n", "\0"]));

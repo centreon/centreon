@@ -58,11 +58,10 @@ function testExistence($name = null, ?array $instanceIds = null)
         $instanceIds = [];
         if (isset($form)) {
             $id = (int) $form->getSubmitValue('resource_id');
-            $instanceIds = $form->getSubmitValue('instance_id');
-            $instanceIds = filter_var_array(
-                $instanceIds,
-                FILTER_VALIDATE_INT
-            );
+            $rawInstanceIds = $form->getSubmitValue('instance_id');
+            $instanceIds = is_array($rawInstanceIds)
+                ? filter_var_array($rawInstanceIds, FILTER_VALIDATE_INT)
+                : [];
             if (in_array(false, $instanceIds, true)) {
                 return true;
             }

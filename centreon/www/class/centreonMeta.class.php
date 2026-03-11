@@ -324,15 +324,17 @@ class CentreonMeta
                 $insertStmt->bindValue(':register', '2', PDO::PARAM_STR);
                 $insertStmt->execute();
 
+                $serviceId = (int) $this->db->lastInsertId();
+                if ($serviceId <= 0) {
+                    throw new \RuntimeException('Failed to retrieve inserted service_id');
+                }
+
                 $relStmt = $this->db->prepare(
                     'INSERT INTO host_service_relation (host_host_id, service_service_id)
-                    VALUES (:host_id,
-                        (SELECT service_id FROM service
-                        WHERE service_description = :description AND service_register = :register LIMIT 1))'
+                    VALUES (:host_id, :service_id)'
                 );
                 $relStmt->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
-                $relStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
-                $relStmt->bindValue(':register', '2', PDO::PARAM_STR);
+                $relStmt->bindValue(':service_id', $serviceId, PDO::PARAM_INT);
                 $relStmt->execute();
 
                 if ($ownTransaction) {
@@ -344,12 +346,6 @@ class CentreonMeta
                 }
 
                 throw $e;
-            }
-
-            $selectStmt->execute();
-            $row = $selectStmt->fetch();
-            if ($row !== false) {
-                $serviceId = $row['service_id'];
             }
         }
 

@@ -151,17 +151,18 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 }
                 $insertStmt->execute();
                 $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId > 0) {
-                    foreach ($parents as $ms) {
-                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $insertParentStmt->execute();
-                    }
-                    foreach ($children as $ms) {
-                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                        $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                        $insertChildStmt->execute();
-                    }
+                if ($lastId <= 0) {
+                    throw new RuntimeException('Failed to retrieve duplicated dependency id');
+                }
+                foreach ($parents as $ms) {
+                    $insertParentStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                    $insertParentStmt->execute();
+                }
+                foreach ($children as $ms) {
+                    $insertChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                    $insertChildStmt->execute();
                 }
                 $pearDB->commit();
             } catch (Throwable $e) {

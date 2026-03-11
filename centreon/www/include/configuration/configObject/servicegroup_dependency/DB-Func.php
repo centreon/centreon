@@ -164,32 +164,33 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
             }
             $insertStmt->execute();
             $lastId = (int) $pearDB->lastInsertId();
-            if ($lastId > 0) {
-                $fields['dep_sgParents'] = '';
-                foreach ($parents as $sg) {
-                    $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                    $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                    $insertParentStmt->execute();
-                    $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
-                }
-                $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
-
-                $fields['dep_sgChilds'] = '';
-                foreach ($children as $sg) {
-                    $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                    $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                    $insertChildStmt->execute();
-                    $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
-                }
-                $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
-                $oreon->CentreonLogAction->insertLog(
-                    'servicegroup dependency',
-                    $lastId,
-                    $dep_name,
-                    'a',
-                    $fields
-                );
+            if ($lastId <= 0) {
+                throw new RuntimeException('Failed to retrieve duplicated dependency id');
             }
+            $fields['dep_sgParents'] = '';
+            foreach ($parents as $sg) {
+                $insertParentStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                $insertParentStmt->execute();
+                $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
+            }
+            $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
+
+            $fields['dep_sgChilds'] = '';
+            foreach ($children as $sg) {
+                $insertChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                $insertChildStmt->execute();
+                $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
+            }
+            $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
+            $oreon->CentreonLogAction->insertLog(
+                'servicegroup dependency',
+                $lastId,
+                $dep_name,
+                'a',
+                $fields
+            );
         }
         if ($i < $dupCount) {
             error_log("Could only create {$i}/{$dupCount} duplicates for service group dependency '{$originalName}' ({$key}): suffix search exhausted");
