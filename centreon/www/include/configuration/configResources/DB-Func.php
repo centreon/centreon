@@ -268,6 +268,7 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     if ($vaultPath !== null) {
                         deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $name]);
                     }
+
                     throw $e;
                 }
             }

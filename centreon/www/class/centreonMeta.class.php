@@ -338,10 +338,11 @@ class CentreonMeta
                 if ($ownTransaction) {
                     $this->db->commit();
                 }
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 if ($ownTransaction && $this->db->inTransaction()) {
                     $this->db->rollBack();
                 }
+
                 throw $e;
             }
 

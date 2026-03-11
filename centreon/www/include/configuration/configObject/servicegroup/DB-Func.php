@@ -253,6 +253,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();
                 }
+
                 throw $e;
             }
 

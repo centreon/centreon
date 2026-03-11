@@ -268,7 +268,7 @@ parameters:
 		-
 			message: '#^Class CentreonUtils referenced with incorrect case\: centreonUtils\.$#'
 			identifier: class.nameCase
-			count: 3
+			count: 2
 			path: www/include/configuration/configObject/servicegroup/DB-Func.php
 
 		-
@@ -360,12 +360,6 @@ parameters:
 			identifier: array.duplicateKey
 			count: 2
 			path: www/include/monitoring/status/HostGroups/xml/hostGroupXML.php
-
-		-
-			message: '#^Function hasTopologyNameNeverUsed\(\) should return bool but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: www/include/options/accessLists/menusACL/DB-Func.php
 
 		-
 			message: '#^Function updateGroups\(\) should return type but return statement is missing\.$#'

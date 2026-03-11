@@ -105,6 +105,7 @@ function enableActionInDB($aclActionId = null, $actions = [])
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
         throw $e;
     }
 
@@ -163,6 +164,7 @@ function disableActionInDB($aclActionId = null, $actions = [])
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
         throw $e;
     }
 
@@ -229,6 +231,7 @@ function deleteActionInDB($actions = [])
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
         throw $e;
     }
     flagUpdatedAclForAuthentifiedUsers($aclGroupIds);

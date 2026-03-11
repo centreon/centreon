@@ -489,6 +489,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                     if ($pearDB->isTransactionActive()) {
                         $pearDB->rollBackTransaction();
                     }
+
                     throw $exception;
                 }
 
@@ -1043,6 +1044,7 @@ function updateAclResourcesMetaRelations(int $metaId): void
                 if ($pearDB->isTransactionActive()) {
                     $pearDB->rollBackTransaction();
                 }
+
                 throw $exception;
             }
         }
