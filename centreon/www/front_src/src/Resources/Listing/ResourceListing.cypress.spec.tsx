@@ -57,7 +57,7 @@ import useLoadDetails from './useLoadResources/useLoadDetails';
 
 const pageNavigationCalls = [
   { expectedCall: 1, param: 'page=2&limit=30' },
-  { expectedCall: 4, param: 'page=1&limit=30' },
+  { expectedCall: 3, param: 'page=1&limit=30' },
   { expectedCall: 1, param: 'page=4&limit=30' }
 ];
 
