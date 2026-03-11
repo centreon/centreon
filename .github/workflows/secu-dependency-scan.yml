@@ -7,6 +7,8 @@ on:
   pull_request:
     paths:
       - '**'
+      - '!lib/crates/**'
+      - '!tests/**'
       - '!centreon-awie'
       - '!centreon-dsm'
       - '!centreon-ha'
