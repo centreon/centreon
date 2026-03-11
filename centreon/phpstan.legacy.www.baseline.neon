@@ -364,13 +364,13 @@ parameters:
 		-
 			message: '#^Function updateGroups\(\) should return type but return statement is missing\.$#'
 			identifier: return.missing
-			count: 2
+			count: 1
 			path: www/include/options/accessLists/menusACL/DB-Func.php
 
 		-
 			message: '#^Function updateLCARelation\(\) should return type but return statement is missing\.$#'
 			identifier: return.missing
-			count: 2
+			count: 1
 			path: www/include/options/accessLists/menusACL/DB-Func.php
 
 		-
