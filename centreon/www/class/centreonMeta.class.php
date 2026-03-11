@@ -91,16 +91,15 @@ class CentreonMeta
             return $services[$metaId];
         }
 
-        $sql = 'SELECT s.service_id '
-            . 'FROM service s '
-            . 'WHERE s.service_description = "meta_' . $metaId . '" ';
+        $stmt = $this->db->prepare(
+            'SELECT s.service_id FROM service s WHERE s.service_description = :desc ORDER BY s.service_id DESC LIMIT 1'
+        );
+        $stmt->bindValue(':desc', 'meta_' . $metaId, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        $services[$metaId] = $row !== false ? (int) $row['service_id'] : 0;
 
-        $res = $this->db->query($sql);
-        while ($row = $res->fetchRow()) {
-            $services[$metaId] = $row['service_id'];
-        }
-
-        return $services[$metaId] ?? 0;
+        return $services[$metaId];
     }
 
     /**
@@ -114,11 +113,12 @@ class CentreonMeta
     public function getMetaIdFromServiceDisplayName($serviceDisplayName)
     {
         $metaId = null;
-        $query = 'SELECT service_description '
-            . 'FROM service '
-            . 'WHERE display_name = "' . $serviceDisplayName . '" ';
-        $res = $this->db->query($query);
-        $row = $res->fetchRow();
+        $stmt = $this->db->prepare(
+            'SELECT service_description FROM service WHERE display_name = :displayName LIMIT 1'
+        );
+        $stmt->bindValue(':displayName', $serviceDisplayName, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch();
         if ($row !== false && preg_match('/meta_(\d+)/', $row['service_description'], $matches)) {
             $metaId = $matches[1];
         }
