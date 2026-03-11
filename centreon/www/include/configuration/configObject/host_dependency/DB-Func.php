@@ -143,7 +143,6 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
 
     foreach ($dependencies as $depId => $_) {
         try {
-            $pearDB->beginTransaction();
             // fetch original dependency row
             $sqlSel = $pearDB->createQueryBuilder()
                 ->select('*')
@@ -165,6 +164,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
             if (! $copies) {
                 continue;
             }
+
             $suffix = 1;
             for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
                 $dup = $original;
@@ -179,55 +179,65 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                 }
                 $i++;
 
-                // insert duplicated dependency
-                $cols   = array_keys($dup);
-                $sqlIns = $pearDB->createQueryBuilder()
-                    ->insert('dependency')
-                    ->values(array_combine(
-                        $cols,
-                        array_map(fn ($c) => ':' . $c, $cols)
-                    ))
-                    ->getQuery();
-                $insParams = QueryParameters::create(
-                    array_map(fn ($c) => QueryParameter::string($c, (string) $dup[$c]), $cols)
-                );
-                $pearDB->insert($sqlIns, $insParams);
-                $newId = (int) $pearDB->getLastInsertId();
-
-                // duplicate relations
-                foreach ([
-                    'dependency_hostParent_relation',
-                    'dependency_hostChild_relation',
-                    'dependency_serviceChild_relation',
-                ] as $table) {
-                    // No need of Distinct here, as we are sure that the relation is unique
-                    $sqlRelSel = $pearDB->createQueryBuilder()
-                        ->select('*')
-                        ->from($table)
-                        ->where('dependency_dep_id = :id')
+                $pearDB->beginTransaction();
+                try {
+                    // insert duplicated dependency
+                    $cols   = array_keys($dup);
+                    $sqlIns = $pearDB->createQueryBuilder()
+                        ->insert('dependency')
+                        ->values(array_combine(
+                            $cols,
+                            array_map(fn ($c) => ':' . $c, $cols)
+                        ))
                         ->getQuery();
-                    $rels = $pearDB->fetchAllAssociative($sqlRelSel, $params);
+                    $insParams = QueryParameters::create(
+                        array_map(fn ($c) => QueryParameter::string($c, (string) $dup[$c]), $cols)
+                    );
+                    $pearDB->insert($sqlIns, $insParams);
+                    $newId = (int) $pearDB->getLastInsertId();
 
-                    foreach ($rels as $rowRel) {
-                        $fields   = array_keys($rowRel);
-                        $sqlRelIns = $pearDB->createQueryBuilder()
-                            ->insert($table)
-                            ->values(array_combine(
-                                $fields,
-                                array_map(fn ($c) => ':' . $c, $fields)
-                            ))
+                    // duplicate relations
+                    foreach ([
+                        'dependency_hostParent_relation',
+                        'dependency_hostChild_relation',
+                        'dependency_serviceChild_relation',
+                    ] as $table) {
+                        // No need of Distinct here, as we are sure that the relation is unique
+                        $sqlRelSel = $pearDB->createQueryBuilder()
+                            ->select('*')
+                            ->from($table)
+                            ->where('dependency_dep_id = :id')
                             ->getQuery();
-                        $relParams = QueryParameters::create(
-                            array_map(
-                                fn ($c) => QueryParameter::int(
-                                    $c,
-                                    $c === 'dependency_dep_id' ? $newId : (int) $rowRel[$c]
-                                ),
-                                $fields
-                            )
-                        );
-                        $pearDB->insert($sqlRelIns, $relParams);
+                        $rels = $pearDB->fetchAllAssociative($sqlRelSel, $params);
+
+                        foreach ($rels as $rowRel) {
+                            $fields   = array_keys($rowRel);
+                            $sqlRelIns = $pearDB->createQueryBuilder()
+                                ->insert($table)
+                                ->values(array_combine(
+                                    $fields,
+                                    array_map(fn ($c) => ':' . $c, $fields)
+                                ))
+                                ->getQuery();
+                            $relParams = QueryParameters::create(
+                                array_map(
+                                    fn ($c) => QueryParameter::int(
+                                        $c,
+                                        $c === 'dependency_dep_id' ? $newId : (int) $rowRel[$c]
+                                    ),
+                                    $fields
+                                )
+                            );
+                            $pearDB->insert($sqlRelIns, $relParams);
+                        }
                     }
+                    $pearDB->commit();
+                } catch (Throwable $e) {
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
+
+                    throw $e;
                 }
                 $centreon->CentreonLogAction->insertLog(
                     'host dependency',
@@ -240,12 +250,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
             if ($i < $copies) {
                 error_log("Could only create {$i}/{$copies} duplicates for host dependency '{$original['dep_name']}' ({$depId}): suffix search exhausted");
             }
-            $pearDB->commit();
         } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
-            if ($pearDB->inTransaction()) {
-                $pearDB->rollBack();
-            }
-
             throw new RepositoryException(
                 'Error duplicating host dependency',
                 ['dep_id' => $depId],

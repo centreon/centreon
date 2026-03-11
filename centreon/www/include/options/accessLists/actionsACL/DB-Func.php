@@ -702,6 +702,9 @@ function updateAclActionsForAuthentifiedUsers(array $queryValues): void
  */
 function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
 {
+    if (empty($aclGroupIds)) {
+        return;
+    }
     global $pearDB;
     $userIds = getUsersIdsByAclGroup($aclGroupIds);
     $readSessionRepository = getReadSessionRepository();
@@ -723,6 +726,9 @@ function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
  */
 function getUsersIdsByAclGroup(array $aclGroupIds): array
 {
+    if (empty($aclGroupIds)) {
+        return [];
+    }
     global $pearDB;
 
     $queryValues = [];
@@ -731,6 +737,9 @@ function getUsersIdsByAclGroup(array $aclGroupIds): array
         if ($sanitizedAclGroupId !== false) {
             $queryValues[':acl_group_id_' . $index] = $sanitizedAclGroupId;
         }
+    }
+    if (empty($queryValues)) {
+        return [];
     }
 
     $aclGroupIdQueryString = '(' . implode(', ', array_keys($queryValues)) . ')';
@@ -774,6 +783,9 @@ function getReadSessionRepository(): ReadSessionRepositoryInterface
  */
 function getAclGroupIdsByActionIds(array $queryValues): array
 {
+    if (empty($queryValues)) {
+        return [];
+    }
     global $pearDB;
     $aclActionIdQueryString = '(' . implode(', ', array_keys($queryValues)) . ')';
     $statement = $pearDB->prepare(
