@@ -154,7 +154,6 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
-    $sgAcl = [];
     foreach (array_keys($serviceGroups) as $key) {
         $sgId = filter_var($key, FILTER_VALIDATE_INT);
         if ($sgId === false) {
@@ -203,7 +202,6 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                     $pearDB->rollBack();
                     continue;
                 }
-                $sgAcl[$newSgId] = $sgId;
                 $statement = $pearDB->prepare('
                     SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id
                     FROM servicegroup_relation sgr WHERE sgr.servicegroup_sg_id = :sg_id
@@ -251,6 +249,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 }
                 $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
 
+                CentreonACL::duplicateSgAcl([$newSgId => $sgId]);
                 $pearDB->commit();
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
@@ -273,7 +272,6 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
             error_log("Could only create {$i}/{$dupCount} duplicates for service group '{$originalName}' ({$sgId}): suffix search exhausted");
         }
     }
-    CentreonACL::duplicateSgAcl($sgAcl);
     $centreon->user->access->updateACL();
 }
 

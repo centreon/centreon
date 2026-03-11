@@ -246,6 +246,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
 {
     global $pearDB, $centreon;
 
+    $affectedAclGroupIds = [];
     $selectStmt = $pearDB->prepare(
         'SELECT * FROM acl_actions WHERE acl_action_id = :id LIMIT 1'
     );
@@ -341,6 +342,10 @@ function multipleActionInDB($actions = [], $nbrDup = [])
                     ]
                 );
                 $pearDB->commit();
+
+                foreach ($groupRelations as $relation) {
+                    $affectedAclGroupIds[] = (int) $relation['acl_group_id'];
+                }
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();
@@ -352,6 +357,10 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         if ($i < $dupCount) {
             error_log("Could only create {$i}/{$dupCount} duplicates for action ACL '{$originalName}' ({$key}): suffix search exhausted");
         }
+    }
+
+    if ($affectedAclGroupIds !== []) {
+        flagUpdatedAclForAuthentifiedUsers(array_values(array_unique($affectedAclGroupIds)));
     }
 }
 
