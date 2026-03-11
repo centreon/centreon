@@ -542,6 +542,22 @@ $insertEventScriptOutputForCMA = function () use ($pearDB, &$errorMessage, $vers
     );
 };
 
+/** ------------------------------------- Show Services Availability page ------------------------------------- */
+$showServicesAvailabilityPage = function () use ($pearDB, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to show Services availability page in topology';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Showing Services availability page in topology",
+    );
+    $pearDB->update(
+        <<<'SQL'
+            UPDATE `topology`
+            SET `topology_show` = '1'
+            WHERE `topology_page` = 30702
+            SQL
+    );
+};
+
 /** -------------------------------------- Command redesign updates-------------------------------------- */
 $addNewCommandPage = function () use ($pearDB, &$errorMessage, $version): void {
     $errorMessage = 'Unable to add new command page topology';
@@ -799,6 +815,9 @@ try {
 
     $createBrokerOutputEventScript();
     $insertEventScriptOutputForCMA();
+
+    // Show Services availability page (MON-195790)
+    $showServicesAvailabilityPage();
 
     // Command redesign updates
     $addNewCommandPage();

@@ -91,8 +91,8 @@ if ($serviceId !== false && $hostId !== false) {
 
     // Getting periods values
     $dates = getPeriodToReport('alternate');
-    $startDate = $dates[0];
-    $endDate = $dates[1];
+    $startDate = $dates[0] ?? null;
+    $endDate = $dates[1] ?? null;
 
     // Getting hostgroup and his hosts stats
     $servicesStats = getServicesLogs(
