@@ -702,7 +702,7 @@ function updateAclActionsForAuthentifiedUsers(array $queryValues): void
  */
 function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
 {
-    if (empty($aclGroupIds)) {
+    if ($aclGroupIds === []) {
         return;
     }
     global $pearDB;
@@ -726,7 +726,7 @@ function flagUpdatedAclForAuthentifiedUsers(array $aclGroupIds): void
  */
 function getUsersIdsByAclGroup(array $aclGroupIds): array
 {
-    if (empty($aclGroupIds)) {
+    if ($aclGroupIds === []) {
         return [];
     }
     global $pearDB;
@@ -738,7 +738,7 @@ function getUsersIdsByAclGroup(array $aclGroupIds): array
             $queryValues[':acl_group_id_' . $index] = $sanitizedAclGroupId;
         }
     }
-    if (empty($queryValues)) {
+    if ($queryValues === []) {
         return [];
     }
 
@@ -783,7 +783,7 @@ function getReadSessionRepository(): ReadSessionRepositoryInterface
  */
 function getAclGroupIdsByActionIds(array $queryValues): array
 {
-    if (empty($queryValues)) {
+    if ($queryValues === []) {
         return [];
     }
     global $pearDB;

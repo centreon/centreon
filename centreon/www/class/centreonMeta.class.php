@@ -65,11 +65,7 @@ class CentreonMeta
                 $this->db->query($query);
                 $res = $this->db->query($queryHost);
                 $row = $res->fetchRow();
-                if ($row !== false) {
-                    $hostId = $row['host_id'];
-                } else {
-                    $hostId = 0;
-                }
+                $hostId = $row !== false ? $row['host_id'] : 0;
             }
         }
 
