@@ -158,71 +158,31 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
         }
 
         unset($row['sg_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO servicegroup (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $originalName = $row['sg_name'];
         $suffix = 1;
+
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $bindParams = [];
-            foreach ($row as $key2 => $value2) {
-                switch ($key2) {
-                    case 'sg_name':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $sgName = $value2 . '_' . $suffix;
-                        $value2 = $value2 . '_' . $suffix;
-                        $bindParams[':sg_name'] = [PDO::PARAM_STR => $value2];
-                        break;
-                    case 'sg_alias':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $bindParams[':sg_alias'] = [PDO::PARAM_STR => $value2];
-                        break;
-                    case 'sg_comment':
-                        $value2 = HtmlAnalyzer::sanitizeAndRemoveTags($value2);
-                        $value2
-                            ? $bindParams[':sg_comment'] = [PDO::PARAM_STR => $value2]
-                            : $bindParams[':sg_comment'] = [PDO::PARAM_NULL => null];
-                        break;
-                    case 'geo_coords':
-                        centreonUtils::validateGeoCoords($value2)
-                            ? $bindParams[':geo_coords'] = [PDO::PARAM_STR => $value2]
-                            : $bindParams[':geo_coords'] = [PDO::PARAM_NULL => null];
-                        break;
-                    case 'sg_activate':
-                        $value2 = filter_var($value2, FILTER_VALIDATE_REGEXP, [
-                            'options' => [
-                                'regexp' => '/^0|1$/',
-                            ],
-                        ]);
-                        $value2
-                            ? $bindParams[':sg_activate'] = [PDO::PARAM_STR => $value2]
-                            : $bindParams[':sg_activate'] = [PDO::PARAM_STR => '0'];
-                        break;
-                }
-                if ($key2 != 'sg_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($sgName)) {
-                    $fields['sg_name'] = $sgName;
-                }
-            }
+            $sgName = $originalName . '_' . $suffix;
             if (! testServiceGroupExistence($sgName)) {
                 continue;
             }
             $i++;
+            $row['sg_name'] = $sgName;
+            $fields = $row;
             $pearDB->beginTransaction();
             try {
-                if (! empty($bindParams)) {
-                    $statement = $pearDB->prepare('
-                        INSERT INTO servicegroup
-                        VALUES (NULL, :sg_name, :sg_alias, :sg_comment, :geo_coords, :sg_activate)
-                    ');
-                    foreach ($bindParams as $token => $bindValues) {
-                        foreach ($bindValues as $paramType => $value) {
-                            $statement->bindValue($token, $value, $paramType);
-                        }
-                    }
-                    $statement->execute();
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 }
+                $insertStmt->execute();
                 $newSgId = (int) $pearDB->lastInsertId();
                 if ($newSgId <= 0) {
                     $pearDB->rollBack();
