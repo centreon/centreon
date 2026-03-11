@@ -227,109 +227,79 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
 {
     global $pearDB, $centreon;
 
+    $selectStmt = $pearDB->prepare(
+        'SELECT * FROM `acl_topology` WHERE acl_topo_id = :topology_id LIMIT 1'
+    );
+
+    $prepareInsertRelation = $pearDB->prepare(
+        'INSERT INTO acl_topology_relations '
+        . '(acl_topo_id, topology_topology_id, access_right) '
+        . '(SELECT :new_topology_id, topology_topology_id, access_right '
+        . 'FROM acl_topology_relations '
+        . 'WHERE acl_topo_id = :current_topology_id)'
+    );
+
+    $prepareInsertGroup = $pearDB->prepare(
+        'INSERT INTO acl_group_topology_relations '
+        . '(acl_topology_id, acl_group_id) '
+        . '(SELECT :new_topology_id, acl_group_id '
+        . 'FROM acl_group_topology_relations '
+        . 'WHERE acl_topology_id = :current_topology_id)'
+    );
+
     foreach (array_keys($acls) as $currentTopologyId) {
-        $prepareSelect = $pearDB->prepare(
-            'SELECT * FROM `acl_topology` WHERE acl_topo_id = :topology_id LIMIT 1'
-        );
-        $prepareSelect->bindValue(
-            ':topology_id',
-            $currentTopologyId,
-            PDO::PARAM_INT
-        );
-
-        if (! $prepareSelect->execute()) {
+        $selectStmt->bindValue(':topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
             continue;
         }
 
-        $topology = $prepareSelect->fetch(PDO::FETCH_ASSOC);
-        if ($topology === false) {
-            continue;
-        }
+        unset($row['acl_topo_id']);
+        $columns = array_keys($row);
+        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_topology (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+        );
 
-        for ($newIndex = 1; $newIndex <= $duplicateNbr[$currentTopologyId]; $newIndex++) {
-            $fields = [];
-            $insertData = [];
-            foreach ($topology as $column => $value) {
-                if ($column === 'acl_topo_id') {
-                    continue;
-                }
-                if ($column === 'acl_topo_name') {
-                    $count = 1;
-                    $aclName = $value . '_' . $count;
-                    while (! hasTopologyNameNeverUsed($aclName)) {
-                        $count++;
-                        $aclName = $value . '_' . $count;
-                    }
-                    $value = $aclName;
-                    $fields['acl_topo_name'] = $aclName;
-                } else {
-                    $fields[$column] = $value;
-                }
-                $insertData[$column] = $value;
+        $dupCount = (int) ($duplicateNbr[$currentTopologyId] ?? 0);
+        $suffix = 1;
+        for ($i = 0; $i < $dupCount; $suffix++) {
+            $aclName = $row['acl_topo_name'] . '_' . $suffix;
+            if (! hasTopologyNameNeverUsed($aclName)) {
+                continue;
+            }
+            $i++;
+            $row['acl_topo_name'] = $aclName;
+
+            foreach ($columns as $col) {
+                $value = $row[$col];
+                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            }
+            $insertStmt->execute();
+            $newTopologyId = (int) $pearDB->lastInsertId();
+
+            if ($newTopologyId <= 0) {
+                continue;
             }
 
-            if ($insertData !== []) {
-                $columns = array_keys($insertData);
-                $placeholders = array_map(fn ($col) => ':' . $col, $columns);
-                $insertStmt = $pearDB->prepare(
-                    'INSERT INTO acl_topology (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')'
-                );
-                foreach ($insertData as $col => $val) {
-                    $insertStmt->bindValue(':' . $col, $val, $val === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                }
-                $insertStmt->execute();
-                $newTopologyId = (int) $pearDB->lastInsertId();
+            $prepareInsertRelation->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
+            $prepareInsertRelation->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+            $prepareInsertRelation->execute();
 
-                $prepareInsertRelation = $pearDB->prepare(
-                    'INSERT INTO acl_topology_relations '
-                    . '(acl_topo_id, topology_topology_id, access_right) '
-                    . '(SELECT :new_topology_id, topology_topology_id, access_right '
-                    . 'FROM acl_topology_relations '
-                    . 'WHERE acl_topo_id = :current_topology_id)'
-                );
-                $prepareInsertRelation->bindValue(
-                    ':new_topology_id',
-                    $newTopologyId,
-                    PDO::PARAM_INT
-                );
-                $prepareInsertRelation->bindValue(
-                    ':current_topology_id',
-                    $currentTopologyId,
-                    PDO::PARAM_INT
-                );
+            $prepareInsertGroup->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
+            $prepareInsertGroup->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+            $prepareInsertGroup->execute();
 
-                if (! $prepareInsertRelation->execute()) {
-                    continue;
-                }
-
-                $prepareInsertGroup = $pearDB->prepare(
-                    'INSERT INTO acl_group_topology_relations '
-                    . '(acl_topology_id, acl_group_id) '
-                    . '(SELECT :new_topology_id, acl_group_id '
-                    . 'FROM acl_group_topology_relations '
-                    . 'WHERE acl_topology_id = :current_topology_id)'
-                );
-                $prepareInsertGroup->bindValue(
-                    ':new_topology_id',
-                    $newTopologyId,
-                    PDO::PARAM_INT
-                );
-                $prepareInsertGroup->bindValue(
-                    ':current_topology_id',
-                    $currentTopologyId,
-                    PDO::PARAM_INT
-                );
-
-                if ($prepareInsertGroup->execute()) {
-                    $centreon->CentreonLogAction->insertLog(
-                        'menu access',
-                        $newTopologyId,
-                        $aclName,
-                        'a',
-                        $fields
-                    );
-                }
-            }
+            $fields = $row;
+            $fields['acl_topo_name'] = $aclName;
+            $centreon->CentreonLogAction->insertLog(
+                'menu access',
+                $newTopologyId,
+                $aclName,
+                'a',
+                $fields
+            );
         }
     }
 }

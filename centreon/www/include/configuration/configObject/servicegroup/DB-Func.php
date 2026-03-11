@@ -153,6 +153,9 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
         $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
         unset($row['sg_id']);
 
