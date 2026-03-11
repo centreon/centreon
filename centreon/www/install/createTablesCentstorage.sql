@@ -332,6 +332,7 @@ CREATE TABLE `resources` (
   `icon_id` bigint(20) unsigned DEFAULT NULL,
   `flapping` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0=false, 1=true',
   `percent_state_change` float DEFAULT NULL,
+  `is_module` tinyint(1) GENERATED ALWAYS AS (CASE WHEN `name` LIKE '\\_Module\\_%' OR `parent_name` LIKE '\\_Module\\_BAM%' THEN 1 ELSE 0 END) VIRTUAL COMMENT 'computed flag: 1 if internal Module/BAM resource to exclude from listings',
   PRIMARY KEY (`resource_id`),
   UNIQUE KEY `resources_id_parent_id_type_uindex` (`id`,`parent_id`,`type`),
   KEY `resources_severities_severity_id_fk` (`severity_id`),
@@ -339,6 +340,10 @@ CREATE TABLE `resources` (
   INDEX `resources_id_index` (`id`),
   INDEX `resources_parent_id_index` (`parent_id`),
   INDEX `resources_enabled_type_index` (`enabled`, `type`),
+  INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC),
+  INDEX `resources_enabled_type_ismodule_idx` (`enabled`, `type`, `is_module`, `poller_id`),
+  INDEX `resources_status_filter_idx` (`enabled`, `status`, `type`, `is_module`, `acknowledged`, `in_downtime`, `status_confirmed`, `poller_id`),
+  INDEX `resources_name_search_idx` (`enabled`, `type`, `is_module`, `poller_id`, `name`),
   CONSTRAINT `resources_severities_severity_id_fk` FOREIGN KEY (`severity_id`) REFERENCES `severities` (`severity_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

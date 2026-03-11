@@ -896,13 +896,115 @@ $addPollerTypeColumn = function () use ($pearDB, &$errorMessage, $version): void
     );
 };
 
-try {
-    // DDL statements for real time database
-    $pearDBO->executeStatement(
+/** -------------------------------------- Resources performance indexes -------------------------------------- */
+$addResourcesPerformanceIndexes = function () use ($pearDBO, &$errorMessage, $version): void {
+    $errorMessage = 'Unable to add performance indexes to resources table';
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Adding performance indexes to centreon_storage.resources",
+    );
+
+    // Add is_module virtual column (pre-computes the NOT LIKE filter used to exclude internal Module/BAM resources)
+    $hasIsModule = $pearDBO->fetchOne(
         <<<'SQL'
-            ALTER TABLE `log_action` MODIFY COLUMN `log_contact_id` int(11) DEFAULT NULL
+            SELECT 1 FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'resources'
+              AND COLUMN_NAME = 'is_module'
             SQL
     );
+    if (! $hasIsModule) {
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD COLUMN `is_module` TINYINT(1) GENERATED ALWAYS AS (
+                    CASE WHEN `name` LIKE '\_Module\_%' OR `parent_name` LIKE '\_Module\_BAM%' THEN 1 ELSE 0 END
+                ) VIRTUAL COMMENT 'computed flag: 1 if internal Module/BAM resource to exclude from listings'
+                SQL
+        );
+    }
+
+    // Add sort index for the default ORDER BY (status_ordered DESC, last_status_change DESC)
+    $hasStatusSortIdx = $pearDBO->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'resources'
+              AND INDEX_NAME = 'resources_enabled_status_sort_idx'
+            SQL
+    );
+    if (! $hasStatusSortIdx) {
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD INDEX `resources_enabled_status_sort_idx` (`enabled`, `status_ordered` DESC, `last_status_change` DESC)
+                SQL
+        );
+    }
+
+    // Add covering index for unfiltered COUNT queries (avoids row reads)
+    $hasIsModuleIdx = $pearDBO->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'resources'
+              AND INDEX_NAME = 'resources_enabled_type_ismodule_idx'
+            SQL
+    );
+    if (! $hasIsModuleIdx) {
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD INDEX `resources_enabled_type_ismodule_idx` (`enabled`, `type`, `is_module`, `poller_id`)
+                SQL
+        );
+    }
+
+    // Add covering index for status/state filter COUNT queries (status-first for tight seek on status IN (...))
+    $hasStatusFilterIdx = $pearDBO->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'resources'
+              AND INDEX_NAME = 'resources_status_filter_idx'
+            SQL
+    );
+    if (! $hasStatusFilterIdx) {
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD INDEX `resources_status_filter_idx` (`enabled`, `status`, `type`, `is_module`, `acknowledged`, `in_downtime`, `status_confirmed`, `poller_id`)
+                SQL
+        );
+    }
+
+    // Add covering index for name search queries (includes name column to avoid row reads for REGEXP/LIKE)
+    $hasNameSearchIdx = $pearDBO->fetchOne(
+        <<<'SQL'
+            SELECT 1 FROM information_schema.STATISTICS
+            WHERE TABLE_SCHEMA = DATABASE()
+              AND TABLE_NAME = 'resources'
+              AND INDEX_NAME = 'resources_name_search_idx'
+            SQL
+    );
+    if (! $hasNameSearchIdx) {
+        $pearDBO->executeStatement(
+            <<<'SQL'
+                ALTER TABLE `resources`
+                ADD INDEX `resources_name_search_idx` (`enabled`, `type`, `is_module`, `poller_id`, `name`)
+                SQL
+        );
+    }
+
+    CentreonLog::create()->info(
+        logTypeId: CentreonLog::TYPE_UPGRADE,
+        message: "UPGRADE - {$version}: Successfully added performance indexes to centreon_storage.resources",
+    );
+};
+
+try {
+    // DDL statements for real time database
+    $addResourcesPerformanceIndexes();
 
     // DDL statements for configuration database
     $addPollerTypeColumn();
