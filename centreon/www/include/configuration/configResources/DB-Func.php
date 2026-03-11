@@ -413,6 +413,7 @@ function insertResource($ret = [])
         $ret = $form->getSubmitValues();
     }
 
+    $vaultPath = null;
     if ($ret['is_password']) {
         $vaultPath = saveInVault($ret['resource_name'], $ret['resource_line']);
         $ret['resource_line'] = $vaultPath ?? $ret['resource_line'];
@@ -449,6 +450,10 @@ function insertResource($ret = [])
 
     $resource_id = (int) $pearDB->lastInsertId();
     if ($resource_id <= 0) {
+        if ($vaultPath !== null) {
+            deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $ret['resource_name']]);
+        }
+
         return 0;
     }
 

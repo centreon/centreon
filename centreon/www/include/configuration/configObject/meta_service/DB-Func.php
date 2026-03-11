@@ -1020,12 +1020,14 @@ function updateAclResourcesMetaRelations(int $metaId): void
                 $deleteParams[] = QueryParameter::int($key, (int) $row['acl_res_id']);
             }
 
-            $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
+            $paramsAcl = [];
             $values = [];
             foreach ($aclResIds as $idx => $aclResId) {
                 $key = 'aclResId' . $idx;
-                $values[] = " (:{$key}, :metaId)";
+                $metaKey = 'metaId' . $idx;
+                $values[] = " (:{$key}, :{$metaKey})";
                 $paramsAcl[] = QueryParameter::int($key, (int) $aclResId['acl_res_id']);
+                $paramsAcl[] = QueryParameter::int($metaKey, (int) $metaId);
             }
 
             $pearDB->startTransaction();
@@ -1200,12 +1202,12 @@ function getParamValue(
     }
 
     // Handle nested parameter (with subkey)
-    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] == 0)) {
+    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] === 0 || $params[$key][$subKey] === '0')) {
         return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
     }
 
     // Handle first-level parameter
-    if (! empty($params[$key]) || $params[$key] == 0) {
+    if (! empty($params[$key]) || $params[$key] === 0 || $params[$key] === '0') {
         return $sanitize ? sanitize($params[$key]) : $params[$key];
     }
 

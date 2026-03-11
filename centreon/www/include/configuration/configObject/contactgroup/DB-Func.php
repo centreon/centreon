@@ -26,6 +26,8 @@ if (! isset($centreon)) {
 function testContactGroupExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form, $centreon;
+
+    $name = $centreon->checkIllegalChar(HtmlAnalyzer::sanitizeAndRemoveTags($name ?? ''));
     $id = null;
 
     if ($excludeCurrentFormId && isset($form)) {
@@ -36,7 +38,7 @@ function testContactGroupExistence($name = null, bool $excludeCurrentFormId = tr
         $query .= ' AND cg_id <> :cgId';
     }
     $stmt = $pearDB->prepare($query . ' LIMIT 1');
-    $stmt->bindValue(':cgName', $centreon->checkIllegalChar($name), PDO::PARAM_STR);
+    $stmt->bindValue(':cgName', $name, PDO::PARAM_STR);
     if ($id !== null) {
         $stmt->bindValue(':cgId', (int) $id, PDO::PARAM_INT);
     }

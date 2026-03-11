@@ -35,6 +35,8 @@ function testHostGroupDependencyExistence(?string $name = null): bool
         return true;
     }
 
+    $name = HtmlAnalyzer::sanitizeAndRemoveTags($name);
+
     try {
         CentreonDependency::purgeObsoleteDependencies($pearDB);
 

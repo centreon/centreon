@@ -28,6 +28,7 @@ function testServiceDependencyExistence($name = null, bool $excludeCurrentFormId
     global $pearDB;
     global $form;
 
+    $name = HtmlAnalyzer::sanitizeAndRemoveTags($name ?? '');
     CentreonDependency::purgeObsoleteDependencies($pearDB);
 
     $id = null;

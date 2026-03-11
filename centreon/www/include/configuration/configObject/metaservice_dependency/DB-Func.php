@@ -28,6 +28,7 @@ function testExistence($name = null, bool $excludeCurrentFormId = true)
     global $pearDB;
     global $form;
 
+    $name = HtmlAnalyzer::sanitizeAndRemoveTags($name ?? '');
     CentreonDependency::purgeObsoleteDependencies($pearDB);
 
     $id = null;
