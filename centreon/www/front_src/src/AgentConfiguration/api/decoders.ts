@@ -152,13 +152,11 @@ export const agentConfigurationDecoder = JsonDecoder.object<AgentConfiguration>(
 export const installationCommandDecoder =
   JsonDecoder.object<InstallationCommand>(
     {
-      id: JsonDecoder.number,
       linuxScriptCommand: JsonDecoder.string,
       windowsScriptCommand: JsonDecoder.string
     },
     'Agent configuration',
     {
-      id: 'poller_id',
       linuxScriptCommand: 'linux_script_command',
       windowsScriptCommand: 'windows_script_command'
     }
