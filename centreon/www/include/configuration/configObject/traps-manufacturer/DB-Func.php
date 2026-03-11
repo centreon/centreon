@@ -124,7 +124,6 @@ function updateMnftr($id = null)
         return;
     }
 
-    $ret = [];
     $ret = $form->getSubmitValues();
     $statement = $pearDB->prepare(
         'UPDATE traps_vendor SET name = :name, alias = :alias, description = :description WHERE id = :id'

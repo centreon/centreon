@@ -305,7 +305,6 @@ function updateMetaServiceDependencyMetaServiceParents($dep_id = null)
     $statement = $pearDB->prepare('DELETE FROM dependency_metaserviceParent_relation WHERE dependency_dep_id = :dep_id');
     $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
     $statement->execute();
-    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msParents');
     $statement = $pearDB->prepare(
         'INSERT INTO dependency_metaserviceParent_relation (dependency_dep_id, meta_service_meta_id)
@@ -329,7 +328,6 @@ function updateMetaServiceDependencyMetaServiceChilds($dep_id = null)
     $statement = $pearDB->prepare('DELETE FROM dependency_metaserviceChild_relation WHERE dependency_dep_id = :dep_id');
     $statement->bindValue(':dep_id', (int) $dep_id, PDO::PARAM_INT);
     $statement->execute();
-    $ret = [];
     $ret = CentreonUtils::mergeWithInitialValues($form, 'dep_msChilds');
     $statement = $pearDB->prepare(
         'INSERT INTO dependency_metaserviceChild_relation (dependency_dep_id, meta_service_meta_id)

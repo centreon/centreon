@@ -151,12 +151,13 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         $indexId = (int) $row['index_id'];
         $originalName = $row['vmetric_name'];
         $copies = (int) ($nbrDup[$vmetricId] ?? 0);
-        $count = 0;
-        for ($newIndex = 1; $newIndex <= $copies; $newIndex++) {
-            do {
-                $count++;
-                $virtualMetricName = $originalName . '_' . $count;
-            } while (! hasVirtualNameNeverUsed($virtualMetricName, $indexId));
+        $suffix = 1;
+        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
+            $virtualMetricName = $originalName . '_' . $suffix;
+            if (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
+                continue;
+            }
+            $i++;
             $row['vmetric_name'] = $virtualMetricName;
 
             foreach ($columns as $col) {

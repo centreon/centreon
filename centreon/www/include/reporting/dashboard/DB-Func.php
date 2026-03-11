@@ -452,8 +452,8 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
     }
 
     $bindValues = [
-        ':startDate' => [PDO::PARAM_STR, $startDate],
-        ':endDate' => [PDO::PARAM_STR, $endDate],
+        ':startDate' => [PDO::PARAM_INT, (int) $startDate],
+        ':endDate' => [PDO::PARAM_INT, (int) $endDate],
     ];
 
     $servicesConditions = [];

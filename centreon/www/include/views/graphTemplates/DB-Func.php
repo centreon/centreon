@@ -127,20 +127,19 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
 function defaultOreonGraph()
 {
     global $pearDB;
-    $rq = "SELECT DISTINCT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1'";
-    $res = $pearDB->query($rq);
+    $res = $pearDB->query("SELECT DISTINCT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1'");
     if (! $res->rowCount()) {
-        $rq = "UPDATE giv_graphs_template SET default_tpl1 = '1' "
-            . 'WHERE graph_id = (SELECT MIN(graph_id) FROM giv_graphs_template)';
-        $pearDB->query($rq);
+        $pearDB->query(
+            "UPDATE giv_graphs_template SET default_tpl1 = '1'"
+            . ' WHERE graph_id = (SELECT MIN(graph_id) FROM giv_graphs_template)'
+        );
     }
 }
 
 function noDefaultOreonGraph()
 {
     global $pearDB;
-    $rq = "UPDATE giv_graphs_template SET default_tpl1 = '0'";
-    $pearDB->query($rq);
+    $pearDB->query("UPDATE giv_graphs_template SET default_tpl1 = '0'");
 }
 
 /**
@@ -282,6 +281,8 @@ function getBindValues(array $data): array
         ':size_to_max' => isset($data['size_to_max']) && $data['size_to_max'] !== ''
             ? [PDO::PARAM_INT, $data['size_to_max']]
             : [PDO::PARAM_INT, 0],
+        // default_tpl1, stacked, scaled are enum('0','1') columns.
+        // The (int) cast sanitizes to 0/1; PARAM_STR stringifies for the enum.
         ':default_tpl1' => isset($data['default_tpl1']) && $data['default_tpl1'] !== ''
             ? [PDO::PARAM_STR, (int) $data['default_tpl1']]
             : [PDO::PARAM_STR, 0],

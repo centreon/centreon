@@ -138,7 +138,6 @@ function updateNagiosConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -320,7 +319,6 @@ function updateSNMPConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -365,7 +363,6 @@ function updateDebugConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -493,7 +490,6 @@ function updateGeneralConfigData()
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     if (! isset($ret['AjaxTimeReloadStatistic'])) {
@@ -679,7 +675,6 @@ function updateRRDToolConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(
@@ -730,7 +725,6 @@ function updateODSConfigData()
 {
     global $form, $pearDBO, $pearDB;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
     if (! isset($ret['audit_log_option'])) {
         $ret['audit_log_option'] = '0';
@@ -823,7 +817,6 @@ function updateCASConfigData($gopt_id = null)
 {
     global $form, $pearDB, $centreon;
 
-    $ret = [];
     $ret = $form->getSubmitValues();
 
     updateOption(

@@ -208,7 +208,6 @@ function insertComponentTemplateInDB()
 function insertComponentTemplate()
 {
     global $form, $pearDB;
-    $formValues = [];
     $formValues = $form->getSubmitValues();
 
     if (
@@ -272,7 +271,6 @@ function updateComponentTemplate($compoId = null)
         return;
     }
     global $form, $pearDB;
-    $formValues = [];
     $formValues = $form->getSubmitValues();
 
     if (
@@ -395,8 +393,9 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
                 ];
                 break;
             case 'default_tpl1':
+                // default_tpl1 is enum('0','1'); (int) cast sanitizes, PARAM_STR stringifies for the enum
                 $bindParams[':' . $inputName] = [
-                    PDO::PARAM_INT, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
+                    PDO::PARAM_STR, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
                         ? null
                         : (int) $inputValue,
                 ];

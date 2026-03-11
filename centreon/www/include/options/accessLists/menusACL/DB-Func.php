@@ -293,7 +293,6 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
             $prepareInsertGroup->execute();
 
             $fields = $row;
-            $fields['acl_topo_name'] = $aclName;
             $centreon->CentreonLogAction->insertLog(
                 'menu access',
                 $newTopologyId,

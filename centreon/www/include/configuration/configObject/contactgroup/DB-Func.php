@@ -296,7 +296,6 @@ function updateContactGroup($cgId = null, $params = [])
     if (! $cgId) {
         return;
     }
-    $ret = [];
     $ret = count($params) ? $params : $form->getSubmitValues();
 
     $cgName = $centreon->checkIllegalChar(
