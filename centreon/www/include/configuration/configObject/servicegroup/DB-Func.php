@@ -320,7 +320,9 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
                     createNewDatasetFilter(datasetId: $datasetId, ruleId: $ruleId, serviceGroupId: $serviceGroupId);
                     $pearDB->commit();
                 } catch (Throwable $exception) {
-                    $pearDB->rollBack();
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
 
                     throw $exception;
                 }
@@ -337,7 +339,9 @@ function updateServiceGroupAcl(int $serviceGroupId, array $submittedValues = [])
                 );
                 $pearDB->commit();
             } catch (Throwable $exception) {
-                $pearDB->rollBack();
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
 
                 throw $exception;
             }

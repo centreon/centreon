@@ -541,7 +541,9 @@ function updateLCARelation($aclId = null)
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -589,7 +591,9 @@ function updateGroups($aclId = null)
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }

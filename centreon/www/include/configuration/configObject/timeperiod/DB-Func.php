@@ -304,7 +304,7 @@ function duplicateTimePeriod(array $params): int
             $pearDB->commit();
         }
     } catch (Exception $e) {
-        if (! $isAlreadyInTransaction) {
+        if (! $isAlreadyInTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
     }

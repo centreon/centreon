@@ -238,7 +238,9 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
             }
             $pearDB->commit();
         } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
-            $pearDB->rollBack();
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
 
             throw new RepositoryException(
                 'Error duplicating host dependency',

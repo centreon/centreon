@@ -487,7 +487,9 @@ function updateGroupContacts($acl_group_id, $ret = [])
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -537,7 +539,9 @@ function updateGroupContactGroups($acl_group_id, $ret = [])
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -576,7 +580,9 @@ function updateGroupActions($acl_group_id, $ret = [])
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -615,7 +621,9 @@ function updateGroupMenus($acl_group_id, $ret = [])
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -658,7 +666,9 @@ function updateGroupResources($acl_group_id, $ret = [])
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }

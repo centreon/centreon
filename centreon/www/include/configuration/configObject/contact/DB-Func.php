@@ -581,7 +581,9 @@ function synchronizeContactWithLdap(array $contacts = []): void
                 );
             }
         } catch (PDOException $e) {
-            $pearDB->rollBack();
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
 
             throw new Exception('Bad Request : ' . $e);
         }
@@ -978,7 +980,7 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
             $pearDB->commit();
         }
     } catch (Exception $e) {
-        if ($ownTransaction) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -1010,7 +1012,7 @@ function insertContactInDB(array $ret = []): int
             $pearDB->commit();
         }
     } catch (Exception $e) {
-        if ($ownTransaction) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 

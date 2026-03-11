@@ -515,7 +515,9 @@ function updateGroupActions($aclActionId, $ret = [])
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -556,7 +558,9 @@ function updateRulesActions($aclActionId, $ret = [])
 
         $pearDB->commit();
     } catch (Throwable $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }

@@ -263,7 +263,9 @@ function checkPicture(
             $pearDB->commit();
             $regCounter++;
         } catch (Exception $ex) {
-            $pearDB->rollBack();
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
 
             throw $ex;
         }

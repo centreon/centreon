@@ -379,7 +379,9 @@ function updateContactGroupContacts($cg_id, $ret = [])
 
         $pearDB->commit();
     } catch (Exception $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -420,7 +422,9 @@ function updateContactGroupAclGroups($cg_id, $ret = [])
 
         $pearDB->commit();
     } catch (Exception $e) {
-        $pearDB->rollBack();
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }

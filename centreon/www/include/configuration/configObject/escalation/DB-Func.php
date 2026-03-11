@@ -184,7 +184,9 @@ function multipleEscalationInDB(array $escalations = [], array $nbrDup = []): vo
                     'a'
                 );
             } catch (Throwable $e) {
-                $pearDB->rollBack();
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
                 error_log("Failed to duplicate escalation '{$escalationModel['esc_name']}': {$e->getMessage()}");
             }
         }
