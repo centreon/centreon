@@ -223,7 +223,10 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
         );
 
         $originalName = $row['acl_res_name'];
-        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
+            continue;
+        }
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $acl_name = $originalName . '_' . $suffix;

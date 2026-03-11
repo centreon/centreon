@@ -176,7 +176,10 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
             'INSERT INTO servicegroup (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
 
-        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
+            continue;
+        }
         $originalName = $row['sg_name'];
         $suffix = 1;
 

@@ -211,7 +211,10 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
         );
 
         $originalName = $row['nagios_name'];
-        $dupCount = (int) ($nbrDup[$originalNagiosId] ?? 0);
+        $dupCount = filter_var($nbrDup[$originalNagiosId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
+            continue;
+        }
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $nagios_name = $originalName . '_' . $suffix;

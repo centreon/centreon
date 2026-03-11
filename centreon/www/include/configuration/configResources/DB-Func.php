@@ -200,7 +200,10 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
             $instanceStmt->execute();
             $instanceIds = $instanceStmt->fetchAll(PDO::FETCH_COLUMN);
 
-            $dupCount = (int) ($nbrDup[$resourceId] ?? 0);
+            $dupCount = filter_var($nbrDup[$resourceId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            if ($dupCount === false) {
+                continue;
+            }
             $suffix = 1;
             for ($newIndex = 0; $newIndex < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
                 $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])

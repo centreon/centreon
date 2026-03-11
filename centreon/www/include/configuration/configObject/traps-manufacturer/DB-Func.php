@@ -93,7 +93,10 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
         $insertStmt = $pearDB->prepare(
             'INSERT INTO traps_vendor (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
-        $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
+            continue;
+        }
         $originalName = $row['name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {

@@ -273,7 +273,10 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
             'INSERT INTO acl_topology (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
 
-        $dupCount = (int) ($duplicateNbr[$currentTopologyId] ?? 0);
+        $dupCount = filter_var($duplicateNbr[$currentTopologyId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
+            continue;
+        }
         $originalName = $row['acl_topo_name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {

@@ -173,8 +173,8 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             continue;
         }
 
-        $dupCount = (int) ($nbrDup[$key] ?? 0);
-        if ($dupCount < 1) {
+        $dupCount = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($dupCount === false) {
             continue;
         }
         $selectStmt->bindValue(':compo_id', $compoId, PDO::PARAM_INT);
