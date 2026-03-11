@@ -52,11 +52,14 @@ function getLogInDbForHost($host_id, $start_date, $end_date, $reportTimePeriod)
     }
 
     $days_of_week = getReportDaysArray($reportTimePeriod);
+    if ($days_of_week === []) {
+        return $hostStats;
+    }
     $dayPlaceholders = [];
     foreach ($days_of_week as $i => $day) {
         $dayPlaceholders[] = ':day' . $i;
     }
-    $daysInClause = $dayPlaceholders !== [] ? implode(', ', $dayPlaceholders) : 'NULL';
+    $daysInClause = implode(', ', $dayPlaceholders);
     $rq = 'SELECT sum(`UPnbEvent`) as UP_A, sum(`UPTimeScheduled`) as UP_T, '
         . ' sum(`DOWNnbEvent`) as DOWN_A, sum(`DOWNTimeScheduled`) as DOWN_T, '
         . ' sum(`UNREACHABLEnbEvent`) as UNREACHABLE_A, sum(`UNREACHABLETimeScheduled`) as UNREACHABLE_T, '
@@ -265,11 +268,14 @@ function getLogInDbForHostSVC($host_id, $start_date, $end_date, $reportTimePerio
     }
 
     $days_of_week = getReportDaysArray($reportTimePeriod);
+    if ($days_of_week === []) {
+        return $hostServiceStats;
+    }
     $dayPlaceholders = [];
     foreach ($days_of_week as $i => $day) {
         $dayPlaceholders[] = ':day' . $i;
     }
-    $daysInClause = $dayPlaceholders !== [] ? implode(', ', $dayPlaceholders) : 'NULL';
+    $daysInClause = implode(', ', $dayPlaceholders);
     $aclCondition = '';
     $aclGroupIds = [];
     if (! $centreon->user->admin) {
@@ -424,11 +430,14 @@ function getServicesLogs(array $services, $startDate, $endDate, $reportTimePerio
         $serviceStats[$name] = 0;
     }
     $daysOfWeek = getReportDaysArray($reportTimePeriod);
+    if ($daysOfWeek === []) {
+        return $serviceStats;
+    }
     $dayPlaceholders = [];
     foreach ($daysOfWeek as $i => $day) {
         $dayPlaceholders[] = ':day' . $i;
     }
-    $daysInClause = $dayPlaceholders !== [] ? implode(', ', $dayPlaceholders) : 'NULL';
+    $daysInClause = implode(', ', $dayPlaceholders);
     $aclCondition = '';
     $aclGroupIds = [];
     if (! $centreon->user->admin) {

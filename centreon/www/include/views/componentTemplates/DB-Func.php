@@ -33,23 +33,10 @@ function DsHsrTestExistence($name = null)
 
     $query = 'SELECT compo_id FROM giv_components_template WHERE ds_name = :ds_name';
 
-    if (! empty($formValues['host_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
-            $formValues['host_id'] = (int) $matches[1];
-            $formValues['service_id'] = (int) $matches[2];
-        } else {
-            throw new InvalidArgumentException('host_id must be a combination of integers');
-        }
-    }
+    [$hostId, $serviceId] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
 
-    if (! empty($formValues['host_id']) && ! empty($formValues['service_id'])) {
+    if ($hostId !== null && $serviceId !== null) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
-        $hostId = (filter_var($formValues['host_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['host_id'];
-        $serviceId = (filter_var($formValues['service_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['service_id'];
     } else {
         $query .= ' AND host_id IS NULL AND service_id IS NULL';
     }
@@ -58,7 +45,7 @@ function DsHsrTestExistence($name = null)
 
     $stmt->bindValue(':ds_name', $name, PDO::PARAM_STR);
 
-    if (! empty($hostId) && ! empty($serviceId)) {
+    if ($hostId !== null && $serviceId !== null) {
         $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }
@@ -81,32 +68,20 @@ function NameHsrTestExistence($name = null)
         $formValues = $form->getSubmitValues();
     }
     $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
-    if (! empty($formValues['host_id'])) {
-        if (preg_match('/([0-9]+)-([0-9]+)/', $formValues['host_id'], $matches)) {
-            $formValues['host_id'] = (int) $matches[1];
-            $formValues['service_id'] = (int) $matches[2];
-        } else {
-            throw new InvalidArgumentException('chartId must be a combination of integers');
-        }
-    }
 
-    if (! empty($formValues['host_id']) && ! empty($formValues['service_id'])) {
+    [$hostId, $serviceId] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
+
+    if ($hostId !== null && $serviceId !== null) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
-        $hostId = (filter_var($formValues['host_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['host_id'];
-        $serviceId = (filter_var($formValues['service_id'], FILTER_VALIDATE_INT) === false)
-            ? null
-            : (int) $formValues['service_id'];
     } else {
-        $query .= ' AND host_id IS NULL  AND service_id IS NULL';
+        $query .= ' AND host_id IS NULL AND service_id IS NULL';
     }
 
     $stmt = $pearDB->prepare($query);
 
     $stmt->bindValue(':name', $name, PDO::PARAM_STR);
 
-    if (! empty($hostId) && ! empty($serviceId)) {
+    if ($hostId !== null && $serviceId !== null) {
         $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }

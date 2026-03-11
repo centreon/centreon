@@ -215,6 +215,7 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     continue;
                 }
                 $newIndex++;
+                $vaultPath = null;
                 if ((bool) $resourceConfiguration['is_password'] === true) {
                     $vaultPath = saveInVault($name, $value);
                 }

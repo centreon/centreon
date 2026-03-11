@@ -279,6 +279,9 @@ function insertGroupInDB($ret = [])
         $pearDB->beginTransaction();
 
         $acl_group_id = insertGroup($ret);
+        if ((int) $acl_group_id <= 0) {
+            throw new RuntimeException('Failed to insert ACL group');
+        }
         updateGroupContacts($acl_group_id, $ret);
         updateGroupContactGroups($acl_group_id);
         updateGroupActions($acl_group_id);
