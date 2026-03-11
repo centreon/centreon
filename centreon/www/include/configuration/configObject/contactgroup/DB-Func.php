@@ -216,6 +216,9 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                 throw $e;
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for contact group '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

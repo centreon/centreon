@@ -105,6 +105,9 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
                 $fields
             );
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for manufacturer '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

@@ -178,6 +178,9 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
                 );
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for service group dependency '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

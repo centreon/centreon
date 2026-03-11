@@ -337,6 +337,9 @@ function multipleActionInDB($actions = [], $nbrDup = [])
                 throw $e;
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for action ACL '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

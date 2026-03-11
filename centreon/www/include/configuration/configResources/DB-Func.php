@@ -268,6 +268,9 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     throw $e;
                 }
             }
+            if ($newIndex < $dupCount) {
+                error_log("Could only create {$newIndex}/{$dupCount} duplicates for resource '{$resourceConfiguration['resource_name']}' ({$resourceId}): suffix search exhausted");
+            }
         }
     }
 }

@@ -168,6 +168,9 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
                 }
                 $insertStmt->execute();
             }
+            if ($i < $copies) {
+                error_log("Could only create {$i}/{$copies} duplicates for virtual metric '{$originalName}' ({$vmetricId}): suffix search exhausted");
+            }
         }
         $pearDB->commit();
     } catch (Throwable $e) {

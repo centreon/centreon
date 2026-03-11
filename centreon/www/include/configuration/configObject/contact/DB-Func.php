@@ -887,6 +887,9 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
                 $fields
             );
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for contact '{$baseInsertData['contact_name']}' ({$contactId}): suffix search exhausted");
+        }
     }
 
     return $newContactIds;

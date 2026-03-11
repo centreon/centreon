@@ -219,6 +219,9 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 throw $e;
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for service dependency '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

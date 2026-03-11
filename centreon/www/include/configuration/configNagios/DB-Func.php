@@ -240,6 +240,9 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                 continue;
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for nagios config '{$originalName}' ({$originalNagiosId}): suffix search exhausted");
+        }
     }
 }
 

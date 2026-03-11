@@ -243,6 +243,9 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
                 throw $e;
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for resource ACL '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

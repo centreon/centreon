@@ -314,6 +314,9 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
                 $fields
             );
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for menu ACL '{$originalName}' ({$currentTopologyId}): suffix search exhausted");
+        }
     }
 }
 

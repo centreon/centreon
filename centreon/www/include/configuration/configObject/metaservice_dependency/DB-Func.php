@@ -159,6 +159,9 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 throw $e;
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for meta-service dependency '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

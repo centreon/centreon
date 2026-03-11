@@ -145,6 +145,9 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
                 fields: $fields
             );
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for time period '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

@@ -260,6 +260,9 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
                 throw $e;
             }
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for group ACL '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

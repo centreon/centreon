@@ -189,6 +189,9 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
             }
             $insertStmt->execute();
         }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for component template '{$originalName}' ({$key}): suffix search exhausted");
+        }
     }
 }
 

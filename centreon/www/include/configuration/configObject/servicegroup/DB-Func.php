@@ -160,6 +160,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
         unset($row['sg_id']);
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $originalName = $row['sg_name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $bindParams = [];
@@ -291,6 +292,9 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 'a',
                 $fields
             );
+        }
+        if ($i < $dupCount) {
+            error_log("Could only create {$i}/{$dupCount} duplicates for service group '{$originalName}' ({$sgId}): suffix search exhausted");
         }
     }
     CentreonACL::duplicateSgAcl($sgAcl);
