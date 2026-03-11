@@ -163,6 +163,9 @@ function enableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
     try {
         foreach (array_keys($hcArr) as $key) {
             $id = filter_var($key, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                continue;
+            }
             $pearDB->update(
                 $updQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', $id)])
@@ -220,13 +223,16 @@ function disableHostCategoriesInDB(?int $hcId = null, array $hcArr = []): void
     try {
         foreach (array_keys($hcArr) as $key) {
             $id = filter_var($key, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                continue;
+            }
             $pearDB->update(
                 $updQuery,
-                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
             );
             $row = $pearDB->fetchAssociative(
                 $selQuery,
-                QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
+                QueryParameters::create([QueryParameter::int('hc_id', $id)])
             );
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
@@ -273,6 +279,9 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
     try {
         foreach (array_keys($hostCategories) as $key) {
             $id = filter_var($key, FILTER_VALIDATE_INT);
+            if ($id === false) {
+                continue;
+            }
             $row = $pearDB->fetchAssociative(
                 $selQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
@@ -316,7 +325,10 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
 
     try {
         foreach (array_keys($hostCategories) as $key) {
-            $hcId = (int) filter_var($key, FILTER_VALIDATE_INT);
+            $hcId = filter_var($key, FILTER_VALIDATE_INT);
+            if ($hcId === false) {
+                continue;
+            }
 
             $selectQ = $pearDB->createQueryBuilder()
                 ->select('*')
@@ -565,10 +577,10 @@ function updateHostCategories(int $hcId): void
         QueryParameter::string('hc_alias', $ret['hc_alias'] ?? ''),
         ! empty($ret['hc_type']) && isset($ret['hc_severity_level'])
             ? QueryParameter::int('level', (int) $ret['hc_severity_level'])
-            : QueryParameter::string('level', null),
+            : QueryParameter::int('level', null),
         ! empty($ret['hc_type']) && isset($ret['hc_severity_icon'])
             ? QueryParameter::int('icon_id', (int) $ret['hc_severity_icon'])
-            : QueryParameter::string('icon_id', null),
+            : QueryParameter::int('icon_id', null),
         QueryParameter::string('hc_comment', $ret['hc_comment'] ?? null),
         QueryParameter::string('hc_activate', $activate),
         QueryParameter::int('hc_id', $hcId),

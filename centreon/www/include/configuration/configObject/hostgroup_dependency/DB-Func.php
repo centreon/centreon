@@ -26,7 +26,7 @@ if (! isset($centreon)) {
     exit();
 }
 
-function testHostGroupDependencyExistence(?string $name = null): bool
+function testHostGroupDependencyExistence(?string $name = null, bool $purge = true): bool
 {
     global $pearDB, $form;
 
@@ -38,7 +38,9 @@ function testHostGroupDependencyExistence(?string $name = null): bool
     $name = HtmlAnalyzer::sanitizeAndRemoveTags($name);
 
     try {
-        CentreonDependency::purgeObsoleteDependencies($pearDB);
+        if ($purge) {
+            CentreonDependency::purgeObsoleteDependencies($pearDB);
+        }
 
         $id = $form?->getSubmitValue('dep_id');
 
@@ -146,6 +148,8 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
 {
     global $pearDB, $centreon;
 
+    CentreonDependency::purgeObsoleteDependencies($pearDB);
+
     foreach ($dependencies as $key => $value) {
         $depId = filter_var($key, FILTER_VALIDATE_INT);
         if ($depId === false) {
@@ -187,7 +191,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                 $dup['dep_name'] = $row['dep_name'] . '_' . $suffix;
                 $dep_name = $dup['dep_name'];
 
-                if (! testHostGroupDependencyExistence($dep_name)) {
+                if (! testHostGroupDependencyExistence($dep_name, false)) {
                     continue;
                 }
                 $i++;

@@ -32,12 +32,14 @@ if (! isset($centreon)) {
     exit();
 }
 
-function testHostDependencyExistence(?string $name): bool
+function testHostDependencyExistence(?string $name, bool $purge = true): bool
 {
     global $pearDB, $form;
 
     try {
-        CentreonDependency::purgeObsoleteDependencies($pearDB);
+        if ($purge) {
+            CentreonDependency::purgeObsoleteDependencies($pearDB);
+        }
 
         $queryBuilder  = $pearDB->createQueryBuilder();
         $sql = $queryBuilder
@@ -137,6 +139,8 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
 {
     global $pearDB, $centreon;
 
+    CentreonDependency::purgeObsoleteDependencies($pearDB);
+
     foreach ($dependencies as $depId => $_) {
         try {
             $pearDB->beginTransaction();
@@ -170,7 +174,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     ->sanitize()
                     ->getString();
 
-                if (! testHostDependencyExistence($dup['dep_name'])) {
+                if (! testHostDependencyExistence($dup['dep_name'], false)) {
                     continue;
                 }
                 $i++;

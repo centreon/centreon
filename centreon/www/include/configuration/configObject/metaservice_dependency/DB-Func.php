@@ -23,13 +23,15 @@ if (! isset($oreon)) {
     exit();
 }
 
-function testExistence($name = null, bool $excludeCurrentFormId = true)
+function testExistence($name = null, bool $excludeCurrentFormId = true, bool $purge = true)
 {
     global $pearDB;
     global $form;
 
     $name = HtmlAnalyzer::sanitizeAndRemoveTags($name ?? '');
-    CentreonDependency::purgeObsoleteDependencies($pearDB);
+    if ($purge) {
+        CentreonDependency::purgeObsoleteDependencies($pearDB);
+    }
 
     $id = null;
     if ($excludeCurrentFormId && isset($form)) {
@@ -107,6 +109,8 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
         . 'VALUES (:depId, :metaId)'
     );
 
+    CentreonDependency::purgeObsoleteDependencies($pearDB);
+
     foreach (array_keys($dependencies) as $key) {
         $depId = filter_var($key, FILTER_VALIDATE_INT);
         if ($depId === false) {
@@ -142,7 +146,7 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $dep_name = $originalName . '_' . $suffix;
-            if (! testExistence($dep_name, false)) {
+            if (! testExistence($dep_name, false, false)) {
                 continue;
             }
             $i++;

@@ -1142,6 +1142,9 @@ function insertMetric($ret = [])
         );
     }
     $msrId = $pearDB->getLastInsertId();
+    if (! $msrId) {
+        return 0;
+    }
 
     return $msrId;
 }
