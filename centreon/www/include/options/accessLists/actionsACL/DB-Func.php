@@ -208,18 +208,28 @@ function deleteActionInDB($actions = [])
         while ($result = $statement->fetch()) {
             $aclGroupIds[] = (int) $result['acl_group_id'];
         }
-        $deleteActions->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
-        $deleteActions->execute();
-        $deleteRules->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
-        $deleteRules->execute();
-        $deleteRelations->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
-        $deleteRelations->execute();
-        $centreon->CentreonLogAction->insertLog(
-            'action access',
-            $sanitizedAclActionId,
-            $row !== false ? $row['acl_action_name'] : "id:{$sanitizedAclActionId}",
-            'd'
-        );
+        $pearDB->beginTransaction();
+        try {
+            $deleteActions->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
+            $deleteActions->execute();
+            $deleteRules->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
+            $deleteRules->execute();
+            $deleteRelations->bindValue(':id', $sanitizedAclActionId, PDO::PARAM_INT);
+            $deleteRelations->execute();
+            $centreon->CentreonLogAction->insertLog(
+                'action access',
+                $sanitizedAclActionId,
+                $row !== false ? $row['acl_action_name'] : "id:{$sanitizedAclActionId}",
+                'd'
+            );
+            $pearDB->commit();
+        } catch (Throwable $e) {
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
+
+            throw $e;
+        }
     }
     flagUpdatedAclForAuthentifiedUsers($aclGroupIds);
 }
@@ -282,37 +292,47 @@ function multipleActionInDB($actions = [], $nbrDup = [])
             }
             $i++;
             $row['acl_action_name'] = $aclActionName;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
-            $insertStmt->execute();
-            $lastId = (int) $pearDB->lastInsertId();
-            if ($lastId > 0) {
-                foreach ($groupRelations as $cct) {
-                    $insertGroupStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
-                    $insertGroupStmt->bindValue(':acl_group_id', (int) $cct['acl_group_id'], PDO::PARAM_INT);
-                    $insertGroupStmt->execute();
+            $pearDB->beginTransaction();
+            try {
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $lastId = (int) $pearDB->lastInsertId();
+                if ($lastId > 0) {
+                    foreach ($groupRelations as $cct) {
+                        $insertGroupStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
+                        $insertGroupStmt->bindValue(':acl_group_id', (int) $cct['acl_group_id'], PDO::PARAM_INT);
+                        $insertGroupStmt->execute();
+                    }
+
+                    // Duplicate Actions
+                    foreach ($actionRules as $acl) {
+                        $insertRuleStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
+                        $insertRuleStmt->bindValue(':acl_action_name', $acl['acl_action_name'], PDO::PARAM_STR);
+                        $insertRuleStmt->execute();
+                    }
+
+                    $centreon->CentreonLogAction->insertLog(
+                        'action access',
+                        $lastId,
+                        $aclActionName,
+                        'a',
+                        [
+                            'acl_action_name' => $aclActionName,
+                            'acl_action_description' => $row['acl_action_description'],
+                            'acl_action_activate' => $row['acl_action_activate'],
+                        ]
+                    );
+                }
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
                 }
 
-                // Duplicate Actions
-                foreach ($actionRules as $acl) {
-                    $insertRuleStmt->bindValue(':acl_action_id', $lastId, PDO::PARAM_INT);
-                    $insertRuleStmt->bindValue(':acl_action_name', $acl['acl_action_name'], PDO::PARAM_STR);
-                    $insertRuleStmt->execute();
-                }
-
-                $centreon->CentreonLogAction->insertLog(
-                    'action access',
-                    $lastId,
-                    $aclActionName,
-                    'a',
-                    [
-                        'acl_action_name' => $aclActionName,
-                        'acl_action_description' => $row['acl_action_description'],
-                        'acl_action_activate' => $row['acl_action_activate'],
-                    ]
-                );
+                throw $e;
             }
         }
     }

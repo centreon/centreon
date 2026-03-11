@@ -130,23 +130,33 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
             }
             $i++;
             $row['dep_name'] = $dep_name;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
-            $insertStmt->execute();
-            $lastId = (int) $pearDB->lastInsertId();
-            if ($lastId > 0) {
-                foreach ($parents as $ms) {
-                    $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                    $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                    $insertParentStmt->execute();
+            $pearDB->beginTransaction();
+            try {
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 }
-                foreach ($children as $ms) {
-                    $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                    $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
-                    $insertChildStmt->execute();
+                $insertStmt->execute();
+                $lastId = (int) $pearDB->lastInsertId();
+                if ($lastId > 0) {
+                    foreach ($parents as $ms) {
+                        $insertParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertParentStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                        $insertParentStmt->execute();
+                    }
+                    foreach ($children as $ms) {
+                        $insertChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertChildStmt->bindValue(':metaId', (int) $ms['meta_service_meta_id'], PDO::PARAM_INT);
+                        $insertChildStmt->execute();
+                    }
                 }
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
         }
     }

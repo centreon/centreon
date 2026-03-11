@@ -846,45 +846,41 @@ function updateMetaServiceContact($metaId)
         return;
     }
     global $form, $pearDB, $centreon;
-    $qbDelete = $pearDB->createQueryBuilder();
-    $queryPurge = $qbDelete->delete('meta_contact')
-        ->where('meta_id = :meta_id')
-        ->getQuery();
+
+    $pearDB->startTransaction();
     try {
+        $qbDelete = $pearDB->createQueryBuilder();
+        $queryPurge = $qbDelete->delete('meta_contact')
+            ->where('meta_id = :meta_id')
+            ->getQuery();
         $pearDB->delete($queryPurge, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId),
         ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error purging meta_contact',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
-    }
-    $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
-    $userId = $centreon->user->get_id();
-    if (! in_array($userId, $ret) && $centreon->user->admin !== '1') {
-        $ret[] = $userId;
-    }
 
-    $values = [];
-    $params = [];
+        $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cs');
+        $userId = $centreon->user->get_id();
+        if (! in_array($userId, $ret) && $centreon->user->admin !== '1') {
+            $ret[] = $userId;
+        }
 
-    try {
+        $values = [];
+        $params = [];
         foreach ($ret as $key => $contactId) {
             $values[] = " (:metaId_{$key}, :contactId_{$key})";
             $params["metaId_{$key}"] = QueryParameter::int("metaId_{$key}", (int) $metaId);
             $params["contactId_{$key}"] = QueryParameter::int("contactId_{$key}", (int) $contactId);
         }
-        $valuesString = implode(',', $values);
-        $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$valuesString}";
         if ($values !== []) {
+            $valuesString = implode(',', $values);
+            $queryAddRelation = "INSERT INTO meta_contact (meta_id, contact_id) VALUES {$valuesString}";
             $pearDB->insert($queryAddRelation, QueryParameters::create(array_values($params)));
         }
+
+        $pearDB->commitTransaction();
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        if ($pearDB->isTransactionActive()) {
+            $pearDB->rollBackTransaction();
+        }
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
             'Error updating Meta Service Contact',
@@ -908,37 +904,19 @@ function updateMetaServiceContactGroup($metaId = null)
         return;
     }
     global $form, $pearDB;
-    $qbDelete = $pearDB->createQueryBuilder();
-    $queryDelete = $qbDelete->delete('meta_contactgroup_relation')
-        ->where('meta_id = :meta_id')
-        ->getQuery();
+
+    $pearDB->startTransaction();
     try {
+        $qbDelete = $pearDB->createQueryBuilder();
+        $queryDelete = $qbDelete->delete('meta_contactgroup_relation')
+            ->where('meta_id = :meta_id')
+            ->getQuery();
         $pearDB->delete($queryDelete, QueryParameters::create([
             QueryParameter::int('meta_id', (int) $metaId),
         ]));
-    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-        CentreonLog::create()->error(
-            CentreonLog::TYPE_SQL,
-            'Error deleting meta_contactgroup_relation',
-            [
-                'metaId' => $metaId,
-            ],
-            $exception
-        );
 
-        return;
-    }
-    $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cgs');
-    $cg = new CentreonContactgroup($pearDB);
-    foreach ($ret as $group) {
-        if (! is_numeric($group)) {
-            $res = $cg->insertLdapGroup($group);
-            if ($res != 0) {
-                $group = $res;
-            } else {
-                continue;
-            }
-        }
+        $ret = CentreonUtils::mergeWithInitialValues($form, 'ms_cgs');
+        $cg = new CentreonContactgroup($pearDB);
         $qbInsert = $pearDB->createQueryBuilder();
         $queryInsert = $qbInsert->insert('meta_contactgroup_relation')
             ->values([
@@ -946,22 +924,34 @@ function updateMetaServiceContactGroup($metaId = null)
                 'cg_cg_id' => ':cg_cg_id',
             ])
             ->getQuery();
-        try {
+        foreach ($ret as $group) {
+            if (! is_numeric($group)) {
+                $res = $cg->insertLdapGroup($group);
+                if ($res != 0) {
+                    $group = $res;
+                } else {
+                    continue;
+                }
+            }
             $pearDB->insert($queryInsert, QueryParameters::create([
                 QueryParameter::int('meta_id', (int) $metaId),
                 QueryParameter::int('cg_cg_id', (int) $group),
             ]));
-        } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
-            CentreonLog::create()->error(
-                CentreonLog::TYPE_SQL,
-                'Error inserting meta_contactgroup_relation',
-                [
-                    'metaId' => $metaId,
-                    'group_id' => $group,
-                ],
-                $exception
-            );
         }
+
+        $pearDB->commitTransaction();
+    } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
+        if ($pearDB->isTransactionActive()) {
+            $pearDB->rollBackTransaction();
+        }
+        CentreonLog::create()->error(
+            CentreonLog::TYPE_SQL,
+            'Error updating Meta Service Contact Group',
+            [
+                'metaId' => $metaId,
+            ],
+            $exception
+        );
     }
 }
 

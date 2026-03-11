@@ -913,7 +913,10 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
 
     $ret = $form->getSubmitValues();
 
-    $pearDB->beginTransaction();
+    $ownTransaction = ! $pearDB->isTransactionActive();
+    if ($ownTransaction) {
+        $pearDB->beginTransaction();
+    }
     try {
         // Global function to use
         if ($from_MC) {
@@ -969,9 +972,13 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
             updateAccessGroupLinks($contact_id);
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Exception $e) {
-        $pearDB->rollBack();
+        if ($ownTransaction) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
@@ -986,7 +993,10 @@ function insertContactInDB(array $ret = []): int
 {
     global $pearDB;
 
-    $pearDB->beginTransaction();
+    $ownTransaction = ! $pearDB->isTransactionActive();
+    if ($ownTransaction) {
+        $pearDB->beginTransaction();
+    }
     try {
         $contactId = insertContact($ret);
         updateContactHostCommands($contactId, $ret);
@@ -994,9 +1004,13 @@ function insertContactInDB(array $ret = []): int
         updateContactContactGroup($contactId, $ret);
         updateAccessGroupLinks($contactId);
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Exception $e) {
-        $pearDB->rollBack();
+        if ($ownTransaction) {
+            $pearDB->rollBack();
+        }
 
         throw $e;
     }
