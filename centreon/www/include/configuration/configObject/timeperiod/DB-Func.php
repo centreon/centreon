@@ -102,10 +102,16 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         );
         $exceptionStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
         $exceptionStmt->execute();
-        $exceptionFields = [];
+        $exceptionDays = '';
+        $exceptionTimeranges = '';
         while ($exception = $exceptionStmt->fetch()) {
-            $exceptionFields['days'] = $exception['days'];
-            $exceptionFields['timerange'] = $exception['timerange'];
+            $exceptionDays .= $exception['days'] . ',';
+            $exceptionTimeranges .= $exception['timerange'] . ',';
+        }
+        $exceptionFields = [];
+        if ($exceptionDays !== '') {
+            $exceptionFields['days'] = trim($exceptionDays, ',');
+            $exceptionFields['timerange'] = trim($exceptionTimeranges, ',');
         }
 
         $row = $selectStmt->fetch();

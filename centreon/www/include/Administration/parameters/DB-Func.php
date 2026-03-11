@@ -760,6 +760,12 @@ function updateODSConfigData()
     if (! isset($ret['audit_log_retention'])) {
         $ret['audit_log_retention'] = 0;
     }
+    if (! isset($ret['archive_retention'])) {
+        $ret['archive_retention'] = 0;
+    }
+    if (! isset($ret['reporting_retention'])) {
+        $ret['reporting_retention'] = 0;
+    }
 
     $statement = $pearDBO->prepare(
         'UPDATE `config` SET

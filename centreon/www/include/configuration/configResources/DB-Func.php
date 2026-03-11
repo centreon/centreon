@@ -111,7 +111,9 @@ function deleteResourceInDB($resourceIds = []): void
 {
     global $pearDB;
 
-    $selectStmt = $pearDB->prepare('SELECT resource_line FROM cfg_resource WHERE resource_id = :resourceId');
+    $selectStmt = $pearDB->prepare(
+        'SELECT resource_line, resource_name FROM cfg_resource WHERE resource_id = :resourceId'
+    );
     $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource WHERE resource_id = :resourceId');
 
     foreach (array_keys($resourceIds) as $currentResourceId) {
