@@ -33,12 +33,12 @@ use Centreon\Domain\Log\Logger;
 use Core\ActionLog\Domain\Model\ActionLog;
 use Core\Common\Application\Repository\ReadVaultRepositoryInterface;
 use Core\Common\Application\Repository\WriteVaultRepositoryInterface;
+use Core\Common\Infrastructure\Api\InternalApiClient;
 use Core\Common\Infrastructure\Repository\AbstractVaultRepository;
 use Core\Host\Application\Converter\HostEventConverter;
 use Core\Infrastructure\Common\Api\Router;
 use Core\Security\Vault\Application\Repository\ReadVaultConfigurationRepositoryInterface;
 use Core\Security\Vault\Domain\Model\VaultConfiguration;
-use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
@@ -2927,33 +2927,23 @@ function updateByApi(array $formData, bool $isCloudPlatform, string $basePath, b
  */
 function callHostApi(string $url, string $httpMethod, array $payload): int|null
 {
-    $client = new CurlHttpClient();
-    $response = $client->request(
-        $httpMethod,
-        $url,
-        [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Cookie' => CentreonSession::resolveSessionCookie(),
-            ],
-            'body' => json_encode($payload, JSON_THROW_ON_ERROR),
-        ],
-    );
+    $client = new InternalApiClient();
+    $response = $client->request($url, $httpMethod, CentreonSession::resolveSessionCookie(), $payload);
 
-    $status = $response->getStatusCode();
+    $status = $response['status_code'];
     if (
         ($httpMethod === 'POST' && $status !== 201)
         || ($httpMethod === 'PATCH' && $status !== 204)
     ) {
-        $content = json_decode(json: $response->getContent(false), flags: JSON_THROW_ON_ERROR);
+        $message = $response['content']['message'] ?? 'Unexpected return status';
 
-        throw new Exception($content->message ?? 'Unexpected return status');
+        throw new Exception($message);
     }
 
     if ($httpMethod === 'POST') {
-        $data = $response->toArray();
-
         /** @var array{id:int} $data */
+        $data = $response['content'];
+
         return $data['id'];
     }
 

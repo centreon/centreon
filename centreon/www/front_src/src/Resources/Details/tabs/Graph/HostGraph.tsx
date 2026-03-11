@@ -1,7 +1,6 @@
-import { useState } from 'react';
-
 import { useAtom } from 'jotai';
 import { isNil } from 'ramda';
+import { useCallback, useState } from 'react';
 
 import type { ListingModel } from '@centreon/ui';
 import { TimePeriods, useRequest } from '@centreon/ui';
@@ -53,9 +52,12 @@ const HostGraph = ({ details }: TabProps): JSX.Element => {
     });
   };
 
-  const getTimePeriodsParameters = (data: GraphTimeParameters): void => {
-    setGraphTimeParameters(data);
-  };
+  const getTimePeriodsParameters = useCallback(
+    (data: GraphTimeParameters): void => {
+      setGraphTimeParameters(data);
+    },
+    []
+  );
 
   return (
     <InfiniteScroll<Resource>

@@ -18,33 +18,3 @@
  * For more information : contact@centreon.com
  *
  */
-
-declare(strict_types=1);
-
-namespace Centreon\Infrastructure\MonitoringServer\API\Model;
-
-/**
- * This class is designed to represent the formatted response of the API request.
- *
- * @package Centreon\Infrastructure\MonitoringServer\API\Model
- */
-class RealTimeMonitoringServer
-{
-    /** @var int; */
-    public $id;
-
-    /** @var string */
-    public $name;
-
-    /** @var string|null */
-    public $address;
-
-    /** @var bool */
-    public $isRunning;
-
-    /** @var int|null */
-    public $lastAlive;
-
-    /** @var string|null */
-    public $version;
-}
