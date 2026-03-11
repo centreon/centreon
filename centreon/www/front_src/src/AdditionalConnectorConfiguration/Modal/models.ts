@@ -33,6 +33,7 @@ export interface Payload
   parameters: {
     port: number;
     vcenters: Array<{
+      id: number | null;
       name: string;
       password: string | null;
       url: string;

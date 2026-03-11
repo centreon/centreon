@@ -22,13 +22,6 @@ const defaultInitialValues = {
 const formatInitialValues = (connector): AdditionalConnectorConfiguration => {
   const formattedConnector = {
     ...connector,
-    parameters: {
-      ...connector.parameters,
-      vcenters: connector.parameters.vcenters.map((vcenter) => ({
-        ...vcenter,
-        id: vcenter?.id || null
-      }))
-    },
     type: 1
   };
 
