@@ -99,7 +99,7 @@ function updateContactByMyAccountInDB(mixed $userIdConnected): void
 {
     $userIdConnected = (int) $userIdConnected;
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new RepositoryException(
             message: 'Invalid connected user ID provided to update contact from my account page for contact id ' . $userIdConnected,
             context: ['contact_id' => $userIdConnected]
@@ -117,7 +117,7 @@ function updateContactByMyAccount(int $userIdConnected): void
 {
     global $form, $pearDB, $centreon;
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new RepositoryException(
             message: 'Invalid connected user ID provided to update contact from my account page for contact id ' . $userIdConnected,
             context: ['contact_id' => $userIdConnected]
@@ -249,7 +249,7 @@ function validatePasswordModification(array $fields): array|true
 
     $userIdConnected = (int) $centreon->user->get_id();
 
-    if (! $userIdConnected > 0) {
+    if ($userIdConnected <= 0) {
         throw new InvalidArgumentException('Invalid connected user ID provided for password modification validation');
     }
 
@@ -336,7 +336,7 @@ function checkAutologinValue(array $fields): array|true
 
         $userIdConnected = (int) $centreon->user->get_id();
 
-        if (! $userIdConnected > 0) {
+        if ($userIdConnected <= 0) {
             throw new InvalidArgumentException('Invalid connected user ID provided for autologin key check');
         }
 
@@ -360,7 +360,7 @@ function checkAutologinValue(array $fields): array|true
             );
         }
 
-        if (password_verify($fields['contact_autologin_key'], $contactPassword['password'])) {
+        if ($contactPassword !== false && password_verify($fields['contact_autologin_key'], $contactPassword['password'])) {
             $errors['contact_autologin_key'] = _('Your autologin key must be different than your current password');
         } elseif (
             ! empty($fields['contact_passwd'])
