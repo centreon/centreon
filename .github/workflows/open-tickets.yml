@@ -434,10 +434,12 @@ jobs:
 
       - name: Compute image tag
         id: image_tag
+        env:
+          REF: ${{ github.head_ref || github.ref_name }}
+          MAJOR_VERSION: ${{ needs.get-environment.outputs.major_version }}
         run: |
-          REF="${{ github.head_ref || github.ref_name }}"
           if [[ "$REF" == "develop" ]]; then
-            echo "tag=develop-${{ needs.get-environment.outputs.major_version }}" >> $GITHUB_OUTPUT
+            echo "tag=develop-${MAJOR_VERSION}" >> $GITHUB_OUTPUT
             echo "additional_tag=develop" >> $GITHUB_OUTPUT
           else
             echo "tag=$REF" >> $GITHUB_OUTPUT
@@ -470,12 +472,15 @@ jobs:
 
       - name: Compute docker tags
         id: docker_tags
+        env:
+          REGISTRY: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
+          IMAGE: ${{ env.project }}-${{ matrix.operating_system }}
+          TAG: ${{ steps.image_tag.outputs.tag }}
+          ADDITIONAL: ${{ steps.image_tag.outputs.additional_tag }}
         run: |
-          REGISTRY="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
-          IMAGE="${{ env.project }}-${{ matrix.operating_system }}"
-          TAGS="${REGISTRY}/${IMAGE}:${{ steps.image_tag.outputs.tag }}"
-          if [[ -n "${{ steps.image_tag.outputs.additional_tag }}" ]]; then
-            TAGS="${TAGS},${REGISTRY}/${IMAGE}:${{ steps.image_tag.outputs.additional_tag }}"
+          TAGS="${REGISTRY}/${IMAGE}:${TAG}"
+          if [[ -n "$ADDITIONAL" ]]; then
+            TAGS="${TAGS},${REGISTRY}/${IMAGE}:${ADDITIONAL}"
           fi
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
         shell: bash
