@@ -282,30 +282,33 @@ function multipleCentreonBrokerInDB($ids, $nbrDup)
         }
 
         // Copy the configuration
-        $j = 1;
+        $copies = filter_var($nbrDup[$id] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if (! $copies) {
+            continue;
+        }
         $query = 'SELECT COUNT(*) as nb FROM cfg_centreonbroker WHERE config_name = :config_name';
         $statement = $pearDB->prepare($query);
-        for ($i = 1; $i <= $nbrDup[$id]; $i++) {
-            $nameNOk = true;
-
-            // Find the name
-            while ($nameNOk) {
-                $newname = $row['config_name'] . '_' . $j;
-                $newfilename = $j . '_' . $row['config_filename'];
-                $statement->bindValue(':config_name', $newname, PDO::PARAM_STR);
-                $statement->execute();
-                $rowNb = $statement->fetch(PDO::FETCH_ASSOC);
-                if ($rowNb['nb'] == 0) {
-                    $nameNOk = false;
-                }
-                $j++;
+        $suffix = 1;
+        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
+            $newname = $row['config_name'] . '_' . $suffix;
+            $newfilename = $suffix . '_' . $row['config_filename'];
+            $statement->bindValue(':config_name', $newname, PDO::PARAM_STR);
+            $statement->execute();
+            $rowNb = $statement->fetch(PDO::FETCH_ASSOC);
+            if ($rowNb['nb'] != 0) {
+                continue;
             }
+            $i++;
+
             $values['name'] = $newname;
             $values['filename'] = $newfilename;
 
             retrieveOriginalPasswordValuesFromVault($values);
 
             $cbObj->insertConfig($values);
+        }
+        if ($i < $copies) {
+            error_log("Could only create {$i}/{$copies} duplicates for broker config '{$row['config_name']}' ({$id}): suffix search exhausted");
         }
     }
 }

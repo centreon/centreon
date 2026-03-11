@@ -157,10 +157,14 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
             unset($original['dep_id']);
 
             // duplicate as many times as requested
-            $count = $nbrDup[$depId] ?? 0;
-            for ($i = 1; $i <= $count; $i++) {
+            $copies = filter_var($nbrDup[$depId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            if (! $copies) {
+                continue;
+            }
+            $suffix = 1;
+            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
                 $dup = $original;
-                $dupName = $dup['dep_name'] . "_{$i}";
+                $dupName = $dup['dep_name'] . "_{$suffix}";
                 $dup['dep_name'] = HtmlSanitizer::createFromString($dupName)
                     ->removeTags()
                     ->sanitize()
@@ -169,6 +173,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                 if (! testHostDependencyExistence($dup['dep_name'])) {
                     continue;
                 }
+                $i++;
 
                 // insert duplicated dependency
                 $cols   = array_keys($dup);
@@ -227,7 +232,9 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                     'a',
                     $fields
                 );
-
+            }
+            if ($i < $copies) {
+                error_log("Could only create {$i}/{$copies} duplicates for host dependency '{$original['dep_name']}' ({$depId}): suffix search exhausted");
             }
             $pearDB->commit();
         } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {

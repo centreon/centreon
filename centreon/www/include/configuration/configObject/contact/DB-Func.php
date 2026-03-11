@@ -657,8 +657,8 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
             implode(', ', $placeholders)
         );
 
-        $dupCount = isset($nbrDup[$contactId]) ? (int) $nbrDup[$contactId] : 0;
-        if ($dupCount <= 0) {
+        $dupCount = filter_var($nbrDup[$contactId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if (! $dupCount) {
             continue;
         }
 

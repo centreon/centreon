@@ -386,8 +386,13 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             continue;
         }
         unset($row['meta_id']);
-        for ($i = 1; $i <= $nbrDup[$metaId]; $i++) {
-            $metaName = $row['meta_name'] . '_' . $i;
+        $copies = filter_var($nbrDup[$metaId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if (! $copies) {
+            continue;
+        }
+        $suffix = 1;
+        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
+            $metaName = $row['meta_name'] . '_' . $suffix;
             $row['meta_name'] = $metaName;
             $columns = array_keys($row);
             $qbInsert = $pearDB->createQueryBuilder();
@@ -399,6 +404,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 if (! testExistence($metaName)) {
                     continue;
                 }
+                $i++;
                 $params = [];
                 foreach ($row as $column => $value) {
                     $params[] = QueryParameter::string($column, $value);
@@ -508,6 +514,9 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                 );
             }
         }
+        if ($i < $copies) {
+            error_log("Could only create {$i}/{$copies} duplicates for meta service '{$row['meta_name']}' ({$metaId}): suffix search exhausted");
+        }
     }
 }
 
@@ -589,7 +598,11 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
             continue;
         }
         unset($row['msr_id']);
-        for ($i = 1; $i <= $nbrDup[$msrId]; $i++) {
+        $copies = filter_var($nbrDup[$msrId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if (! $copies) {
+            continue;
+        }
+        for ($i = 0; $i < $copies; $i++) {
             $columns = array_keys($row);
             $qbInsert = $pearDB->createQueryBuilder();
             $insertQuery = $qbInsert->insert('meta_service_relation')
@@ -607,7 +620,7 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
                     'Error inserting duplicated metric',
                     [
                         'originalMsrId' => $msrId,
-                        'duplicationIndex' => $i,
+                        'duplicationIndex' => $i + 1,
                     ],
                     $exception
                 );

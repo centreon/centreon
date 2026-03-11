@@ -160,7 +160,10 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 
             $indexId = (int) $row['index_id'];
             $originalName = $row['vmetric_name'];
-            $copies = (int) ($nbrDup[$vmetricId] ?? 0);
+            $copies = filter_var($nbrDup[$vmetricId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            if (! $copies) {
+                continue;
+            }
             $suffix = 1;
             for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
                 $virtualMetricName = $originalName . '_' . $suffix;

@@ -332,14 +332,20 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 continue;
             }
 
-            for ($i = 1; $i <= ($nbrDup[$key] ?? 0); $i++) {
+            $copies = filter_var($nbrDup[$key] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+            if (! $copies) {
+                continue;
+            }
+            $suffix = 1;
+            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
                 $newName = HtmlSanitizer::createFromString($row['hc_name'])
                     ->removeTags()
                     ->sanitize()
-                    ->getString() . "_{$i}";
+                    ->getString() . "_{$suffix}";
                 if (! testHostCategorieExistence($newName)) {
                     continue;
                 }
+                $i++;
 
                 $qbInsert = $pearDB->createQueryBuilder()
                     ->insert('hostcategories')
@@ -410,6 +416,9 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                     action_type: ActionLog::ACTION_TYPE_ADD,
                     fields: $fields
                 );
+            }
+            if ($i < $copies) {
+                error_log("Could only create {$i}/{$copies} duplicates for host category '{$row['hc_name']}' ({$hcId}): suffix search exhausted");
             }
         }
 
