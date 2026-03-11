@@ -198,7 +198,7 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
 
             $dupCount = (int) ($nbrDup[$resourceId] ?? 0);
             $suffix = 1;
-            for ($newIndex = 0; $newIndex < $dupCount; $suffix++) {
+            for ($newIndex = 0; $newIndex < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
                 $name = preg_match('/^\$(.*)\$$/', $resourceConfiguration['resource_name'])
                     ? rtrim($resourceConfiguration['resource_name'], '$') . '_' . $suffix . '$'
                     : $resourceConfiguration['resource_name'] . '_' . $suffix;

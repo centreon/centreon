@@ -144,7 +144,7 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
-        for ($i = 0; $i < $dupCount; $suffix++) {
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $dep_name = $row['dep_name'] . '_' . $suffix;
             if (! testServiceDependencyExistence($dep_name)) {
                 continue;

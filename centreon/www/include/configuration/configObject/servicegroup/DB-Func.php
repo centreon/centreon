@@ -161,7 +161,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
-        for ($i = 0; $i < $dupCount; $suffix++) {
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $bindParams = [];
             foreach ($row as $key2 => $value2) {
                 switch ($key2) {

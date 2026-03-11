@@ -198,7 +198,7 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
         $originalName = $row['acl_res_name'];
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
-        for ($i = 0; $i < $dupCount; $suffix++) {
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $acl_name = $originalName . '_' . $suffix;
 
             if (! testExistence($acl_name)) {

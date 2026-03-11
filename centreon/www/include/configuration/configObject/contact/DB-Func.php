@@ -664,7 +664,7 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
         }
 
         $suffix = 1;
-        for ($i = 0; $i < $dupCount; $suffix++) {
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $insertData = $baseInsertData;
 
             // Prepare duplicated values

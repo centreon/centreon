@@ -264,7 +264,7 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
 
         $dupCount = (int) ($duplicateNbr[$currentTopologyId] ?? 0);
         $suffix = 1;
-        for ($i = 0; $i < $dupCount; $suffix++) {
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $aclName = $row['acl_topo_name'] . '_' . $suffix;
             if (! hasTopologyNameNeverUsed($aclName)) {
                 continue;

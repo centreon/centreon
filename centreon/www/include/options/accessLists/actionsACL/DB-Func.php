@@ -274,7 +274,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
-        for ($i = 0; $i < $dupCount; $suffix++) {
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $aclActionName = $row['acl_action_name'] . '_' . $suffix;
             if (! testActionExistence($aclActionName)) {
                 continue;

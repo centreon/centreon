@@ -202,7 +202,7 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
 
         $originalName = $row['name'];
         $suffix = 1;
-        for ($i = 0; $i < $dupCount; $suffix++) {
+        for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $row['name'] = $originalName . '_' . $suffix;
             if (! NameHsrTestExistence($row['name'])) {
                 continue;
