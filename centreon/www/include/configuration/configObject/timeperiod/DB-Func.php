@@ -97,6 +97,17 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         $selectStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
 
+        $exceptionStmt = $pearDB->prepare(
+            'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :tpId'
+        );
+        $exceptionStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $exceptionStmt->execute();
+        $exceptionFields = [];
+        while ($exception = $exceptionStmt->fetch()) {
+            $exceptionFields['days'] = $exception['days'];
+            $exceptionFields['timerange'] = $exception['timerange'];
+        }
+
         $row = $selectStmt->fetch();
         if ($row === false) {
             continue;
@@ -113,7 +124,7 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
             }
             $i++;
             $row['tp_name'] = $tp_name;
-            $fields = $row;
+            $fields = $row + $exceptionFields;
             $params = [
                 'columns' => $columns,
                 'values' => $row,
