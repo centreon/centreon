@@ -97,7 +97,8 @@ const MultiAutocompleteField = ({
         isOptionSelected,
         onChange,
         options,
-        total
+        total,
+        value: values
       })}
       multiple
       onChange={onChange}
