@@ -47,24 +47,26 @@ use Core\Security\Vault\Domain\Model\VaultConfiguration;
  *
  * @return bool Return false if the resource name has already been used
  */
-function testExistence($name = null, $instanceId = null)
+function testExistence($name = null, ?array $instanceIds = null)
 {
     global $pearDB, $form;
 
     $id = 0;
-    $instanceIds = [];
-    if (isset($form)) {
-        $id = (int) $form->getSubmitValue('resource_id');
-        $instanceIds = $form->getSubmitValue('instance_id');
-        $instanceIds = filter_var_array(
-            $instanceIds,
-            FILTER_VALIDATE_INT
-        );
-        if (in_array(false, $instanceIds, true)) {
-            return true;
+    // When called from the duplication path, instance IDs are passed explicitly.
+    // When called as a form validator, derive them from the submitted form values.
+    if ($instanceIds === null) {
+        $instanceIds = [];
+        if (isset($form)) {
+            $id = (int) $form->getSubmitValue('resource_id');
+            $instanceIds = $form->getSubmitValue('instance_id');
+            $instanceIds = filter_var_array(
+                $instanceIds,
+                FILTER_VALIDATE_INT
+            );
+            if (in_array(false, $instanceIds, true)) {
+                return true;
+            }
         }
-    } elseif (! is_null($instanceId) && $instanceId) {
-        $instanceIds = [(int) $instanceId];
     }
     if ($instanceIds === []) {
         return true;
@@ -178,6 +180,9 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
     global $pearDB;
 
     $selectStmt = $pearDB->prepare('SELECT * FROM cfg_resource WHERE resource_id = :resourceId LIMIT 1');
+    $instanceStmt = $pearDB->prepare(
+        'SELECT instance_id FROM cfg_resource_instance_relations WHERE resource_id = :resourceId'
+    );
 
     foreach (array_keys($resourceIds) as $resourceId) {
         if (is_int($resourceId)) {
@@ -198,6 +203,10 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                 continue;
             }
 
+            $instanceStmt->bindValue(':resourceId', $resourceId, PDO::PARAM_INT);
+            $instanceStmt->execute();
+            $instanceIds = $instanceStmt->fetchAll(PDO::FETCH_COLUMN);
+
             $dupCount = (int) ($nbrDup[$resourceId] ?? 0);
             $suffix = 1;
             for ($newIndex = 0; $newIndex < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
@@ -213,7 +222,7 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                     $value = $resourcesFromVault[$resourceConfiguration['resource_name']];
                 }
 
-                if (! testExistence($name) || is_null($value)) {
+                if (! testExistence($name, $instanceIds) || is_null($value)) {
                     continue;
                 }
                 $newIndex++;

@@ -59,17 +59,24 @@ function DsHsrTestExistence($name = null)
     return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']);
 }
 
-function NameHsrTestExistence($name = null)
+function NameHsrTestExistence($name = null, ?int $hostId = null, ?int $serviceId = null)
 {
     global $pearDB, $form;
     $formValues = [];
+    $compoId = null;
 
     if (isset($form)) {
         $formValues = $form->getSubmitValues();
     }
-    $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
 
-    [$hostId, $serviceId] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
+    // When called from the duplication path, host/service are passed explicitly.
+    // When called as a form validator, derive them from the submitted form values.
+    if ($hostId === null && $serviceId === null) {
+        [$hostId, $serviceId] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
+        $compoId = isset($formValues['compo_id']) ? (int) $formValues['compo_id'] : null;
+    }
+
+    $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
 
     if ($hostId !== null && $serviceId !== null) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
@@ -88,11 +95,17 @@ function NameHsrTestExistence($name = null)
 
     $stmt->execute();
     $compo = $stmt->fetch();
-    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
+
+    // From duplication path: no existing compo_id to exclude, just check absence.
+    if ($compoId === null) {
+        return $stmt->rowCount() === 0;
+    }
+
+    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === $compoId) {
         return true;
     }
 
-    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']);
+    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== $compoId);
 }
 
 function checkColorFormat($color)
@@ -179,7 +192,11 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $row['name'] = $originalName . '_' . $suffix;
-            if (! NameHsrTestExistence($row['name'])) {
+            if (! NameHsrTestExistence(
+                $row['name'],
+                $row['host_id'] !== null ? (int) $row['host_id'] : null,
+                $row['service_id'] !== null ? (int) $row['service_id'] : null
+            )) {
                 continue;
             }
             $i++;
