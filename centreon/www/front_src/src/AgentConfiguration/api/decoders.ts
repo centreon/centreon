@@ -157,8 +157,8 @@ export const installationCommandDecoder =
     },
     'Agent configuration',
     {
-      linuxScriptCommand: 'linux_script_command',
-      windowsScriptCommand: 'windows_script_command'
+      linuxScriptCommand: 'linux_installation_command',
+      windowsScriptCommand: 'windows_installation_command'
     }
   );
 
