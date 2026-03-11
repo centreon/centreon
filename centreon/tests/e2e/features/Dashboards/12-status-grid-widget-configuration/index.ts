@@ -381,7 +381,7 @@ When(
       tag: 'input'
     })
       .clear()
-      .type('2');
+      .type('1');
     cy.wait('@resourceRequest');
   }
 );
