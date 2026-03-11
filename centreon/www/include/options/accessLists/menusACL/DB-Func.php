@@ -514,26 +514,34 @@ function updateLCARelation($aclId = null)
         return;
     }
 
-    $prepareDelete = $pearDB->prepare(
-        'DELETE FROM acl_topology_relations WHERE acl_topo_id = :acl_id'
-    );
-    $prepareDelete->bindValue(':acl_id', $aclId, PDO::PARAM_INT);
+    try {
+        $pearDB->beginTransaction();
 
-    if ($prepareDelete->execute()) {
+        $prepareDelete = $pearDB->prepare(
+            'DELETE FROM acl_topology_relations WHERE acl_topo_id = :acl_id'
+        );
+        $prepareDelete->bindValue(':acl_id', $aclId, PDO::PARAM_INT);
+        $prepareDelete->execute();
+
         $submitedValues = $form->getSubmitValue('acl_r_topos');
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) '
+            . 'VALUES (:aclId, :key, :value)'
+        );
         foreach ($submitedValues as $key => $value) {
-            if (isset($submitedValues) && $key != 0) {
-                $prepare = $pearDB->prepare(
-                    'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) '
-                    . 'VALUES (:aclId, :key, :value)'
-                );
-                $prepare->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-                $prepare->bindValue(':key', $key, PDO::PARAM_INT);
-                $prepare->bindValue(':value', $value, PDO::PARAM_INT);
-
-                $prepare->execute();
+            if ($key != 0) {
+                $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
+                $insertStmt->bindValue(':key', $key, PDO::PARAM_INT);
+                $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
+                $insertStmt->execute();
             }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        $pearDB->rollBack();
+
+        throw $e;
     }
 }
 
@@ -553,28 +561,34 @@ function updateGroups($aclId = null)
         return;
     }
 
-    $prepareDelete = $pearDB->prepare(
-        'DELETE FROM acl_group_topology_relations WHERE acl_topology_id = :acl_id'
-    );
+    try {
+        $pearDB->beginTransaction();
 
-    $prepareDelete->bindValue(':acl_id', $aclId, PDO::PARAM_INT);
+        $prepareDelete = $pearDB->prepare(
+            'DELETE FROM acl_group_topology_relations WHERE acl_topology_id = :acl_id'
+        );
+        $prepareDelete->bindValue(':acl_id', $aclId, PDO::PARAM_INT);
+        $prepareDelete->execute();
 
-    if ($prepareDelete->execute()) {
         $submitedValues = $form->getSubmitValue('acl_groups');
         if (isset($submitedValues)) {
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO acl_group_topology_relations (acl_topology_id, acl_group_id)
+                VALUES (:aclId, :value)'
+            );
             foreach ($submitedValues as $key => $value) {
                 if (isset($value)) {
-                    $query = <<<'SQL'
-                        INSERT INTO acl_group_topology_relations
-                        (acl_topology_id, acl_group_id)
-                        VALUES (:aclId, :value)
-                        SQL;
-                    $statement = $pearDB->prepare($query);
-                    $statement->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-                    $statement->bindValue(':value', $value, PDO::PARAM_INT);
-                    $statement->execute();
+                    $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
+                    $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
+                    $insertStmt->execute();
                 }
             }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        $pearDB->rollBack();
+
+        throw $e;
     }
 }

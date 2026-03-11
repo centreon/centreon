@@ -93,78 +93,89 @@ function multipleEscalationInDB(array $escalations = [], array $nbrDup = []): vo
             $escalationDuplicate['esc_name'] = $escalationModel['esc_name'] . '_' . $i;
 
             if (testExistence($escalationDuplicate['esc_name'])) {
-                $escalationDuplicate['esc_id'] = insertEscalation($pearDB, $escalationDuplicate, false);
+                try {
+                    $pearDB->beginTransaction();
 
-                if (! $escalationDuplicate['esc_id']) {
-                    continue;
+                    $escalationDuplicate['esc_id'] = insertEscalation($pearDB, $escalationDuplicate, false);
+
+                    if (! $escalationDuplicate['esc_id']) {
+                        $pearDB->rollBack();
+
+                        continue;
+                    }
+
+                    $stmt = $pearDB->prepare(
+                        'SELECT DISTINCT contactgroup_cg_id
+                        FROM escalation_contactgroup_relation
+                        WHERE escalation_esc_id = :escalationId'
+                    );
+                    $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $escalationContactGroups = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+                    updateEscalationContactGroups($pearDB, $escalationContactGroups, $escalationDuplicate['esc_id']);
+
+                    $stmt = $pearDB->prepare(
+                        'SELECT DISTINCT host_host_id
+                        FROM escalation_host_relation
+                        WHERE escalation_esc_id = :escalationId'
+                    );
+                    $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $escalationHosts = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+                    updateEscalationHosts($pearDB, $escalationHosts, $escalationDuplicate['esc_id']);
+
+                    $stmt = $pearDB->prepare(
+                        'SELECT DISTINCT hostgroup_hg_id
+                        FROM escalation_hostgroup_relation
+                        WHERE escalation_esc_id = :escalationId'
+                    );
+                    $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $escalationHostGroups = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+                    updateEscalationHostGroups($pearDB, $escalationHostGroups, $escalationDuplicate['esc_id']);
+
+                    $stmt = $pearDB->prepare(
+                        "SELECT DISTINCT CONCAT(host_host_id, '-', service_service_id)
+                        FROM escalation_service_relation
+                        WHERE escalation_esc_id = :escalationId"
+                    );
+                    $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $escalationServices = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+                    updateEscalationServices($pearDB, $escalationServices, $escalationDuplicate['esc_id']);
+
+                    $stmt = $pearDB->prepare(
+                        'SELECT DISTINCT meta_service_meta_id
+                        FROM escalation_meta_service_relation
+                        WHERE escalation_esc_id = :escalationId'
+                    );
+                    $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $escalationMetas = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+                    updateEscalationMetaServices($pearDB, $escalationMetas, $escalationDuplicate['esc_id']);
+
+                    $stmt = $pearDB->prepare(
+                        'SELECT DISTINCT servicegroup_sg_id
+                        FROM escalation_servicegroup_relation
+                        WHERE escalation_esc_id = :escalationId'
+                    );
+                    $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $escalationServiceGroups = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+                    updateEscalationServiceGroups($pearDB, $escalationServiceGroups, $escalationDuplicate['esc_id']);
+
+                    $pearDB->commit();
+
+                    $centreon->CentreonLogAction->insertLog(
+                        'escalation',
+                        $escalationDuplicate['esc_id'],
+                        $escalationDuplicate['esc_name'],
+                        'a'
+                    );
+                } catch (Throwable $e) {
+                    $pearDB->rollBack();
+                    error_log("Failed to duplicate escalation '{$escalationModel['esc_name']}': {$e->getMessage()}");
                 }
-
-                $stmt = $pearDB->prepare(
-                    'SELECT DISTINCT contactgroup_cg_id
-                    FROM escalation_contactgroup_relation
-                    WHERE escalation_esc_id = :escalationId'
-                );
-                $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
-                $stmt->execute();
-                $escalationContactGroups = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-                updateEscalationContactGroups($pearDB, $escalationContactGroups, $escalationDuplicate['esc_id']);
-
-                $stmt = $pearDB->prepare(
-                    'SELECT DISTINCT host_host_id
-                    FROM escalation_host_relation
-                    WHERE escalation_esc_id = :escalationId'
-                );
-                $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
-                $stmt->execute();
-                $escalationHosts = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-                updateEscalationHosts($pearDB, $escalationHosts, $escalationDuplicate['esc_id']);
-
-                $stmt = $pearDB->prepare(
-                    'SELECT DISTINCT hostgroup_hg_id
-                    FROM escalation_hostgroup_relation
-                    WHERE escalation_esc_id = :escalationId'
-                );
-                $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
-                $stmt->execute();
-                $escalationHostGroups = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-                updateEscalationHostGroups($pearDB, $escalationHostGroups, $escalationDuplicate['esc_id']);
-
-                $stmt = $pearDB->prepare(
-                    "SELECT DISTINCT CONCAT(host_host_id, '-', service_service_id)
-                    FROM escalation_service_relation
-                    WHERE escalation_esc_id = :escalationId"
-                );
-                $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
-                $stmt->execute();
-                $escalationServices = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-                updateEscalationServices($pearDB, $escalationServices, $escalationDuplicate['esc_id']);
-
-                $stmt = $pearDB->prepare(
-                    'SELECT DISTINCT meta_service_meta_id
-                    FROM escalation_meta_service_relation
-                    WHERE escalation_esc_id = :escalationId'
-                );
-                $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
-                $stmt->execute();
-                $escalationMetas = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-                updateEscalationMetaServices($pearDB, $escalationMetas, $escalationDuplicate['esc_id']);
-
-                $stmt = $pearDB->prepare(
-                    'SELECT DISTINCT servicegroup_sg_id
-                    FROM escalation_servicegroup_relation
-                    WHERE escalation_esc_id = :escalationId'
-                );
-                $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
-                $stmt->execute();
-                $escalationServiceGroups = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-                updateEscalationServiceGroups($pearDB, $escalationServiceGroups, $escalationDuplicate['esc_id']);
-
-                $centreon->CentreonLogAction->insertLog(
-                    'escalation',
-                    $escalationDuplicate['esc_id'],
-                    $escalationDuplicate['esc_name'],
-                    'a'
-                );
             }
         }
     }
