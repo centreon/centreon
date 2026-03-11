@@ -293,16 +293,17 @@ function insertEscalation(CentreonDB $pearDB, array $data, bool $logAction = tru
         } else {
             $stmt->bindValue(
                 ':' . $paramName,
-                $data[$paramName] ?? 0,
+                isset($data[$paramName]) ? 1 : 0,
                 PDO::PARAM_INT
             );
         }
     }
     $stmt->execute();
 
-    $dbResult = $pearDB->query('SELECT MAX(esc_id) FROM escalation');
-    $escalationId = $dbResult->fetch();
-    $escalationId = $escalationId ? (int) $escalationId['MAX(esc_id)'] : null;
+    $escalationId = (int) $pearDB->lastInsertId();
+    if ($escalationId <= 0) {
+        return null;
+    }
 
     if ($logAction) {
         logEscalation($escalationId, 'a', $data);
