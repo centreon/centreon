@@ -144,9 +144,14 @@ function deleteNagiosInDB($nagios = [])
     $deleteNagios = $pearDB->prepare('DELETE FROM cfg_nagios WHERE nagios_id = :nagios_id');
     $deleteBroker = $pearDB->prepare('DELETE FROM cfg_nagios_broker_module WHERE cfg_nagios_id = :nagios_id');
     foreach (array_keys($nagios) as $key) {
-        $deleteNagios->bindValue(':nagios_id', (int) $key, PDO::PARAM_INT);
+        $nagiosId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($nagiosId === false) {
+            continue;
+        }
+
+        $deleteNagios->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
         $deleteNagios->execute();
-        $deleteBroker->bindValue(':nagios_id', (int) $key, PDO::PARAM_INT);
+        $deleteBroker->bindValue(':nagios_id', $nagiosId, PDO::PARAM_INT);
         $deleteBroker->execute();
     }
     $stmt = $pearDB->prepare("SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1'");
@@ -178,7 +183,12 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
     );
 
     foreach (array_keys($nagios) as $originalNagiosId) {
-        $selectStmt->bindValue(':nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
+        $nagiosId = filter_var($originalNagiosId, FILTER_VALIDATE_INT);
+        if ($nagiosId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':nagiosId', $nagiosId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -189,7 +199,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
         unset($row['nagios_id']);
         $row['nagios_activate'] = '0';
 
-        $selectBrokerStmt->bindValue(':nagiosId', (int) $originalNagiosId, PDO::PARAM_INT);
+        $selectBrokerStmt->bindValue(':nagiosId', $nagiosId, PDO::PARAM_INT);
         $selectBrokerStmt->execute();
         $rowBks = $selectBrokerStmt->fetchAll(PDO::FETCH_ASSOC);
         $selectBrokerStmt->closeCursor();
@@ -222,7 +232,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                 $newNagiosId = (int) $pearDB->lastInsertId();
                 if ($newNagiosId <= 0) {
                     $pearDB->rollBack();
-                    error_log('Invalid lastInsertId while duplicating nagios_id=' . (int) $originalNagiosId);
+                    error_log('Invalid lastInsertId while duplicating nagios_id=' . $nagiosId);
                     continue;
                 }
 
@@ -233,13 +243,13 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
                         $insertBrokerStmt->execute();
                     }
                 }
-                duplicateLoggerV2Cfg($pearDB, $originalNagiosId, $newNagiosId);
+                duplicateLoggerV2Cfg($pearDB, $nagiosId, $newNagiosId);
                 $pearDB->commit();
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {
                     $pearDB->rollBack();
                 }
-                error_log('Failed to duplicate cfg_nagios for nagios_id=' . (int) $originalNagiosId . ': ' . $e->getMessage());
+                error_log('Failed to duplicate cfg_nagios for nagios_id=' . $nagiosId . ': ' . $e->getMessage());
                 continue;
             }
         }

@@ -191,7 +191,12 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
     );
 
     foreach (array_keys($groups) as $key) {
-        $selectStmt->bindValue(':aclGroupId', (int) $key, PDO::PARAM_INT);
+        $aclGroupId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($aclGroupId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':aclGroupId', $aclGroupId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {

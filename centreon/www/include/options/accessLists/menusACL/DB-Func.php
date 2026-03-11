@@ -73,13 +73,18 @@ function enableLCAInDB($aclTopologyId = null, $acls = [])
     }
 
     foreach (array_keys($acls) as $currentAclTopologyId) {
+        $validTopologyId = filter_var($currentAclTopologyId, FILTER_VALIDATE_INT);
+        if ($validTopologyId === false) {
+            continue;
+        }
+
         $prepareUpdate = $pearDB->prepare(
             "UPDATE `acl_topology` SET acl_topo_activate = '1' "
             . 'WHERE `acl_topo_id` = :topology_id'
         );
         $prepareUpdate->bindValue(
             ':topology_id',
-            $currentAclTopologyId,
+            $validTopologyId,
             PDO::PARAM_INT
         );
 
@@ -127,13 +132,18 @@ function disableLCAInDB($aclTopologyId = null, $acls = [])
     }
 
     foreach (array_keys($acls) as $currentTopologyId) {
+        $validTopologyId = filter_var($currentTopologyId, FILTER_VALIDATE_INT);
+        if ($validTopologyId === false) {
+            continue;
+        }
+
         $prepareUpdate = $pearDB->prepare(
             "UPDATE `acl_topology` SET acl_topo_activate = '0' "
             . 'WHERE `acl_topo_id` = :topology_id'
         );
         $prepareUpdate->bindValue(
             ':topology_id',
-            $currentTopologyId,
+            $validTopologyId,
             PDO::PARAM_INT
         );
 
@@ -173,13 +183,18 @@ function deleteLCAInDB($acls = [])
     global $pearDB, $centreon;
 
     foreach (array_keys($acls) as $currentTopologyId) {
+        $validTopologyId = filter_var($currentTopologyId, FILTER_VALIDATE_INT);
+        if ($validTopologyId === false) {
+            continue;
+        }
+
         $prepareSelect = $pearDB->prepare(
             'SELECT acl_topo_name FROM `acl_topology` '
             . 'WHERE acl_topo_id = :topology_id LIMIT 1'
         );
         $prepareSelect->bindValue(
             ':topology_id',
-            $currentTopologyId,
+            $validTopologyId,
             PDO::PARAM_INT
         );
 
@@ -191,7 +206,7 @@ function deleteLCAInDB($acls = [])
         );
         $prepareDelete->bindValue(
             ':topology_id',
-            $currentTopologyId,
+            $validTopologyId,
             PDO::PARAM_INT
         );
         $prepareDelete->execute();
@@ -239,7 +254,12 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
     );
 
     foreach (array_keys($acls) as $currentTopologyId) {
-        $selectStmt->bindValue(':topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+        $validTopologyId = filter_var($currentTopologyId, FILTER_VALIDATE_INT);
+        if ($validTopologyId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':topology_id', $validTopologyId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -280,11 +300,11 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
                 }
 
                 $prepareInsertRelation->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
-                $prepareInsertRelation->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+                $prepareInsertRelation->bindValue(':current_topology_id', $validTopologyId, PDO::PARAM_INT);
                 $prepareInsertRelation->execute();
 
                 $prepareInsertGroup->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
-                $prepareInsertGroup->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+                $prepareInsertGroup->bindValue(':current_topology_id', $validTopologyId, PDO::PARAM_INT);
                 $prepareInsertGroup->execute();
 
                 $pearDB->commit();

@@ -95,6 +95,11 @@ function deleteHostGroupDependencyInDB(array $dependencies = []): void
     global $pearDB, $centreon;
 
     foreach ($dependencies as $key => $value) {
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
         try {
             $query = $pearDB->createQueryBuilder()
                 ->select('dep_name')
@@ -104,7 +109,7 @@ function deleteHostGroupDependencyInDB(array $dependencies = []): void
                 ->getQuery();
 
             $params = QueryParameters::create([
-                QueryParameter::int('depId', (int) $key),
+                QueryParameter::int('depId', $depId),
             ]);
             $row = $pearDB->fetchAssociative($query, $params);
 
@@ -140,6 +145,11 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
     global $pearDB, $centreon;
 
     foreach ($dependencies as $key => $value) {
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
         try {
             $query = $pearDB->createQueryBuilder()
                 ->select('*')
@@ -149,7 +159,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                 ->getQuery();
 
             $params = QueryParameters::create([
-                QueryParameter::int('depId', (int) $key),
+                QueryParameter::int('depId', $depId),
             ]);
             $row = $pearDB->fetchAssociative($query, $params);
             if (! $row) {
@@ -205,7 +215,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                             ->where('dependency_dep_id = :depId')
                             ->getQuery();
                         $params = QueryParameters::create([
-                            QueryParameter::int('depId', (int) $key),
+                            QueryParameter::int('depId', $depId),
                         ]);
                         $result = $pearDB->fetchAllAssociative($qb, $params);
 
@@ -234,7 +244,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                             ->where('dependency_dep_id = :depId')
                             ->getQuery();
                         $params = QueryParameters::create([
-                            QueryParameter::int('depId', (int) $key),
+                            QueryParameter::int('depId', $depId),
                         ]);
                         $result = $pearDB->fetchAllAssociative($qb, $params);
 

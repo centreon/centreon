@@ -81,11 +81,16 @@ function enableLCAInDB($aclResId = null, $acls = [])
     );
 
     foreach (array_keys($acls) as $key) {
-        $updateGroupStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $validAclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($validAclResId === false) {
+            continue;
+        }
+
+        $updateGroupStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
         $updateGroupStmt->execute();
-        $updateResourceStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $updateResourceStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
         $updateResourceStmt->execute();
-        $selectStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
         $centreon->CentreonLogAction->insertLog(
@@ -125,11 +130,16 @@ function disableLCAInDB($aclResId = null, $acls = [])
     );
 
     foreach (array_keys($acls) as $key) {
-        $updateGroupStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $validAclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($validAclResId === false) {
+            continue;
+        }
+
+        $updateGroupStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
         $updateGroupStmt->execute();
-        $updateResourceStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $updateResourceStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
         $updateResourceStmt->execute();
-        $selectStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->bindValue(':acl_res_id', $validAclResId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
         $centreon->CentreonLogAction->insertLog(
@@ -159,12 +169,17 @@ function deleteLCAInDB($acls = [])
     $deleteStmt = $pearDB->prepare('DELETE FROM `acl_resources` WHERE acl_res_id = :acl_res_id');
 
     foreach (array_keys($acls) as $key) {
-        $selectStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $aclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($aclResId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
-        $updateGroupStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $updateGroupStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
         $updateGroupStmt->execute();
-        $deleteStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $deleteStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
         $deleteStmt->execute();
         $centreon->CentreonLogAction->insertLog(
             'resource access',
@@ -189,7 +204,12 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
     );
 
     foreach (array_keys($lcas) as $key) {
-        $selectStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
+        $aclResId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($aclResId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':acl_res_id', $aclResId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {

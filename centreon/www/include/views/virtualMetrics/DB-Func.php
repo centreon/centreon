@@ -109,7 +109,12 @@ function deleteVirtualMetricInDB($vmetrics = [])
         'DELETE FROM virtual_metrics WHERE vmetric_id = :vmetric_id'
     );
     foreach (array_keys($vmetrics) as $vmetricId) {
-        $prepareStatement->bindValue(':vmetric_id', $vmetricId, PDO::PARAM_INT);
+        $validVmetricId = filter_var($vmetricId, FILTER_VALIDATE_INT);
+        if ($validVmetricId === false) {
+            continue;
+        }
+
+        $prepareStatement->bindValue(':vmetric_id', $validVmetricId, PDO::PARAM_INT);
         $prepareStatement->execute();
     }
 }
@@ -136,7 +141,12 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
     $pearDB->beginTransaction();
     try {
         foreach (array_keys($vmetrics) as $vmetricId) {
-            $selectStmt->bindValue(':vmetric_id', (int) $vmetricId, PDO::PARAM_INT);
+            $validVmetricId = filter_var($vmetricId, FILTER_VALIDATE_INT);
+            if ($validVmetricId === false) {
+                continue;
+            }
+
+            $selectStmt->bindValue(':vmetric_id', $validVmetricId, PDO::PARAM_INT);
             $selectStmt->execute();
             $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
             if ($row === false) {

@@ -93,12 +93,17 @@ function deleteContactGroupInDB($contactGroups = [])
     $deleteStmt = $pearDB->prepare('DELETE FROM `contactgroup` WHERE `cg_id` = :cgId');
 
     foreach (array_keys($contactGroups) as $key) {
-        $selectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+        $cgId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($cgId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':cgId', $cgId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
         $cgName = is_array($row) ? $row['cg_name'] : "id:{$key}";
 
-        $deleteStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+        $deleteStmt->bindValue(':cgId', $cgId, PDO::PARAM_INT);
         $deleteStmt->execute();
         $centreon->CentreonLogAction->insertLog('contactgroup', $key, $cgName, 'd');
     }
@@ -126,7 +131,12 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
     );
 
     foreach (array_keys($contactGroups) as $key) {
-        $selectStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+        $cgId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($cgId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':cgId', $cgId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -141,11 +151,11 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         );
 
         // Fetch relationships once before duplication loop
-        $selectAclStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+        $selectAclStmt->bindValue(':cgId', $cgId, PDO::PARAM_INT);
         $selectAclStmt->execute();
         $aclRelations = $selectAclStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $selectContactsStmt->bindValue(':cgId', (int) $key, PDO::PARAM_INT);
+        $selectContactsStmt->bindValue(':cgId', $cgId, PDO::PARAM_INT);
         $selectContactsStmt->execute();
         $contactRelations = $selectContactsStmt->fetchAll(PDO::FETCH_ASSOC);
 

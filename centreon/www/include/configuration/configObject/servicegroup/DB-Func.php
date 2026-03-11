@@ -128,10 +128,13 @@ function deleteServiceGroupInDB($serviceGroups = [])
 
     foreach (array_keys($serviceGroups) as $key) {
         $sgId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($sgId === false) {
+            continue;
+        }
 
-        $previousPollerIds = getPollersForConfigChangeFlagFromServicegroupId((int) $sgId);
+        $previousPollerIds = getPollersForConfigChangeFlagFromServicegroupId($sgId);
 
-        removeRelationLastServicegroupDependency((int) $sgId);
+        removeRelationLastServicegroupDependency($sgId);
         $statement = $pearDB->prepare('SELECT sg_name FROM `servicegroup` WHERE `sg_id` = :sg_id LIMIT 1');
         $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
         $statement->execute();
@@ -154,6 +157,9 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
     $sgAcl = [];
     foreach (array_keys($serviceGroups) as $key) {
         $sgId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($sgId === false) {
+            continue;
+        }
 
         $statement = $pearDB->prepare('SELECT * FROM servicegroup WHERE sg_id = :sg_id LIMIT 1');
         $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);

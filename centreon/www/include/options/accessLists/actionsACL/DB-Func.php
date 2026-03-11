@@ -260,7 +260,12 @@ function multipleActionInDB($actions = [], $nbrDup = [])
     );
 
     foreach (array_keys($actions) as $key) {
-        $selectStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $aclActionId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($aclActionId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':id', $aclActionId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -274,11 +279,11 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         );
 
         // Fetch relationships once before duplication loop
-        $selectGroupStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $selectGroupStmt->bindValue(':id', $aclActionId, PDO::PARAM_INT);
         $selectGroupStmt->execute();
         $groupRelations = $selectGroupStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $selectRulesStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $selectRulesStmt->bindValue(':id', $aclActionId, PDO::PARAM_INT);
         $selectRulesStmt->execute();
         $actionRules = $selectRulesStmt->fetchAll(PDO::FETCH_ASSOC);
 

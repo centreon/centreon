@@ -73,7 +73,12 @@ function deleteMetaServiceDependencyInDB($dependencies = [])
     global $pearDB;
     $statement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     foreach (array_keys($dependencies) as $key) {
-        $statement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $statement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $statement->execute();
     }
 }
@@ -102,7 +107,12 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
     );
 
     foreach (array_keys($dependencies) as $key) {
-        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -115,11 +125,11 @@ function multipleMetaServiceDependencyInDB($dependencies = [], $nbrDup = [])
             'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
         // Fetch relationships once before duplication loop
-        $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectParentStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectParentStmt->execute();
         $parents = $selectParentStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectChildStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectChildStmt->execute();
         $children = $selectChildStmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -74,11 +74,16 @@ function deleteServiceGroupDependencyInDB($dependencies = [])
     $selectStatement = $pearDB->prepare('SELECT dep_name FROM `dependency` WHERE `dep_id` = :dep_id LIMIT 1');
     $deleteStatement = $pearDB->prepare('DELETE FROM dependency WHERE dep_id = :dep_id');
     foreach (array_keys($dependencies) as $key) {
-        $selectStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $selectStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectStatement->execute();
         $row = $selectStatement->fetch();
 
-        $deleteStatement->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $deleteStatement->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $deleteStatement->execute();
         $oreon->CentreonLogAction->insertLog(
             'servicegroup dependency',
@@ -113,7 +118,12 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
     );
 
     foreach (array_keys($dependencies) as $key) {
-        $selectStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $depId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($depId === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -126,11 +136,11 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
             'INSERT INTO dependency (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
         // Fetch relationships once before duplication loop
-        $selectParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectParentStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectParentStmt->execute();
         $parents = $selectParentStmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $selectChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+        $selectChildStmt->bindValue(':dep_id', $depId, PDO::PARAM_INT);
         $selectChildStmt->execute();
         $children = $selectChildStmt->fetchAll(PDO::FETCH_ASSOC);
 

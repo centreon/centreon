@@ -607,7 +607,12 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
     global $pearDB, $centreon;
     $newContactIds = [];
     foreach ($contacts as $contactId => $value) {
-        $contactId = (int) $contactId;
+        $validContactId = filter_var($contactId, FILTER_VALIDATE_INT);
+        if ($validContactId === false) {
+            continue;
+        }
+
+        $contactId = $validContactId;
         $newContactIds[$contactId] = [];
 
         $selectContactQuery = <<<'SQL'

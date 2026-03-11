@@ -168,11 +168,16 @@ function multipleComponentTemplateInDB($compos = [], $nbrDup = [])
     );
 
     foreach (array_keys($compos) as $key) {
+        $compoId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($compoId === false) {
+            continue;
+        }
+
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         if ($dupCount < 1) {
             continue;
         }
-        $selectStmt->bindValue(':compo_id', (int) $key, PDO::PARAM_INT);
+        $selectStmt->bindValue(':compo_id', $compoId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {

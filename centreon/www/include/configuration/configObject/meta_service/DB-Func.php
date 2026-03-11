@@ -356,6 +356,11 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
 {
     global $pearDB;
     foreach ($metas as $metaId => $value) {
+        $validMetaId = filter_var($metaId, FILTER_VALIDATE_INT);
+        if ($validMetaId === false) {
+            continue;
+        }
+
         $qbSelect = $pearDB->createQueryBuilder();
         $query = $qbSelect->select('*')
             ->from('meta_service')
@@ -364,7 +369,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             ->getQuery();
         try {
             $row = $pearDB->fetchAssociative($query, QueryParameters::create([
-                QueryParameter::int('meta_id', (int) $metaId),
+                QueryParameter::int('meta_id', $validMetaId),
             ]));
         } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
             CentreonLog::create()->error(
@@ -415,7 +420,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                             ->where('meta_id = :meta_id')
                             ->getQuery();
                         $contacts = $pearDB->fetchAllAssociative($queryContacts, QueryParameters::create([
-                            QueryParameter::int('meta_id', (int) $metaId),
+                            QueryParameter::int('meta_id', $validMetaId),
                         ]));
                         foreach ($contacts as $contact) {
                             $qbInsertContact = $pearDB->createQueryBuilder();
@@ -438,7 +443,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                             ->where('meta_id = :meta_id')
                             ->getQuery();
                         $cgroups = $pearDB->fetchAllAssociative($queryCG, QueryParameters::create([
-                            QueryParameter::int('meta_id', (int) $metaId),
+                            QueryParameter::int('meta_id', $validMetaId),
                         ]));
                         foreach ($cgroups as $cg) {
                             $qbInsertCG = $pearDB->createQueryBuilder();
@@ -461,7 +466,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                             ->where('meta_id = :meta_id')
                             ->getQuery();
                         $metricsRows = $pearDB->fetchAllAssociative($queryMetric, QueryParameters::create([
-                            QueryParameter::int('meta_id', (int) $metaId),
+                            QueryParameter::int('meta_id', $validMetaId),
                         ]));
                         foreach ($metricsRows as $metric) {
                             unset($metric['msr_id']);

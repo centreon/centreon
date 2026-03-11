@@ -91,11 +91,16 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
     );
 
     foreach (array_keys($graphs) as $key) {
+        $graphTemplateId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($graphTemplateId === false) {
+            continue;
+        }
+
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         if ($dupCount < 1) {
             continue;
         }
-        $selectStmt->bindValue(':graphTemplateId', (int) $key, PDO::PARAM_INT);
+        $selectStmt->bindValue(':graphTemplateId', $graphTemplateId, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {

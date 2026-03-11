@@ -47,11 +47,16 @@ function deleteMnftrInDB($mnftr = [])
     $selectStatement = $pearDB->prepare('SELECT name FROM `traps_vendor` WHERE `id` = :id LIMIT 1');
     $deleteStatement = $pearDB->prepare('DELETE FROM traps_vendor WHERE id = :id');
     foreach (array_keys($mnftr) as $key) {
-        $selectStatement->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $id = filter_var($key, FILTER_VALIDATE_INT);
+        if ($id === false) {
+            continue;
+        }
+
+        $selectStatement->bindValue(':id', $id, PDO::PARAM_INT);
         $selectStatement->execute();
         $row = $selectStatement->fetch();
 
-        $deleteStatement->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $deleteStatement->bindValue(':id', $id, PDO::PARAM_INT);
         $deleteStatement->execute();
         $oreon->CentreonLogAction->insertLog(
             'manufacturer',
@@ -71,7 +76,12 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
     );
 
     foreach (array_keys($mnftr) as $key) {
-        $selectStmt->bindValue(':id', (int) $key, PDO::PARAM_INT);
+        $id = filter_var($key, FILTER_VALIDATE_INT);
+        if ($id === false) {
+            continue;
+        }
+
+        $selectStmt->bindValue(':id', $id, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {

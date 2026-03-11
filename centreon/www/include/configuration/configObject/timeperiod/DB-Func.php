@@ -93,16 +93,21 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
     global $centreon;
 
     foreach ($timeperiods as $key => $value) {
+        $tpId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($tpId === false) {
+            continue;
+        }
+
         global $pearDB;
 
         $selectStmt = $pearDB->prepare('SELECT * FROM timeperiod WHERE tp_id = :tpId LIMIT 1');
-        $selectStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $selectStmt->bindValue(':tpId', $tpId, PDO::PARAM_INT);
         $selectStmt->execute();
 
         $exceptionStmt = $pearDB->prepare(
             'SELECT days, timerange FROM timeperiod_exceptions WHERE timeperiod_id = :tpId'
         );
-        $exceptionStmt->bindValue(':tpId', (int) $key, PDO::PARAM_INT);
+        $exceptionStmt->bindValue(':tpId', $tpId, PDO::PARAM_INT);
         $exceptionStmt->execute();
         $exceptionDays = '';
         $exceptionTimeranges = '';
@@ -138,10 +143,10 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
                 'values' => $row,
                 'timeperiod_id' => $key,
             ];
-            $tpId = duplicateTimePeriod($params);
+            $newTpId = duplicateTimePeriod($params);
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_TIMEPERIOD,
-                object_id: $tpId,
+                object_id: $newTpId,
                 object_name: $tp_name,
                 action_type: ActionLog::ACTION_TYPE_ADD,
                 fields: $fields
