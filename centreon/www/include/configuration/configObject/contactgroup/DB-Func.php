@@ -404,11 +404,7 @@ function updateContactGroupAclGroups($cg_id, $ret = [])
         $deleteStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
         $deleteStmt->execute();
 
-        if (isset($ret['cg_acl_groups'])) {
-            $ret = $ret['cg_acl_groups'];
-        } else {
-            $ret = CentreonUtils::mergeWithInitialValues($form, 'cg_acl_groups');
-        }
+        $ret = $ret['cg_acl_groups'] ?? CentreonUtils::mergeWithInitialValues($form, 'cg_acl_groups');
         $counter = count($ret);
 
         $insertStmt = $pearDB->prepare(

@@ -35,7 +35,7 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
     global $pearDB;
 
     // Insert inclusions
-    if (isset($includeTab) && is_array($includeTab) && $includeTab !== []) {
+    if (is_array($includeTab) && $includeTab !== []) {
         $includeStmt = $pearDB->prepare(
             'INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id)
             VALUES (:tpId, :tpIncludeId)'
@@ -48,7 +48,7 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
     }
 
     // Insert exclusions
-    if (isset($excludeTab) && is_array($excludeTab) && $excludeTab !== []) {
+    if (is_array($excludeTab) && $excludeTab !== []) {
         $excludeStmt = $pearDB->prepare(
             'INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id)
             VALUES (:tpId, :tpExcludeId)'
@@ -92,7 +92,7 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
 {
     global $centreon;
 
-    foreach ($timeperiods as $key => $value) {
+    foreach (array_keys($timeperiods) as $key) {
         $tpId = filter_var($key, FILTER_VALIDATE_INT);
         if ($tpId === false) {
             continue;

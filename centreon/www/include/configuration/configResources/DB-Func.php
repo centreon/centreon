@@ -446,26 +446,35 @@ function insertResource($ret = [])
         && (bool) (int) $ret['resource_activate']['resource_activate'];
     $statement->bindValue(':is_activated', (string) (int) $isActivated);
     $statement->bindValue(':is_password', (int) $ret['is_password'], PDO::PARAM_INT);
-    $statement->execute();
 
-    $resource_id = (int) $pearDB->lastInsertId();
-    if ($resource_id <= 0) {
+    try {
+        $statement->execute();
+
+        $resource_id = (int) $pearDB->lastInsertId();
+        if ($resource_id <= 0) {
+            if ($vaultPath !== null) {
+                deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $ret['resource_name']]);
+            }
+
+            return 0;
+        }
+
+        // Prepare value for changelog
+        $fields = CentreonLogAction::prepareChanges($ret);
+        $centreon->CentreonLogAction->insertLog(
+            'resource',
+            $resource_id,
+            $ret['resource_name'],
+            'a',
+            $fields
+        );
+    } catch (Throwable $e) {
         if ($vaultPath !== null) {
             deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $ret['resource_name']]);
         }
 
-        return 0;
+        throw $e;
     }
-
-    // Prepare value for changelog
-    $fields = CentreonLogAction::prepareChanges($ret);
-    $centreon->CentreonLogAction->insertLog(
-        'resource',
-        $resource_id,
-        $ret['resource_name'],
-        'a',
-        $fields
-    );
 
     return $resource_id;
 }

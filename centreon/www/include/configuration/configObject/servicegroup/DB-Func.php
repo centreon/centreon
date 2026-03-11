@@ -25,7 +25,7 @@ if (! isset($centreon)) {
 
 function testServiceGroupExistence($name = null, bool $excludeCurrentFormId = true)
 {
-    global $pearDB, $form, $centreon;
+    global $pearDB, $form;
 
     $id = null;
 

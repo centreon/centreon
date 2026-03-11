@@ -376,6 +376,7 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                 $newId = (int) $pearDB->getLastInsertId();
                 $aclMap[$newId] = $hcId;
 
+                $hostRows = [];
                 if (empty($row['level'])) {
                     $relSelect = $pearDB->createQueryBuilder()
                         ->select('host_host_id')
