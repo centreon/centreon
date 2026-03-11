@@ -1003,9 +1003,10 @@ function updateAclResourcesMetaRelations(int $metaId): void
             // insert new relations
             $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];
             $values = [];
-            foreach ($aclResIds as $aclResId) {
-                $values[] = " (:acl_res_id_{$aclResId['acl_res_id']}, :metaId)";
-                $paramsAcl[] = QueryParameter::int("acl_res_id_{$aclResId['acl_res_id']}", (int) $aclResId['acl_res_id']);
+            foreach ($aclResIds as $idx => $aclResId) {
+                $key = 'aclResId' . $idx;
+                $values[] = " (:{$key}, :metaId)";
+                $paramsAcl[] = QueryParameter::int($key, (int) $aclResId['acl_res_id']);
             }
             // update acl_resources_meta_relations
             if ($values !== []) {

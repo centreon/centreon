@@ -188,6 +188,7 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
                     $insertAclStmt->execute();
                     $fields['cg_aclRelation'] .= $cgAcl['acl_group_id'] . ',';
                 }
+                $fields['cg_aclRelation'] = trim($fields['cg_aclRelation'], ',');
 
                 $fields['cg_contacts'] = '';
                 foreach ($contactRelations as $cct) {

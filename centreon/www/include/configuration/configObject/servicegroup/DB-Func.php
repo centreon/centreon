@@ -230,6 +230,11 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
                 $statement->execute();
                 $fields['sg_hgServices'] = '';
+                $insertRelStmt = $pearDB->prepare('
+                    INSERT INTO servicegroup_relation
+                    (host_host_id, hostgroup_hg_id, service_service_id, servicegroup_sg_id)
+                    VALUES (:host_host_id, :hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
+                ');
                 while ($service = $statement->fetch()) {
                     $bindParams = [];
                     foreach ($service as $key2 => $value2) {
@@ -253,19 +258,14 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                                     : $bindParams[':service_service_id'] = [PDO::PARAM_NULL => null];
                                 break;
                         }
-                        $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $newSgId];
                     }
-                    $statement2 = $pearDB->prepare('
-                        INSERT INTO servicegroup_relation
-                        (host_host_id, hostgroup_hg_id, service_service_id, servicegroup_sg_id)
-                        VALUES (:host_host_id, :hostgroup_hg_id, :service_service_id, :servicegroup_sg_id)
-                    ');
+                    $bindParams[':servicegroup_sg_id'] = [PDO::PARAM_INT => $newSgId];
                     foreach ($bindParams as $token => $bindValues) {
                         foreach ($bindValues as $paramType => $value) {
-                            $statement2->bindValue($token, $value, $paramType);
+                            $insertRelStmt->bindValue($token, $value, $paramType);
                         }
                     }
-                    $statement2->execute();
+                    $insertRelStmt->execute();
                     $fields['sg_hgServices'] .= $service['service_service_id'] . ',';
                 }
                 $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
