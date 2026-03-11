@@ -931,6 +931,7 @@ jobs:
           from_image: centreon-web-dependencies-collect-${{ matrix.operating_system }}
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
+          registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -952,6 +953,20 @@ jobs:
 
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
+      - name: Compute docker tags
+        id: docker_tags
+        run: |
+          REGISTRY="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+          IMAGE="${{ env.project }}-${{ matrix.operating_system }}"
+          TAG="${{ steps.image_tag.outputs.tag }}"
+          ADDITIONAL="${{ steps.image_tag.outputs.additional_tag }}"
+          TAGS="${REGISTRY}/${IMAGE}:${TAG},${REGISTRY}/${{ env.project }}-slim-${{ matrix.operating_system }}:${TAG}"
+          if [[ -n "$ADDITIONAL" ]]; then
+            TAGS="${TAGS},${REGISTRY}/${IMAGE}:${ADDITIONAL},${REGISTRY}/${{ env.project }}-slim-${{ matrix.operating_system }}:${ADDITIONAL}"
+          fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
@@ -969,11 +984,7 @@ jobs:
           pull: true
           push: true
           load: true
-          tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-slim-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
-            ${{ steps.image_tag.outputs.additional_tag != '' && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, env.project, matrix.operating_system, steps.image_tag.outputs.additional_tag) || '' }}
-            ${{ steps.image_tag.outputs.additional_tag != '' && format('{0}/{1}-slim-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, env.project, matrix.operating_system, steps.image_tag.outputs.additional_tag) || '' }}
+          tags: ${{ steps.docker_tags.outputs.tags }}
 
       - name: Store slim image in local archive
         run: |

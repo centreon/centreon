@@ -452,6 +452,7 @@ jobs:
           from_image: centreon-web-${{ matrix.operating_system }}
           current_tag: ${{ steps.image_tag.outputs.tag }}
           major_version: ${{ needs.get-environment.outputs.major_version }}
+          registry_url: ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}
 
       - name: Restore ${{ steps.matrix_include.outputs.package_extension }} files
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
@@ -467,6 +468,18 @@ jobs:
 
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
+      - name: Compute docker tags
+        id: docker_tags
+        run: |
+          REGISTRY="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+          IMAGE="${{ env.project }}-${{ matrix.operating_system }}"
+          TAGS="${REGISTRY}/${IMAGE}:${{ steps.image_tag.outputs.tag }}"
+          if [[ -n "${{ steps.image_tag.outputs.additional_tag }}" ]]; then
+            TAGS="${TAGS},${REGISTRY}/${IMAGE}:${{ steps.image_tag.outputs.additional_tag }}"
+          fi
+          echo "tags=${TAGS}" >> $GITHUB_OUTPUT
+        shell: bash
+
       - name: Build and push web image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         env:
@@ -481,9 +494,7 @@ jobs:
             "FROM_IMAGE_VERSION=${{ steps.from_image_version.outputs.from_image_version }}"
           pull: true
           push: true
-          tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/${{ env.project }}-${{ matrix.operating_system }}:${{ steps.image_tag.outputs.tag }}
-            ${{ steps.image_tag.outputs.additional_tag != '' && format('{0}/{1}-{2}:{3}', vars.DOCKER_INTERNAL_REGISTRY_URL, env.project, matrix.operating_system, steps.image_tag.outputs.additional_tag) || '' }}
+          tags: ${{ steps.docker_tags.outputs.tags }}
 
   deliver-sources:
     runs-on: centreon-common

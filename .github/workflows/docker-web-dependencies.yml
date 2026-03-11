@@ -89,6 +89,32 @@ jobs:
           fi
         shell: bash
 
+      - name: Compute docker tags
+        id: docker_tags
+        run: |
+          REGISTRY="${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}"
+          DISTRIB="${{ matrix.distrib }}"
+          TAG="${{ steps.image_tag.outputs.tag }}"
+          ADDITIONAL="${{ steps.image_tag.outputs.additional_tag }}"
+          MAJOR_VERSION_TAG="${{ steps.image_tag.outputs.major_version_tag }}"
+
+          WEB_DEPS="${REGISTRY}/centreon-web-dependencies-${DISTRIB}"
+          WEB_DEPS_COLLECT="${REGISTRY}/centreon-web-dependencies-collect-${DISTRIB}"
+
+          TAGS_DEPS="${WEB_DEPS}:${TAG}"
+          TAGS_DEPS_COLLECT="${WEB_DEPS_COLLECT}:${TAG}"
+          if [[ -n "$ADDITIONAL" ]]; then
+            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${ADDITIONAL}"
+            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${ADDITIONAL}"
+          fi
+          if [[ -n "$MAJOR_VERSION_TAG" ]]; then
+            TAGS_DEPS="${TAGS_DEPS},${WEB_DEPS}:${MAJOR_VERSION_TAG}"
+            TAGS_DEPS_COLLECT="${TAGS_DEPS_COLLECT},${WEB_DEPS_COLLECT}:${MAJOR_VERSION_TAG}"
+          fi
+          echo "tags_deps=${TAGS_DEPS}" >> $GITHUB_OUTPUT
+          echo "tags_deps_collect=${TAGS_DEPS_COLLECT}" >> $GITHUB_OUTPUT
+        shell: bash
+
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
@@ -110,10 +136,7 @@ jobs:
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: true
           push: true
-          tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-${{ matrix.distrib }}:${{ steps.image_tag.outputs.tag }}
-            ${{ steps.image_tag.outputs.additional_tag != '' && format('{0}/centreon-web-dependencies-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.additional_tag) || '' }}
-            ${{ steps.image_tag.outputs.major_version_tag != '' && format('{0}/centreon-web-dependencies-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.major_version_tag) || '' }}
+          tags: ${{ steps.docker_tags.outputs.tags_deps }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
@@ -137,10 +160,7 @@ jobs:
             "STABILITY=${{ needs.get-environment.outputs.stability }}"
           pull: false
           push: true
-          tags: |
-            ${{ vars.DOCKER_INTERNAL_REGISTRY_URL }}/centreon-web-dependencies-collect-${{ matrix.distrib }}:${{ steps.image_tag.outputs.tag }}
-            ${{ steps.image_tag.outputs.additional_tag != '' && format('{0}/centreon-web-dependencies-collect-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.additional_tag) || '' }}
-            ${{ steps.image_tag.outputs.major_version_tag != '' && format('{0}/centreon-web-dependencies-collect-{1}:{2}', vars.DOCKER_INTERNAL_REGISTRY_URL, matrix.distrib, steps.image_tag.outputs.major_version_tag) || '' }}
+          tags: ${{ steps.docker_tags.outputs.tags_deps_collect }}
           secrets: |
             "ARTIFACTORY_INTERNAL_REPO_USERNAME=${{ secrets.ARTIFACTORY_INTERNAL_REPO_USERNAME }}"
             "ARTIFACTORY_INTERNAL_REPO_PASSWORD=${{ secrets.ARTIFACTORY_INTERNAL_REPO_PASSWORD }}"
