@@ -900,7 +900,7 @@ function multipleContactInDB($contacts = [], $nbrDup = []): array
  */
 function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRemote = false): void
 {
-    global $form;
+    global $form, $pearDB;
 
     $contact_id = (int) $contact_id;
 
@@ -913,58 +913,66 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
 
     $ret = $form->getSubmitValues();
 
-    // Global function to use
-    if ($from_MC) {
-        updateContact_MC($contact_id);
-    } else {
-        updateContact($contact_id);
-    }
-
-    // Function for updating host commands
-    // 1 - MC with deletion of existing cmds
-    // 2 - MC with addition of new cmds
-    // 3 - Normal update
-    if (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
-        updateContactHostCommands($contact_id);
-    } elseif (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && ! $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
-        updateContactHostCommands_MC($contact_id);
-    } else {
-        updateContactHostCommands($contact_id);
-    }
-    // Function for updating service commands
-    // 1 - MC with deletion of existing cmds
-    // 2 - MC with addition of new cmds
-    // 3 - Normal update
-    if (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
-        updateContactServiceCommands($contact_id);
-    } elseif (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && ! $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
-        updateContactServiceCommands_MC($contact_id);
-    } else {
-        updateContactServiceCommands($contact_id);
-    }
-    // Function for updating contact groups
-    // 1 - MC with deletion of existing cg
-    // 2 - MC with addition of new cg
-    // 3 - Normal update
-    if (! $isRemote) {
-        if (isset($ret['mc_mod_cg']['mc_mod_cg']) && $ret['mc_mod_cg']['mc_mod_cg']) {
-            updateContactContactGroup($contact_id);
-        } elseif (isset($ret['mc_mod_cg']['mc_mod_cg']) && ! $ret['mc_mod_cg']['mc_mod_cg']) {
-            updateContactContactGroup_MC($contact_id);
+    $pearDB->beginTransaction();
+    try {
+        // Global function to use
+        if ($from_MC) {
+            updateContact_MC($contact_id);
         } else {
-            updateContactContactGroup($contact_id);
+            updateContact($contact_id);
         }
-    }
 
-    /**
-     * ACL
-     */
-    if (isset($ret['mc_mod_acl']['mc_mod_acl']) && $ret['mc_mod_acl']['mc_mod_acl']) {
-        updateAccessGroupLinks($contact_id);
-    } elseif (isset($ret['mc_mod_acl']['mc_mod_acl']) && ! $ret['mc_mod_acl']['mc_mod_acl']) {
-        updateAccessGroupLinks_MC($contact_id, $ret['mc_mod_acl']['mc_mod_acl']);
-    } else {
-        updateAccessGroupLinks($contact_id);
+        // Function for updating host commands
+        // 1 - MC with deletion of existing cmds
+        // 2 - MC with addition of new cmds
+        // 3 - Normal update
+        if (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
+            updateContactHostCommands($contact_id);
+        } elseif (isset($ret['mc_mod_hcmds']['mc_mod_hcmds']) && ! $ret['mc_mod_hcmds']['mc_mod_hcmds']) {
+            updateContactHostCommands_MC($contact_id);
+        } else {
+            updateContactHostCommands($contact_id);
+        }
+        // Function for updating service commands
+        // 1 - MC with deletion of existing cmds
+        // 2 - MC with addition of new cmds
+        // 3 - Normal update
+        if (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
+            updateContactServiceCommands($contact_id);
+        } elseif (isset($ret['mc_mod_svcmds']['mc_mod_svcmds']) && ! $ret['mc_mod_svcmds']['mc_mod_svcmds']) {
+            updateContactServiceCommands_MC($contact_id);
+        } else {
+            updateContactServiceCommands($contact_id);
+        }
+        // Function for updating contact groups
+        // 1 - MC with deletion of existing cg
+        // 2 - MC with addition of new cg
+        // 3 - Normal update
+        if (! $isRemote) {
+            if (isset($ret['mc_mod_cg']['mc_mod_cg']) && $ret['mc_mod_cg']['mc_mod_cg']) {
+                updateContactContactGroup($contact_id);
+            } elseif (isset($ret['mc_mod_cg']['mc_mod_cg']) && ! $ret['mc_mod_cg']['mc_mod_cg']) {
+                updateContactContactGroup_MC($contact_id);
+            } else {
+                updateContactContactGroup($contact_id);
+            }
+        }
+
+        /**
+         * ACL
+         */
+        if (isset($ret['mc_mod_acl']['mc_mod_acl']) && $ret['mc_mod_acl']['mc_mod_acl']) {
+            updateAccessGroupLinks($contact_id);
+        } elseif (isset($ret['mc_mod_acl']['mc_mod_acl']) && ! $ret['mc_mod_acl']['mc_mod_acl']) {
+            updateAccessGroupLinks_MC($contact_id, $ret['mc_mod_acl']['mc_mod_acl']);
+        } else {
+            updateAccessGroupLinks($contact_id);
+        }
+
+        $pearDB->commit();
+    } catch (\Exception $e) {
+        $pearDB->rollBack();
+        throw $e;
     }
 }
 
@@ -975,11 +983,21 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
  */
 function insertContactInDB(array $ret = []): int
 {
-    $contactId = insertContact($ret);
-    updateContactHostCommands($contactId, $ret);
-    updateContactServiceCommands($contactId, $ret);
-    updateContactContactGroup($contactId, $ret);
-    updateAccessGroupLinks($contactId);
+    global $pearDB;
+
+    $pearDB->beginTransaction();
+    try {
+        $contactId = insertContact($ret);
+        updateContactHostCommands($contactId, $ret);
+        updateContactServiceCommands($contactId, $ret);
+        updateContactContactGroup($contactId, $ret);
+        updateAccessGroupLinks($contactId);
+
+        $pearDB->commit();
+    } catch (\Exception $e) {
+        $pearDB->rollBack();
+        throw $e;
+    }
 
     return $contactId;
 }
@@ -1273,14 +1291,6 @@ function updateContact_MC(int $contact_id): void
         $stmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
         $stmt->execute();
 
-        // Prepare Log
-        $nameStmt = $pearDB->prepare('SELECT contact_name FROM `contact` WHERE contact_id = :contactId LIMIT 1');
-        $nameStmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
-        $nameStmt->execute();
-        $row = $nameStmt->fetch();
-        if ($row === false) {
-            $row = ['contact_name' => 'unknown'];
-        }
     } catch (PDOException $e) {
         throw new RepositoryException(
             message: 'Database error while updating contact by massive change for contact id ' . $contact_id,
@@ -1289,7 +1299,18 @@ function updateContact_MC(int $contact_id): void
         );
     }
 
-    // Prepare value for changelog
+    // Prepare Log — best-effort, must not abort the update flow
+    try {
+        $nameStmt = $pearDB->prepare(
+            'SELECT contact_name FROM `contact` WHERE contact_id = :contactId LIMIT 1'
+        );
+        $nameStmt->bindValue(':contactId', $contact_id, PDO::PARAM_INT);
+        $nameStmt->execute();
+        $row = $nameStmt->fetch() ?: ['contact_name' => $ret['contact_name'] ?? 'unknown'];
+    } catch (PDOException) {
+        $row = ['contact_name' => $ret['contact_name'] ?? 'unknown'];
+    }
+
     $fields = CentreonLogAction::prepareChanges($ret);
     try {
         $centreon->CentreonLogAction->insertLog('contact', $contact_id, $row['contact_name'], 'mc', $fields);
@@ -1759,22 +1780,23 @@ function insertLdapContactInDB($tmpContacts = [])
             $tmpConf['contact_location'] = '0';
             $tmpConf['contact_register'] = '1';
             $tmpConf['contact_enable_notifications']['contact_enable_notifications'] = '2';
-            insertContactInDB($tmpConf);
+            $contact_id = insertContactInDB($tmpConf);
             unset($tmpConf);
+        } else {
+            // Get the contact_id by DN for existing contacts
+            $dnStmt = $pearDB->prepare('SELECT contact_id FROM contact WHERE contact_ldap_dn = :ldap_dn');
+            $dnStmt->bindValue(':ldap_dn', $tmpContacts['dn'][$select_key], PDO::PARAM_STR);
+            try {
+                $dnStmt->execute();
+            } catch (PDOException $e) {
+                return false;
+            }
+            $row = $dnStmt->fetch(PDO::FETCH_ASSOC);
+            if ($row === false) {
+                continue;
+            }
+            $contact_id = (int) $row['contact_id'];
         }
-        // Get the contact_id
-        $dnStmt = $pearDB->prepare('SELECT contact_id FROM contact WHERE contact_ldap_dn = :ldap_dn');
-        $dnStmt->bindValue(':ldap_dn', $tmpContacts['dn'][$select_key], PDO::PARAM_STR);
-        try {
-            $dnStmt->execute();
-        } catch (PDOException $e) {
-            return false;
-        }
-        $row = $dnStmt->fetch(PDO::FETCH_ASSOC);
-        if ($row === false) {
-            continue;
-        }
-        $contact_id = (int) $row['contact_id'];
 
         if (! isset($ldapInstances[$arId])) {
             $ldap = new CentreonLDAP($pearDB, null, $arId);
@@ -1787,19 +1809,23 @@ function insertLdapContactInDB($tmpContacts = [])
             $ldap = $ldapInstances[$arId];
         }
         if ($contact_id) {
-            if (isset($contactTemplates[$arId])) {
-                $updateStmt = $pearDB->prepare(
-                    'UPDATE contact SET ar_id = :arId, contact_template_id = :tmplId WHERE contact_id = :contactId'
-                );
-                $updateStmt->bindValue(':tmplId', (int) $contactTemplates[$arId], PDO::PARAM_INT);
-            } else {
-                $updateStmt = $pearDB->prepare(
-                    'UPDATE contact SET ar_id = :arId WHERE contact_id = :contactId'
-                );
+            try {
+                if (isset($contactTemplates[$arId])) {
+                    $updateStmt = $pearDB->prepare(
+                        'UPDATE contact SET ar_id = :arId, contact_template_id = :tmplId WHERE contact_id = :contactId'
+                    );
+                    $updateStmt->bindValue(':tmplId', (int) $contactTemplates[$arId], PDO::PARAM_INT);
+                } else {
+                    $updateStmt = $pearDB->prepare(
+                        'UPDATE contact SET ar_id = :arId WHERE contact_id = :contactId'
+                    );
+                }
+                $updateStmt->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
+                $updateStmt->bindValue(':contactId', (int) $contact_id, PDO::PARAM_INT);
+                $updateStmt->execute();
+            } catch (PDOException $e) {
+                return false;
             }
-            $updateStmt->bindValue(':arId', (int) $arId, PDO::PARAM_INT);
-            $updateStmt->bindValue(':contactId', (int) $contact_id, PDO::PARAM_INT);
-            $updateStmt->execute();
         }
         $listGroup = [];
         if ($ldap->connect() !== false) {
