@@ -386,7 +386,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
             continue;
         }
         unset($row['meta_id']);
-        $copies = filter_var($nbrDup[$metaId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $copies = filter_var($nbrDup[$metaId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
         if (! $copies) {
             continue;
         }
@@ -598,7 +598,7 @@ function multipleMetricInDB($metrics = [], $nbrDup = [])
             continue;
         }
         unset($row['msr_id']);
-        $copies = filter_var($nbrDup[$msrId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $copies = filter_var($nbrDup[$msrId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
         if (! $copies) {
             continue;
         }

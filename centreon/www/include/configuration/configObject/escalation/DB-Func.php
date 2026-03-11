@@ -91,7 +91,7 @@ function multipleEscalationInDB(array $escalations = [], array $nbrDup = []): vo
             continue;
         }
 
-        $copies = filter_var($nbrDup[$escalationId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $copies = filter_var($nbrDup[$escalationId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
         if (! $copies) {
             continue;
         }

@@ -239,7 +239,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
         );
 
         $originalName = $row['nagios_name'];
-        $dupCount = filter_var($nbrDup[$originalNagiosId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $dupCount = filter_var($nbrDup[$originalNagiosId] ?? 0, FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 100]]);
         if ($dupCount === false) {
             continue;
         }
