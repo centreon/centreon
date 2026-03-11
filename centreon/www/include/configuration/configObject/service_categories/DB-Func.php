@@ -91,7 +91,6 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
         }
         $suffix = 1;
         for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $val = null;
             $bindParams = [];
             $fields = [];
             foreach ($row as $key2 => $value2) {
@@ -130,15 +129,11 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                             : $bindParams[':sc_activate'] = [PDO::PARAM_STR =>  '0'];
                         break;
                 }
-                $val
-                    ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                    : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-
                 if ($key2 != 'sc_id') {
                     $fields[$key2] = $value2;
                 }
             }
-            if ($val === null) {
+            if ($bindParams === []) {
                 continue;
             }
             $fields['sc_name'] = $sc_name;
@@ -158,11 +153,10 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                 }
             }
             $statement->execute();
-            $statement = $pearDB->query('SELECT MAX(sc_id) as maxid FROM `service_categories`');
-            $maxId = $statement->fetch();
+            $newScId = (int) $pearDB->lastInsertId();
 
-            if (isset($maxId['maxid'])) {
-                $scAcl[$maxId['maxid']] = $scId;
+            if ($newScId > 0) {
+                $scAcl[$newScId] = $scId;
                 try {
                     $selectServiceIdsStatement = $pearDB->prepareQuery(
                         <<<'SQL'
@@ -181,7 +175,7 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                     while ($serviceId = $pearDB->fetchColumn($selectServiceIdsStatement)) {
                         $pearDB->executePreparedQuery($insertNewRelationStatement, [
                             'serviceId' => $serviceId,
-                            'maxId' => $maxId['maxid'],
+                            'maxId' => $newScId,
                         ]);
                         $foundServiceIds[] = $serviceId;
                     }
@@ -191,7 +185,7 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
 
                     $centreon->CentreonLogAction->insertLog(
                         object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
-                        object_id: $maxId['maxid'],
+                        object_id: $newScId,
                         object_name: $sc_name,
                         action_type: ActionLog::ACTION_TYPE_ADD,
                         fields: $fields
@@ -358,18 +352,14 @@ function insertServiceCategorieInDB()
         }
         $statement->execute();
 
-        $query = 'SELECT MAX(sc_id) FROM `service_categories` WHERE sc_name LIKE :sc_name';
-        $statement = $pearDB->prepare($query);
-        $statement->bindValue(':sc_name', $scName, PDO::PARAM_STR);
-        $statement->execute();
-        $data = $statement->fetch();
+        $newScId = (int) $pearDB->lastInsertId();
     }
-    updateServiceCategoriesServices($data['MAX(sc_id)']);
+    updateServiceCategoriesServices($newScId);
     $centreon->user->access->updateACL();
     $fields = CentreonLogAction::prepareChanges($formValues);
     $centreon->CentreonLogAction->insertLog(
         object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
-        object_id: $data['MAX(sc_id)'],
+        object_id: $newScId,
         object_name: $scName,
         action_type: ActionLog::ACTION_TYPE_ADD,
         fields: $fields

@@ -172,118 +172,103 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
             if (! $copies) {
                 continue;
             }
+            $columns = array_keys($row);
+            $insertQuery = $pearDB->createQueryBuilder()
+                ->insert('dependency')
+                ->values(array_combine(
+                    $columns,
+                    array_map(fn ($col) => ':' . $col, $columns)
+                ))
+                ->getQuery();
+
             $suffix = 1;
             for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-                $val = null;
-                foreach ($row as $key2 => $value2) {
-                    $value2 = is_int($value2) ? (string) $value2 : $value2;
-                    if ($key2 == 'dep_name') {
-                        $dep_name = $value2 . '_' . $suffix;
-                        $value2 = $value2 . '_' . $suffix;
-                    }
-                    $val
-                        ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ', NULL')
-                        : $val .= ($value2 != null ? ("'" . $value2 . "'") : 'NULL');
-                    if ($key2 != 'dep_id') {
-                        $fields[$key2] = $value2;
-                    }
-                    if (isset($dep_name)) {
-                        $fields['dep_name'] = $dep_name;
-                    }
-                }
-                if (! isset($dep_name) || ! testHostGroupDependencyExistence($dep_name)) {
+                $dup = $row;
+                $dup['dep_name'] = $row['dep_name'] . '_' . $suffix;
+                $dep_name = $dup['dep_name'];
+
+                if (! testHostGroupDependencyExistence($dep_name)) {
                     continue;
                 }
                 $i++;
-                $columns = array_keys($row);
 
-                $qb = $pearDB->createQueryBuilder()
-                    ->insert('dependency')
-                    ->values(
-                        array_combine($columns,
-                            explode(
-                                ', ',
-                                $val
-                            )
-                        )
-                    )
-                    ->getQuery();
-
-                $pearDB->executeStatement($qb);
-
-                $qb = $pearDB->createQueryBuilder()
-                    ->select('MAX(dep_id) AS max_dep_id')
-                    ->from('dependency')
-                    ->getQuery();
-
-                $maxId = $pearDB->fetchAssociative($qb);
-
-                if (isset($maxId['max_dep_id'])) {
-                    $qb = $pearDB->createQueryBuilder()
-                        ->select('hostgroup_hg_id')
-                        ->from('dependency_hostgroupParent_relation')
-                        ->where('dependency_dep_id = :depId')
-                        ->getQuery();
-                    $params = QueryParameters::create([
-                        QueryParameter::int('depId', $depId),
-                    ]);
-                    $result = $pearDB->fetchAllAssociative($qb, $params);
-
-                    $fields['dep_hgParents'] = '';
-                    foreach ($result as $hg) {
-                        $qb = $pearDB->createQueryBuilder()
-                            ->insert('dependency_hostgroupParent_relation')
-                            ->values([
-                                'dependency_dep_id' => ':max_id',
-                                'hostgroup_hg_id' => ':hg_id',
-                            ])
-                            ->getQuery();
-                        $params = QueryParameters::create([
-                            QueryParameter::int('max_id', (int) $maxId['max_dep_id']),
-                            QueryParameter::int('hg_id', (int) $hg['hostgroup_hg_id']),
-                        ]);
-
-                        $pearDB->executeStatement($qb, $params);
-                        $fields['dep_hgParents'] .= $hg['hostgroup_hg_id'] . ',';
-                    }
-                    $fields['dep_hgParents'] = trim($fields['dep_hgParents'], ',');
-
-                    $qb = $pearDB->createQueryBuilder()
-                        ->select('hostgroup_hg_id')
-                        ->from('dependency_hostgroupChild_relation')
-                        ->where('dependency_dep_id = :depId')
-                        ->getQuery();
-                    $params = QueryParameters::create([
-                        QueryParameter::int('depId', $depId),
-                    ]);
-                    $result = $pearDB->fetchAllAssociative($qb, $params);
-
-                    $fields['dep_hgChilds'] = '';
-                    foreach ($result as $hg) {
-                        $qb = $pearDB->createQueryBuilder()
-                            ->insert('dependency_hostgroupChild_relation')
-                            ->values([
-                                'dependency_dep_id' => ':max_id',
-                                'hostgroup_hg_id' => ':hg_id',
-                            ])
-                            ->getQuery();
-                        $params = QueryParameters::create([
-                            QueryParameter::int('max_id', (int) $maxId['max_dep_id']),
-                            QueryParameter::int('hg_id', (int) $hg['hostgroup_hg_id']),
-                        ]);
-                        $pearDB->executeStatement($qb, $params);
-                        $fields['dep_hgChilds'] .= $hg['hostgroup_hg_id'] . ',';
-                    }
-                    $fields['dep_hgChilds'] = trim($fields['dep_hgChilds'], ',');
-
-                    $centreon->CentreonLogAction->insertLog(
-                        'hostgroup dependency',
-                        $maxId['max_dep_id'],
-                        $dep_name,
-                        'a',
-                        $fields
-                    );
+                $insertParams = [];
+                $fields = [];
+                foreach ($dup as $col => $val) {
+                    $insertParams[] = QueryParameter::string($col, $val);
+                    $fields[$col] = $val;
                 }
+                $pearDB->insert($insertQuery, QueryParameters::create($insertParams));
+
+                $newDepId = (int) $pearDB->getLastInsertId();
+                if ($newDepId <= 0) {
+                    continue;
+                }
+
+                $qb = $pearDB->createQueryBuilder()
+                    ->select('hostgroup_hg_id')
+                    ->from('dependency_hostgroupParent_relation')
+                    ->where('dependency_dep_id = :depId')
+                    ->getQuery();
+                $params = QueryParameters::create([
+                    QueryParameter::int('depId', $depId),
+                ]);
+                $result = $pearDB->fetchAllAssociative($qb, $params);
+
+                $fields['dep_hgParents'] = '';
+                foreach ($result as $hg) {
+                    $qb = $pearDB->createQueryBuilder()
+                        ->insert('dependency_hostgroupParent_relation')
+                        ->values([
+                            'dependency_dep_id' => ':newDepId',
+                            'hostgroup_hg_id' => ':hg_id',
+                        ])
+                        ->getQuery();
+                    $params = QueryParameters::create([
+                        QueryParameter::int('newDepId', $newDepId),
+                        QueryParameter::int('hg_id', (int) $hg['hostgroup_hg_id']),
+                    ]);
+
+                    $pearDB->executeStatement($qb, $params);
+                    $fields['dep_hgParents'] .= $hg['hostgroup_hg_id'] . ',';
+                }
+                $fields['dep_hgParents'] = trim($fields['dep_hgParents'], ',');
+
+                $qb = $pearDB->createQueryBuilder()
+                    ->select('hostgroup_hg_id')
+                    ->from('dependency_hostgroupChild_relation')
+                    ->where('dependency_dep_id = :depId')
+                    ->getQuery();
+                $params = QueryParameters::create([
+                    QueryParameter::int('depId', $depId),
+                ]);
+                $result = $pearDB->fetchAllAssociative($qb, $params);
+
+                $fields['dep_hgChilds'] = '';
+                foreach ($result as $hg) {
+                    $qb = $pearDB->createQueryBuilder()
+                        ->insert('dependency_hostgroupChild_relation')
+                        ->values([
+                            'dependency_dep_id' => ':newDepId',
+                            'hostgroup_hg_id' => ':hg_id',
+                        ])
+                        ->getQuery();
+                    $params = QueryParameters::create([
+                        QueryParameter::int('newDepId', $newDepId),
+                        QueryParameter::int('hg_id', (int) $hg['hostgroup_hg_id']),
+                    ]);
+                    $pearDB->executeStatement($qb, $params);
+                    $fields['dep_hgChilds'] .= $hg['hostgroup_hg_id'] . ',';
+                }
+                $fields['dep_hgChilds'] = trim($fields['dep_hgChilds'], ',');
+
+                $centreon->CentreonLogAction->insertLog(
+                    'hostgroup dependency',
+                    $newDepId,
+                    $dep_name,
+                    'a',
+                    $fields
+                );
             }
             if ($i < $copies) {
                 error_log("Could only create {$i}/{$copies} duplicates for hostgroup dependency '{$row['dep_name']}' ({$depId}): suffix search exhausted");
@@ -367,24 +352,20 @@ function insertHostGroupDependency(array $ret = []): int
 
     $pearDB->executeStatement($qb, $params);
 
-    $qb = $pearDB->createQueryBuilder()
-        ->select('MAX(dep_id) as max_dep_id')
-        ->from('dependency')
-        ->getQuery();
-    $result = $pearDB->fetchAssociative($qb);
+    $newDepId = (int) $pearDB->getLastInsertId();
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);
 
     $centreon->CentreonLogAction->insertLog(
         'hostgroup dependency',
-        $result['max_dep_id'],
+        $newDepId,
         $resourceValues['dep_name'],
         'a',
         $fields
     );
 
-    return (int) $result['max_dep_id'];
+    return $newDepId;
 }
 
 /**
