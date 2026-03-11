@@ -147,9 +147,10 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         $contactRelations = $selectContactsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $originalName = $row['cg_name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $cg_name = $row['cg_name'] . '_' . $suffix;
+            $cg_name = $originalName . '_' . $suffix;
 
             if (! testContactGroupExistence($cg_name)) {
                 continue;

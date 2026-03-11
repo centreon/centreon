@@ -204,9 +204,10 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
         );
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $originalName = $row['acl_group_name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $acl_group_name = $row['acl_group_name'] . '_' . $suffix;
+            $acl_group_name = $originalName . '_' . $suffix;
 
             if (! testGroupExistence($acl_group_name)) {
                 continue;

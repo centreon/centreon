@@ -132,9 +132,10 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         $children = $selectChildStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $originalName = $row['dep_name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $dep_name = $row['dep_name'] . '_' . $suffix;
+            $dep_name = $originalName . '_' . $suffix;
             if (! testServiceGroupDependencyExistence($dep_name)) {
                 continue;
             }

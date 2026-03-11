@@ -81,9 +81,10 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
             'INSERT INTO traps_vendor (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
         );
         $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $originalName = $row['name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $name = $row['name'] . '_' . $suffix;
+            $name = $originalName . '_' . $suffix;
             if (! testMnftrExistence($name)) {
                 continue;
             }

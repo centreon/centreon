@@ -273,9 +273,10 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         $actionRules = $selectRulesStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $originalName = $row['acl_action_name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $aclActionName = $row['acl_action_name'] . '_' . $suffix;
+            $aclActionName = $originalName . '_' . $suffix;
             if (! testActionExistence($aclActionName)) {
                 continue;
             }

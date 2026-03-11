@@ -116,9 +116,10 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         unset($row['tp_id']);
         $columns = array_keys($row);
         $dupCount = (int) ($nbrDup[$key] ?? 0);
+        $originalName = $row['tp_name'];
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
-            $tp_name = $row['tp_name'] . '_' . $suffix;
+            $tp_name = $originalName . '_' . $suffix;
             if (! testTPExistence($tp_name)) {
                 continue;
             }
