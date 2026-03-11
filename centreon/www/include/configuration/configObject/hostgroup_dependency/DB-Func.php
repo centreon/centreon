@@ -353,6 +353,9 @@ function insertHostGroupDependency(array $ret = []): int
     $pearDB->executeStatement($qb, $params);
 
     $newDepId = (int) $pearDB->getLastInsertId();
+    if ($newDepId <= 0) {
+        throw new RuntimeException('Unable to retrieve the new hostgroup dependency id');
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($ret);

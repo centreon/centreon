@@ -417,11 +417,11 @@ function sanitizeFormComponentTemplatesParameters(array $ret): array
                 ];
                 break;
             case 'default_tpl1':
-                // default_tpl1 is enum('0','1'); (int) cast sanitizes, PARAM_STR stringifies for the enum
+                // default_tpl1 is enum('0','1')
                 $bindParams[':' . $inputName] = [
-                    PDO::PARAM_STR, (filter_var($inputValue, FILTER_VALIDATE_INT) === false)
-                        ? null
-                        : (int) $inputValue,
+                    PDO::PARAM_STR, in_array((string) $inputValue, ['0', '1'], true)
+                        ? (string) $inputValue
+                        : '0',
                 ];
                 defaultOreonGraph();
                 break;

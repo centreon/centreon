@@ -86,9 +86,11 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
     $metric = $prepareMetric->fetch();
     $prepareMetric->closeCursor();
 
+    $currentVmetricId = $gsvs['vmetric_id'] ?? null;
+
     return ! (
         ($vmetric !== false
-        && $vmetric['vmetric_id'] != $gsvs['vmetric_id'])
+        && $vmetric['vmetric_id'] != $currentVmetricId)
         || ($metric !== false && isset($metric['metric_id']))
     );
 

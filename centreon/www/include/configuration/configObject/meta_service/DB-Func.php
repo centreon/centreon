@@ -1215,12 +1215,12 @@ function getParamValue(
     }
 
     // Handle nested parameter (with subkey)
-    if ($subKey !== null && (! empty($params[$key][$subKey]) || $params[$key][$subKey] === 0 || $params[$key][$subKey] === '0')) {
+    if ($subKey !== null && isset($params[$key][$subKey]) && ($params[$key][$subKey] !== '' && $params[$key][$subKey] !== null)) {
         return $sanitize ? sanitize($params[$key][$subKey]) : $params[$key][$subKey];
     }
 
     // Handle first-level parameter
-    if (! empty($params[$key]) || $params[$key] === 0 || $params[$key] === '0') {
+    if (isset($params[$key]) && ($params[$key] !== '' && $params[$key] !== null)) {
         return $sanitize ? sanitize($params[$key]) : $params[$key];
     }
 

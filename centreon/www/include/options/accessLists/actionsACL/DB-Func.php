@@ -180,6 +180,7 @@ function deleteActionInDB($actions = [])
     global $pearDB, $centreon;
 
     $aclGroupIds = [];
+    $queryValues = [];
     $deleteActions = $pearDB->prepare('DELETE FROM acl_actions WHERE acl_action_id = :id');
     $deleteRules = $pearDB->prepare('DELETE FROM acl_actions_rules WHERE acl_action_rule_id = :id');
     $deleteRelations = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_action_id = :id');

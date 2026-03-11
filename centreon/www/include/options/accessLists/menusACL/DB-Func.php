@@ -524,16 +524,18 @@ function updateLCARelation($aclId = null)
         $prepareDelete->execute();
 
         $submitedValues = $form->getSubmitValue('acl_r_topos');
-        $insertStmt = $pearDB->prepare(
-            'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) '
-            . 'VALUES (:aclId, :key, :value)'
-        );
-        foreach ($submitedValues as $key => $value) {
-            if ($key != 0) {
-                $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
-                $insertStmt->bindValue(':key', $key, PDO::PARAM_INT);
-                $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
-                $insertStmt->execute();
+        if (is_array($submitedValues)) {
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO acl_topology_relations (acl_topo_id, topology_topology_id, access_right) '
+                . 'VALUES (:aclId, :key, :value)'
+            );
+            foreach ($submitedValues as $key => $value) {
+                if ($key != 0) {
+                    $insertStmt->bindValue(':aclId', $aclId, PDO::PARAM_INT);
+                    $insertStmt->bindValue(':key', $key, PDO::PARAM_INT);
+                    $insertStmt->bindValue(':value', $value, PDO::PARAM_INT);
+                    $insertStmt->execute();
+                }
             }
         }
 
