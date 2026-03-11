@@ -133,7 +133,7 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
             $fields = [];
             foreach ($row as $key2 => $value2) {
                 $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
-            };
+            }
             $row['dep_name'] = $dep_name;
             foreach ($columns as $col) {
                 $value = $row[$col];
