@@ -286,10 +286,11 @@ function insertGroupInDB($ret = [])
         updateGroupMenus($acl_group_id);
 
         $pearDB->commit();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
         throw $e;
     }
 
@@ -371,10 +372,11 @@ function updateGroupInDB($acl_group_id = null)
         updateGroupMenus($acl_group_id);
 
         $pearDB->commit();
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         if ($pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
         throw $e;
     }
 

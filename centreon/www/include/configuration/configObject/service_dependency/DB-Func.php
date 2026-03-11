@@ -213,8 +213,9 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 }
 
                 $pearDB->commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $pearDB->rollBack();
+
                 throw $e;
             }
         }

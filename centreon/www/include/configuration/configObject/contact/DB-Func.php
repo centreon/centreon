@@ -970,8 +970,9 @@ function updateContactInDB(mixed $contact_id, bool $from_MC = false, bool $isRem
         }
 
         $pearDB->commit();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         $pearDB->rollBack();
+
         throw $e;
     }
 }
@@ -994,8 +995,9 @@ function insertContactInDB(array $ret = []): int
         updateAccessGroupLinks($contactId);
 
         $pearDB->commit();
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
         $pearDB->rollBack();
+
         throw $e;
     }
 
