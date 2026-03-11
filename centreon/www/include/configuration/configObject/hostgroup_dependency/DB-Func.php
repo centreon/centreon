@@ -49,7 +49,7 @@ function testHostGroupDependencyExistence(?string $name = null): bool
             ->getQuery();
 
         $params = QueryParameters::create([
-            QueryParameter::string('depName', CentreonDB::escape($name)),
+            QueryParameter::string('depName', $name),
         ]);
 
         $row = $pearDB->fetchAssociative($query, $params);

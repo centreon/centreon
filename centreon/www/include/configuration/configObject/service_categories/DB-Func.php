@@ -353,17 +353,18 @@ function insertServiceCategorieInDB()
         $statement->execute();
 
         $newScId = (int) $pearDB->lastInsertId();
+
+        updateServiceCategoriesServices($newScId);
+        $centreon->user->access->updateACL();
+        $fields = CentreonLogAction::prepareChanges($formValues);
+        $centreon->CentreonLogAction->insertLog(
+            object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
+            object_id: $newScId,
+            object_name: $scName,
+            action_type: ActionLog::ACTION_TYPE_ADD,
+            fields: $fields
+        );
     }
-    updateServiceCategoriesServices($newScId);
-    $centreon->user->access->updateACL();
-    $fields = CentreonLogAction::prepareChanges($formValues);
-    $centreon->CentreonLogAction->insertLog(
-        object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
-        object_id: $newScId,
-        object_name: $scName,
-        action_type: ActionLog::ACTION_TYPE_ADD,
-        fields: $fields
-    );
 }
 
 function updateServiceCategorieInDB()

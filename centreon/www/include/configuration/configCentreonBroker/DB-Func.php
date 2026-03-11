@@ -140,6 +140,18 @@ function deleteCentreonBrokerInDB($ids = [])
 function getCentreonBrokerInformation($id)
 {
     global $pearDB;
+    $defaultBrokerConf = [
+        'name' => '',
+        'filename' => '',
+        'log_directory' => '/var/log/centreon-broker/',
+        'write_timestamp' => '1',
+        'write_thread_id' => '1',
+        'activate_watchdog' => '1',
+        'activate' => '1',
+        'event_queue_max_size' => '',
+        'pool_size' => null,
+    ];
+
     $query
         = 'SELECT config_name, config_filename, ns_nagios_server, stats_activate,
             config_write_timestamp, config_write_thread_id, config_activate, event_queue_max_size,
@@ -153,21 +165,12 @@ function getCentreonBrokerInformation($id)
         $statement->execute();
         $res = $statement;
     } catch (PDOException $e) {
-        $brokerConf = [
-            'name' => '',
-            'filename' => '',
-            'log_directory' => '/var/log/centreon-broker/',
-            'write_timestamp' => '1',
-            'write_thread_id' => '1',
-            'activate_watchdog' => '1',
-            'activate' => '1',
-            'event_queue_max_size' => '',
-            'pool_size' => null,
-        ];
-
-        return $brokerConf;
+        return $defaultBrokerConf;
     }
     $row = $res->fetch();
+    if ($row === false) {
+        return $defaultBrokerConf;
+    }
     if (! isset($brokerConf)) {
         $brokerConf = [
             'id' => $id,

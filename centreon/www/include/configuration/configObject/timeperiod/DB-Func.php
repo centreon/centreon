@@ -307,6 +307,8 @@ function duplicateTimePeriod(array $params): int
         if (! $isAlreadyInTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
+
+        throw $e;
     }
 
     return $params['tp_id'];
