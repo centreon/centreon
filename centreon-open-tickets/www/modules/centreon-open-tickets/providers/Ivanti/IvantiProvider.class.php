@@ -19,8 +19,11 @@
  *
  */
 
+use Centreon\Domain\Log\LoggerTrait;
+
 class IvantiProvider extends AbstractProvider
 {
+    use LoggerTrait;
     public const IVANTI_EMPLOYEE_TYPE = 14;
     public const IVANTI_TEAM_TYPE = 15;
     public const IVANTI_CATEGORY_TYPE = 16;
@@ -770,7 +773,7 @@ class IvantiProvider extends AbstractProvider
             $optionsToLog['caCertPath'] = $caCertPath;
         }
 
-        $this->logger->debug('[open ticket][Ivanti]: request options', [
+        $this->debug('[open ticket][Ivanti]: request options', [
             'options' => $optionsToLog,
         ]);
 
@@ -792,7 +795,7 @@ class IvantiProvider extends AbstractProvider
             $curlErrNo = curl_errno($curl);
             $curlError = curl_error($curl);
             curl_close($curl);
-            $this->logger->error('[open ticket][Ivanti]: communication error', ['result' => $curlResult]);
+            $this->error('[open ticket][Ivanti]: communication error', ['result' => $curlResult]);
 
             throw new Exception("Ivanti transport error ({$curlErrNo}): {$curlError}", 11);
         }
@@ -802,7 +805,7 @@ class IvantiProvider extends AbstractProvider
 
         if ($httpCode >= 400) {
             $errorMessage = "Ivanti API error (HTTP {$httpCode}) : {$curlResult}";
-            $this->logger->error('[open ticket][Ivanti]: curl query result', ['result' => $curlResult]);
+            $this->error('[open ticket][Ivanti]: curl query result', ['result' => $curlResult]);
 
             throw new Exception($errorMessage, 11);
         }
