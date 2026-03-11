@@ -273,24 +273,37 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
             $i++;
             $row['acl_topo_name'] = $aclName;
 
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $pearDB->beginTransaction();
+            try {
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $newTopologyId = (int) $pearDB->lastInsertId();
+
+                if ($newTopologyId <= 0) {
+                    $pearDB->rollBack();
+
+                    continue;
+                }
+
+                $prepareInsertRelation->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
+                $prepareInsertRelation->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+                $prepareInsertRelation->execute();
+
+                $prepareInsertGroup->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
+                $prepareInsertGroup->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
+                $prepareInsertGroup->execute();
+
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
-            $insertStmt->execute();
-            $newTopologyId = (int) $pearDB->lastInsertId();
-
-            if ($newTopologyId <= 0) {
-                continue;
-            }
-
-            $prepareInsertRelation->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
-            $prepareInsertRelation->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
-            $prepareInsertRelation->execute();
-
-            $prepareInsertGroup->bindValue(':new_topology_id', $newTopologyId, PDO::PARAM_INT);
-            $prepareInsertGroup->bindValue(':current_topology_id', (int) $currentTopologyId, PDO::PARAM_INT);
-            $prepareInsertGroup->execute();
 
             $fields = $row;
             $centreon->CentreonLogAction->insertLog(

@@ -221,33 +221,50 @@ function multipleResourceInDB($resourceIds = [], $nbrDup = []): void
                 }
                 $value = $vaultPath ?? $value;
 
-                $statement = $pearDB->prepare(
-                    <<<'SQL'
-                        INSERT INTO cfg_resource
-                        (resource_id, resource_name, resource_line, resource_comment, resource_activate, is_password)
-                        VALUES (NULL, :name, :value, :comment, :is_active, :is_password)
-                        SQL
-                );
-                $statement->bindValue(':name', $name, PDO::PARAM_STR);
-                $statement->bindValue(':value', $value, PDO::PARAM_STR);
-                $comment = $resourceConfiguration['resource_comment'];
-                $statement->bindValue(':comment', $comment, $comment === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $isActive = $resourceConfiguration['resource_activate'];
-                $statement->bindValue(':is_active', $isActive, $isActive === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                $statement->bindValue(':is_password', $resourceConfiguration['is_password'], PDO::PARAM_INT);
-                $statement->execute();
+                $pearDB->beginTransaction();
+                try {
+                    $statement = $pearDB->prepare(
+                        <<<'SQL'
+                            INSERT INTO cfg_resource
+                            (resource_id, resource_name, resource_line, resource_comment, resource_activate, is_password)
+                            VALUES (NULL, :name, :value, :comment, :is_active, :is_password)
+                            SQL
+                    );
+                    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+                    $statement->bindValue(':value', $value, PDO::PARAM_STR);
+                    $comment = $resourceConfiguration['resource_comment'];
+                    $statement->bindValue(':comment', $comment, $comment === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                    $isActive = $resourceConfiguration['resource_activate'];
+                    $statement->bindValue(':is_active', $isActive, $isActive === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                    $statement->bindValue(':is_password', $resourceConfiguration['is_password'], PDO::PARAM_INT);
+                    $statement->execute();
 
-                $lastId = (int) $pearDB->lastInsertId();
-                if ($lastId <= 0) {
-                    continue;
+                    $lastId = (int) $pearDB->lastInsertId();
+                    if ($lastId <= 0) {
+                        $pearDB->rollBack();
+                        if ($vaultPath !== null) {
+                            deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $name]);
+                        }
+                        continue;
+                    }
+                    $relStmt = $pearDB->prepare(
+                        'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
+                        SELECT :newId, instance_id FROM cfg_resource_instance_relations WHERE resource_id = :oldId'
+                    );
+                    $relStmt->bindValue(':newId', $lastId, PDO::PARAM_INT);
+                    $relStmt->bindValue(':oldId', $resourceId, PDO::PARAM_INT);
+                    $relStmt->execute();
+
+                    $pearDB->commit();
+                } catch (Throwable $e) {
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
+                    if ($vaultPath !== null) {
+                        deleteFromVault(['resource_line' => $vaultPath, 'resource_name' => $name]);
+                    }
+                    throw $e;
                 }
-                $relStmt = $pearDB->prepare(
-                    'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id)
-                    SELECT :newId, instance_id FROM cfg_resource_instance_relations WHERE resource_id = :oldId'
-                );
-                $relStmt->bindValue(':newId', $lastId, PDO::PARAM_INT);
-                $relStmt->bindValue(':oldId', $resourceId, PDO::PARAM_INT);
-                $relStmt->execute();
             }
         }
     }

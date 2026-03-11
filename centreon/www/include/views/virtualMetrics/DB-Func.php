@@ -133,39 +133,49 @@ function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
         'SELECT * FROM virtual_metrics WHERE vmetric_id = :vmetric_id LIMIT 1'
     );
 
-    foreach (array_keys($vmetrics) as $vmetricId) {
-        $selectStmt->bindValue(':vmetric_id', (int) $vmetricId, PDO::PARAM_INT);
-        $selectStmt->execute();
-        $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
-        if ($row === false) {
-            continue;
-        }
-
-        unset($row['vmetric_id']);
-        $columns = array_keys($row);
-        $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
-        $insertStmt = $pearDB->prepare(
-            'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
-        );
-
-        $indexId = (int) $row['index_id'];
-        $originalName = $row['vmetric_name'];
-        $copies = (int) ($nbrDup[$vmetricId] ?? 0);
-        $suffix = 1;
-        for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
-            $virtualMetricName = $originalName . '_' . $suffix;
-            if (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
+    $pearDB->beginTransaction();
+    try {
+        foreach (array_keys($vmetrics) as $vmetricId) {
+            $selectStmt->bindValue(':vmetric_id', (int) $vmetricId, PDO::PARAM_INT);
+            $selectStmt->execute();
+            $row = $selectStmt->fetch(PDO::FETCH_ASSOC);
+            if ($row === false) {
                 continue;
             }
-            $i++;
-            $row['vmetric_name'] = $virtualMetricName;
 
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            unset($row['vmetric_id']);
+            $columns = array_keys($row);
+            $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO virtual_metrics (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+            );
+
+            $indexId = (int) $row['index_id'];
+            $originalName = $row['vmetric_name'];
+            $copies = (int) ($nbrDup[$vmetricId] ?? 0);
+            $suffix = 1;
+            for ($i = 0; $i < $copies && $suffix <= $copies + 1000; $suffix++) {
+                $virtualMetricName = $originalName . '_' . $suffix;
+                if (! hasVirtualNameNeverUsed($virtualMetricName, $indexId)) {
+                    continue;
+                }
+                $i++;
+                $row['vmetric_name'] = $virtualMetricName;
+
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
             }
-            $insertStmt->execute();
         }
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
 }
 

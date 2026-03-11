@@ -208,20 +208,25 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 continue;
             }
             $i++;
-            if (! empty($bindParams)) {
-                $statement = $pearDB->prepare('
-                    INSERT INTO servicegroup
-                    VALUES (NULL, :sg_name, :sg_alias, :sg_comment, :geo_coords, :sg_activate)
-                ');
-                foreach ($bindParams as $token => $bindValues) {
-                    foreach ($bindValues as $paramType => $value) {
-                        $statement->bindValue($token, $value, $paramType);
+            $pearDB->beginTransaction();
+            try {
+                if (! empty($bindParams)) {
+                    $statement = $pearDB->prepare('
+                        INSERT INTO servicegroup
+                        VALUES (NULL, :sg_name, :sg_alias, :sg_comment, :geo_coords, :sg_activate)
+                    ');
+                    foreach ($bindParams as $token => $bindValues) {
+                        foreach ($bindValues as $paramType => $value) {
+                            $statement->bindValue($token, $value, $paramType);
+                        }
                     }
+                    $statement->execute();
                 }
-                $statement->execute();
-            }
-            $newSgId = (int) $pearDB->lastInsertId();
-            if ($newSgId > 0) {
+                $newSgId = (int) $pearDB->lastInsertId();
+                if ($newSgId <= 0) {
+                    $pearDB->rollBack();
+                    continue;
+                }
                 $sgAcl[$newSgId] = $sgId;
                 $statement = $pearDB->prepare('
                     SELECT DISTINCT sgr.host_host_id, sgr.hostgroup_hg_id, sgr.service_service_id
@@ -270,15 +275,22 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 }
                 $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
 
-                signalConfigurationChange('servicegroup', $newSgId);
-                $centreon->CentreonLogAction->insertLog(
-                    'servicegroup',
-                    $newSgId,
-                    $sgName,
-                    'a',
-                    $fields
-                );
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+                throw $e;
             }
+
+            signalConfigurationChange('servicegroup', $newSgId);
+            $centreon->CentreonLogAction->insertLog(
+                'servicegroup',
+                $newSgId,
+                $sgName,
+                'a',
+                $fields
+            );
         }
     }
     CentreonACL::duplicateSgAcl($sgAcl);
