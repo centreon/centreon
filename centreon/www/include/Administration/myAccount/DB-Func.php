@@ -64,30 +64,41 @@ function updateNotificationOptions($userIdConnected)
 {
     global $form, $pearDB;
 
-    $deleteStmt = $pearDB->prepare(
-        "DELETE FROM contact_param WHERE cp_contact_id = :contact_id AND cp_key LIKE 'monitoring%notification%'"
-    );
-    $deleteStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
-    $deleteStmt->execute();
+    $pearDB->beginTransaction();
+    try {
+        $deleteStmt = $pearDB->prepare(
+            "DELETE FROM contact_param WHERE cp_contact_id = :contact_id AND cp_key LIKE 'monitoring%notification%'"
+        );
+        $deleteStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+        $deleteStmt->execute();
 
-    $data = $form->getSubmitValues();
+        $data = $form->getSubmitValues();
 
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) VALUES (:cp_key, :cp_value, :contact_id)'
-    );
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO contact_param (cp_key, cp_value, cp_contact_id) VALUES (:cp_key, :cp_value, :contact_id)'
+        );
 
-    foreach ($data as $k => $v) {
-        if (preg_match('/^monitoring_(host|svc)_notification/', $k)) {
-            $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
-            $insertStmt->bindValue(':cp_value', '1', PDO::PARAM_STR);
-            $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
-            $insertStmt->execute();
-        } elseif (preg_match('/^monitoring_sound/', $k)) {
-            $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
-            $insertStmt->bindValue(':cp_value', $v, PDO::PARAM_STR);
-            $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
-            $insertStmt->execute();
+        foreach ($data as $k => $v) {
+            if (preg_match('/^monitoring_(host|svc)_notification/', $k)) {
+                $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
+                $insertStmt->bindValue(':cp_value', '1', PDO::PARAM_STR);
+                $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+                $insertStmt->execute();
+            } elseif (preg_match('/^monitoring_sound/', $k)) {
+                $insertStmt->bindValue(':cp_key', $k, PDO::PARAM_STR);
+                $insertStmt->bindValue(':cp_value', $v, PDO::PARAM_STR);
+                $insertStmt->bindValue(':contact_id', (int) $userIdConnected, PDO::PARAM_INT);
+                $insertStmt->execute();
+            }
         }
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
     }
     unset($_SESSION['centreon_notification_preferences']);
 }

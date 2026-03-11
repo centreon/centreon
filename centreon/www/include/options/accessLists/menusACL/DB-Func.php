@@ -343,13 +343,25 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
  */
 function updateLCAInDB($aclId = null)
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
     if (! $aclId) {
         return;
     }
-    updateLCA($aclId);
-    updateLCARelation($aclId);
-    updateGroups($aclId);
+
+    $pearDB->beginTransaction();
+    try {
+        updateLCA($aclId);
+        updateLCARelation($aclId);
+        updateGroups($aclId);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
     $submitedValues = $form->getSubmitValues();
     $fields = CentreonLogAction::prepareChanges($submitedValues);
     $centreon->CentreonLogAction->insertLog(
@@ -370,11 +382,22 @@ function updateLCAInDB($aclId = null)
  */
 function insertLCAInDB()
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
-    $aclId = insertLCA();
-    updateLCARelation($aclId);
-    updateGroups($aclId);
+    $pearDB->beginTransaction();
+    try {
+        $aclId = insertLCA();
+        updateLCARelation($aclId);
+        updateGroups($aclId);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
     $submitedValues = $form->getSubmitValues();
     $fields = CentreonLogAction::prepareChanges($submitedValues);
     $centreon->CentreonLogAction->insertLog(
@@ -514,9 +537,11 @@ function updateLCARelation($aclId = null)
         return;
     }
 
-    try {
+    $ownTransaction = ! $pearDB->inTransaction();
+    if ($ownTransaction) {
         $pearDB->beginTransaction();
-
+    }
+    try {
         $prepareDelete = $pearDB->prepare(
             'DELETE FROM acl_topology_relations WHERE acl_topo_id = :acl_id'
         );
@@ -539,9 +564,11 @@ function updateLCARelation($aclId = null)
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -565,9 +592,11 @@ function updateGroups($aclId = null)
         return;
     }
 
-    try {
+    $ownTransaction = ! $pearDB->inTransaction();
+    if ($ownTransaction) {
         $pearDB->beginTransaction();
-
+    }
+    try {
         $prepareDelete = $pearDB->prepare(
             'DELETE FROM acl_group_topology_relations WHERE acl_topology_id = :acl_id'
         );
@@ -589,9 +618,11 @@ function updateGroups($aclId = null)
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 

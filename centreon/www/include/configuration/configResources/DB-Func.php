@@ -483,9 +483,6 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
 {
     if (is_numeric($resourceId)) {
         global $pearDB;
-        $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource_instance_relations WHERE resource_id = :resourceId');
-        $deleteStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
-        $deleteStmt->execute();
 
         if (! is_null($instanceId)) {
             $instances = [$instanceId];
@@ -494,15 +491,30 @@ function insertInstanceRelations($resourceId, $instanceId = null): void
             $instances = CentreonUtils::mergeWithInitialValues($form, 'instance_id');
         }
 
-        $insertStmt = $pearDB->prepare(
-            'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES (:resourceId, :instanceId)'
-        );
-        foreach ($instances as $instanceId) {
-            if (is_numeric($instanceId)) {
-                $insertStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
-                $insertStmt->bindValue(':instanceId', (int) $instanceId, PDO::PARAM_INT);
-                $insertStmt->execute();
+        $pearDB->beginTransaction();
+        try {
+            $deleteStmt = $pearDB->prepare('DELETE FROM cfg_resource_instance_relations WHERE resource_id = :resourceId');
+            $deleteStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
+            $deleteStmt->execute();
+
+            $insertStmt = $pearDB->prepare(
+                'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) VALUES (:resourceId, :instanceId)'
+            );
+            foreach ($instances as $instanceId) {
+                if (is_numeric($instanceId)) {
+                    $insertStmt->bindValue(':resourceId', (int) $resourceId, PDO::PARAM_INT);
+                    $insertStmt->bindValue(':instanceId', (int) $instanceId, PDO::PARAM_INT);
+                    $insertStmt->execute();
+                }
             }
+
+            $pearDB->commit();
+        } catch (Throwable $e) {
+            if ($pearDB->inTransaction()) {
+                $pearDB->rollBack();
+            }
+
+            throw $e;
         }
     }
 }

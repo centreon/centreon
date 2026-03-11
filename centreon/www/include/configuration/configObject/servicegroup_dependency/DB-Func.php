@@ -162,32 +162,44 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
                 $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
             }
             $row['dep_name'] = $dep_name;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
-            $insertStmt->execute();
-            $lastId = (int) $pearDB->lastInsertId();
-            if ($lastId <= 0) {
-                throw new RuntimeException('Failed to retrieve duplicated dependency id');
-            }
-            $fields['dep_sgParents'] = '';
-            foreach ($parents as $sg) {
-                $insertParentStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
-                $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                $insertParentStmt->execute();
-                $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
-            }
-            $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
 
-            $fields['dep_sgChilds'] = '';
-            foreach ($children as $sg) {
-                $insertChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
-                $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
-                $insertChildStmt->execute();
-                $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
+            $pearDB->beginTransaction();
+            try {
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $lastId = (int) $pearDB->lastInsertId();
+                if ($lastId <= 0) {
+                    throw new RuntimeException('Failed to retrieve duplicated dependency id');
+                }
+                $fields['dep_sgParents'] = '';
+                foreach ($parents as $sg) {
+                    $insertParentStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertParentStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                    $insertParentStmt->execute();
+                    $fields['dep_sgParents'] .= $sg['servicegroup_sg_id'] . ',';
+                }
+                $fields['dep_sgParents'] = trim($fields['dep_sgParents'], ',');
+
+                $fields['dep_sgChilds'] = '';
+                foreach ($children as $sg) {
+                    $insertChildStmt->bindValue(':depId', $lastId, PDO::PARAM_INT);
+                    $insertChildStmt->bindValue(':servicegroupId', (int) $sg['servicegroup_sg_id'], PDO::PARAM_INT);
+                    $insertChildStmt->execute();
+                    $fields['dep_sgChilds'] .= $sg['servicegroup_sg_id'] . ',';
+                }
+                $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
+
+                $pearDB->commit();
+            } catch (Throwable $e) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $e;
             }
-            $fields['dep_sgChilds'] = trim($fields['dep_sgChilds'], ',');
             $oreon->CentreonLogAction->insertLog(
                 'servicegroup dependency',
                 $lastId,

@@ -421,54 +421,62 @@ function duplicateServer(array $server, array $nbrDup): void
                 ? html_entity_decode($serverName, ENT_QUOTES, 'UTF-8')
                 : null;
             if ($columns !== [] && $decodedName !== null && testExistence($decodedName)) {
-                $placeholders = implode(', ', array_keys($params));
-                $columnList = implode(', ', $columns);
-                $insertStmt = $pearDB->prepare(
-                    'INSERT INTO `nagios_server` (' . $columnList . ') VALUES (' . $placeholders . ')'
-                );
-                foreach ($params as $paramKey => $paramValue) {
-                    $insertStmt->bindValue($paramKey, $paramValue, $paramValue === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-                }
-                $insertStmt->execute();
-                $newServerId = (int) $pearDB->lastInsertId();
+                $pearDB->beginTransaction();
+                try {
+                    $placeholders = implode(', ', array_keys($params));
+                    $columnList = implode(', ', $columns);
+                    $insertStmt = $pearDB->prepare(
+                        'INSERT INTO `nagios_server` (' . $columnList . ') VALUES (' . $placeholders . ')'
+                    );
+                    foreach ($params as $paramKey => $paramValue) {
+                        $insertStmt->bindValue($paramKey, $paramValue, $paramValue === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                    }
+                    $insertStmt->execute();
+                    $newServerId = (int) $pearDB->lastInsertId();
 
-                if ($newServerId > 0) {
-                    try {
-                        $iId = $obj->insertServerInCfgNagios($serverId, $newServerId, $serverName);
-                        $obj->insertCfgNagiosLogger($iId, $serverId);
+                    if ($newServerId <= 0) {
+                        throw new RuntimeException('Failed to retrieve duplicated server id');
+                    }
 
-                        if (isset($rowBks)) {
-                            $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
-                                    . ' VALUES (:cfg_nagios_id, :broker_module)';
-                            $statement = $pearDB->prepare($rqBk);
-                            foreach ($rowBks as $keyBk => $valBk) {
-                                if ($valBk['broker_module']) {
-                                    $statement->bindValue(':cfg_nagios_id', (int) $iId, PDO::PARAM_INT);
-                                    $statement->bindValue(':broker_module', $valBk['broker_module'], PDO::PARAM_STR);
-                                    $statement->execute();
-                                }
+                    $iId = $obj->insertServerInCfgNagios($serverId, $newServerId, $serverName);
+                    $obj->insertCfgNagiosLogger($iId, $serverId);
+
+                    if (isset($rowBks)) {
+                        $rqBk = 'INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)'
+                                . ' VALUES (:cfg_nagios_id, :broker_module)';
+                        $statement = $pearDB->prepare($rqBk);
+                        foreach ($rowBks as $keyBk => $valBk) {
+                            if ($valBk['broker_module']) {
+                                $statement->bindValue(':cfg_nagios_id', (int) $iId, PDO::PARAM_INT);
+                                $statement->bindValue(':broker_module', $valBk['broker_module'], PDO::PARAM_STR);
+                                $statement->execute();
                             }
                         }
-
-                        $queryRel = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) '
-                            . 'SELECT b.resource_id, :instance_id FROM '
-                            . 'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
-                        $statement = $pearDB->prepare($queryRel);
-                        $statement->bindValue(':instance_id', $newServerId, PDO::PARAM_INT);
-                        $statement->bindValue(':b_instance_id', (int) $serverId, PDO::PARAM_INT);
-                        $statement->execute();
-                        $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) '
-                            . 'SELECT :poller_id, b.command_id, b.command_order FROM '
-                            . 'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
-                        $statement = $pearDB->prepare($queryCmd);
-                        $statement->bindValue(':poller_id', $newServerId, PDO::PARAM_INT);
-                        $statement->bindValue(':b_poller_id', (int) $serverId, PDO::PARAM_INT);
-                        $statement->execute();
-
-                        duplicateRemoteServerInformation((int) $serverId, $newServerId);
-                    } catch (PDOException $e) {
-                        // Nothing to do
                     }
+
+                    $queryRel = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) '
+                        . 'SELECT b.resource_id, :instance_id FROM '
+                        . 'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
+                    $statement = $pearDB->prepare($queryRel);
+                    $statement->bindValue(':instance_id', $newServerId, PDO::PARAM_INT);
+                    $statement->bindValue(':b_instance_id', (int) $serverId, PDO::PARAM_INT);
+                    $statement->execute();
+                    $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) '
+                        . 'SELECT :poller_id, b.command_id, b.command_order FROM '
+                        . 'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
+                    $statement = $pearDB->prepare($queryCmd);
+                    $statement->bindValue(':poller_id', $newServerId, PDO::PARAM_INT);
+                    $statement->bindValue(':b_poller_id', (int) $serverId, PDO::PARAM_INT);
+                    $statement->execute();
+
+                    duplicateRemoteServerInformation((int) $serverId, $newServerId);
+
+                    $pearDB->commit();
+                } catch (Throwable $e) {
+                    if ($pearDB->inTransaction()) {
+                        $pearDB->rollBack();
+                    }
+                    error_log('Failed to duplicate server id=' . $serverId . ': ' . $e->getMessage());
                 }
             }
         }

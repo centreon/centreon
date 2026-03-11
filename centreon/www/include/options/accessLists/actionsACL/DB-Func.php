@@ -371,11 +371,22 @@ function multipleActionInDB($actions = [], $nbrDup = [])
  */
 function insertActionInDB($ret = [])
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
-    $aclActionId = insertAction($ret);
-    updateGroupActions($aclActionId, $ret);
-    updateRulesActions($aclActionId, $ret);
+    $pearDB->beginTransaction();
+    try {
+        $aclActionId = insertAction($ret);
+        updateGroupActions($aclActionId, $ret);
+        updateRulesActions($aclActionId, $ret);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
     $ret = $form->getSubmitValues();
     flagUpdatedAclForAuthentifiedUsers($ret['acl_groups']);
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -436,13 +447,25 @@ function insertAction($ret)
  */
 function updateActionInDB($aclActionId = null)
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
     if (! $aclActionId) {
         return;
     }
-    updateAction($aclActionId);
-    updateGroupActions($aclActionId);
+
+    $pearDB->beginTransaction();
+    try {
+        updateAction($aclActionId);
+        updateGroupActions($aclActionId);
+
+        $pearDB->commit();
+    } catch (Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+
+        throw $e;
+    }
     $ret = $form->getSubmitValues();
     flagUpdatedAclForAuthentifiedUsers($ret['acl_groups']);
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -496,9 +519,11 @@ function updateGroupActions($aclActionId, $ret = [])
     }
     global $form, $pearDB;
 
-    try {
+    $ownTransaction = ! $pearDB->inTransaction();
+    if ($ownTransaction) {
         $pearDB->beginTransaction();
-
+    }
+    try {
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_action_id = :acl_action_id');
         $deleteStmt->bindValue(':acl_action_id', (int) $aclActionId, PDO::PARAM_INT);
         $deleteStmt->execute();
@@ -513,9 +538,11 @@ function updateGroupActions($aclActionId, $ret = [])
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
@@ -536,9 +563,11 @@ function updateRulesActions($aclActionId, $ret = [])
         return;
     }
 
-    try {
+    $ownTransaction = ! $pearDB->inTransaction();
+    if ($ownTransaction) {
         $pearDB->beginTransaction();
-
+    }
+    try {
         $deleteStmt = $pearDB->prepare('DELETE FROM acl_actions_rules WHERE acl_action_rule_id = :acl_action_rule_id');
         $deleteStmt->bindValue(':acl_action_rule_id', (int) $aclActionId, PDO::PARAM_INT);
         $deleteStmt->execute();
@@ -556,9 +585,11 @@ function updateRulesActions($aclActionId, $ret = [])
             }
         }
 
-        $pearDB->commit();
+        if ($ownTransaction) {
+            $pearDB->commit();
+        }
     } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
+        if ($ownTransaction && $pearDB->inTransaction()) {
             $pearDB->rollBack();
         }
 
