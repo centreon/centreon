@@ -54,7 +54,7 @@ export const useInstallationCommand = () => {
         ? data.windowsScriptCommand
         : data.linuxScriptCommand
     });
-  }, [data?.id, state.os]);
+  }, [data, state.os]);
 
   return {
     changePoller,
