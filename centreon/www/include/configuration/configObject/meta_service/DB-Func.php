@@ -458,7 +458,7 @@ function multipleMetaServiceInDB($metas = [], $nbrDup = [])
                         QueryParameter::int('meta_id', (int) $metaId),
                     ]));
                     foreach ($metricsRows as $metric) {
-                        $metric['msr_id'] = null;
+                        unset($metric['msr_id']);
                         $metric['meta_id'] = $newMetaId;
                         $columns = array_keys($metric);
                         $qbInsertMetric = $pearDB->createQueryBuilder();
@@ -974,20 +974,41 @@ function updateAclResourcesMetaRelations(int $metaId): void
 
     // get ACL resources IDs for the current user
     $acl = new CentreonACL($centreon->user->user_id, $centreon->user->admin);
+    $accessGroupIds = array_filter(
+        explode(',', $acl->getAccessGroupsString('ID')),
+        fn ($id) => is_numeric(trim($id))
+    );
+    $accessGroupIds = array_map(fn ($id) => (int) trim($id), $accessGroupIds);
+
+    if ($accessGroupIds === []) {
+        return;
+    }
+
+    $aclGroupParams = [];
+    $aclGroupPlaceholders = [];
+    foreach ($accessGroupIds as $idx => $groupId) {
+        $key = 'aclGroupId' . $idx;
+        $aclGroupPlaceholders[] = ':' . $key;
+        $aclGroupParams[] = QueryParameter::int($key, $groupId);
+    }
+
     $selectAclQuery = "SELECT DISTINCT ar.acl_res_id
             FROM acl_res_group_relations argr
             INNER JOIN acl_resources ar on ar.acl_res_id = argr.acl_res_id and ar.acl_res_activate = '1'
-            WHERE acl_group_id IN ({$acl->getAccessGroupsString('ID')})";
+            WHERE acl_group_id IN (" . implode(', ', $aclGroupPlaceholders) . ')';
     try {
-        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery);
+        $aclResIds = $pearDB->fetchAllAssociative($selectAclQuery, QueryParameters::create($aclGroupParams));
         if ($aclResIds !== []) {
-            $aclResIdsImploded = implode(',', array_map(fn ($row) => $row['acl_res_id'], $aclResIds));
-
             // clean old relations
-            $queryClean = "DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN ({$aclResIdsImploded})";
-            $pearDB->delete($queryClean, QueryParameters::create([
-                QueryParameter::int('metaId', (int) $metaId),
-            ]));
+            $deleteParams = [QueryParameter::int('metaId', (int) $metaId)];
+            $deletePlaceholders = [];
+            foreach ($aclResIds as $idx => $row) {
+                $key = 'aclResId' . $idx;
+                $deletePlaceholders[] = ':' . $key;
+                $deleteParams[] = QueryParameter::int($key, (int) $row['acl_res_id']);
+            }
+            $queryClean = 'DELETE FROM acl_resources_meta_relations WHERE meta_id = :metaId AND acl_res_id IN (' . implode(', ', $deletePlaceholders) . ')';
+            $pearDB->delete($queryClean, QueryParameters::create($deleteParams));
 
             // insert new relations
             $paramsAcl = [QueryParameter::int('metaId', (int) $metaId)];

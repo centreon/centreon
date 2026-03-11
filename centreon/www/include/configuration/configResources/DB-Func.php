@@ -69,13 +69,20 @@ function testExistence($name = null, $instanceId = null)
     if ($instanceIds === []) {
         return true;
     }
+    $instancePlaceholders = [];
+    foreach ($instanceIds as $idx => $instId) {
+        $instancePlaceholders[] = ':instanceId' . $idx;
+    }
     $prepare = $pearDB->prepare(
         'SELECT cr.resource_name, crir.resource_id, crir.instance_id '
         . 'FROM cfg_resource cr, cfg_resource_instance_relations crir '
         . 'WHERE cr.resource_id = crir.resource_id '
-        . 'AND crir.instance_id IN (' . implode(',', $instanceIds) . ') '
+        . 'AND crir.instance_id IN (' . implode(', ', $instancePlaceholders) . ') '
         . 'AND cr.resource_name = :resource_name'
     );
+    foreach ($instanceIds as $idx => $instId) {
+        $prepare->bindValue(':instanceId' . $idx, $instId, PDO::PARAM_INT);
+    }
     $prepare->bindValue(':resource_name', $name, PDO::PARAM_STR);
     $prepare->execute();
     $total = $prepare->rowCount();
@@ -408,7 +415,7 @@ function insertResource($ret = [])
     $isActivated = isset($ret['resource_activate']['resource_activate'])
         && (bool) (int) $ret['resource_activate']['resource_activate'];
     $statement->bindValue(':is_activated', (string) (int) $isActivated);
-    $statement->bindValue('is_password', (int) $ret['is_password'], PDO::PARAM_INT);
+    $statement->bindValue(':is_password', (int) $ret['is_password'], PDO::PARAM_INT);
     $statement->execute();
 
     $resource_id = (int) $pearDB->lastInsertId();

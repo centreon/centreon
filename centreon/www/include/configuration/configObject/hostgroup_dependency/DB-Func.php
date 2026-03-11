@@ -175,8 +175,7 @@ function multipleHostGroupDependencyInDB(array $dependencies = [], array $nbrDup
                     }
                 }
                 if (isset($dep_name) && testHostGroupDependencyExistence($dep_name)) {
-                    $columns = ['dep_id', 'dep_name', 'dep_description', 'inherits_parent', 'execution_failure_criteria',
-                        'notification_failure_criteria', 'dep_comment'];
+                    $columns = array_keys($row);
 
                     $qb = $pearDB->createQueryBuilder()
                         ->insert('dependency')

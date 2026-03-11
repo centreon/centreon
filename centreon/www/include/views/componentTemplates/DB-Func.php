@@ -243,7 +243,7 @@ function insertComponentTemplate()
         $formValues['ds_color_area'] = $formValues['ds_color_line'];
     }
 
-    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_id']);
+    [$formValues['host_id'], $formValues['service_id']] = parseHostIdPostParameter($formValues['host_service_id']);
 
     $bindParams = sanitizeFormComponentTemplatesParameters($formValues);
 
