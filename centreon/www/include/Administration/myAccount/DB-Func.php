@@ -34,30 +34,30 @@ function testExistence($name = null)
 {
     global $pearDB, $centreon;
 
-    $statement = $pearDB->prepare('SELECT contact_name, contact_id FROM contact WHERE contact_name = :name');
+    $userId = (int) $centreon->user->get_id();
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM contact WHERE contact_name = :name AND contact_id <> :userId LIMIT 1'
+    );
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':userId', $userId, PDO::PARAM_INT);
     $statement->execute();
-    $contact = $statement->fetch();
-    if ($contact === false) {
-        return true;
-    }
 
-    return $contact['contact_id'] == $centreon->user->get_id();
+    return $statement->fetchColumn() === false;
 }
 
 function testAliasExistence($alias = null)
 {
     global $pearDB, $centreon;
 
-    $statement = $pearDB->prepare('SELECT contact_alias, contact_id FROM contact WHERE contact_alias = :alias');
+    $userId = (int) $centreon->user->get_id();
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM contact WHERE contact_alias = :alias AND contact_id <> :userId LIMIT 1'
+    );
     $statement->bindValue(':alias', $alias, PDO::PARAM_STR);
+    $statement->bindValue(':userId', $userId, PDO::PARAM_INT);
     $statement->execute();
-    $contact = $statement->fetch();
-    if ($contact === false) {
-        return true;
-    }
 
-    return $contact['contact_id'] == $centreon->user->get_id();
+    return $statement->fetchColumn() === false;
 }
 
 function updateNotificationOptions($userIdConnected)

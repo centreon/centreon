@@ -56,17 +56,18 @@ function testGroupExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('acl_group_id');
     }
-    $statement = $pearDB->prepare(
-        'SELECT acl_group_id, acl_group_name FROM acl_groups WHERE acl_group_name = :name'
-    );
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $cg = $statement->fetch();
-    if ($cg === false) {
-        return true;
+    $query = 'SELECT 1 FROM acl_groups WHERE acl_group_name = :name';
+    if ($id !== null) {
+        $query .= ' AND acl_group_id <> :aclGroupId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':aclGroupId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $cg['acl_group_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 /**

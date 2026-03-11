@@ -44,14 +44,19 @@ function testExistence($name = null)
     global $pearDB, $form;
     $metaIdFromForm = $form ? $form->getSubmitValue('meta_id') : null;
     $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select('meta_id')
+    $qb->select('1')
         ->from('meta_service')
-        ->where('meta_name = :meta_name')
-        ->getQuery();
+        ->where('meta_name = :meta_name');
+    if ($metaIdFromForm !== null) {
+        $qb->andWhere('meta_id <> :meta_id');
+    }
+    $query = $qb->getQuery();
     try {
-        $meta = $pearDB->fetchAssociative($query, QueryParameters::create([
-            QueryParameter::string('meta_name', getParamValue($name, sanitize: true)),
-        ]));
+        $params = [QueryParameter::string('meta_name', getParamValue($name, sanitize: true))];
+        if ($metaIdFromForm !== null) {
+            $params[] = QueryParameter::int('meta_id', (int) $metaIdFromForm);
+        }
+        $meta = $pearDB->fetchAssociative($query, QueryParameters::create($params));
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         CentreonLog::create()->error(
             CentreonLog::TYPE_SQL,
@@ -63,11 +68,8 @@ function testExistence($name = null)
         );
         $meta = false;
     }
-    if ($meta && isset($meta['meta_id'])) {
-        return $meta['meta_id'] == $metaIdFromForm;
-    }
 
-    return true;
+    return $meta === false;
 }
 
 /**

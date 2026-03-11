@@ -40,11 +40,18 @@ function testExistence($name = null)
         $id = $form->getSubmitValue('acl_res_id');
     }
     $name = HtmlAnalyzer::sanitizeAndRemoveTags($name);
-    $statement = $pearDB->prepare('SELECT acl_res_name, acl_res_id FROM `acl_resources` WHERE acl_res_name = :name');
+    $query = 'SELECT 1 FROM `acl_resources` WHERE acl_res_name = :name';
+    if ($id !== null) {
+        $query .= ' AND acl_res_id <> :aclResId';
+    }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':aclResId', (int) $id, PDO::PARAM_INT);
+    }
     $statement->execute();
 
-    return ! (($lca = $statement->fetch()) && $lca['acl_res_id'] != $id);
+    return $statement->fetchColumn() === false;
 }
 
 /**

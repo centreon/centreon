@@ -42,17 +42,18 @@ function testExistence($name = null)
         $id = $form->getSubmitValue('id');
     }
 
-    $statement = $pearDB->prepare('SELECT config_name, config_id
-                                FROM `cfg_centreonbroker`
-                                WHERE `config_name` = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $ndomod = $statement->fetch();
-    if ($ndomod === false) {
-        return true;
+    $query = 'SELECT 1 FROM `cfg_centreonbroker` WHERE `config_name` = :name';
+    if ($id !== null) {
+        $query .= ' AND config_id <> :configId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':configId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $ndomod['config_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 /**

@@ -54,13 +54,18 @@ function testServiceCategorieExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('sc_id');
     }
-    $query = 'SELECT `sc_name`, `sc_id` FROM `service_categories` WHERE `sc_name` = :sc_name';
-    $statement = $pearDB->prepare($query);
+    $query = 'SELECT 1 FROM `service_categories` WHERE `sc_name` = :sc_name';
+    if ($id !== null) {
+        $query .= ' AND sc_id <> :scId';
+    }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(':sc_name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':scId', (int) $id, PDO::PARAM_INT);
+    }
     $statement->execute();
-    $sc = $statement->fetch();
 
-    return ! ($statement->rowCount() >= 1 && $sc['sc_id'] != $id);
+    return $statement->fetchColumn() === false;
 }
 
 function shouldNotBeEqTo0($value)

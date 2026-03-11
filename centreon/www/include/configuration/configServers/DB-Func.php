@@ -134,16 +134,18 @@ function testExistence($name = null): bool
         $id = $form->getSubmitValue('id');
     }
 
-    $query = 'SELECT name, id FROM `nagios_server` WHERE `name` = :name';
-    $statement = $pearDB->prepare($query);
-    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
-    $statement->execute();
-    $row = $statement->fetch(PDO::FETCH_ASSOC);
-    if ($row === false) {
-        return true;
+    $query = 'SELECT 1 FROM `nagios_server` WHERE `name` = :name';
+    if ($id !== null) {
+        $query .= ' AND id <> :serverId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':serverId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $row['id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 /**

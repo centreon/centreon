@@ -32,19 +32,23 @@ function testExistence($name = null)
         $id = $form->getSubmitValue('graph_id');
     }
     $normalizedName = $name !== null ? htmlentities($name, ENT_QUOTES, 'UTF-8') : null;
-    if ($normalizedName === null) {
-        $statement = $pearDB->prepare('SELECT graph_id FROM giv_graphs_template WHERE name IS NULL');
-    } else {
-        $statement = $pearDB->prepare('SELECT graph_id FROM giv_graphs_template WHERE name = :name');
-        $statement->bindValue(':name', $normalizedName, PDO::PARAM_STR);
-    }
-    $statement->execute();
-    $graph = $statement->fetch();
-    if ($graph === false) {
-        return true;
+    $conditions = $normalizedName === null ? 'name IS NULL' : 'name = :name';
+    if ($id !== null) {
+        $conditions .= ' AND graph_id <> :graphId';
     }
 
-    return $graph['graph_id'] == $id;
+    $statement = $pearDB->prepare(
+        'SELECT 1 FROM giv_graphs_template WHERE ' . $conditions . ' LIMIT 1'
+    );
+    if ($normalizedName !== null) {
+        $statement->bindValue(':name', $normalizedName, PDO::PARAM_STR);
+    }
+    if ($id !== null) {
+        $statement->bindValue(':graphId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
+
+    return $statement->fetchColumn() === false;
 }
 
 /**

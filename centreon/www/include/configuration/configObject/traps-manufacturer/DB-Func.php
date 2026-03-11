@@ -27,15 +27,18 @@ function testMnftrExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('id');
     }
-    $statement = $pearDB->prepare('SELECT name, id FROM traps_vendor WHERE name = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $mnftr = $statement->fetch();
-    if ($mnftr === false) {
-        return true;
+    $query = 'SELECT 1 FROM traps_vendor WHERE name = :name';
+    if ($id !== null) {
+        $query .= ' AND id <> :vendorId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':vendorId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $mnftr['id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 function deleteMnftrInDB($mnftr = [])

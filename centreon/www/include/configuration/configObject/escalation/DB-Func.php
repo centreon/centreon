@@ -38,13 +38,18 @@ function testExistence(?string $name = null): bool
 
     $id = isset($form) ? $form->getSubmitValue('esc_id') : null;
 
-    $stmt = $pearDB->prepare('SELECT esc_id FROM escalation WHERE esc_name = :name');
+    $query = 'SELECT 1 FROM escalation WHERE esc_name = :name';
+    if ($id !== null) {
+        $query .= ' AND esc_id <> :escId';
+    }
+    $stmt = $pearDB->prepare($query . ' LIMIT 1');
     $stmt->bindValue(':name', html_entity_decode($name, ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    if ($id !== null) {
+        $stmt->bindValue(':escId', (int) $id, PDO::PARAM_INT);
+    }
     $stmt->execute();
 
-    $escalation = $stmt->fetch();
-
-    return ! ($stmt->rowCount() >= 1 && $escalation['esc_id'] !== (int) $id);
+    return $stmt->fetchColumn() === false;
 }
 
 /**

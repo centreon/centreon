@@ -34,15 +34,18 @@ function testServiceDependencyExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
-    $statement = $pearDB->prepare('SELECT dep_name, dep_id FROM dependency WHERE dep_name = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $dep = $statement->fetch();
-    if ($dep === false) {
-        return true;
+    $query = 'SELECT 1 FROM dependency WHERE dep_name = :name';
+    if ($id !== null) {
+        $query .= ' AND dep_id <> :depId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':depId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $dep['dep_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 function testCycleH($childs = null)

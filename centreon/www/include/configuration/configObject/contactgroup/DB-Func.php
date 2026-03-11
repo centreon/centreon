@@ -31,15 +31,18 @@ function testContactGroupExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('cg_id');
     }
-    $stmt = $pearDB->prepare('SELECT `cg_name`, `cg_id` FROM `contactgroup` WHERE `cg_name` = :cgName');
-    $stmt->bindValue(':cgName', $centreon->checkIllegalChar($name), PDO::PARAM_STR);
-    $stmt->execute();
-    $cg = $stmt->fetch();
-    if ($cg === false) {
-        return true;
+    $query = 'SELECT 1 FROM `contactgroup` WHERE `cg_name` = :cgName';
+    if ($id !== null) {
+        $query .= ' AND cg_id <> :cgId';
     }
+    $stmt = $pearDB->prepare($query . ' LIMIT 1');
+    $stmt->bindValue(':cgName', $centreon->checkIllegalChar($name), PDO::PARAM_STR);
+    if ($id !== null) {
+        $stmt->bindValue(':cgId', (int) $id, PDO::PARAM_INT);
+    }
+    $stmt->execute();
 
-    return $cg['cg_id'] == $id;
+    return $stmt->fetchColumn() === false;
 }
 
 function enableContactGroupInDB($cg_id = null)

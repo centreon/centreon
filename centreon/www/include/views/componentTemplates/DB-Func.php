@@ -31,7 +31,7 @@ function DsHsrTestExistence($name = null)
         $formValues = $form->getSubmitValues();
     }
 
-    $query = 'SELECT compo_id FROM giv_components_template WHERE ds_name = :ds_name';
+    $query = 'SELECT 1 FROM giv_components_template WHERE ds_name = :ds_name';
 
     [$hostId, $serviceId] = parseHostIdPostParameter($formValues['host_service_id'] ?? null);
 
@@ -41,22 +41,25 @@ function DsHsrTestExistence($name = null)
         $query .= ' AND host_id IS NULL AND service_id IS NULL';
     }
 
-    $stmt = $pearDB->prepare($query);
+    $compoId = isset($formValues['compo_id']) ? (int) $formValues['compo_id'] : null;
+    if ($compoId !== null) {
+        $query .= ' AND compo_id <> :compoId';
+    }
 
+    $stmt = $pearDB->prepare($query . ' LIMIT 1');
     $stmt->bindValue(':ds_name', $name, PDO::PARAM_STR);
 
     if ($hostId !== null && $serviceId !== null) {
         $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }
-
-    $stmt->execute();
-    $compo = $stmt->fetch();
-    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === (int) $formValues['compo_id']) {
-        return true;
+    if ($compoId !== null) {
+        $stmt->bindValue(':compoId', $compoId, PDO::PARAM_INT);
     }
 
-    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== (int) $formValues['compo_id']);
+    $stmt->execute();
+
+    return $stmt->fetchColumn() === false;
 }
 
 function NameHsrTestExistence($name = null, ?int $hostId = null, ?int $serviceId = null)
@@ -76,7 +79,7 @@ function NameHsrTestExistence($name = null, ?int $hostId = null, ?int $serviceId
         $compoId = isset($formValues['compo_id']) ? (int) $formValues['compo_id'] : null;
     }
 
-    $query = 'SELECT compo_id FROM giv_components_template WHERE name = :name';
+    $query = 'SELECT 1 FROM giv_components_template WHERE name = :name';
 
     if ($hostId !== null && $serviceId !== null) {
         $query .= ' AND host_id = :hostId AND service_id = :serviceId';
@@ -84,28 +87,24 @@ function NameHsrTestExistence($name = null, ?int $hostId = null, ?int $serviceId
         $query .= ' AND host_id IS NULL AND service_id IS NULL';
     }
 
-    $stmt = $pearDB->prepare($query);
+    if ($compoId !== null) {
+        $query .= ' AND compo_id <> :compoId';
+    }
 
+    $stmt = $pearDB->prepare($query . ' LIMIT 1');
     $stmt->bindValue(':name', $name, PDO::PARAM_STR);
 
     if ($hostId !== null && $serviceId !== null) {
         $stmt->bindValue(':hostId', $hostId, PDO::PARAM_INT);
         $stmt->bindValue(':serviceId', $serviceId, PDO::PARAM_INT);
     }
+    if ($compoId !== null) {
+        $stmt->bindValue(':compoId', $compoId, PDO::PARAM_INT);
+    }
 
     $stmt->execute();
-    $compo = $stmt->fetch();
 
-    // From duplication path: no existing compo_id to exclude, just check absence.
-    if ($compoId === null) {
-        return $stmt->rowCount() === 0;
-    }
-
-    if ($stmt->rowCount() >= 1 && $compo['compo_id'] === $compoId) {
-        return true;
-    }
-
-    return ! ($stmt->rowCount() >= 1 && $compo['compo_id'] !== $compoId);
+    return $stmt->fetchColumn() === false;
 }
 
 function checkColorFormat($color)

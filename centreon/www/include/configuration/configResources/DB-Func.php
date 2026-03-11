@@ -75,31 +75,25 @@ function testExistence($name = null, ?array $instanceIds = null)
     foreach ($instanceIds as $idx => $instId) {
         $instancePlaceholders[] = ':instanceId' . $idx;
     }
-    $prepare = $pearDB->prepare(
-        'SELECT cr.resource_name, crir.resource_id, crir.instance_id '
+    $query = 'SELECT 1 '
         . 'FROM cfg_resource cr, cfg_resource_instance_relations crir '
         . 'WHERE cr.resource_id = crir.resource_id '
         . 'AND crir.instance_id IN (' . implode(', ', $instancePlaceholders) . ') '
-        . 'AND cr.resource_name = :resource_name'
-    );
+        . 'AND cr.resource_name = :resource_name';
+    if ($id !== 0) {
+        $query .= ' AND cr.resource_id <> :resourceId';
+    }
+    $prepare = $pearDB->prepare($query . ' LIMIT 1');
     foreach ($instanceIds as $idx => $instId) {
         $prepare->bindValue(':instanceId' . $idx, $instId, PDO::PARAM_INT);
     }
     $prepare->bindValue(':resource_name', $name, PDO::PARAM_STR);
-    $prepare->execute();
-    $total = $prepare->rowCount();
-    $result = $prepare->fetch(PDO::FETCH_ASSOC);
-    if ($total >= 1 && $result['resource_id'] === $id) {
-        /**
-         * In case of modification.
-         */
-        return true;
+    if ($id !== 0) {
+        $prepare->bindValue(':resourceId', $id, PDO::PARAM_INT);
     }
+    $prepare->execute();
 
-    return ! ($total >= 1 && $result['resource_id'] !== $id);
-    /**
-     * In case of duplicate.
-     */
+    return $prepare->fetchColumn() === false;
 }
 
 /**

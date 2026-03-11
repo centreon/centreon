@@ -34,12 +34,18 @@ function testServiceGroupExistence($name = null)
     }
     $sgName = HtmlAnalyzer::sanitizeAndRemoveTags($name);
 
-    $statement = $pearDB->prepare('SELECT sg_name, sg_id FROM servicegroup WHERE sg_name = :sg_name');
+    $query = 'SELECT 1 FROM servicegroup WHERE sg_name = :sg_name';
+    if ($id !== null) {
+        $query .= ' AND sg_id <> :sgId';
+    }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(':sg_name', $sgName, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':sgId', (int) $id, PDO::PARAM_INT);
+    }
     $statement->execute();
-    $sg = $statement->fetch();
 
-    return ! ($statement->rowCount() >= 1 && $sg['sg_id'] !== (int) $id);
+    return $statement->fetchColumn() === false;
 }
 
 function enableServiceGroupInDB($sgId = null)

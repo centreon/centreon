@@ -96,27 +96,32 @@ function testHostCategorieExistence(?string $name = null): bool
 
     $currentId = $form ? $form->getSubmitValue('hc_id') : null;
     $qb = $pearDB->createQueryBuilder();
-    $query = $qb->select('hc_id')
+    $qb->select('1')
         ->from('hostcategories')
-        ->where('hc_name = :hc_name')
-        ->getQuery();
+        ->where('hc_name = :hc_name');
+    if ($currentId !== null) {
+        $qb->andWhere('hc_id <> :hc_id');
+    }
+    $query = $qb->getQuery();
 
     try {
         $cleanName = HtmlSanitizer::createFromString($name)
             ->removeTags()
             ->sanitize()
             ->getString();
+        $params = [QueryParameter::string('hc_name', $cleanName)];
+        if ($currentId !== null) {
+            $params[] = QueryParameter::int('hc_id', (int) $currentId);
+        }
         $result = $pearDB->fetchAssociative(
             $query,
-            QueryParameters::create([
-                QueryParameter::string('hc_name', $cleanName),
-            ])
+            QueryParameters::create($params)
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         throw new RepositoryException('Unable to check host category existence', ['hcName' => $name], $exception);
     }
 
-    return ! ($result && isset($result['hc_id']) && $result['hc_id'] != $currentId);
+    return $result === false;
 }
 
 /**

@@ -28,15 +28,18 @@ function testExistence($name = null)
         $id = $form->getSubmitValue('nagios_id');
     }
 
-    $statement = $pearDB->prepare('SELECT nagios_name, nagios_id FROM cfg_nagios WHERE nagios_name = :name');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $nagios = $statement->fetch();
-    if ($nagios === false) {
-        return true;
+    $query = 'SELECT 1 FROM cfg_nagios WHERE nagios_name = :name';
+    if ($id !== null) {
+        $query .= ' AND nagios_id <> :nagiosId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':nagiosId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $nagios['nagios_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 /**

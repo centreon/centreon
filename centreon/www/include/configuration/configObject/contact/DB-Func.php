@@ -58,18 +58,19 @@ function testContactExistence(?string $name = null, ?bool $preventLog = false): 
 
     $contactName = $centreon->checkIllegalChar($name);
 
-    $query = <<<'SQL'
-            SELECT contact_name, contact_id
-            FROM contact
-            WHERE contact_name = :contact_name
-        SQL;
+    $query = 'SELECT 1 FROM contact WHERE contact_name = :contact_name';
+    if ($id !== null) {
+        $query .= ' AND contact_id <> :contact_id';
+    }
 
     try {
+        $params = [QueryParameter::string('contact_name', $contactName)];
+        if ($id !== null) {
+            $params[] = QueryParameter::int('contact_id', (int) $id);
+        }
         $contact = $pearDB->fetchAssociative(
             $query,
-            QueryParameters::create([
-                QueryParameter::string('contact_name', $contactName),
-            ])
+            QueryParameters::create($params),
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         if ($preventLog !== true) {
@@ -88,11 +89,7 @@ function testContactExistence(?string $name = null, ?bool $preventLog = false): 
         );
     }
 
-    if ($contact && $contact['contact_id'] == $id) {
-        return true;
-    }
-
-    return ! ($contact && $contact['contact_id'] != $id);
+    return $contact === false;
 }
 
 /**
@@ -108,17 +105,18 @@ function testAliasExistence(?string $alias = null, ?bool $preventLog = false): b
     if (isset($form)) {
         $id = $form->getSubmitValue('contact_id');
     }
-    $query = <<<'SQL'
-            SELECT contact_id
-            FROM contact
-            WHERE contact_alias = :contact_alias
-        SQL;
+    $query = 'SELECT 1 FROM contact WHERE contact_alias = :contact_alias';
+    if ($id !== null) {
+        $query .= ' AND contact_id <> :contact_id';
+    }
     try {
+        $params = [QueryParameter::string('contact_alias', $alias ?? '')];
+        if ($id !== null) {
+            $params[] = QueryParameter::int('contact_id', (int) $id);
+        }
         $contact = $pearDB->fetchAssociative(
             $query,
-            QueryParameters::create([
-                QueryParameter::string('contact_alias', $alias ?? ''),
-            ]),
+            QueryParameters::create($params),
         );
     } catch (ValueObjectException|CollectionException|ConnectionException $exception) {
         if ($preventLog !== true) {
@@ -137,11 +135,7 @@ function testAliasExistence(?string $alias = null, ?bool $preventLog = false): b
         );
     }
 
-    if ($contact && $contact['contact_id'] == $id) {
-        return true;
-    }
-
-    return ! ($contact && $contact['contact_id'] != $id);
+    return $contact === false;
 }
 
 /**

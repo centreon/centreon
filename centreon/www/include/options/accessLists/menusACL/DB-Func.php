@@ -39,27 +39,18 @@ function hasTopologyNameNeverUsed($topologyName = null)
     if (isset($form)) {
         $topologyId = $form->getSubmitValue('lca_id');
     }
-    $prepareSelect = $pearDB->prepare(
-        'SELECT acl_topo_name, acl_topo_id FROM `acl_topology` '
-        . 'WHERE acl_topo_name = :topology_name'
-    );
-    $prepareSelect->bindValue(
-        ':topology_name',
-        $topologyName,
-        PDO::PARAM_STR
-    );
-    if ($prepareSelect->execute()) {
-        $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
-        $total = $prepareSelect->rowCount();
-        if ($total >= 1 && $result['acl_topo_id'] == $topologyId) {
-            /**
-             * In case of modification, we need to return true
-             */
-            return true;
-        }
-
-        return ! ($total >= 1 && $result['acl_topo_id'] != $topologyId);
+    $query = 'SELECT 1 FROM `acl_topology` WHERE acl_topo_name = :topology_name';
+    if ($topologyId !== null) {
+        $query .= ' AND acl_topo_id <> :aclTopoId';
     }
+    $prepareSelect = $pearDB->prepare($query . ' LIMIT 1');
+    $prepareSelect->bindValue(':topology_name', $topologyName, PDO::PARAM_STR);
+    if ($topologyId !== null) {
+        $prepareSelect->bindValue(':aclTopoId', (int) $topologyId, PDO::PARAM_INT);
+    }
+    $prepareSelect->execute();
+
+    return $prepareSelect->fetchColumn() === false;
 }
 
 /**

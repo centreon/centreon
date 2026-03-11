@@ -39,17 +39,18 @@ function testActionExistence($name = null)
     if (isset($form)) {
         $id = $form->getSubmitValue('acl_action_id');
     }
-    $statement = $pearDB->prepare(
-        'SELECT acl_action_id, acl_action_name FROM acl_actions WHERE acl_action_name = :name'
-    );
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
-    $statement->execute();
-    $action = $statement->fetch();
-    if ($action === false) {
-        return true;
+    $query = 'SELECT 1 FROM acl_actions WHERE acl_action_name = :name';
+    if ($id !== null) {
+        $query .= ' AND acl_action_id <> :aclActionId';
     }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
+    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    if ($id !== null) {
+        $statement->bindValue(':aclActionId', (int) $id, PDO::PARAM_INT);
+    }
+    $statement->execute();
 
-    return $action['acl_action_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 /**

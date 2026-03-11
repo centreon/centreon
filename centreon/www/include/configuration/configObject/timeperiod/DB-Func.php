@@ -70,20 +70,22 @@ function testTPExistence($name = null)
         $id = $form->getSubmitValue('tp_id');
     }
 
-    $query = 'SELECT tp_name, tp_id FROM timeperiod WHERE tp_name = :tp_name';
-    $statement = $pearDB->prepare($query);
+    $query = 'SELECT 1 FROM timeperiod WHERE tp_name = :tp_name';
+    if ($id !== null) {
+        $query .= ' AND tp_id <> :tpId';
+    }
+    $statement = $pearDB->prepare($query . ' LIMIT 1');
     $statement->bindValue(
         ':tp_name',
         htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, 'UTF-8'),
         PDO::PARAM_STR
     );
-    $statement->execute();
-    $tp = $statement->fetch(PDO::FETCH_ASSOC);
-    if ($tp === false) {
-        return true;
+    if ($id !== null) {
+        $statement->bindValue(':tpId', (int) $id, PDO::PARAM_INT);
     }
+    $statement->execute();
 
-    return $tp['tp_id'] == $id;
+    return $statement->fetchColumn() === false;
 }
 
 function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
