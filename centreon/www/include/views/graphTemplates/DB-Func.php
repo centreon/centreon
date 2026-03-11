@@ -198,7 +198,10 @@ function insertGraphTemplate(): int
         $stmt->bindValue($key, $value, $type);
     }
     $stmt->execute();
-    $graphId = $pearDB->lastInsertId();
+    $graphId = (int) $pearDB->lastInsertId();
+    if ($graphId <= 0) {
+        return 0;
+    }
     defaultOreonGraph();
 
     return $graphId;

@@ -430,15 +430,11 @@ function duplicateServer(array $server, array $nbrDup): void
                     $insertStmt->bindValue($paramKey, $paramValue, $paramValue === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
                 }
                 $insertStmt->execute();
+                $newServerId = (int) $pearDB->lastInsertId();
 
-                $queryGetId = 'SELECT id FROM nagios_server WHERE name = :name';
-                try {
-                    $statement = $pearDB->prepare($queryGetId);
-                    $statement->bindValue(':name', $serverName, PDO::PARAM_STR);
-                    $statement->execute();
-                    $row = $statement->fetch(PDO::FETCH_ASSOC);
-                    if ($row !== false) {
-                        $iId = $obj->insertServerInCfgNagios($serverId, $row['id'], $serverName);
+                if ($newServerId > 0) {
+                    try {
+                        $iId = $obj->insertServerInCfgNagios($serverId, $newServerId, $serverName);
                         $obj->insertCfgNagiosLogger($iId, $serverId);
 
                         if (isset($rowBks)) {
@@ -458,21 +454,21 @@ function duplicateServer(array $server, array $nbrDup): void
                             . 'SELECT b.resource_id, :instance_id FROM '
                             . 'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
                         $statement = $pearDB->prepare($queryRel);
-                        $statement->bindValue(':instance_id', (int) $row['id'], PDO::PARAM_INT);
+                        $statement->bindValue(':instance_id', $newServerId, PDO::PARAM_INT);
                         $statement->bindValue(':b_instance_id', (int) $serverId, PDO::PARAM_INT);
                         $statement->execute();
                         $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) '
                             . 'SELECT :poller_id, b.command_id, b.command_order FROM '
                             . 'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
                         $statement = $pearDB->prepare($queryCmd);
-                        $statement->bindValue(':poller_id', (int) $row['id'], PDO::PARAM_INT);
+                        $statement->bindValue(':poller_id', $newServerId, PDO::PARAM_INT);
                         $statement->bindValue(':b_poller_id', (int) $serverId, PDO::PARAM_INT);
                         $statement->execute();
 
-                        duplicateRemoteServerInformation((int) $serverId, (int) $row['id']);
+                        duplicateRemoteServerInformation((int) $serverId, $newServerId);
+                    } catch (PDOException $e) {
+                        // Nothing to do
                     }
-                } catch (PDOException $e) {
-                    // Nothing to do
                 }
             }
         }

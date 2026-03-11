@@ -333,7 +333,12 @@ function createTimePeriod(array $params): int
     }
     $statement->execute();
 
-    return (int) $pearDB->lastInsertId();
+    $tpId = (int) $pearDB->lastInsertId();
+    if ($tpId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted timeperiod id');
+    }
+
+    return $tpId;
 }
 
 /**

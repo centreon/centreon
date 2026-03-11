@@ -243,8 +243,10 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
 function insertContactGroupInDB($ret = [])
 {
     $cg_id = insertContactGroup($ret);
-    updateContactGroupContacts($cg_id, $ret);
-    updateContactGroupAclGroups($cg_id, $ret);
+    if ($cg_id > 0) {
+        updateContactGroupContacts($cg_id, $ret);
+        updateContactGroupAclGroups($cg_id, $ret);
+    }
 
     return $cg_id;
 }
