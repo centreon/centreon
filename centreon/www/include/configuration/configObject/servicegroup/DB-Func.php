@@ -114,7 +114,7 @@ function removeRelationLastServicegroupDependency(int $servicegroupId): void
 }
 
 /**
- * @param array $serviceGroups
+ * @param array<int, mixed> $serviceGroups service group IDs as keys
  */
 function deleteServiceGroupInDB($serviceGroups = [])
 {

@@ -128,7 +128,7 @@ function checkColorFormat($color)
 /**
  * DELETE components in the database
  *
- * @param array $compos
+ * @param array<int, mixed> $compos component IDs as keys
  * @return void
  */
 function deleteComponentTemplateInDB($compos = [])

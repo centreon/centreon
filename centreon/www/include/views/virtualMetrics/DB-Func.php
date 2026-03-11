@@ -100,7 +100,7 @@ function hasVirtualNameNeverUsed($vmetricName = null, $indexId = null)
  * Delete a list of virtual metric
  *
  * @global CentreonDB $pearDB
- * @param int[] $vmetrics List of virtual metric id to delete
+ * @param array<int, mixed> $vmetrics virtual metric IDs as keys
  */
 function deleteVirtualMetricInDB($vmetrics = [])
 {
@@ -118,8 +118,8 @@ function deleteVirtualMetricInDB($vmetrics = [])
  * Duplicates a list of virtual metric
  *
  * @global CentreonDB $pearDB
- * @param int[] $vmetrics List of virtual metric id to duplicate
- * @param int[] $nbrDup Number of copy
+ * @param array<int, mixed> $vmetrics virtual metric IDs as keys
+ * @param array<int, int> $nbrDup number of copies per ID
  */
 function multipleVirtualMetricInDB($vmetrics = [], $nbrDup = [])
 {

@@ -105,7 +105,7 @@ function testExistence($name = null, $instanceId = null)
  *
  * @global CentreonDB $pearDB
  *
- * @param int[] $resourceIds Resource ids to delete
+ * @param array<int, mixed> $resourceIds resource IDs as keys
  */
 function deleteResourceInDB($resourceIds = []): void
 {

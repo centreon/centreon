@@ -198,7 +198,7 @@ function removeRelationLastMetaServiceDependency(int $serviceId): void
 /**
  * Delete meta service(s) and corresponding service entries
  *
- * @param array<mixed> $metas
+ * @param array<int, mixed> $metas meta service IDs as keys
  * @return void
  */
 function deleteMetaServiceInDB($metas = [])
@@ -315,7 +315,7 @@ function disableMetricInDB($msrId = null)
 /**
  * Delete metric(s) from the DB
  *
- * @param array<mixed> $metrics
+ * @param array<int, mixed> $metrics metric IDs as keys
  * @return void
  */
 function deleteMetricInDB($metrics = [])
@@ -346,8 +346,8 @@ function deleteMetricInDB($metrics = [])
 /**
  * Duplicate meta services
  *
- * @param array<int> $metas Array of meta_ids to duplicate
- * @param array<int> $nbrDup Array of duplication counts indexed by meta_id
+ * @param array<int, mixed> $metas meta service IDs as keys
+ * @param array<int, int> $nbrDup duplication counts indexed by meta_id
  * @return void
  */
 function multipleMetaServiceInDB($metas = [], $nbrDup = [])
@@ -534,8 +534,8 @@ function insertMetaServiceInDB()
 /**
  * Duplicate metrics: for each metric to duplicate, fetch its row and insert duplicates
  *
- * @param array<int> $metrics
- * @param array<int> $nbrDup
+ * @param array<int, mixed> $metrics metric IDs as keys
+ * @param array<int, int> $nbrDup duplication counts indexed by metric ID
  * @return void
  */
 function multipleMetricInDB($metrics = [], $nbrDup = [])

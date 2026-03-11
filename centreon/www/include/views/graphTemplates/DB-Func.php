@@ -46,7 +46,7 @@ function testExistence($name = null)
 /**
  * Deletes from the DB the graph templates provided
  *
- * @param int[] $graphs
+ * @param array<int, mixed> $graphs graph IDs as keys
  * @return void
  */
 function deleteGraphTemplateInDB($graphs = []): void
@@ -66,8 +66,8 @@ function deleteGraphTemplateInDB($graphs = []): void
  * Duplicates the selected graph templates in the DB
  * by adding _n to the duplicated graph template name
  *
- * @param  int[] $graphs
- * @param  int[] $nbrDup
+ * @param  array<int, mixed> $graphs graph IDs as keys
+ * @param  array<int, int> $nbrDup
  * @return void
  */
 function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
