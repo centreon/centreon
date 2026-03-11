@@ -740,13 +740,13 @@ class Automatic
      */
     protected function getServiceTicket($params, $macroName)
     {
-        $query =<<<SQL
-            SELECT SQL_CALC_FOUND_ROWS cv.value AS ticket_id
-            FROM customvariables cv
-            WHERE service_id = :service_id
-                AND host_id = :host_id
-                AND cv.name = :macro_name
-        SQL;
+        $query = <<<'SQL'
+                SELECT SQL_CALC_FOUND_ROWS cv.value AS ticket_id
+                FROM customvariables cv
+                WHERE service_id = :service_id
+                    AND host_id = :host_id
+                    AND cv.name = :macro_name
+            SQL;
 
         $stmt = $this->dbCentstorage->prepare($query);
         $stmt->bindParam(':service_id', $params['service_id'], PDO::PARAM_INT);
