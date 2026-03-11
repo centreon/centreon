@@ -114,31 +114,20 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
             continue;
         }
         unset($row['tp_id']);
+        $columns = array_keys($row);
         $dupCount = (int) ($nbrDup[$key] ?? 0);
         $suffix = 1;
         for ($i = 0; $i < $dupCount; $suffix++) {
-            $val = [];
-            foreach ($row as $key2 => $value2) {
-                if ($key2 == 'tp_name') {
-                    $value2 .= '_' . $suffix;
-                }
-                if ($key2 == 'tp_name') {
-                    $tp_name = $value2;
-                }
-                $val[] = $value2 ?: null;
-                if ($key2 != 'tp_id') {
-                    $fields[$key2] = $value2;
-                }
-                if (isset($tp_name)) {
-                    $fields['tp_name'] = $tp_name;
-                }
-            }
-            if (! isset($tp_name) || ! testTPExistence($tp_name)) {
+            $tp_name = $row['tp_name'] . '_' . $suffix;
+            if (! testTPExistence($tp_name)) {
                 continue;
             }
             $i++;
+            $row['tp_name'] = $tp_name;
+            $fields = $row;
             $params = [
-                'values' => $val,
+                'columns' => $columns,
+                'values' => $row,
                 'timeperiod_id' => $key,
             ];
             $tpId = duplicateTimePeriod($params);
@@ -314,18 +303,14 @@ function createTimePeriod(array $params): int
 {
     global $pearDB;
 
-    $queryBindValues = [];
-    foreach ($params['values'] as $index => $value) {
-        $queryBindValues[':value_' . $index] = $value;
-    }
-    $bindValues = implode(', ', array_keys($queryBindValues));
-    $statement = $pearDB->prepare("INSERT INTO timeperiod VALUES ({$bindValues})");
-    foreach ($queryBindValues as $bindKey => $bindValue) {
-        if (array_key_first($queryBindValues) === $bindKey) {
-            $statement->bindValue($bindKey, (int) $bindValue, PDO::PARAM_INT);
-        } else {
-            $statement->bindValue($bindKey, $bindValue, PDO::PARAM_STR);
-        }
+    $columns = $params['columns'];
+    $placeholders = implode(', ', array_map(fn ($col) => ':' . $col, $columns));
+    $statement = $pearDB->prepare(
+        'INSERT INTO timeperiod (' . implode(', ', $columns) . ') VALUES (' . $placeholders . ')'
+    );
+    foreach ($columns as $col) {
+        $value = $params['values'][$col];
+        $statement->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
     }
     $statement->execute();
 
