@@ -291,37 +291,63 @@ class CentreonMeta
 
         $composedName = 'meta_' . $metaId;
 
-        $queryService = 'SELECT service_id, display_name FROM service '
-            . 'WHERE service_register = "2" AND service_description = "' . $composedName . '" ';
-        $res = $this->db->query($queryService);
-        if ($res->rowCount()) {
-            $row = $res->fetchRow();
+        $selectStmt = $this->db->prepare(
+            'SELECT service_id, display_name FROM service
+            WHERE service_register = :register AND service_description = :description'
+        );
+        $selectStmt->bindValue(':register', '2', PDO::PARAM_STR);
+        $selectStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
+        $selectStmt->execute();
+        $row = $selectStmt->fetch();
+        if ($row !== false) {
             $serviceId = $row['service_id'];
             if ($row['display_name'] !== $metaName) {
-                $query = 'UPDATE service SET display_name = :display_name WHERE service_id = :service_id';
-                $statement = $this->db->prepare($query);
-                $statement->bindValue(':display_name', $metaName, PDO::PARAM_STR);
-                $statement->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
-                $statement->execute();
+                $updateStmt = $this->db->prepare(
+                    'UPDATE service SET display_name = :display_name WHERE service_id = :service_id'
+                );
+                $updateStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
+                $updateStmt->bindValue(':service_id', (int) $serviceId, PDO::PARAM_INT);
+                $updateStmt->execute();
             }
         } else {
-            $query = 'INSERT INTO service (service_description, display_name, service_register) '
-                . 'VALUES '
-                . '("' . $composedName . '", "' . $metaName . '", "2")';
-            $this->db->query($query);
-            $query = 'INSERT INTO host_service_relation(host_host_id, service_service_id) '
-                . 'VALUES (:host_id,'
-                . '(SELECT service_id 
-                    FROM service 
-                    WHERE service_description = :service_description AND service_register = "2" LIMIT 1)'
-                . ')';
-            $statement = $this->db->prepare($query);
-            $statement->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
-            $statement->bindValue(':service_description', $composedName, PDO::PARAM_STR);
-            $statement->execute();
-            $res = $this->db->query($queryService);
-            if ($res->rowCount()) {
-                $row = $res->fetchRow();
+            $ownTransaction = ! $this->db->inTransaction();
+            if ($ownTransaction) {
+                $this->db->beginTransaction();
+            }
+            try {
+                $insertStmt = $this->db->prepare(
+                    'INSERT INTO service (service_description, display_name, service_register)
+                    VALUES (:description, :display_name, :register)'
+                );
+                $insertStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
+                $insertStmt->bindValue(':display_name', $metaName, PDO::PARAM_STR);
+                $insertStmt->bindValue(':register', '2', PDO::PARAM_STR);
+                $insertStmt->execute();
+
+                $relStmt = $this->db->prepare(
+                    'INSERT INTO host_service_relation (host_host_id, service_service_id)
+                    VALUES (:host_id,
+                        (SELECT service_id FROM service
+                        WHERE service_description = :description AND service_register = :register LIMIT 1))'
+                );
+                $relStmt->bindValue(':host_id', (int) $hostId, PDO::PARAM_INT);
+                $relStmt->bindValue(':description', $composedName, PDO::PARAM_STR);
+                $relStmt->bindValue(':register', '2', PDO::PARAM_STR);
+                $relStmt->execute();
+
+                if ($ownTransaction) {
+                    $this->db->commit();
+                }
+            } catch (\Throwable $e) {
+                if ($ownTransaction && $this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+                throw $e;
+            }
+
+            $selectStmt->execute();
+            $row = $selectStmt->fetch();
+            if ($row !== false) {
                 $serviceId = $row['service_id'];
             }
         }
