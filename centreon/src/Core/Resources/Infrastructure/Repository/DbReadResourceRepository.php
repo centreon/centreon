@@ -44,7 +44,6 @@ use Core\Common\Infrastructure\RequestParameters\Transformer\SearchRequestParame
 use Core\Domain\RealTime\ResourceTypeInterface;
 use Core\Resources\Application\Repository\ReadResourceRepositoryInterface;
 use Core\Resources\Infrastructure\Repository\ExtraDataProviders\ExtraDataProviderInterface;
-use Core\Resources\Infrastructure\Repository\ResourceACLProviders\ResourceACLProviderInterface;
 use Core\Severity\RealTime\Domain\Model\Severity;
 
 class DbReadResourceRepository extends DatabaseRepository implements ReadResourceRepositoryInterface
@@ -98,7 +97,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
      * @param ConnectionInterface $db
      * @param SqlRequestParametersTranslator $sqlRequestTranslator
      * @param \Traversable<ResourceTypeInterface> $resourceTypes
-     * @param \Traversable<ResourceACLProviderInterface> $resourceACLProviders
      * @param \Traversable<ExtraDataProviderInterface> $extraDataProviders
      *
      * @throws \InvalidArgumentException
@@ -107,7 +105,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         ConnectionInterface $db,
         SqlRequestParametersTranslator $sqlRequestTranslator,
         \Traversable $resourceTypes,
-        private readonly \Traversable $resourceACLProviders,
         \Traversable $extraDataProviders,
     ) {
         parent::__construct($db);
@@ -187,8 +184,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 ON `severities`.severity_id = `resources`.severity_id
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
-            WHERE resources.name NOT LIKE '\_Module\_%'
-                AND resources.parent_name NOT LIKE '\_Module\_BAM%'
+            WHERE resources.is_module = 0
                 AND resources.enabled = 1
                 AND resources.type != 3
 
@@ -492,14 +488,13 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     public function countAllResourcesByAccessGroupIds(array $accessGroupIds): int
     {
         try {
-            $accessGroupRequest = $this->addResourceAclSubRequest($accessGroupIds);
-            $query = $this->connection->createQueryBuilder()
-                ->select('COUNT(DISTINCT resources.resource_id) AS REALTIME')
-                ->from('`:dbstg`.`resources`')
-                ->where($accessGroupRequest)
-                ->getQuery();
+            $aclCte = $this->buildAclCte($accessGroupIds);
+            $query = $this->translateDbName(<<<SQL
+                {$aclCte}
+                SELECT COUNT(*) FROM acl_accessible
+                SQL);
 
-            return (int) $this->connection->fetchOne($this->translateDbName($query));
+            return (int) $this->connection->fetchOne($query);
         } catch (\Exception $exception) {
             throw new RepositoryException(
                 message: 'An error occurred while counting resources by access group ids and max results',
@@ -529,16 +524,47 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         array $accessGroupIds = [],
         bool $withoutSort = false,
         bool $withoutPagination = false,
+        bool $useTagExistsForFilters = false,
     ): string {
         $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
 
-        $query = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
-
         $resourceType = self::RESOURCE_TYPE_HOST;
 
-        $joinCtes = $query === ''
-            ? ''
-            : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
+        $hasStatusOrStateFilter = $filter->getStatuses() !== []
+            || $filter->getStates() !== []
+            || $filter->getStatusTypes() !== [];
+
+        if ($useTagExistsForFilters) {
+            // EXISTS approach: no CTE, tag filters go in WHERE clause as correlated EXISTS conditions.
+            // Enables the optimizer to walk resources in sort order and early-terminate at LIMIT.
+            $query = '';
+            $joinCtes = '';
+            $tagExistsConditions = $this->createTagFilterExistsConditions(
+                $filter,
+                $queryParametersFromRequestParameter,
+            );
+            // When status/state filters are active, force the status_filter_idx:
+            // it directly seeks to matching rows and avoids scanning acknowledged/in_downtime rows at
+            // the same status_ordered level, preventing 500× slowdown on pages > 1 (OFFSET > 0).
+            // When only tag EXISTS filters are active (no status filter), use the sort index so the
+            // optimizer can walk resources in order and early-terminate at LIMIT without building a CTE.
+            if ($hasStatusOrStateFilter) {
+                $sortIndexHint = 'FORCE INDEX (`resources_status_filter_idx`)';
+            } elseif ($tagExistsConditions !== '') {
+                $sortIndexHint = 'FORCE INDEX (`resources_enabled_status_sort_idx`)';
+            } else {
+                $sortIndexHint = '';
+            }
+        } else {
+            // CTE approach: tag filters are materialized as CTEs and joined in.
+            // Better for large result sets (exports) where early termination is not possible.
+            $query = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
+            $joinCtes = $query === ''
+                ? ''
+                : ' INNER JOIN cte ON cte.resource_id = resources.resource_id ';
+            $tagExistsConditions = '';
+            $sortIndexHint = '';
+        }
 
         $query .= <<<SQL
             SELECT
@@ -585,7 +611,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                 resources.severity_id,
                 resources.flapping,
                 resources.percent_state_change
-            FROM `:dbstg`.`resources`
+            FROM `:dbstg`.`resources` {$sortIndexHint}
             INNER JOIN `:dbstg`.`instances`
                 ON `instances`.instance_id = `resources`.poller_id
             {$joinCtes}
@@ -613,8 +639,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
 
         $query .= <<<SQL
-            resources.name NOT LIKE '\_Module\_%'
-                AND resources.parent_name NOT LIKE '\_Module\_BAM%'
+            resources.is_module = 0
                 AND resources.enabled = 1
                 AND resources.type != 3
             SQL;
@@ -629,8 +654,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         }
 
         if ($accessGroupIds !== []) {
-            $query .= " AND {$this->addResourceAclSubRequest($accessGroupIds)}";
+            $query .= $this->buildAclExistsCondition($accessGroupIds);
         }
+
+        $query .= $tagExistsConditions;
 
         $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
 
@@ -687,22 +714,192 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
-     * @param int[] $accessGroupIds
+     * Builds a WHERE clause fragment using two correlated EXISTS subqueries: one for host resources
+     * (type = 1, matched by host_id) and one for all other types (matched by host_id + service_id).
+     * Two separate EXISTS are used intentionally — the optimizer uses a full composite key seek
+     * (key_len=13) for each, enabling early termination with LIMIT. A single merged EXISTS with OR
+     * would degrade to a full group scan (key_len=4) and be much slower for queries with LIMIT.
      *
-     * @throws \InvalidArgumentException
+     * @param int[] $accessGroupIds
      */
-    private function addResourceAclSubRequest(array $accessGroupIds): string
+    private function buildAclExistsCondition(array $accessGroupIds): string
     {
-        $orConditions = array_map(
-            static fn (ResourceACLProviderInterface $provider): string => $provider->buildACLSubRequest($accessGroupIds),
-            iterator_to_array($this->resourceACLProviders)
-        );
+        $ids = implode(',', array_map('intval', $accessGroupIds));
 
-        if ($orConditions === []) {
-            throw new \InvalidArgumentException(_('You must provide at least one ACL provider'));
+        return <<<SQL
+             AND (
+                EXISTS (
+                    SELECT 1 FROM `:dbstg`.`centreon_acl` acl
+                    WHERE resources.type = 1
+                      AND acl.host_id = resources.id
+                      AND acl.group_id IN ({$ids})
+                )
+                OR
+                EXISTS (
+                    SELECT 1 FROM `:dbstg`.`centreon_acl` acl
+                    WHERE resources.type != 1
+                      AND acl.host_id = resources.parent_id
+                      AND acl.service_id = resources.id
+                      AND acl.group_id IN ({$ids})
+                )
+            )
+            SQL;
+    }
+
+    /**
+     * Builds a WITH acl_accessible CTE that pre-computes accessible resource IDs by joining from
+     * centreon_acl to resources (ACL-driven, not resource-driven). This avoids the correlated
+     * EXISTS overhead on COUNT queries and is significantly faster for users with partial access.
+     * The CTE uses UNION ALL (not UNION) since hosts and non-hosts are disjoint by type.
+     *
+     * If $prependComma is true, the output starts with a comma for appending to an existing WITH block.
+     *
+     * @param int[] $accessGroupIds
+     */
+    private function buildAclCte(array $accessGroupIds, bool $prependComma = false): string
+    {
+        $ids = implode(',', array_map('intval', $accessGroupIds));
+        $prefix = $prependComma ? ',' : 'WITH';
+
+        return <<<SQL
+            {$prefix} acl_accessible AS (
+                SELECT r.resource_id
+                FROM `:dbstg`.`centreon_acl` acl
+                INNER JOIN `:dbstg`.`resources` r
+                    ON r.type = 1
+                    AND r.id = acl.host_id
+                    AND r.enabled = 1
+                    AND r.is_module = 0
+                WHERE acl.service_id IS NULL
+                  AND acl.group_id IN ({$ids})
+
+                UNION ALL
+
+                SELECT r.resource_id
+                FROM `:dbstg`.`centreon_acl` acl
+                INNER JOIN `:dbstg`.`resources` r
+                    ON r.id = acl.service_id
+                    AND r.parent_id = acl.host_id
+                    AND r.type != 3
+                    AND r.enabled = 1
+                    AND r.is_module = 0
+                WHERE acl.service_id IS NOT NULL
+                  AND acl.group_id IN ({$ids})
+            )
+            SQL;
+    }
+
+    /**
+     * Generates correlated EXISTS conditions for tag filters (hostgroup, host category,
+     * servicegroup, service category) to be used in the DATA query WHERE clause.
+     *
+     * Unlike the CTE+INTERSECT approach used in COUNT, this enables the optimizer to walk
+     * resources in sort order and early-terminate at LIMIT, avoiding full CTE materialization.
+     *
+     * @param ResourceFilter $filter
+     * @param QueryParameters $queryParameters
+     *
+     * @throws CollectionException
+     * @throws ValueObjectException
+     * @return string
+     */
+    private function createTagFilterExistsConditions(
+        ResourceFilter $filter,
+        QueryParameters $queryParameters,
+    ): string {
+        $conditions = '';
+
+        if ($filter->getHostgroupNames() !== []) {
+            $keys = [];
+            foreach ($filter->getHostgroupNames() as $index => $name) {
+                $key = ":hg_exists_{$index}";
+                $queryParameters->add($key, QueryParameter::string($key, $name));
+                $keys[] = $key;
+            }
+            $keysStr = implode(', ', $keys);
+            $conditions .= <<<SQL
+                 AND (
+                    EXISTS (
+                        SELECT 1 FROM `:dbstg`.`resources_tags` rt
+                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
+                        WHERE rt.resource_id = resources.resource_id
+                          AND t.type = 1 AND t.name IN ({$keysStr})
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM `:dbstg`.`resources` pr
+                        INNER JOIN `:dbstg`.`resources_tags` rt ON rt.resource_id = pr.resource_id
+                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
+                        WHERE pr.id = resources.parent_id AND pr.type = 1 AND pr.enabled = 1
+                          AND t.type = 1 AND t.name IN ({$keysStr})
+                    )
+                )
+                SQL;
         }
 
-        return sprintf('(%s)', implode(' OR ', $orConditions));
+        if ($filter->getHostCategoryNames() !== []) {
+            $keys = [];
+            foreach ($filter->getHostCategoryNames() as $index => $name) {
+                $key = ":hc_exists_{$index}";
+                $queryParameters->add($key, QueryParameter::string($key, $name));
+                $keys[] = $key;
+            }
+            $keysStr = implode(', ', $keys);
+            $conditions .= <<<SQL
+                 AND (
+                    EXISTS (
+                        SELECT 1 FROM `:dbstg`.`resources_tags` rt
+                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
+                        WHERE rt.resource_id = resources.resource_id
+                          AND t.type = 3 AND t.name IN ({$keysStr})
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM `:dbstg`.`resources` pr
+                        INNER JOIN `:dbstg`.`resources_tags` rt ON rt.resource_id = pr.resource_id
+                        INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
+                        WHERE pr.id = resources.parent_id AND pr.type = 1 AND pr.enabled = 1
+                          AND t.type = 3 AND t.name IN ({$keysStr})
+                    )
+                )
+                SQL;
+        }
+
+        if ($filter->getServicegroupNames() !== []) {
+            $keys = [];
+            foreach ($filter->getServicegroupNames() as $index => $name) {
+                $key = ":sg_exists_{$index}";
+                $queryParameters->add($key, QueryParameter::string($key, $name));
+                $keys[] = $key;
+            }
+            $keysStr = implode(', ', $keys);
+            $conditions .= <<<SQL
+                 AND EXISTS (
+                    SELECT 1 FROM `:dbstg`.`resources_tags` rt
+                    INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
+                    WHERE rt.resource_id = resources.resource_id
+                      AND t.type = 0 AND t.name IN ({$keysStr})
+                )
+                SQL;
+        }
+
+        if ($filter->getServiceCategoryNames() !== []) {
+            $keys = [];
+            foreach ($filter->getServiceCategoryNames() as $index => $name) {
+                $key = ":sc_exists_{$index}";
+                $queryParameters->add($key, QueryParameter::string($key, $name));
+                $keys[] = $key;
+            }
+            $keysStr = implode(', ', $keys);
+            $conditions .= <<<SQL
+                 AND EXISTS (
+                    SELECT 1 FROM `:dbstg`.`resources_tags` rt
+                    INNER JOIN `:dbstg`.`tags` t ON t.tag_id = rt.tag_id
+                    WHERE rt.resource_id = resources.resource_id
+                      AND t.type = 2 AND t.name IN ({$keysStr})
+                )
+                SQL;
+        }
+
+        return $conditions;
     }
 
     /**
@@ -744,9 +941,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                         ON tags.tag_id = rtags.tag_id
                     WHERE tags.type = 1
                         AND resources.enabled = 1
+                        AND resources.is_module = 0
+                        AND resources.type != 3
                         AND tags.name IN ({$hostGroupPrepareKeys})
                     GROUP BY resources.resource_id
-                    UNION
+                    UNION ALL
                     SELECT resources.resource_id
                     FROM `:dbstg`.`resources` AS resources
                     INNER JOIN `:dbstg`.`resources` AS parent_resource
@@ -758,6 +957,8 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                     WHERE tags.type = 1
                         AND tags.name IN ({$hostGroupPrepareKeys})
                         AND resources.enabled = 1
+                        AND resources.is_module = 0
+                        AND resources.type != 3
                         AND parent_resource.enabled = 1
                         AND parent_resource.type = 1
                     GROUP BY resources.resource_id
@@ -786,9 +987,11 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                         ON tags.tag_id = rtags.tag_id
                     WHERE tags.type = 3
                         AND resources.enabled = 1
+                        AND resources.is_module = 0
+                        AND resources.type != 3
                         AND tags.name IN ({$hostCategoryPrepareKeys})
                     GROUP BY resources.resource_id
-                    UNION
+                    UNION ALL
                     SELECT resources.resource_id
                     FROM `:dbstg`.`resources` AS resources
                     INNER JOIN `:dbstg`.`resources` AS parent_resource
@@ -800,6 +1003,8 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
                     WHERE tags.type = 3
                         AND tags.name IN ({$hostCategoryPrepareKeys})
                         AND resources.enabled = 1
+                        AND resources.is_module = 0
+                        AND resources.type != 3
                         AND parent_resource.enabled = 1
                         AND parent_resource.type = 1
                     GROUP BY resources.resource_id
@@ -865,6 +1070,155 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
     }
 
     /**
+     * Generates a direct SELECT COUNT(*) query without a subquery wrapper.
+     *
+     * This avoids the costly full-column SELECT that prevents the optimizer from using
+     * the covering index (enabled, type, is_module, poller_id). LEFT JOIN to parent_resource
+     * is only added when the severity filter is active (addSeveritySubRequest references
+     * parent_resource.severity_id) or when a search parameter references parent_resource columns,
+     * because that JOIN breaks the covering index.
+     *
+     * @param ResourceFilter $filter
+     * @param QueryParameters $queryParametersFromRequestParameter
+     * @param int[] $accessGroupIds
+     *
+     * @throws CollectionException
+     * @throws RepositoryException
+     * @throws ValueObjectException
+     * @return string
+     */
+    private function generateCountResourcesQuery(
+        ResourceFilter $filter,
+        QueryParameters $queryParametersFromRequestParameter,
+        array $accessGroupIds = [],
+    ): string {
+        $queryHeaders = $this->createQueryHeaders($filter, $queryParametersFromRequestParameter);
+
+        $joinCtes = $queryHeaders !== ''
+            ? ' INNER JOIN cte ON cte.resource_id = resources.resource_id '
+            : '';
+
+        // LEFT JOIN to parent_resource is needed when severity filter is active
+        // (addSeveritySubRequest references parent_resource.severity_id).
+        // For search conditions that reference parent_resource columns (h.alias, h.address, parent_alias,
+        // parent_status), we use COUNT-specific inline approximations instead of the LEFT JOIN.
+        // This avoids 960k × parent PK lookups on every COUNT query that includes a text search.
+        // The approximations (e.g. parent_alias → resources.parent_name) are close enough for pagination
+        // counts and produce a correct result for the vast majority of searches. The DATA query still
+        // uses the full LEFT JOIN with proper concordances and returns accurate results.
+        $hasSeverityFilter = $filter->getHostSeverityNames() !== []
+            || $filter->getServiceSeverityNames() !== []
+            || $filter->getHostSeverityLevels() !== []
+            || $filter->getServiceSeverityLevels() !== [];
+
+        // Temporarily override concordances for parent-resource-dependent search fields so that
+        // translateSearchParameterToSql() generates SQL without any parent_resource.* references.
+        // When a severity filter is active the LEFT JOIN is still added via $hasSeverityFilter,
+        // so the approximations are safe even when both search and severity are present simultaneously.
+        $this->sqlRequestTranslator->setConcordanceArray(array_merge($this->resourceConcordances, [
+            'h.alias'       => 'resources.alias',
+            'h.address'     => 'resources.address',
+            'parent_alias'  => 'resources.parent_name',
+            'parent_status' => 'resources.status',
+        ]));
+
+        $searchSubRequest = null;
+        try {
+            $searchSubRequest = $this->sqlRequestTranslator->translateSearchParameterToSql();
+        } catch (RequestParametersTranslatorException $exception) {
+            throw new RepositoryException(
+                message: 'An error occurred while generating the count request',
+                previous: $exception
+            );
+        } finally {
+            $this->sqlRequestTranslator->setConcordanceArray($this->resourceConcordances);
+        }
+
+        // With the inlined concordances above, searchSubRequest no longer contains parent_resource.*,
+        // so needsParentResourceJoin is only true when a severity filter is active.
+        $needsParentResourceJoin = $hasSeverityFilter;
+
+        $resourceTypeHost = self::RESOURCE_TYPE_HOST;
+
+        // When a name search is active without status/state filters, the optimizer
+        // picks resources_enabled_type_index (requires row reads for the name column).
+        // Force the covering index that includes name to avoid those row reads.
+        // With active status/state filters, resources_status_filter_idx is more selective and the optimizer picks it correctly.
+        // The index hint is skipped when a CTE join is present: the CTE drives the join and the name index cannot
+        // be used for resource_id-based lookups, causing the optimizer to degrade to a full index scan.
+        // The index hint is also skipped when a severity filter is active (LEFT JOIN present):
+        // the join flips the optimizer's access strategy and FORCE INDEX becomes counterproductive.
+        $hasStatusOrStateFilter = $filter->getStatuses() !== []
+            || $filter->getStates() !== []
+            || $filter->getStatusTypes() !== [];
+
+        $hasNameSearch = $searchSubRequest !== null
+            && str_contains($searchSubRequest, 'resources.name');
+
+        // FORCE INDEX is only beneficial when the search targets columns actually covered by resources_name_search_idx
+        // (enabled, type, is_module, poller_id, name). When the search includes other columns such as alias, address,
+        // or output (none of which are in that index), FORCE INDEX forces a secondary-index range scan that still
+        // requires a clustered PK lookup for every row — making it slower than letting the optimizer use a ref
+        // scan on resources_enabled_type_index. For 8-column OR searches (the search bar) this difference is
+        // significant: 27s with FORCE INDEX vs 12s without.
+        $isMultiColumnOrSearch = $searchSubRequest !== null
+            && (str_contains($searchSubRequest, 'resources.alias')
+                || str_contains($searchSubRequest, 'resources.address')
+                || str_contains($searchSubRequest, 'resources.output'));
+
+        $indexHint = ($hasNameSearch && ! $isMultiColumnOrSearch && ! $hasStatusOrStateFilter && $accessGroupIds === [] && $queryHeaders === '' && ! $needsParentResourceJoin)
+            ? 'FORCE INDEX (`resources_name_search_idx`)'
+            : '';
+
+        $query = $queryHeaders;
+        $query .= <<<SQL
+            SELECT COUNT(*)
+            FROM `:dbstg`.`resources` {$indexHint}
+            INNER JOIN `:dbstg`.`instances`
+                ON `instances`.instance_id = `resources`.poller_id
+            {$joinCtes}
+            SQL;
+
+        if ($needsParentResourceJoin) {
+            $query .= <<<SQL
+                LEFT JOIN `:dbstg`.`resources` parent_resource
+                    ON parent_resource.id = resources.parent_id
+                    AND parent_resource.type = {$resourceTypeHost}
+                SQL;
+        }
+
+        $query .= ! empty($searchSubRequest) ? $searchSubRequest . ' AND ' : ' WHERE ';
+
+        $query .= <<<SQL
+            resources.is_module = 0
+                AND resources.enabled = 1
+                AND resources.type != 3
+            SQL;
+
+        if ($filter->getOnlyWithPerformanceData() === true) {
+            $query .= ' AND resources.has_graph = 1';
+        }
+
+        foreach ($this->extraDataProviders as $provider) {
+            $query .= $provider->getSubFilter($filter);
+        }
+
+        if ($accessGroupIds !== []) {
+            $query .= $this->buildAclExistsCondition($accessGroupIds);
+        }
+
+        $query .= $this->addResourceParentIdSubRequest($filter, $queryParametersFromRequestParameter);
+        $query .= $this->addResourceTypeSubRequest($filter);
+        $query .= $this->addResourceStateSubRequest($filter);
+        $query .= $this->addResourceStatusSubRequest($filter);
+        $query .= $this->addStatusTypeSubRequest($filter);
+        $query .= $this->addMonitoringServerSubRequest($filter, $queryParametersFromRequestParameter);
+        $query .= $this->addSeveritySubRequest($filter, $queryParametersFromRequestParameter);
+
+        return $query;
+    }
+
+    /**
      * @param ResourceFilter $filter
      * @param int[] $accessGroupIds
      *
@@ -884,7 +1238,8 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         $queryFind = $this->generateFindResourcesQuery(
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
-            accessGroupIds: $accessGroupIds
+            accessGroupIds: $accessGroupIds,
+            useTagExistsForFilters: true,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -903,12 +1258,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
 
         // get total without pagination
         $queryParametersFromRequestParameter = new QueryParameters();
-        $queryCount = $this->generateFindResourcesQuery(
+        $queryCount = $this->generateCountResourcesQuery(
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
             accessGroupIds: $accessGroupIds,
-            withoutSort: true,
-            withoutPagination: true
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -916,11 +1269,7 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         );
         $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
 
-        $queryTotal = $this->connection->createQueryBuilder()
-            ->select('COUNT(*)')
-            ->from("({$queryCount})", 'count_resources')
-            ->getQuery();
-        if (($total = $this->connection->fetchOne($this->translateDbName($queryTotal), $queryParameters)) !== false) {
+        if (($total = $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters)) !== false) {
             $this->sqlRequestTranslator->getRequestParameters()->setTotal((int) $total);
         }
     }
@@ -951,12 +1300,10 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         }
 
         $queryParametersFromRequestParameter = new QueryParameters();
-        $queryFind = $this->generateFindResourcesQuery(
+        $queryCount = $this->generateCountResourcesQuery(
             filter: $filter,
             queryParametersFromRequestParameter: $queryParametersFromRequestParameter,
             accessGroupIds: $accessGroupIds,
-            withoutSort: true,
-            withoutPagination: true,
         );
 
         $queryParametersFromSearchValues = SearchRequestParametersTransformer::reverseToQueryParameters(
@@ -964,11 +1311,6 @@ class DbReadResourceRepository extends DatabaseRepository implements ReadResourc
         );
 
         $queryParameters = $queryParametersFromSearchValues->mergeWith($queryParametersFromRequestParameter);
-
-        $queryCount = $this->connection->createQueryBuilder()
-            ->select('COUNT(*)')
-            ->from("({$queryFind})", 'count_resources')
-            ->getQuery();
 
         return (int) $this->connection->fetchOne($this->translateDbName($queryCount), $queryParameters);
     }
