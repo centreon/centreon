@@ -324,25 +324,34 @@ function updateContactGroupContacts($cg_id, $ret = [])
         return;
     }
 
-    $deleteStmt = $pearDB->prepare(
-        'DELETE FROM `contactgroup_contact_relation` WHERE `contactgroup_cg_id` = :cgId'
-    );
-    $deleteStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
-    $deleteStmt->execute();
+    try {
+        $pearDB->beginTransaction();
 
-    $ret = $ret['cg_contacts'] ?? CentreonUtils::mergeWithInitialValues($form, 'cg_contacts');
-    $counter = count($ret);
+        $deleteStmt = $pearDB->prepare(
+            'DELETE FROM `contactgroup_contact_relation` WHERE `contactgroup_cg_id` = :cgId'
+        );
+        $deleteStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
+        $deleteStmt->execute();
 
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO `contactgroup_contact_relation` (`contact_contact_id`, `contactgroup_cg_id`)
-        VALUES (:contactId, :cgId)'
-    );
-    for ($i = 0; $i < $counter; $i++) {
-        $insertStmt->bindValue(':contactId', (int) $ret[$i], PDO::PARAM_INT);
-        $insertStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
-        $insertStmt->execute();
+        $ret = $ret['cg_contacts'] ?? CentreonUtils::mergeWithInitialValues($form, 'cg_contacts');
+        $counter = count($ret);
 
-        CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $ret[$i]);
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO `contactgroup_contact_relation` (`contact_contact_id`, `contactgroup_cg_id`)
+            VALUES (:contactId, :cgId)'
+        );
+        for ($i = 0; $i < $counter; $i++) {
+            $insertStmt->bindValue(':contactId', (int) $ret[$i], PDO::PARAM_INT);
+            $insertStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
+            $insertStmt->execute();
+
+            CentreonCustomView::syncContactGroupCustomView($centreon, $pearDB, $ret[$i]);
+        }
+
+        $pearDB->commit();
+    } catch (\Exception $e) {
+        $pearDB->rollBack();
+        throw $e;
     }
 }
 
@@ -354,26 +363,35 @@ function updateContactGroupAclGroups($cg_id, $ret = [])
         return;
     }
 
-    $deleteStmt = $pearDB->prepare(
-        'DELETE FROM `acl_group_contactgroups_relations` WHERE `cg_cg_id` = :cgId'
-    );
-    $deleteStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
-    $deleteStmt->execute();
+    try {
+        $pearDB->beginTransaction();
 
-    if (isset($ret['cg_acl_groups'])) {
-        $ret = $ret['cg_acl_groups'];
-    } else {
-        $ret = CentreonUtils::mergeWithInitialValues($form, 'cg_acl_groups');
-    }
-    $counter = count($ret);
+        $deleteStmt = $pearDB->prepare(
+            'DELETE FROM `acl_group_contactgroups_relations` WHERE `cg_cg_id` = :cgId'
+        );
+        $deleteStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
+        $deleteStmt->execute();
 
-    $insertStmt = $pearDB->prepare(
-        'INSERT INTO `acl_group_contactgroups_relations` (`acl_group_id`, `cg_cg_id`) VALUES (:aclGroupId, :cgId)'
-    );
-    for ($i = 0; $i < $counter; $i++) {
-        $insertStmt->bindValue(':aclGroupId', (int) $ret[$i], PDO::PARAM_INT);
-        $insertStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
-        $insertStmt->execute();
+        if (isset($ret['cg_acl_groups'])) {
+            $ret = $ret['cg_acl_groups'];
+        } else {
+            $ret = CentreonUtils::mergeWithInitialValues($form, 'cg_acl_groups');
+        }
+        $counter = count($ret);
+
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO `acl_group_contactgroups_relations` (`acl_group_id`, `cg_cg_id`) VALUES (:aclGroupId, :cgId)'
+        );
+        for ($i = 0; $i < $counter; $i++) {
+            $insertStmt->bindValue(':aclGroupId', (int) $ret[$i], PDO::PARAM_INT);
+            $insertStmt->bindValue(':cgId', (int) $cg_id, PDO::PARAM_INT);
+            $insertStmt->execute();
+        }
+
+        $pearDB->commit();
+    } catch (\Exception $e) {
+        $pearDB->rollBack();
+        throw $e;
     }
 }
 

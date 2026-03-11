@@ -272,14 +272,25 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
  */
 function insertGroupInDB($ret = [])
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
-    $acl_group_id = insertGroup($ret);
-    updateGroupContacts($acl_group_id, $ret);
-    updateGroupContactGroups($acl_group_id);
-    updateGroupActions($acl_group_id);
-    updateGroupResources($acl_group_id);
-    updateGroupMenus($acl_group_id);
+    try {
+        $pearDB->beginTransaction();
+
+        $acl_group_id = insertGroup($ret);
+        updateGroupContacts($acl_group_id, $ret);
+        updateGroupContactGroups($acl_group_id);
+        updateGroupActions($acl_group_id);
+        updateGroupResources($acl_group_id);
+        updateGroupMenus($acl_group_id);
+
+        $pearDB->commit();
+    } catch (\Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+        throw $e;
+    }
 
     $ret = $form->getSubmitValues();
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -346,14 +357,25 @@ function updateGroupInDB($acl_group_id = null)
     if (! $acl_group_id) {
         return;
     }
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
-    updateGroup($acl_group_id);
-    updateGroupContacts($acl_group_id);
-    updateGroupContactGroups($acl_group_id);
-    updateGroupActions($acl_group_id);
-    updateGroupResources($acl_group_id);
-    updateGroupMenus($acl_group_id);
+    try {
+        $pearDB->beginTransaction();
+
+        updateGroup($acl_group_id);
+        updateGroupContacts($acl_group_id);
+        updateGroupContactGroups($acl_group_id);
+        updateGroupActions($acl_group_id);
+        updateGroupResources($acl_group_id);
+        updateGroupMenus($acl_group_id);
+
+        $pearDB->commit();
+    } catch (\Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+        throw $e;
+    }
 
     $ret = $form->getSubmitValues();
     $fields = CentreonLogAction::prepareChanges($ret);
@@ -431,29 +453,19 @@ function updateGroupContacts($acl_group_id, $ret = [])
         return;
     }
 
-    $pearDB->beginTransaction();
-    try {
-        $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :group_id');
-        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-        $deleteStmt->execute();
-        if (isset($_POST['cg_contacts'])) {
-            $insertStmt = $pearDB->prepare(
-                'INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id)'
-                . ' VALUES (:contact_id, :group_id)'
-            );
-            foreach ($_POST['cg_contacts'] as $id) {
-                $insertStmt->bindValue(':contact_id', (int) $id, PDO::PARAM_INT);
-                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-                $insertStmt->execute();
-            }
+    $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_contacts_relations WHERE acl_group_id = :group_id');
+    $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+    $deleteStmt->execute();
+    if (isset($_POST['cg_contacts'])) {
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id)'
+            . ' VALUES (:contact_id, :group_id)'
+        );
+        foreach ($_POST['cg_contacts'] as $id) {
+            $insertStmt->bindValue(':contact_id', (int) $id, PDO::PARAM_INT);
+            $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+            $insertStmt->execute();
         }
-        $pearDB->commit();
-    } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
-        }
-
-        throw $e;
     }
 }
 
@@ -470,40 +482,30 @@ function updateGroupContactGroups($acl_group_id, $ret = [])
         return;
     }
 
-    $pearDB->beginTransaction();
-    try {
-        $deleteStmt = $pearDB->prepare(
-            'DELETE FROM acl_group_contactgroups_relations WHERE acl_group_id = :group_id'
+    $deleteStmt = $pearDB->prepare(
+        'DELETE FROM acl_group_contactgroups_relations WHERE acl_group_id = :group_id'
+    );
+    $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+    $deleteStmt->execute();
+    if (isset($_POST['cg_contactGroups'])) {
+        $cg = new CentreonContactgroup($pearDB);
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id)'
+            . ' VALUES (:cg_id, :group_id)'
         );
-        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-        $deleteStmt->execute();
-        if (isset($_POST['cg_contactGroups'])) {
-            $cg = new CentreonContactgroup($pearDB);
-            $insertStmt = $pearDB->prepare(
-                'INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id)'
-                . ' VALUES (:cg_id, :group_id)'
-            );
-            foreach ($_POST['cg_contactGroups'] as $id) {
-                if (! is_numeric($id)) {
-                    $res = $cg->insertLdapGroup($id);
-                    if ($res != 0) {
-                        $id = $res;
-                    } else {
-                        continue;
-                    }
+        foreach ($_POST['cg_contactGroups'] as $id) {
+            if (! is_numeric($id)) {
+                $res = $cg->insertLdapGroup($id);
+                if ($res != 0) {
+                    $id = $res;
+                } else {
+                    continue;
                 }
-                $insertStmt->bindValue(':cg_id', (int) $id, PDO::PARAM_INT);
-                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-                $insertStmt->execute();
             }
+            $insertStmt->bindValue(':cg_id', (int) $id, PDO::PARAM_INT);
+            $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+            $insertStmt->execute();
         }
-        $pearDB->commit();
-    } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
-        }
-
-        throw $e;
     }
 }
 
@@ -520,29 +522,19 @@ function updateGroupActions($acl_group_id, $ret = [])
         return;
     }
 
-    $pearDB->beginTransaction();
-    try {
-        $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_group_id = :group_id');
-        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-        $deleteStmt->execute();
-        if (isset($_POST['actionAccess'])) {
-            $insertStmt = $pearDB->prepare(
-                'INSERT INTO acl_group_actions_relations (acl_action_id, acl_group_id)'
-                . ' VALUES (:action_id, :group_id)'
-            );
-            foreach ($_POST['actionAccess'] as $id) {
-                $insertStmt->bindValue(':action_id', (int) $id, PDO::PARAM_INT);
-                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-                $insertStmt->execute();
-            }
+    $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_actions_relations WHERE acl_group_id = :group_id');
+    $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+    $deleteStmt->execute();
+    if (isset($_POST['actionAccess'])) {
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_group_actions_relations (acl_action_id, acl_group_id)'
+            . ' VALUES (:action_id, :group_id)'
+        );
+        foreach ($_POST['actionAccess'] as $id) {
+            $insertStmt->bindValue(':action_id', (int) $id, PDO::PARAM_INT);
+            $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+            $insertStmt->execute();
         }
-        $pearDB->commit();
-    } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
-        }
-
-        throw $e;
     }
 }
 
@@ -559,29 +551,19 @@ function updateGroupMenus($acl_group_id, $ret = [])
         return;
     }
 
-    $pearDB->beginTransaction();
-    try {
-        $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_topology_relations WHERE acl_group_id = :group_id');
-        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-        $deleteStmt->execute();
-        if (isset($_POST['menuAccess'])) {
-            $insertStmt = $pearDB->prepare(
-                'INSERT INTO acl_group_topology_relations (acl_topology_id, acl_group_id)'
-                . ' VALUES (:topology_id, :group_id)'
-            );
-            foreach ($_POST['menuAccess'] as $id) {
-                $insertStmt->bindValue(':topology_id', (int) $id, PDO::PARAM_INT);
-                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-                $insertStmt->execute();
-            }
+    $deleteStmt = $pearDB->prepare('DELETE FROM acl_group_topology_relations WHERE acl_group_id = :group_id');
+    $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+    $deleteStmt->execute();
+    if (isset($_POST['menuAccess'])) {
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_group_topology_relations (acl_topology_id, acl_group_id)'
+            . ' VALUES (:topology_id, :group_id)'
+        );
+        foreach ($_POST['menuAccess'] as $id) {
+            $insertStmt->bindValue(':topology_id', (int) $id, PDO::PARAM_INT);
+            $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+            $insertStmt->execute();
         }
-        $pearDB->commit();
-    } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
-        }
-
-        throw $e;
     }
 }
 
@@ -598,33 +580,23 @@ function updateGroupResources($acl_group_id, $ret = [])
         return;
     }
 
-    $pearDB->beginTransaction();
-    try {
-        $deleteStmt = $pearDB->prepare(
-            'DELETE argr FROM acl_res_group_relations argr'
-            . ' JOIN acl_resources ar ON argr.acl_res_id = ar.acl_res_id'
-            . ' WHERE argr.acl_group_id = :group_id AND ar.locked = 0'
+    $deleteStmt = $pearDB->prepare(
+        'DELETE argr FROM acl_res_group_relations argr'
+        . ' JOIN acl_resources ar ON argr.acl_res_id = ar.acl_res_id'
+        . ' WHERE argr.acl_group_id = :group_id AND ar.locked = 0'
+    );
+    $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+    $deleteStmt->execute();
+    if (isset($_POST['resourceAccess'])) {
+        $insertStmt = $pearDB->prepare(
+            'INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id)'
+            . ' VALUES (:res_id, :group_id)'
         );
-        $deleteStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-        $deleteStmt->execute();
-        if (isset($_POST['resourceAccess'])) {
-            $insertStmt = $pearDB->prepare(
-                'INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id)'
-                . ' VALUES (:res_id, :group_id)'
-            );
-            foreach ($_POST['resourceAccess'] as $id) {
-                $insertStmt->bindValue(':res_id', (int) $id, PDO::PARAM_INT);
-                $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
-                $insertStmt->execute();
-            }
+        foreach ($_POST['resourceAccess'] as $id) {
+            $insertStmt->bindValue(':res_id', (int) $id, PDO::PARAM_INT);
+            $insertStmt->bindValue(':group_id', (int) $acl_group_id, PDO::PARAM_INT);
+            $insertStmt->execute();
         }
-        $pearDB->commit();
-    } catch (Throwable $e) {
-        if ($pearDB->inTransaction()) {
-            $pearDB->rollBack();
-        }
-
-        throw $e;
     }
 }
 

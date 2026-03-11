@@ -137,67 +137,77 @@ function multipleServiceDependencyInDB($dependencies = [], $nbrDup = [])
                 continue;
             }
             $i++;
-            $fields = [];
-            foreach ($row as $key2 => $value2) {
-                $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
-            }
-            $row['dep_name'] = $dep_name;
-            foreach ($columns as $col) {
-                $value = $row[$col];
-                $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-            }
-            $insertStmt->execute();
-            $lastId = (int) $pearDB->lastInsertId();
-            if ($lastId > 0) {
-                $selectHostChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                $selectHostChildStmt->execute();
-                $fields['dep_hostPar'] = '';
-                while ($host = $selectHostChildStmt->fetch()) {
-                    $insertHostChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                    $insertHostChildStmt->bindValue(':hostId', (int) $host['host_host_id'], PDO::PARAM_INT);
-                    $insertHostChildStmt->execute();
-                    $fields['dep_hostPar'] .= $host['host_host_id'] . ',';
-                }
-                $fields['dep_hostPar'] = trim($fields['dep_hostPar'], ',');
 
-                $selectServiceParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                $selectServiceParentStmt->execute();
-                $fields['dep_hSvPar'] = '';
-                while ($service = $selectServiceParentStmt->fetch()) {
-                    $insertServiceParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                    $insertServiceParentStmt->bindValue(
-                        ':serviceId',
-                        (int) $service['service_service_id'],
-                        PDO::PARAM_INT
-                    );
-                    $insertServiceParentStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
-                    $insertServiceParentStmt->execute();
-                    $fields['dep_hSvPar'] .= $service['service_service_id'] . ',';
-                }
-                $fields['dep_hSvPar'] = trim($fields['dep_hSvPar'], ',');
+            try {
+                $pearDB->beginTransaction();
 
-                $selectServiceChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
-                $selectServiceChildStmt->execute();
-                $fields['dep_hSvChi'] = '';
-                while ($service = $selectServiceChildStmt->fetch()) {
-                    $insertServiceChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
-                    $insertServiceChildStmt->bindValue(
-                        ':serviceId',
-                        (int) $service['service_service_id'],
-                        PDO::PARAM_INT
-                    );
-                    $insertServiceChildStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
-                    $insertServiceChildStmt->execute();
-                    $fields['dep_hSvChi'] .= $service['service_service_id'] . ',';
+                $fields = [];
+                foreach ($row as $key2 => $value2) {
+                    $fields[$key2] = $key2 == 'dep_name' ? $dep_name : $value2;
                 }
-                $fields['dep_hSvChi'] = trim($fields['dep_hSvChi'], ',');
-                $oreon->CentreonLogAction->insertLog(
-                    'service dependency',
-                    $lastId,
-                    $dep_name,
-                    'a',
-                    $fields
-                );
+                $row['dep_name'] = $dep_name;
+                foreach ($columns as $col) {
+                    $value = $row[$col];
+                    $insertStmt->bindValue(':' . $col, $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+                }
+                $insertStmt->execute();
+                $lastId = (int) $pearDB->lastInsertId();
+                if ($lastId > 0) {
+                    $selectHostChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectHostChildStmt->execute();
+                    $fields['dep_hostPar'] = '';
+                    while ($host = $selectHostChildStmt->fetch()) {
+                        $insertHostChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertHostChildStmt->bindValue(':hostId', (int) $host['host_host_id'], PDO::PARAM_INT);
+                        $insertHostChildStmt->execute();
+                        $fields['dep_hostPar'] .= $host['host_host_id'] . ',';
+                    }
+                    $fields['dep_hostPar'] = trim($fields['dep_hostPar'], ',');
+
+                    $selectServiceParentStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectServiceParentStmt->execute();
+                    $fields['dep_hSvPar'] = '';
+                    while ($service = $selectServiceParentStmt->fetch()) {
+                        $insertServiceParentStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertServiceParentStmt->bindValue(
+                            ':serviceId',
+                            (int) $service['service_service_id'],
+                            PDO::PARAM_INT
+                        );
+                        $insertServiceParentStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
+                        $insertServiceParentStmt->execute();
+                        $fields['dep_hSvPar'] .= $service['service_service_id'] . ',';
+                    }
+                    $fields['dep_hSvPar'] = trim($fields['dep_hSvPar'], ',');
+
+                    $selectServiceChildStmt->bindValue(':dep_id', (int) $key, PDO::PARAM_INT);
+                    $selectServiceChildStmt->execute();
+                    $fields['dep_hSvChi'] = '';
+                    while ($service = $selectServiceChildStmt->fetch()) {
+                        $insertServiceChildStmt->bindValue(':depId', (int) $lastId, PDO::PARAM_INT);
+                        $insertServiceChildStmt->bindValue(
+                            ':serviceId',
+                            (int) $service['service_service_id'],
+                            PDO::PARAM_INT
+                        );
+                        $insertServiceChildStmt->bindValue(':hostId', (int) $service['host_host_id'], PDO::PARAM_INT);
+                        $insertServiceChildStmt->execute();
+                        $fields['dep_hSvChi'] .= $service['service_service_id'] . ',';
+                    }
+                    $fields['dep_hSvChi'] = trim($fields['dep_hSvChi'], ',');
+                    $oreon->CentreonLogAction->insertLog(
+                        'service dependency',
+                        $lastId,
+                        $dep_name,
+                        'a',
+                        $fields
+                    );
+                }
+
+                $pearDB->commit();
+            } catch (\Exception $e) {
+                $pearDB->rollBack();
+                throw $e;
             }
         }
     }
