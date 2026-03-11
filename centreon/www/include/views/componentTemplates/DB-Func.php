@@ -274,13 +274,11 @@ function insertComponentTemplate()
  */
 function parseHostIdPostParameter(?string $hostIdParameter): array
 {
-    if (! empty($hostIdParameter)) {
-        if (preg_match('/^([0-9]+)-([0-9]+)$/', $hostIdParameter, $matches)) {
-            $hostId = (int) $matches[1];
-            $serviceId = (int) $matches[2];
-        } else {
-            throw new InvalidArgumentException('host_id must be a combination of integers');
-        }
+    if (! empty($hostIdParameter)
+        && preg_match('/^([0-9]+)-([0-9]+)$/', $hostIdParameter, $matches)
+    ) {
+        $hostId = (int) $matches[1];
+        $serviceId = (int) $matches[2];
     } else {
         $hostId = null;
         $serviceId = null;

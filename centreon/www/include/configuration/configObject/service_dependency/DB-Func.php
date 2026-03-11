@@ -308,6 +308,9 @@ function insertServiceDependency($ret = []): int
     $statement->execute();
 
     $depId = (int) $pearDB->lastInsertId();
+    if ($depId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted service dependency id');
+    }
 
     $fields = CentreonLogAction::prepareChanges($ret);
     $centreon->CentreonLogAction->insertLog(

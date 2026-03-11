@@ -297,16 +297,16 @@ function getBindValues(array $data): array
             ? [PDO::PARAM_INT, $data['size_to_max']]
             : [PDO::PARAM_INT, 0],
         // default_tpl1, stacked, scaled are enum('0','1') columns.
-        // The (int) cast sanitizes to 0/1; PARAM_STR stringifies for the enum.
-        ':default_tpl1' => isset($data['default_tpl1']) && $data['default_tpl1'] !== ''
-            ? [PDO::PARAM_STR, (int) $data['default_tpl1']]
-            : [PDO::PARAM_STR, 0],
-        ':stacked' => isset($data['stacked']) && $data['stacked'] !== ''
-            ? [PDO::PARAM_STR, (int) $data['stacked']]
+        // PARAM_STR stringifies for the enum.
+        ':default_tpl1' => isset($data['default_tpl1']) && in_array($data['default_tpl1'], ['0', '1'], true)
+            ? [PDO::PARAM_STR, $data['default_tpl1']]
+            : [PDO::PARAM_STR, '0'],
+        ':stacked' => isset($data['stacked']) && in_array($data['stacked'], ['0', '1'], true)
+            ? [PDO::PARAM_STR, $data['stacked']]
             : [PDO::PARAM_NULL, null],
-        ':scaled' => isset($data['scaled']) && $data['scaled'] !== ''
-            ? [PDO::PARAM_STR, (int) $data['scaled']]
-            : [PDO::PARAM_STR, 0],
+        ':scaled' => isset($data['scaled']) && in_array($data['scaled'], ['0', '1'], true)
+            ? [PDO::PARAM_STR, $data['scaled']]
+            : [PDO::PARAM_STR, '0'],
         ':comment' => isset($data['comment']) && $data['comment'] !== ''
             ? [PDO::PARAM_STR, htmlentities($data['comment'], ENT_QUOTES, 'UTF-8')]
             : [PDO::PARAM_NULL, null],

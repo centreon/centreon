@@ -232,6 +232,9 @@ function insertMetaServiceDependency(): int
     $statement->execute();
 
     $depId = (int) $pearDB->lastInsertId();
+    if ($depId <= 0) {
+        throw new RuntimeException('Failed to retrieve inserted metaservice dependency id');
+    }
 
     // Prepare value for changelog
     $fields = CentreonLogAction::prepareChanges($resourceValues);
