@@ -146,21 +146,18 @@ function deleteNagiosInDB($nagios = [])
         $deleteBroker->bindValue(':nagios_id', (int) $key, PDO::PARAM_INT);
         $deleteBroker->execute();
     }
-    $dbResult = $pearDB->query(
-        "SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1'"
-    );
-    if (! $dbResult->rowCount()) {
-        $dbResult2 = $pearDB->query(
-            'SELECT MAX(nagios_id) FROM cfg_nagios'
-        );
-        $nagios_id = $dbResult2->fetch();
-        $statement = $pearDB->prepare(
+    $stmt = $pearDB->prepare("SELECT nagios_id FROM cfg_nagios WHERE nagios_activate = '1'");
+    $stmt->execute();
+    if (! $stmt->rowCount()) {
+        $stmt2 = $pearDB->prepare('SELECT MAX(nagios_id) FROM cfg_nagios');
+        $stmt2->execute();
+        $nagios_id = $stmt2->fetch();
+        $stmt3 = $pearDB->prepare(
             "UPDATE cfg_nagios SET nagios_activate = '1' WHERE nagios_id = :nagios_id"
         );
-        $statement->bindValue(':nagios_id', (int) $nagios_id['MAX(nagios_id)'], PDO::PARAM_INT);
-        $statement->execute();
+        $stmt3->bindValue(':nagios_id', (int) $nagios_id['MAX(nagios_id)'], PDO::PARAM_INT);
+        $stmt3->execute();
     }
-    $dbResult->closeCursor();
 }
 
 // Duplicate Engine Configuration file in DB
