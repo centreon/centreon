@@ -140,6 +140,14 @@ const StackLines = ({
                       })
                 }
                 opacity={highlight === false ? 0.3 : 1}
+                stroke="none"
+              />
+              <Shape.LinePath
+                curve={curveType}
+                data={[...stack]}
+                defined={(d) => !isNil(d[1])}
+                fill="none"
+                opacity={highlight === false ? 0.3 : 1}
                 stroke={lineColor}
                 strokeDasharray={getStrokeDashArray({
                   dashLength: style?.dashLength,
@@ -152,6 +160,8 @@ const StackLines = ({
                     ? Math.ceil(formattedLineWidth * 1.3)
                     : formattedLineWidth
                 }
+                x={(d) => xScale(getTime(d.data)) ?? 0}
+                y={(d) => yScale(d[1]) ?? 0}
               />
             </g>
           );
