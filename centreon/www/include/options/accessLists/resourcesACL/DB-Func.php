@@ -81,10 +81,12 @@ function enableLCAInDB($aclResId = null, $acls = [])
         $selectStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
-        if ($row === false) {
-            continue;
-        }
-        $centreon->CentreonLogAction->insertLog('resource access', $key, $row['acl_res_name'], 'enable');
+        $centreon->CentreonLogAction->insertLog(
+            'resource access',
+            $key,
+            $row !== false ? $row['acl_res_name'] : "id:{$key}",
+            'enable'
+        );
     }
 }
 
@@ -123,10 +125,12 @@ function disableLCAInDB($aclResId = null, $acls = [])
         $selectStmt->bindValue(':acl_res_id', (int) $key, PDO::PARAM_INT);
         $selectStmt->execute();
         $row = $selectStmt->fetch();
-        if ($row === false) {
-            continue;
-        }
-        $centreon->CentreonLogAction->insertLog('resource access', $key, $row['acl_res_name'], 'disable');
+        $centreon->CentreonLogAction->insertLog(
+            'resource access',
+            $key,
+            $row !== false ? $row['acl_res_name'] : "id:{$key}",
+            'disable'
+        );
     }
 }
 

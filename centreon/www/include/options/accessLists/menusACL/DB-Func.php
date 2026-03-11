@@ -105,16 +105,14 @@ function enableLCAInDB($aclTopologyId = null, $acls = [])
             $currentAclTopologyId,
             PDO::PARAM_INT
         );
-
-        if ($prepareSelect->execute()) {
-            $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
-            $centreon->CentreonLogAction->insertLog(
-                'menu access',
-                $currentAclTopologyId,
-                $result['acl_topo_name'],
-                'enable'
-            );
-        }
+        $prepareSelect->execute();
+        $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
+        $centreon->CentreonLogAction->insertLog(
+            'menu access',
+            $currentAclTopologyId,
+            $result !== false ? $result['acl_topo_name'] : "id:{$currentAclTopologyId}",
+            'enable'
+        );
     }
 }
 
@@ -161,16 +159,14 @@ function disableLCAInDB($aclTopologyId = null, $acls = [])
             $currentTopologyId,
             PDO::PARAM_INT
         );
-
-        if ($prepareSelect->execute()) {
-            $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
-            $centreon->CentreonLogAction->insertLog(
-                'menu access',
-                $currentTopologyId,
-                $result['acl_topo_name'],
-                'disable'
-            );
-        }
+        $prepareSelect->execute();
+        $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
+        $centreon->CentreonLogAction->insertLog(
+            'menu access',
+            $currentTopologyId,
+            $result !== false ? $result['acl_topo_name'] : "id:{$currentTopologyId}",
+            'disable'
+        );
     }
 }
 
@@ -196,12 +192,8 @@ function deleteLCAInDB($acls = [])
             PDO::PARAM_INT
         );
 
-        if (! $prepareSelect->execute()) {
-            continue;
-        }
-
+        $prepareSelect->execute();
         $result = $prepareSelect->fetch(PDO::FETCH_ASSOC);
-        $topologyName = $result['acl_topo_name'];
 
         $prepareDelete = $pearDB->prepare(
             'DELETE FROM `acl_topology` WHERE acl_topo_id = :topology_id'
@@ -211,14 +203,13 @@ function deleteLCAInDB($acls = [])
             $currentTopologyId,
             PDO::PARAM_INT
         );
-        if ($prepareDelete->execute()) {
-            $centreon->CentreonLogAction->insertLog(
-                'menu access',
-                $currentTopologyId,
-                $topologyName,
-                'd'
-            );
-        }
+        $prepareDelete->execute();
+        $centreon->CentreonLogAction->insertLog(
+            'menu access',
+            $currentTopologyId,
+            $result !== false ? $result['acl_topo_name'] : "id:{$currentTopologyId}",
+            'd'
+        );
     }
 }
 

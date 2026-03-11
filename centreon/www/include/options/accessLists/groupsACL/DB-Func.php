@@ -104,7 +104,12 @@ function enableGroupInDB($acl_group_id = null, $groups = [])
         $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
         $dbResult->execute();
         $row = $dbResult->fetch();
-        $centreon->CentreonLogAction->insertLog('access group', (int) $key, $row['acl_group_name'], 'enable');
+        $centreon->CentreonLogAction->insertLog(
+            'access group',
+            (int) $key,
+            $row !== false ? $row['acl_group_name'] : "id:{$key}",
+            'enable'
+        );
     }
 }
 
@@ -135,7 +140,12 @@ function disableGroupInDB($acl_group_id = null, $groups = [])
         $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
         $dbResult->execute();
         $row = $dbResult->fetch();
-        $centreon->CentreonLogAction->insertLog('access group', (int) $key, $row['acl_group_name'], 'disable');
+        $centreon->CentreonLogAction->insertLog(
+            'access group',
+            (int) $key,
+            $row !== false ? $row['acl_group_name'] : "id:{$key}",
+            'disable'
+        );
     }
 }
 
@@ -157,7 +167,12 @@ function deleteGroupInDB($groups = [])
         $dbResult = $pearDB->prepare('DELETE FROM acl_groups WHERE acl_group_id = :aclGroupId');
         $dbResult->bindValue('aclGroupId', $key, PDO::PARAM_INT);
         $dbResult->execute();
-        $centreon->CentreonLogAction->insertLog('access group', (int) $key, $row['acl_group_name'], 'd');
+        $centreon->CentreonLogAction->insertLog(
+            'access group',
+            (int) $key,
+            $row !== false ? $row['acl_group_name'] : "id:{$key}",
+            'd'
+        );
     }
 }
 

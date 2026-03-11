@@ -101,7 +101,7 @@ function enableActionInDB($aclActionId = null, $actions = [])
         $centreon->CentreonLogAction->insertLog(
             'action access',
             $sanitizedAclActionId,
-            $row['acl_action_name'],
+            $row !== false ? $row['acl_action_name'] : "id:{$sanitizedAclActionId}",
             'enable'
         );
     }
@@ -158,7 +158,7 @@ function disableActionInDB($aclActionId = null, $actions = [])
         $centreon->CentreonLogAction->insertLog(
             'action access',
             $sanitizedAclActionId,
-            $row['acl_action_name'],
+            $row !== false ? $row['acl_action_name'] : "id:{$sanitizedAclActionId}",
             'disable'
         );
     }
