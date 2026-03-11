@@ -6,7 +6,6 @@ import { equals, lt, not, pluck } from 'ramda';
 import { memo, useCallback, useEffect, useRef } from 'react';
 
 import { useViewportIntersection } from '../../utils/useViewportIntersection';
-
 import type { Column, ColumnConfiguration, RowColorCondition } from '../models';
 
 type Props = {
