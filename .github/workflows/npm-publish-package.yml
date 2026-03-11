@@ -91,6 +91,11 @@ jobs:
         run: npm publish --access=public --tag=${{ env.tag }}
         working-directory: ${{ inputs.package_directory }}
 
+      - name: Remove tag from merged branch
+        if: github.event.action == 'closed'
+        run: npm dist-tag rm @centreon/${{ steps.get-package-info.outputs.package_name }} ${{ github.event.pull_request.head.ref }}
+        working-directory: ${{ inputs.package_directory }}
+
   set-skip-label:
     needs: [get-environment, publish-package]
     if: |
