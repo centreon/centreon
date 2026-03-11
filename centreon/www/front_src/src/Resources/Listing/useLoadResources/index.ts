@@ -110,8 +110,7 @@ const useLoadResources = (): LoadResources => {
   const setSending = useSetAtom(sendingAtom);
   const setSendingDetails = useSetAtom(sendingDetailsAtom);
   const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
-  const refreshTimeoutRef = useRef<number>();
-  const loadRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const refreshTimeoutRef = useRef<number>(undefined);
   const scheduleRef = useRef<() => void>(() => {});
 
   const refreshIntervalMs = refreshInterval * 1000;
