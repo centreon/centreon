@@ -110,7 +110,9 @@ const useLoadResources = (): LoadResources => {
   const setSending = useSetAtom(sendingAtom);
   const setSendingDetails = useSetAtom(sendingDetailsAtom);
   const clearSelectedResource = useSetAtom(clearSelectedResourceDerivedAtom);
-  const refreshIntervalRef = useRef<number>();
+  const refreshTimeoutRef = useRef<number>();
+  const loadRef = useRef<() => Promise<void>>(() => Promise.resolve());
+  const scheduleRef = useRef<() => void>(() => {});
 
   const refreshIntervalMs = refreshInterval * 1000;
 
@@ -150,7 +152,7 @@ const useLoadResources = (): LoadResources => {
       });
   };
 
-  const load = (): void => {
+  const load = (): Promise<void> => {
     const getCriteriaIds = (
       name: string
     ): Array<string | number> | undefined => {
@@ -172,13 +174,13 @@ const useLoadResources = (): LoadResources => {
     };
 
     if (getUrlQueryParameters().fromTopCounter) {
-      return;
+      return Promise.resolve();
     }
 
     const names = getCriteriaNames('names');
     const parentNames = getCriteriaNames('parent_names');
 
-    sendRequest({
+    const listingPromise = sendRequest({
       endpoint: resourcesEndpoint,
       hostCategories: getCriteriaNames('host_categories'),
       hostGroups: getCriteriaNames('host_groups'),
@@ -238,41 +240,39 @@ const useLoadResources = (): LoadResources => {
       setListing(hostsResponse);
     });
 
-    if (isNil(details)) {
-      return;
+    if (!isNil(details)) {
+      loadDetails();
     }
 
-    loadDetails();
+    return listingPromise;
   };
 
-  const initAutorefresh = (): void => {
-    window.clearInterval(refreshIntervalRef.current);
-
-    const interval = enabledAutorefresh
-      ? window.setInterval(() => {
-          load();
-        }, refreshIntervalMs)
-      : undefined;
-
-    refreshIntervalRef.current = interval;
+  const scheduleNextRefresh = (): void => {
+    window.clearTimeout(refreshTimeoutRef.current);
+    if (!enabledAutorefresh) return;
+    refreshTimeoutRef.current = window.setTimeout(() => {
+      load().finally(() => scheduleRef.current());
+    }, refreshIntervalMs);
   };
+
+  scheduleRef.current = scheduleNextRefresh;
 
   const initAutorefreshAndLoad = (): void => {
     if (isNil(customFilters)) {
       return;
     }
 
-    initAutorefresh();
-    load();
+    window.clearTimeout(refreshTimeoutRef.current);
+    load().finally(() => scheduleRef.current());
   };
 
   useEffect(() => {
-    initAutorefresh();
+    scheduleNextRefresh();
   }, [enabledAutorefresh, selectedResourceDetails?.resourceId]);
 
   useEffect(() => {
     return (): void => {
-      clearInterval(refreshIntervalRef.current);
+      window.clearTimeout(refreshTimeoutRef.current);
     };
   }, []);
 
@@ -281,7 +281,7 @@ const useLoadResources = (): LoadResources => {
       return;
     }
 
-    initAutorefresh();
+    scheduleNextRefresh();
   }, [isNil(details)]);
 
   useEffect(() => {
@@ -290,13 +290,9 @@ const useLoadResources = (): LoadResources => {
     }
 
     initAutorefreshAndLoad();
-  }, [page]);
+  }, [page, limit, appliedFilter]);
 
   useEffect(() => {
-    if (page === 1) {
-      initAutorefreshAndLoad();
-    }
-
     setPage(1);
   }, [limit, appliedFilter]);
 
@@ -305,7 +301,7 @@ const useLoadResources = (): LoadResources => {
   }, [sending]);
 
   useEffect(() => {
-    setSendingDetails(sending);
+    setSendingDetails(sendingDetails);
   }, [sendingDetails]);
 
   useEffect(() => {
