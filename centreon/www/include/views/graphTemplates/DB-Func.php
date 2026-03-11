@@ -23,12 +23,12 @@ if (! isset($centreon)) {
     exit();
 }
 
-function testExistence($name = null)
+function testExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('graph_id');
     }
     $normalizedName = $name !== null ? htmlentities($name, ENT_QUOTES, 'UTF-8') : null;
@@ -120,7 +120,7 @@ function multipleGraphTemplateInDB($graphs = [], $nbrDup = []): void
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $decodedName = $originalName . '_' . $suffix;
             $row['name'] = htmlentities($decodedName, ENT_QUOTES, 'UTF-8');
-            if (! testExistence($decodedName)) {
+            if (! testExistence($decodedName, false)) {
                 continue;
             }
             $i++;

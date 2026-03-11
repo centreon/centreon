@@ -23,12 +23,12 @@ if (! isset($centreon)) {
     exit();
 }
 
-function testContactGroupExistence($name = null)
+function testContactGroupExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form, $centreon;
     $id = null;
 
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('cg_id');
     }
     $query = 'SELECT 1 FROM `contactgroup` WHERE `cg_name` = :cgName';
@@ -168,7 +168,7 @@ function multipleContactGroupInDB($contactGroups = [], $nbrDup = [])
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $cg_name = $originalName . '_' . $suffix;
 
-            if (! testContactGroupExistence($cg_name)) {
+            if (! testContactGroupExistence($cg_name, false)) {
                 continue;
             }
             $i++;

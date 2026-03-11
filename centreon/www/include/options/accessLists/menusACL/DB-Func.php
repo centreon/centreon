@@ -31,12 +31,12 @@ if (! isset($centreon)) {
  * @param string $topologyName
  * @return bool Return false if the topology name has already been used
  */
-function hasTopologyNameNeverUsed($topologyName = null)
+function hasTopologyNameNeverUsed($topologyName = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $topologyId = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $topologyId = $form->getSubmitValue('lca_id');
     }
     $query = 'SELECT 1 FROM `acl_topology` WHERE acl_topo_name = :topology_name';
@@ -281,7 +281,7 @@ function multipleLCAInDB($acls = [], $duplicateNbr = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $aclName = $originalName . '_' . $suffix;
-            if (! hasTopologyNameNeverUsed($aclName)) {
+            if (! hasTopologyNameNeverUsed($aclName, false)) {
                 continue;
             }
             $i++;

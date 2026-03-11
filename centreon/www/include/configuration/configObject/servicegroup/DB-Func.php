@@ -23,13 +23,13 @@ if (! isset($centreon)) {
     exit();
 }
 
-function testServiceGroupExistence($name = null)
+function testServiceGroupExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form, $centreon;
 
     $id = null;
 
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('sg_id');
     }
     $sgName = HtmlAnalyzer::sanitizeAndRemoveTags($name);
@@ -185,7 +185,7 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
 
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $sgName = $originalName . '_' . $suffix;
-            if (! testServiceGroupExistence($sgName)) {
+            if (! testServiceGroupExistence($sgName, false)) {
                 continue;
             }
             $i++;

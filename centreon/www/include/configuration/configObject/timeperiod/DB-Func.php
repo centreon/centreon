@@ -61,12 +61,12 @@ function includeExcludeTimeperiods($tpId, $includeTab = [], $excludeTab = [])
     }
 }
 
-function testTPExistence($name = null)
+function testTPExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form, $centreon;
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('tp_id');
     }
 
@@ -135,7 +135,7 @@ function multipleTimeperiodInDB($timeperiods = [], $nbrDup = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $tp_name = $originalName . '_' . $suffix;
-            if (! testTPExistence($tp_name)) {
+            if (! testTPExistence($tp_name, false)) {
                 continue;
             }
             $i++;

@@ -23,7 +23,7 @@ if (! isset($oreon)) {
     exit();
 }
 
-function testServiceGroupDependencyExistence($name = null)
+function testServiceGroupDependencyExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB;
     global $form;
@@ -31,7 +31,7 @@ function testServiceGroupDependencyExistence($name = null)
     CentreonDependency::purgeObsoleteDependencies($pearDB);
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('dep_id');
     }
     $query = 'SELECT 1 FROM dependency WHERE dep_name = :name';
@@ -152,7 +152,7 @@ function multipleServiceGroupDependencyInDB($dependencies = [], $nbrDup = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $dep_name = $originalName . '_' . $suffix;
-            if (! testServiceGroupDependencyExistence($dep_name)) {
+            if (! testServiceGroupDependencyExistence($dep_name, false)) {
                 continue;
             }
             $i++;

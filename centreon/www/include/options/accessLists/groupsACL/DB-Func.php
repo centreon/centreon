@@ -47,13 +47,13 @@ function setAclGroupChanged($db, $aclGroupId)
  * @param null $name
  * @return bool
  */
-function testGroupExistence($name = null)
+function testGroupExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $id = null;
 
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('acl_group_id');
     }
     $query = 'SELECT 1 FROM acl_groups WHERE acl_group_name = :name';
@@ -218,7 +218,7 @@ function multipleGroupInDB($groups = [], $nbrDup = [])
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $acl_group_name = $originalName . '_' . $suffix;
 
-            if (! testGroupExistence($acl_group_name)) {
+            if (! testGroupExistence($acl_group_name, false)) {
                 continue;
             }
             $i++;

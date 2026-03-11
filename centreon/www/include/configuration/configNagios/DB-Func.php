@@ -19,12 +19,12 @@
  *
  */
 
-function testExistence($name = null)
+function testExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('nagios_id');
     }
 
@@ -223,7 +223,7 @@ function multipleNagiosInDB($nagios = [], $nbrDup = [])
             $nagios_name = $originalName . '_' . $suffix;
             $row['nagios_name'] = $nagios_name;
 
-            if (! testExistence($nagios_name)) {
+            if (! testExistence($nagios_name, false)) {
                 continue;
             }
             $i++;

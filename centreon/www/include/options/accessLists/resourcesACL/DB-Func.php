@@ -31,12 +31,12 @@ use Core\Common\Domain\Exception\ValueObjectException;
  * @param null $name
  * @return bool
  */
-function testExistence($name = null)
+function testExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
     $id = null;
 
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('acl_res_id');
     }
     $name = HtmlAnalyzer::sanitizeAndRemoveTags($name);
@@ -231,7 +231,7 @@ function multipleLCAInDB($lcas = [], $nbrDup = [])
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $acl_name = $originalName . '_' . $suffix;
 
-            if (! testExistence($acl_name)) {
+            if (! testExistence($acl_name, false)) {
                 continue;
             }
             $i++;

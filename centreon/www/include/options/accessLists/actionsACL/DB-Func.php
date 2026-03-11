@@ -31,12 +31,12 @@ if (! isset($centreon)) {
  * @param null $name
  * @return bool
  */
-function testActionExistence($name = null)
+function testActionExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB, $form;
 
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('acl_action_id');
     }
     $query = 'SELECT 1 FROM acl_actions WHERE acl_action_name = :name';
@@ -298,7 +298,7 @@ function multipleActionInDB($actions = [], $nbrDup = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $aclActionName = $originalName . '_' . $suffix;
-            if (! testActionExistence($aclActionName)) {
+            if (! testActionExistence($aclActionName, false)) {
                 continue;
             }
             $i++;

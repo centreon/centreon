@@ -19,12 +19,12 @@
  *
  */
 
-function testMnftrExistence($name = null)
+function testMnftrExistence($name = null, bool $excludeCurrentFormId = true)
 {
     global $pearDB;
     global $form;
     $id = null;
-    if (isset($form)) {
+    if ($excludeCurrentFormId && isset($form)) {
         $id = $form->getSubmitValue('id');
     }
     $query = 'SELECT 1 FROM traps_vendor WHERE name = :name';
@@ -101,7 +101,7 @@ function multipleMnftrInDB($mnftr = [], $nbrDup = [])
         $suffix = 1;
         for ($i = 0; $i < $dupCount && $suffix <= $dupCount + 1000; $suffix++) {
             $name = $originalName . '_' . $suffix;
-            if (! testMnftrExistence($name)) {
+            if (! testMnftrExistence($name, false)) {
                 continue;
             }
             $i++;
