@@ -258,12 +258,12 @@ class CentreonMeta
             $sElement = implode(',', $parameters);
         }
 
-        $query = 'SELECT ' . $sElement . ' '
-            . 'FROM meta_service '
-            . 'WHERE meta_id = ' . $this->db->escape($id) . ' ';
-
-        $res = $this->db->query($query);
-        $row = $res->fetchRow();
+        $stmt = $this->db->prepare(
+            'SELECT ' . $sElement . ' FROM meta_service WHERE meta_id = :id LIMIT 1'
+        );
+        $stmt->bindValue(':id', (int) $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch();
         if ($row !== false) {
             $values = $row;
         }
@@ -322,7 +322,7 @@ class CentreonMeta
 
                 $serviceId = (int) $this->db->lastInsertId();
                 if ($serviceId <= 0) {
-                    throw new \RuntimeException('Failed to retrieve inserted service_id');
+                    throw new RuntimeException('Failed to retrieve inserted service_id');
                 }
 
                 $relStmt = $this->db->prepare(
