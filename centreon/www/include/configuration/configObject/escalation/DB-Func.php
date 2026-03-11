@@ -65,6 +65,9 @@ function deleteEscalationInDB(array $escalations = [])
         $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);
         $stmt->execute();
         $escalation = $stmt->fetch();
+        if ($escalation === false) {
+            continue;
+        }
 
         $stmt = $pearDB->prepare('DELETE FROM escalation WHERE esc_id = :escalationId');
         $stmt->bindValue(':escalationId', $escalationId, PDO::PARAM_INT);

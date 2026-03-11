@@ -277,6 +277,9 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
                 $selQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
             );
+            if ($row === false) {
+                continue;
+            }
             $pearDB->delete(
                 $delQuery,
                 QueryParameters::create([QueryParameter::int('hc_id', (int) $id)])
@@ -284,7 +287,7 @@ function deleteHostCategoriesInDB(array $hostCategories = []): void
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_HOSTCATEGORIES,
                 object_id: $id,
-                object_name: $row['hc_name'] ?? '',
+                object_name: $row['hc_name'],
                 action_type: ActionLog::ACTION_TYPE_DELETE
             );
         }

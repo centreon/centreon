@@ -455,6 +455,9 @@ function deleteServiceCategorieInDB($serviceCategoryIds = null)
 
             $pearDB->executePreparedQuery($selectStatement, ['serviceCategoryId' => $serviceCategoryId]);
             $result = $pearDB->fetch($selectStatement);
+            if ($result === false) {
+                continue;
+            }
             $pearDB->executePreparedQuery($deleteStatement, ['sc_id' => $serviceCategoryId]);
             $centreon->CentreonLogAction->insertLog(
                 object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,

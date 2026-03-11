@@ -55,13 +55,16 @@ function deleteMnftrInDB($mnftr = [])
         $selectStatement->bindValue(':id', $id, PDO::PARAM_INT);
         $selectStatement->execute();
         $row = $selectStatement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
         $deleteStatement->bindValue(':id', $id, PDO::PARAM_INT);
         $deleteStatement->execute();
         $oreon->CentreonLogAction->insertLog(
             'manufacturer',
-            $key,
-            $row !== false ? $row['name'] : "id:{$key}",
+            $id,
+            $row['name'],
             'd'
         );
     }

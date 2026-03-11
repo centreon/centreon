@@ -66,6 +66,9 @@ function enableServiceGroupInDB($sgId = null)
     $statement2->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
     $statement2->execute();
     $row = $statement2->fetch();
+    if ($row === false) {
+        return;
+    }
 
     signalConfigurationChange('servicegroup', $sgId);
     $centreon->CentreonLogAction->insertLog('servicegroup', $sgId, $row['sg_name'], 'enable');
@@ -88,6 +91,9 @@ function disableServiceGroupInDB($sgId = null)
     $statement2->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
     $statement2->execute();
     $row = $statement2->fetch();
+    if ($row === false) {
+        return;
+    }
 
     signalConfigurationChange('servicegroup', $sgId, [], false);
     $centreon->CentreonLogAction->insertLog('servicegroup', $sgId, $row['sg_name'], 'disable');
@@ -139,13 +145,16 @@ function deleteServiceGroupInDB($serviceGroups = [])
         $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
         $statement->execute();
         $row = $statement->fetch();
+        if ($row === false) {
+            continue;
+        }
 
         $statement2 = $pearDB->prepare('DELETE FROM servicegroup WHERE sg_id = :sg_id');
         $statement2->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
         $statement2->execute();
 
         signalConfigurationChange('servicegroup', $sgId, $previousPollerIds);
-        $centreon->CentreonLogAction->insertLog('servicegroup', $key, $row['sg_name'], 'd');
+        $centreon->CentreonLogAction->insertLog('servicegroup', $sgId, $row['sg_name'], 'd');
     }
     $centreon->user->access->updateACL();
 }
