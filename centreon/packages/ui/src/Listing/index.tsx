@@ -598,7 +598,7 @@ const Listing = <
                     component="div"
                     onMouseLeave={clearHoveredRow}
                   >
-                    {rowsToDisplay.map((row, index) => {
+                    {rowsToDisplay.map((row) => {
                       const isRowSelected = isSelected(row);
                       const isSubItem = allSubItemIds.includes(
                         getSubItemRowId(row)
