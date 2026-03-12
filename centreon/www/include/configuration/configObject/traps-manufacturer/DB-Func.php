@@ -156,9 +156,9 @@ function updateMnftr($id = null)
     $statement = $pearDB->prepare(
         'UPDATE traps_vendor SET name = :name, alias = :alias, description = :description WHERE id = :id'
     );
-    $statement->bindValue(':name', $ret['name'], PDO::PARAM_STR);
-    $statement->bindValue(':alias', $ret['alias'], PDO::PARAM_STR);
-    $statement->bindValue(':description', $ret['description'], PDO::PARAM_STR);
+    $statement->bindValue(':name', htmlentities($ret['name'], ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    $statement->bindValue(':alias', htmlentities($ret['alias'], ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    $statement->bindValue(':description', htmlentities($ret['description'], ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
     $statement->bindValue(':id', (int) $id, PDO::PARAM_INT);
     $statement->execute();
 
@@ -183,9 +183,9 @@ function insertMnftr($ret = [])
     $statement = $pearDB->prepare(
         'INSERT INTO traps_vendor (name, alias, description) VALUES (:name, :alias, :description)'
     );
-    $statement->bindValue(':name', $ret['name'], PDO::PARAM_STR);
-    $statement->bindValue(':alias', $ret['alias'], PDO::PARAM_STR);
-    $statement->bindValue(':description', $ret['description'], PDO::PARAM_STR);
+    $statement->bindValue(':name', htmlentities($ret['name'], ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    $statement->bindValue(':alias', htmlentities($ret['alias'], ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
+    $statement->bindValue(':description', htmlentities($ret['description'], ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
     $statement->execute();
     $mnftrId = (int) $pearDB->lastInsertId();
     if ($mnftrId <= 0) {

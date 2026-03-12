@@ -44,7 +44,7 @@ function testActionExistence($name = null, bool $excludeCurrentFormId = true)
         $query .= ' AND acl_action_id <> :aclActionId';
     }
     $statement = $pearDB->prepare($query . ' LIMIT 1');
-    $statement->bindValue(':name', $name, PDO::PARAM_STR);
+    $statement->bindValue(':name', htmlentities($name ?? '', ENT_QUOTES, 'UTF-8'), PDO::PARAM_STR);
     if ($id !== null) {
         $statement->bindValue(':aclActionId', (int) $id, PDO::PARAM_INT);
     }
@@ -494,7 +494,7 @@ function updateAction($aclActionId = null)
             WHERE acl_action_id = :acl_action_id
             SQL,
         QueryParameters::create([
-            QueryParameter::string('acl_action_name', $ret['acl_action_name']),
+            QueryParameter::string('acl_action_name', htmlentities($ret['acl_action_name'], ENT_QUOTES, 'UTF-8')),
             QueryParameter::string(
                 'acl_action_description',
                 $ret['acl_action_description']
