@@ -98,6 +98,9 @@ function testDowntimeNameExistence($downtimeName = null)
 
 if (($o == 'c' || $o == 'w') && isset($_GET['dt_id'])) {
     $id = filter_var($_GET['dt_id'], FILTER_VALIDATE_INT);
+    if ($id === false) {
+        $o = 'a';
+    }
 } else {
     $o = 'a';
 }

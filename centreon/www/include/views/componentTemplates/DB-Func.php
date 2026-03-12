@@ -121,18 +121,29 @@ function checkColorFormat($color)
 function deleteComponentTemplateInDB($compos = [])
 {
     global $pearDB;
-    $query = 'DELETE FROM giv_components_template WHERE compo_id IN (';
+    $validIds = array_filter(
+        array_map(
+            static fn ($key) => filter_var($key, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]),
+            array_keys($compos)
+        ),
+        static fn ($id) => $id !== false
+    );
 
-    foreach (array_keys($compos) as $compoId) {
-        $query .= ':key_' . $compoId . ', ';
+    if ($validIds === []) {
+        return;
     }
-    $query = rtrim($query, ', ');
-    $query .= ')';
 
-    $stmt = $pearDB->prepare($query);
+    $placeholders = [];
+    foreach (array_values($validIds) as $idx => $id) {
+        $placeholders[] = ':key_' . $idx;
+    }
 
-    foreach (array_keys($compos) as $compoId) {
-        $stmt->bindValue(':key_' . $compoId, $compoId, PDO::PARAM_INT);
+    $stmt = $pearDB->prepare(
+        'DELETE FROM giv_components_template WHERE compo_id IN (' . implode(', ', $placeholders) . ')'
+    );
+
+    foreach (array_values($validIds) as $idx => $id) {
+        $stmt->bindValue(':key_' . $idx, $id, PDO::PARAM_INT);
     }
 
     $stmt->execute();

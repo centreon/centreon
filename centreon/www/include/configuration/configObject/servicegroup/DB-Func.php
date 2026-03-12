@@ -57,6 +57,9 @@ function enableServiceGroupInDB($sgId = null)
     global $pearDB, $centreon;
 
     $sgId = filter_var($sgId, FILTER_VALIDATE_INT);
+    if ($sgId === false) {
+        return;
+    }
 
     $statement = $pearDB->prepare("UPDATE servicegroup SET sg_activate = '1' WHERE sg_id = :sg_id");
     $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
@@ -82,6 +85,9 @@ function disableServiceGroupInDB($sgId = null)
     global $pearDB, $centreon;
 
     $sgId = filter_var($sgId, FILTER_VALIDATE_INT);
+    if ($sgId === false) {
+        return;
+    }
 
     $statement = $pearDB->prepare("UPDATE servicegroup SET sg_activate = '0' WHERE sg_id = :sg_id");
     $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
@@ -621,6 +627,9 @@ function updateServiceGroup($serviceGroupId, $submittedValues = [])
 
     $bindParams = [];
     $serviceGroupId = filter_var($serviceGroupId, FILTER_VALIDATE_INT);
+    if ($serviceGroupId === false) {
+        return;
+    }
     $bindParams[':sg_id'] = [PDO::PARAM_INT => $serviceGroupId];
     foreach ($submittedValues as $key => $value) {
         switch ($key) {
@@ -723,6 +732,9 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
                 $t = preg_split("/\-/", $retTmp[$i]);
                 $hostHostId = filter_var($t[0], FILTER_VALIDATE_INT);
                 $serviceServiceId = filter_var($t[1], FILTER_VALIDATE_INT);
+                if ($hostHostId === false || $serviceServiceId === false) {
+                    continue;
+                }
                 $statement->bindValue(':host_host_id', $hostHostId, PDO::PARAM_INT);
                 $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
                 $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
@@ -756,6 +768,9 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
             $t = preg_split("/\-/", $retTmp[$i]);
             $hostHostId = filter_var($t[0], FILTER_VALIDATE_INT);
             $serviceServiceId = filter_var($t[1], FILTER_VALIDATE_INT);
+            if ($hostHostId === false || $serviceServiceId === false) {
+                continue;
+            }
             $statement->bindValue(':host_host_id', $hostHostId, PDO::PARAM_INT);
             $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
             $statement->bindValue(':sg_id', $sgId, PDO::PARAM_INT);
@@ -787,6 +802,9 @@ function updateServiceGroupServices($sgId, $ret = [], $increment = false)
         $t = preg_split("/\-/", $retTmp[$i]);
         $hostGroupId = filter_var($t[0], FILTER_VALIDATE_INT);
         $serviceServiceId = filter_var($t[1], FILTER_VALIDATE_INT);
+        if ($hostGroupId === false || $serviceServiceId === false) {
+            continue;
+        }
         $statement->bindValue(':hostgroup_hg_id', $hostGroupId, PDO::PARAM_INT);
         $statement->bindValue(':service_service_id', $serviceServiceId, PDO::PARAM_INT);
         $statement->bindValue(':servicegroup_sg_id', $sgId, PDO::PARAM_INT);

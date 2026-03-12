@@ -80,6 +80,9 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
     $scAcl = [];
     foreach ($sc as $key => $value) {
         $scId = filter_var($key, FILTER_VALIDATE_INT);
+        if ($scId === false) {
+            continue;
+        }
         $query = 'SELECT * FROM `service_categories` WHERE `sc_id` = :sc_id LIMIT 1';
         $statement = $pearDB->prepare($query);
         $statement->bindValue(':sc_id', $scId, PDO::PARAM_INT);
@@ -375,6 +378,9 @@ function updateServiceCategorieInDB()
     global $form, $pearDB, $centreon;
     $formValues = $form->getSubmitValues();
     $scId = filter_var($formValues['sc_id'], FILTER_VALIDATE_INT);
+    if ($scId === false) {
+        return;
+    }
     $scName = HtmlSanitizer::createFromString($formValues['sc_name'])->sanitize()->getString();
     $scDescription = HtmlSanitizer::createFromString($formValues['sc_description'])->sanitize()->getString();
     $scSeverityLevel = filter_var($formValues['sc_severity_level'], FILTER_VALIDATE_INT);
@@ -499,6 +505,9 @@ function updateServiceCategoriesServices(int $sc_id)
     if (isset($_POST['sc_svcTpl'])) {
         foreach ($_POST['sc_svcTpl'] as $serviceId) {
             $serviceId = filter_var($serviceId, FILTER_VALIDATE_INT);
+            if ($serviceId === false) {
+                continue;
+            }
             $query = '
                 INSERT INTO service_categories_relation (service_service_id, sc_id)
                 VALUES (:service_id, :sc_id)';
