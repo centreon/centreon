@@ -481,7 +481,7 @@ function deleteServiceCategorieInDB($serviceCategoryIds = null)
         CentreonLog::create()->error(
             logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
             message: 'Error while deleting service categories: ' . $ex->getMessage(),
-            customContext: ['service_category_id' => implode(', ', $serviceCategoryIds)],
+            customContext: ['service_category_id' => implode(', ', array_keys($serviceCategoryIds))],
             exception: $ex,
         );
 

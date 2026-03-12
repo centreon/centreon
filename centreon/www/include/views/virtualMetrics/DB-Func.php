@@ -526,7 +526,11 @@ function enableVirtualMetricInDB($vmetric_id = null)
         "UPDATE `virtual_metrics` SET `vmetric_activate` = '1' WHERE `vmetric_id` = :vmetric_id"
     );
     foreach ($v_ena as $v_id) {
-        [$rc, $output] = checkRRDGraphData($v_id);
+        $checkResult = checkRRDGraphData($v_id);
+        if ($checkResult === null) {
+            continue;
+        }
+        [$rc, $output] = $checkResult;
         if ($rc) {
             $error = preg_replace('/^ERROR:\s*/', '', $output);
 
@@ -581,7 +585,7 @@ function checkRRDGraphData($v_id = null, $force = 0)
 {
     global $pearDB, $oreon;
     if (! isset($v_id)) {
-
+        return null;
     }
 
     // Check if already Valid

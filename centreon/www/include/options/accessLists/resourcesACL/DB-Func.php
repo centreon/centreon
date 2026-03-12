@@ -718,6 +718,9 @@ function updateImageFolders($aclId = null): void
 
         if (is_array($imageFoldersSubmitted) && $imageFoldersSubmitted !== []) {
             foreach ($imageFoldersSubmitted as $imageFolderId) {
+                if (in_array((int) $imageFolderId, array_map('intval', $systemDirectoryIds), true)) {
+                    continue;
+                }
                 $insertParameters[] = QueryParameters::create([
                     $aclResourceId,
                     QueryParameter::int('directory_id' . $imageFolderId, (int) $imageFolderId),
