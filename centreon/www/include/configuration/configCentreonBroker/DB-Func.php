@@ -367,7 +367,7 @@ function getCfgBrokerData(int $configId): array
     }
     $statement->closeCursor();
 
-    return $cfgBrokerData;
+    return $cfgBrokerData ?: [];
 }
 
 /**

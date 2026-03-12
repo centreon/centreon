@@ -1428,8 +1428,8 @@ function updateContactHostCommands_MC(int $contactId): bool
             SQL;
 
         foreach ($hostCommandIdsFromForm as $commandId) {
-            $commandId = (int) $commandId;
-            if (! in_array($commandId, $existingIds, true)) {
+            if (! in_array((string) $commandId, $existingIds, true)) {
+                $commandId = (int) $commandId;
                 $pearDB->insert(
                     $insertQuery,
                     QueryParameters::create([
@@ -1556,8 +1556,8 @@ function updateContactServiceCommands_MC(int $contactId): bool
             SQL;
 
         foreach ($serviceCommandsFromForm as $commandId) {
-            $commandId = (int) $commandId;
-            if (! in_array($commandId, $existingIds, true)) {
+            if (! in_array((string) $commandId, $existingIds, true)) {
+                $commandId = (int) $commandId;
                 $pearDB->insert(
                     $insertQuery,
                     QueryParameters::create([

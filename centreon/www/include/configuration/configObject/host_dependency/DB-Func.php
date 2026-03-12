@@ -191,7 +191,7 @@ function multipleHostDependencyInDB(array $dependencies = [], array $nbrDup = []
                         ))
                         ->getQuery();
                     $insParams = QueryParameters::create(
-                        array_map(fn ($c) => QueryParameter::string($c, (string) $dup[$c]), $cols)
+                        array_map(fn ($c) => QueryParameter::string($c, $dup[$c]), $cols)
                     );
                     $pearDB->insert($sqlIns, $insParams);
                     $newId = (int) $pearDB->getLastInsertId();

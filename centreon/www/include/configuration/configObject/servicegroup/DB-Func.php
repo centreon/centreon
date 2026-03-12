@@ -588,10 +588,16 @@ function insertServiceGroup($submittedValues = [])
         }
     }
 
-    $statement = $pearDB->prepare('
-        INSERT INTO servicegroup (sg_name, sg_alias, sg_comment, geo_coords, sg_activate)
-        VALUES (:sg_name, :sg_alias, :sg_comment, :geo_coords, :sg_activate)
-    ');
+    if ($bindParams === []) {
+        return 0;
+    }
+
+    $columns = array_map(fn ($token) => ltrim($token, ':'), array_keys($bindParams));
+
+    $statement = $pearDB->prepare(
+        'INSERT INTO servicegroup (' . implode(', ', $columns) . ')'
+        . ' VALUES (' . implode(', ', array_keys($bindParams)) . ')'
+    );
     foreach ($bindParams as $token => $bindValues) {
         foreach ($bindValues as $paramType => $value) {
             $statement->bindValue($token, $value, $paramType);
@@ -625,12 +631,11 @@ function updateServiceGroup($serviceGroupId, $submittedValues = [])
         return;
     }
 
-    $bindParams = [];
     $serviceGroupId = filter_var($serviceGroupId, FILTER_VALIDATE_INT);
     if ($serviceGroupId === false) {
         return;
     }
-    $bindParams[':sg_id'] = [PDO::PARAM_INT => $serviceGroupId];
+    $bindParams = [];
     foreach ($submittedValues as $key => $value) {
         switch ($key) {
             case 'sg_name':
@@ -665,17 +670,17 @@ function updateServiceGroup($serviceGroupId, $submittedValues = [])
         }
     }
 
-    $statement = $pearDB->prepare(
-        <<<'SQL'
-            UPDATE servicegroup SET
-                sg_name = :sg_name,
-                sg_alias = :sg_alias,
-                sg_comment = :sg_comment,
-                geo_coords = :geo_coords,
-                sg_activate = :sg_activate
-            WHERE sg_id = :sg_id
-            SQL
+    if ($bindParams === []) {
+        return;
+    }
+
+    $setClauses = array_map(
+        fn ($token) => ltrim($token, ':') . ' = ' . $token,
+        array_keys($bindParams)
     );
+    $bindParams[':sg_id'] = [PDO::PARAM_INT => $serviceGroupId];
+
+    $statement = $pearDB->prepare('UPDATE servicegroup SET ' . implode(', ', $setClauses) . ' WHERE sg_id = :sg_id');
 
     foreach ($bindParams as $token => $bindValues) {
         foreach ($bindValues as $paramType => $value) {
