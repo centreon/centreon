@@ -264,7 +264,15 @@ function multipleServiceGroupInDB($serviceGroups = [], $nbrDup = [])
                 }
                 $fields['sg_hgServices'] = trim($fields['sg_hgServices'], ',');
 
-                CentreonACL::duplicateSgAcl([$newSgId => $sgId]);
+                // Duplicate ACL relations within the same transaction
+                $aclDupStmt = $pearDB->prepare(
+                    'INSERT INTO acl_resources_sg_relations (sg_id, acl_res_id)'
+                    . ' SELECT :newSgId, acl_res_id FROM acl_resources_sg_relations WHERE sg_id = :origSgId'
+                );
+                $aclDupStmt->bindValue(':newSgId', $newSgId, PDO::PARAM_INT);
+                $aclDupStmt->bindValue(':origSgId', $sgId, PDO::PARAM_INT);
+                $aclDupStmt->execute();
+
                 $pearDB->commit();
             } catch (Throwable $e) {
                 if ($pearDB->inTransaction()) {

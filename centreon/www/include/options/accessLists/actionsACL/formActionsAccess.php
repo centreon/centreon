@@ -252,7 +252,6 @@ if ($form->validate()) {
         $groupObj->setValue(insertActionInDB());
     } elseif ($form->getSubmitValue('submitC')) {
         updateActionInDB($groupObj->getValue());
-        updateRulesActions($groupObj->getValue());
     }
     $o = null;
     $form->addElement(

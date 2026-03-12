@@ -418,6 +418,16 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
                         }
                     }
 
+                    // Duplicate ACL relations within the same transaction
+                    $pearDB->insert(
+                        'INSERT INTO acl_resources_hc_relations (hc_id, acl_res_id)'
+                            . ' SELECT :newHcId, acl_res_id FROM acl_resources_hc_relations WHERE hc_id = :origHcId',
+                        QueryParameters::create([
+                            QueryParameter::int('newHcId', $newId),
+                            QueryParameter::int('origHcId', $hcId),
+                        ])
+                    );
+
                     $pearDB->commit();
                 } catch (Throwable $e) {
                     if ($pearDB->inTransaction()) {
@@ -446,8 +456,9 @@ function multipleHostCategoriesInDB(array $hostCategories = [], array $nbrDup = 
             }
         }
 
-        CentreonACL::duplicateHcAcl($aclMap);
-        $centreon->user->access->updateACL();
+        if ($aclMap !== []) {
+            $centreon->user->access->updateACL();
+        }
     } catch (ValueObjectException|CollectionException|ConnectionException|RepositoryException $exception) {
         throw new RepositoryException('Unable to duplicate host categories', ['map' => $aclMap], $exception);
     }

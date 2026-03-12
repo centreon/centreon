@@ -144,73 +144,86 @@ function multipleServiceCategorieInDB($sc = [], $nbrDup = [])
                 continue;
             }
             $i++;
-            $statement = $pearDB->prepare(
-                <<<'SQL'
-                        INSERT INTO `service_categories`
-                        VALUES (NULL, :sc_name, :sc_description, :sc_level, :sc_icon_id, :sc_activate)
-                    SQL
-            );
-            foreach ($bindParams as $token => $bindValues) {
-                foreach ($bindValues as $paramType => $value) {
-                    $statement->bindValue($token, $value, $paramType);
-                }
-            }
-            $statement->execute();
-            $newScId = (int) $pearDB->lastInsertId();
+            try {
+                $pearDB->beginTransaction();
 
-            if ($newScId > 0) {
+                $statement = $pearDB->prepare(
+                    <<<'SQL'
+                            INSERT INTO `service_categories`
+                            VALUES (NULL, :sc_name, :sc_description, :sc_level, :sc_icon_id, :sc_activate)
+                        SQL
+                );
+                foreach ($bindParams as $token => $bindValues) {
+                    foreach ($bindValues as $paramType => $value) {
+                        $statement->bindValue($token, $value, $paramType);
+                    }
+                }
+                $statement->execute();
+                $newScId = (int) $pearDB->lastInsertId();
+                if ($newScId <= 0) {
+                    $pearDB->rollBack();
+                    continue;
+                }
+
                 $scAcl[$newScId] = $scId;
-                try {
-                    $selectServiceIdsStatement = $pearDB->prepareQuery(
-                        <<<'SQL'
-                                SELECT service_service_id FROM service_categories_relation
-                                WHERE sc_id = :sc_id
-                            SQL
-                    );
-                    $pearDB->executePreparedQuery($selectServiceIdsStatement, ['sc_id' => $scId]);
-                    $insertNewRelationStatement = $pearDB->prepareQuery(
-                        <<<'SQL'
-                                INSERT INTO service_categories_relation (service_service_id, sc_id)
-                                VALUES (:serviceId, :maxId)
-                            SQL
-                    );
-                    $foundServiceIds = [];
-                    while ($serviceId = $pearDB->fetchColumn($selectServiceIdsStatement)) {
-                        $pearDB->executePreparedQuery($insertNewRelationStatement, [
-                            'serviceId' => $serviceId,
-                            'maxId' => $newScId,
-                        ]);
-                        $foundServiceIds[] = $serviceId;
-                    }
-                    if ($foundServiceIds !== []) {
-                        $fields['sc_services'] = implode(', ', $foundServiceIds);
-                    }
-
-                    $centreon->CentreonLogAction->insertLog(
-                        object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
-                        object_id: $newScId,
-                        object_name: $sc_name,
-                        action_type: ActionLog::ACTION_TYPE_ADD,
-                        fields: $fields
-                    );
-                } catch (CentreonDbException $ex) {
-                    CentreonLog::create()->error(
-                        logTypeId: CentreonLog::TYPE_BUSINESS_LOG,
-                        message: 'Error while duplicating service categories: ' . $ex->getMessage(),
-                        customContext: ['service_category_id' => $scId],
-                        exception: $ex,
-                    );
-
-                    throw $ex;
+                $selectServiceIdsStatement = $pearDB->prepareQuery(
+                    <<<'SQL'
+                            SELECT service_service_id FROM service_categories_relation
+                            WHERE sc_id = :sc_id
+                        SQL
+                );
+                $pearDB->executePreparedQuery($selectServiceIdsStatement, ['sc_id' => $scId]);
+                $insertNewRelationStatement = $pearDB->prepareQuery(
+                    <<<'SQL'
+                            INSERT INTO service_categories_relation (service_service_id, sc_id)
+                            VALUES (:serviceId, :maxId)
+                        SQL
+                );
+                $foundServiceIds = [];
+                while ($serviceId = $pearDB->fetchColumn($selectServiceIdsStatement)) {
+                    $pearDB->executePreparedQuery($insertNewRelationStatement, [
+                        'serviceId' => $serviceId,
+                        'maxId' => $newScId,
+                    ]);
+                    $foundServiceIds[] = $serviceId;
                 }
+                if ($foundServiceIds !== []) {
+                    $fields['sc_services'] = implode(', ', $foundServiceIds);
+                }
+
+                // Duplicate ACL relations within the same transaction
+                $aclDupStmt = $pearDB->prepare(
+                    'INSERT INTO acl_resources_sc_relations (sc_id, acl_res_id)'
+                    . ' SELECT :newScId, acl_res_id FROM acl_resources_sc_relations WHERE sc_id = :origScId'
+                );
+                $aclDupStmt->bindValue(':newScId', $newScId, PDO::PARAM_INT);
+                $aclDupStmt->bindValue(':origScId', $scId, PDO::PARAM_INT);
+                $aclDupStmt->execute();
+
+                $pearDB->commit();
+            } catch (Throwable $ex) {
+                if ($pearDB->inTransaction()) {
+                    $pearDB->rollBack();
+                }
+
+                throw $ex;
             }
+
+            $centreon->CentreonLogAction->insertLog(
+                object_type: ActionLog::OBJECT_TYPE_SERVICECATEGORIES,
+                object_id: $newScId,
+                object_name: $sc_name,
+                action_type: ActionLog::ACTION_TYPE_ADD,
+                fields: $fields
+            );
         }
         if ($i < $copies) {
             error_log("Could only create {$i}/{$copies} duplicates for service category '{$row['sc_name']}' ({$scId}): suffix search exhausted");
         }
     }
-    CentreonACL::duplicateScAcl($scAcl);
-    $centreon->user->access->updateACL();
+    if ($scAcl !== []) {
+        $centreon->user->access->updateACL();
+    }
 }
 
 function enableServiceCategorieInDB(?int $serviceCategoryId = null, array $serviceCategories = [])

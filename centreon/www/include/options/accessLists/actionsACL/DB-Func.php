@@ -457,7 +457,7 @@ function updateActionInDB($aclActionId = null)
         $pearDB->beginTransaction();
         updateAction($aclActionId);
         updateGroupActions($aclActionId);
-        // TODO: updateRulesActions() is called separately from formActionsAccess.php after this function. Should it be moved here?
+        updateRulesActions($aclActionId);
 
         $pearDB->commit();
     } catch (Throwable $e) {

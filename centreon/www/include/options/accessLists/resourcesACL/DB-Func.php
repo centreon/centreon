@@ -382,23 +382,34 @@ function duplicateContactGroups($idTD, $acl_id, $pearDB)
  */
 function updateLCAInDB($aclId = null): void
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
     if (! $aclId) {
         return;
     }
 
-    updateLCA($aclId);
-    updateGroups($aclId);
-    updateHosts($aclId);
-    updateHostGroups($aclId);
-    updateHostexcludes($aclId);
-    updateServiceCategories($aclId);
-    updateHostCategories($aclId);
-    updateServiceGroups($aclId);
-    updateMetaServices($aclId);
-    updateImageFolders($aclId);
-    updatePollers($aclId);
+    try {
+        $pearDB->beginTransaction();
+
+        updateLCA($aclId);
+        updateGroups($aclId);
+        updateHosts($aclId);
+        updateHostGroups($aclId);
+        updateHostexcludes($aclId);
+        updateServiceCategories($aclId);
+        updateHostCategories($aclId);
+        updateServiceGroups($aclId);
+        updateMetaServices($aclId);
+        updateImageFolders($aclId);
+        updatePollers($aclId);
+
+        $pearDB->commit();
+    } catch (\Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+        throw $e;
+    }
 
     $submittedValues = $form->getSubmitValues();
     $fields = CentreonLogAction::prepareChanges($submittedValues);
@@ -420,19 +431,30 @@ function updateLCAInDB($aclId = null): void
  */
 function insertLCAInDB(): int
 {
-    global $form, $centreon;
+    global $form, $centreon, $pearDB;
 
-    $aclId = insertLCA();
-    updateGroups($aclId);
-    updateHosts($aclId);
-    updateHostGroups($aclId);
-    updateHostexcludes($aclId);
-    updateServiceCategories($aclId);
-    updateHostCategories($aclId);
-    updateServiceGroups($aclId);
-    updateMetaServices($aclId);
-    updateImageFolders($aclId);
-    updatePollers($aclId);
+    try {
+        $pearDB->beginTransaction();
+
+        $aclId = insertLCA();
+        updateGroups($aclId);
+        updateHosts($aclId);
+        updateHostGroups($aclId);
+        updateHostexcludes($aclId);
+        updateServiceCategories($aclId);
+        updateHostCategories($aclId);
+        updateServiceGroups($aclId);
+        updateMetaServices($aclId);
+        updateImageFolders($aclId);
+        updatePollers($aclId);
+
+        $pearDB->commit();
+    } catch (\Throwable $e) {
+        if ($pearDB->inTransaction()) {
+            $pearDB->rollBack();
+        }
+        throw $e;
+    }
 
     $submittedValues = $form->getSubmitValues();
 
